@@ -1,5 +1,6 @@
 // The dashboard server's feedback maintenance check
-// (../../server/feedbackMaintenanceCheck.ts) after its session starts: an
+// (../../server/feedbackMaintenanceCheck.ts) after its session starts: a
+// Claude Code session chosen with no effort starts at Open Dough's default, an
 // attention report notifies once and keeps the session open with no second
 // launch, and an ended or deleted session is not launched again for that due
 // date. Not due, off, no block, a failed read, or a developer's open session
@@ -32,7 +33,7 @@ import {
   watchListDue,
 } from "../../tests/support/feedbackMaintenanceServer.ts";
 
-test("an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again", async ({
+test("a session started at Open Dough's default effort: an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again", async ({
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
@@ -43,6 +44,12 @@ test("an attention report notifies once and keeps the session open with no secon
     server.claudeScenario("launched");
     turnOn(origin);
     const input = await launchedInput(server);
+    expect(server.claudeLaunchCalls()[0]?.argv.slice(3, 7)).toEqual([
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+    ]);
     const [record] = await maintenanceRecords(server);
     const session = record?.session.sessionId ?? "";
 

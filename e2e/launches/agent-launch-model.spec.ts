@@ -132,7 +132,7 @@ test("the execution dialog offers Claude Code's efforts whatever the model, and 
   ]);
 });
 
-test("the session dialog left on Default starts the session without --model", async ({
+test("the session dialog left on Default starts the session without --model, at Open Dough's default effort", async ({
   page,
   dashboard,
   launchJourney,
@@ -146,7 +146,10 @@ test("the session dialog left on Default starts the session without --model", as
   await expect(action.dialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--model");
-  expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--effort");
+  expect(dashboard.claudeLaunchCalls()[0]?.argv.slice(3, 5)).toEqual([
+    "--effort",
+    "medium",
+  ]);
 });
 
 test("Opus launched from a dialog, the same dialog opens again on Default", async ({

@@ -1,0 +1,30 @@
+# Source-only review
+
+Fresh general-purpose reviewer launched by the coordinator on 2026-11-16 with no
+conversation inheritance. Its input was the story section's Goal, Scope,
+Decision, Deferred promises and Key examples verbatim from
+[SEED-388](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with);
+no plan, product, proof or slice scope. It read no project files and changed
+none. Its unnumbered context: purpose (SEED-345 comparisons), why the inherited
+choice is removed, measurement provenance, subagents inherit session effort
+(part of C9), the Decision, and the Deferred promises.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| C1 | Every Claude Code session the dashboard starts passes an explicit effort. If the developer leaves Reasoning effort untouched, the session starts with `--effort medium`. | slice 1 | observed: dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts "passes Open Dough's default effort when none is chosen, and its record keeps it": story and ad hoc argv carry --effort medium, record.request.effort medium; model cases put it after --model |
+| C2 | The launch dialog's Reasoning effort for Claude Code opens on `medium` and marks it as Open Dough's default, shown as `medium (Open Dough default)`. | slice 2 | |
+| C3 | The Claude Code effort control offers low, medium, high, xhigh and max. | slice 2 | |
+| C4 | The "Use your Claude Code setting" choice is no longer offered for Claude Code. | slice 2 | |
+| C5 | The high and xhigh choices show "about 3× the cost of `medium`" beside the level. | slice 2 | |
+| C6 | The max choice shows "about 7× the cost of `medium`" beside the level, so the developer sees it before starting. | slice 2 | |
+| C7 | The `low` choice shows no cost figure. | slice 2 | |
+| C8 | A non-default choice is passed to the session: picking `max` starts the session with `--effort max`, and its details name `max`. | slice 3 | |
+| C9 | A user-level Claude Code effort setting does not change an Open Dough launch. With `~/.claude/settings.json` setting `effortLevel` or Opus's `modelSettings` effort to `high`, an untouched launch still runs at `medium`, and so do its subagents. | slice 1 | observed: Explicit --effort medium per C1 proof; plan Decisive premises rows 2-3 (flag overrides user settings; subagents inherit session effort) |
+| C10 | Feedback maintenance sessions started on Claude Code run at the default effort. With Feedback maintenance On for Claude Code and Default model, the session starts with `--effort medium`. | slice 1 | observed: dashboard/backend-tests/launches/feedback-maintenance-launch.spec.ts "a session started at Open Dough's default effort…": argv.slice(3,7) = --model opus --effort medium |
+| C11 | The feedback maintenance status line names the effort, for example "On, Claude Code, Default, medium effort". | slice 4 | |
+| C12 | The launch record keeps the effort it passed. A Claude Code session's details name it as the requested effort, beside the requested model. | slice 3 | |
+| C13 | A Claude Code session recorded before this change, with no stored effort, shows no effort line in its details. | slice 3 | |
+| C14 | Codex launches keep their current effort behavior. | slice 2 | |
+| C15 | Cursor launches keep their current effort behavior. | slice 2 | |

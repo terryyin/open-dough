@@ -8,8 +8,11 @@ export type HostDescription = {
   readonly branchNamespace: string;
   readonly models: Readonly<Record<string, { readonly name: string }>>;
   // A host without a model catalog may list its fixed reasoning efforts,
-  // offered whatever the model and passed only when chosen.
+  // offered whatever the model. A launch that chooses none is given the
+  // host's default effort when it names one, so its session and record keep
+  // the effort passed.
   readonly efforts?: readonly string[];
+  readonly defaultEffort?: string;
   readonly skillSigil?: string;
   readonly uncertaintyHint?: string;
   readonly nativeCheckAdvice?: string;
@@ -54,6 +57,7 @@ export const hostDescriptions = {
       sonnet: { name: "Sonnet" },
     },
     efforts: ["low", "medium", "high", "xhigh", "max"],
+    defaultEffort: "medium",
     uncertaintyHint: "Check `claude agents` for it.",
     nativeCheckAdvice:
       "Check `claude agents` before continuing: continuing starts its session again unless its kept evidence resumes it.",

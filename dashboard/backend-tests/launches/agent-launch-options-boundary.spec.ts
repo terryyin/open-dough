@@ -115,6 +115,8 @@ test.describe(`agent launch boundary, selected options`, () => {
       "--bg",
       "--name",
       `Open Dough · Refinement · ${title}`,
+      "--effort",
+      "medium",
       `/${skill} ${launchRequest.identity} ${explored} ${borrowed}\n\ngo`,
     ]);
     expect(record.request["options"]).toEqual([explored, borrowed]);
@@ -135,6 +137,8 @@ test.describe(`agent launch boundary, selected options`, () => {
     expect(argv?.slice(3)).toEqual([
       "--model",
       "opus",
+      "--effort",
+      "medium",
       `/${skill} ${launchRequest.identity} ${explored} --ux-ui`,
     ]);
   });
@@ -149,6 +153,8 @@ test.describe(`agent launch boundary, selected options`, () => {
         "--bg",
         "--name",
         `Open Dough · Refinement · ${title}`,
+        "--effort",
+        "medium",
         `/${skill} ${launchRequest.identity}`,
       ]);
       expect(record.request["options"] ?? []).toEqual([]);
@@ -173,7 +179,7 @@ test.describe(`agent launch boundary, selected options`, () => {
       ...refinementRequest,
       options: ["--only"],
     });
-    expect(argv?.[3]).toBe(`/${skill} ${launchRequest.identity} --only`);
+    expect(argv?.at(-1)).toBe(`/${skill} ${launchRequest.identity} --only`);
   });
 
   for (const [kind, remove] of [

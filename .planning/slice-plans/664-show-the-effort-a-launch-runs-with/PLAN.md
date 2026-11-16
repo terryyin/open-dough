@@ -2,6 +2,7 @@
 
 **Identity:** SEED-388#show-the-effort-a-launch-runs-with
 **Source:** [Show and keep the effort a Claude Code launch runs with](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -109,7 +110,7 @@ fully awake and wrap long or full runs on AC power in `caffeinate -s -i`
 
 ### 1. A Claude Code launch with no chosen effort runs at Open Dough's default
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 1 rows above;
 `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts --reporter=list launches/`.
 
@@ -117,6 +118,14 @@ Behavior: a Claude Code launch request (dialog, story start or feedback
 maintenance) with no effort → `claude --bg` receives `--effort medium` and the
 launch record keeps `effort: "medium"`; a chosen effort is passed unchanged;
 Codex and Cursor requests are untouched.
+
+Learning: the default is applied after the submitted and retained-attempt
+answers, so continuations keep their recorded request. Beyond the planned
+`launches/` consumers, about 20 specs in `backend-tests/sessions/`, shared
+support and `e2e/` assert exact Claude argv or kept starts; all were updated
+and run (backend `launches/` 374, `sessions/`+related 256, e2e 54 passed).
+Serial-mode files hid a second failure the scratch count missed. Active time
+about 21 minutes, over target on those mechanical consumers.
 
 ### 2. The launch dialog opens Claude Code on medium and names the cost of higher levels
 Type: Behavior

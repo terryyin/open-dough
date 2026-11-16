@@ -124,6 +124,8 @@ test("a Done session whose workspace is gone offers Read final report and Follow
         "--bg",
         "--name",
         `Open Dough · Ad hoc · ${text}`,
+        "--effort",
+        "medium",
         [
           followUpContextOf(retiredTitle, [
             "- Workflow: Ad hoc",
@@ -191,7 +193,7 @@ test("a Done session that still opens its terminal offers no Follow up until its
   expect(call?.argv.at(2)).toMatch(
     /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
   );
-  expect(call?.argv.at(3)).toBe(
+  expect(call?.argv.at(-1)).toBe(
     followUpContextOf(quietTitle, [
       "- Workflow: Ad hoc",
       `- Original request: ${quietTitle}`,

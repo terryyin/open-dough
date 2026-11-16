@@ -1,12 +1,12 @@
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
 // at the boundary server, for a launch that asks for a model: a story's or an ad
 // hoc session's `--model <alias>` goes before its instruction, a request
-// without a model starts exactly as before, the record keeps the alias, and a
-// model outside the table is refused before any `claude` runs. A chosen
-// effort goes as `--effort <level>` after the model, and one outside Claude
-// Code's levels is refused the same way. A refused launch names the model
-// asked for. The synthetic `claude`
-// (../../tests/fixtures/fake-claude) records every call.
+// without a model passes none, the record keeps the alias, and a model outside
+// the table is refused before any `claude` runs. A chosen effort, or Open
+// Dough's default `medium` when none is chosen, goes as `--effort <level>`
+// after the model and is kept in the record; one outside Claude Code's levels
+// is refused the same way. A refused launch names the model asked for. The
+// synthetic `claude` (../../tests/fixtures/fake-claude) records every call.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
@@ -77,11 +77,13 @@ test.describe(`agent launch boundary, chosen model`, () => {
       `Open Dough · Execution · ${title}`,
       "--model",
       "opus",
+      "--effort",
+      "medium",
       `/dough-execute-plan ${identity}\n\ngo`,
     ]);
-    expect(record.request).toEqual(request);
+    expect(record.request).toEqual({ ...request, effort: "medium" });
     expect(await machineSessions(server)).toContainEqual(
-      expect.objectContaining({ request }),
+      expect.objectContaining({ request: record.request }),
     );
   });
 
@@ -92,15 +94,16 @@ test.describe(`agent launch boundary, chosen model`, () => {
       .please();
     const { record, argv } = await launched(request);
 
-    expect(argv).toHaveLength(5);
+    expect(argv).toHaveLength(7);
     expect(argv?.slice(0, 2)).toEqual(["--bg", "--name"]);
     expect(argv?.[2]).toBe(
       `Open Dough · Ad hoc · ${String(record.request["title"])}`,
     );
-    expect(argv?.slice(3)).toEqual(["--model", "sonnet"]);
+    expect(argv?.slice(3)).toEqual(["--model", "sonnet", "--effort", "medium"]);
     expect(record.request["title"]).toMatch(timeLabel);
     expect(record.request).toEqual({
       ...request,
+      effort: "medium",
       title: record.request["title"],
     });
     expect(await machineSessions(server)).toContainEqual(
@@ -122,6 +125,8 @@ test.describe(`agent launch boundary, chosen model`, () => {
       "Open Dough · Ad hoc · look at the build",
       "--model",
       "fable",
+      "--effort",
+      "medium",
       "look at the build",
     ]);
   });
@@ -148,19 +153,19 @@ test.describe(`agent launch boundary, chosen model`, () => {
     expect(record.request).toEqual(request);
   });
 
-  test("passes no model or effort when the request names none, and its record has none", async () => {
+  test("passes Open Dough's default effort when none is chosen, and its record keeps it", async () => {
     const story = await launched(launchRequest);
     expect(story.argv).not.toContain("--model");
-    expect(story.argv).not.toContain("--effort");
+    expect(story.argv?.slice(3, 5)).toEqual(["--effort", "medium"]);
     expect(story.record.request).not.toHaveProperty("model");
-    expect(story.record.request).not.toHaveProperty("effort");
+    expect(story.record.request["effort"]).toBe("medium");
 
     const adHoc = await launched(adHocRequest);
-    expect(adHoc.argv).toHaveLength(3);
+    expect(adHoc.argv).toHaveLength(5);
     expect(adHoc.argv).not.toContain("--model");
-    expect(adHoc.argv).not.toContain("--effort");
+    expect(adHoc.argv?.slice(3)).toEqual(["--effort", "medium"]);
     expect(adHoc.record.request).not.toHaveProperty("model");
-    expect(adHoc.record.request).not.toHaveProperty("effort");
+    expect(adHoc.record.request["effort"]).toBe("medium");
   });
 
   test("refuses a Claude Code effort outside its levels before starting claude, naming them", async () => {

@@ -96,7 +96,7 @@ test("Published completion offers file Follow up; Start sends the file context a
     await expect(dialog).toBeHidden();
     const [call, ...others] = dashboard.claudeLaunchCalls();
     expect(others).toEqual([]);
-    const firstInput = call?.argv.at(3) ?? "";
+    const firstInput = call?.argv.at(-1) ?? "";
     expect(firstInput).toContain("- Path: shared.txt");
     expect(firstInput).toContain(comparison);
     expect(firstInput).toContain(instruction);
