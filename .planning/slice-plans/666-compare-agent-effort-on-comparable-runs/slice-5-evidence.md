@@ -118,3 +118,33 @@ Already-traced repair disposition names final refactor5 return. Renewed actual
 CLI report/comparison specs:5 passed2.9s with the focused runner naming both
 agent-effort-report.spec.ts and agent-effort-comparison.spec.ts. Full Usage167
 remains applicable. Guarded preparation will repeat format and full lint.
+
+Final slice published `0ffdf58012bc210423868326e252042192c2332b`, suffix
+basee2b496c9, same observer. Formatting/full lint/hook/typecheck passed.
+
+Automatic retrospective recovered original source and earliest ready plan from
+f777c4aa, reviewed attributable commits4f205994/4ceb10ac/e27da90b/c14a77ab/
+a399f31a/e2b496c9/0ffdf580. Merge18372aa contains the consumed reply-ownership
+supplier and is excluded from authored attribution; nearby trunk changes are
+not assigned to this execution. All five delivered slices and64 source promises
+meet the read-only comparison contract. Current command, scan/writer boundary,
+reconciliation, host observations, source coverage and supplied judgment context
+remain coherent under ADR005/008/010 and observation/presentation separation.
+No product defect, architecture conflict, speculative residue or worthwhile
+test consolidation supported by current evidence.
+
+CLI tests are service-level unit tests over real local readers/persistence, not
+browser E2E. No E2E drove this feature. Existing Usage Refresh interaction proof
+was retained and renewed; detailed CLI cases need no browser layer. Aggregate
+proof167 Usage/66 reports, retained audits, final lint/typecheck and guard repair
+pass; branch CI for0ffdf580 still pending at review. Outcome/proof/human rescue
+remain supplied context, unknown historical guidance/account completeness stay
+unknown; no cost/quality causation inferred. Product advice: no queue change.
+
+Process is enabled but selected deferred into wrap-up: intent coverage owner
+will request one protection check for mixed stored/native group deduplication,
+whose important proof was questioned without a retained planned fault. G17's
+actual red settles the separate input/wake coverage risk. Retain this history,
+report and dispositions before process analysis/log access, then delete spent
+records only after closure joins. No correction story/plan needed from product
+review; no backlog mutation by retrospective.

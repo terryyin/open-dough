@@ -96,6 +96,11 @@ per-host figures and no-winner behavior. This is one remaining proof loop within
 The already implemented command/guide and all original audit, grouping and
 later-turn examples remain obligations of this slice; none is dropped or moved.
 
+## Execution complete
+
+Product advice: No change. Preserve the existing accounting corrections before
+controlled effort trials; this read-only measure supports those judgments.
+
 ## Concerns and cumulative design
 
 The refined plan keeps five slices extending one derived report and the existing
