@@ -24,19 +24,44 @@ index at a known effort, so the corrections come first.
 
 **Identity:** SEED-388#read-claude-rows-with-unicode-line-separators
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/667-read-claude-rows-with-unicode-line-separators/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84ed9ddcae96b9fed4b098676169e5c783ffbda8e138887dc200cadbd2250d5c","plan":"6a9ca7bea76624977a5a6e54f01d7ccf6adf02cf10f914afe1cd48fb4029f83e"}}
 ```
 
-- **Problem.** A valid transcript row containing a raw U+2028 or U+2029 is
-  split by Node's `readline` in `nativeUsageLines`
-  (`dashboard/server/nativeUsageFiles.ts`) and recorded as
-  `malformed-native-row`; its response is lost, and later rows whose parent
-  link runs through it fail to climb.
-  SEED-124#save-pronunciations-as-note-properties shows 12.74M against 15.42M
-  (82 of 434 responses missing). The store holds 3,312
-  `malformed-native-row` gaps; how many share this cause is unmeasured.
-- **Evaluation.** Such rows are read whole on Codex and Claude Code, and
-  SEED-124's launch matches its transcript cost.
+#### Goal
+
+A maintainer reading the Usage index sees every response a launch's native
+transcripts record, including a response whose row text contains a raw U+2028
+or U+2029. Today Node's `readline` in `nativeUsageLines`
+(`dashboard/server/nativeUsageFiles.ts`) treats those characters as line ends,
+so the row is recorded as `malformed-native-row`, its response is lost, and
+later rows whose parent link runs through it fail to climb.
+SEED-124#save-pronunciations-as-note-properties shows 12.74M against 15.42M
+(82 of 434 responses missing). This removes the last known Claude Code reader
+gap before the comparable-run measure below relies on the index.
+
+#### Scope
+
+- The native reader frames rows on newline only, as JSON Lines defines them,
+  so a row with a raw U+2028 or U+2029 is read whole on Codex and Claude Code,
+  in import and Refresh alike. A gap's line number is the file's line.
+- A row that is still not valid JSON stays a `malformed-native-row` gap, and
+  the reader stays bounded in memory: no whole-file read.
+- Existing stores gain the responses on their next `import`, as
+  `dashboard/USAGE-HISTORY.md` recovers a store; Refresh rereads only sessions
+  that changed. Automatic repair of stored history is excluded, as for the
+  nested-agent correction.
+
+#### Key examples
+
+- A Claude Code worker transcript holds a valid assistant row whose text
+  contains U+2028, followed by rows whose parent link runs through it → import
+  → the row's response is counted, the later rows reach their launch, and no
+  `malformed-native-row` gap is recorded for that file.
+- A Codex rollout row containing U+2029 → import → read whole, no gap.
+- A file with a truncated last row → import → that row is still one
+  `malformed-native-row` gap at its own line; earlier responses are counted.
+- After one real-store import, SEED-124's launch counts all its responses and
+  matches its 15.42M transcript cost.
 
 <a id="name-the-effort-a-session-ran-with"></a>
 
