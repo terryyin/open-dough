@@ -51,6 +51,7 @@ test("lost native files retain known stored counters with provenance and named u
   expect(actual.agents[0]).toMatchObject({
     provenance: "stored-session-contribution",
     sources: [{ kind: "history" }],
+    peakInput: { value: null, status: "unavailable" },
   });
   expect(actual.gaps).toEqual(
     expect.arrayContaining([

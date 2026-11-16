@@ -36,16 +36,16 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | 12 | Reports include observed idle-wake requests. Their counts “use an explicit conservative evidence rule and describe exposure, not requests proved wasteful.” |  | G3 |
 | 13 | “Failed, cancelled and later-turn work stays in its owning execution.” |  | G1 |
 | 14 | Responses are counted once: “copied ancestor responses and repeated streaming rows count once,” and “Repeating a selection cannot double-charge its responses.” | slice 5 | |
-| 15 | “Requested and observed model/effort are distinct.” In the Claude Code example, “the request at launch does not replace those facts.” | slice 2 | |
-| 16 | “Observed changes remain visible.” For Claude Code session `296b888d…`, **Fable/medium** and **Opus/high** are reported separately. | slice 2 | |
+| 15 | “Requested and observed model/effort are distinct.” In the Claude Code example, “the request at launch does not replace those facts.” | slice 2 | observed: agent-effort-settings.spec.ts Codex maxima: requested-model/high separate from observed-one/medium/default and observed-two/low/fast |
+| 16 | “Observed changes remain visible.” For Claude Code session `296b888d…`, **Fable/medium** and **Opus/high** are reported separately. | slice 2 | observed: agent-effort-peaks.spec.ts Claude maxima distributions; claude-sample-summary.json122Fable/medium+158Opus/high |
 | 17 | Reports name the host. | slice 1 | observed: agentEffortReport.ts host from selected task or explicit host; bounded Claude test observes definition/host selection |
-| 18 | Reports name the service tier. | slice 2 | |
+| 18 | Reports name the service tier. | slice 2 | observed: agent-effort-settings.spec.ts default/fast distribution changes; claude-sample-summary.json standard tier |
 | 19 | Reports name the selection/window. | slice 1 | observed: agent-effort-report.spec.ts taskId/rootTurnId and explicit from/until assertions |
 | 20 | Reports name the accounting definition. | slice 1 | observed: agent-effort-report.spec.ts Claude definition; agentEffortReport.ts Codex inclusive definition and accounting explanation |
 | 21 | Reports name their sources. The lost-native-files example further requires recoverable stored counters to appear “with their provenance.” | slice 1 | observed: agent-effort-report.spec.ts native sources; agent-effort-coverage.spec.ts stored-session-contribution history source |
-| 22 | Reports name the guidance version; “Missing guidance evidence is unknown.” | slice 2 | |
-| 23 | “A maintainer-supplied version is labelled as supplied, not observed.” | slice 2 | |
-| 24 | “Never use today’s installation as evidence about a historical run.” | slice 2 | |
+| 22 | Reports name the guidance version; “Missing guidance evidence is unknown.” | slice 2 | observed: agent-effort-settings.spec.ts historical guidance unknown with isolated cwd VERSION changes; actual sample unknown |
+| 23 | “A maintainer-supplied version is labelled as supplied, not observed.” | slice 2 | observed: agent-effort-settings.spec.ts --guidance-version0.7.8 explicitly supplied provenance |
+| 24 | “Never use today’s installation as evidence about a historical run.” | slice 2 | observed: agentEffortReport/Observations/CLI inspected no VERSION read; historical guidance test independent cwd VERSION changes leave unknown |
 | 25 | “Missing ownership, native files, counters or wake evidence remains a named gap.” Examples retain both a missing Cursor worker and lost native files as gaps; the latter identifies “peak/wake/ownership evidence that cannot be reconstructed.” | slice 4 |  |
 | 26 | Reports distinguish “known subtotals” from “complete totals.” | slice 1 | observed: agent-effort-report.spec.ts contradictory-worker partial; agent-effort-coverage.spec.ts partial input/lifetime and missing-native provenance |
 | 27 | “Unavailable is not zero.” The Cursor example reinforces that a missing worker is “not a zero cost.” | slice 4 |  |

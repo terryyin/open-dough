@@ -80,3 +80,27 @@ all six complete assertion bodies are preserved. Refactor focused replacement
 Independent refactor returned `## REFACTOR COMPLETE`; final typecheck and tracked/new-file whitespace checks passed. Consumer record `/tmp/compare-effort-refactor-consumers.txt` inspected: actual CLI and both specs/harness run, planning references reused, no other runtime consumer. Refactor active13m; final proof load8.48/8.26/8.67 on AC, free memory48%.
 
 Guarded delivery initially stopped at formatting, before commit: untyped CLI JSON and two non-null assertions. Independent refactor repaired derived harness types, catalog presence checks and explicit existing selection narrowing within traced paths; output/assertions unchanged. Final typecheck and whitespace checks passed; six CLI cases reused. Type-repair consumer trace `/tmp/compare-effort-refactor-type-repair-consumers.txt`; second `## REFACTOR COMPLETE` received.
+
+Slice1 accepted publication: `4f2059948d26b900bd1adcf090c12a93c62bdd2d` to `origin/refs/heads/codex/compare-agent-effort-on-comparable-runs`, suffixBase `f777c4aa2e9f3603a50603fb20e67c95ccbff290`, observer `/tmp/dough-ci-501/watch-n98g3z` reused. This is the next increment’s previously published base. No local maintenance applies to branch publication.
+
+## Slice 2 acceptance
+
+Trigger: multiple agents or observed settings changes; expected individual maxima,
+settings distributions and honest guidance provenance. Inspected
+`agentEffortObservations.ts` request-level shared accounting, separate identities,
+maxima and coverage policy, deterministic settings groups; report and CLI supply
+requested settings separately and no VERSION read. Settings spec observes Codex
+inclusive peaks200/300 and input750, requested versus observed/tier changes and
+null unknowns. Peaks spec observes Claude disjoint42/100 plus separate models;
+missing identity/components/readable-row variants prove lower bounds32/80/110.
+Coverage spec observes unavailable stored-only peak. Guidance test changes isolated
+working-directory VERSION independently; static inspection supplies the no-current-
+installation-read conclusion. It does not claim the fixture models every install.
+
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/agent-effort --reporter=list --workers=2`:12 passed (6.4s); `npm run typecheck:dashboard` passed; whitespace passed. All original six CLI observations remain passing. Consumer trace `/tmp/compare-effort-slice2-consumers.txt` inspected: observations→report→CLI/type-only harness/specs covered; upstream normalization/ownership/writer and independent evaluation do not consume this changed output. No shared scan change.
+
+Actual CLI replay: `node dashboard/server/compareAgentEffort.ts --home /tmp/compare-effort-slice2-home --codex-root /tmp/compare-effort-slice2-empty --claude-file /Users/terryyin/.claude/projects/-Users-terryyin-git-open-dough--worktrees-make-landed-ci-repeat-checks-pass-under-moderate/296b888d-08b1-4b06-ac2e-24a4462da7d0.jsonl --host claude --family 296b888d-08b1-4b06-ac2e-24a4462da7d0 --from 1970-01-01T00:00:00.000Z --until 2100-01-01T00:00:00.000Z --json > /tmp/compare-effort-slice2-claude.json` exited0. [Retained summary](claude-sample-summary.json) inspected: coordinator752562 observed-maximum,280 requests,0 missinginput,122Fable/medium and158Opus/high, standard tier, grouppeak null, requested/guidance unknown. Missing worker files remain group gaps without invalidating the coordinator's own retained maximum. Active implementation13m. G1/G3/G4 retain their owners; G2 proved here. Freshness unchanged at pinned trunk `f1bff2c549f5080adb4f3f81e3ec11c5342294ea`; no named sibling landed there.
+
+G5 acceptance correction: `agent-effort-stored-worker.spec.ts` imports native coordinator/worker then deletes only worker file; CLI observes coordinatorpeak100 observed-maximum, stored-only worker peak unavailable/input100partial and combined200partial with all three gaps. Inspected setup and assertions; three stored-only detail gaps no longer downgrade other native agents. Same focused command now13 passed (5.7s), typecheck/whitespace passed. Consumer record `/tmp/compare-effort-slice2-stored-worker-consumers.txt` inspected; shared accounting unchanged. Cumulative implementation14m15s.
+
+Independent slice2 refactor returned none—already clean and `## REFACTOR COMPLETE`; no tests run by reviewer. Real formatted sources all<250 (largest report232). Inspected new stored-worker correction/observations and reused13-case, typecheck and native sample proof; no additional runtime consumer.

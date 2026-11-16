@@ -16,6 +16,7 @@ try {
       until: { type: "string" },
       json: { type: "boolean" },
       list: { type: "boolean" },
+      "guidance-version": { type: "string" },
       "codex-file": { type: "string", multiple: true },
       "claude-file": { type: "string", multiple: true },
       "codex-root": { type: "string", multiple: true },
@@ -46,6 +47,7 @@ try {
       from: values.from,
       until: values.until,
       list: values.list,
+      guidanceVersion: values["guidance-version"],
     },
   );
   if (values.json) console.log(JSON.stringify(report));
@@ -58,6 +60,8 @@ try {
     console.log(
       `Requested settings: ${JSON.stringify(report.requestedSettings)}`,
     );
+    console.log(`Guidance version: ${JSON.stringify(report.guidanceVersion)}`);
+    console.log(report.peakInputRule);
     console.log(`Combined known figures: ${JSON.stringify(report.totals)}`);
     for (const agent of report.agents)
       console.log(`${agent.role} ${agent.id}: ${JSON.stringify(agent)}`);

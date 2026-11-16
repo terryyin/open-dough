@@ -4,6 +4,7 @@ import { scanUsageHistory, type UsageScanOptions } from "./usageScan.ts";
 import type { UsageObservation } from "./usageRecords.ts";
 import { effortTotals } from "./agentEffortTotals.ts";
 import { effortGroups } from "./agentEffortGroups.ts";
+import { effortAgents } from "./agentEffortObservations.ts";
 
 export type EffortSelection = {
   task?: string | undefined;
@@ -12,6 +13,7 @@ export type EffortSelection = {
   from?: string | undefined;
   until?: string | undefined;
   list?: boolean | undefined;
+  guidanceVersion?: string | undefined;
 };
 export async function agentEffortReport(
   options: UsageScanOptions,
@@ -118,7 +120,8 @@ export async function agentEffortReport(
   for (const response of selected) {
     if (!response.at) gaps.add("missing-request-timestamp");
     response.gaps.forEach((gap) => gaps.add(gap));
-    associations.get(response.id)?.gaps.forEach((gap) => gaps.add(gap));
+    if (task)
+      associations.get(response.id)?.gaps.forEach((gap) => gaps.add(gap));
   }
   // Contradictory parent evidence cannot contribute counters, but a recorded
   // link to this root still makes the uncertainty relevant to its report.
@@ -147,7 +150,13 @@ export async function agentEffortReport(
       association.gaps.forEach((gap) => gaps.add(gap));
   for (const gap of scan.gaps)
     if (
-      gap.taskId === task?.id ||
+      (task !== undefined && gap.taskId === task.id) ||
+      (gap.source !== undefined &&
+        selected.some((response) =>
+          response.measurements.some(
+            (measurement) => measurement.source.file === gap.source?.file,
+          ),
+        )) ||
       (gap.host === host &&
         (gap.sessionId === root ||
           selected.some((response) => response.sessionId === gap.sessionId)))
@@ -166,42 +175,15 @@ export async function agentEffortReport(
     gaps,
   );
   if (!groups.size) gaps.add("no-attributable-response-usage");
-  gaps.add("peak-input-not-yet-observed");
   gaps.add("idle-wake-evidence-unavailable");
   const incomplete = [...gaps].some(
     (gap) =>
       ![
-        "peak-input-not-yet-observed",
         "idle-wake-evidence-unavailable",
         "auxiliary-usage-not-covered",
       ].includes(gap),
   );
-  const agents = [...groups.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([id, group]) => ({
-      id,
-      sessionId: group.sessionId,
-      agentId: group.agentId,
-      role: group.role,
-      provenance: group.provenance,
-      totals: effortTotals(group.entries, incomplete),
-      observedSettings: group.entries.map(
-        ({ model, effort, tier, responses }) => ({
-          model,
-          effort,
-          serviceTier: tier,
-          requests: responses,
-        }),
-      ),
-      sources: [
-        ...new Map(
-          group.sources.map((source) => [JSON.stringify(source), source]),
-        ).values(),
-      ],
-      responseIds: group.responseIds.sort(),
-      peakInput: null,
-      idleWakeRequests: null,
-    }));
+  const agents = effortAgents(groups, responses, incomplete, gaps);
   return {
     format: "agent-effort-v1",
     scope: "retained-local-evidence",
@@ -224,7 +206,13 @@ export async function agentEffortReport(
     accounting:
       "Input = uncached + cache reads + cache writes. Reasoning output is a subset of output. Partial values are known subtotals; unavailable values are null.",
     requestedSettings: task?.requested ?? null,
-    guidanceVersion: { value: null, provenance: "unknown" },
+    guidanceVersion: {
+      value: selection.guidanceVersion ?? null,
+      provenance:
+        selection.guidanceVersion === undefined ? "unknown" : "supplied",
+      evidence:
+        "Historical guidance is unavailable without retained source evidence; the current installation is not historical evidence.",
+    },
     sources: [
       ...(task?.sources ?? []),
       ...agents.flatMap((agent) => agent.sources),
@@ -237,6 +225,8 @@ export async function agentEffortReport(
     agents,
     gaps: [...gaps].sort(),
     peakInput: null,
+    peakInputRule:
+      "Per-agent observed request maxima; never summed across agents. Missing requests or input counters make observed values lower bounds.",
     idleWakeRequests: null,
   };
 }

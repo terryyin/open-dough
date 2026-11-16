@@ -122,7 +122,7 @@ later-turn acceptance consumes the shared reader correction in slice 5 (G1). Int
 
 ### 2. See each agent's observed context and settings
 Type: Behavior
-Status: planned
+Status: done
 Proof: per-agent cases in `agent-effort-report.spec.ts`; actual Claude sample.
 
 Behavior: select an execution with multiple agents or changing settings → each
@@ -202,9 +202,8 @@ Commitment: 13
 ### G2. Peaks remain unavailable in first increment
 Reported: slice 1 — "First increment intentionally reports per-agent peak input as unavailable until observation is added."
 Story clause: "peak input per agent"
-Disposition: interim until slices 2
+Disposition: proved by slice 2: agent-effort-settings.spec.ts inclusive maxima; agent-effort-peaks.spec.ts disjoint maxima and lower bounds; claude-sample-summary.json752562 coordinator peak, never summed
 Commitment: 11
-
 ### G3. Wake classification remains unavailable in first increment
 Reported: slice 1 — "First increment reports idle-wake evidence unavailable until conservative request-level observation is added."
 Story clause: "observed idle-wake requests"
@@ -216,3 +215,8 @@ Reported: slice 1 — "First increment accepts Codex and Claude only; Cursor wor
 Story clause: "Cursor reports token usage and unobservable wakes as unavailable"
 Disposition: receiving slice 4
 Commitment: 28
+
+### G5. Stored-only worker downgrades another agent's peak
+Reported: slice 2 — "Independent refactor found that stored-only worker gaps downgrade a fully retained coordinator peak through the report-global missing-request policy."
+Story clause: "peak input per agent"
+Disposition: proved by slice 2: agent-effort-stored-worker.spec.ts retained coordinator maximum100, stored worker peak unavailable/input100 partial, combined200 partial and all gaps visible

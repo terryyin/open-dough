@@ -12,16 +12,19 @@ export function report(
   home: string,
   root: string,
   flags: ["--list"],
+  cwd?: string,
 ): EffortCatalog;
 export function report(
   home: string,
   root: string,
   flags: string[],
+  cwd?: string,
 ): EffortReport;
 export function report(
   home: string,
   root: string,
   flags: string[],
+  cwd?: string,
 ): EffortResult {
   return JSON.parse(
     execFileSync(
@@ -37,7 +40,7 @@ export function report(
         "--json",
         ...flags,
       ],
-      { encoding: "utf8", env: { ...process.env, HOME: home } },
+      { encoding: "utf8", cwd, env: { ...process.env, HOME: home } },
     ),
   ) as EffortResult;
 }
