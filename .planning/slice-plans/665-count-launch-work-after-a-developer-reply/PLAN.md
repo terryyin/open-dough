@@ -224,6 +224,23 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
   Evaluation and moved the two remaining reader gaps (second-level background
   agents; rows split at U+2028/U+2029) to their own queued SEED-388 stories.
 
+## Execution complete
+
+Product advice:
+- The reply rule now holds on both tools on this machine's history; the two
+  remaining Claude Code reader gaps are queued as their own SEED-388 stories.
+- Proof risk for wrap-up's intent-coverage check: slice 1's rewrite of
+  `claude-usage.spec.ts` removed the only Claude assertion that a response
+  whose input no task owns becomes `unresolved-native-task-lineage`
+  ("Ambiguous ownership stays a gap"); Codex cases still assert it.
+- Stored task turns only grow across imports, so an import with a defective
+  rule leaves its turns behind; recovery is restore the backup, then import
+  once. Wrap-up should keep that in maintained knowledge.
+- 13 Claude Code executions read 1–2% above the evaluator's transcript cost,
+  unexplained; useful input for
+  SEED-345#compare-agent-effort-on-comparable-runs.
+- Process review is deferred into wrap-up with the intent-coverage report.
+
 ## Story obligations
 
 ### E1. Per-turn cost split is deferred
