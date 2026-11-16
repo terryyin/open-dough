@@ -36,6 +36,9 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-386-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-386#intent-hint-language-for-story-review-diffs
+- [Emphasize the changed words within a changed line](seeds/SEED-386-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-386#emphasize-changed-words-in-diff-lines
+- [Share one control to turn syntax styling off or choose a palette](seeds/SEED-386-deferred-syntax-styling-follow-ups.md#shared-syntax-styling-control) — SEED-386#shared-syntax-styling-control
 - [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review

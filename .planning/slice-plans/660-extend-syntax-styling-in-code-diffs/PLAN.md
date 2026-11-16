@@ -144,3 +144,15 @@ Product advice: Keep G1–G3 deferred as recorded; at wrap-up, retain those
 remaining deferred promises as follow-up if still wanted. No backlog reorder.
 Process review deferred into wrap-up (Intent Coverage: rewritten path/plain
 assertions). Hosted CI conclusions were conditional at review time.
+
+## Intent Coverage disposition
+
+Checked revision: ad318eed35bf9a8951ce454c5d6dee4b6c91b1d7
+Verdict: Caught
+Next proof action: none — retain existing codeTokens count-0 assertion on plain .txt paths.
+Follow-up: none
+
+## Deferred process review
+
+Process review completed after Intent Coverage. No new DearDough finding: the
+rewritten path/plain assertions catch an unmapped-path regression (Caught).
