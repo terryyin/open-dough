@@ -4,6 +4,11 @@ import { scanUsageHistory, type UsageScanOptions } from "./usageScan.ts";
 import type { UsageObservation } from "./usageRecords.ts";
 import { effortTotals } from "./agentEffortTotals.ts";
 import { effortGroups } from "./agentEffortGroups.ts";
+import {
+  effortWakes,
+  idleWakeRule,
+  effortWakeSummary,
+} from "./agentEffortWakes.ts";
 import { effortAgents } from "./agentEffortObservations.ts";
 
 export type EffortSelection = {
@@ -175,7 +180,7 @@ export async function agentEffortReport(
     gaps,
   );
   if (!groups.size) gaps.add("no-attributable-response-usage");
-  gaps.add("idle-wake-evidence-unavailable");
+  const wakes = await effortWakes(responses);
   const incomplete = [...gaps].some(
     (gap) =>
       ![
@@ -183,7 +188,8 @@ export async function agentEffortReport(
         "auxiliary-usage-not-covered",
       ].includes(gap),
   );
-  const agents = effortAgents(groups, responses, incomplete, gaps);
+  const agents = effortAgents(groups, responses, incomplete, gaps, wakes);
+  const idleWakeRequests = effortWakeSummary(responses, agents, wakes, gaps);
   return {
     format: "agent-effort-v1",
     scope: "retained-local-evidence",
@@ -227,6 +233,7 @@ export async function agentEffortReport(
     peakInput: null,
     peakInputRule:
       "Per-agent observed request maxima; never summed across agents. Missing requests or input counters make observed values lower bounds.",
-    idleWakeRequests: null,
+    idleWakeRequests,
+    idleWakeRule,
   };
 }

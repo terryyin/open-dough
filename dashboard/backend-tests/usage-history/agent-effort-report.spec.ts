@@ -184,6 +184,9 @@ test("bounded Claude family counts streaming responses once and keeps worker ide
     until: "2026-11-15T00:00:00.000Z",
   });
   expect(actual.peakInput).toBeNull();
-  expect(actual.idleWakeRequests).toBeNull();
+  expect(actual.idleWakeRequests).toMatchObject({
+    value: null,
+    status: "unavailable",
+  });
   expect(bytes(home)).toEqual(before);
 });

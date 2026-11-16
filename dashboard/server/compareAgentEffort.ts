@@ -62,6 +62,9 @@ try {
     );
     console.log(`Guidance version: ${JSON.stringify(report.guidanceVersion)}`);
     console.log(report.peakInputRule);
+    console.log(
+      `${report.idleWakeRule} ${JSON.stringify(report.idleWakeRequests)}`,
+    );
     console.log(`Combined known figures: ${JSON.stringify(report.totals)}`);
     for (const agent of report.agents)
       console.log(`${agent.role} ${agent.id}: ${JSON.stringify(agent)}`);

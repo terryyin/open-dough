@@ -1,5 +1,7 @@
 import type { effortGroups } from "./agentEffortGroups.ts";
 import { effortTotals, responseEntries } from "./agentEffortTotals.ts";
+import { wakeCoverage } from "./agentEffortWakes.ts";
+import type { WakeKind } from "./agentEffortWakeKinds.ts";
 import type { UsageObservation } from "./usageRecords.ts";
 
 // Report-only observations retain request detail that stored contributions lack.
@@ -8,6 +10,7 @@ export function effortAgents(
   responses: UsageObservation[],
   incomplete: boolean,
   gaps: Set<string>,
+  wakes: Map<string, WakeKind>,
 ) {
   const byId = new Map(responses.map((response) => [response.id, response]));
   // These describe other evidence or retained-local scope, not absent input.
@@ -100,7 +103,13 @@ export function effortAgents(
               ? "selected-retained-requests"
               : "native-requests-unavailable",
         },
-        idleWakeRequests: null,
+        idleWakeRequests: wakeCoverage(
+          group.responseIds,
+          wakes,
+          group.provenance === "native"
+            ? 0
+            : group.entries.reduce((sum, entry) => sum + entry.responses, 0),
+        ),
       };
     });
 }

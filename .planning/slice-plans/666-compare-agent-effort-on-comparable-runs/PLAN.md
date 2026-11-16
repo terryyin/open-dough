@@ -131,7 +131,7 @@ and sourced/supplied/unknown guidance version. Missing coverage qualifies peaks.
 
 ### 3. Distinguish observed empty wakes from useful results and unknowns
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-effort-wakes.spec.ts`, including mixed results and missing evidence.
 
 Behavior: select a run with retained wait/tool-result evidence → request-level
@@ -207,9 +207,8 @@ Commitment: 11
 ### G3. Wake classification remains unavailable in first increment
 Reported: slice 1 — "First increment reports idle-wake evidence unavailable until conservative request-level observation is added."
 Story clause: "observed idle-wake requests"
-Disposition: interim until slices 3
+Disposition: proved by slice 3: agent-effort-wakes.spec.ts both-host actual CLI cases prove paired empty continuations/timeouts, replay deduplication, mixed/progress/unknown/clock exclusions and request coverage; source rule printed as exposure not savings
 Commitment: 12
-
 ### G4. Cursor support belongs to host workflow slice
 Reported: slice 1 — "First increment accepts Codex and Claude only; Cursor workflow reporting is not implemented yet."
 Story clause: "Cursor reports token usage and unobservable wakes as unavailable"
@@ -220,3 +219,9 @@ Commitment: 28
 Reported: slice 2 — "Independent refactor found that stored-only worker gaps downgrade a fully retained coordinator peak through the report-global missing-request policy."
 Story clause: "peak input per agent"
 Disposition: proved by slice 2: agent-effort-stored-worker.spec.ts retained coordinator maximum100, stored worker peak unavailable/input100 partial, combined200 partial and all gaps visible
+
+
+### G6. Unsupported wake envelopes remain uncovered
+Reported: slice 3 — "Unsupported wrappers and other TaskOutput formats remain unclassified; the retained Claude sample has no TaskOutput observation."
+Story clause: "Missing ownership, native files, counters or wake evidence remains a named gap"
+Disposition: proved by slice 3: agent-effort-wakes.spec.ts unsupported-wrapper and missing-pairing cases retain null/unavailable counts and named coverage; exact supported envelopes have primary sources and no actual-sample wake replay is claimed
