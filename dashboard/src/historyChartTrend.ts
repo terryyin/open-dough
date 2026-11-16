@@ -1,7 +1,7 @@
 // Independent trends break at above-scale observations instead of flattening
 // their real values onto the ceiling or joining across an invisible value.
-import type { HistoryChartSeries } from "./historyChartSeries.ts";
-type Trend = NonNullable<HistoryChartSeries["trend"]>;
+import type { HistoryChartTrend } from "./historyChartSeries.ts";
+type Trend = HistoryChartTrend["points"];
 export function trendThrough(
   trend: Trend,
   x: (date: string) => number,

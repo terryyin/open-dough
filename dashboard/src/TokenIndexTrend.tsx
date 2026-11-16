@@ -53,7 +53,11 @@ function series(
         ...(partial ? { partial: partialWords } : {}),
       };
     }),
-    trend: answer.average.map(({ at, value }) => ({ date: at, value })),
+    trends: [
+      {
+        points: answer.average.map(({ at, value }) => ({ date: at, value })),
+      },
+    ],
   };
 }
 

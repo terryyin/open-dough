@@ -19,6 +19,8 @@ export type HistoryChartPoint = {
   // task with missing usage ("Partial"); it is drawn hollow and its readout
   // ends with them.
   readonly partial?: string;
+  // The named trace (`HistoryChartSeries.traces`) the point belongs to.
+  readonly trace?: string;
 };
 
 // A dated build with no timing: a failed build, or any other unavailable
@@ -35,6 +37,14 @@ export type HistoryChartGap = {
 
 export type HistoryChartEntry = HistoryChartPoint | HistoryChartGap;
 
+// A dated trend drawn as a line instead of joining the points, such as one
+// tool's rolling median; a trend of one value is a short level at it.
+export type HistoryChartTrend = {
+  // The named trace whose points the trend summarizes.
+  readonly trace?: string;
+  readonly points: readonly { readonly date: string; readonly value: number }[];
+};
+
 export type HistoryChartSeries = {
   readonly label: string;
   readonly entries: readonly HistoryChartEntry[];
@@ -50,9 +60,12 @@ export type HistoryChartSeries = {
   // A level drawn as the dashed line, such as CI's prior-build average.
   readonly reference?:
     { readonly value: number; readonly label: string } | undefined;
-  // A dated trend drawn as the line instead of joining the points, such as
-  // Usage's rolling median; a trend of one value is a short level at it.
-  readonly trend?: readonly { readonly date: string; readonly value: number }[];
+  // Names of the groups of points and trends that share these coordinates,
+  // in drawing order, such as tools; each names its marks in readouts and
+  // gives them a distinct style. Absent for a chart of one unnamed series.
+  readonly traces?: readonly string[];
+  // Trends drawn as lines instead of joining the points.
+  readonly trends?: readonly HistoryChartTrend[];
 };
 
 export const isMeasured = (
@@ -68,3 +81,13 @@ export function entryValueWords(
   const value = axis.words(entry.value);
   return entry.partial === undefined ? value : `${value} · ${entry.partial}`;
 }
+
+// The trace's position among the series' traces, which selects its style.
+export const traceSlot = (
+  series: HistoryChartSeries,
+  trace: string | undefined,
+): number => Math.max(0, series.traces?.indexOf(trace ?? "") ?? 0);
+
+// A named trace's words before its readouts ("Codex · "); none when unnamed.
+export const traceWords = (trace: string | undefined): string =>
+  trace === undefined ? "" : `${trace} · `;

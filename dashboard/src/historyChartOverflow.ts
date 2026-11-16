@@ -1,9 +1,12 @@
 // Above-scale task labels share dated x coordinates; colliding labels/buttons
 // occupy separate rows, adding room above the ordinary plot rather than hiding.
+// One allocator places every trace's task labels and trend values.
 import { buildDateWords } from "./ciHistoryWords.ts";
 import {
   entryValueWords,
   isMeasured,
+  traceSlot,
+  traceWords,
   type HistoryChartSeries,
 } from "./historyChartSeries.ts";
 export type OverflowPlacement = {
@@ -47,19 +50,27 @@ export function placeOverflows(
     );
   }
   const independent = series.independentTrend;
+  // Every trace's trend shares the one allocator with the task labels.
   const trend =
     independent === undefined
       ? []
-      : (series.trend ?? []).flatMap((point) => {
-          if (point.value <= ceiling) return [];
-          const value = series.axis.words(point.value);
-          return [
-            {
-              ...place(`${independent.shortLabel} ↑ ${value}`, point.date),
-              x: x(point.date),
-              readout: `${buildDateWords(point.date)} · ${independent.label} above scale · ${value}`,
-            },
-          ];
-        });
+      : (series.trends ?? []).flatMap(({ trace, points }) =>
+          points.flatMap((point) => {
+            if (point.value <= ceiling) return [];
+            const value = series.axis.words(point.value);
+            const named = trace === undefined ? "" : `${trace} `;
+            return [
+              {
+                ...place(
+                  `${named}${independent.shortLabel} ↑ ${value}`,
+                  point.date,
+                ),
+                x: x(point.date),
+                slot: traceSlot(series, trace),
+                readout: `${buildDateWords(point.date)} · ${traceWords(trace)}${independent.label} above scale · ${value}`,
+              },
+            ];
+          }),
+        );
   return { placed, trend, height: rows.length * 40 };
 }

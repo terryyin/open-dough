@@ -4,8 +4,9 @@
 // line's strokes. Measured points sit on the value axis, a measured zero
 // included; CI builds without timing sit on their own row below it, and
 // every such build breaks the line, as does a change of compatible segment.
-// A series with a trend draws the trend as its line instead, a trend of one
-// value as a short level at its point.
+// A series with trends draws them as its lines instead, a trend of one
+// value as a short level at its point. Every named trace shares these value
+// and date bounds; its marks and trend carry its style slot.
 import {
   placeOverflows,
   type OverflowPlacement,
@@ -15,6 +16,8 @@ import { buildDateWords, selectedLandingWords } from "./ciHistoryWords.ts";
 import {
   entryValueWords,
   isMeasured,
+  traceSlot,
+  traceWords,
   type HistoryChartEntry,
   type HistoryChartSeries,
 } from "./historyChartSeries.ts";
@@ -37,6 +40,8 @@ export type ChartMark = {
   // Short date and timing or status, as the reader inspects the mark.
   readonly readout: string;
   readonly overflow: OverflowPlacement | undefined;
+  // The style slot of the point's named trace (`traceSlot`).
+  readonly slot: number;
 };
 
 export type ChartLayout = {
@@ -55,7 +60,10 @@ export type ChartLayout = {
   readonly reference?: { readonly y: number; readonly label: string };
   // Every entry in history order, oldest first.
   readonly marks: readonly ChartMark[];
+  // Strokes joining the points of a series without trends.
   readonly line: string;
+  // Each trend's strokes with its trace's style slot, in trace order.
+  readonly trends: readonly { readonly path: string; readonly slot: number }[];
   readonly trendOnTop: boolean;
   readonly trendOverflows: ReturnType<typeof placeOverflows>["trend"];
   readonly dates: readonly { readonly x: number; readonly words: string }[];
@@ -84,7 +92,7 @@ export function chartLayout(
   series: HistoryChartSeries,
   width: number,
 ): ChartLayout {
-  const { entries, axis, reference, trend } = series;
+  const { entries, axis, reference, trends } = series;
   const plotEnd = width - plotEndRoom;
   const tickWords = axis.tickWords ?? axis.words;
   const ordinary = entries
@@ -96,9 +104,9 @@ export function chartLayout(
       : axis.ticks([
           ...ordinary.map((point) => point.value),
           ...(reference === undefined ? [] : [reference.value]),
-          ...(series.independentTrend === undefined ? (trend ?? []) : []).map(
-            (point) => point.value,
-          ),
+          ...(series.independentTrend === undefined ? (trends ?? []) : [])
+            .flatMap((trend) => trend.points)
+            .map((point) => point.value),
         ]);
   // Whole duration labels can be wider near zero (e.g. 1 min 30 s).
   // Reserve their width so phone readers never lose the leading figures.
@@ -133,7 +141,8 @@ export function chartLayout(
       overflows.placed.get(entry.key)?.y ??
       (isMeasured(entry) ? y(entry.value) : gapRow + overflowHeight),
     overflow: overflows.placed.get(entry.key),
-    readout: `${buildDateWords(entry.date)} · ${selected(entry.selected)}${entryValueWords(entry, axis)}${isMeasured(entry) && entry.overflow !== undefined ? ` · ${entry.overflow}` : ""}`,
+    slot: isMeasured(entry) ? traceSlot(series, entry.trace) : 0,
+    readout: `${buildDateWords(entry.date)} · ${isMeasured(entry) ? traceWords(entry.trace) : ""}${selected(entry.selected)}${entryValueWords(entry, axis)}${isMeasured(entry) && entry.overflow !== undefined ? ` · ${entry.overflow}` : ""}`,
   }));
   const dated: { x: number; words: string }[] = [];
   const middle =
@@ -166,15 +175,16 @@ export function chartLayout(
       ? {}
       : { reference: { y: y(reference.value), label: reference.label } }),
     marks,
-    line:
-      trend === undefined
-        ? lineThrough(marks)
-        : trendThrough(
-            trend,
-            x,
-            y,
-            series.independentTrend === undefined ? undefined : highest,
-          ),
+    line: trends === undefined ? lineThrough(marks) : "",
+    trends: (trends ?? []).map((trend) => ({
+      path: trendThrough(
+        trend.points,
+        x,
+        y,
+        series.independentTrend === undefined ? undefined : highest,
+      ),
+      slot: traceSlot(series, trend.trace),
+    })),
     trendOnTop: series.independentTrend !== undefined,
     trendOverflows: overflows.trend,
     dates: dated,

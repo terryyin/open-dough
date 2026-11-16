@@ -2,6 +2,7 @@
 
 **Identity:** SEED-383#compare-codex-and-claude-code-token-usage
 **Source:** [Compare Codex and Claude Code token usage](../../seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#compare-codex-and-claude-code-token-usage)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -118,7 +119,7 @@ labels, call forms and response fields; disposition every located consumer.
 ### 1. Shared chart supports named traces on one set of coordinates
 
 Type: Structure
-Status: planned
+Status: done
 
 Extend the existing series/layout/plot contract for the named point and trend
 groups slice 2 needs, sharing value/time bounds, readout identity and overflow
@@ -132,6 +133,14 @@ controls appear in this slice. The next Behavior owns observing both traces.
 
 Sizing: 15 active minutes, medium confidence; existing collaborators are
 small and already separate layout, trend, overflow and painting.
+
+Accepted proof (2026-11-16): the guarded frontend command with all
+`system-settings-usage*` cases and the named shared-chart consumers, 36 passed
+(one worker). Refactor pass: no change. Contract for slice 2: series `traces`
+names point groups in drawing order; points and `trends[]` carry `trace`; the
+first trace keeps today's classes and later ones add `history-chart-trace-N`
+(no CSS yet); readouts and trend overflow labels gain the trace name. Entry
+keys must be tool-qualified because the chart keys marks and overflow by them.
 
 ### 2. Compare selected tools on the shared completion-time chart
 
