@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nao-chan",
-  "email": "nao-chan@example.org",
-  "identity": "SEED-388#read-claude-rows-with-unicode-line-separators",
-  "mode": "story-branch",
-  "branch": "claude/read-claude-code-rows-that-contain-unicode-line",
-  "host": "claude"
-}
