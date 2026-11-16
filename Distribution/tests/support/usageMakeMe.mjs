@@ -11,6 +11,7 @@ import { UsageTaskHistoryBuilder } from "./usageTaskHistoryTestData.mjs";
 import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 import { CodexRolloutBuilder } from "./codexRolloutTestData.mjs";
 import { ClaudeTranscriptBuilder } from "./claudeTranscriptTestData.mjs";
+import { CursorTranscriptBuilder } from "./cursorTranscriptTestData.mjs";
 
 /**
  * Usage-history builders exposed on MakeMe (fresh on each access).
@@ -24,11 +25,18 @@ import { ClaudeTranscriptBuilder } from "./claudeTranscriptTestData.mjs";
  * @property {TokenIndexAnswerBuilder} aTokenIndexAnswer
  * @property {CodexRolloutBuilder} aCodexRollout
  * @property {ClaudeTranscriptBuilder} aClaudeTranscript
+ * @property {CursorTranscriptBuilder} aCursorTranscript
  */
 
 /** @returns {PropertyDescriptorMap} */
 export function usageMakeMeProperties() {
   return {
+    aCursorTranscript: {
+      enumerable: true,
+      get() {
+        return new CursorTranscriptBuilder();
+      },
+    },
     aUsageTask: {
       enumerable: true,
       get() {

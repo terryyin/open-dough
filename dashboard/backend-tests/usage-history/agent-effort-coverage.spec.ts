@@ -162,7 +162,7 @@ test("known input and lifetime subtotals survive missing cache-read and lifetime
   });
 });
 
-test("a developer reply without shared ownership stays visible as a gap without private counter assignment", ({
+test("a plain developer reply keeps shared continuation ownership with partial counter coverage", ({
   home,
   root,
 }) => {
@@ -200,16 +200,11 @@ test("a developer reply without shared ownership stays visible as a gap without 
       .please(),
   );
   const actual = report(home, root, ["--task", "SEED-345#reply"]);
-  expect(actual.totals.output).toMatchObject({ value: 7, status: "partial" });
-  expect(actual.gaps).toContain("unresolved-family-response-ownership");
-  expect(actual.unownedResponses).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        id: JSON.stringify(["claude", "reply-family", "later"]),
-        sources: expect.arrayContaining([
-          expect.objectContaining({ kind: "native" }),
-        ]),
-      }),
-    ]),
-  );
+  expect(actual.totals.output).toMatchObject({ value: 18, status: "partial" });
+  expect(actual.totals.totalInput).toMatchObject({
+    value: null,
+    status: "unavailable",
+  });
+  expect(actual.gaps).not.toContain("unresolved-family-response-ownership");
+  expect(actual.unownedResponses).toEqual([]);
 });

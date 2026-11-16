@@ -15,37 +15,8 @@ winner. No dashboard UI, paid runs, invoice claim, new pricing or workflow state
 
 ## Existing solution and architecture
 
-PFE: `usageRecords.ts`, `codexUsage.ts`, `claudeUsage.ts` and
-`usageReconciliation.ts` already own native counters and response identity.
-`usageImport.ts` gathers native task facts, resolves lineage and calls the
-same associations the dashboard uses. `usageContributions.ts` and
-`usageTaskSummary.ts` already sum by model, effort, service tier and root/worker;
-the stored summary intentionally discards responses. `collectUsageHistory`
-currently couples reading to `writeUsageHistory`, even with an alternate store.
-Expose its evidence-reading phase and reuse it; preserve the importer's writer.
-Do not reconstruct a second task-attribution or token-normalization rule.
-
-The evaluation archive's `retainedUsage` in
-`Distribution/evaluation/src/native-comparison-archive-usage.mjs` has the same
-own-response invariant but assumes a Codex controlled-attempt directory. Reuse
-the general Usage solution instead of extending that harness into historical
-reporting. Cursor's existing `hosts/cursor/unfinishedSubagents.ts` supplies its
-belonging-directory convention; its liveness boolean is not accounting evidence.
-
-Keep report-only host observations (peaks and tools) outside persistent usage
-history. The report is derived local evidence, not a new store or workflow
-authority: [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) requires
-matched task/conditions for controlled trials; this tool reads retained native
-evidence and does not run those trials. Label retrospective comparisons
-exploratory under [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
-Use the existing North Star's observation/presentation separation; no new
-architectural topic, package or installation kind is needed.
-
-Expected shared-file edit: `usageImport.ts` is 231 lines at preparation;
-extract the cohesive read phase rather than adding another writer path. The
-other observed readers are below 250 lines. New modules stay cohesive and small;
-do not expand the history schema to retain report-only detail.
+Reuse Usage's native readers, reconciliation and ownership; derive report-only
+observations without a new store. [Selected solution and ADR constraints](execution-evidence.md#existing-solution-and-architecture).
 
 ## Current decisions
 
@@ -92,16 +63,13 @@ do not expand the history schema to retain report-only detail.
 
 ## Execution context
 
-- Established Story Branch Mode in `/Users/terryyin/git/open-dough/.worktrees/compare-agent-effort-on-comparable-runs`, branch `codex/compare-agent-effort-on-comparable-runs`, reused owned linked worktree. Remote `origin`, trunk `main`; integration/default checkout `/Users/terryyin/git/open-dough` is separate and untouched.
-- Identity `SEED-345#compare-agent-effort-on-comparable-runs`, publisher `dashboard-territory.local-open-dough`, agent Yuma-chan. Starting revision `fffced8c60680a43399419eb56e98e36b0e43e92`; accepted claim and first published base `f777c4aa2e9f3603a50603fb20e67c95ccbff290`. Claim on trunk has `pendingCi: unobserved`.
-- Exact checkout setup: Node v24.21.0; `node scripts/setup-native.mjs npm` passed with unchanged lockfile; `npm run typecheck:dashboard` passed. Hook `.githooks/pre-commit` is check-only staged lint and dashboard typecheck. Selective formatter `npm run format`; agent commit contract applies.
-- Replanning: preserve existing planned authority; no overrun permission supplied. Five slices are within the eight-slice cap. Implementation agents own 15 active minutes per slice.
-- Observer: GitHub Actions `ci.yml` (verified CI, id 351271804), repository `terryyin/open-dough`, target `codex/compare-agent-effort-on-comparable-runs`, coordinator `yuma-compare-345`. Codex yielded cell `g601:15`, session 67032, PID 52119, directory `/tmp/dough-ci-501/watch-n98g3z`; runtime is this checkout's `.agents/skills/dough-execute-plan`. Integrated-state completion uses the configured push check.
+[Identity, setup and observer note](execution-evidence.md#execution-context).
 
 ## Proof and premises
 
 [Retained proof mapping and preparation observations](execution-evidence.md)
-remain authoritative for each slice. Implementation proof is added there.
+remain authoritative for each slice. Its acceptance index links the retained
+implementation proof for each delivered slice.
 
 ## Ordered slices
 
@@ -140,7 +108,7 @@ cannot become idle-wake claims. Extend report-only observation, not task ownersh
 
 ### 4. Inspect Cursor effort through its retained workflow evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-effort-cursor.spec.ts`; actual Cursor sample's 15 / 8 counts.
 
 Behavior: select a Cursor family → coordinator/worker workflow counts, bytes,
@@ -212,9 +180,8 @@ Commitment: 12
 ### G4. Cursor support belongs to host workflow slice
 Reported: slice 1 — "First increment accepts Codex and Claude only; Cursor workflow reporting is not implemented yet."
 Story clause: "Cursor reports token usage and unobservable wakes as unavailable"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: agent-effort-cursor.spec.ts actual CLI workflow counts and gaps with token/request/peak/wake metrics explicitly null/unavailable
 Commitment: 28
-
 ### G5. Stored-only worker downgrades another agent's peak
 Reported: slice 2 — "Independent refactor found that stored-only worker gaps downgrade a fully retained coordinator peak through the report-global missing-request policy."
 Story clause: "peak input per agent"
@@ -225,3 +192,25 @@ Disposition: proved by slice 2: agent-effort-stored-worker.spec.ts retained coor
 Reported: slice 3 — "Unsupported wrappers and other TaskOutput formats remain unclassified; the retained Claude sample has no TaskOutput observation."
 Story clause: "Missing ownership, native files, counters or wake evidence remains a named gap"
 Disposition: proved by slice 3: agent-effort-wakes.spec.ts unsupported-wrapper and missing-pairing cases retain null/unavailable counts and named coverage; exact supported envelopes have primary sources and no actual-sample wake replay is claimed
+
+
+### G7. Replayed Cursor tool identities double-charge workflow counts
+Reported: slice 4 — "Acceptance found that Cursor increments workflow counters before deduplicating its known tool_use identities."
+Story clause: "tool calls"
+Disposition: proved by slice 4: agent-effort-cursor.spec.ts identity case deduplicates known IDs, excludes conflicts and qualifies ID-less occurrence counts; actual sample remains15/8 with identity gap
+
+### G8. Cursor ambiguous family recovery lacks CLI proof
+Reported: slice 4 — "Acceptance found no CLI observation of duplicate Cursor family identifiers, listing usable roots and selecting the intended root."
+Story clause: "ambiguous matches are explained for correction rather than silently choosing the latest run"
+Disposition: proved by slice 4: agent-effort-cursor-selection.spec.ts ambiguity case passes the emitted selected.root directly to --cursor-root and observes intended Read/PLAN evidence without missing-native gap
+
+### G9. Cursor later task input lacks boundary proof
+Reported: slice 4 — "Acceptance found no fixture containing a later task-starting user input in one Cursor transcript while retaining an explicitly whole-family boundary."
+Story clause: "Selection identifies the task and its native turn boundary, or an explicitly bounded native session family"
+Disposition: proved by slice 4: agent-effort-cursor-selection.spec.ts later-user-input case keeps both workflow calls in an explicitly whole-retained-family result and names requested-time/native-turn uncertainty
+
+
+### G10. Cursor settings absence is not explicitly represented
+Reported: slice 4 — "Source review applicability found no observed model/effort/service-tier representation for the newly supported Cursor host; refactor confirmed the missing named unknowns."
+Story clause: "Name host, service tier"
+Disposition: proved by slice 4: Cursor CLI JSON/readable assertions name unavailable model/effort/serviceTier overall and per agent, observed collection empty with unavailable coverage, requested settings separate

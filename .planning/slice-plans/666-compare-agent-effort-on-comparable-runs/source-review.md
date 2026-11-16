@@ -36,30 +36,30 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | 12 | Reports include observed idle-wake requests. Their counts “use an explicit conservative evidence rule and describe exposure, not requests proved wasteful.” |  | G3 |
 | 13 | “Failed, cancelled and later-turn work stays in its owning execution.” |  | G1 |
 | 14 | Responses are counted once: “copied ancestor responses and repeated streaming rows count once,” and “Repeating a selection cannot double-charge its responses.” | slice 5 | |
-| 15 | “Requested and observed model/effort are distinct.” In the Claude Code example, “the request at launch does not replace those facts.” | slice 2 | observed: agent-effort-settings.spec.ts Codex maxima: requested-model/high separate from observed-one/medium/default and observed-two/low/fast |
+| 15 | “Requested and observed model/effort are distinct.” In the Claude Code example, “the request at launch does not replace those facts.” | slice 2 | observed: agent-effort-settings.spec.ts requested vs observed Codex settings; agent-effort-cursor.spec.ts requested null separate from unavailable observed model/effort coverage |
 | 16 | “Observed changes remain visible.” For Claude Code session `296b888d…`, **Fable/medium** and **Opus/high** are reported separately. | slice 2 | observed: agent-effort-peaks.spec.ts Claude maxima distributions; claude-sample-summary.json122Fable/medium+158Opus/high |
 | 17 | Reports name the host. | slice 1 | observed: agentEffortReport.ts host from selected task or explicit host; bounded Claude test observes definition/host selection |
-| 18 | Reports name the service tier. | slice 2 | observed: agent-effort-settings.spec.ts default/fast distribution changes; claude-sample-summary.json standard tier |
+| 18 | Reports name the service tier. | slice 2 | observed: agent-effort-settings.spec.ts default/fast; claude-sample-summary.json standard; agent-effort-cursor.spec.ts explicit unavailable serviceTier overall/per-agent |
 | 19 | Reports name the selection/window. | slice 1 | observed: agent-effort-report.spec.ts taskId/rootTurnId and explicit from/until assertions |
 | 20 | Reports name the accounting definition. | slice 1 | observed: agent-effort-report.spec.ts Claude definition; agentEffortReport.ts Codex inclusive definition and accounting explanation |
 | 21 | Reports name their sources. The lost-native-files example further requires recoverable stored counters to appear “with their provenance.” | slice 1 | observed: agent-effort-report.spec.ts native sources; agent-effort-coverage.spec.ts stored-session-contribution history source |
 | 22 | Reports name the guidance version; “Missing guidance evidence is unknown.” | slice 2 | observed: agent-effort-settings.spec.ts historical guidance unknown with isolated cwd VERSION changes; actual sample unknown |
 | 23 | “A maintainer-supplied version is labelled as supplied, not observed.” | slice 2 | observed: agent-effort-settings.spec.ts --guidance-version0.7.8 explicitly supplied provenance |
 | 24 | “Never use today’s installation as evidence about a historical run.” | slice 2 | observed: agentEffortReport/Observations/CLI inspected no VERSION read; historical guidance test independent cwd VERSION changes leave unknown |
-| 25 | “Missing ownership, native files, counters or wake evidence remains a named gap.” Examples retain both a missing Cursor worker and lost native files as gaps; the latter identifies “peak/wake/ownership evidence that cannot be reconstructed.” | slice 4 |  |
+| 25 | “Missing ownership, native files, counters or wake evidence remains a named gap.” Examples retain both a missing Cursor worker and lost native files as gaps; the latter identifies “peak/wake/ownership evidence that cannot be reconstructed.” | slice 4 | observed: agent-effort-cursor.spec.ts missing worker/results/identity/native-turn/token/wake gaps; agent-effort-cursor-selection.spec.ts missing family; agent-effort-coverage.spec.ts lost-native stored provenance and peak/wake ownership limits |
 | 26 | Reports distinguish “known subtotals” from “complete totals.” | slice 1 | observed: agent-effort-report.spec.ts contradictory-worker partial; agent-effort-coverage.spec.ts partial input/lifetime and missing-native provenance |
-| 27 | “Unavailable is not zero.” The Cursor example reinforces that a missing worker is “not a zero cost.” | slice 4 |  |
+| 27 | “Unavailable is not zero.” The Cursor example reinforces that a missing worker is “not a zero cost.” | slice 4 | observed: agent-effort-cursor.spec.ts all token metrics null/unavailable; agent-effort-cursor-selection.spec.ts missing-family workflow null; missing workers not zero cost |
 | 28 | Cursor token usage is reported as unavailable. |  | G4 |
-| 29 | Cursor unobservable wakes are reported as unavailable. | slice 4 | |
-| 30 | Cursor provides reproducible transcript counts. | slice 4 | |
-| 31 | Cursor provides reproducible worker counts. | slice 4 | |
-| 32 | Cursor provides reproducible byte measures. “Transcript bytes are not token or live-context estimates.” | slice 4 | |
-| 33 | Cursor provides reproducible tool-call counts. | slice 4 | |
-| 34 | Cursor provides reproducible Read-call counts, “including skill and plan reads.” SEED-313 session `a6169ce7…` expects **eight PLAN.md reads** from its retained transcript. | slice 4 | |
-| 35 | Cursor provides reproducible Task-call counts. | slice 4 | |
-| 36 | Cursor provides reproducible AwaitShell-call counts. | slice 4 | |
-| 37 | Cursor provides reproducible TodoWrite-call counts. SEED-313 session `a6169ce7…` expects **15 TodoWrite calls** from its retained transcript. | slice 4 | |
-| 38 | Cursor workflow counting resolves “recorded dynamic-tool wrappers.” | slice 4 | |
+| 29 | Cursor unobservable wakes are reported as unavailable. | slice 4 | observed: agent-effort-cursor.spec.ts Cursor idleWakeRequests null/unavailable despite known workflow counts |
+| 30 | Cursor provides reproducible transcript counts. | slice 4 | observed: agent-effort-cursor.spec.ts nested family3 transcripts excluding other family; cursor-sample-summary.json12 retained transcripts |
+| 31 | Cursor provides reproducible worker counts. | slice 4 | observed: agent-effort-cursor.spec.ts2 nested workers; cursor-sample-summary.json11 retained workers with completeness unknown |
+| 32 | Cursor provides reproducible byte measures. “Transcript bytes are not token or live-context estimates.” | slice 4 | observed: agent-effort-cursor.spec.ts exact stat byte sum and no token/context inference; cursor-sample-summary.json coordinator224594/family523102 |
+| 33 | Cursor provides reproducible tool-call counts. | slice 4 | observed: agent-effort-cursor.spec.ts9 calls and known-id dedup/conflict/ID-less qualification; actual sample326 coordinator occurrences |
+| 34 | Cursor provides reproducible Read-call counts, “including skill and plan reads.” SEED-313 session `a6169ce7…` expects **eight PLAN.md reads** from its retained transcript. | slice 4 | observed: agent-effort-cursor.spec.ts3 Reads incl skill/PLAN; cursor-sample-summary.json coordinator8PLAN reads |
+| 35 | Cursor provides reproducible Task-call counts. | slice 4 | observed: agent-effort-cursor.spec.ts3 Task calls and missing-worker evidence |
+| 36 | Cursor provides reproducible AwaitShell-call counts. | slice 4 | observed: agent-effort-cursor.spec.ts dynamic AwaitShell count1; actual coordinator13 retained occurrences |
+| 37 | Cursor provides reproducible TodoWrite-call counts. SEED-313 session `a6169ce7…` expects **15 TodoWrite calls** from its retained transcript. | slice 4 | observed: agent-effort-cursor.spec.ts2 TodoWrite including nested worker; cursor-sample-summary.json coordinator15 |
+| 38 | Cursor workflow counting resolves “recorded dynamic-tool wrappers.” | slice 4 | observed: agent-effort-cursor.spec.ts direct and dynamic tools count4 dynamic calls and resolved Read/Task/AwaitShell/TodoWrite names |
 | 39 | A comparison shows per-host figures. The linked-continuation example also retains “per-host measures.” | slice 5 | |
 | 40 | A comparison shows deltas “for like, known measures.” | slice 5 | |
 | 41 | A comparison shows settings differences. | slice 5 | |
@@ -85,4 +85,4 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | 61 | “Expose their read phase separately from persistence.” | slice 1 | observed: compareAgentEffort.ts → agentEffortReport.ts → usageScan.ts inspected local-only read path, shared native readers/collectResponses/associations; actual CLI unchanged-byte assertions; importer remains sole writer, no state/schema extension |
 | 62 | “Extend no workflow authority.” | slice 1 | observed: compareAgentEffort.ts → agentEffortReport.ts → usageScan.ts inspected local-only read path, shared native readers/collectResponses/associations; actual CLI unchanged-byte assertions; importer remains sole writer, no state/schema extension |
 | 63 | Extend no application database. | slice 1 | observed: compareAgentEffort.ts → agentEffortReport.ts → usageScan.ts inspected local-only read path, shared native readers/collectResponses/associations; actual CLI unchanged-byte assertions; importer remains sole writer, no state/schema extension |
-| 64 | “Keep host-specific observation separate from shared accounting.” | slice 4 | |
+| 64 | “Keep host-specific observation separate from shared accounting.” | slice 4 | observed: agentEffortCursor.ts/Workflow.ts separate host path; existing shared Usage scan/ownership/writer unchanged; pure path convention reused with18 existing liveness consumer cases |

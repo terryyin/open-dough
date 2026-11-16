@@ -1,5 +1,47 @@
 # Execution evidence
 
+## Execution context
+
+- Established Story Branch Mode in `/Users/terryyin/git/open-dough/.worktrees/compare-agent-effort-on-comparable-runs`, branch `codex/compare-agent-effort-on-comparable-runs`, reused owned linked worktree. Remote `origin`, trunk `main`; integration/default checkout `/Users/terryyin/git/open-dough` is separate and untouched.
+- Identity `SEED-345#compare-agent-effort-on-comparable-runs`, publisher `dashboard-territory.local-open-dough`, agent Yuma-chan. Starting revision `fffced8c60680a43399419eb56e98e36b0e43e92`; accepted claim and first published base `f777c4aa2e9f3603a50603fb20e67c95ccbff290`. Claim on trunk has `pendingCi: unobserved`.
+- Exact checkout setup: Node v24.21.0; `node scripts/setup-native.mjs npm` passed with unchanged lockfile; `npm run typecheck:dashboard` passed. Hook `.githooks/pre-commit` is check-only staged lint and dashboard typecheck. Selective formatter `npm run format`; agent commit contract applies.
+- Replanning: preserve existing planned authority; no overrun permission supplied. Five slices are within the eight-slice cap. Implementation agents own 15 active minutes per slice.
+- Observer: GitHub Actions `ci.yml` (verified CI, id 351271804), repository `terryyin/open-dough`, target `codex/compare-agent-effort-on-comparable-runs`, coordinator `yuma-compare-345`. Codex yielded cell `g601:15`, session 67032, PID 52119, directory `/tmp/dough-ci-501/watch-n98g3z`; runtime is this checkout's `.agents/skills/dough-execute-plan`. Integrated-state completion uses the configured push check.
+
+## Existing solution and architecture
+
+PFE: `usageRecords.ts`, `codexUsage.ts`, `claudeUsage.ts` and
+`usageReconciliation.ts` already own native counters and response identity.
+`usageImport.ts` gathers native task facts, resolves lineage and calls the
+same associations the dashboard uses. `usageContributions.ts` and
+`usageTaskSummary.ts` already sum by model, effort, service tier and root/worker;
+the stored summary intentionally discards responses. `collectUsageHistory`
+currently couples reading to `writeUsageHistory`, even with an alternate store.
+Expose its evidence-reading phase and reuse it; preserve the importer's writer.
+Do not reconstruct a second task-attribution or token-normalization rule.
+
+The evaluation archive's `retainedUsage` in
+`Distribution/evaluation/src/native-comparison-archive-usage.mjs` has the same
+own-response invariant but assumes a Codex controlled-attempt directory. Reuse
+the general Usage solution instead of extending that harness into historical
+reporting. Cursor's existing `hosts/cursor/unfinishedSubagents.ts` supplies its
+belonging-directory convention; its liveness boolean is not accounting evidence.
+
+Keep report-only host observations (peaks and tools) outside persistent usage
+history. The report is derived local evidence, not a new store or workflow
+authority: [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) requires
+matched task/conditions for controlled trials; this tool reads retained native
+evidence and does not run those trials. Label retrospective comparisons
+exploratory under [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+Use the existing North Star's observation/presentation separation; no new
+architectural topic, package or installation kind is needed.
+
+Expected shared-file edit: `usageImport.ts` is 231 lines at preparation;
+extract the cohesive read phase rather than adding another writer path. The
+other observed readers are below 250 lines. New modules stay cohesive and small;
+do not expand the history schema to retain report-only detail.
+
 ## Proof ownership
 
 All new CLI specs invoke the actual Node entry with isolated homes, retained
@@ -40,92 +82,9 @@ behaviors have discriminating fixture proof above; no existing test is claimed
 to prove them. Unknown historical version and outcome equivalence remain honest
 report fields, not premises on which implementation depends.
 
-## Slice 1 acceptance
+## Accepted implementation proof
 
-Trigger: retained launch or explicit native family/window; expected read-only
-coordinator/worker counters with sources, deduplication and explicit gaps.
-Inspected `agentEffortReport.ts` task/family selection, shared resolved association
-filter, worker grouping, fallback and unowned response paths;
-`agentEffortTotals.ts` known component/lifetime sums; `usageScan.ts` read-only
-shared reader/reconciliation; `usageImport.ts` raw persistence, resolved export
-and graph-release boundary. Original CLI spec's six named cases at lines
-13, 42, 58, 72, 85 and 93 observe these results using isolated retained evidence
-and existing MakeMe builders. Negative byte assertions include newly created files.
-
-- `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/agent-effort-report.spec.ts --reporter=list`: 6 passed.
-- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --reporter=list --workers=2`: 96 passed in 1.3m; log `/tmp/compare-effort-usage-history.log`. Import/export/report/persistence/reimport, native association/coverage and Refresh consumers observed.
-- `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/import-responses.spec.ts dashboard/backend-tests/usage-history/import-report.spec.ts dashboard/backend-tests/usage-history/agent-effort-report.spec.ts --reporter=list --workers=2`: final importer graph-release change, 8 passed (5.2s); final `npm run typecheck:dashboard` passed; `git diff --check` passed.
-
-Consumer trace effects: extraction of `scanUsageHistory`, relocation/re-export of
-`launchCatalog`, preserved `importUsageHistory`. Product boundaries are offline
-import/export/report and Usage Refresh; observations above cover those consumers.
-Planning/documentation hits do not execute those operations. No pricing/schema
-change; those consumers retain unchanged behavior. Active implementation 13m.
-Exact reply ownership remains G1 until the shared sibling lands; current CLI
-shows the unowned native identifiers/sources and partial totals. G2–G4 retain
-the other planned interims. Freshness unchanged at pinned trunk
-`87ebb7cdd0afb4bf43c125d1143adb77ec4ad37b`; no named sibling product landed there.
-
-Consumer trace command: `node .agents/skills/dough-execute-plan/scripts/consumer-trace.mjs --checkout . --base f777c4aa2e9f3603a50603fb20e67c95ccbff290 --term scanUsageHistory --term launchCatalog --term importUsageHistory` exited 0. `usageRefresh.ts` launchCatalog caller and persistence paths unchanged, covered by the 96-test run.
-
-Refactor relocation: canonical selected-launch and bounded Claude cases are in
-`agent-effort-report.spec.ts`; lost-native fallback, ambiguous selection,
-partial input/lifetime coverage and unowned reply cases moved verbatim to
-`agent-effort-coverage.spec.ts`. Shared CLI invocation/byte capture is
-`dashboard/tests/usage-history/agentEffortHarness.ts`.
-Contribution grouping moved to `agentEffortGroups.ts`; boundary/attribution and
-all six complete assertion bodies are preserved. Refactor focused replacement
-`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/agent-effort --reporter=list --workers=2`: 6 passed (3.7s). Scan/import/Refresh proof remains unchanged.
-
-Independent refactor returned `## REFACTOR COMPLETE`; final typecheck and tracked/new-file whitespace checks passed. Consumer record `/tmp/compare-effort-refactor-consumers.txt` inspected: actual CLI and both specs/harness run, planning references reused, no other runtime consumer. Refactor active13m; final proof load8.48/8.26/8.67 on AC, free memory48%.
-
-Guarded delivery initially stopped at formatting, before commit: untyped CLI JSON and two non-null assertions. Independent refactor repaired derived harness types, catalog presence checks and explicit existing selection narrowing within traced paths; output/assertions unchanged. Final typecheck and whitespace checks passed; six CLI cases reused. Type-repair consumer trace `/tmp/compare-effort-refactor-type-repair-consumers.txt`; second `## REFACTOR COMPLETE` received.
-
-Slice1 accepted publication: `4f2059948d26b900bd1adcf090c12a93c62bdd2d` to `origin/refs/heads/codex/compare-agent-effort-on-comparable-runs`, suffixBase `f777c4aa2e9f3603a50603fb20e67c95ccbff290`, observer `/tmp/dough-ci-501/watch-n98g3z` reused. This is the next increment’s previously published base. No local maintenance applies to branch publication.
-
-## Slice 2 acceptance
-
-Trigger: multiple agents or observed settings changes; expected individual maxima,
-settings distributions and honest guidance provenance. Inspected
-`agentEffortObservations.ts` request-level shared accounting, separate identities,
-maxima and coverage policy, deterministic settings groups; report and CLI supply
-requested settings separately and no VERSION read. Settings spec observes Codex
-inclusive peaks200/300 and input750, requested versus observed/tier changes and
-null unknowns. Peaks spec observes Claude disjoint42/100 plus separate models;
-missing identity/components/readable-row variants prove lower bounds32/80/110.
-Coverage spec observes unavailable stored-only peak. Guidance test changes isolated
-working-directory VERSION independently; static inspection supplies the no-current-
-installation-read conclusion. It does not claim the fixture models every install.
-
-`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/agent-effort --reporter=list --workers=2`:12 passed (6.4s); `npm run typecheck:dashboard` passed; whitespace passed. All original six CLI observations remain passing. Consumer trace `/tmp/compare-effort-slice2-consumers.txt` inspected: observations→report→CLI/type-only harness/specs covered; upstream normalization/ownership/writer and independent evaluation do not consume this changed output. No shared scan change.
-
-Actual CLI replay: `node dashboard/server/compareAgentEffort.ts --home /tmp/compare-effort-slice2-home --codex-root /tmp/compare-effort-slice2-empty --claude-file /Users/terryyin/.claude/projects/-Users-terryyin-git-open-dough--worktrees-make-landed-ci-repeat-checks-pass-under-moderate/296b888d-08b1-4b06-ac2e-24a4462da7d0.jsonl --host claude --family 296b888d-08b1-4b06-ac2e-24a4462da7d0 --from 1970-01-01T00:00:00.000Z --until 2100-01-01T00:00:00.000Z --json > /tmp/compare-effort-slice2-claude.json` exited0. [Retained summary](claude-sample-summary.json) inspected: coordinator752562 observed-maximum,280 requests,0 missinginput,122Fable/medium and158Opus/high, standard tier, grouppeak null, requested/guidance unknown. Missing worker files remain group gaps without invalidating the coordinator's own retained maximum. Active implementation13m. G1/G3/G4 retain their owners; G2 proved here. Freshness unchanged at pinned trunk `f1bff2c549f5080adb4f3f81e3ec11c5342294ea`; no named sibling landed there.
-
-G5 acceptance correction: `agent-effort-stored-worker.spec.ts` imports native coordinator/worker then deletes only worker file; CLI observes coordinatorpeak100 observed-maximum, stored-only worker peak unavailable/input100partial and combined200partial with all three gaps. Inspected setup and assertions; three stored-only detail gaps no longer downgrade other native agents. Same focused command now13 passed (5.7s), typecheck/whitespace passed. Consumer record `/tmp/compare-effort-slice2-stored-worker-consumers.txt` inspected; shared accounting unchanged. Cumulative implementation14m15s.
-
-Independent slice2 refactor returned none—already clean and `## REFACTOR COMPLETE`; no tests run by reviewer. Real formatted sources all<250 (largest report232). Inspected new stored-worker correction/observations and reused13-case, typecheck and native sample proof; no additional runtime consumer.
-
-Slice2 accepted publication: `4ceb10acf5bcda6574de42e2bd2cc687ffb4fbea` to `origin/refs/heads/codex/compare-agent-effort-on-comparable-runs`, suffixBase `4f2059948d26b900bd1adcf090c12a93c62bdd2d`, same observer reused. Next increment uses this accepted SHA as its base.
-
-## Slice 3 acceptance
-
-Inspected report-only host joins and exact wake classifier, fixtures and CLI
-assertions. `agentEffortWakeFixtures.ts` builds native protocol context via MakeMe;
-`agent-effort-wakes.spec.ts` parameterized host/scenario cases exercise actual Node
-CLI, exact counts/exclusions/coverage and unchanged home bytes. Codex complete prior
-call sets join matched results to next same-turn request. Claude UUID parents/tool
-ids and all streamed emitter blocks prove complete result batches. Conflicting
-replays remain unclassified, returned identities match inputs, developer/turn
-boundaries break stale evidence. Unknown/mixed result shapes stay uncovered;
-clock-only is separate workflow evidence. Helper output contains only counts,
-ids/sources and enums, no transcript bodies.
-
-`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/agent-effort --reporter=list --workers=2`:51 passed (11.1s), including prior13. `npm run typecheck:dashboard` and whitespace passed. Consumer trace `/tmp/compare-effort-slice3-consumers.txt` inspected: host observation→report/CLI/type-only harness/specs exercised; shared normalization/ownership/writer/Refresh unchanged and not consumers of changed report fields. Intermediate identity regression repaired before final51 pass. Wall14m01s, active lower because commands excluded.
-
-Exact timeout envelopes are sourced at [Claude primary report](https://github.com/anthropics/claude-code/issues/36532) and [Codex native wait schema](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs). Unsupported wrappers and other TaskOutput bodies remain unclassified. Retained Claude sample has no TaskOutput rows, so no actual-sample wake replay is claimed. G6 observes this honest coverage; G3 closed with supported forms and conservative exclusions. G1/G4 remain open.
-
-Freshness unchanged pinned trunk `d83b540b38420be767a9798e4fc8233b5dd787c2`. Named explicit-effort sibling integrated `2039d91f2` via `d83b540b3`: inspected new default in `agentLaunchAccept.ts` and existing `retainedUsageTasks.ts` request.effort read. Report already accepts that retained field; no inference for older missing effort, no reconciliation needed. Reply-accounting sibling remains unlanded.
-
-Independent refactor returned `## REFACTOR COMPLETE`: one shared `consistentWakeKind` consensus rule and removed unused Claude row storage, no contract/fixture/assertion change. Inspected edits/consumer record `/tmp/compare-effort-slice3-refactor-consumers.md` (13 dispositions). Same focused command51 passed6.7s and typecheck/whitespace passed. Prior Claude peak/settings sample reusable; no wake sample claim. AC load8.76/8.06/8.30 free50%, no deferredproof; refactor9active minutes.
-
-Guarded delivery caught one eqeqeq finding before commit. Coordinator replaced loose null comparison with explicit null-or-undefined checks in the accepted refactor3 WakeKinds path; exact semantic equivalence, no new representation/helper/path, already traced repair.51-case/typecheck proof reused; guarded format/hook retried.
+- [Slice 1 acceptance and publication](slice-1-evidence.md).
+- [Slice 2 acceptance and publication](slice-2-evidence.md).
+- [Slice 3 acceptance and publication](slice-3-evidence.md).
+- [Slice 4 acceptance and publication](slice-4-evidence.md).
