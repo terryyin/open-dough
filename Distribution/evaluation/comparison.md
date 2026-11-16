@@ -221,8 +221,8 @@ which the command prints as `result-path:`.
   retain available native response counters with coordinator/worker turn
   attribution, deduplicated by own thread and response. Missing, incomplete or
   unattributed usage stays unknown, and no billing amount is inferred. The
-  [effort comparison story](../../.planning/seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs)
-  owns general accounting tooling.
+  [retained effort command](../../dashboard/AGENT-EFFORT.md)
+  provides general read-only accounting tooling.
 - A reused baseline is one dated historical observation. Load, scheduling and
   service latency can differ from a new candidate; it is never a concurrent-pair
   observation merely because its fixed inputs match.

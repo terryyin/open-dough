@@ -148,3 +148,13 @@ actual red settles the separate input/wake coverage risk. Retain this history,
 report and dispositions before process analysis/log access, then delete spent
 records only after closure joins. No correction story/plan needed from product
 review; no backlog mutation by retrospective.
+
+Deferred process review completed after the IC report/disposition: Caught on
+0ffdf580, no stronger proof or follow-up needed. One scratch checkout restored
+and removed; measured invocation-to-report186162ms, three case runtimes1497ms,
+human/agent effort unavailable. Actual run history supports ODF-150 global guard
+coverage miss and ODF-264 broad/truncated retrieval occurrences; recorded in
+DearDough with unknown event timestamps and guidance provenance, no cost guesses.
+Current resumed tool record and retained CI/repair facts are the evidence base;
+earlier subagent history is not reconstructed from summaries. No process
+proposal enters a product correction plan or executes during wrap-up.

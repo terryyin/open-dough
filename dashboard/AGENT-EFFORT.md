@@ -39,6 +39,24 @@ figures; `--list` emits usable task or Cursor family identifiers.
 supplied. Without retained historical source evidence, guidance remains unknown;
 today's installation is never historical evidence.
 
+## Historical sample boundaries
+
+The retained samples in the [session-efficiency method](../docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
+can be replayed with the same family/window flags and the retained native files.
+Select files or roots on the machine holding them; an isolated `--home` avoids
+mixing other local launch/history records into a bounded audit.
+
+| Host / native family | Original selection | Reproduced figures |
+| --- | --- | --- |
+| Codex `01a1d22f-e0cd-7032-930d-5a9ff3011a64` | `[2026-11-12T00:03:56Z, 2026-11-14T00:03:56Z)` | 11 threads, 2,083 requests, 436,806,678 total tokens |
+| Claude `296b888d-08b1-4b06-ac2e-24a4462da7d0` | Retained coordinator family | Peak input 752,562; Fable/medium and Opus/high remain separate |
+| Cursor `a6169ce7-5db3-4970-8f00-c8bf8c548fb4` | Retained transcript directory family | Coordinator 15 TodoWrite calls and eight PLAN.md reads |
+
+A separately selected whole retained Codex family has later requests across
+tasks. Its larger total is a different boundary, not an attribution claim about
+one execution. Task mode supplies the shared ownership boundary for a single
+execution and its later replies/workers.
+
 ## Explicit comparison groups
 
 A comparison manifest has two nonempty execution arrays, with no arbitrary
