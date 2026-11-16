@@ -11,13 +11,17 @@
 //         [slice]: {
 //           periods:  [{ startedAt, endedAt | null }],      started .. paused
 //           commands: [{ id, startedAt, endedAt | null }],  run through the clock
+//           overrunDetectedAt,   set once, when the slice is first seen at the limit
 //         },
 //       },
+//       overruns: [{ slice, detectedAt }],   one per overrun; kept when slices split
 //     },
 //   },
 // }
 //
 // Times are epoch milliseconds. An open period or command lasts until now.
+// `slice-clock-slices.mjs` holds what the entries mean: a slice's active time
+// and its overrun.
 import { execFileSync } from "node:child_process";
 import {
   mkdirSync,
@@ -29,10 +33,8 @@ import {
 } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-export const sliceLimitMinutes = 15;
 export const timeFileSetting = "DOUGH_SLICE_CLOCK_TIME_FILE";
 
-const minuteMs = 60_000;
 const lockRetryMs = 10;
 const lockStaleMs = 10_000;
 
@@ -118,69 +120,4 @@ export function updateRecord(file, change) {
     writeWhole(file, `${JSON.stringify(record)}\n`);
     return result;
   });
-}
-
-// Whether the slice is the one running in the checkout.
-export function isRunning(record, { identity, slice }) {
-  return (
-    record.running?.identity === identity && record.running.slice === slice
-  );
-}
-
-// The slice's entry, or undefined when the record has none.
-export function sliceOf(record, { identity, slice }) {
-  return record.stories[identity]?.slices[slice];
-}
-
-// The slice's entry, added when the record has none.
-export function ensureSlice(record, { identity, slice }) {
-  const { stories } = record;
-  stories[identity] ??= { slices: {} };
-  const { slices } = stories[identity];
-  slices[slice] ??= { periods: [], commands: [] };
-  return slices[slice];
-}
-
-// Intervals closed at `now`, sorted and merged so overlaps count once.
-function union(intervals, now) {
-  const merged = [];
-  const closed = intervals
-    .map(({ startedAt, endedAt }) => [startedAt, endedAt ?? now])
-    .sort((a, b) => a[0] - b[0]);
-  for (const [start, end] of closed) {
-    const last = merged.at(-1);
-    if (last !== undefined && start <= last[1])
-      last[1] = Math.max(last[1], end);
-    else merged.push([start, end]);
-  }
-  return merged;
-}
-
-// Active time: the wall time of the slice's periods minus the union of its
-// command intervals inside them.
-export function elapsedMs(entry, now) {
-  const commands = union(entry.commands, now);
-  let total = 0;
-  for (const [start, end] of union(entry.periods, now)) {
-    total += end - start;
-    for (const [from, to] of commands)
-      total -= Math.max(0, Math.min(end, to) - Math.max(start, from));
-  }
-  return total;
-}
-
-// What every clock command reports about one slice.
-export function sliceReport(record, named, now) {
-  const elapsed = elapsedMs(sliceOf(record, named), now);
-  const minutes = (ms) => Math.round((ms / minuteMs) * 10) / 10;
-  return {
-    identity: named.identity,
-    slice: named.slice,
-    state: isRunning(record, named) ? "running" : "paused",
-    elapsedMinutes: minutes(elapsed),
-    remainingMinutes: minutes(
-      Math.max(0, sliceLimitMinutes * minuteMs - elapsed),
-    ),
-    limitMinutes: sliceLimitMinutes,
-  };
 }

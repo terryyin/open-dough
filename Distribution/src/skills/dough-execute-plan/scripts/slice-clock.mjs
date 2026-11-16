@@ -1,9 +1,15 @@
 // Keeps a slice's active time for the checkout it runs in, so no agent counts
 // with its own clock. Active time is the wall time while the slice runs minus
 // the time inside commands run through the clock, overlaps excluded once.
-// Each command prints one JSON result line.
+// Each command prints one JSON result line. A report of a slice at or past
+// the limit carries `overrun: true` and a message; `storyOverruns` counts the
+// story's overruns, each counted once when first seen.
 //
-//   start --identity ID --slice KEY   start the slice, or resume it when paused
+//   start --identity ID --slice KEY [--continues OLD-KEY | --split-from OLD-KEY]
+//       start the slice, or resume it when paused; with --continues, slice
+//       OLD-KEY of the story becomes KEY first and keeps its elapsed time;
+//       with --split-from, KEY is a new slice split from overrun slice
+//       OLD-KEY, whose clock is dropped first so its key can start at zero
 //   pause                             pause the running slice
 //   status [--identity ID --slice KEY]  report a slice; the running one unless named
 //   run --log FILE --exit-file FILE -- COMMAND [ARG]...
@@ -18,17 +24,20 @@ import { resolve } from "node:path";
 import { flagValues, isDirectCliEntry } from "./ci-direct-entry.mjs";
 import {
   currentTime,
-  ensureSlice,
-  isRunning,
-  readRecord,
   recordPath,
-  sliceOf,
-  sliceReport,
   updateRecord,
   writeWhole,
 } from "./slice-clock-record.mjs";
+import {
+  continueSlice,
+  dropOverrunSlice,
+  ensureSlice,
+  isRunning,
+  sliceOf,
+  sliceReport,
+} from "./slice-clock-slices.mjs";
 
-const usage = `Usage: node slice-clock.mjs start --identity ID --slice KEY
+const usage = `Usage: node slice-clock.mjs start --identity ID --slice KEY [--continues OLD-KEY | --split-from OLD-KEY]
        node slice-clock.mjs pause
        node slice-clock.mjs status [--identity ID --slice KEY]
        node slice-clock.mjs run --log FILE --exit-file FILE -- COMMAND [ARG]...`;
@@ -58,7 +67,15 @@ function flags(argv, allowed) {
 }
 
 function start(file, argv) {
-  const named = namedSlice(flags(argv, ["identity", "slice"]));
+  const { continues, splitFrom, ...name } = flags(argv, [
+    "identity",
+    "slice",
+    "continues",
+    "splitFrom",
+  ]);
+  if (continues !== undefined && splitFrom !== undefined)
+    throw new UsageError("name --continues or --split-from, not both");
+  const named = namedSlice(name);
   if (named === undefined)
     throw new UsageError("start needs --identity and --slice");
   return updateRecord(file, (record) => {
@@ -69,6 +86,9 @@ function start(file, argv) {
       throw new Error(
         `slice ${running.slice} of ${running.identity} is running in this checkout; pause it first`,
       );
+    if (continues !== undefined) continueSlice(record, named, continues);
+    if (splitFrom !== undefined)
+      dropOverrunSlice(record, named.identity, splitFrom);
     if (!same) {
       ensureSlice(record, named).periods.push({
         startedAt: now,
@@ -93,13 +113,14 @@ function pause(file, argv) {
 }
 
 function status(file, argv) {
-  const record = readRecord(file);
-  const named =
-    namedSlice(flags(argv, ["identity", "slice"])) ?? record.running;
-  if (!named) throw new Error(noneRunning);
-  if (sliceOf(record, named) === undefined)
-    throw new Error(`no record of slice ${named.slice} of ${named.identity}`);
-  return { command: "status", ...sliceReport(record, named, currentTime()) };
+  const asked = namedSlice(flags(argv, ["identity", "slice"]));
+  return updateRecord(file, (record) => {
+    const named = asked ?? record.running;
+    if (!named) throw new Error(noneRunning);
+    if (sliceOf(record, named) === undefined)
+      throw new Error(`no record of slice ${named.slice} of ${named.identity}`);
+    return { command: "status", ...sliceReport(record, named, currentTime()) };
+  });
 }
 
 // The command's exit status; a command ended by a signal reports 128 plus

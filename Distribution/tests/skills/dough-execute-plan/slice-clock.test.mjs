@@ -4,7 +4,12 @@ import { join } from "node:path";
 import test from "node:test";
 import { git } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { until } from "../../support/local-test-suite-fixtures.mjs";
-import { executionWorktree } from "../../support/slice-clock-fixture.mjs";
+import {
+  clockRecord,
+  executionWorktree,
+  proofFiles,
+  shellThroughClock,
+} from "../../support/slice-clock-fixture.mjs";
 
 const story = "SEED-367#count-slice-active-time-deterministically";
 const sliceThree = ["--identity", story, "--slice", "3"];
@@ -18,20 +23,10 @@ function reported(command, state, elapsedMinutes, differing = {}) {
     elapsedMinutes,
     remainingMinutes: 15 - elapsedMinutes,
     limitMinutes: 15,
+    overrun: false,
+    storyOverruns: 0,
     ...differing,
   };
-}
-
-// The files a run through the clock leaves for whoever waits for the proof.
-function proofFiles(scratch, name) {
-  const log = join(scratch, `${name}.log`);
-  const exitFile = join(scratch, `${name}.exit`);
-  return { log, exitFile, flags: ["--log", log, "--exit-file", exitFile] };
-}
-
-// Runs a shell script through the clock, leaving `files` for its proof.
-function shellThroughClock(clock, worktree, files, script) {
-  return clock(worktree, "run", ...files.flags, "--", "sh", "-c", script);
 }
 
 test("a slice with nothing recorded starts at 15 remaining, and 6 minutes of work, a 9-minute command through the clock and 4 more minutes report 10 elapsed and 5 remaining", async (t) => {
@@ -199,10 +194,7 @@ test("the record stays in the worktree's own Git state, uncommitted and unseen b
 
   await clock(worktree, "start", ...sliceThree);
 
-  const record = (
-    await git(worktree, "rev-parse", "--git-path", "open-dough/slice-clock")
-  ).stdout.trim();
-  assert.deepEqual(JSON.parse(readFileSync(record, "utf8")).running, {
+  assert.deepEqual((await clockRecord(worktree)).running, {
     identity: story,
     slice: "3",
   });

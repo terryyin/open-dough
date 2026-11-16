@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { timeFileSetting } from "../../src/skills/dough-execute-plan/scripts/slice-clock-record.mjs";
@@ -18,6 +18,29 @@ const dispatchedAt = Date.parse("2026-11-16T09:00:00Z");
 
 function isoAt(minute) {
   return new Date(dispatchedAt + minute * 60_000).toISOString();
+}
+
+// The record the clock keeps in the Git state of the worktree `checkout` is in.
+export async function clockRecord(checkout) {
+  const found = await git(
+    checkout,
+    ...["rev-parse", "--git-path", "open-dough/slice-clock"],
+  );
+  return JSON.parse(
+    readFileSync(resolve(checkout, found.stdout.trim()), "utf8"),
+  );
+}
+
+// The files a run through the clock leaves for whoever waits for the proof.
+export function proofFiles(scratch, name) {
+  const log = join(scratch, `${name}.log`);
+  const exitFile = join(scratch, `${name}.exit`);
+  return { log, exitFile, flags: ["--log", log, "--exit-file", exitFile] };
+}
+
+// Runs a shell script through the clock, leaving `files` for its proof.
+export function shellThroughClock(clock, worktree, files, script) {
+  return clock(worktree, "run", ...files.flags, "--", "sh", "-c", script);
 }
 
 // A repository with a linked worktree, where an execution runs, and the clock

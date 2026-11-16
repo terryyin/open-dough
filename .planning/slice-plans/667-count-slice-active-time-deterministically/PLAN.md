@@ -74,7 +74,9 @@ and under 250 lines each.
 - An overrun is detected when a clock command or hook observes elapsed active
   time at or past 15 minutes. The first detection records it once in the
   story's record. Every later clock command reports it again. The hook reports
-  it once per overrun.
+  it once per overrun to each agent that makes a tool call: the coordinator's
+  own tool call must not use up the implementer's report. Slice 1 found the
+  agent in the hook's input (Claude Code `agent_id`, Cursor `conversation_id`).
 - The limit stays 15 minutes, read from one constant; the guidance link to
   `problem-decomposition.md#size-and-escalate-slices` stays the source of the
   rule.
@@ -171,9 +173,9 @@ in the same worktree, keep it; `run` writes the log and the exit file. Add
 
 ### 3. Report and keep a slice overrun at the next clock command
 Type: Behavior
-Status: planned
-Proof: `Distribution/tests/skills/dough-execute-plan/slice-clock-overrun.test.mjs`
-and the slice 2 spec.
+Status: done
+Proof: `Distribution/tests/skills/dough-execute-plan/slice-clock-overrun.test.mjs`,
+`slice-clock-continues.test.mjs` beside it, and the slice 2 spec.
 
 Behavior: elapsed active time reaches 15 minutes → the next `status` or `run`
 reports the overrun with the slice and elapsed time, and the story record
@@ -239,5 +241,20 @@ on AC wrap any long run in `caffeinate -s -i`.
   running. Reported minutes round to 0.1; compare the limit in milliseconds
   through `elapsedMs`. Test time comes from `DOUGH_SLICE_CLOCK_TIME_FILE`, a
   file read at every observation.
+- Slice 3 added `start … --continues OLD-KEY` (the entry moves to the new key
+  with its elapsed time and overrun) and `start … --split-from OLD-KEY` (an
+  overrun OLD-KEY entry is dropped and the new key starts at zero, also when
+  it reuses the old number). Every report carries `overrun` and
+  `storyOverruns`, plus `message` at the limit. `status` now writes the
+  record, so every reader of a report goes through `updateRecord`.
 - "Slice clock" also names an unrelated dashboard feature
   (`dashboard/src/SliceClock.tsx`); a `slice-clock` consumer trace matches it.
+
+
+## Story obligations
+
+### G1. A split slice that reuses the overrun slice's number resumes past the limit
+Reported: slice 3 — "Reusing an overrun slice's key after a split is not supported. If slice 3 overruns and splits into new slices numbered 3 and 4, start --slice 3 resumes the old entry, still past the limit, instead of starting at zero."
+Story clause: "A slice split after an overrun starts new slice clocks."
+Disposition: proved by slice 3: Distribution/tests/skills/dough-execute-plan/slice-clock-overrun.test.mjs 'a slice split after an overrun onto its own number starts at 15 remaining, and the next split slice leaves the new slice's time alone' — start --split-from drops the overrun entry, so the reused number starts at zero and the story keeps one overrun; new keys 3a and 3b start at 15 in the neighbouring case
+Commitment: 17

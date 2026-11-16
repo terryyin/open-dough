@@ -44,15 +44,15 @@ example figures illustrate the promises and are not separate rules.
 | 10b | The exit status goes to the exit file, including a nonzero exit: "Its exit file holds the status" (Scope 3; Example 5) | slice 2 | observed: Distribution/tests/skills/dough-execute-plan/slice-clock.test.mjs 'a command that exits nonzero…': exit file holds 3; first case holds 0 |
 | 11a | The waiting-for-proof wait uses, and ends on, the clock's exit file (Scope 3; Example 5) | slice 5 | |
 | 11b | Waiting for proof keeps its per-host instructions (Scope 3) | slice 5 | |
-| 12 | "At or past the limit the clock reports an overrun with the elapsed active time, at the next clock command on every host"; Codex detection waits for the next clock command (Goal; Scope 4; Example 3) | slice 3 | |
+| 12 | "At or past the limit the clock reports an overrun with the elapsed active time, at the next clock command on every host"; Codex detection waits for the next clock command (Goal; Scope 4; Example 3) | slice 3 | observed: Distribution/tests/skills/dough-execute-plan/slice-clock-overrun.test.mjs 'an implementer who passes 15 active minutes without a command reads the overrun…': status at 15 and run at 17 report overrun, elapsed time and the slice; 'an overrun first seen by a run through the clock is counted once' |
 | 13a | On Claude Code the overrun is reported after the next tool call through its host hook (Scope 4; Example 3) | slice 4 | |
 | 13b | On Cursor the overrun is reported after the next tool call through its host hook (Scope 4) | slice 4 | |
 | 14 | After the overrun is reported, "the implementer returns unfinished work under 'handle the overrun'" (Example 3) | slice 5 | |
 | 15a | The refactor pass runs outside the clock and adds no elapsed time (Scope 5; Example 6) | slice 5 | |
 | 15b | CI repair runs outside the clock and adds no elapsed time (Scope 5; Example 6) | slice 5 | |
-| 16 | "Refining or renaming an unfinished slice keeps its slice identity and elapsed time"; a 13-minute slice refined with a new title resumes with 2 minutes remaining (Scope 5; Example 4) | slice 3 | |
-| 17 | "A slice split after an overrun starts new slice clocks"; each starts at 15 (Scope 5; Example 4) | slice 3 | |
-| 18 | "The overrun stays in the story's record, so the coordinator can see a second overrun in the same story"; after the split the record still shows one overrun (Scope 5; Example 4) | slice 3 | |
+| 16 | "Refining or renaming an unfinished slice keeps its slice identity and elapsed time"; a 13-minute slice refined with a new title resumes with 2 minutes remaining (Scope 5; Example 4) | slice 3 | observed: Distribution/tests/skills/dough-execute-plan/slice-clock-continues.test.mjs 'a 13-minute slice refined in place with a new title resumes with 2 minutes remaining, also when renumbered to key 4' |
+| 17 | "A slice split after an overrun starts new slice clocks"; each starts at 15 (Scope 5; Example 4) |  | G1 |
+| 18 | "The overrun stays in the story's record, so the coordinator can see a second overrun in the same story"; after the split the record still shows one overrun (Scope 5; Example 4) | slice 3 | observed: Distribution/tests/skills/dough-execute-plan/slice-clock-overrun.test.mjs 'a slice split after an overrun starts each new slice at 15 remaining…': record keeps one overrun, storyOverruns 1 then 2 on a second overrun |
 | 19a | "Track active time" in the oversized-slice reference uses the clock, not the host clock (Scope 6) | slice 5 | |
 | 19b | Delegation briefs use the clock; "the implementer ran no `date`" (Scope 6; Example 1) | slice 5 | |
 | 19c | Waiting-for-proof guidance uses the clock (Scope 6) | slice 5 | |
