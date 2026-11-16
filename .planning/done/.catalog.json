@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-381_fixed-pattern-shards-for-the-distribution-suite.json",
+      "identity": "SEED-381#fixed-pattern-shards-for-the-distribution-suite",
+      "completedAt": "2026-11-16T03:05:08.926Z",
+      "blob": "f27f1e50df2e7ba158535560370d85a872237525"
+    },
+    {
       "fileName": "SEED-371_run-and-maintain-native-evaluations-as-a-distinct-distribution-tool.json",
       "identity": "SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool",
       "completedAt": "2026-11-15T23:29:21.442Z",
@@ -2334,12 +2340,6 @@
       "identity": "SEED-138#compute-execution-readiness",
       "completedAt": "2026-10-17T13:02:28.320Z",
       "blob": "745d6440add96eae2f4cfc9b40b67d888aa4bd52"
-    },
-    {
-      "fileName": "SEED-137_completed-retired-refinement.json",
-      "identity": "SEED-137#completed-retired-refinement",
-      "completedAt": "2026-10-17T02:55:09.023Z",
-      "blob": "6d7ea6533b35edb850798a29ab23ed5f178fe8df"
     }
   ],
   "unreadable": []
