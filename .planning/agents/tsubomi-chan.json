@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-388#count-nested-claude-background-agent-work",
+  "host": "claude"
+}
