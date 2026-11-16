@@ -259,6 +259,18 @@ skill sends a job-count question to `scripts/ci-job-times.sh`.
 `dashboard/tests/shards.md` and `Distribution/tests/runner-settings.md` link
 the skill where they say how shards are changed.
 
+## Execution complete
+
+Product advice: keep the declared shards; every group stayed within its
+deal-era bound on the story's runs. Distribution share 2 holds only
+`Distribution/evaluation/**` and totals 889 s against an even 701 s, with
+its slowest job 36 s inside the 320-second deadline; no single allowed
+change can lower it, so a manual split of that folder through
+`rebalance-ci-shards` is the next rebalance worth considering. The
+native-comparison checks `native-comparison-refresh.sh` and
+`native-comparison-supplier-watch.sh` fail in the full local suite at load
+about 25 and pass alone, a load-sensitivity defect outside this story.
+
 ## Current decisions
 
 - The settings stay `<prefix>_SPLIT=<i>/<n>`; job names, proof parts,
@@ -387,3 +399,8 @@ premises are bounded by the early probe in slice 5.
 Reported: slice 3 — "Interim deal kept: a selection naming durations (and no job) still deals by its duration list when there is a split."
 Story clause: "each browser configuration asks it for its shard's spec files and is told only the shard number"
 Disposition: proved by slice 4: dashboard/tests/support/testFiles.mjs has no deal import; the four configurations pass their job through runnerConfig.mjs prepareFocusedRun; Distribution/tests/support/browser-group-shards.test.mjs selects every real shard from ci.yml
+
+### G2. Two comments still described the deal (first reported in the retrospective)
+Reported: slice 6 — "Distribution/tests/support/ci-proof-actions.test.mjs:183 and dashboard/backend-tests/runtime/runner-ownership.spec.ts:44 describe shard selection as a deal."
+Story clause: "every other passage that refers to them"
+Disposition: proved by slice 6: both comments name the shard; git grep -w deal over dashboard, e2e, scripts, Distribution/tests, docs and .github finds no current-behaviour mention
