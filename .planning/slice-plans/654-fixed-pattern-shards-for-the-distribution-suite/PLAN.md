@@ -2,6 +2,7 @@
 
 **Identity:** SEED-381#fixed-pattern-shards-for-the-distribution-suite
 **Source:** [Fixed pattern shards for the Distribution suite](../../seeds/SEED-381-fixed-ci-test-shards.md#fixed-pattern-shards-for-the-distribution-suite)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -56,7 +57,7 @@ their tests, `dashboard/tests/shards.md`, `dashboard/*.longest-first*`,
 
 ### 1. Select a share from declared patterns
 Type: Structure
-Status: planned
+Status: done
 Proof: a new `Distribution/tests/support` node test over small label sets and
 workflow text.
 
@@ -177,6 +178,24 @@ to a deleted Distribution passage.
   owns it.
 - Slice 4's failure stops slices 5–7 only when no three-share arrangement
   fits; removal does not depend on which patterns win.
+
+## Learnings
+
+- Slice 1: `scripts/test-share-matrix.mjs` reads the matrix form below and
+  exports `readShareMatrix(text, file)` and `selectShare(matrix, labels, share?)`;
+  its CLI is `node scripts/test-share-matrix.mjs WORKFLOW [SHARE]` with labels
+  NUL-separated on stdin and NUL-terminated output. Parsing `<i>/<n>` and
+  refusing an `<n>` other than `shares.length` is left to slice 3. A scratch
+  run over 908 git-listed Distribution checks gave 244, 318 and 346.
+
+  ```yaml
+          share: [1, 2, 3]
+          include:
+            - share: 1
+              tests: Distribution/tests/skills/dough-execute-plan/**
+            - share: 2
+              tests: Distribution/evaluation/**
+  ```
 
 ## Readiness and sizing
 
