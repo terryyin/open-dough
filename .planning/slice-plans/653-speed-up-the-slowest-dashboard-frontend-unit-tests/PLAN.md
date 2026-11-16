@@ -224,7 +224,7 @@ divider (the short-height rule), and the `?1000h` and `?1002h` swipes (one
 
 ### 7. Report the gain and record what remains
 Type: Structure
-Status: planned
+Status: done
 Proof: second suite wall measurement; the delivered revision's CI case sums for
 the group against the baseline; candidate record updated.
 
@@ -235,6 +235,29 @@ after-runs are both below both before-runs. Write remaining live candidates to
 tests, and note the first-on-worker start as accepted. Refresh
 `dashboard/frontend.longest-first` as [shards](../../../dashboard/tests/shards.md)
 describes when kept changes moved file durations.
+
+Result (2026-11-16):
+- Kept: slice 4 (`startup-host-words` startup case) and slice 6 (the merged
+  `intent-done-project-refresh` case). In CI, run 43773156778 at `09e70e926`
+  against run 43789763452 at `644e1ae93` (455 of 455 passed), the affected
+  cases summed 8.63 + 11.59 = 20.22 s before and 2.39 + 5.40 = 7.79 s after.
+  The 43 unchanged group cases ran 19% faster on the later runner (219.8 →
+  177.1 s); scaled by that, the kept changes save about 8.5 s of CI case time.
+  The group fell 240.0 → 184.9 s and the suite 975.3 → 782.4 s mostly
+  because of the runner.
+- Suite wall, alternating two workers, AC, `caffeinate -s -i`: `d9c35d51f`
+  261.8 s and 294.9 s, `644e1ae93` 311.7 s and 231.4 s, load swinging 5–14.
+  One after-run exceeds both before-runs: no shorter-suite claim. The first
+  base run failed `intent-purpose-case.spec.ts:43`, the flake slice 1 repaired
+  on this branch; it passed in both after-runs.
+- Undone with no demonstrated gain: slices 1, 2, 3 and 5. No shared-cause
+  change was kept. `.github` and the Playwright configs are unchanged against
+  `d9c35d51f`.
+- `.planning/TEST-OPTIMIZATION-CANDIDATES.md` keeps the page-time step as the
+  one live candidate. Accepted costs are commented at `frontendApp`,
+  `wheelToEnd` and `fortyFiveDoneSessions`. `dashboard/frontend.longest-first`
+  is refreshed from run 43789763452, the delivered revision, because only it
+  times the merged and changed files; it had 138 of 195 files unrecorded.
 
 ## Current decisions
 

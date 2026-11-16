@@ -13,7 +13,9 @@ const threeProjects = ["open-dough", "doughnut", "pygardon"] as const;
 // Forty-five retained Done sessions across the three configured projects,
 // or the `sources` given, newest completion first as titles Done session
 // 01 … 45. Two mid-list completions share a timestamp so identity breaks the
-// tie. `titles[0]` is newest; `titles[44]` is oldest.
+// tie. `titles[0]` is newest; `titles[44]` is oldest. Accepted cost: the
+// list shows 20, then 40, then all 45, so forty-five reaches two full batches
+// and a short last one, every paging boundary the paging cases prove.
 export function fortyFiveDoneSessions(
   now: number,
   sources: readonly string[] = threeProjects,
