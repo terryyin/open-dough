@@ -158,3 +158,33 @@ DearDough with unknown event timestamps and guidance provenance, no cost guesses
 Current resumed tool record and retained CI/repair facts are the evidence base;
 earlier subagent history is not reconstructed from summaries. No process
 proposal enters a product correction plan or executes during wrap-up.
+
+## Closure reconciliation and source disposition
+
+Before cleanup, consumed named sibling SEED-388 nested-Claude-background
+correction at trunk04c5ef2a (attributed product ancestors change Claude ancestry,
+association/replay ownership). Published history preserved by installed backlog
+merge adapter as `c201bcd0f`; no private normalization or ownership rule.
+Renewed full Usage170 passed1.3m/80.27s on AC/load6.03, same literal guarded
+directory command. Typecheck passes. Actual Claude CLI sample reread in isolated
+home matches retained aggregate: peak752562,280requests,122Fable/medium plus
+158Opus/high; existing native response bodies never printed or modified.
+Codex/Cursor accounting and group overlap code untouched, IC report remains
+applicable. Only reader-dependent retrospective conclusions renewed; no defect
+or changed product advice. Shared source cleanup from sibling is preserved.
+
+The source's labelled deferred list names scope exclusions (UI, paid/automatic
+trials/matching, inferred quality/intervention scores, invoices/pricing and
+account-wide completeness), not incomplete selected-story promises. The retained
+independent review has no delivery commitments for those items; all64 selected
+promises are satisfied. No newly admitted beneficiary/outcome supports a backlog
+addition. An initially requested clarification was resolved on that source
+evidence; no answer or permission is required and no future work is invented.
+Before-cleanup recovery retains the original wording in Git.
+
+Execution branch completion5a49ec2c succeeded on not-required basis0ffdf580 with
+confirmed observer shutdown, unread0. Final closure still owes its own branch
+publication/completion and trunk integration/CI. Ownership ref records this
+worktree created for SEED-345#compare-agent-effort-on-comparable-runs. Common
+Git directory `/Users/terryyin/git/open-dough/.git`; dashboard command and landing
+context retained outside workspace; reporting cwd will be `/Users/terryyin`.
