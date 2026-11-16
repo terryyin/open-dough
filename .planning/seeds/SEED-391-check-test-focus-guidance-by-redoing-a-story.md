@@ -109,6 +109,13 @@ that was read and changed nothing. Beside them:
 
 **Limits the result states.**
 
+- **Accepted Codex evidence limit (2026-11-17).** Terry authorized “Okay, you
+  can skip it and continue.” The original B refactor brief is unavailable:
+  skip its wording assessment and record edit 4 as unassessed, without a
+  keep/revise/remove verdict or a claim that its moment was not exercised.
+  Continue the Codex-first result with B's extra retrospective retained as
+  an observed protocol deviation. Keep product/test proof pinned before that
+  review and separate its timing/usage; do not repeat B to erase the deviation.
 - The plan B executes tells slice 1 to update nine specs "to expect `--effort
   medium` in their exact argv or record". B therefore shows what the guidance
   does against a plan that budgets the churn: value updates in B follow the

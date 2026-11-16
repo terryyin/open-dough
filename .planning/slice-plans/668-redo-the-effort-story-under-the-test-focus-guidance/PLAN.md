@@ -171,7 +171,7 @@ P's cost.
 
 ### 6. Each guidance edit has a recommendation
 Type: Behavior
-Status: planned
+Status: done
 Proof: a `## Result` section holding five rows.
 
 Behavior: slices 3–5 are recorded → `## Result` gives each edit its observed
@@ -195,20 +195,17 @@ are preserved.
 Reported: slice 1 — "The single native Claude launch returned exit 1: Workspace not trusted. No B session, transcript or first delegation exists; the slice 1 probe stopped before execution. Terry subsequently authorized Codex first; the amended probe owes execution in a separate clone."
 Story clause: "One fresh Codex session executes"
 Disposition: proved by slice 1: b-codex-terminal-proof.json; native thread 01a1e48a-0078-76a1-929a-c853646f3acc accepted the blind start, delegated implementation, and exited 0 at clean execution-complete commit 57f805ee2596619f80e007b9f2eff248cc5da112; no push and guard stopped. Protocol deviation is retained separately as G2.
-Commitment: 1
-
-
+Commitment: P01
 ### G2. B exceeded the no-retrospective protocol
 Reported: slice 1 — "B performed a coordinator product retrospective at 14:38:18.047–14:40:14.840 UTC, although the trial source excludes it. The exact prompt stopped at the execution-complete record without disabling the skill's earlier retrospective. Only eight plan lines changed after the fourth slice commit; product/test observations are pinned before this extra review."
 Story clause: "no wrap-up, retrospective or landing."
-Disposition: receiving slice 6
-
-
+Disposition: owner changed "Continue the Codex-first result with B's extra retrospective retained as an observed protocol deviation."
+Commitment: P17
 ### G3. Original Codex refactor brief is not readable
 Reported: slice 4 — "B’s first refactor message is encrypted in its root and child logs. Supported native thread/read for both omits its plaintext. Count/remedy wording is unobserved; the final judgment needs readable source or an explicit changed promise. The operator requested the developer’s choice while independent work continues."
 Story clause: "The coordinator's slice 1 refactor brief"
-Disposition: receiving slice 6
-Commitment: 6
+Disposition: owner changed "skip its wording assessment and record edit 4 as unassessed"
+Commitment: P07
 ### G4. Intermediate refactor messages are encrypted
 Reported: slice 4 — "Intermediate candidate discussion is encrypted, although the final first-refactor return and actual changed files are readable."
 Story clause: "An Open Dough maintainer can decide, edit by edit"
@@ -224,3 +221,15 @@ Disposition: no user cost "The story's outcome is that evidence and a recommenda
 - Refactor disposition for these updates: records-only.
 - Slice 5: [planning replay](planning-replay.md), commitment 2 accepted:
   P's Structure slice 2 immediately precedes the default Behavior slice 3.
+
+## Result
+
+**Codex-first result:** Terry authorized the brief omission; the extra retrospective remains a reported protocol deviation. Read [the full assessment and reading order](guidance-result.md) first.
+
+| Edit | Observed moment and assessment |
+| --- | --- |
+| Shotgun surgery | [Keep within the observed refactor](guidance-result.md#edit-1--shotgun-surgery-keep-within-the-observed-refactor): B narrows unrelated backend observations; mixed feedback/status cases remain. |
+| Named behavior / reader / cases | [Keep with limits](guidance-result.md#edit-2--named-behavior-shared-reader-separate-cases-keep-with-limits): actual-command reader and separate absent-effort case; residual mixed assertions remain. |
+| Oversized named follow-up | [Not exercised in the returned outcome](guidance-result.md#edit-3--named-oversized-follow-up-not-exercised-in-the-returned-outcome): no oversized candidate identified in readable final return/learnings; no claim about encrypted intermediate discussion. |
+| Facts-only brief | [Unassessed](guidance-result.md#edit-4--facts-only-refactor-brief-unassessed): Terry authorized skipping the unavailable brief; its moment occurred (G3), with no verdict. |
+| Structure before default change | [Keep for planning](guidance-result.md#edit-5--structure-before-changing-the-default-keep-for-planning): P's Structure slice 2 immediately precedes default Behavior slice 3; unexecuted. |

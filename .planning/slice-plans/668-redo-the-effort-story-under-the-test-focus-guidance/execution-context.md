@@ -120,3 +120,41 @@ cache-read tokens are a subset of input and reasoning a subset of output; use
 recorded cumulative usage without summing repeated cumulative snapshots. Keep
 provider billing distinct and mark a missing Codex dollar cost unavailable.
 Do not infer a guidance-only speed/cost effect across host/model/context changes.
+
+## Codex-first handoff — slice 6 unfinished
+
+Slice 4 records were accepted at `10bfe207f6f2f7d2ffa19a31eaa680ad487b8611`;
+slice 5 at `dee607a08f55febc022340aee1724a40a2c11dba`, the latest published
+base for continuation. Both receipts reused the same observer. Source freshness
+was unchanged at main `d288b03f91096cef74c581fa1794f1f7cf3a748b` before
+accepting the slice 6 return.
+
+The uncommitted `guidance-result.md` and PLAN Result section are a concrete
+draft. Slice 6 and commitments 3–7/17 remain uncompleted; G2/G3 remain open.
+Terry's unanswered choice is readable B brief evidence, or an explicit changed
+promise accepting the unreadable brief as unassessed, together with treatment
+of B's extra retrospective as a protocol deviation. No source amendment,
+retrospective, execution-complete record or wrap-up was performed.
+
+For this human-judgment stop, the official Codex adapter stopped
+`/tmp/dough-ci-501/watch-nVUAv2`: terminal `stopped`, unread 0, coverage ended,
+pending CI `unobserved`; PID 59140 exit was confirmed by finite local `ps`.
+No normal completion operation ran. Resume preserves the existing claim,
+worktree, uncommitted draft, B/P clones and logs; rearm this coordinator only
+after that confirmed old exit. The matched Claude trust prerequisite persists.
+
+## Resumed after the brief omission was authorized
+
+Terry said “Okay, you can skip it and continue.” The source now records edit 4
+as unassessed and continues with the extra retrospective reported as a deviation.
+Fresh source-only review `/root/source_review_skip_brief` returned P01–P20;
+the prior review/acceptance remains in `source-review-before-skip.md`.
+Existing frozen observations were reused, without another B/P run.
+
+Observer rearmed only after PID 59140's confirmed exit: same target and
+`aino-seed391`, directory `/tmp/dough-ci-501/watch-k1lWLU`, PID 10447,
+session 89771, yielded cell `g694:8`; runtime remains this checkout's
+`.agents/skills/dough-execute-plan`. Workflow CI/ci.yml id 351271804 was
+verified active. Latest published base remains `dee607a08f55febc022340aee1724a40a2c11dba`
+before slice 6 delivery; accepted receipt will name its exact successor.
+Source freshness is unchanged at main `dcb6572131b0de847b02facb8f2d0f3c1033703c`.
