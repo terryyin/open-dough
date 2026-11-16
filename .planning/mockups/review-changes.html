@@ -1,0 +1,616 @@
+<div id="dough-review-mockup" class="viz-dotted-background">
+  <section class="review-panel" aria-label="Story review">
+    <header class="review-header">
+      <div>
+        <h2>Extend syntax styling in code diffs</h2>
+        <p>Story review <code>SEED-377#extend-syntax-styling-in-code-diffs</code></p>
+      </div>
+      <button type="button" class="icon-button" data-refresh aria-label="Refresh" data-tooltip="Refresh">
+        <i data-lucide="refresh-cw" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">↻</span>
+      </button>
+    </header>
+
+    <div class="review-toolbar">
+      <button type="button" class="icon-button outlined" data-files-toggle aria-controls="dough-review-files" aria-expanded="true" aria-label="Hide files" data-tooltip="Hide files">
+        <span class="when-shown"><i data-lucide="panel-left-close" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">Hide files</span></span>
+        <span class="when-hidden"><i data-lucide="panel-left-open" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">Show files</span></span>
+      </button>
+      <div class="comparison-summary">
+        <span data-comparison-summary>Landed runs</span>
+        <button type="button" class="icon-button outlined details-toggle" data-details-toggle aria-controls="dough-review-details" aria-expanded="false" aria-label="Show review details" data-tooltip="Show review details">
+          <span class="when-hidden"><i data-lucide="eye" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">Details</span></span>
+          <span class="when-shown"><i data-lucide="eye-off" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">Hide details</span></span>
+        </button>
+      </div>
+    </div>
+
+    <section id="dough-review-details" class="review-details" aria-label="Review details" hidden>
+      <div class="review-choices">
+        <fieldset>
+          <legend>Comparison</legend>
+          <div class="comparison-choices">
+            <label><input name="dough-review-comparison" type="radio" value="landed" checked> Landed runs</label>
+            <label><input name="dough-review-comparison" type="radio" value="published"> Published completion</label>
+          </div>
+        </fieldset>
+        <div class="run-picker">
+          <label for="dough-review-run">Landed run</label>
+          <select id="dough-review-run" data-run-picker>
+            <option value="latest">Story Branch · Nov 16, 10:42 AM · 34cdf85a</option>
+            <option value="earlier">Story Branch · Nov 14, 3:18 PM · 8d65ee23</option>
+            <option value="missing">Trunk · Nov 13, 9:10 AM · No captured comparison</option>
+          </select>
+        </div>
+      </div>
+      <dl class="run-metadata" data-run-metadata>
+        <div><dt>Workflow</dt><dd data-workflow>Story Branch</dd></div>
+        <div><dt>Launched</dt><dd data-launched>Nov 16, 2026 at 10:42 AM</dd></div>
+        <div><dt>Target</dt><dd><code>origin/main</code></dd></div>
+        <div data-revisions><dt>Revision range</dt><dd><code data-base></code> <span aria-hidden="true">→</span><span class="sr-text"> to </span> <code data-revision></code></dd></div>
+      </dl>
+      <p class="published-metadata" data-published-metadata hidden>Published comparison for <code>origin/main</code>.</p>
+    </section>
+
+    <p class="review-status" role="status" data-review-status></p>
+    <div class="review-work" data-work>
+      <section id="dough-review-files" class="review-files" aria-labelledby="dough-review-files-heading">
+        <h3 id="dough-review-files-heading" data-file-count>5 changed files</h3>
+        <details open>
+          <summary><i data-lucide="folder" aria-hidden="true"></i> dashboard/src</summary>
+          <ul>
+            <li data-file-row><button type="button" class="file-row" data-file="tokens"><i data-lucide="file-code" aria-hidden="true"></i><code>SourceTokens.tsx</code><span class="line-count"><span class="added">+8</span> <span class="removed">−2</span></span></button></li>
+            <li data-file-row><button type="button" class="file-row" data-file="syntax"><i data-lucide="file-code" aria-hidden="true"></i><code>sourceSyntax.ts</code><span class="line-count"><span class="added">+3</span></span></button></li>
+            <li data-file-row><button type="button" class="file-row" data-file="styles"><i data-lucide="file-code" aria-hidden="true"></i><code>source-tokens.css</code><span class="line-count"><span class="added">+1</span> <span class="removed">−1</span></span></button></li>
+          </ul>
+        </details>
+        <details open>
+          <summary><i data-lucide="folder" aria-hidden="true"></i> dashboard/frontend-tests/review</summary>
+          <ul>
+            <li data-file-row><button type="button" class="file-row" data-file="test"><i data-lucide="file-code" aria-hidden="true"></i><code>story-review-diff-syntax-paths.spec.ts</code><span class="line-count"><span class="added">+2</span> <span class="removed">−1</span></span></button></li>
+          </ul>
+        </details>
+        <details open>
+          <summary><i data-lucide="folder" aria-hidden="true"></i> docs</summary>
+          <ul>
+            <li data-file-row><button type="button" class="file-row" data-file="docs"><i data-lucide="file-text" aria-hidden="true"></i><code>source-reading.md</code><span class="line-count"><span class="added">+2</span> <span class="removed">−1</span></span></button></li>
+          </ul>
+        </details>
+      </section>
+
+      <button type="button" class="file-divider" role="separator" aria-label="Resize file sidebar" aria-controls="dough-review-files" aria-orientation="vertical" aria-valuemin="192" aria-valuemax="448" aria-valuenow="256" data-tooltip="Drag to resize files, or use Left and Right"></button>
+
+      <section class="review-diff" aria-labelledby="dough-review-diff-heading">
+        <header class="diff-heading">
+          <div>
+            <h3 id="dough-review-diff-heading"><code data-file-name>SourceTokens.tsx</code></h3>
+            <p class="diff-path" data-file-path>dashboard/src</p>
+          </div>
+          <div class="file-moves">
+            <button type="button" class="icon-button" data-step="-1" aria-label="Previous file" data-tooltip="Previous file"><i data-lucide="chevron-up" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">↑</span></button>
+            <button type="button" class="icon-button" data-step="1" aria-label="Next file" data-tooltip="Next file"><i data-lucide="chevron-down" aria-hidden="true"></i><span class="icon-fallback" aria-hidden="true">↓</span></button>
+          </div>
+        </header>
+        <div class="diff-code" role="region" aria-label="Code diff">
+          <ol data-diff-lines></ol>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+
+<style>
+  #dough-review-mockup {
+    color-scheme: light dark;
+    --dough-page: light-dark(#f6f6f3, #111722);
+    --dough-panel: light-dark(#fff, #192130);
+    --dough-line: light-dark(#c9c9c1, #374358);
+    --dough-edge: light-dark(#6f6f68, #8b9bb8);
+    --dough-ink: light-dark(#1d1d1b, #edf1fa);
+    --dough-quiet: light-dark(#55554f, #b0bdd2);
+    --dough-accent: light-dark(#1b5fa8, #c4d2ff);
+    --dough-selected: light-dark(#e6eef8, #29395d);
+    --dough-hover: light-dark(#ecece7, #232e41);
+    --dough-ready: light-dark(#1b6e3c, #a4dfc1);
+    --dough-problem: light-dark(#9b1c1c, #f0a8a8);
+    --dough-keyword: light-dark(#94212e, #ffadb5);
+    --dough-string: light-dark(#134f83, #a8c8ff);
+    --dough-type: light-dark(#5a3682, #d1b3ff);
+    box-sizing: border-box;
+    padding: clamp(6px, 2vw, 18px);
+    color: var(--dough-ink);
+    font: 14px/1.45 system-ui, sans-serif;
+  }
+
+  #dough-review-mockup * { box-sizing: border-box; }
+  #dough-review-mockup [hidden] { display: none !important; }
+  #dough-review-mockup :is(h2, h3, p, dl, dd, fieldset, ol, ul) { margin: 0; }
+  #dough-review-mockup :is(code, .diff-code, .diff-code li) { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  #dough-review-mockup code { padding: 0; border-radius: 0; background: none; font-size: inherit; word-break: normal; }
+  #dough-review-mockup :is(button, select) { color: inherit; font: inherit; }
+  #dough-review-mockup button { cursor: var(--cursor-interaction, pointer); }
+  #dough-review-mockup :focus-visible { outline: 2px solid var(--dough-accent); outline-offset: 2px; }
+
+  #dough-review-mockup .review-panel {
+    container: dough-review / inline-size;
+    background: var(--dough-panel);
+    border: 1px solid var(--dough-line);
+    border-radius: 9px;
+    box-shadow: 0 3px 12px color-mix(in srgb, var(--dough-ink) 8%, transparent);
+  }
+
+  #dough-review-mockup .review-header,
+  #dough-review-mockup .review-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--dough-line);
+  }
+
+  #dough-review-mockup .review-header { justify-content: space-between; gap: 8px; }
+  #dough-review-mockup .review-header h2 { font-size: 16px; line-height: 1.35; font-weight: 650; }
+  #dough-review-mockup .review-header p { color: var(--dough-quiet); font-size: 12px; overflow-wrap: anywhere; }
+  #dough-review-mockup .review-toolbar { padding-block: 6px; background: var(--dough-page); }
+  #dough-review-mockup .comparison-summary { display: flex; align-items: center; gap: 8px; color: var(--dough-quiet); }
+  #dough-review-mockup .icon-button {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 5px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--dough-quiet);
+  }
+  #dough-review-mockup .icon-button.outlined { border-color: var(--dough-edge); }
+  #dough-review-mockup .icon-button.details-toggle { min-width: 28px; height: 28px; }
+  #dough-review-mockup .icon-button:hover:not(:disabled) { background: var(--dough-hover); color: var(--dough-ink); }
+  #dough-review-mockup .details-toggle[aria-expanded="true"] { background: var(--dough-selected); color: var(--dough-accent); }
+  #dough-review-mockup .icon-button:disabled { opacity: .45; cursor: default; }
+  #dough-review-mockup .icon-button svg { display: block; width: 16px; height: 16px; }
+  #dough-review-mockup .icon-button [class^="when-"] { display: inline-grid; place-items: center; }
+  #dough-review-mockup [aria-expanded="true"] .when-hidden,
+  #dough-review-mockup [aria-expanded="false"] .when-shown,
+  #dough-review-mockup svg + .icon-fallback { display: none; }
+  #dough-review-mockup .icon-fallback { font-size: 12px; }
+
+  #dough-review-mockup .review-details {
+    display: grid;
+    gap: 12px;
+    padding: 12px 14px 14px;
+    border-bottom: 1px solid var(--dough-line);
+    background: var(--dough-panel);
+  }
+  #dough-review-mockup .review-choices { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; }
+  #dough-review-mockup fieldset { border: 0; padding: 0; min-width: 0; }
+  #dough-review-mockup legend,
+  #dough-review-mockup .run-picker > label { padding: 0 0 5px; font-weight: 650; font-size: 12px; }
+  #dough-review-mockup .comparison-choices { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  #dough-review-mockup .comparison-choices label { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+  #dough-review-mockup .comparison-choices input { accent-color: var(--dough-accent); margin: 0; }
+  #dough-review-mockup .run-picker { display: flex; flex-direction: column; min-width: 0; max-width: 100%; }
+  #dough-review-mockup select {
+    min-height: 32px;
+    max-width: 100%;
+    padding: 3px 8px;
+    border: 1px solid var(--dough-edge);
+    border-radius: 5px;
+    background: var(--dough-panel);
+    font-size: 13px;
+  }
+  #dough-review-mockup .run-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    border-top: 1px solid var(--dough-line);
+    padding-top: 9px;
+    font-size: 13px;
+  }
+  #dough-review-mockup .run-metadata div { min-width: 0; }
+  #dough-review-mockup .run-metadata dt { color: var(--dough-quiet); font-size: 12px; }
+  #dough-review-mockup .run-metadata dd { overflow-wrap: anywhere; }
+  #dough-review-mockup .published-metadata { color: var(--dough-quiet); }
+  #dough-review-mockup .sr-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #dough-review-mockup .review-status { padding: 8px 14px; border-bottom: 1px solid var(--dough-line); }
+  #dough-review-mockup .review-status:empty { display: none; }
+
+  #dough-review-mockup .review-work {
+    --file-width: 256px;
+    display: grid;
+    grid-template-columns: var(--file-width) 16px minmax(0, 1fr);
+    align-items: stretch;
+    margin: 14px;
+  }
+  #dough-review-mockup .review-work.files-hidden { grid-template-columns: minmax(0, 1fr); }
+  #dough-review-mockup .review-files {
+    min-width: 0;
+    border: 1px solid var(--dough-line);
+    border-radius: 5px;
+    padding: 9px 7px;
+  }
+  #dough-review-mockup .review-files h3 { margin: 0 4px 6px; font-size: 14px; font-weight: 650; }
+  #dough-review-mockup .review-files details + details { margin-top: 5px; }
+  #dough-review-mockup .review-files summary { padding: 4px; overflow-wrap: anywhere; font-size: 13px; font-weight: 600; }
+  #dough-review-mockup .review-files summary svg { display: inline-block; width: 14px !important; height: 14px !important; color: var(--dough-quiet); vertical-align: -2px; }
+  #dough-review-mockup .review-files ul { list-style: none; padding: 0 0 0 10px; }
+  #dough-review-mockup .file-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    min-height: 29px;
+    padding: 3px 5px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    font-size: 12px;
+    text-align: left;
+  }
+  #dough-review-mockup .file-row:hover { background: var(--dough-hover); }
+  #dough-review-mockup .file-row[aria-pressed="true"] { background: var(--dough-selected); border-color: var(--dough-accent); }
+  #dough-review-mockup .file-row svg { flex: none; width: 13px; height: 13px; color: var(--dough-quiet); }
+  #dough-review-mockup .file-row code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #dough-review-mockup .line-count { flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
+  #dough-review-mockup .added { color: var(--dough-ready); }
+  #dough-review-mockup .removed { color: var(--dough-problem); }
+
+  #dough-review-mockup .file-divider {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    cursor: col-resize;
+    touch-action: none;
+  }
+  #dough-review-mockup .file-divider::before,
+  #dough-review-mockup .file-divider::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); }
+  #dough-review-mockup .file-divider::before { inset-block: 0; width: 1px; background: var(--dough-line); }
+  #dough-review-mockup .file-divider::after { top: calc(50% - 15px); width: 4px; height: 30px; border-radius: 4px; background: var(--dough-edge); }
+  #dough-review-mockup .file-divider:is(:hover, :focus-visible, :active)::after { background: var(--dough-accent); }
+  #dough-review-mockup .review-work[data-dragging] { user-select: none; }
+
+  #dough-review-mockup .review-diff { min-width: 0; }
+  #dough-review-mockup .diff-heading { display: flex; justify-content: space-between; gap: 6px; align-items: start; min-height: 46px; margin-bottom: 7px; }
+  #dough-review-mockup .diff-heading h3 { font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }
+  #dough-review-mockup .diff-path { color: var(--dough-quiet); font-size: 12px; overflow-wrap: anywhere; }
+  #dough-review-mockup .file-moves { display: flex; flex: none; gap: 2px; }
+  #dough-review-mockup .diff-code { overflow: auto; border: 1px solid var(--dough-line); border-radius: 5px; font-size: 12px; }
+  #dough-review-mockup .diff-code ol { min-width: 100%; width: max-content; list-style: none; padding: 0; }
+  #dough-review-mockup .diff-code li { display: grid; grid-template-columns: 25px 25px 18px auto; min-height: 23px; align-items: center; }
+  #dough-review-mockup .diff-code li[data-hunk] { display: block; padding: 5px 8px; color: var(--dough-quiet); background: var(--dough-page); }
+  #dough-review-mockup .diff-code li[data-kind="plus"] { background: color-mix(in srgb, var(--dough-ready) 13%, var(--dough-panel)); }
+  #dough-review-mockup .diff-code li[data-kind="minus"] { background: color-mix(in srgb, var(--dough-problem) 12%, var(--dough-panel)); }
+  #dough-review-mockup .diff-code li > span { text-align: right; color: var(--dough-quiet); }
+  #dough-review-mockup .diff-code li > code { padding: 0 9px; white-space: pre; }
+  #dough-review-mockup .token-keyword { color: var(--dough-keyword); }
+  #dough-review-mockup .token-string { color: var(--dough-string); }
+  #dough-review-mockup .token-type { color: var(--dough-type); }
+
+  @container dough-review (width < 580px) {
+    #dough-review-mockup .review-work { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    #dough-review-mockup .file-divider { display: none; }
+  }
+  @media (any-pointer: coarse) {
+    #dough-review-mockup .icon-button,
+    #dough-review-mockup .icon-button.details-toggle { min-width: 44px; height: 44px; }
+    #dough-review-mockup :is(.file-row, .review-files summary, .comparison-choices label, select) { min-height: 44px; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById("dough-review-mockup");
+    const find = (selector) => root.querySelector(selector);
+    const details = find("#dough-review-details");
+    const eye = find("[data-details-toggle]");
+    const fileToggle = find("[data-files-toggle]");
+    const filePane = find("#dough-review-files");
+    const divider = find(".file-divider");
+    const panel = find(".review-panel");
+    const work = find("[data-work]");
+    const runPicker = find("[data-run-picker]");
+    const status = find("[data-review-status]");
+    const diff = find("[data-diff-lines]");
+    const fileButtons = Array.from(root.querySelectorAll("[data-file]"));
+    const moves = Array.from(root.querySelectorAll("[data-step]"));
+    const comparisonNames = { landed: "Landed runs", published: "Published completion" };
+    const files = {
+      tokens: {
+        hunk: "@@ -27,7 +27,13 @@ export function SourceTokens",
+        old: 27,
+        next: 27,
+        lines: [
+          '   const { path, source } = props;',
+          '-  const language = languageFromPath(path);',
+          '+  const language = syntaxForSource(path, props.syntax);',
+          '   if (language === undefined) return source;',
+          ' ',
+          '-  return highlight(source, language);',
+          '+  const tokens = highlight(source, language);',
+          '+  return tokens ?? source;',
+          ' }',
+          ' ',
+          '+export type SourceSyntax = "typescript" | "yaml" | "json";',
+          '+',
+          '+export function syntaxForSource(path: string, hint?: SourceSyntax) {',
+          '+  return hint ?? languageFromPath(path);',
+          '+}',
+        ],
+      },
+      syntax: {
+        hunk: "@@ -9,3 +9,6 @@ const languagesByExtension",
+        old: 9,
+        next: 9,
+        lines: [' const languagesByExtension = {', '   ".tsx": "tsx",', '+  ".yaml": "yaml",', '+  ".yml": "yaml",', '+  ".json": "json",', ' };'],
+      },
+      styles: {
+        hunk: "@@ -5,3 +5,3 @@",
+        old: 5,
+        next: 5,
+        lines: [" .source-token {", "-  color: var(--shiki-light);", "+  color: color-mix(in srgb, var(--shiki-light) 75%, var(--text));", " }"],
+      },
+      test: {
+        hunk: "@@ -18,3 +18,4 @@",
+        old: 18,
+        next: 18,
+        lines: [' test("reads syntax from the file path", async () => {', '-  await readDiff("dashboard/src/index.ts");', '+  await readDiff("dashboard/config.yaml");', '+  await seeToken("projects", "key");', ' });'],
+      },
+      docs: {
+        hunk: "@@ -12,3 +12,4 @@ Syntax highlighting",
+        old: 12,
+        next: 12,
+        lines: [" ## Syntax highlighting", " ", "-Syntax follows the file extension.", "+Syntax follows the file extension or the configured syntax hint.", "+YAML and JSON use their own grammars."],
+      },
+    };
+    const runs = {
+      latest: {
+        workflow: "Story Branch", launched: "Nov 16, 2026 at 10:42 AM",
+        base: "51ea96d8847bed7419447c29a7974ee93fb5caf3",
+        revision: "34cdf85a1caacdcbe5f0e4b8367a010f7598adfb",
+        files: ["tokens", "syntax", "styles", "test", "docs"],
+      },
+      earlier: {
+        workflow: "Story Branch", launched: "Nov 14, 2026 at 3:18 PM",
+        base: "8aa0524b2519e085ba93d4f453ba5935e518b2b0",
+        revision: "8d65ee23e2b1568350a0c8de24aecf5aff9750b3",
+        files: ["syntax", "test"],
+      },
+      missing: { workflow: "Trunk", launched: "Nov 13, 2026 at 9:10 AM", files: [] },
+    };
+    let comparison = "landed";
+    let runId = "latest";
+    let visibleFiles = [];
+    let selected = "tokens";
+    let filesShown = true;
+
+    const widthKey = "open-dough.mockup.review-changes.files-width";
+    const minimum = 192;
+    const defaultWidth = 256;
+    const narrowWidth = 580;
+    let preferred = defaultWidth;
+    let drag;
+
+    function restoreWidth(state) {
+      const width = state?.privateContent?.width;
+      if (Number.isFinite(width) && width >= minimum) preferred = width;
+    }
+
+    if (window.openai) {
+      restoreWidth(window.openai.widgetState);
+      window.addEventListener("openai:set_globals", (event) => {
+        if (event.detail?.globals?.widgetState) {
+          restoreWidth(event.detail.globals.widgetState);
+          layout();
+        }
+      });
+    } else {
+      try {
+        restoreWidth({ privateContent: { width: Number(localStorage.getItem(widthKey)) } });
+      } catch {
+        // The current tab still keeps the chosen width when storage is unavailable.
+      }
+      if (location.protocol === "file:" && !document.querySelector('meta[name="viewport"]')) {
+        const viewport = document.createElement("meta");
+        viewport.name = "viewport";
+        viewport.content = "width=device-width, initial-scale=1";
+        document.head.append(viewport);
+      }
+    }
+
+    function keepWidth(width) {
+      preferred = width;
+      if (window.openai?.setWidgetState) {
+        window.openai.setWidgetState({ privateContent: { width } }).catch(() => {});
+      } else {
+        try {
+          localStorage.setItem(widthKey, String(width));
+        } catch {
+          // Continue with the preferred width in memory.
+        }
+      }
+    }
+
+    function layout() {
+      const maximum = Math.max(minimum, work.clientWidth - 340);
+      divider.hidden = !filesShown || work.hidden || panel.clientWidth < narrowWidth;
+      const width = Math.min(maximum, Math.max(minimum, drag?.width ?? preferred));
+      work.style.setProperty("--file-width", width + "px");
+      divider.setAttribute("aria-valuemax", maximum);
+      divider.setAttribute("aria-valuenow", width);
+      divider.setAttribute("aria-valuetext", width + " pixels");
+      return { width, maximum };
+    }
+
+    function label(button, text) {
+      button.setAttribute("aria-label", text);
+      button.dataset.tooltip = text;
+    }
+
+    function disclose(open) {
+      details.hidden = !open;
+      eye.setAttribute("aria-expanded", open);
+      label(eye, open ? "Hide review details" : "Show review details");
+    }
+
+    function renderDiff() {
+      const activeButton = fileButtons.find((button) => button.dataset.file === selected);
+      const sample = files[selected];
+      find("[data-file-name]").textContent = activeButton.querySelector("code").textContent;
+      find("[data-file-path]").textContent = activeButton.closest("details").querySelector("summary").textContent.trim();
+      for (const button of fileButtons) button.setAttribute("aria-pressed", button === activeButton);
+      const index = visibleFiles.indexOf(selected);
+      moves[0].disabled = index === 0;
+      moves[1].disabled = index === visibleFiles.length - 1;
+      let oldLine = sample.old;
+      let newLine = sample.next;
+      const heading = document.createElement("li");
+      heading.dataset.hunk = "";
+      heading.textContent = sample.hunk;
+      diff.replaceChildren(heading);
+      for (const line of sample.lines) {
+        const marker = line[0];
+        const row = document.createElement("li");
+        if (marker !== " ") row.dataset.kind = marker === "+" ? "plus" : "minus";
+        const gutter = [marker === "+" ? "" : oldLine++, marker === "-" ? "" : newLine++, marker];
+        for (const value of gutter) {
+          const cell = document.createElement("span");
+          cell.textContent = value;
+          cell.setAttribute("aria-hidden", "true");
+          row.append(cell);
+        }
+        const code = document.createElement("code");
+        const tokens = line.slice(1).split(/("[^"]*"|\b(?:const|return|if|undefined|export|type|function|string|SourceSyntax)\b)/g);
+        for (const [index, token] of tokens.entries()) {
+          if (index % 2 === 0) {
+            code.append(token);
+          } else {
+            const span = document.createElement("span");
+            span.className = token.startsWith('"') ? "token-string" : token === "SourceSyntax" ? "token-type" : "token-keyword";
+            span.textContent = token;
+            code.append(span);
+          }
+        }
+        row.append(code);
+        diff.append(row);
+      }
+      diff.parentElement.scrollTop = 0;
+      diff.parentElement.scrollLeft = 0;
+    }
+
+    function renderComparison() {
+      const landed = comparison === "landed";
+      const run = runs[runId];
+      find("[data-comparison-summary]").textContent = comparisonNames[comparison];
+      runPicker.closest(".run-picker").hidden = !landed;
+      find("[data-run-metadata]").hidden = !landed;
+      find("[data-published-metadata]").hidden = landed;
+      find("[data-workflow]").textContent = run.workflow;
+      find("[data-launched]").textContent = run.launched;
+      find("[data-revisions]").hidden = !run.revision;
+      find("[data-base]").textContent = run.base ?? "";
+      find("[data-revision]").textContent = run.revision ?? "";
+      visibleFiles = landed ? run.files : ["tokens", "syntax", "docs"];
+      const hasFiles = visibleFiles.length > 0;
+      fileToggle.hidden = work.hidden = !hasFiles;
+      status.textContent = hasFiles ? "" : "No captured comparison is available for this landed run.";
+      if (hasFiles) {
+        find("[data-file-count]").textContent = visibleFiles.length + " changed files";
+        if (!visibleFiles.includes(selected)) selected = visibleFiles[0];
+        for (const button of fileButtons) {
+          button.closest("li").hidden = !visibleFiles.includes(button.dataset.file);
+        }
+        for (const folder of filePane.querySelectorAll("details")) {
+          folder.hidden = !folder.querySelector("[data-file-row]:not([hidden])");
+        }
+        renderDiff();
+      }
+      layout();
+    }
+
+    eye.addEventListener("click", () => disclose(details.hidden));
+    details.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      disclose(false);
+      eye.focus();
+    });
+    fileToggle.addEventListener("click", () => {
+      filesShown = !filesShown;
+      filePane.hidden = !filesShown;
+      work.classList.toggle("files-hidden", !filesShown);
+      fileToggle.setAttribute("aria-expanded", filesShown);
+      label(fileToggle, filesShown ? "Hide files" : "Show files");
+      layout();
+    });
+    find("[data-refresh]").addEventListener("click", () => {
+      if (!work.hidden) status.textContent = "Review refreshed.";
+    });
+    for (const radio of details.querySelectorAll('input[type="radio"]')) {
+      radio.addEventListener("change", () => {
+        comparison = radio.value;
+        renderComparison();
+      });
+    }
+    runPicker.addEventListener("change", () => {
+      runId = runPicker.value;
+      renderComparison();
+    });
+    for (const button of fileButtons) {
+      const name = button.querySelector("code").textContent;
+      button.dataset.tooltip = name;
+      button.addEventListener("click", () => {
+        if (selected !== button.dataset.file) {
+          selected = button.dataset.file;
+          renderDiff();
+        }
+      });
+    }
+    for (const button of moves) {
+      button.addEventListener("click", () => {
+        selected = visibleFiles[visibleFiles.indexOf(selected) + Number(button.dataset.step)];
+        const row = fileButtons.find((file) => file.dataset.file === selected);
+        row.closest("details").open = true;
+        renderDiff();
+      });
+    }
+
+    divider.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || drag) return;
+      const { width } = layout();
+      drag = { pointer: event.pointerId, start: event.clientX, initialWidth: width, width };
+      divider.setPointerCapture(event.pointerId);
+      work.dataset.dragging = "";
+    });
+    divider.addEventListener("pointermove", (event) => {
+      if (drag?.pointer !== event.pointerId) return;
+      drag.width = Math.round(drag.initialWidth + event.clientX - drag.start);
+      layout();
+    });
+    function finishDrag(event, commit) {
+      if (drag?.pointer !== event.pointerId) return;
+      const { width } = layout();
+      const changed = drag.initialWidth !== width;
+      drag = undefined;
+      delete work.dataset.dragging;
+      if (commit && changed) keepWidth(width);
+      layout();
+    }
+    divider.addEventListener("pointerup", (event) => finishDrag(event, true));
+    divider.addEventListener("pointercancel", (event) => finishDrag(event, false));
+    divider.addEventListener("lostpointercapture", (event) => finishDrag(event, false));
+    divider.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const { width, maximum } = layout();
+      const step = event.key === "ArrowLeft" ? -16 : 16;
+      const next = Math.min(maximum, Math.max(minimum, width + step));
+      if (next !== width) keepWidth(next);
+      layout();
+    });
+    new ResizeObserver(layout).observe(panel);
+    renderComparison();
+  })();
+</script>
