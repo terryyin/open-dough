@@ -164,10 +164,6 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
   each slice, the `--recover` and `git diff --exit-code` check of both kept
   records after Slices 1, 3 and 4, and `npm run --silent lint`, or
   `npm run --silent format` before it.
-- A new test job changes the CI deal. Preview it with
-  `node scripts/test-shares.mjs preview` at CI's current split count
-  ([test shares](../../../Distribution/tests/test-shares.md)) before
-  publishing. This is the reason for that one broader local check.
 - Local gate: no whole-suite run is required by this plan. Run any long or
   full local run under the
   [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):

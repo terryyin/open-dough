@@ -53,8 +53,7 @@ interim-folder dissolution moved the `runners` array into
    `scripts/ci-container.sh --dashboard` runs all four groups;
    `dashboard/tests/support/testFiles.mjs`
    `dashboardSpecFiles`/`dashboardTestMatch`/`dashboardTestProjects`,
-   `fullSuiteSelection.mjs` `fullDashboardSuite` and
-   `scripts/test-shares.mjs` `listDashboardSpecFiles` serve every group.
+   and `fullSuiteSelection.mjs` `fullDashboardSuite` serve every group.
 3. **Setup guard weakened.** `Distribution/tests/native-harness/native-setup.sh:197`
    concatenates `ci.yml` and `browser-test-group.yml` before its presence
    checks. The browser producers' Node/npm/Chromium acquisition steps were
@@ -71,8 +70,7 @@ interim-folder dissolution moved the `runners` array into
 
 - One dependency-free roster module beside `runnerConfig.mjs` in
   `dashboard/tests/support/` (the approved shared runner-support owner) lists
-  each group's job id, npm command, configuration, settings prefix, root and
-  duration list. Configurations, `proofRecordRun.ts`, the repeat helper, the
+  each group's job id, npm command, configuration, settings prefix and root. Configurations, `proofRecordRun.ts`, the repeat helper, the
   container diagnostic and the tests above read it; `runnerVariables` stays
   the one rule for setting names. Do not introduce a runner framework.
 - `Distribution/tests/support/ci-browser-groups.test.mjs` keeps proving `ci.yml` callers,
@@ -83,8 +81,7 @@ interim-folder dissolution moved the `runners` array into
   `Distribution/tests/test-runner/`), its override variables, and `ci-container.sh --browser-groups`; rename the shared
   selection helpers by group, not dashboard. Update live references
   (`dashboard/tests/README.md`, `Distribution/tests/test-environment.md`,
-  `Distribution/tests/ci/ci-container.md`, `Distribution/tests/longest-first-suite`
-  row label with seconds unchanged). Leave `docs/maintainer/` records,
+  `Distribution/tests/ci/ci-container.md`). Leave `docs/maintainer/` records,
   `DearDough.md`, findings and
   `Distribution/tests/support/fixtures/node-suite-ci-runs/` as recorded.
 - Keep the duplicated workflow setup steps (anchors do not cross workflow
@@ -93,10 +90,9 @@ interim-folder dissolution moved the `runners` array into
   `browser-test-group.yml` separately, such as
   `Distribution/tests/ci/ci-container-workflow.sh` (84 lines), without growing
   either past 250.
-- Edited files near the limit: `scripts/test-shares.mjs` (250),
-  `dashboard/tests/README.md` (252, already over), `proofRecordRun.ts` (223).
-  Renames and derivations must not grow them past 250, and slice 2's README
-  rewording must bring it to 250 or fewer. `groupRunnerExamples.ts` keeps
+- Edited files near the limit: `dashboard/tests/README.md` (248),
+  `proofRecordRun.ts` (223).
+  Renames and derivations must not grow them past 250. `groupRunnerExamples.ts` keeps
   only each group's example spec and grep, keyed to roster entries.
 - ADRs: [0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md)
   supports group names over dashboard names;

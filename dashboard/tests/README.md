@@ -10,7 +10,7 @@ See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
 transcript CI's proof fragments are written from; and
-[CI shards](shards.md) for allocation, recorded times and deadlines.
+[CI shards](shards.md) for shard membership, recorded times and deadlines.
 
 See [local resource use](../../Distribution/tests/local-test-resources.md) for admission
 across worktrees, worker settings, cleanup and machine sleep on macOS.
@@ -207,9 +207,7 @@ its `test.extend`), not with a module-level `test.use`: a module is evaluated
 once per worker, so such a call applies only to the first spec file that
 loads it there.
 
-Discovery and sharding follow the file, so a new spec needs no registration:
-[CI shards](shards.md#the-split) describes how its group finds it and deals it
-to one shard, and how to preview where it lands before a push.
+A new spec needs no registration ([CI shards](shards.md#the-split)).
 
 ## Running the suite
 
@@ -221,13 +219,11 @@ run without the build, the quiet reporter and the run's identity. Local runs
 default to two workers, CI runs every core.
 
 CI runs each group as its own shard jobs, each running the whole spec files
-its group's `<prefix>_SPLIT=i/n` deals it by recorded duration, keeping their
-seconds through `<prefix>_TIMES` as artifact `<group>-times-<shard>`, the
-source its group's duration list is refreshed from, and running under
-`<prefix>_DEADLINE_MS`; [CI shards](shards.md) holds each group's split with
-its preview and refresh, the times file and the deadline. With the variables
-unset, a group's command runs its whole group, unbounded, and writes no times
-file.
+`.github/workflows/ci.yml` declares for its `<prefix>_SPLIT=i/n`, keeping
+their seconds through `<prefix>_TIMES` as artifact `<group>-times-<shard>`,
+and running under `<prefix>_DEADLINE_MS`; [CI shards](shards.md) holds each
+group's split, the times file and the deadline. With the variables unset, a
+group's command runs its whole group, unbounded, and writes no times file.
 
 A passing run prints nothing (`support/quietReporter.ts`) and leaves no
 output directory. A failing spec is shown with its error, output, and

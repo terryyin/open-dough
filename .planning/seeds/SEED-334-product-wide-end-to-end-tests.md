@@ -64,8 +64,8 @@ scope: story
   in maintained homes and runs only E2E, Frontend and Backend browser groups.
 - **Evaluation.** All 41 navigation specs retain every distinct assertion at
   its real boundary. Once all interim product specs have other homes, retire
-  the current Intent location, npm command, config, CI producer/shards,
-  duration lists and live tooling/placement references. Shared support still
+  the current Intent location, npm command, config, CI producer/shards
+  and live tooling/placement references. Shared support still
   works; old integrated proof is readable at its original revision without
   current-proof claims, fabricated comparisons or dead source links.
 - **Scope.** Original provisional slices 5–8. Keep
