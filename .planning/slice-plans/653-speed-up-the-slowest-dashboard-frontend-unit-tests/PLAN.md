@@ -120,7 +120,7 @@ Result (2026-11-16):
 
 ### 2. Reach the next revision check in fewer page-time steps
 Type: Structure
-Status: planned
+Status: done
 Proof: the 10 frontend specs by the measure; every consumer of the changed
 helper green across roots; `expectSteadyPace` keeps its bound.
 
@@ -129,6 +129,16 @@ page after each step, about 60 round-trip pairs per 15-second check. Pass the
 time a journey does not observe in one or few steps, keeping the fine step
 where a case asserts the pace. Weakness removed: per-step round trips that
 prove nothing in cases that only need the next check.
+
+Result (2026-11-16): `passTimeUntilAsked` stepped 1 s between its first and
+last fine 250 ms steps (about 20 round trips per check instead of 61;
+`expectSteadyPace` kept its bound). The 10 specs (19 cases), `--workers=1`:
+round 1 inconclusive (load rose 8.9 → 13.3 in one after-run); round 2 before
+33.2, 44.1, 35.7 s, after 29.4, 33.5, 28.8 s (load 6–12): every pair dropped
+but one after-run exceeded one before-run, and unchanged runs spread 11 s. No
+demonstrated gain; undone. Untried lead: each `page.clock.runFor` call also
+appends to Playwright's replayed clock log, which may cost more than the
+`askedAfter` evaluation.
 
 ### 3. Read layout facts in one page evaluation
 Type: Structure
@@ -197,6 +207,12 @@ describes when kept changes moved file durations.
   CI-equivalent time, record that the 24 s story saving is out of reach by
   speed alone and continue slices 3–6 for their own kept gains and for fewer
   duplicated cases.
+- Checkpoint reached after slice 2: slices 1–2 kept nothing, so the 24 s story
+  saving is out of reach by speed alone. Slices 3–6 continue for their own kept
+  gains and for fewer duplicated cases.
+- Distribution Tests on this branch fail only the suite's total `OVER BUDGET`
+  ceiling, as on `main` since `09e70e926`. SEED-381 (Taken, removing that
+  budget) owns the repair; this story's landing waits for it.
 
 ## Readiness and sizing
 
@@ -211,3 +227,8 @@ their own undo rule.
 Reported: slice 1 — "Decision: undo, no demonstrated gain."
 Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
 Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the measured change did not speed the group, so undoing it keeps protection and loses no feedback speed
+
+### G2. Fewer page-time steps gave no gain (slice 2)
+Reported: slice 2 — "no demonstrated gain, edit undone (it missed the criterion by 0.3 s)"
+Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
+Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the measured change did not speed the affected cases beyond their own variation, so undoing it keeps protection and loses no feedback speed
