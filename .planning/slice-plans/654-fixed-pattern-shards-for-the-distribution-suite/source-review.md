@@ -21,7 +21,7 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 7.1 | Share 1: `Distribution/tests/skills/dough-execute-plan/**` | slice 5 | observed: .github/workflows/ci.yml share 1 tests: Distribution/tests/skills/dough-execute-plan/**; real-repo 1/3 lists 244 dough-execute-plan checks |
 | 7.2 | Share 2: `Distribution/evaluation/**` | slice 5 | observed: .github/workflows/ci.yml share 2 tests: Distribution/evaluation/**; real-repo 2/3 lists 70 evaluation checks |
 | 7.3 | Share 3: the rest | slice 5 | observed: real-repo 3/3 lists the other 328 checks; three shares equal the 642 unsplit, none repeated (test-runner-selection.sh) |
-| 8 | The shares are tuned once from the story's own CI runs and then left alone | slice 6 |  |
+| 8 | The shares are tuned once from the story's own CI runs and then left alone | slice 6 | observed: PLAN.md Learnings slice 6: two moves read from runs 43789276896 and 43790894501; final shares kept |
 | 9 | One small check fails when a check file matches more than one share's patterns | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs 'a check two shares match is refused naming it and both shares' |
 | 9.1 | The overlap failure names the file and the shares | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs 'a check two shares match is refused naming it and both shares' asserts label and 'shares 1 and 2' |
 | 10 | The same check fails when a pattern matches no check | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs 'a pattern that matches no check is refused naming it, also with no share selected' |
@@ -81,21 +81,21 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 25.1 | The folder does not silently join the last share | slice 5 | observed: Distribution/tests/test-runner/test-runner-split.sh unmatched refusal in 3/3 and unsplit before any check starts |
 | 26 | A check takes 70 seconds on CI where the removed per-job ceiling was 64 → the share passes | slice 4 | observed: Distribution/tests/test-runner/test-runner-selection.sh full CI run: a check slower than a per-job ceiling passes (scaled 0.3 s vs 0.1 s; break shown against old runner) |
 | 26.1 | Only the 180-second safety deadline or the 320-second run cutoff fails a share for time | slice 4 | observed: scripts/test.sh has only the deadline/cutoff time failures; test-runner-deadline-* green |
-| 27 | A maintainer moves one folder pattern from the last share to the first in `ci.yml` → the next CI run follows it, with no other file to edit | slice 6 |  |
+| 27 | A maintainer moves one folder pattern from the last share to the first in `ci.yml` → the next CI run follows it, with no other file to edit | slice 6 | observed: commits 3a77b873d and 10ddc5901 change only ci.yml's share 2 tests line (plus plan); the next runs followed (244/100/298, then 244/70/328) |
 | 28 | The matrix is the one owner of share membership | slice 5 | observed: scripts/test-jobs.sh selects split membership only from .github/workflows/ci.yml via scripts/test-share-matrix.mjs |
 | 29 | The runner's selection reads the shares from the workflow file through one small module | slice 5 | observed: scripts/test-jobs.sh calls scripts/test-share-matrix.mjs with the runner root's workflow |
 | 29.1 | The overlap check reads the shares through that same module | slice 5 | observed: overlap/unmatched refusals come from selectShare in scripts/test-share-matrix.mjs |
 | 30 | The runner is told only which share number to run | slice 5 | observed: OPEN_DOUGH_TEST_SPLIT=<i>/<n> is the runner's only share input; shareOfSplit refuses n != declared |
 | 31 | No Accepted ADR constrains this | slice 5 | observed: no Accepted ADR in docs/adrs/ covers shards, shares or the CI matrix (implementer search) |
 | 32 | The repository has no YAML parser, so the matrix entry form must stay readable by that module | slice 1 | observed: scripts/test-share-matrix.mjs readShareMatrix: narrow line parser, refuses unsupported matrix lines |
-| 33 | Share balance has no automatic owner | slice 6 |  |
-| 33.1 | Wall time per share tracks its job-seconds divided by the runner's four CPUs (main run 43773156778: 927, 947 and 619 job-seconds ran in 233, 238 and 155 s) | slice 6 |  |
-| 33.2 | The starting shares total about 743, 845 and 905 job-seconds on that run, so the slowest is predicted near 226 s, against 238 s measured today and the 320-second cutoff | slice 6 |  |
+| 33 | Share balance has no automatic owner | slice 6 | observed: no balancing automation added; ci.yml matrix is static |
+| 33.1 | Wall time per share tracks its job-seconds divided by the runner's four CPUs (main run 43773156778: 927, 947 and 619 job-seconds ran in 233, 238 and 155 s) | slice 6 | observed: PLAN.md Learnings: job-seconds/wall ratio ~3.9 per run, varying 1.4-1.7x across runners |
+| 33.2 | The starting shares total about 743, 845 and 905 job-seconds on that run, so the slowest is predicted near 226 s, against 238 s measured today and the 320-second cutoff | slice 6 | observed: PLAN.md Learnings slice 6: measured 217/157/236 and 135/226/167 s vs 238 s before |
 | 34 | A share that grows past its cutoff fails that share | slice 4 | observed: 320 s run cutoff kept; test-runner-deadline-cutoff.test.mjs green |
 | 34.1 | Drift before that point is visible only through `scripts/ci-job-times.sh` or the job durations | slice 4 | observed: scripts/ci-job-times.sh kept as the only drift report; README points to it |
 | 35 | Considered and not chosen: first match wins in matrix order, as in a routing table with a default route, which would make overlap impossible and need no check | slice 1 | observed: scripts/test-share-matrix.mjs selectShare refuses any cross-share overlap instead of first-match-wins |
 | 35.1 | The developer's overlap check is kept, so each share's patterns say what it runs without reading the earlier entries | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs overlap refusal for share 1, share 3 and unselected |
-| 35.2 | Unlike a default route, the last share receives every new folder, so it grows without anyone editing it | slice 6 |  |
-| 36 | Outcome: CI runs every Distribution check exactly once across the fixed shares | slice 6 |  |
-| 37 | Outcome: total wall time is comparable to the current split | slice 6 |  |
+| 35.2 | Unlike a default route, the last share receives every new folder, so it grows without anyone editing it | slice 6 | observed: last share has no pattern in ci.yml; new folders join it (test-runner-split.sh new-area case) |
+| 36 | Outcome: CI runs every Distribution check exactly once across the fixed shares | slice 6 | observed: runs 43788295624 and 43790894501 test-times artifacts: 642 checks across shares, none repeated, equal to unsplit count |
+| 37 | Outcome: total wall time is comparable to the current split | slice 6 | observed: run 43790894501: slowest test step 236 and 226 s vs 238 s for the dealt split in run 43773156778 |
 | 38 | Outcome: the Distribution suite's code, tests and documents keep no reference to duration lists, deals or the normalized budget | slice 7 |  |

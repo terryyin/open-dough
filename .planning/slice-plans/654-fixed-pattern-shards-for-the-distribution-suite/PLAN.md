@@ -139,7 +139,7 @@ comments above the job say what the matrix now owns.
 
 ### 6. Settle the shares from the story's CI runs
 Type: Behavior
-Status: planned
+Status: done
 Proof: two CI runs of the delivered revision or its successors; each share's
 test step seconds recorded here.
 
@@ -219,6 +219,14 @@ to a deleted Distribution passage.
   the slowest runner seen. Move 2 returns installation to the last share,
   the single-pattern move with the smallest largest share (528, 599 and 658
   in attempt 1's units).
+
+- Slice 6 result: the starting shares stay. `10ddc5901` (installation back in
+  the last share) ran 217, 157 and 236 s in run 43790894501 attempt 1 (855.9,
+  613.9 and 918.9 job-seconds; 244 + 70 + 328 = 642 checks, none repeated)
+  and 135, 226 and 167 s in attempt 2, against 233, 238 and 155 s for the
+  dealt split in run 43773156778. Final patterns: share 1
+  `Distribution/tests/skills/dough-execute-plan/**`, share 2
+  `Distribution/evaluation/**`, share 3 the rest.
 
 ## Readiness and sizing
 
