@@ -70,6 +70,10 @@ with no `unresolved-native-task-lineage` on them. Removing B's agent result
 leaves B's responses unassigned with `unresolved-native-task-lineage`, and
 `unjoined-worker-evidence` names B.
 
+## Execution complete
+
+Product advice: no change to priorities. The Usage index now counts a Claude Code launch's background agents at any depth, including fork-replayed responses, so SEED-334's launch reads its 74.03M transcript cost. That makes it usable as the measure for the [SEED-345](../../seeds/SEED-345-session-token-efficiency.md) trials. One branch is untested: a response owned by the root transcript, which arises when a fork of a first-level fork replays root rows. It is not a story promise and shares the tested restatement path, so it needs no correction.
+
 ## Proof ownership
 
 | Source example | Slice and observation |
