@@ -87,25 +87,6 @@ export function requestedCohort(
   };
 }
 
-// The cohort with a model or effort its tool's options do not offer, such as
-// one another tool ran, reset to the broad option; the cohort itself when it
-// needs no reset.
-export function offeredCohort(
-  cohort: TokenIndexCohort,
-  { models, efforts }: TokenIndexAnswer["options"],
-): TokenIndexCohort {
-  const model = models.some(({ id }) => id === cohort.model)
-    ? cohort.model
-    : null;
-  const effort =
-    cohort.effort !== null && efforts.includes(cohort.effort)
-      ? cohort.effort
-      : null;
-  return model === cohort.model && effort === cohort.effort
-    ? cohort
-    : { ...cohort, model, effort };
-}
-
 // A model by its id and the name the tariff gives it, or else its id.
 export type UsageModel = { readonly id: string; readonly name: string };
 
@@ -191,6 +172,11 @@ export type TokenIndexAnswer = {
   // From the tenth eligible task on, the median of each one's latest ten
   // eligible tasks: priced and measured with no known gap. Earlier history still
   // contributes; only observations in the requested period are returned.
-  // Keep the existing wire name for the trend.
-  readonly average: readonly { readonly at: string; readonly value: number }[];
+  // Keep the existing wire name for the trend. Each observation names the
+  // eligible task it ends with (`task`), completed at `at`.
+  readonly average: readonly {
+    readonly at: string;
+    readonly task: string;
+    readonly value: number;
+  }[];
 };

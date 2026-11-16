@@ -4,7 +4,8 @@
 // chosen launch workflow and, when chosen, with that primary observed model
 // and effort, weighed under one tariff version and placed at its reported
 // outcome time, or else its last recorded activity, with the rolling median
-// of the eligible ones: priced, with no recorded gap. An unpriced
+// of the eligible ones: priced, with no recorded gap, each observation
+// anchored on the eligible task it ends with. An unpriced
 // task has no point and is only counted. The Model and Effort options are the
 // primary settings the tool's finished tasks show in any launch workflow, so
 // switching workflow keeps every choice on offer.
@@ -83,7 +84,7 @@ export function tokenIndexCohort(
     const middleTotal = sorted
       .slice(middle - 1, middle + 1)
       .reduce((sum, value) => sum + value, 0);
-    return [{ at: task.endedAt, value: middleTotal / 2 }];
+    return [{ at: task.endedAt, task: task.id, value: middleTotal / 2 }];
   });
   return {
     cohort,

@@ -67,13 +67,13 @@ test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history 
       "16 tasks · 5 partial · 1 unpriced · Last 30 days",
     );
     await usage.showsMedian("1,950");
-    await usage.selectPoint("Nov 8 · 1,950 · Partial", "pointer");
+    await usage.selectPoint("Nov 8 · Codex · 1,950 · Partial", "pointer");
     await usage.chooseDays("7");
     await usage.showsPoints([
-      "Nov 9 · 2,950 · Partial",
-      "Nov 9 · 1,950 · Partial",
-      "Nov 15 · 1,950 · Partial",
-      "Nov 15 · 1,950",
+      "Nov 9 · Codex · 2,950 · Partial",
+      "Nov 9 · Codex · 1,950 · Partial",
+      "Nov 15 · Codex · 1,950 · Partial",
+      "Nov 15 · Codex · 1,950",
     ]);
     await usage.showsCohortNote(
       "5 tasks · 3 partial · 1 unpriced · Last 7 days",
@@ -82,7 +82,10 @@ test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history 
     await usage.showsMedian("1,950");
     await usage.chooseDays("1");
     await usage.showsCohortNote("2 tasks · 1 partial · Last 1 day");
-    await usage.showsPoints(["Nov 15 · 1,950 · Partial", "Nov 15 · 1,950"]);
+    await usage.showsPoints([
+      "Nov 15 · Codex · 1,950 · Partial",
+      "Nov 15 · Codex · 1,950",
+    ]);
     await usage.showsMedian("1,950");
     await usage.chooseDays("30");
     await usage.showsMedian("1,950");

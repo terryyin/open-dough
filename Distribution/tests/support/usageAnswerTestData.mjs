@@ -2,12 +2,20 @@
 // Frontend service answers; task details and expected observations stay in cases.
 /** @typedef {import("../../../dashboard/src/usageTokenIndex.ts").TokenIndexAnswer} TokenIndexAnswer */
 /** @typedef {import("../../../dashboard/src/usageTokenIndex.ts").TokenIndexTask} TokenIndexTask */
+/** @typedef {{ at: string, value: number, task?: string }} TrendPoint */
 
 const sol = { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" };
 
+/** @param {readonly TokenIndexTask[]} tasks @param {string} at */
+function anchorAt(tasks, at) {
+  const anchor = tasks.find(({ endedAt }) => endedAt === at);
+  if (anchor === undefined) throw new Error(`No task completed at ${at}`);
+  return anchor.id;
+}
+
 export class TokenIndexAnswerBuilder {
   #indexes = [1_950];
-  /** @type {TokenIndexAnswer["average"]} */
+  /** @type {readonly TrendPoint[]} */
   #trend = [];
   /** @type {Map<number, Partial<TokenIndexTask>>} */
   #details = new Map();
@@ -25,7 +33,9 @@ export class TokenIndexAnswerBuilder {
     return this;
   }
 
-  /** @param {TokenIndexAnswer["average"]} points */
+  // Each median observation is anchored on the answer's task completed at
+  // its `at` unless the case names another `task`.
+  /** @param {readonly TrendPoint[]} points */
   withTrend(points) {
     this.#trend = structuredClone(points);
     return this;
@@ -97,7 +107,11 @@ export class TokenIndexAnswerBuilder {
       checkedAt: this.#checkedAt,
       tasks,
       unpriced: this.#unpriced,
-      average: this.#trend,
+      average: this.#trend.map(({ at, value, task }) => ({
+        at,
+        task: task ?? anchorAt(tasks, at),
+        value,
+      })),
     });
   }
 }

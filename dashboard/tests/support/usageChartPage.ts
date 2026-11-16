@@ -1,5 +1,5 @@
 // Focused drawing observations for Usage's shared history chart.
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "../dashboardTest.ts";
 import { centreOf, expectMarkOver, historyChart } from "../historyChartPage.ts";
 import {
@@ -8,10 +8,13 @@ import {
 } from "../accessibleReading.ts";
 import { expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
 import { tokenColour } from "../pageColours.ts";
+// The drawing's name over time or, with equal spacing, in task order.
+export const usageChartName =
+  /^Token index per finished task (by end date|in task order, equally spaced)$/;
 export function usageChart(page: Page) {
   const chart = historyChart(
     page.getByRole("region", { name: "Token index trend", exact: true }),
-    "Token index per finished task by end date",
+    usageChartName,
   );
   const large = chart.drawing.locator(".history-chart-overflow");
   return {
@@ -73,6 +76,37 @@ export function usageChart(page: Page) {
         }),
       ).toBe(true);
       await expectChartMarkContrast(line);
+    },
+    // Each named mark's centre, in the order given.
+    async markCentres(readouts: readonly string[]) {
+      return Promise.all(
+        readouts.map((readout) => centreOf(chart.mark(readout))),
+      );
+    },
+    // Claude Code's points and median take colours apart from Codex's, each
+    // readable on the chart, and its median is also dashed.
+    async showsDistinctTraces() {
+      const paint = (element: Locator, property: "fill" | "stroke") =>
+        element.evaluate(
+          (each, name) => getComputedStyle(each).getPropertyValue(name),
+          property,
+        );
+      const second = ".history-chart-trace-1";
+      const codexPoint = chart.measured.and(page.locator(`:not(${second})`));
+      const claudePoint = chart.measured.and(page.locator(second));
+      const codexLine = chart.drawing.locator(
+        `.history-chart-trend:not(${second})`,
+      );
+      const claudeLine = chart.drawing.locator(`.history-chart-trend${second}`);
+      expect(await paint(claudePoint.first(), "fill")).not.toBe(
+        await paint(codexPoint.first(), "fill"),
+      );
+      expect(await paint(claudeLine, "stroke")).not.toBe(
+        await paint(codexLine, "stroke"),
+      );
+      await expect(claudeLine).toHaveCSS("stroke-dasharray", "6px, 3px");
+      await expectChartMarkContrast(claudePoint.first());
+      await expectChartMarkContrast(claudeLine);
     },
     async showsSeparatedMedianLevels() {
       await expect(chart.line).toHaveAttribute(

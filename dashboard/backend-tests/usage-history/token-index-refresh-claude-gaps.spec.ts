@@ -125,10 +125,14 @@ test("a Claude launch refreshed before its first response is partial until a lat
   await usage.refresh();
   expect(rootGaps()).toEqual(["auxiliary-usage-not-covered"]);
   expect(await coverage("SEED-7#claude-10")).toEqual({ kind: "measured" });
-  // Ten measured launches of 1,950 each: the one median point, at the tenth's
-  // end.
-  expect((await usage.chart("?tool=claude")).average).toEqual([
-    { at: day(10), value: 1_950 },
+  // Ten measured launches of 1,950 each: the one median point, at and
+  // anchored on the tenth.
+  const refreshed = await usage.chart("?tool=claude");
+  const tenth = refreshed.tasks.find(
+    ({ identity }) => identity === "SEED-7#claude-10",
+  );
+  expect(refreshed.average).toEqual([
+    { at: day(10), task: tenth?.id, value: 1_950 },
   ]);
 });
 

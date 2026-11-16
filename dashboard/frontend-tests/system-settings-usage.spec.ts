@@ -57,7 +57,7 @@ test("partial and unpriced tasks explain a sparse trend, and an empty cohort exp
   await usage.showsNoMedian(
     "A rolling median needs 10 eligible tasks; none is available in this period",
   );
-  await usage.selectPoint("Nov 5 · 1,400 · Partial", "pointer");
+  await usage.selectPoint("Nov 5 · Codex · 1,400 · Partial", "pointer");
   await usage.showsFact("Coverage", "Partial · Worker usage missing");
 
   answer = makeMe.aTokenIndexAnswer
@@ -97,7 +97,7 @@ test("task detail distinguishes repeated launches and unknown outcomes, with key
     (route) => route.fulfill({ json: answer }),
   );
   const usage = await visitUsage(page);
-  await usage.selectPoint("Nov 1 · 1,950", "keyboard");
+  await usage.selectPoint("Nov 1 · Codex · 1,950", "keyboard");
   await usage.showsDetail({
     ...story,
     about: "Open Dough · SEED-42#keep-launch-history · Codex · Execution",
@@ -109,11 +109,11 @@ test("task detail distinguishes repeated launches and unknown outcomes, with key
       ["Coverage", "No known gaps"],
     ],
   });
-  await usage.closeDetail("Nov 1 · 1,950");
-  await usage.selectPoint("Nov 2 · 3,900", "keyboard");
+  await usage.closeDetail("Nov 1 · Codex · 1,950");
+  await usage.selectPoint("Nov 2 · Codex · 3,900", "keyboard");
   await usage.showsFact("Ended", { at: day(2), outcome: "Completed" });
-  await usage.closeDetail("Nov 2 · 3,900");
-  await usage.selectPoint("Nov 3 · 5,850", "pointer");
+  await usage.closeDetail("Nov 2 · Codex · 3,900");
+  await usage.selectPoint("Nov 3 · Codex · 5,850", "pointer");
   await usage.showsDetail({
     title: "Recovered execution",
     about: "Open Dough · Codex · Execution",

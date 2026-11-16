@@ -32,7 +32,7 @@ test("large tasks keep actual values and dates without flattening ordinary point
   await usage.showsPointCount(3);
   expect(await chart.ordinarySeparation()).toBeCloseTo(separation, 1);
   await chart.showsLarge(
-    ["Nov 2 · 65,000,000 · Large task above 50 million"],
+    ["Nov 2 · Codex · 65,000,000 · Large task above 50 million"],
     ["65,000,000"],
   );
   await chart.sameDateAsLastOrdinary();
@@ -40,7 +40,7 @@ test("large tasks keep actual values and dates without flattening ordinary point
     "× Large task above 50 million; labels show actual values. Partial coverage remains marked.",
   );
   await usage.selectPoint(
-    "Nov 2 · 65,000,000 · Large task above 50 million",
+    "Nov 2 · Codex · 65,000,000 · Large task above 50 million",
     "pointer",
   );
   await usage.showsFact("Token index", "65,000,000");
@@ -63,8 +63,8 @@ test("coincident large tasks remain separate by pointer touch and keyboard with 
   const usage = await visitUsage(page);
   const chart = usageChart(page);
   const readouts = [
-    "Nov 1 · 65,000,000 · Large task above 50 million",
-    "Nov 1 · 70,000,000 · Partial · Large task above 50 million",
+    "Nov 1 · Codex · 65,000,000 · Large task above 50 million",
+    "Nov 1 · Codex · 70,000,000 · Partial · Large task above 50 million",
   ];
   await chart.showsLarge(readouts, ["65,000,000", "70,000,000 · Partial"]);
   await chart.coincidentMarks(readouts);
@@ -103,7 +103,7 @@ test("exactly fifty million remains ordinary and measured zero keeps an honest s
   await usage.showsPointCount(3);
   await chart.showsOrdinary(2);
   await chart.showsLarge(
-    ["Nov 3 · 50,000,001 · Large task above 50 million"],
+    ["Nov 3 · Codex · 50,000,001 · Large task above 50 million"],
     ["50,000,001"],
   );
   answer = makeMe.aTokenIndexAnswer.with({ indexes: [0, 0] }).please();

@@ -3,9 +3,14 @@
 // measured entry, a hollow diamond for a partial one, a larger diamond for
 // the selected one, and on the row below the axis a red × per failed build
 // or a hollow mark per other build without timing. A selected build without
-// timing is also marked across the plot.
+// timing is also marked across the plot. A named trace after the first adds
+// its slot's class (`history-chart-trace-N`) to its points, trend and ↑ marks.
 import type { ChartLayout, ChartMark } from "./historyChartLayout.ts";
 import { dateBaseline, plotBottom, plotTop } from "./historyChartLayout.ts";
+
+// The extra class of trace style slot `slot`; the first trace needs none.
+const traceClass = (slot: number) =>
+  slot === 0 ? "" : ` history-chart-trace-${String(slot)}`;
 
 // A diamond centred on (x, y), `reach` from its centre to each corner.
 const diamond = (x: number, y: number, reach: number) =>
@@ -20,6 +25,7 @@ function Mark({
 }) {
   const { x, y, entry } = mark;
   const { selectedLabel } = layout;
+  const trace = traceClass(mark.slot);
   if (mark.overflow !== undefined)
     return (
       <g className="history-chart-overflow" data-key={entry.key}>
@@ -68,18 +74,18 @@ function Mark({
     );
   if (entry.selected !== true)
     return entry.partial === undefined ? (
-      <circle className="history-chart-point" cx={x} cy={y} r={4}>
+      <circle className={`history-chart-point${trace}`} cx={x} cy={y} r={4}>
         <title>{entry.description}</title>
       </circle>
     ) : (
-      <path className="history-chart-partial" d={diamond(x, y, 5)}>
+      <path className={`history-chart-partial${trace}`} d={diamond(x, y, 5)}>
         <title>{entry.description}</title>
       </path>
     );
   return (
     <g>
       <path
-        className={`history-chart-point${entry.partial === undefined ? "" : " history-chart-partial"}`}
+        className={`history-chart-point${entry.partial === undefined ? "" : " history-chart-partial"}${trace}`}
         d={diamond(x, y, 6)}
       >
         <title>{entry.description}</title>
@@ -93,6 +99,26 @@ function Mark({
         {selectedLabel}
       </text>
     </g>
+  );
+}
+
+// Each trend's strokes; an independent trend paints above the task marks.
+function Trends({
+  layout,
+  className,
+}: {
+  readonly layout: ChartLayout;
+  readonly className: string;
+}) {
+  return layout.trends.map(
+    ({ path, slot }, index) =>
+      path !== "" && (
+        <path
+          key={index}
+          className={`history-chart-line${className}${traceClass(slot)}`}
+          d={path}
+        />
+      ),
   );
 }
 
@@ -120,20 +146,21 @@ export function HistoryChartPlot({ layout }: { readonly layout: ChartLayout }) {
           <line x1={plotLeft} x2={plotEnd} y1={reference.y} y2={reference.y} />
         </g>
       )}
-      {!layout.trendOnTop && layout.line !== "" && (
+      {layout.line !== "" && (
         <path className="history-chart-line" d={layout.line} />
       )}
+      {!layout.trendOnTop && <Trends layout={layout} className="" />}
       {layout.marks.map((mark) => (
         <Mark key={mark.entry.key} mark={mark} layout={layout} />
       ))}
-      {layout.trendOnTop && layout.line !== "" && (
-        <path
-          className="history-chart-line history-chart-trend"
-          d={layout.line}
-        />
+      {layout.trendOnTop && (
+        <Trends layout={layout} className=" history-chart-trend" />
       )}
       {layout.trendOverflows.map((point, index) => (
-        <g className="history-chart-trend-overflow" key={index}>
+        <g
+          className={`history-chart-trend-overflow${traceClass(point.slot)}`}
+          key={index}
+        >
           <path d={`M${point.x - 5} ${point.y + 3} l5 -6 l5 6`} />
           <text x={point.labelX} y={point.y - 10} textAnchor="middle">
             {point.label}

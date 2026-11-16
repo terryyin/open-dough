@@ -100,5 +100,7 @@ test("the Claude Code rolling median spans its ten latest eligible tasks, leavin
   expect(answer.unpriced).toBe(1);
   // Indices 1,950, 2,450, … 6,450 (1,450 + 500×k for k = 1…10):
   // their median is 1,450 + 500×5.5 = 4,200.
-  expect(answer.average).toEqual([{ at: day(10), value: 4_200 }]);
+  expect(answer.average).toEqual([
+    { at: day(10), task: "priced-10", value: 4_200 },
+  ]);
 });
