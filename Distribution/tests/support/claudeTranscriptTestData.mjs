@@ -35,7 +35,7 @@ import { claudeReportingContext } from "./claudeReportingContext.mjs";
 
 /**
  * @typedef {object} ClaudeAssistantOptions
- * @property {string} uuid
+ * @property {string} [uuid]
  * @property {string} [messageId]
  * @property {object} [usage]
  * @property {string} [model]
@@ -156,15 +156,17 @@ export class ClaudeTranscriptBuilder {
   }
 
   /**
-   * Assistant row with usage. Timestamp defaults in-window; parentUuid to the
-   * previous uuid.
-   * @param {ClaudeAssistantOptions} options
+   * Assistant row with usage. Uuid and message id default when omitted;
+   * timestamp defaults in-window; parentUuid to the previous uuid.
+   * @param {ClaudeAssistantOptions} [options]
    */
-  withAssistant(options) {
+  withAssistant(options = {}) {
+    const uuid = options.uuid ?? `assistant-${this.#rows.length + 1}`;
     const parentUuid = this.#resolveParent(options);
     /** @type {Record<string, unknown>} */
     const message = { ...(options.message ?? {}) };
     if (options.messageId !== undefined) message.id = options.messageId;
+    else if (message.id === undefined) message.id = `msg-${uuid}`;
     if (options.model !== undefined) message.model = options.model;
     if (options.usage !== undefined) message.usage = options.usage;
     if (options.content !== undefined) message.content = options.content;
@@ -175,7 +177,7 @@ export class ClaudeTranscriptBuilder {
     const row = {
       ...this.#base(),
       type: "assistant",
-      uuid: options.uuid,
+      uuid,
       ...(parentUuid !== undefined ? { parentUuid } : {}),
       timestamp: options.timestamp ?? testDataTimestamp,
       ...(options.requestId !== undefined
@@ -184,7 +186,19 @@ export class ClaudeTranscriptBuilder {
       ...(options.effort !== undefined ? { effort: options.effort } : {}),
       message,
     };
-    return this.#push(row, options.uuid);
+    return this.#push(row, uuid);
+  }
+
+  /**
+   * Assistant row whose text embeds raw U+2028 and U+2029 inside one JSONL
+   * row. Other assistant fields follow `withAssistant` defaults.
+   * @param {ClaudeAssistantOptions} [options]
+   */
+  withAssistantHoldingLineSeparators(options = {}) {
+    return this.withAssistant({
+      ...options,
+      content: [{ type: "text", text: "first\u2028second\u2029third" }],
+    });
   }
 
   /** @param {ClaudeTranscriptRow} row literal wire row among builder-made rows */

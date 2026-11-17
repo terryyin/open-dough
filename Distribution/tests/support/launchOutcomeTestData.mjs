@@ -67,10 +67,13 @@ export class LaunchOutcomeBuilder {
    * The session reported its completion, with this final report message
    * (empty for a quiet completion), received at the launch time under a
    * fixed receipt unless the case states its receipt or receipt time.
-   * @param {Omit<ReportFacts, "outcome"> & Partial<Pick<ReportFacts, "outcome">>} report
+   * @param {Omit<ReportFacts, "outcome" | "message"> & Partial<Pick<ReportFacts, "outcome" | "message">>} report
    */
-  completedWith({ outcome = "completed", ...report }) {
-    this.#outcome = { ...this.#outcome, completion: { ...report, outcome } };
+  completedWith({ outcome = "completed", message = "", ...report }) {
+    this.#outcome = {
+      ...this.#outcome,
+      completion: { ...report, outcome, message },
+    };
     return this;
   }
 

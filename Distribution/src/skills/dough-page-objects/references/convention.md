@@ -15,6 +15,10 @@ example, `When I add the note "Call back Friday"` can call
 `notes.addNote("Call back Friday")`. The operation opens the dialog, clears and
 fills the field, clicks Save, and asserts that the dialog closes.
 
+Name harness and builder helpers the same way when they express a scenario
+step: the call states the domain action or precondition; encoding, wire-format,
+locator, and byte mechanics stay inside the helper.
+
 Inside an action, assert only the specific UI state it needs to proceed or finish.
 Make the behavior under proof an explicit observation in the scenario. A
 scenario about saving a note explicitly checks for the saved text. For a

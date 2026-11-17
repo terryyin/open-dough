@@ -127,14 +127,22 @@ export class CodexRolloutBuilder {
   }
 
   /**
-   * One response usage record. Timestamp defaults to the in-window incidental
-   * time; `root_turn_id` defaults to the turn id.
+   * Developer input whose text embeds a raw U+2029 inside one JSONL row.
+   */
+  withDeveloperInputHoldingLineSeparators() {
+    return this.withDeveloperInput("before\u2029after");
+  }
+
+  /**
+   * One response usage record. Usage defaults to an empty object when omitted.
+   * Timestamp defaults to the in-window incidental time; `root_turn_id`
+   * defaults to the turn id.
    * @param {string} turnId
    * @param {string} responseId
-   * @param {object} usage
+   * @param {object} [usage]
    * @param {CodexResponseOptions} [options]
    */
-  withResponse(turnId, responseId, usage, options = {}) {
+  withResponse(turnId, responseId, usage = {}, options = {}) {
     const sessionId = options.sessionId ?? this.#sessionId;
     if (sessionId === undefined) {
       throw new Error("forSession(...) before withResponse(...)");

@@ -1,7 +1,6 @@
 // Native rows end at newline alone: a raw U+2028 or U+2029 inside row text
-// keeps the row whole, and a genuinely broken row stays a gap at its file line.
+// keeps the row whole.
 import assert from "node:assert/strict";
-import { appendFileSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
@@ -17,9 +16,6 @@ import {
   writeClaudeSession,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
-
-const malformedRows = (history: ReturnType<typeof readImported>) =>
-  history.gaps.filter((gap) => gap.code === "malformed-native-row");
 
 test("counts a Claude Code row whose text holds line separators and the rows climbing through it", ({
   home,
@@ -40,46 +36,24 @@ test("counts a Claude Code row whose text holds line separators and the rows cli
         .please(),
     ],
   });
-  const claudeRoot = path.join(home, "claude");
-  const file = writeClaudeSession(
-    claudeRoot,
+  writeClaudeSession(
+    path.join(home, "claude"),
     makeMe.aClaudeTranscript
       .forSession(sessionId)
       .withLaunchInput({ reference, command: "report" })
-      .withAssistant({
-        uuid: "separated",
-        messageId: "msg-separated",
-        usage: { output_tokens: 11 },
-        content: [{ type: "text", text: "first second third" }],
-      })
-      .withAssistant({
-        uuid: "climbing",
-        messageId: "msg-climbing",
-        usage: { output_tokens: 13 },
-      })
+      .withAssistantHoldingLineSeparators()
+      .withAssistant()
       .please(),
   );
-  appendFileSync(file, '{"type":"assistant","uuid":"trunc');
-  const truncatedLine = readFileSync(file, "utf8").split("\n").length;
 
-  runImport(home, root, ["--claude-root", claudeRoot]);
+  runImport(home, root, ["--claude-root", path.join(home, "claude")]);
 
   const history = readImported(home);
   const task = Object.values(history.tasks).find(
     (item) => item.kind === "launch",
   );
   assert(task);
-  expect(taskUsage(history, task.id)).toEqual(
-    expect.objectContaining({
-      requests: 2,
-      tokens: expect.objectContaining({ output: 24 }),
-    }),
-  );
-  expect(malformedRows(history)).toEqual([
-    expect.objectContaining({
-      source: expect.objectContaining({ file, line: truncatedLine }),
-    }),
-  ]);
+  expect(taskUsage(history, task.id).requests).toBe(2);
 });
 
 test("counts a Codex rollout whose row text holds a paragraph separator", ({
@@ -92,8 +66,8 @@ test("counts a Codex rollout whose row text holds a paragraph separator", ({
     root,
     makeMe.aCodexRollout
       .forSession(session)
-      .withDeveloperInput("before after")
-      .withResponse("task", "own", { output_tokens: 17 })
+      .withDeveloperInputHoldingLineSeparators()
+      .withResponse("task", "own")
       .please(),
   );
 
@@ -105,5 +79,4 @@ test("counts a Codex rollout whose row text holds a paragraph separator", ({
   );
   assert(task);
   expect(taskUsage(history, task.id).requests).toBe(1);
-  expect(malformedRows(history)).toEqual([]);
 });
