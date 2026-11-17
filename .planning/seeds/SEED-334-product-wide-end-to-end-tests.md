@@ -14,6 +14,9 @@ scope: story
 ### Keep the converted navigation proof whole and time-independent
 
 **Identity:** SEED-334#keep-navigation-conversion-proof-whole
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md"}
+```
 
 **Goal:** A maintainer relies on the Frontend navigation checks that
 SEED-334#move-navigation-checks-and-retire-integrated-ui-test converted: the
