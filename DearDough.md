@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 555. Removed numbers are never reused.
+- Highest allocated local number: 557. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -488,3 +488,31 @@ Coordinator review continued into possible edge cases and broad consumer-match a
   - Evidence: Terry reported at least about 45 minutes for the current slice and asked about acceptance-analysis instructions; the coordinator acknowledged extending analysis beyond sufficient proof. [Retained incident and requested response](.planning/seeds/SEED-345-session-token-efficiency/proof-decisions.md); launch `154b5180-ee1f-44b2-88e7-a70e47217593`, incident at `ab1acbbac33f0a82de40321121f1c086336ec301:.planning/seeds/SEED-345-session-token-efficiency/proof-decisions.md`, and slice-5 proof at `f918ecb54b55b45b53819208f4a6d568452107d1` preserve provenance.
   - Observed effect: developer interruption and an authorized priority increase for existing `SEED-345#reach-a-proof-decision-from-retained-evidence`, marked not-ready pending investigation. The 45 minutes is the developer's total elapsed estimate, not measured acceptance time.
   - Inference: start with simple stopping instructions: proceed once promises, affected consumers and gates have decisive observations; further investigation names a mismatch or specific evidence gap. Preserve required proof and unbounded refactoring; introduce no timing machinery first. Separate implementation, command waits, refactoring, CI repair and acceptance before making a measured causal claim.
+
+## DD-556 — Case-differing sibling module basenames break TypeScript project-service lint on APFS <a id="dd-556"></a>
+
+On a case-insensitive volume, a new `AttachStoryNotes.tsx` beside `attachStoryNotes.ts` made ESLint's TypeScript project service unable to resolve the component path, so lint failed while `tsc` still passed. Diagnosis chased tsconfig/buildinfo before the collision was renamed away.
+
+### Occurrences
+
+- Execution: SEED-348#attach-story-notes-to-follow-ups (plan 672; first implementation `49396e6d2af120da82111917647c1ff678abc49f`)
+  - Timestamp: unknown (2026-11-17T14:59+08:00–15:14+08:00 coordinator wait; rename during slice 3)
+  - Tool: Cursor
+  - Open Dough release: 0.3.103 (checkout-bound installed guidance at Take `522e71f54ec31ae42d4da6558fb36d398524bfeb`)
+  - Evidence: slice 3 agent `7decb47e-d94a-48a4-ac30-24170f147269` created `dashboard/src/attachStoryNotes.ts` with `AttachStoryNotes.tsx`; coordinator turns at ~14:59–15:13 +08 reported project-service unresolved-file lint after typecheck and a forced `tsc` rebuild; agent renamed words to `attachStoryNotesWords.ts`. Plan learning and publish `e25ae7b4b` record the rename. Slice clock paused at 13.7/15 active minutes; wall-clock lint churn is separate.
+  - Observed effect: repeated lint failures and tsconfig/buildinfo investigation until the basename collision was removed; focused frontend proof and typecheck had already passed.
+  - Inference: on macOS APFS, avoid same-basename `.ts`/`.tsx` siblings that differ only by case. A planning or authoring note for that filesystem would have skipped the chase; saving is unmeasured.
+
+## DD-557 — Launch-record delivery listeners planned for the dashboard process miss Cursor's runner process <a id="dd-557"></a>
+
+A plan treated `replaceRecords` as the single confirmation seam and installed a delivery listener only on the dashboard launch boundary. Cursor confirms first input in `runnerMain`, so that write never saw the listener until the same install ran in the runner process.
+
+### Occurrences
+
+- Execution: SEED-348#attach-story-notes-to-follow-ups (plan 672; first implementation `49396e6d2af120da82111917647c1ff678abc49f`)
+  - Timestamp: 2026-11-17T15:34:33+08:00 (slice 4 Cursor proof failure context folder)
+  - Tool: Cursor
+  - Open Dough release: 0.3.103 (checkout-bound installed guidance at Take `522e71f54ec31ae42d4da6558fb36d398524bfeb`)
+  - Evidence: plan decisive premises (2026-11-17 at `2a206edf7`) confirmed Cursor `runnerKeep` writes through `replaceRecords` but did not name the runner process. Slice 4 agent `8f8d2082-f47f-4b57-bc6c-3f4b613b044f`: `.tmp/slice-4-proof/delivery.log` and `cursor-debug.log` / `cursor-debug2.log` failed “uncertain Cursor first input…” with `delivered` still `undefined` after `confirmed`; after `installStoryNoteDelivery()` in `hosts/cursor/runnerMain.ts`, `cursor-debug3.log` passed. Publish `b22bc615a` and plan Learnings record dual install + `launchRecordDelivery.ts`.
+  - Observed effect: Claude delivery cases passed with boundary-only install; Cursor late confirmation left notes waiting until the runner also installed the listener. Two failed Cursor runs then a fix inside the same slice.
+  - Inference: a shared file writer is not one process. Premises that settle “every confirmation reaches replaceRecords” still need which processes call it when side effects register in-process. Cost of the miss is the failed Cursor iterations; unmeasured in tokens.

@@ -249,3 +249,11 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
 - Cursor first-input confirmation runs in the runner process, not the
   dashboard; `installStoryNoteDelivery()` must run in `runnerMain` as well as
   on `launchBoundary`. Delivery rule ownership is `launchRecordDelivery.ts`.
+
+## Execution complete
+
+Product advice: no change. Wrap-up may delete
+`.planning/mockups/story-review-and-notes.html` and remaining planning links
+once SEED-347 and both SEED-348 stories are verified delivered. Intent
+Coverage: skip (tests extended, not rewritten). Process findings DD-556 and
+DD-557 are recorded for wrap-up disposition.
