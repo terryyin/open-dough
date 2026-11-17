@@ -11,27 +11,32 @@ scope: story
 
 ## Why this matters
 
-Dashboard browser cases built on the plain `test` from
-`dashboard/tests/support/preparationPage.ts` acquire the queued origin, the
+When this story was queued, dashboard browser cases built on the plain `test` from
+`dashboard/tests/support/preparationPage.ts` acquired the queued origin, the
 app build and the server bundle through test-scoped fixtures. The first case a
-worker runs pays that one-time preparation inside its own 30 s budget. While
+worker ran paid that one-time preparation inside its own 30 s budget. While
 [Express session discovery and report test intent through page objects](https://github.com/terryyin/open-dough/blob/891a05400ffabebbe64505d67561c0a6e20afd42/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) was being executed,
 `navigation/side-panel-content-replacement.spec.ts` timed out three times as the
 first case of a fresh run at load 31–46. Its traces showed 15.4–24.7 s of
 in-budget `origin` and `dashboard` fixture time before the page opened, against
 2.9 s on a repeat. Moving it and six sibling specs to the existing
 worker-scoped `queuedCodexPreviewTest` / `queuedClaudePreviewTest` opt-ins
-brought that first case to 16 s. About 148 other plain-`test` consumers keep
+brought that first case to 16 s. About 148 other plain-`test` consumers kept
 the cost, and `intent/intent-done-source-selection.spec.ts` still reached
 25.5 s on its first case because of its own synchronous git arrangement. Under
 the project's failure policy a case that times out only when it happens to run
 first under ordinary machine load is a flaky test, not a speed preference.
+The repair and test-boundary changes below supersede that historical consumer
+count and locate the remaining work; the original diagnosis remains evidence.
 
 <a id="keep-one-time-test-preparation-out-of-case-budgets"></a>
 
 ### Keep one-time browser test preparation out of case budgets
 
 **Identity:** SEED-340#keep-one-time-test-preparation-out-of-case-budgets
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f7598cc19ea5c325ff861865eab331b0d181641fedf6bddead8c2fc9c4b5c67f","plan":"58bd9fcac097eb6747b9f1a486656d5713a6b232a71f699765b140d27e6da11c"}}
+```
 
 **Priority.** Alongside SEED-375's suite-owner correction and before further
 broad test migrations or builder conversions. The usage-spike review found
@@ -53,15 +58,26 @@ wide margin at a one-minute load of 30–50 with default timeouts.
   that override `originRepository`. Choose one cohesive mechanism, such as
   worker-scoped preparation per host, rather than per-spec opt-ins; weigh the
   run-elapsed cost of preparing hosts a worker does not use.
+- Preserve the existing common app/server repair and finish the custom
+  session/terminal server profiles it did not warm. Preparation follows the
+  actual serving mode: boundary-only needs its bundle and no app; development
+  must not acquire a preview build merely through an inherited fixture default.
+- Keep shared inputs immutable and each case's writable origin, checkout,
+  HOME, server and vendor answers private. Shared preparation stays in total
+  run elapsed time; this story promises case-budget headroom, not a shorter run.
 - First cases whose own arrangement still nears the budget once preparation is
-  out, starting with `intent-done-source-selection`, get their arrangement
-  reduced without dropping the behavior they prove.
+  out get their arrangement reduced without dropping the behavior they prove.
+  The remaining real-Git example is `intent-ci-comparison-retry`. The named
+  Done-source selection case now uses frontend service answers: retain that
+  proof boundary and remove its shared app-build wait from the case budget,
+  rather than restoring the old Git arrangement.
 - Excluded: raising or overriding timeouts, `test.slow()`, waits on wall-clock
   time, fewer behavior checks, and product behavior changes.
 
 Since SEED-334 (`64f15182b`), the `preparationPage` consumers are spread over
 three browser test groups, each a separate Playwright run with its own
-configuration and global setup in `dashboard/tests/support/`: 90 in E2E Test
+configuration and global setup in `dashboard/tests/support/`. The SEED-334
+inventory counted 90 in E2E Test
 (`e2e/`, `e2eGlobalSetup.ts`), 55 in the interim Dashboard Integrated UI Test
 (`dashboard/tests/`, `integratedGlobalSetup.ts`) and 46 in Dashboard Backend
 Test (`backendGlobalSetup.ts`). The former shared `globalSetup.ts` is gone.
@@ -72,6 +88,8 @@ them (`runArtifacts.ts`). `side-panel-content-replacement` is now
 `dashboard/frontend-tests/intent/intent-done-source-selection.spec.ts`. The
 mechanism must cover all three groups, which are run with `npm run test:e2e`,
 `test:dashboard:integrated` and `test:dashboard:backend`.
+The Done-source case uses `test:dashboard:frontend`, whose setup registers
+only the app and comparison mount, with no server bundle or installed origin.
 
 #### Key examples
 
@@ -81,8 +99,20 @@ mechanism must cover all three groups, which are run with `npm run test:e2e`,
 2. A Claude-hosted and a Codex-hosted preparation spec share a worker → each
    gets its host's prepared origin without either case paying the other's
    preparation inside its budget.
-3. `intent-done-source-selection` runs first at load 30–50 → it passes with
-   wide margin and keeps its two published stories and trunk-advance evidence.
+3. `intent-done-source-selection` runs first at load 30–50 → its app build is
+   outside the case budget; switching between its two Done publications keeps
+   held comparison/locations reads from displaying the previous story's source.
+   Real CLI Done selection remains in `intent-done-default-answer-selection`.
+4. `intent-ci-comparison-retry` runs first at load 30–50 → its complete
+   failed-Baseline → Check again recovery → remembered answer on another check
+   and reselection journey passes with wide margin. Its real completion,
+   planning-only predecessor chain and later trunk remain valid proof inputs.
+5. A spec overrides `originRepository` with later declared revisions → its
+   correct host's shared installed base is prepared outside the case budget,
+   and its private copy retains those revisions and can be changed independently.
+6. A fresh boundary-only run starts → its server bundle is prepared outside
+   case time and the artifact log contains zero app requests. A development-only
+   custom server similarly does not request an unused preview app.
 
 
 #### Current repair and remaining protection

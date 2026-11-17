@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yua-chan",
-  "email": "yua-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-340#keep-one-time-test-preparation-out-of-case-budgets",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
