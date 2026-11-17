@@ -5,14 +5,15 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
+# shellcheck source=Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh"
 context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 
-work_dir=$(mktemp -d)
-finish() {
-  chmod -R u+w "${work_dir}" 2> /dev/null || true
-  rm -rf -- "${work_dir}"
-}
-trap finish EXIT
+work_dir=''
+harness_dir=''
+native_check_status=0
+native_check_workspace work_dir
 
 sentinel_bin="${work_dir}/bin"
 watched_dir="${work_dir}/watched"
@@ -71,44 +72,29 @@ chmod a+x "${sentinel_bin}/cursor"
 : > "${run_log}"
 : > "${stdout_file}"
 : > "${stderr_file}"
-set +e
-env TMPDIR="${watched_dir}" PATH="${sentinel_bin}:${PATH}" \
+native_check_run "${sentinel_bin}" "${stdout_file}" "${stderr_file}" \
+  env TMPDIR="${watched_dir}" \
   NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
   bash "${context_wrapper}" --native cursor clear \
-  --results-dir "${results_dir}" > "${stdout_file}" 2> "${stderr_file}"
-status=$?
-set -e
+  --results-dir "${results_dir}"
 
-if [[ ${status} -ne 0 ]]; then
-  echo "FAIL: workspace-parent deletion exited ${status}." >&2
-  cat "${stdout_file}" >&2
-  cat "${stderr_file}" >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
-if grep -Fq 'No such file or directory' "${stderr_file}"; then
-  echo 'FAIL: incomplete decode hit a vanished output_file parent.' >&2
-  cat "${stderr_file}" >&2
-  exit 1
-fi
+native_check_expect_status 'workspace-parent deletion succeeds' 0 "${native_check_status}" "${stdout_file}" "${stderr_file}" "${run_log}"
+vanished_parent=$(grep -F 'No such file or directory' "${stderr_file}" || true)
+native_check_expect_value 'decode tolerates vanished output parent' '' "${vanished_parent}" "${stderr_file}"
 leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
-if [[ -n ${leftover} ]]; then
-  echo 'FAIL: scratch remained after the wrapper returned.' >&2
-  printf '%s\n' "${leftover}" >&2
-  exit 1
-fi
+native_check_expect_value 'wrapper scratch removed' '' "${leftover}"
 attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if (path=="") exit 1; print path }' \
   "${stdout_file}")
 [[ -f ${attempt}/record ]]
 [[ -s ${attempt}/response.md ]]
 [[ -s ${attempt}/events.jsonl ]]
-grep -Fq 'execution-status: completed' "${attempt}/record"
-grep -Fq 'assessment-status: pass' "${attempt}/record"
-grep -Fq 'followed and cited Accepted authority' "${attempt}/record"
-grep -Fq 'cursor agent --version' "${run_log}"
+native_check_expect_field 'completed execution retained' "${attempt}/record" execution-status completed
+native_check_expect_field 'passing assessment retained' "${attempt}/record" assessment-status pass
+native_check_expect_line 'Accepted authority assessed' "${attempt}/record" 'followed and cited Accepted authority'
+native_check_expect_line 'Cursor agent version probed' "${run_log}" 'cursor agent --version'
 
 # Harness: incomplete decode must recreate a vanished output_file parent.
-harness_dir=$(mktemp -d)
+native_check_workspace harness_dir
 # shellcheck disable=SC2034 # The host native_run_write_output reads.
 platform=cursor
 output_file="${harness_dir}/gone/response.md"
@@ -120,4 +106,3 @@ rm -rf -- "$(dirname -- "${output_file}")"
 source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 native_run_write_output 1
 [[ -f ${output_file} ]]
-rm -rf -- "${harness_dir}"

@@ -8,9 +8,12 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 # shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
+# shellcheck source=Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh"
 
-work_dir=$(mktemp -d)
-trap 'rm -rf -- "${work_dir}"' EXIT
+work_dir=''
+native_check_workspace work_dir
 ready="${work_dir}/watchdog-ready"
 handler_ran="${work_dir}/watchdog-handler-ran"
 export TMPDIR="${work_dir}/tmp"
@@ -29,30 +32,16 @@ native_case_deadline=5
 native_case_grace=0
 # The command awaits the watchdog within its own deadline, so a missed ready
 # signal fails by name before the watchdog would stop it.
-if ! native_run_owned "${work_dir}/stdout" "${work_dir}/stderr" '' \
+status=0
+native_run_owned "${work_dir}/stdout" "${work_dir}/stderr" '' \
   bash -c 'ready_file=$1; source "$2"; wait_for watchdog-ready 4 '\''test -f "${ready_file}"'\''' \
-  _ "${ready}" "${source_dir}/Distribution/tests/helpers/wait-for.bash"; then
-  printf 'FAIL: completed command did not observe its watchdog:\n' >&2
-  cat "${work_dir}/stderr" >&2
-  exit 1
-fi
+  _ "${ready}" "${source_dir}/Distribution/tests/helpers/wait-for.bash" || status=$?
+native_check_expect_status 'completed command observes its watchdog' 0 "${status}" "${work_dir}/stderr"
 elapsed=$(($(date +%s) - start))
 
-if ((elapsed > 2)); then
-  printf 'FAIL: completed command waited %ss for its watchdog.\n' "${elapsed}" >&2
-  exit 1
-fi
+((elapsed <= 2))
 watchdog_pid=$(cat "${ready}")
-if kill -0 "${watchdog_pid}" 2> /dev/null; then
-  printf 'FAIL: watchdog %s remained after completed command.\n' "${watchdog_pid}" >&2
-  exit 1
-fi
-if [[ -e ${handler_ran} ]]; then
-  echo 'FAIL: stopping the watchdog ran a shell handler that can hold caller cleanup.' >&2
-  exit 1
-fi
+native_check_expect_process 'completed command reaps its watchdog' "${watchdog_pid}" exited "${ready}"
+native_check_expect_absent 'stopping watchdog runs no shell handler' "${handler_ran}"
 leftover=$(find "${TMPDIR}" -mindepth 1 -print)
-if [[ -n ${leftover} ]]; then
-  printf 'FAIL: watchdog scratch remained:\n%s\n' "${leftover}" >&2
-  exit 1
-fi
+native_check_expect_value 'watchdog scratch removed' '' "${leftover}"
