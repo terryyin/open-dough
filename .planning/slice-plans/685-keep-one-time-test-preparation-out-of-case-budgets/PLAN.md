@@ -224,6 +224,10 @@ history once per worker (cold preparation lifetime) under its own
 `preparedHistory` description; the retry case copies it and publishes its own
 answers. At load 4–7 the fresh first cases took retry 3.7 s, side-panel
 4.0 s, Done-source 2.5 s. Loaded acceptance at natural 30–50 is G1.
+CI repair (run 44133975335): the diff-line Follow up case clicked a line
+number while its context read was still adding gap rows above it, so the
+release landed elsewhere. It now waits for the code pane's read context
+(`expectContextRead`) before using line numbers.
 
 ## Verification and delivery gates
 

@@ -21,6 +21,7 @@ import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   codePane,
   diffLines,
+  expectContextRead,
 } from "../../dashboard/tests/support/reviewPanes.ts";
 import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
 import {
@@ -84,6 +85,8 @@ test.describe("diff line Follow up menu", () => {
     await listedFile(review, fileLabel, { exact: true }).click();
     const diff = fileDiff(review, fileLabel, { exact: true });
     await expect(diffLines(diff).first()).toBeVisible();
+    // Line numbers hold still only once the gap rows above them have arrived.
+    await expectContextRead(codePane(diff));
     return { review, diff };
   }
 
