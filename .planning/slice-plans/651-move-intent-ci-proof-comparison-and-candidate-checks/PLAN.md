@@ -223,7 +223,7 @@ load 52–55 and passed 3/3 at load 34 with one worker (15–18 s each).
 
 ### 6. Read a comparison independently of locations availability
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-locations.spec.ts` → Frontend built app.
 Behavior: hold/fail historical locations → the one story header and comparison
 remain usable; Changed tests shows loading/failure/Retry, recovery uses the
@@ -233,6 +233,13 @@ at Frontend. Real comparison acquisition/counts remain in Backend
 `ci-comparison-memory-*.spec.ts` and E2E `intent-ci-comparison{,-retry}.spec.ts`;
 add a direct Backend case if assertion inventory finds an unmatched upstream effect.
 Check: converted Frontend file, affected bindings and the named real owners.
+Accepted: moved to Frontend with `holdAuthenticatedReadsWhere` scoped to the
+completion revision's locations read; Retry now must read exactly `[completion]`.
+Concrete acquired wall times rest on E2E `intent-ci-comparison.spec.ts`; the
+interim spec had no upstream count, so no Backend case was added. Scratch break
+(Retry at a wrong revision) failed T2; restored passed. Backend
+`ci-comparison-memory-` (7) and typecheck passed. Refactor follow-up for wrap-up:
+the authenticated-read request log is hand-written in 14 Frontend files.
 
 ### 7. Open recorded candidates at their Purpose targets
 Type: Behavior
