@@ -53,6 +53,44 @@ Every selection outcome is one of: a catalog, a selected report or a refusal.
   a repeated Cursor family reports `Cursor family is ambiguous`; a native
   `--family` without `--host`, `--from` and `--until` is refused.
 
+## Single-report contract
+
+A selected report is mapped explicitly from internal results
+(`dashboard/server/agentEffortSingleReport.ts`); JSON and readable output use
+the same mapped facts. Every report has `format` (`agent-effort-v1`), `scope`
+(`retained-local-evidence`), `host`, `selection`, `definition`, `accounting`,
+`requestedSettings`, `guidanceVersion` (`value`, `provenance` of `supplied` or
+`unknown`), `sources`, `totals`, `agents`, `peakInput` (always `null`: peaks are
+per agent), `peakInputRule`, `idleWakeRequests`, `idleWakeRule` and sorted
+`gaps`.
+
+- Figures: `totals` and each agent's `totals` hold `requests`, `totalInput`,
+  `cachedInput`, `uncachedInput`, `cacheWrite`, `cacheWrite5m`, `cacheWrite1h`,
+  `output`, `reasoningOutput` and `totalTokens`, each `{value, status}` in
+  tokens (requests in requests). `status` is `complete`, `partial` (a known
+  subtotal) or `unavailable` (`value` null).
+- Codex/Claude (`definition` `codex-inclusive-input` or
+  `claude-disjoint-input`): `selection` has `kind` (`task` or
+  `native-family`), `taskId`, `identity`, `rootSessionId`, `rootTurnId`,
+  `nativeTurns`, `from`, `until`, `projectScope` and `boundary`; the report
+  adds `unownedResponses` and `threads`, and `guidanceVersion.evidence`. Each
+  agent has `id`, `sessionId`, `agentId`, `role` (`coordinator` or `worker`),
+  `provenance`, `totals`, `observedSettings`, `sources`, `responseIds`,
+  `peakInput` (observed per-agent maximum with `status`, `observedRequests`,
+  `missingInputRequests`, `coverage`) and `idleWakeRequests`.
+- Cursor (`definition` `cursor-retained-workflow`): `selection` has `kind`,
+  `rootSessionId`, `from`, `until`, `appliedBoundary` and `boundary`; the report
+  adds `observedSettings`, `observedSettingsCoverage` and `workflow` (retained
+  transcript, worker, byte and tool counts with `status` and `coverage`). Each
+  agent has `id`, `role`, `provenance`, `sources`, `workflow`, `totals`,
+  `requestedSettings`, `observedSettings`, `observedSettingsCoverage`,
+  `peakInput` and `idleWakeRequests`; token figures are unavailable.
+- Readable output prints the host and definition, then labelled lines
+  `Selection:`, the accounting rule, `Requested settings:`, `Guidance
+  version:`, `Observed settings coverage:` (Cursor), the peak and idle-wake
+  rules, `Combined known figures:` (the JSON `totals`), `Workflow:` (Cursor),
+  one `ROLE ID:` line per agent without `responseIds`, and `Gaps:`.
+
 `--home` selects the local home (default current home); `--store` selects the
 read-only Usage history file. Repeat `--codex-file` / `--claude-file` to read
 specific native files; supplying files disables that host's default root scan.

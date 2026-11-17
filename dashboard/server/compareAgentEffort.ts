@@ -4,6 +4,10 @@ import { readFileSync } from "node:fs";
 import { readEffortRequest } from "./agentEffortRequest.ts";
 import { compareEffort } from "./agentEffortComparison.ts";
 import { catalogOutput, renderCatalog } from "./agentEffortCatalog.ts";
+import {
+  renderSingleReport,
+  singleReportOutput,
+} from "./agentEffortSingleReport.ts";
 try {
   const { values } = parseArgs({
     options: {
@@ -38,57 +42,40 @@ try {
         ? JSON.stringify(catalogOutput(catalog))
         : renderCatalog(catalog),
     );
-  } else if (values.json) console.log(JSON.stringify(report));
-  else if ("baseline" in report) {
-    console.log(
-      "Exploratory agent effort comparison; no automatic improvement or causal claim",
-    );
-    for (const name of ["baseline", "candidate"] as const) {
-      const group = report[name];
-      console.log(`${name} supplied notes: ${JSON.stringify(group.notes)}`);
-      for (const execution of group.executions) {
-        const { agents, ...summary } = execution;
+  } else if ("baseline" in report) {
+    if (values.json) console.log(JSON.stringify(report));
+    else {
+      console.log(
+        "Exploratory agent effort comparison; no automatic improvement or causal claim",
+      );
+      for (const name of ["baseline", "candidate"] as const) {
+        const group = report[name];
+        console.log(`${name} supplied notes: ${JSON.stringify(group.notes)}`);
+        for (const execution of group.executions) {
+          const { agents, ...summary } = execution;
+          console.log(
+            `${name} execution: ${JSON.stringify({
+              ...summary,
+              agents: agents.map((agent) => ({
+                ...agent,
+                responseIds: undefined,
+              })),
+            })}`,
+          );
+        }
         console.log(
-          `${name} execution: ${JSON.stringify({
-            ...summary,
-            agents: agents.map((agent) => ({
-              ...agent,
-              responseIds: undefined,
-            })),
-          })}`,
+          `${name} deduplicated group: ${JSON.stringify(group.perHost)}`,
         );
       }
-      console.log(
-        `${name} deduplicated group: ${JSON.stringify(group.perHost)}`,
-      );
+      console.log(`Deltas: ${JSON.stringify(report.deltas)}`);
+      console.log(`Warnings: ${report.warnings.join("; ")}`);
     }
-    console.log(`Deltas: ${JSON.stringify(report.deltas)}`);
-    console.log(`Warnings: ${report.warnings.join("; ")}`);
-  } else {
-    console.log(`${report.host} agent effort (${report.definition})`);
-    console.log(`Selection: ${JSON.stringify(report.selection)}`);
-    console.log(report.accounting);
+  } else
     console.log(
-      `Requested settings: ${JSON.stringify(report.requestedSettings)}`,
+      values.json
+        ? JSON.stringify(singleReportOutput(report))
+        : renderSingleReport(report),
     );
-    console.log(`Guidance version: ${JSON.stringify(report.guidanceVersion)}`);
-    if ("observedSettingsCoverage" in report)
-      console.log(
-        `Observed settings coverage: ${JSON.stringify(report.observedSettingsCoverage)}`,
-      );
-    console.log(report.peakInputRule);
-    console.log(
-      `${report.idleWakeRule} ${JSON.stringify(report.idleWakeRequests)}`,
-    );
-    console.log(`Combined known figures: ${JSON.stringify(report.totals)}`);
-    if ("workflow" in report)
-      console.log(`Workflow: ${JSON.stringify(report.workflow)}`);
-    for (const original of report.agents) {
-      const agent = { ...original, responseIds: undefined };
-      console.log(`${agent.role} ${agent.id}: ${JSON.stringify(agent)}`);
-    }
-    console.log(`Gaps: ${report.gaps.join(", ")}`);
-  }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;

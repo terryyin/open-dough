@@ -3,9 +3,9 @@ import path from "node:path";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   bytes,
-  cursorReport,
   writeCursorTranscript,
 } from "../../tests/usage-history/agentEffortHarness.ts";
+import { cursorCost } from "../../tests/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Cursor reports belonging nested workers and recorded dynamic tools without charging another family", ({
@@ -50,7 +50,7 @@ test("Cursor reports belonging nested workers and recorded dynamic tools without
     makeMe.aCursorTranscript.withToolCall("TodoWrite", {}).please(),
   );
   const before = bytes(home);
-  const actual = cursorReport(home, root);
+  const actual = cursorCost(home, root);
   expect(actual.workflow).toMatchObject({
     transcripts: 3,
     workers: 2,
@@ -69,7 +69,7 @@ test("Cursor reports belonging nested workers and recorded dynamic tools without
       statSync(nested).size,
   });
   expect(
-    actual.agents.map((agent) => [agent.role, agent.workflow.toolCalls]),
+    actual.agents.map((agent) => [agent.role, agent.workflow?.toolCalls]),
   ).toEqual([
     ["coordinator", 7],
     ["worker", 1],
@@ -146,7 +146,7 @@ test("Cursor counts consistent known tool ids once and exposes conflicts and ID-
       .please(),
   );
   const before = bytes(home);
-  const actual = cursorReport(home, root);
+  const actual = cursorCost(home, root);
   expect(actual.workflow).toMatchObject({
     toolCalls: 3,
     readCalls: 1,

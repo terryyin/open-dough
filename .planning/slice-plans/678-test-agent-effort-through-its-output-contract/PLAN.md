@@ -148,7 +148,7 @@ Accepted proof: focused family 69 passed after refactor (`agent-effort-selection
 
 ### 2. A maintainer can read what one execution cost without knowing its modules
 Type: Behavior
-Status: planned
+Status: done
 Proof: source example 1 and host definitions in examples 3/6; independent
 expected native input/output, Cursor workflow facts, per-agent maxima,
 settings/provenance and unchanged input bytes in JSON/readable output.
@@ -159,6 +159,7 @@ meanings. Document/map the single-report variants, move cost examples by
 question, and replace their production-derived types. Reuse existing totals
 and workflow owners; consolidate genuinely repeated calculations within this
 capability. Keep distinct Codex inclusive and Claude disjoint input semantics.
+Accepted proof: focused family 69 passed (`agent-effort-cost-*.spec.ts`, selection spec); scratch removal of `totals` from the native projection failed both cost-report tests, restored. Single-report projection lives in `agentEffortSingleReport.ts`; test readers in `agentEffortCost.ts`.
 
 ### 3. A maintainer can distinguish known figures from gaps in the evidence
 Type: Behavior
@@ -223,7 +224,7 @@ new evidence here and retains migration evidence with this plan until wrap-up.
 ### G1. Single-report selection object not yet explicitly projected
 Reported: slice 1 — "The `selection` object inside single reports is not yet produced through an explicit projection; only the catalog boundary was replaced."
 Story clause: "The CLI explicitly maps internal results to that contract."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/server/agentEffortSingleReport.ts nativeSelection/cursorSelection feed `--json` and readable output via compareAgentEffort.ts; agent-effort-cost-report.spec.ts example-1 test reads `selection` from JSON and the readable `Selection` line; cursor-selection unprovable-window test reads `appliedBoundary`
 
 ### G2. Output-reading harness still derives report types from production
 Reported: slice 1 — "`agentEffortHarness.ts` still derives `report` / `cursorReport` / `comparisonReport` types from production."
@@ -238,4 +239,9 @@ Disposition: receiving slice 4
 ### G4. Ownership examples not yet regrouped by maintainer question
 Reported: slice 1 — "The ownership and native-family specs were not moved into `agent-effort-selection.spec.ts`."
 Story clause: "Organize examples by maintainer question: what one execution cost, how two groups compare, what stays unknown and why, and how selections resolve."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: cost examples regrouped as agent-effort-cost-{report,ownership,peaks,settings,cursor}.spec.ts, native-family merged into agent-effort-selection.spec.ts; proof-migration.md rows; focused family 69 passed
+
+### G5. Nested figure, coverage and agent shapes still pass through owner objects
+Reported: slice 2 — "`totals`, `workflow`, `sources`, `observedSettings` and agent `peakInput`/`idleWakeRequests` are still passed through as their existing owner shapes, not re-mapped key by key."
+Story clause: "The CLI explicitly maps internal results to that contract."
+Disposition: receiving slice 3

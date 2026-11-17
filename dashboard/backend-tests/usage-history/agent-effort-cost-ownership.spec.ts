@@ -2,7 +2,8 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { report, bytes } from "../../tests/usage-history/agentEffortHarness.ts";
+import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
+import { costReport } from "../../tests/usage-history/agentEffortCost.ts";
 import {
   writeCodexSession,
   writeClaudeSession,
@@ -48,7 +49,7 @@ test("Codex actual CLI owns later replies and failed workers once, excludes copi
     .please();
   nativeFile(root, "worker", [...rows, ...worker]);
   const before = bytes(home);
-  const actual = report(home, root, ["--task", "SEED-7#first"]);
+  const actual = costReport(home, ["--task", "SEED-7#first"]);
   expect(actual.totals.output.value).toBe(21);
   expect(actual.totals.requests.value).toBe(3);
   expect(actual.agents.flatMap((agent) => agent.responseIds)).toHaveLength(3);
@@ -58,7 +59,6 @@ test("Codex actual CLI owns later replies and failed workers once, excludes copi
 
 test("Claude actual CLI retains later reply and cancelled worker, deduplicates streaming rows and excludes the next task", ({
   home,
-  root,
 }) => {
   const reference = "ca7430bd-0d52-499d-a1bd-000000000001";
   const nextReference = "ca7430bd-0d52-499d-a1bd-000000000002";
@@ -139,7 +139,7 @@ test("Claude actual CLI retains later reply and cancelled worker, deduplicates s
       .please(),
   );
   const before = bytes(home);
-  const actual = report(home, root, ["--task", "SEED-7#first"]);
+  const actual = costReport(home, ["--task", "SEED-7#first"]);
   expect(actual.totals.output.value).toBe(21);
   expect(actual.totals.requests.value).toBe(3);
   expect(
