@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Move board, frame and project navigation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test ([plan](slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md))
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story ([plan](slice-plans/680-try-an-unfamiliar-improvement-by-redoing-its-source-story/PLAN.md))
 - [Split the agent-effort contract guide](seeds/SEED-345-session-token-efficiency.md#split-the-agent-effort-contract-guide) — SEED-345#split-the-agent-effort-contract-guide ([plan](slice-plans/682-split-the-agent-effort-contract-guide/PLAN.md))
-- [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence ([plan](slice-plans/683-recover-decisive-verification-evidence/PLAN.md))
 
 ## Backlog list
 

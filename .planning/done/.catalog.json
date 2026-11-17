@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_recover-decisive-verification-evidence.json",
+      "identity": "SEED-345#recover-decisive-verification-evidence",
+      "completedAt": "2026-11-17T17:29:33.282Z",
+      "blob": "7f7f2b47de59bdd0de60659ca6232b8408444b5c"
+    },
+    {
       "fileName": "SEED-345_test-agent-effort-through-its-output-contract.json",
       "identity": "SEED-345#test-agent-effort-through-its-output-contract",
       "completedAt": "2026-11-17T14:46:29.163Z",
