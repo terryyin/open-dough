@@ -210,6 +210,10 @@ of appended; closing the composer cancels a recording in progress.
 
 Accepted proof: [slice 8](slice-8-proof.md).
 
+## Execution complete
+
+Product advice: no change.
+
 ## Local gates and execution discipline
 
 Apply the linked

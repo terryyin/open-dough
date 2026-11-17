@@ -126,3 +126,30 @@ architecture unchanged. Remaining boundaries retained as one proof loop each.
   and exact revision registered.17source commitments observed, no openG1.
   Current source pin75c9f7310d00e5ba93cc8842b86d99f0b3c756bb: upstream only
   release/installed-guidance changes; checkout runtime unchanged until merge.
+- Slice8: `ab1acbbac33f0a82de40321121f1c086336ec301`, accepted storybranch;
+  suffix base `abaf51cf352390ecfdad242cd174186f3663651f`, same observer reused
+  and exact revision registered. All8 slices done and84 source observations.
+
+## Execution retrospective handoff
+
+Product/outcome review complete on delivered ab1acbb, CI still pending.
+Original ready plan681002b and its eight outcomes recovered; moving the Intent
+view provider7→5 was the retained learning refinement, with no scope change.
+Manifest is the verified uncontaminated first-parent681002b..ab1acbb set of
+eight slice commits and two owned CI repairs; SEED345 records in6/8 are the
+separately authorized user request. Nearby trunk preparation/release/test-fixture
+changes excluded. Current source/plan unchanged at4e92ca857857cc177e5387112b1652b08373e70c;
+attachment sibling refined resend behavior only; supplier condition unchanged.
+
+Aggregate responsibilities/schema/storage/UI/context/voice and ADR0002/0008
+remain coherent. Server detail checks stay at server boundary; real Git/store,
+restart/refusal, view/context and launch voice journeys cover service crossings.
+E2E observations drove concrete geometry/menu repairs; no claim of test-first
+red/green for every slice. No supported correction or worthwhile test cleanup
+identified; product advice no change, existing attachment story retained.
+
+Process selected by skipProcessRetrospective:false and deferred into Wrap Up.
+intentCoverage:true plus rewritten existing context-expansion/status assertions
+selects one risk check there; complete process once after its report/dispositions.
+No process-log access or review performed at this handoff. Current receipt
+commit is records-only, with accepted product/refactor proof unchanged.
