@@ -14,6 +14,7 @@ export type ServerInputWorkerFixtures = {
   serverMode: FixtureServerMode;
   dashboardServerInputsReady: undefined;
   dashboardPreviewReady: undefined;
+  dashboardBoundaryReady: undefined;
   queuedOriginsReady: undefined;
   queuedCodexOriginReady: undefined;
   queuedClaudePreviewReady: undefined;
@@ -67,6 +68,8 @@ export const serverInputWorkerFixtures: Fixtures<
   ],
   // Reading-only previews need the app and boundaries, with no installed origin.
   dashboardPreviewReady: [prepared([], "preview"), coldInputPreparation],
+  // A custom boundary server needs only the server bundle.
+  dashboardBoundaryReady: [prepared([], "boundary"), coldInputPreparation],
   // Installed preparation origins: both hosts' queued bases, so a worker that
   // runs either host, or both, starts each private copy from a prepared base.
   queuedOriginsReady: [

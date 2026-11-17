@@ -49,7 +49,9 @@ const test = base.extend<{ machine: string }>({
     await use(machine);
     rmSync(machine, { recursive: true, force: true });
   },
-  dashboard: async ({ github, machine }, use) => {
+  // The initial and restarted previews share the worker's prepared inputs.
+  dashboard: async ({ dashboardPreviewReady, github, machine }, use) => {
+    await Promise.resolve(dashboardPreviewReady);
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: sharedDashboardBuild,

@@ -38,7 +38,11 @@ import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 const test = base.extend({
-  dashboard: async ({ github, machine, codexProtocol }, use) => {
+  dashboard: async (
+    { dashboardBoundaryReady, github, machine, codexProtocol },
+    use,
+  ) => {
+    await Promise.resolve(dashboardBoundaryReady);
     const start = deploymentLikeStart(path.join(machine ?? "", "deployment"));
     start.create();
     const server = await startDashboardServer({

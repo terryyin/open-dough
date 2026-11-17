@@ -157,7 +157,7 @@ Refactor moved both outer specs' nested-run reading into
 
 ### 3. Custom session and terminal starts prepare their actual serving inputs
 Type: Behavior
-Status: planned
+Status: done
 Proof: custom-profile row, with distinct preview/dev/boundary requests observed.
 
 Behavior: a custom server starts, including a restart → its profile's shared
@@ -171,6 +171,13 @@ Cover `e2e/sessions/agent-launch-story-card-session-states.spec.ts`,
 `dashboard/backend-tests/terminals/agent-terminal-codex.spec.ts`
 (the deployment-like boundary profile). Match dependencies to mode rather than
 changing server addresses, URLs, native protocol behavior, or case-scoped options.
+
+Accepted (2026-11-18): preview overrides await `dashboardPreviewReady`,
+session-alerts sets its dashboard per mode (dev prepares nothing), and the
+Codex boundary terminal awaits the new bundle-only `dashboardBoundaryReady`.
+Proof is fresh single-profile traces with fixture-step timing (strict
+reporter + `fixtureSteps.mjs`) and a red check; no lasting CI assertion
+guards these spec-local profiles.
 
 ### 4. Frontend Done-source selection starts after its app is built
 Type: Behavior
