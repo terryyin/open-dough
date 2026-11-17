@@ -217,11 +217,16 @@ s = s.replace('and `true` once its dependency state changes. Goal edits still fl
 plan.write_text(s)
 PY
   fi
-  (
-    cd -- "${workspace}" || exit
-    node --test tests/readiness.test.mjs
-  ) > "${workspace}/.planning/producer-proof.md" 2>&1
+  delivery_evidence_run_producer "${workspace}" producer-proof node --test tests/readiness.test.mjs \
+    > "${workspace}/.planning/producer-proof.md" 2>&1
   mkdir -p -- "${delivery_evidence_root}/original-inputs"
   cp -R -- "${workspace}/.planning" "${workspace}/lib" "${workspace}/tests" \
     "${delivery_evidence_root}/original-inputs/"
+}
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_original_return() {
+  delivery_evidence_return_promise 'Slice 3: Current resolution preserves eligibility and excludes fulfillment — claimed pass; observation: tests/readiness.test.mjs current review excludes fulfillment and preserves eligibility.'
+  delivery_evidence_return_promise 'Slice 3: Legacy comparison — claimed pass under the selected plan; observations: tests/readiness.test.mjs and full report; original source: .planning/seeds/SEED-138-computed-execution-readiness.md.'
+  delivery_evidence_return_promise 'Slice 3: Goal and agreement edits retain indication — claimed pass; observation: tests/readiness.test.mjs goal and agreement edits still show an indication.'
 }

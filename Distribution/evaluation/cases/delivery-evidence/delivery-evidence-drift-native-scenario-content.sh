@@ -216,11 +216,16 @@ delivery_evidence_drift_populate_fixture() {
   delivery_evidence_git "${workspace}" commit --quiet -m 'entry decision inputs and selected work'
   delivery_evidence_drift_write_product "${workspace}" "${product}"
   delivery_evidence_drift_write_tests "${workspace}" "${product}"
-  (
-    cd -- "${workspace}" || exit
-    python3 -m unittest discover -s tests -p 'test_*.py'
-  ) > "${workspace}/.planning/producer-proof.md" 2>&1
+  delivery_evidence_run_producer "${workspace}" producer-proof python3 -m unittest discover -s tests -p 'test_*.py' \
+    > "${workspace}/.planning/producer-proof.md" 2>&1
   mkdir -p -- "${delivery_evidence_root}/original-inputs"
   cp -R -- "${workspace}/.planning" "${workspace}/entry" "${workspace}/tests" \
     "${delivery_evidence_root}/original-inputs/"
+}
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_drift_return() {
+  delivery_evidence_return_notes='Stops: none reported. Consequential limits: incomplete coverage and the risk-off empty state remain with plan slice 5.'
+  delivery_evidence_return_promise 'Slice 4: Filtered setups carry reasons and are not ranked — claimed pass; observation: tests/test_decision.py filtered-setups and excluded-list assertions.'
+  delivery_evidence_return_promise 'Slice 4: Existing reasons, ordering, ranking and history — claimed pass under selected plan; observation: tests/test_decision.py; original source: .planning/seeds/SEED-145-entry-autonomation.md.'
 }

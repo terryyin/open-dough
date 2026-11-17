@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_recover-decisive-verification-evidence.json",
+      "identity": "SEED-345#recover-decisive-verification-evidence",
+      "completedAt": "2026-11-17T17:29:33.282Z",
+      "blob": "7f7f2b47de59bdd0de60659ca6232b8408444b5c"
+    },
+    {
       "fileName": "SEED-387_emphasize-changed-words-in-diff-lines.json",
       "identity": "SEED-387#emphasize-changed-words-in-diff-lines",
       "completedAt": "2026-11-17T17:22:37.826Z",

@@ -70,6 +70,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: two CI failure and repair cycles on the story branch, the second after delivery of the last slice; no trunk impact.
   - Inference: the same missed declaration as plan 651's occurrence, one story later; running every `Distribution/tests/support` test that reads `ci.yml` (`node --test Distribution/tests/support/ci-*.test.mjs` plus the shard tests, 91 cases, under a second) after any `ci.yml` edit would have caught both.
 
+- Execution: SEED-345#recover-decisive-verification-evidence (first implementation `126391de866d4a3a40e0303c3098df318946ae33`)
+  - Timestamp: unknown (2026-11-18 +08:00; branch CI and repair)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `ace536b5e`; source changes released separately)
+  - Evidence: CI run [44128960353/1](https://github.com/terryyin/open-dough/actions/runs/44128960353/job/134200426222) failed `native-stream-replay.sh`: new `native-agent-return-inputs.sh:13` emitted a raw host-event literal. Public-entry transport and eight selected consumer checks had passed. Repair `45ff02fee774a270826cd7507fee2ce1c9d077cc` uses the documented jq construction, adds completed-execution/neutral-response facts, and passes guard plus 20 public scenarios; exact branch CI run 44132082409/1 then succeeds.
+  - Observed effect: an unchanged repository-wide stream validator was omitted from the selected consumer proof, causing one CI failure and repair cycle before integration.
+  - Inference: matches the existing global-validator form of ODF-150. Earlier guard selection could expose the defect before CI; isolated time or token saving is unmeasured.
+
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
@@ -814,6 +822,14 @@ records. Agents replaced it with a targeted `git grep` and said so.
   - Evidence: slice 4, 6 and 7 implementers and the slice 1 refactor pass reported `consumer-trace.mjs` output as "the whole branch's changed paths", "noisy, unrelated matches" or "unfocused" for terms such as `publishCatalogProjects`, `longTitleLaunch` and `keepingStarts`, and each listed consumers with `git grep` instead.
   - Observed effect: the scripted trace supplied no disposition in those returns; targeted searches did, and later refactor passes with `--path` traces did.
   - Inference: same pattern as plan 678's row, on a long-running story branch whose many changed paths widen the basename matches. Token cost was not measured.
+
+- Execution: SEED-345#recover-decisive-verification-evidence (first implementation `126391de866d4a3a40e0303c3098df318946ae33`)
+  - Timestamp: unknown (2026-11-17 to 2026-11-18 +08:00; implementation and refactor hand-backs)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `ace536b5e`; managed installed copies stayed unchanged)
+  - Evidence: Codex session `01a1ea15-5252-7c92-bcc4-9324ac217a07`, launch `3d282d5b-8c78-4ff1-bccd-8097ca474ad9`: slice 1/2/3 traces listed 559/859/848 consumers. Refactor 4's 555-row trace reported 459 matches solely from generic `PLAN.md` metadata. Retained execution evidence at `45ff02fee774a270826cd7507fee2ce1c9d077cc:.planning/slice-plans/683-recover-decisive-verification-evidence/execution-evidence.md`; corresponding hand-backs identify the full trace files.
+  - Observed effect: agents annotated hundreds of grouped planning/history exclusions; slice 1 also needed a return to fill blank dispositions. Targeted purpose inspection found the meaningful consumers while the broad trace remained required.
+  - Inference: the same basename/record noise as DD-568 recurred, but agents completed rather than abandoned the scripted trace. Annotation and context cost are supported qualitatively; token/time saving is unmeasured.
 
 ## DD-569 — Conversion acceptance takes a named existing owner without reading its assertion <a id="dd-569"></a>
 

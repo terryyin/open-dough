@@ -175,11 +175,16 @@ delivery_evidence_release_populate_fixture() {
   delivery_evidence_git "${workspace}" add deployment records tests .planning
   delivery_evidence_git "${workspace}" commit --quiet -m 'retained operation facts and selected work'
   delivery_evidence_release_write_product "${workspace}" "${scenario}"
-  (
-    cd -- "${workspace}" || exit
-    python3 -m unittest discover -s tests -p 'test_*.py'
-  ) > "${workspace}/.planning/producer-proof.md" 2>&1
+  delivery_evidence_run_producer "${workspace}" producer-proof python3 -m unittest discover -s tests -p 'test_*.py' \
+    > "${workspace}/.planning/producer-proof.md" 2>&1
   mkdir -p -- "${delivery_evidence_root}/original-inputs"
   cp -R -- "${workspace}/.planning" "${workspace}/deployment" \
     "${workspace}/records" "${workspace}/tests" "${delivery_evidence_root}/original-inputs/"
+}
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_release_return() {
+  delivery_evidence_return_notes='Stops: none reported. Consequential limits: live helper output and orchestration remain with slice 4; status after the coordinator ends is reported as a future owner decision.'
+  delivery_evidence_return_promise 'Slice 3: Identity, container state and API code with no response body — claimed pass; observation: tests/test_status.py healthy/complete summary and no-application-body assertions.'
+  delivery_evidence_return_promise 'Slice 3: Newest operation phase, stages, times, outcome and error — claimed pass under selected plan; observation: tests/test_status.py and .planning/producer-proof.md; original source: .planning/seeds/SEED-120-release-readiness.md.'
 }

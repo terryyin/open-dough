@@ -2,17 +2,24 @@
 # Known caller deferred to CI alongside authentic independent retained proof.
 # Reuse the existing factory boundary rather than add another product fixture.
 # shellcheck disable=SC2016
+# shellcheck disable=SC2034 # Shared native-return transport consumes the notes.
 
 delivery_evidence_deferred_populate_fixture() {
   local workspace=$1
   delivery_evidence_consumers_write_baseline_revision "${workspace}"
+  # Establish HEAD before the independent proof. Amend below retains the same
+  # baseline tree; its run record honestly names the pre-amend revision.
+  if [[ -n ${delivery_evidence_return_clock:-} ]]; then
+    delivery_evidence_git "${workspace}" add lib tests e2e .planning
+    delivery_evidence_git "${workspace}" commit --quiet -m 'baseline factory and authentic independent status proof'
+  fi
   {
     printf '# Retained independent status proof\n\nCommand: `node --test --test-reporter=tap tests/status-badge.test.mjs`\n\nRuntime: '
     node --version
     printf '\nMatching source and assertion hashes:\n```\n'
     (cd "${workspace}" && shasum -a 256 lib/statusBadge.mjs tests/status-badge.test.mjs)
     printf '```\n\nObserved terminal result (exit 0):\n```\n'
-    (cd "${workspace}" && node --test --test-reporter=tap tests/status-badge.test.mjs)
+    delivery_evidence_run_producer "${workspace}" status-proof node --test --test-reporter=tap tests/status-badge.test.mjs
     printf '```\n'
   } > "${workspace}/.planning/status-proof.md"
   cat > "${workspace}/README.md" << 'MD'
@@ -25,7 +32,11 @@ There are no dependencies or build steps. Failed affected proof prevents deliver
 The status badge is independent, with retained proof in `.planning/status-proof.md`.
 MD
   delivery_evidence_git "${workspace}" add lib tests e2e README.md .planning
-  delivery_evidence_git "${workspace}" commit --quiet -m 'baseline factory and authentic independent status proof'
+  if [[ -n ${delivery_evidence_return_clock:-} ]]; then
+    delivery_evidence_git "${workspace}" commit --quiet --amend --no-edit
+  else
+    delivery_evidence_git "${workspace}" commit --quiet -m 'baseline factory and authentic independent status proof'
+  fi
   delivery_evidence_consumers_write_promises_and_return "${workspace}" changed-contract
   cat > "${workspace}/.planning/slice-promises.md" << 'MD'
 # Current slice promises
@@ -58,7 +69,14 @@ MD
     printf '\nMatching source and assertion hashes:\n```\n'
     (cd "${workspace}" && shasum -a 256 lib/commandFactory.mjs tests/producer.test.mjs)
     printf '```\n\nCommand: `node --test --test-reporter=tap tests/producer.test.mjs`\n\nObserved terminal result (exit 0):\n```\n'
-    (cd "${workspace}" && node --test --test-reporter=tap tests/producer.test.mjs)
+    delivery_evidence_run_producer "${workspace}" producer-proof node --test --test-reporter=tap tests/producer.test.mjs
     printf '```\n'
   } > "${workspace}/.planning/producer-proof.md"
+}
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_deferred_return() {
+  delivery_evidence_return_notes='Stops: none reported. Learning: the discovered E2E factory caller has its required observation left unrun for CI; the original return still claims delivery ready.'
+  delivery_evidence_return_promise '1. Factory and producers use release tags — claimed pass; observation: tests/producer.test.mjs producer builds command with release tag; gap: e2e/stand-in-compat.test.mjs left unrun for CI as stated in full report.'
+  delivery_evidence_return_promise '2. Independent status badge remains unchanged — claimed pass; observation: tests/status-badge.test.mjs badge labels status; retained source/assertion hashes and terminal result: .planning/status-proof.md.'
 }

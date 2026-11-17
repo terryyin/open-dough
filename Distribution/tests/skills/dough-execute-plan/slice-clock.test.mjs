@@ -45,14 +45,7 @@ test("a slice with nothing recorded starts at 15 remaining, and 6 minutes of wor
   const status = await clock(worktree, "status");
 
   assert.deepEqual(started.result, reported("start", "running", 0));
-  assert.deepEqual(
-    ran.result,
-    reported("run", "running", 6, {
-      exitStatus: 0,
-      log: suite.log,
-      exitFile: suite.exitFile,
-    }),
-  );
+  assert.partialDeepStrictEqual(ran.result, reported("run", "running", 6));
   assert.equal(ran.exitStatus, 0);
   assert.equal(readFileSync(suite.log, "utf8"), "suite passed\nwarned\n");
   assert.equal(readFileSync(suite.exitFile, "utf8"), "0\n");

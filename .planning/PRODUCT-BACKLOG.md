@@ -28,11 +28,11 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence ([plan](slice-plans/683-recover-decisive-verification-evidence/PLAN.md))
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
 
 ## Backlog list
 
+- [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence
 - [Keep the converted navigation proof whole and time-independent](seeds/SEED-334-product-wide-end-to-end-tests.md#keep-navigation-conversion-proof-whole) — SEED-334#keep-navigation-conversion-proof-whole
 - [Keep a departed candidate read from showing a failure after Show latest](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-no-stale-candidate-failure-after-show-latest) — SEED-334#observe-no-stale-candidate-failure-after-show-latest
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart

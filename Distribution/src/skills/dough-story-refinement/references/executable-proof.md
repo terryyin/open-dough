@@ -228,9 +228,9 @@ duration cutoff or routine human approval is required. Coordinate only owned
 work through existing handoffs and pause/resume rules. Separate worktrees can
 share the same machine; leave unrelated processes with their owners.
 
-Retain the host, workload, evidence and unknowns, choice, command/proof owner,
-and reconsideration condition in the existing plan, handoff or execution
-conversation. Keep this concise enough for the decision; create no host registry.
+Retain host, workload, evidence and unknowns, choice, command/proof owner and
+reconsideration condition in the existing plan, handoff or execution conversation;
+keep it concise, create no host registry, and apply the [artifact survival check](../../dough-execute-plan/references/proof-evidence.md#preserve-decisive-artifacts).
 A deferral leaves the exact required observation outstanding with its owner and
 next condition. The command owner remains responsible through its terminal
 result under the existing workflow.
