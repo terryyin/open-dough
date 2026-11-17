@@ -4,7 +4,7 @@
 // Board's width allows, and a wide Board that shows every column does not lose
 // it. A browser that refuses storage starts at Backlog and pages for the
 // page's lifetime without error. That the position follows column paging
-// controls, focus, and width is ../../tests/navigation/board-paging.spec.ts.
+// controls, focus, and width is ./board-paging.spec.ts.
 // Each case's browser context keeps its own real `localStorage`.
 
 import type { Page } from "@playwright/test";

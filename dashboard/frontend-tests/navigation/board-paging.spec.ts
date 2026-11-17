@@ -1,27 +1,28 @@
 // A Board too narrow for Backlog, Taken, and Recently done side by side
 // shows the whole columns that fit, two from 48rem and one below, filling
-// the Board from Backlog; a column paging control on a side with a hidden column names
-// it and how many entries it holds, stays in sight down a long Board, and
-// moves the view one column, briefly sliding unless the developer asked for
-// reduced motion, and the chosen position comes back where the width allows
-// it; focus landing in a hidden column shows it. That the side panel pages
-// the columns as a window would is
-// ./board-paging-side-panel.spec.ts; that three columns show side
-// by side in a wide Board is ./accessible-board.spec.ts, and that a Sessions
-// sidebar choice shows its hidden column is
-// ./board-paging-sessions-sidebar.spec.ts.
+// the Board from Backlog; a column paging control on a side with a hidden
+// column names it and how many entries it holds, stays in sight down a long
+// Board, and moves the view one column, briefly sliding unless the developer
+// asked for reduced motion, and the chosen position comes back where the width
+// allows it; focus landing in a hidden column shows it. That three columns
+// show side by side in a wide Board is ./accessible-board.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import {
+  expectMembership,
+  expectSettledPage,
+  parts,
+} from "../../tests/dashboardPage.ts";
 import {
   publishLargeBacklog,
   queuedCount,
   queuedTitle,
   queuedTitles,
-} from "../accessibleBoard.ts";
-import { expectBelowBanner } from "../bannerReading.ts";
-import { box } from "../pageLayout.ts";
+} from "../../tests/accessibleBoard.ts";
+import { expectBelowBanner } from "../../tests/bannerReading.ts";
+import { box } from "../../tests/pageLayout.ts";
 import {
   columns,
   columnPagingControl,
@@ -35,24 +36,26 @@ import {
   showColumn,
   slidesOf,
   wheelTo,
-} from "../boardPage.ts";
+} from "../../tests/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
-} from "../boardReading.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/boardReading.ts";
+
 // The dashboard, reading a Backlog longer than one screen and one Taken entry.
-async function openLargeBacklog(page: Page) {
-  await publishLargeBacklog(page);
-  await openUntilRead(page);
+async function openLargeBacklog(page: Page, services: FrontendServiceState) {
+  publishLargeBacklog(services);
+  await page.goto("/");
+  await expectSettledPage(page);
 }
 
 test.describe("in a narrow window", () => {
   test("a 40rem Board shows one column; each move shows the next, and wider and narrower Boards keep the leftmost shown column", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
-    await openLargeBacklog(page);
+    await openLargeBacklog(page, frontendServices);
     await expectMembership(page, {
       taken: ["Repair the installer's update report"],
       backlog: queuedTitles,
@@ -94,9 +97,10 @@ test.describe("in a narrow window", () => {
 
   test("from the keyboard, a control gone after its move hands the keyboard to the other side's control", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
-    await openLargeBacklog(page);
+    await openLargeBacklog(page, frontendServices);
     await expectView(page, ["Backlog"], ["Taken 1 entry"]);
 
     await columnPagingControl(page, "Taken").focus();
@@ -116,9 +120,10 @@ test.describe("in a narrow window", () => {
 
   test("far down a long Backlog the column paging control stays in sight and moves the view, and the shown column heading stays stuck below the banner", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 700 });
-    await openLargeBacklog(page);
+    await openLargeBacklog(page, frontendServices);
     const { backlog, banner } = parts(page);
     await expect(
       backlog.getByRole("article", { name: queuedTitle(queuedCount) }),
@@ -171,10 +176,11 @@ test.describe("in a narrow window", () => {
 
   test("with reduced motion asked for, a move shows the next column at once", async ({
     page,
+    frontendServices,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 40 * rem, height: 800 });
-    await openLargeBacklog(page);
+    await openLargeBacklog(page, frontendServices);
     const { taken } = parts(page);
     await expect(taken.getByRole("article")).toHaveCount(1);
     await recordSlides(page);
@@ -195,9 +201,10 @@ test.describe("in a narrow window", () => {
 
   test("tabbing backwards out of Taken into the last Backlog card shows Backlog with that card in sight", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 700 });
-    await openLargeBacklog(page);
+    await openLargeBacklog(page, frontendServices);
     const { backlog, taken } = parts(page);
     const lastCard = backlog.getByRole("article", {
       name: queuedTitle(queuedCount),

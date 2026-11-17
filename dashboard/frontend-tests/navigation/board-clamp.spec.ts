@@ -5,11 +5,9 @@
 // ./board-height.spec.ts.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
 import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import {
-  largeBacklog,
-  revision,
+  publishLargeBacklog,
   queuedCount,
   queuedTitle,
 } from "../../tests/accessibleBoard.ts";
@@ -33,7 +31,7 @@ test("a long Backlog read far down: shorter columns clamp the Board to their bot
 }) => {
   await page.setViewportSize({ width: 54 * rem, height: 480 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  putFrontendBacklog(frontendServices, { revision, backlog: largeBacklog });
+  publishLargeBacklog(frontendServices);
   await page.goto("/");
   const { backlog } = parts(page);
   const lastCard = backlog.getByRole("article", {

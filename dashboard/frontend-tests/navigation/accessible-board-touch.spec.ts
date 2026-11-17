@@ -10,13 +10,13 @@ import {
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import {
-  largeBacklog,
   longBacklog,
   longIdentity,
   longPlan,
   longTitle,
   queuedCount,
   queuedTitles,
+  publishLargeBacklog,
   revision,
 } from "../../tests/accessibleBoard.ts";
 import {
@@ -213,7 +213,7 @@ test.describe("touch reading", () => {
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    putFrontendBacklog(frontendServices, { revision, backlog: largeBacklog });
+    publishLargeBacklog(frontendServices);
     await page.goto("/");
     await expectSettledPage(page, {
       taken: ["Repair the installer's update report"],

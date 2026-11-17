@@ -92,7 +92,7 @@ A group's CI shard sets its `<prefix>_SPLIT=i/n` to select shard `i` of `n`.
 The group's job in `.github/workflows/ci.yml` declares the shards: `shards`
 lists them and `specs` gives each shard but the last its repository-relative
 glob patterns, folder (`e2e/intent/**`) or file-name prefix
-(`dashboard/tests/navigation/board-*`), and the last shard runs the rest. A
+(`dashboard/tests/navigation/source-*`), and the last shard runs the rest. A
 one-shard group declares no pattern. `support/testFiles.mjs` finds every spec
 file under the group's root recursively, never entering the `test-results/`
 and `playwright-report/` output a run writes there while reloading workers

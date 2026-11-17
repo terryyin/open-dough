@@ -228,7 +228,7 @@ the selected project kept across reload stays with `development-intent-frame`
 
 ### 3. Preserve Board paging and reading
 Type: Behavior
-Status: planned
+Status: done
 Proof: `board-paging`, `board-paging-launch-dialog`, `board-paging-sessions-sidebar`,
 `board-paging-side-panel`, `board-reading`, `board-native-reading`,
 `board-session-reading` (771 lines): paging controls, reduced motion, focus
@@ -239,6 +239,64 @@ emptied `board-*` pattern from shard 2 and list every shard.
 
 Behavior: paging the Board beside each panel or reading a native session → the
 same column, focus and reads, with no interim `board-*` spec remaining.
+
+Assertion map (interim → Frontend, `dashboard/frontend-tests/navigation/`):
+- `board-paging.spec.ts` five narrow-window cases (one-column moves and
+  kept leftmost column across widths; keyboard handed to the other control;
+  sticky heading and in-sight control down a long Backlog with clamp and kept
+  position; reduced motion with no slide; Shift+Tab into a hidden Backlog's
+  last card) → `board-paging.spec.ts`, same names; the long Backlog through
+  `putFrontendBacklog`.
+- `board-paging-side-panel.spec.ts` → `board-paging-side-panel.spec.ts`
+  "beside the side panel a 54rem Board shows two columns …": the panel opens
+  from the Taken card's observed working session (attached-terminal
+  substitute) instead of an ad hoc Start session; the interim last step (a
+  Backlog card's started session adds no Recently done count) is held by
+  `../sessions/recently-done-active-story-sessions.spec.ts` (active story owns
+  its session; Column paging count uses the rendered entries).
+- `board-paging-launch-dialog.spec.ts` → same file and name; the Taken card's
+  kept execution start comes from the machine answer's `keptStarts` (new
+  `aMachineAnswer.keepingStarts(...)`) instead of a refused real launch.
+- `board-paging-sessions-sidebar.spec.ts` → same file and name; the chosen
+  session is the Ready story's observed working session; reveals recorded by
+  `recordReveals`; counts follow the default substitute (`Taken 1 entry`).
+- `board-reading.spec.ts` "body reading keys …" and
+  `board-native-reading.spec.ts` "native modified reading keys …" →
+  `board-reading-keys.spec.ts`, same names.
+- `board-reading.spec.ts` "URL and Session entry reveal a tall card's top …"
+  (1400×360, 700×800) and `board-session-reading.spec.ts` "the Session entry
+  reveals the same story on the Board after Close at 700×{800,900,1600}" →
+  `board-session-reading.spec.ts`, same names. The Close case now reveals the
+  Ready story in its own project (was a Pygardon story chosen from Open
+  Dough); a cross-project Session choice revealing its Board entry stays with
+  `../sessions/recently-done-sessions-sidebar-paging.spec.ts`.
+- None of the seven interim files held a non-eager read count or held/failed
+  recovery assertion, so none moved here.
+- All seven interim files deleted; `groupRunnerExamples.ts` names
+  `navigation/source-navigation.spec.ts` "source navigation keeps an external
+  reference apart from files in this snapshot"; shard `1:` in `ci.yml` drops
+  `board-*`. Shards list 1/3: 3 tests, 2/3: 37, 3/3: 32, each exit 0;
+  `node --test Distribution/tests/support/ci-browser-groups.test.mjs` 2/2;
+  `backend-tests/runtime/runner-ownership.spec.ts` 5/5.
+
+Scratch break (Frontend boundary): `dashboard/src/columnPaging.ts` stopped
+listening for `focusin` (`for (const asked of [showHolding])`) →
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate
+-i npx playwright test --config frontend.playwright.config.ts
+frontend-tests/navigation/board-paging.spec.ts --grep "tabbing backwards"
+--reporter=list --workers=1` failed at `expectView`'s `toHaveText` (control
+still `Backlog 16 entries`); restored by editing back (`git diff dashboard/src`
+empty); `frontend-tests/navigation/` then passed 37/37 with `--workers=2`;
+typecheck exit 0.
+
+Acceptance note: the interim side-panel journey's last step (a session started
+from a Backlog card adds no Recently done count and the view stays) is owned by
+`frontend-tests/sessions/recently-done-active-story-sessions.spec.ts` (an active
+story owns its session; the paging count uses rendered entries) together with
+the converted side-panel case's view assertions once the session panel opens.
+The cross-project Close reading is owned by
+`frontend-tests/sessions/recently-done-sessions-sidebar-paging.spec.ts`
+(choosing Pygardon reveals its entry in view).
 
 ### 4. Preserve side-panel width
 Type: Behavior

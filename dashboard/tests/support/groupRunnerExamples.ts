@@ -10,8 +10,8 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/tests",
     job: "dashboard-integrated",
-    spec: "navigation/board-paging.spec.ts",
-    grep: "with reduced motion asked for, a move shows the next column at once",
+    spec: "navigation/source-navigation.spec.ts",
+    grep: "source navigation keeps an external reference apart from files in this snapshot",
   },
   {
     name: "Dashboard Frontend Test",

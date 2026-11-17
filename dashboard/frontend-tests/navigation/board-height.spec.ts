@@ -7,8 +7,8 @@
 // nothing. Recently done shows its latest ten entries until its older ones are
 // revealed. Where a Board read far down stops when shorter columns show is
 // ./board-clamp.spec.ts; that focus and a Sessions sidebar choice
-// reveal a hidden column whole is ../../tests/navigation/board-paging.spec.ts
-// and ../../tests/navigation/board-paging-sessions-sidebar.spec.ts.
+// reveal a hidden column whole is ./board-paging.spec.ts and
+// ./board-paging-sessions-sidebar.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";

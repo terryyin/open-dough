@@ -4,14 +4,10 @@
 // ./board-scroll-side-panel.spec.ts.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
 import {
-  putFrontendBacklog,
-  putFrontendPublished,
-} from "../../tests/support/frontendServiceState.ts";
-import {
-  largeBacklog,
+  publishLargeBacklog,
   queuedCount,
-  revision,
 } from "../../tests/accessibleBoard.ts";
 import {
   boardPositionKey,
@@ -81,7 +77,7 @@ test("a classic Board scrollbar's width owns the Column boundary and keeps a sav
     });
     if (localStorage.getItem(key) === null) localStorage.setItem(key, "1");
   }, boardPositionKey);
-  putFrontendBacklog(frontendServices, { revision, backlog: largeBacklog });
+  publishLargeBacklog(frontendServices);
   await page.goto("/");
   await expectSettledPage(page);
   const room = await boardScroll(page).evaluate((element) => {
