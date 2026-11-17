@@ -79,3 +79,5 @@ Fresh independent repair check: [accepted return](slice-2-repair-refactor.md),
 `/root/refactor_2_repair`, no edits, `## REFACTOR COMPLETE`; exact old/new
 runtime imports audited and proof reused. Final freshness again unchanged at
 the same pinned trunk, so named-sibling no-hold decision remains applicable.
+
+Owned CI repair: [complete red/green and consumer evidence](ci-43988422233-proof.md).

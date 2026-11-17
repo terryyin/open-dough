@@ -2,6 +2,7 @@ import { type Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
+  expectTabOrder,
   politeRegionsOfferedThenMarked,
   tabTo,
 } from "../accessibleReading.ts";
@@ -9,6 +10,7 @@ import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
 import {
   canonicalRecord,
   enabledStoryCardLaunchActions,
+  storyNotesControl,
 } from "../storyCardControls.ts";
 import { storyDetail } from "../storyCardSelection.ts";
 import {
@@ -38,7 +40,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   // Reading order is the order of the page's source: Sessions, the
   // perspective, the project selector, System settings, then direction, Start session and the badge
   // legend, then each card's controls by column (Backlog, then Taken): a
-  // Backlog card's enabled launch actions, then Inspect story. A card's recorded
+  // Backlog card's enabled launch actions, then Inspect story and Notes. A card's recorded
   // links are in its detail, not its scan view. In a wide window Taken stands
   // beside Backlog's first card, so position on screen would order them
   // differently.
@@ -60,6 +62,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
         stops.push(...(await enabledStoryCardLaunchActions(card)));
       }
       stops.push(card.getByRole("button", { name: "Inspect story" }));
+      stops.push(storyNotesControl(card));
       await expect(card.getByRole("link")).toHaveCount(0);
     }
     return stops;
@@ -78,14 +81,11 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   ];
   // Sessions + selected perspective radio + selected project radio + System
   // settings + Direction + Start session + Legend + two Backlog cards' enabled
-  // launch actions + four Inspect.
-  expect(stops).toHaveLength(7 + 2 + 4);
+  // launch actions + four pairs of Inspect story and Notes.
+  expect(stops).toHaveLength(7 + 2 + 4 * 2);
 
   await test.step("Tab stops at Sessions, the banner's controls, and each card's controls, and nowhere else", async () => {
-    for (const stop of stops) {
-      await page.keyboard.press("Tab");
-      await expectFocusedAndIndicated(page, stop);
-    }
+    await expectTabOrder(page, stops);
     // The column container, cards, and all three columns take focus only when it is
     // returned to them.
     await expect(page.locator("[tabindex='-1']")).toHaveCount(1 + 4 + 3);
@@ -97,14 +97,11 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     for (const stop of stops) {
       await expect(stop).not.toBeFocused();
     }
-    for (const stop of [...stops].reverse()) {
-      await page.keyboard.press("Shift+Tab");
-      await expect(stop).toBeFocused();
-    }
+    await expectTabOrder(page, [...stops].reverse(), "Shift+Tab");
   });
 
   await test.step("Enter on Inspect story reveals the card's recorded links next in reading order, and Enter on one leaves for its record at the inspected revision", async () => {
-    // The selected project radio already holds focus after the reverse walk;
+    // Sessions holds focus after the reverse walk;
     // Tab walks on in reading order to the first card's Inspect story.
     const first = backlog.getByRole("article").first();
     const inspect = first.getByRole("button", { name: "Inspect story" });
@@ -114,8 +111,8 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     const hide = first.getByRole("button", { name: "Hide detail" });
     await expect(hide).toBeFocused();
     const canonical = canonicalRecord(storyDetail(first));
-    await page.keyboard.press("Tab");
-    await expectFocusedAndIndicated(page, canonical);
+    const notes = storyNotesControl(first);
+    await expectTabOrder(page, [notes, canonical]);
     const [popup, leaving] = await Promise.all([
       page.waitForEvent("popup"),
       page
@@ -128,8 +125,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     );
     await popup.close();
     // Hide detail returns the keyboard to the same story's card.
-    await page.keyboard.press("Shift+Tab");
-    await expect(hide).toBeFocused();
+    await expectTabOrder(page, [notes, hide], "Shift+Tab");
     await page.keyboard.press("Enter");
     await expectFocusedAndIndicated(page, first);
     await expect(first.getByRole("link")).toHaveCount(0);

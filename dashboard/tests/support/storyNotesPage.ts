@@ -1,5 +1,6 @@
 // Focused Story notes dialog mechanics, shared by frontend and real journeys.
 import { expect, type Locator, type Page } from "@playwright/test";
+import { storyNotesControl } from "../storyCardControls.ts";
 export function storyNotesPage(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Story notes", exact: true });
   const field = dialog.getByRole("textbox", { name: "Note text", exact: true });
@@ -8,7 +9,7 @@ export function storyNotesPage(page: Page) {
     .getByRole("listitem");
   return {
     open: async (card: Locator, using: "mouse" | "keyboard" = "mouse") => {
-      const control = card.getByRole("button", { name: /^Notes/ });
+      const control = storyNotesControl(card);
       if (using === "keyboard") {
         await control.focus();
         await control.press("Enter");

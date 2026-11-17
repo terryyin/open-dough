@@ -3,7 +3,6 @@
 // problem. The page's parts (./dashboardParts.ts) are found through here too.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { storyCardLaunchActions, detailToggle } from "./storyCardControls.ts";
 import { parts, shortRevision } from "./dashboardParts.ts";
 import { expectProjectChoice } from "./projectChoice.ts";
 import {
@@ -13,35 +12,7 @@ import {
 
 export * from "./dashboardParts.ts";
 export * from "./projectChoice.ts";
-
-// Every button a shown snapshot offers, and nothing else: the banner's
-// Sessions, System settings, Start session, the badge legend, each Backlog
-// card's launch actions, and each card's detail toggle.
-export async function expectSnapshotButtons(
-  page: Page,
-  shown: {
-    readonly backlogCards: number;
-    readonly cards: number;
-  },
-) {
-  const button = (name: string) =>
-    page.getByRole("button", { name, exact: true });
-  await expect(button("Sessions")).toHaveCount(1);
-  await expect(button("System settings")).toHaveCount(1);
-  await expect(
-    page.getByRole("button", { name: /^Start session in / }),
-  ).toHaveCount(1);
-  await expect(parts(page).preparationHelp).toHaveCount(1);
-  for (const action of storyCardLaunchActions) {
-    await expect(button(action)).toHaveCount(shown.backlogCards);
-  }
-  await expect(page.getByRole("button", { name: detailToggle })).toHaveCount(
-    shown.cards,
-  );
-  await expect(page.getByRole("button")).toHaveCount(
-    4 + shown.backlogCards * storyCardLaunchActions.length + shown.cards,
-  );
-}
+export { expectSnapshotButtons } from "./snapshotButtons.ts";
 
 // Waits until no read of the published work is on its way, then tells
 // whether the page says that read failed with nothing read and that it reads

@@ -1,5 +1,5 @@
 // What a card offers: its launch actions in its launch group, and in its
-// inspection group Inspect story, which opens its detail
+// inspection group Inspect story and Notes. Inspect story opens its detail
 // from the snapshot already read and is named Hide detail while that detail
 // is open. Each card's detail opens on its own, and several can be open at
 // once.
@@ -31,6 +31,8 @@ export async function enabledStoryCardLaunchActions(card: Locator) {
 export const detailToggle = /^(?:Inspect story|Hide detail)$/;
 export const inspectionToggle = (card: Locator) =>
   card.getByRole("button", { name: detailToggle });
+export const storyNotesControl = (card: Locator) =>
+  card.getByRole("button", { name: /^Notes(?: \(\d+\))?$/ });
 
 export async function tapInspectStory(card: Locator) {
   await tapWhereShown(inspectionToggle(card));
@@ -85,7 +87,7 @@ export async function pointerDownOn(action: Locator) {
 }
 
 // A card's launch group (its Starts) and its inspection group (Inspect story
-// and Review changes when offered).
+// and Notes, plus Review changes when offered).
 export const launchGroup = (card: Locator) =>
   card.getByRole("group", { name: "Launch actions" });
 export const inspectionGroup = (card: Locator) =>

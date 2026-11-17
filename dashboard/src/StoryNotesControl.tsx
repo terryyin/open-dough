@@ -23,6 +23,7 @@ export function StoryNotes({
     <>
       <button
         type="button"
+        className="start-launch-button"
         ref={opener}
         onClick={() => {
           setOpen(true);
