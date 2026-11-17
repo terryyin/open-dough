@@ -163,13 +163,68 @@ reuse it. Navigation folder 9 passed and typecheck exit 0 after the refactor.
 
 ### 2. Preserve Board geometry and kept position
 Type: Behavior
-Status: planned
+Status: done
 Proof: `board-clamp`, `board-height`, `board-kept`, `board-scroll` (632 lines):
 clamped and kept column position across project switch, reload and wide Board,
 former-key recovery, refused storage, height and scroll geometry (P1).
 
 Behavior: a narrow Board moved to Taken → project switch or reload → the same
 columns, limited by room; refused storage starts at Backlog without error.
+
+Assertion map (interim → Frontend, `dashboard/frontend-tests/navigation/`; kept
+position read and written through the page's real `localStorage` across
+`page.reload()`, per P1):
+- `board-kept.spec.ts` "the chosen columns stay across a project switch, a
+  reload, and a wide Board" → split into `board-kept-position.spec.ts` "the
+  chosen Board columns stay across a project switch" (5a; also moved back to
+  Backlog, a switch keeps Backlog), "… across a reload" (5b; also Backlog kept
+  after a reload) and "… in a wide Board" (5c; every column shown wide, also
+  after a reload, Taken again when narrow). Control counts follow the default
+  substitute (`Backlog 2 entries`, `Recently done 0 entries`); the selected
+  project after a switch is `chooseProject`'s own wait, no longer a separate
+  `expectSelectedProject`.
+- `board-kept.spec.ts` "a position kept under the former Board key is recovered
+  once …" (5d), "an unusable kept position starts at Backlog", "where the browser
+  refuses storage …" (own `addInitScript` refusing `localStorage`) →
+  `board-kept-position.spec.ts`, same names.
+- `board-clamp.spec.ts` long-Backlog clamp case → `board-clamp.spec.ts`, same
+  name; `largeBacklog` through `putFrontendBacklog`.
+- `board-height.spec.ts` "a hidden long Recently done …" → `board-height.spec.ts`,
+  same name; backlog and seed through `putFrontendPublished`, 40 done records
+  through `putFrontendDoneRecords`. "done stories arriving in a hidden Recently
+  done …" → same name; the default Taken/Backlog (whose story records answer, so
+  no unread-detail banner shifts the Board) beside 41 done records, the done
+  catalog held by a context route until released (was `heldFactGroups`' held
+  GitHub groups, whose now-uncalled `moreDone` variant and
+  `publishedFactsDoneRecords.ts` were removed); "Show 10 of 31 older entries"
+  and the unchanged Board extent kept.
+- `board-scroll.spec.ts` two "the Board alone scrolls with an open Side panel"
+  cases → `board-scroll-side-panel.spec.ts`, same names, one test per window;
+  roster scroll and classic scrollbar cases → `board-scroll.spec.ts`, same
+  names. Review changes opens on the Taken story's kept story-branch launch
+  (`installFrontendStoryReview`) instead of a real worktree; the long Board is
+  the default backlog plus `largeBacklog`'s list. At 700×800 the one-column
+  Board shows Taken to open the review and Backlog to scroll its first card
+  (the interim reviewed card was a Backlog card). Roster files come from
+  `agentRosterRecords.ts`' now-exported `openDoughFiles`.
+- All four interim files deleted; `dashboard-integrated` shards list 1/3: 18
+  tests (was 29), 2/3: 37, 3/3: 32, each exit 0; `board-*` still matches seven
+  specs, so `ci.yml` is unchanged.
+
+Scratch break (Frontend boundary): `dashboard/src/columnPaging.ts` former key
+`"open-dough.dashboardColumns.position"` renamed to `"open-dough.scratch.position"`
+→ `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate
+-i npx playwright test --config frontend.playwright.config.ts
+frontend-tests/navigation/board-kept-position.spec.ts --grep "former Board key"
+--reporter=list --workers=1` failed at `expectView`'s `toHaveText` (1 failed);
+restored by editing back (`git diff dashboard/src` empty), the spec passed 6/6
+and the navigation folder 22/22; typecheck exit 0.
+
+Acceptance note: the interim `board-kept` journey's `expectSelectedProject`
+calls after the project switch and reload checked the selected project and its
+own stories, not the kept columns. `chooseProject` still asserts the choice;
+the selected project kept across reload stays with `development-intent-frame`
+(slice 5) and each project's own Board with `project-selection` (slice 7).
 
 ### 3. Preserve Board paging and reading
 Type: Behavior

@@ -7,15 +7,22 @@
 // nothing. Recently done shows its latest ten entries until its older ones are
 // revealed. Where a Board read far down stops when shorter columns show is
 // ./board-clamp.spec.ts; that focus and a Sessions sidebar choice
-// reveal a hidden column whole is ./board-paging.spec.ts and
-// ./board-paging-sessions-sidebar.spec.ts.
+// reveal a hidden column whole is ../../tests/navigation/board-paging.spec.ts
+// and ../../tests/navigation/board-paging-sessions-sidebar.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { hideDetail, inspectedDetail } from "../storyCardControls.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { expectSettledPage, parts } from "../dashboardPage.ts";
-import { publishFiles } from "../publishedOrigin.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { hideDetail, inspectedDetail } from "../../tests/storyCardControls.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  openDoughSource,
+  putFrontendDoneRecords,
+  putFrontendPublished,
+  type FrontendServiceState,
+} from "../../tests/support/frontendServiceState.ts";
+import { holdAnswer } from "../../tests/support/frontendSubstituteAnswers.ts";
+import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import {
   expectEndsWithShown,
   expectLongerThanTheBoard,
@@ -24,52 +31,63 @@ import {
   rem,
   showColumn,
   wheelTo,
-} from "../boardPage.ts";
+} from "../../tests/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
-} from "../boardReading.ts";
-import { heldFactGroups, moreDoneTitle } from "../publishedFactsArrival.ts";
-import { revealAction } from "../recentlyDoneColumn.ts";
+} from "../../tests/boardReading.ts";
+import { takenBacklogStories } from "../../tests/launchStoryCardPage.ts";
+import { revealAction } from "../../tests/recentlyDoneColumn.ts";
 import {
   at,
   publishedFiles,
   queuedTitle as inspectedTitle,
-  repository,
   revision,
   workspaceEntry,
-} from "../recentlyDoneRecords.ts";
+} from "../../tests/recentlyDoneRecords.ts";
+
+const doneTitle = (place: number) => `Done work number ${place} is closed`;
+
+// Publishes `doneCount` done records an hour apart, the first the latest.
+function publishDone(services: FrontendServiceState, doneCount: number): void {
+  const now = Date.now();
+  putFrontendDoneRecords(
+    services,
+    openDoughSource.id,
+    [...Array(doneCount).keys()].map((index) =>
+      makeMe.aDoneRecord
+        .with({
+          identity: `SEED-2${index + 1}#closed`,
+          title: doneTitle(index + 1),
+          completedAt: at(now, (index + 1) * 60 * 60 * 1000),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ),
+  );
+}
 
 test.describe("in a two-column Board", () => {
   test("a hidden long Recently done adds no blank tail below Backlog and Taken; an inspection lengthens and shortens the Board, and Recently done shown is read whole", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 480 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const now = Date.now();
     const doneCount = 40;
-    const doneTitle = (place: number) => `Done work number ${place} is closed`;
     const purpose = `Keep the inspected story's purpose readable to its end. ${"Its detail holds a long purpose, so opening it lengthens the page well past one window. ".repeat(30)}The purpose ends here.`;
-    await publishFiles(page, {
-      repository,
-      revision,
-      files: publishedFiles({
-        doneRecords: [...Array(doneCount).keys()].map((index) =>
-          makeMe.aDoneRecord
-            .with({
-              identity: `SEED-2${index + 1}#closed`,
-              title: doneTitle(index + 1),
-              completedAt: at(now, (index + 1) * 60 * 60 * 1000),
-              developer: "Terry Yin",
-            })
-            .please(),
-        ),
-        files: {
-          ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md":
-            renderStorySection(workspaceEntry, { goal: purpose }),
-        },
-      }),
+    const published = publishedFiles({
+      files: {
+        ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md":
+          renderStorySection(workspaceEntry, { goal: purpose }),
+      },
     });
+    putFrontendPublished(frontendServices, {
+      revision,
+      backlog: published[".planning/PRODUCT-BACKLOG.md"] ?? "",
+      files: published,
+    });
+    publishDone(frontendServices, doneCount);
     await page.goto("/");
     // Read only once every card has its length, as in the long-Backlog read.
     await expectSettledPage(page, { taken: [], backlog: [inspectedTitle] });
@@ -138,6 +156,7 @@ test.describe("in a two-column Board", () => {
 
   test("done stories arriving in a hidden Recently done add no blank tail below Backlog and Taken", async ({
     page,
+    frontendServices,
   }) => {
     // Read at the Board's top, the column paging control starts below the Board header
     // and is as tall as its "Entry count incomplete" label, whose length
@@ -146,18 +165,42 @@ test.describe("in a two-column Board", () => {
     // stays shorter than Backlog and Taken, so the Board still ends with them.
     await page.setViewportSize({ width: 54 * rem, height: 600 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const moreDone = 40;
-    const { release, doneCard } = await heldFactGroups(page, { moreDone });
+    // The default Backlog and Taken, longer than the window, beside 41 done
+    // records.
+    publishDone(frontendServices, 41);
+    // The done catalog's answer is held until released.
+    const { held, hold } = holdAnswer(page);
+    await page.route(
+      (url) =>
+        url.pathname === authenticatedReadEndpoint &&
+        url.searchParams.get("done") === "catalog",
+      async (route) => {
+        hold.received();
+        await hold.released;
+        await route.fallback();
+        hold.delivered();
+      },
+    );
+    await page.goto("/");
+    await held.received;
+    // Every card has its length before the Board's is read.
+    await expect(parts(page).taken.getByRole("article")).toHaveCount(
+      takenBacklogStories.taken.length,
+    );
+    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    const doneCard = parts(page).recentlyDone.getByRole("article", {
+      name: doneTitle(1),
+    });
     const { recentlyDone } = parts(page);
     await expect(doneCard).toHaveCount(0);
     await expectView(page, ["Backlog", "Taken"], [/^Recently done /]);
     const before = await extentOf(page);
     await expectEndsWithShown(page, ["Backlog", "Taken"]);
 
-    release("done");
-    // The latest ten show: the journeys' own done story, then nine more.
+    held.release();
+    // The latest ten show.
     const lastDone = recentlyDone.getByRole("article", {
-      name: moreDoneTitle(9),
+      name: doneTitle(10),
     });
     await expect(lastDone).toHaveCount(1);
     await expect(doneCard).toHaveCount(1);

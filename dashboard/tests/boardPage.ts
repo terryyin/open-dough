@@ -16,6 +16,7 @@ import {
 } from "./boardColumnNavigation.ts";
 
 export {
+  boardPositionKey,
   columns,
   columnRegion,
   columnPagingControl,
@@ -27,6 +28,7 @@ export {
   activateColumnIndicator,
   expectColumnIndicatorFocused,
   expectRowRestsShowing,
+  keptBoardPosition,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
 

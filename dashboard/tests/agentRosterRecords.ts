@@ -106,7 +106,7 @@ export const openDoughFacts = {
   },
 } satisfies RevisionFacts;
 
-const { files: openDoughFiles } = describedRevision(
+export const { files: openDoughFiles } = describedRevision(
   makeMe.aRepository.withRevision("roster", openDoughFacts).please(),
   openDough.revision,
 );

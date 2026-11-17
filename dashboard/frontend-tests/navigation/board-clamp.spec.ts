@@ -4,13 +4,15 @@
 // Board is only as long as its shown columns is
 // ./board-height.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { expectSettledPage, parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
+import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import {
-  publishLargeBacklog,
+  largeBacklog,
+  revision,
   queuedCount,
   queuedTitle,
-} from "../accessibleBoard.ts";
+} from "../../tests/accessibleBoard.ts";
 import {
   expectEndsWithShown,
   expectLongerThanTheBoard,
@@ -19,18 +21,19 @@ import {
   scrollYOf,
   showColumn,
   wheelTo,
-} from "../boardPage.ts";
+} from "../../tests/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
-} from "../boardReading.ts";
+} from "../../tests/boardReading.ts";
 
 test("a long Backlog read far down: shorter columns clamp the Board to their bottom, a position they hold stays, and widening or narrowing keeps the Board as long as the columns it shows", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 54 * rem, height: 480 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await publishLargeBacklog(page);
+  putFrontendBacklog(frontendServices, { revision, backlog: largeBacklog });
   await page.goto("/");
   const { backlog } = parts(page);
   const lastCard = backlog.getByRole("article", {
