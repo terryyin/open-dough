@@ -141,3 +141,31 @@ as written. Local gate: the changed test through `bash scripts/test.sh`, then
   implementation `80ecc810a` and closure `465b6acef`. Its launch-command-tests
   environment changes do not affect the paused-supplier case, recovery entry
   or historical-basis implementation exercised here. No renewed proof needed.
+
+## Retrospective
+
+- Attributable delivered implementation: `53514937cb16611a4befa4cdcfcc5d9ed92c6220`,
+  accepted on `origin/codex/recovery-proof-covers-historical-case-paths`,
+  suffix base `1081555ef6e339ab4a5d4d8b1ec78031bcff3475` (claim provenance).
+  Nearby participant-proof commits belong to the sibling, not this execution.
+- Original test-only correction and preserved bytes are met. The historical
+  record forces Git search beyond its named revision, and the observed fault
+  fails this exact test. This directly supports the near-future direction of
+  protecting intent with understandable, discriminating proof. No architectural
+  choice or ADR conflict introduced; no product behavior changed.
+- E2E tests did not drive this test correction. The maintained command-boundary
+  check exercises real recovery and Git with a substitute native host; browser
+  workflows and real host execution are outside its proof claim. No redundant
+  case, private-helper substitution, residue or worthwhile cleanup identified.
+- Process reviewed from this session's conversation and tool results; enabled
+  by `skipProcessRetrospective: false`, not deferred because this correction
+  requests no automatic Intent Coverage check. Bounded implementation, isolated
+  fault/restoration and reused proof held their contracts; no new supported
+  process finding or follow-up. No DearDough write needed.
+- Product advice: no change. Planning unchanged; no correction or queue change.
+  CI remains pending on the retained story-branch observer until the completion
+  operation settles its accepted revision. No other unresolved attention.
+
+## Execution complete
+
+Product advice: no change.
