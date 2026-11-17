@@ -126,3 +126,10 @@ None yet.
 ## Execution complete
 
 Product advice: no change.
+
+## Closure inputs
+
+- Branch completion: exact `72afefcaafe67eb64acebabd02b5cf1a79e6ebc0`, CI run 44015537441 attempt 1 success; shutdown confirmed, unread events zero. Earlier implementation run 44015333076 cancelled when this descendant review publication superseded it; bounded diagnostic inventory complete with zero failed jobs. Workflow concurrency and newer push establish supersession.
+- No pending lifecycle commitments, deferred review, correction, follow-up, direction topic or product decision.
+- Documentation reorganization before editing: `dashboard/USAGE-HISTORY.md` is 255 lines. Move its cohesive native framing/source-gap paragraph into `dashboard/USAGE-READER-GAPS.md`, replace it with a link, and add host attribution / legacy hostless retention there. The existing import/store/Refresh contract stays in the main guide. No code or executable proof changes; check local links and line sizes. This preserves the selected exclusion and current design before source cleanup.
+- Ownership: creation ref names this story. Repository management context `/Users/terryyin/git/open-dough/.git`; no creation flag inferred from the established claim. Reporting script and landing context retained outside workspace at supplied launch directory, with surviving working directory `/Users/terryyin/git/open-dough`.

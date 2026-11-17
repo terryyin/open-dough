@@ -49,16 +49,8 @@ remain unassigned. A response that names no task is not kept once read: the
 import result counts it, and a later import assigns it only while its native
 files exist.
 
-Native rows end at a newline alone, as JSON Lines defines them, so a raw
-U+2028 or U+2029 inside row text keeps its row whole. Damaged rows and
-compressed streams produce source-specific gaps while other readable responses
-survive. A matching filename and response thread can retain
-usage when session metadata is absent, with a metadata gap and unknown ancestry.
-Legacy cumulative counters without reliable response usage produce an
-`unsupported-response-counters` gap; metadata alone produces
-`no-response-usage-evidence`. Referenced workers that are missing, incomplete or
-ambiguous have explicit gaps. These local checks cannot prove auxiliary or
-provider coverage beyond the retained files and references.
+Native input framing and source-gap limits are described in
+[Native reader gaps](USAGE-READER-GAPS.md).
 
 A retained task is a launch, identified by project, host, session and evidenced
 initial turn (or retained launch time when unknown). A recovered task uses host,
