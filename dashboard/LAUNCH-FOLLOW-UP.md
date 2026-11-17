@@ -83,7 +83,11 @@ request, reporting]` with no established session, `[established block,
 reporting, context, request]` with one, the same on Claude, Codex and Cursor;
 a blank follow-up sends the context and the reporting context, so Cursor
 admits a blank follow-up with a chosen model. The context never counts
-against the 4,000-character field, including attached notes. The launch is an
+against the 4,000-character field, including attached notes. Once the host
+confirms the first input, attached note versions whose current text still
+matches are marked **Sent to follow-up**
+([Story notes](STORY-NOTES.md)); uncertain or awaiting first input leaves
+them waiting, and a notes-store write failure does too. The launch is an
 ordinary ad hoc one, labelled by its request or launch time and listed in
 Taken without naming or grouping with its source; its identity and its
 attempt on the page include the source (a story's by identity, by its file,

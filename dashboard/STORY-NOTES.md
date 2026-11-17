@@ -81,8 +81,11 @@ labels them as the developer’s story notes and their context as what the
 dashboard showed when the note was taken. The attach choice is part of that
 launch’s identity; a retried start resends the notes saved with the attempt.
 Delivery into **Sent to follow-up** waits until the host confirms the first
-input. A Taken story’s card still shows how many notes are waiting, and
-offers no way to send them until the story is Done.
+input. A refused or unconfirmed start leaves the attached versions waiting
+until a later confirmation. A note edited after admission stays waiting for
+its current text even when that earlier version is later confirmed. A Taken
+story’s card still shows how many notes are waiting, and offers no way to
+send them until the story is Done.
 
 A Taken story’s workspace comparisons also offer **Add note** at the file and
 line. Its line menu holds **Add note** alone; **Follow up** retains its Done

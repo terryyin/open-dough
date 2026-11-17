@@ -1,9 +1,8 @@
 // Shared fixtures for follow-up notes launch specs:
-// agent-launch-follow-up-notes.spec.ts (what waiting notes send and identity)
-// and agent-launch-follow-up-notes-admission.spec.ts (page/session refusals).
+// agent-launch-follow-up-notes.spec.ts (what waiting notes send and identity),
+// agent-launch-follow-up-notes-admission.spec.ts (page/session refusals), and
+// agent-launch-follow-up-notes-delivery.spec.ts (confirmation marks sent).
 
-import { mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { followUpNotesSectionText } from "../../src/followUpContext.ts";
 import { storyNotesContext } from "../../src/followUpStoryNotes.ts";
@@ -17,12 +16,14 @@ import {
 import { publishes } from "../../tests/support/publishedRepository.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import type { StartOrigin } from "../../tests/support/startOrigin.ts";
+import {
+  seedStoryNotes,
+  storyNotesFile,
+} from "../../tests/support/storyNotesStore.ts";
 
 export const completedAt = "2026-11-08T09:05:00.000Z";
 export const repository = "terryyin/open-dough";
-
-const notesFile = (home: string) =>
-  path.join(home, ".open-dough/dashboard/story-notes.json");
+export { seedStoryNotes as seedNotes, storyNotesFile };
 
 const lineContext = {
   view: "Review changes" as const,
@@ -58,17 +59,6 @@ export const sentNote = makeMe.aStoryNote
   .savedAt("2026-11-17T08:00:00.000Z")
   .deliveredAs("2026-11-17T08:00:00.000Z")
   .please();
-
-export function seedNotes(
-  home: string,
-  notes: Record<string, StoryNote[]>,
-): void {
-  mkdirSync(path.dirname(notesFile(home)), { recursive: true });
-  writeFileSync(
-    notesFile(home),
-    `${JSON.stringify({ "open-dough": notes })}\n`,
-  );
-}
 
 // Expected notes block from the same section composition the session receives.
 export function notesContextOf(notes: readonly StoryNote[]): string {

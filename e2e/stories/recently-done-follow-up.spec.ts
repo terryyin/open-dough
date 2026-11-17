@@ -44,6 +44,10 @@ import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts"
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
+import { attachStoryNotes } from "../../dashboard/tests/support/attachStoryNotesPage.ts";
+import { storyNotesPage } from "../../dashboard/tests/support/storyNotesPage.ts";
+import { seedStoryNotes } from "../../dashboard/tests/support/storyNotesStore.ts";
+import { storyNoteSentToFollowUp } from "../../dashboard/src/storyNote.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -156,4 +160,57 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     await expect(followUp(card, recoverStory)).toBeVisible();
     expect(stored(dashboard.home).slice(0, 3)).toEqual([...quiet, reopenable]);
   });
+});
+
+test("starting a follow-up with attached notes marks them sent on the card and in Story notes", async ({
+  page,
+  dashboard,
+}) => {
+  const now = Date.now();
+  const completedAt = new Date(now - 60 * 60_000).toISOString();
+  const doneAt = new Date(now - 30 * 60_000);
+  const quiet = quietStorySessions(dashboard.home, recoverStory, doneAt);
+  keepLaunchRecords(dashboard, quiet);
+  const waiting = makeMe.aStoryNote
+    .identifiedAs("34840000-0000-4000-8000-000000000001")
+    .withText("Card follow-up should mark this note sent.")
+    .savedAt("2026-11-17T12:00:00.000Z")
+    .please();
+  seedStoryNotes(dashboard.home, { [recoverStory.identity]: [waiting] });
+  await publishFiles(page, {
+    repository,
+    revision,
+    files: publishedFiles({
+      doneRecords: doneStoryRecords([recoverStory], completedAt),
+    }),
+  });
+  dashboard.claudeScenario("launched");
+  await page.goto("/");
+  const card = cardOf(page, recoverStory.title);
+  const notes = storyNotesPage(page);
+  const dialog = startSessionDialog(page, "Open Dough");
+  const attach = attachStoryNotes(dialog);
+
+  await notes.expectWaiting(card, 1);
+  await followUp(card, recoverStory).click();
+  await attach.expectChecked(1, 1);
+  const text = "Follow up with the waiting note";
+  await startSessionField(dialog).fill(text);
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(
+    parts(page).taken.getByRole("article", {
+      name: standaloneSessionName("Ad hoc", text),
+    }),
+  ).toBeVisible();
+  await expect(dialog).toBeHidden();
+
+  // Notes refresh on the shared check interval; reload reads the delivered mark.
+  await page.reload();
+  await notes.expectWaiting(card, 0);
+  await notes.expectCount(card, 1);
+  await notes.open(card);
+  await notes.expectNotes([waiting.text]);
+  await notes.expectNoteState(0, storyNoteSentToFollowUp);
+  await notes.expectEntryActions(0);
+  await notes.close();
 });

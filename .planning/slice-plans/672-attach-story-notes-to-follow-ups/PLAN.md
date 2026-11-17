@@ -200,7 +200,7 @@ names `notes: true`. Unchecking it or cancelling the dialog names none.
 
 ### 4. A confirmed follow-up marks its notes sent
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-follow-up-notes-delivery.spec.ts` and the extended
 `e2e/stories/recently-done-follow-up.spec.ts`; consumers
 `dashboard/backend-tests/terminals/agent-terminal-cursor-launch*.spec.ts`
@@ -246,3 +246,6 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
   `followUpNotesCases.ts`.
 - On case-insensitive APFS, do not name `attachStoryNotes.ts` beside
   `AttachStoryNotes.tsx`; words live in `attachStoryNotesWords.ts`.
+- Cursor first-input confirmation runs in the runner process, not the
+  dashboard; `installStoryNoteDelivery()` must run in `runnerMain` as well as
+  on `launchBoundary`. Delivery rule ownership is `launchRecordDelivery.ts`.
