@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Move board, frame and project navigation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test ([plan](slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md))
 - [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence ([plan](slice-plans/683-recover-decisive-verification-evidence/PLAN.md))
 - [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines ([plan](slice-plans/663-emphasize-changed-words-in-diff-lines/PLAN.md))
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
@@ -36,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep the converted navigation proof whole and time-independent](seeds/SEED-334-product-wide-end-to-end-tests.md#keep-navigation-conversion-proof-whole) — SEED-334#keep-navigation-conversion-proof-whole
 - [Keep a departed candidate read from showing a failure after Show latest](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-no-stale-candidate-failure-after-show-latest) — SEED-334#observe-no-stale-candidate-failure-after-show-latest
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
 - [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal

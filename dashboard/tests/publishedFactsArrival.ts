@@ -1,7 +1,5 @@
 // Raw pinned records and independently held GitHub fact groups for arrival and
 // failure journeys. Membership and every held request precede release or failure.
-// A variant publishes `moreDone` further recent done records beside the one
-// every journey reads, all held in the done group.
 
 import type { Page } from "@playwright/test";
 import { z } from "zod";
@@ -17,7 +15,6 @@ import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { describedRevisions } from "./describedRevisions.ts";
 import { doneDirectory, executed } from "./recentlyDoneRecords.ts";
-import { heldDoneRecords } from "./publishedFactsDoneRecords.ts";
 import {
   afterTake,
   clockedFacts,
@@ -40,7 +37,6 @@ import {
 } from "./support/heldFactGroupAnswers.ts";
 
 export type { FactGroup } from "./support/heldFactGroupAnswers.ts";
-export { moreDoneTitle } from "./publishedFactsDoneRecords.ts";
 export const takenCanonicalPath = ".planning/seeds/SEED-091-clock.md";
 export const preparing = "Prepare beside independently read work";
 const preparingIdentity = "SEED-091#preparing";
@@ -87,9 +83,8 @@ const withAgreement = z.string().parse(
 
 // The slice clock records (./sliceClockRecords.ts) queuing one more story,
 // then that story prepared: planned and assessed Ready, an execution and a
-// preparation profile, and `moreDone` further done records beside the one
-// every journey reads.
-const publishedTrunk = (moreDone: number) =>
+// preparation profile, and the done record every journey reads.
+const publishedTrunk = () =>
   describedRevisions(
     makeMe.aRepository
       .withRevision(
@@ -132,7 +127,15 @@ const publishedTrunk = (moreDone: number) =>
             })
             .please(),
         ],
-        doneRecords: heldDoneRecords(moreDone, minutesBefore),
+        doneRecords: [
+          makeMe.aDoneRecord
+            .with({
+              ...executed,
+              completedAt: minutesBefore(60).toISOString(),
+              developer: "Terry Yin",
+            })
+            .please(),
+        ],
       })
       .please(),
     { clock: revision, prepared: revision },
@@ -146,14 +149,11 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
   return undefined;
 };
 
-export async function heldFactGroups(
-  page: Page,
-  { moreDone = 0 }: { readonly moreDone?: number } = {},
-) {
+export async function heldFactGroups(page: Page) {
   await pausePageClockAt(page, opened);
   const trunk = publishes({
     revision,
-    files: publishedTrunk(moreDone).files,
+    files: publishedTrunk().files,
     // Bound-recovery journeys need every Taken clock answerable so an
     // unrelated unread plan time does not keep scheduling detail recovery
     // after the held preparation gap heals (./sliceClockRecords.ts omits it).

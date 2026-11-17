@@ -21,12 +21,12 @@ settings leaves the others' selection, settings and timing untouched
 | Job | Command | Settings prefix | Shards |
 | --- | --- | --- | --- |
 | `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | 6 |
-| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | 4 |
+| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | 2 |
 | `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | 1 |
 | `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | 3 |
 
-These counts make 19 jobs: 14 browser jobs, three Distribution shares, one
-`lint` job and one proof job, 18 of them at once before the proof job against
+These counts make 17 jobs: 12 browser jobs, three Distribution shares, one
+`lint` job and one proof job, 16 of them at once before the proof job against
 the account's 20. Lint and the dashboard type-check run in `ci.yml`'s `lint`
 job, each as its own step with its own outcome, under that job's own setup
 deadline and 6 minutes; no group's shard runs them, and `ci-proof` does not
@@ -92,7 +92,7 @@ A group's CI shard sets its `<prefix>_SPLIT=i/n` to select shard `i` of `n`.
 The group's job in `.github/workflows/ci.yml` declares the shards: `shards`
 lists them and `specs` gives each shard but the last its repository-relative
 glob patterns, folder (`e2e/intent/**`) or file-name prefix
-(`dashboard/tests/navigation/board-*`), and the last shard runs the rest. A
+(`dashboard/tests/navigation/source-*`), and the last shard runs the rest. A
 one-shard group declares no pattern. `support/testFiles.mjs` finds every spec
 file under the group's root recursively, never entering the `test-results/`
 and `playwright-report/` output a run writes there while reloading workers

@@ -13,7 +13,7 @@
 // controlled answers; which options a project's installed skill offers is
 // ../../../e2e/launches/agent-launch-options.spec.ts.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
 import {
   box,
@@ -22,30 +22,14 @@ import {
 } from "../../tests/pageLayout.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
-  machineOffering,
-  putFrontendStories,
-  type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
-import {
-  backlogLaunchers,
   shippedRefinementDefinition,
   showOptions,
 } from "../../tests/launchStoryCardPage.ts";
 import { notRefinedIdentity } from "../../tests/launchJourney.ts";
-import { longTitle } from "../../tests/longTitleLaunch.ts";
-
-// Opens Start refinement on the long-titled story of a project offering the
-// shipped refinement options.
-async function openRefinement(page: Page, services: FrontendServiceState) {
-  putFrontendStories(services, { notRefinedTitle: longTitle });
-  services.answerMachine(machineOffering(shippedRefinementDefinition()));
-  await page.goto("/");
-  const { refine, refinementDialog: dialog } = backlogLaunchers(page);
-  const launcher = refine(longTitle);
-  await launcher.click();
-  await expect(dialog).toBeVisible();
-  return { launcher, dialog };
-}
+import {
+  longTitle,
+  openLongTitleRefinement,
+} from "../../tests/longTitleLaunch.ts";
 
 const optionsSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Refinement options" });
@@ -56,7 +40,10 @@ test("the instruction comes first, the summaries name the selection, and the com
   page,
   frontendServices,
 }) => {
-  const { launcher, dialog } = await openRefinement(page, frontendServices);
+  const { launcher, dialog } = await openLongTitleRefinement(
+    page,
+    frontendServices,
+  );
   const instruction = dialog.getByRole("textbox", {
     name: "Instruction (optional)",
   });
@@ -160,7 +147,7 @@ for (const { name, viewport, deviceScaleFactor, stacked } of [
       page,
       frontendServices,
     }) => {
-      const { dialog } = await openRefinement(page, frontendServices);
+      const { dialog } = await openLongTitleRefinement(page, frontendServices);
       const host = dialog.getByRole("combobox", { name: "Host" });
       const model = dialog.getByRole("combobox", { name: "Model" });
       const hostBox = await box(host);

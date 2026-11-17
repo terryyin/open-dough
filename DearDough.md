@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 568. Removed numbers are never reused.
+- Highest allocated local number: 569. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -60,6 +60,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 8 (`87551c3b`) dropped the emptied `dashboard/tests/intent/**` share from `ci.yml` (`shards: "[1, 2, 3]"`) and ran only `browser-group-shards`, `ci-proof-frontend-report`, `ci-proof-scope` and `ci-proof-leads-table`. The `ci-proof` summary step's `expect` still declared `dashboard/tests=4:case`; `ci-proof-actions.test.mjs:71` and `ci-proof-declaration.test.mjs:97` failed in Distribution Tests 3/3. Repair `309dacb4` set 3; 1346 node tests reading `ci.yml` then passed.
   - Observed effect: one CI failure and repair cycle on the story branch after the execution-complete record; no trunk impact.
   - Inference: a matrix-length change reaches every declaration derived from that length in the same workflow; selecting tests by the shard concept missed the CI-proof declaration test that checks it.
+
+- Execution: SEED-334#move-navigation-checks-and-retire-integrated-ui-test (plan 648; first implementation `54dfebff2`)
+  - Timestamp: 2026-11-17T15:27:58Z (first failed CI job, run 44113467112); 2026-11-17T16:36:00Z (second, run 44126356645)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `161830d70`)
+  - Evidence: slice 3 (`e10d6698f`) dropped `board-*` from the integrated shard 1 and ran `ci-browser-groups` only; `browser-group-shards.test.mjs` "an integrated pattern matching no spec fails the configuration naming it" replaced that literal, silently edited nothing and failed Distribution Tests 3/3 (repair `d69851c43`). Slice 7 (`373ff581d`) shrank the matrix to `[1, 2]` and ran the shard tests; the `ci-proof` step's `expect` still declared `dashboard/tests=3:case`, failing `ci-proof-declaration.test.mjs:97` and `ci-proof-actions.test.mjs:71` (repair `40bba4d8e`). The plan's local gate named only the interim listing, `ci-browser-groups` and `runner-ownership`.
+  - Observed effect: two CI failure and repair cycles on the story branch, the second after delivery of the last slice; no trunk impact.
+  - Inference: the same missed declaration as plan 651's occurrence, one story later; running every `Distribution/tests/support` test that reads `ci.yml` (`node --test Distribution/tests/support/ci-*.test.mjs` plus the shard tests, 91 cases, under a second) after any `ci.yml` edit would have caught both.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -605,6 +614,7 @@ words were not listed and kept the old rule until coordinator acceptance.
   - Evidence: 2026-11-17, slice 1 before `7875763cc`; implementer trace `--term 'suite covering the changed surface'` (and other removed phrases) reported no other guidance reader; coordinator `git grep "changed surface"` found execute-plan `delegation.md:95` and `wrap-up.md:77` ("the changed surface's suite"), both then aligned in `7875763cc`.
   - Observed effect: the return claimed no remaining consumer; two restatements of the changed rule would have shipped contradicting it.
   - Inference: literal-phrase terms find quotations, not restatements; a term for the rule's concept (here "changed surface") reached them.
+
 ## DD-561 — First return drops required narrow keyboard proof when Side panel hides the Board <a id="dd-561"></a>
 
 Plan and delegation required beyond-ten source reveal by keyboard on a narrow
@@ -796,3 +806,29 @@ records. Agents replaced it with a targeted `git grep` and said so.
   - Evidence: slice 1 implementer: run "dominated by changed-path basename matches (87KB of planning-file hits)". Slices 2–4 implementers: output "dominated by findings and planning noise" and "loose sub-terms (Peak, Wakes, AGENT-EFFORT)". Each then used targeted `git grep` for production and test consumers.
   - Observed effect: the scripted trace did not supply the disposition in any of the four slices. Agents' targeted searches found the consumers, and coordinator acceptance verified them.
   - Inference: possibly related to ODF-350 and ODF-352 (broad or data-derived terms), but here the noise came from path basenames and planning records with ordinary symbol terms. Token cost was not measured.
+- Execution: SEED-334#move-navigation-checks-and-retire-integrated-ui-test (plan 648; first implementation `54dfebff2`)
+  - Timestamp: unknown (2026-11-17/18 +08:00, slices 2–7 and refactor passes)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `161830d70`)
+  - Evidence: slice 4, 6 and 7 implementers and the slice 1 refactor pass reported `consumer-trace.mjs` output as "the whole branch's changed paths", "noisy, unrelated matches" or "unfocused" for terms such as `publishCatalogProjects`, `longTitleLaunch` and `keepingStarts`, and each listed consumers with `git grep` instead.
+  - Observed effect: the scripted trace supplied no disposition in those returns; targeted searches did, and later refactor passes with `--path` traces did.
+  - Inference: same pattern as plan 678's row, on a long-running story branch whose many changed paths widen the basename matches. Token cost was not measured.
+
+## DD-569 — Conversion acceptance takes a named existing owner without reading its assertion <a id="dd-569"></a>
+
+Test-conversion slices map each interim assertion to a new case or to an
+existing owner. The coordinator accepted one "owned elsewhere" claim from the
+owner's file and test names; that owner asserted a neighbouring rule, so the
+observation was lost until the retrospective read the assertion.
+
+### Occurrences
+
+- Execution: SEED-334#move-navigation-checks-and-retire-integrated-ui-test (plan 648; first implementation `54dfebff2`)
+  - Timestamp: unknown (2026-11-17, slice 3 acceptance, between `c3249d594` and `e10d6698f`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `161830d70`)
+  - Evidence: the interim `board-paging-side-panel` last step (a session arriving on a Backlog card keeps "Recently done 0 entries" and the paged view) was handed to `frontend-tests/sessions/recently-done-active-story-sessions.spec.ts`, which checks an arranged state at 54rem and never a session arriving while paged. Plan 648 slice 3 acceptance note recorded the hand-off (`a96f5dae9:.planning/slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md`); the outcome review found the gap; correction SEED-334#keep-navigation-conversion-proof-whole (plan 687) restores it. Slices 1, 4 and 6 first returns also listed unconverted assertions (revision moves, attach counts and selected file, header read counts) as gaps; the coordinator returned each and all got Frontend homes before acceptance.
+  - Observed effect: one lost observation delivered and queued for correction; three first returns needed a second implementer round (about 3–5 slice-clock minutes each).
+  - Inference: related to DD-563. Requiring each "owned elsewhere" claim to cite the owner's asserting line, and checking that line at acceptance, would have caught it; the cost is one read per claim.

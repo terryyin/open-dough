@@ -8,8 +8,8 @@ import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // again. What was read before shows at once, without a reading moment.
 // With a selected story: ./intent-read-reuse-story.spec.ts.
 
-import type { Page, Request } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import type { Page } from "@playwright/test";
+import { countAuthenticatedReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { parts } from "../../tests/dashboardPage.ts";
 import { openUntilRead } from "../../tests/pageRequestNotes.ts";
@@ -24,24 +24,10 @@ import {
   otherPath,
 } from "../../tests/intentJobsFeatureFixtures.ts";
 
-// The page's reads of the authenticated read boundary matching `which`.
-function boundaryReads(
-  page: Page,
-  which: (params: URLSearchParams) => boolean,
-) {
-  const reads: Request[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname === authenticatedReadEndpoint && which(url.searchParams))
-      reads.push(request);
-  });
-  return () => reads.length;
-}
-
 const pathReads = (page: Page, path: string) =>
-  boundaryReads(page, (params) => params.get("path") === path);
+  countAuthenticatedReads(page, (params) => params.get("path") === path);
 const intentReads = (page: Page, intent: string) =>
-  boundaryReads(page, (params) => params.get("intent") === intent);
+  countAuthenticatedReads(page, (params) => params.get("intent") === intent);
 
 // Every "Reading …" text Intent shows from now on, however briefly: a
 // mutation observer sees each change React commits before anything else runs.

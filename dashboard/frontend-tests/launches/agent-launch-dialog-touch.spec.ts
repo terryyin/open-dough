@@ -4,21 +4,17 @@
 // Built frontend against controlled answers.
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import {
-  machineOffering,
-  putFrontendStories,
-} from "../../tests/support/frontendServiceState.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
   tapWhereShown,
 } from "../../tests/pageLayout.ts";
+import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
 import {
-  backlogLaunchers,
-  shippedRefinementDefinition,
-} from "../../tests/launchStoryCardPage.ts";
-import { longTitle } from "../../tests/longTitleLaunch.ts";
+  longTitle,
+  offerLongTitleRefinement,
+} from "../../tests/longTitleLaunch.ts";
 import {
   phoneLaunchTouchViewport,
   typeInstructionLine,
@@ -37,10 +33,7 @@ test.describe(`${name} touch launch editing`, () => {
     frontendServices,
   }) => {
     const boundary = await installFrontendLaunchBoundary(page);
-    putFrontendStories(frontendServices, { notRefinedTitle: longTitle });
-    frontendServices.answerMachine(
-      machineOffering(shippedRefinementDefinition()),
-    );
+    offerLongTitleRefinement(frontendServices);
     await page.goto("/");
     const launcher = backlogLaunchers(page).refine(longTitle);
     await launcher.scrollIntoViewIfNeeded();

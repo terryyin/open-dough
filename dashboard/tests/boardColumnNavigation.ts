@@ -27,6 +27,12 @@ export const columnPagingControl = (page: Page, column: ColumnName) =>
 export const columnPagingControls = (page: Page) =>
   page.getByRole("button", { name: controlName(columns.join("|")) });
 
+// Where this browser keeps the Board's position (../src/columnPaging.ts), and
+// the position kept there now.
+export const boardPositionKey = "open-dough.board.position";
+export const keptBoardPosition = (page: Page) =>
+  page.evaluate((key) => localStorage.getItem(key), boardPositionKey);
+
 // Where a control lies now, read without waiting for it: a control the Board
 // is about to drop can leave between two waiting reads and hold the second.
 async function shownX(control: Locator) {

@@ -13,6 +13,7 @@ type TerminalSize = { readonly cols: number; readonly rows: number };
 // Terminal WebSocket that reports attached and runs a substitute application:
 // `application`, or one that prints an attached line and echoes input as text.
 // `sent` is the input the page sent; `sizes` the terminal sizes it reported.
+// `attaches` counts the page's terminal connections.
 // With `opens`, the page's socket stays connecting until that settles.
 export async function installAttachedTerminalSubstitute(
   page: Page,
@@ -20,13 +21,19 @@ export async function installAttachedTerminalSubstitute(
     readonly application?: TerminalApplication;
     readonly opens?: Promise<void>;
   } = {},
-): Promise<{ readonly sent: string[]; readonly sizes: TerminalSize[] }> {
+): Promise<{
+  readonly sent: string[];
+  readonly sizes: TerminalSize[];
+  readonly attaches: () => number;
+}> {
+  let connections = 0;
   const sent: string[] = [];
   const sizes: TerminalSize[] = [];
   const application =
     options.application ??
     echoingApplication("attached abcdef12\r\nClaude Code\r\n");
   await page.routeWebSocket(`**${agentTerminalEndpoint}**`, async (ws) => {
+    connections += 1;
     ws.onMessage((message) => {
       if (typeof message !== "string") return;
       const parsed = JSON.parse(message) as {
@@ -53,5 +60,5 @@ export async function installAttachedTerminalSubstitute(
       close: (code) => void ws.close({ code }),
     });
   });
-  return { sent, sizes };
+  return { sent, sizes, attaches: () => connections };
 }

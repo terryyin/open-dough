@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Honoka-chan",
-  "email": "honoka-chan@example.org",
-  "identity": "SEED-334#move-navigation-checks-and-retire-integrated-ui-test",
-  "mode": "story-branch",
-  "branch": "claude/move-board-frame-and-project-navigation-checks-o",
-  "host": "claude"
-}

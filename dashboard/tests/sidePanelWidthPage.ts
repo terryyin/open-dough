@@ -1,24 +1,13 @@
-// The side panel's resize divider and widths as shown, for Story A's real
-// worktree (./support/storyReviewWorktree.ts) and its session, listed by the
-// synthetic `claude` (./fixtures/fake-claude), which prints its terminal size
-// whenever that changes.
+// The side panel's resize divider and widths as shown.
 
-import { reviewRegion } from "./support/reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../src/storyReviewContract.ts";
 import { box } from "./pageLayout.ts";
-import { terminalPanel, terminalScreenParts } from "./terminalScreenPage.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
+import { terminalScreenParts } from "./terminalScreenPage.ts";
 import { expect } from "./support/preparationPage.ts";
-import { openBacklog } from "./support/sessionDialog.ts";
-import type { StartOrigin } from "./support/startOrigin.ts";
-import { listed } from "./support/sidePanelContents.ts";
-import { storyWorktree } from "./support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "./support/launchStore.ts";
-import { storyALaunchRecord } from "./support/storyLaunchRecord.ts";
 
 export const wideWindow = { width: 1440, height: 900 };
 // Neither side is narrower than this, in CSS px (20rem).
@@ -116,17 +105,6 @@ export function dividerHitTarget(divider: Locator, fraction: number) {
   }, fraction);
 }
 
-// The terminal's latest size as the session printed it.
-export async function printedSize(rows: Locator) {
-  const sizes = [
-    ...((await rows.textContent()) ?? "").matchAll(
-      /(?:attached \S+|resized) (\d+)x(\d+)/g,
-    ),
-  ];
-  const last = sizes.at(-1);
-  return last === undefined ? undefined : Number(last[1]);
-}
-
 // Earlier output the terminal still holds, however many size lines the session
 // printed after it: read by scrolling up over the terminal's history, which
 // leaves the keyboard where it is. One wheel step scrolls only about five
@@ -155,39 +133,6 @@ export async function expectDividerSays(page: Page, width: number) {
     "aria-valuetext",
     `${width} pixels wide`,
   );
-}
-
-// Story A's card, its session listed and its review available, and the
-// panel's parts.
-export async function storyAWithSession(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-) {
-  const { workspace } = storyWorktree(origin);
-  const session = dashboard.claudeListsSession({
-    name: "Story A",
-    cwd: workspace,
-    startedAt: Date.now(),
-  });
-  keepLaunchRecords(dashboard, [
-    storyALaunchRecord(workspace, listed(session)),
-  ]);
-  await page.setViewportSize(wideWindow);
-  const card = await openBacklog(page, origin);
-  return {
-    card,
-    session,
-    terminal: terminalPanel(page),
-    review: reviewRegion(page),
-    divider: panelDivider(page),
-    // The session's attachments so far.
-    attaches: () => {
-      const all = dashboard.claudeAttaches();
-      expect(all.length).toBeGreaterThan(0);
-      return all.filter((attached) => attached.id === session.slice(0, 8));
-    },
-  };
 }
 
 // Every review read the page asks from now on: its snapshots and its files'

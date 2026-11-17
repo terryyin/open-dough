@@ -18,6 +18,7 @@ import {
 /** @typedef {MachineAnswer["establishingHosts"][number]} EstablishingStart */
 /** @typedef {MachineAnswer["creations"][number]} CreationView */
 /** @typedef {MachineAnswer["definitions"][number]} OfferedDefinition */
+/** @typedef {MachineAnswer["keptStarts"][number]} KeptStart */
 
 // One answer. Unless stated it observes no session, answers no attempt,
 // establishes nothing, offers no options, and cannot alert. Every host attaches, stops and lists
@@ -34,6 +35,17 @@ export class MachineAnswerBuilder {
   #creations = [];
   /** @type {OfferedDefinition[]} */
   #definitions = [];
+  /** @type {KeptStart[]} */
+  #keptStarts = [];
+
+  /**
+   * Starts the machine keeps for a story's Start to resume.
+   * @param {...KeptStart} starts
+   */
+  keepingStarts(...starts) {
+    this.#keptStarts.push(...starts.map((start) => structuredClone(start)));
+    return this;
+  }
 
   /**
    * The kept launches as observed, in answer order.
@@ -173,7 +185,7 @@ export class MachineAnswerBuilder {
       alerts: { available: false, reason: "No alerts are arranged." },
       establishing: establishedBy("execution"),
       establishingPreparation: establishedBy("refinement"),
-      keptStarts: [],
+      keptStarts: structuredClone(this.#keptStarts),
       starts: [],
       definitions: structuredClone(this.#definitions),
       establishingHosts: this.#establishing.map((start) => ({ ...start })),

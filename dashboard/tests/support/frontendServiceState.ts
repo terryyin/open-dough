@@ -209,6 +209,14 @@ export function putFrontendPublished(
   });
 }
 
+// Arranges one published revision's backlog with no other file published.
+export function putFrontendBacklog(
+  services: FrontendServiceState,
+  published: { readonly revision: string; readonly backlog: string },
+): void {
+  putFrontendPublished(services, { ...published, files: {} });
+}
+
 // Publishes the story board's backlog and files.
 export function publishCiStoryBoard(services: FrontendServiceState): void {
   Object.assign(services, {
