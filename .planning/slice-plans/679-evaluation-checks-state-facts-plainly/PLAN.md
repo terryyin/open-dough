@@ -2,6 +2,7 @@
 
 **Identity:** SEED-396#replace-evaluation-shell-checks
 **Source:** [Evaluation shell checks state each fact in one line at the family entry](../../seeds/SEED-396-evaluation-javascript-tests.md#replace-evaluation-shell-checks)
+**Source review:** [Independent source promises](source-review.md)
 
 ## Goal and scope
 
@@ -46,7 +47,7 @@ that slice and changes the plan.
 
 ### 1. A failed expectation names its fact and prints its evidence
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a check sources
 `Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh`
@@ -132,6 +133,22 @@ documentation and link checks that cover these files pass through
 
 ## Current decisions
 
+- Execution: Story Branch Mode in the established workspace and branch;
+  publisher `dashboard-territory.local-open-dough`, agent Mihiro-chan.
+  Accepted claim `0ada9a1e327751e2378e003c1d55c2ac9caefa63` on `origin/main`;
+  increments target the same-named remote execution branch. Starting revision
+  `54e1b5c0e77087482763d9ed82a36f0201be2c3e`. Replanning retains existing authority.
+- Checkout readiness: `npm ci` against the unchanged lockfile and
+  `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh`
+  passed on 2026-11-17. The check-only pre-commit hook owns staged lint;
+  selective formatting is `npm run format`.
+- Observer: GitHub Actions `ci.yml` (workflow 351271804, display name CI),
+  repository `terryyin/open-dough`, target
+  `codex/evaluation-shell-checks-state-each-fact-in-one-l`, coordinator
+  `seed396-mihiro`, directory `/tmp/dough-ci-501/watch-BBewwI`, PID 4798,
+  stream session 80158, yielded cell `g767:10`, bound to this workspace.
+  The claim's trunk CI is unobserved; this observer covers branch increments.
+
 - The vocabulary is one file of `native_check_`-prefixed functions. It adds
   no test runner, no named test cases and no mocking. Bach is not adopted;
   the seed records why.
@@ -161,3 +178,15 @@ as written. Local gate per slice: the changed checks and
 through `bash scripts/test.sh`. Before landing: `npm run test:evaluation`
 under `caffeinate -s -i` on AC, because the helper sits beside support files
 other evaluation checks source.
+
+## Accepted slice proof
+
+### Slice 1
+
+`native-check-expectations.sh` and the counterexample guard passed via
+`node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed396-s1-focused.log --exit-file /tmp/seed396-s1-focused.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-check-expectations.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh`.
+Inspected scratch cleanup (exit 0/7, read-only contents), real substitute-host
+entry (status 0/9, both streams), silent passing words and failed child checks
+that stop before trailing output, including completed-versus-timeout evidence.
+Consumer trace: only the new own check currently sources the helper; unrelated
+`prep_native_check_support_dir` match excluded. No production behavior changes.
