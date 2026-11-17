@@ -33,11 +33,11 @@ intent introduced or affected by a newly developed story.
 - [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines ([plan](slice-plans/663-emphasize-changed-words-in-diff-lines/PLAN.md))
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission ([plan](slice-plans/684-protect-host-suite-admission-from-container-diagnostics/PLAN.md))
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
+- [Share one control to turn syntax styling off or choose a palette](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#shared-syntax-styling-control) — SEED-387#shared-syntax-styling-control ([plan](slice-plans/685-shared-syntax-styling-control/PLAN.md))
 
 ## Backlog list
 
 - [Keep a departed candidate read from showing a failure after Show latest](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-no-stale-candidate-failure-after-show-latest) — SEED-334#observe-no-stale-candidate-failure-after-show-latest
-- [Share one control to turn syntax styling off or choose a palette](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#shared-syntax-styling-control) — SEED-387#shared-syntax-styling-control
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
 - [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
