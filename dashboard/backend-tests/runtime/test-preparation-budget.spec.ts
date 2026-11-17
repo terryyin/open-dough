@@ -3,53 +3,22 @@
 // both hosts' queued origins are prepared before any case's own time, every
 // case gets its host's layout as an independent copy, and the override keeps
 // its later revision.
-import { existsSync, readFileSync } from "node:fs";
 import { createServer, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { appendedRecords } from "../../tests/support/appendedRecords.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
 import {
-  proofDirectory,
-  quietReporter,
-  readProof,
-  removeProofDirectories,
-  startProofRun,
-} from "../../tests/support/proofRecordRun.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+  preparationFixtures,
+  startPreparationProofRun,
+} from "../support/preparationProofRun.ts";
+import { expect, test } from "../../tests/support/pageTest.ts";
+import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
 
-const fixtures = path.join(
-  repoRoot,
-  "dashboard/tests/fixtures/test-preparation-budget",
-);
-const preload = pathToFileURL(path.join(fixtures, "cloneGate.mjs")).href;
+const preload = pathToFileURL(
+  path.join(preparationFixtures, "cloneGate.mjs"),
+).href;
 
 type Held = { layout: string; release: () => void };
-type Trace = { event: string; key: string; at: number };
-type Step =
-  | { event: "case"; title: string; at: number }
-  | {
-      event: "fixture";
-      case: string;
-      title: string;
-      start: number;
-      end: number;
-    }
-  | { event: "end"; title: string; duration: number; status: string };
-type Case = {
-  title: string;
-  host: string;
-  origin: string;
-  branches: string[];
-  tree: string[];
-  revisions: string[];
-  mainIsLast: boolean;
-};
-
-function records<T>(file: string): T[] {
-  return existsSync(file) ? appendedRecords<T>(readFileSync(file, "utf8")) : [];
-}
 
 test.afterEach(removeProofDirectories);
 
@@ -59,8 +28,6 @@ for (const [runner, setup] of [
   ["E2E Test", "e2eGlobalSetup.ts"],
 ] as const)
   test(`${runner} prepares both hosts' origins before the first case`, async () => {
-    const directory = proofDirectory();
-    const file = (name: string) => path.join(directory, name);
     const held: Held[] = [];
     let bothHeld: () => void = () => {};
     const reached = new Promise<void>((resolve) => {
@@ -89,20 +56,9 @@ for (const [runner, setup] of [
       gate.listen(0, "127.0.0.1", resolve);
     });
     const { port } = gate.address() as AddressInfo;
-    const recordPath = file("proof.json");
-    const run = startProofRun({
-      directory,
-      recordPath,
+    const run = startPreparationProofRun({
       spec: "preparation.proof.ts",
-      config: {
-        testDir: fixtures,
-        workers: 1,
-        globalSetup: path.join(repoRoot, "dashboard/tests/support", setup),
-        reporter: [
-          [quietReporter, { proofRecord: recordPath }],
-          [path.join(fixtures, "fixtureSteps.mjs")],
-        ],
-      },
+      setup,
       env: {
         NODE_OPTIONS: [
           process.env["NODE_OPTIONS"],
@@ -111,9 +67,6 @@ for (const [runner, setup] of [
           .filter(Boolean)
           .join(" "),
         OPEN_DOUGH_ARTIFACT_PROOF_GATE: `http://127.0.0.1:${String(port)}`,
-        OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE: file("artifacts.jsonl"),
-        OPEN_DOUGH_PREPARATION_PROOF_CASES: file("cases.jsonl"),
-        OPEN_DOUGH_PREPARATION_PROOF_STEPS: file("steps.jsonl"),
       },
     });
     try {
@@ -130,34 +83,23 @@ for (const [runner, setup] of [
         "claude",
         "codex",
       ]);
-      expect(records<Case>(file("cases.jsonl"))).toEqual([]);
+      expect(run.cases()).toEqual([]);
       const releasedAt = Date.now();
       for (const { release } of held) release();
 
-      const result = await run.result;
-      expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
-      expect(readProof(recordPath).terminal?.strictStatus).toBe("passed");
+      await run.passed();
 
       // Worker preparation and case intervals, recorded separately.
-      const trace = records<Trace>(file("artifacts.jsonl"));
-      const completed = (key: string) =>
-        trace.find((entry) => entry.event === "complete" && entry.key === key)
-          ?.at;
-      const claude = completed("start-origin-claude-queued");
-      const codex = completed("start-origin-codex-queued");
+      const claude = run.completedAt("start-origin-claude-queued");
+      const codex = run.completedAt("start-origin-codex-queued");
       expect(claude).toBeGreaterThanOrEqual(releasedAt);
       expect(codex).toBeGreaterThanOrEqual(releasedAt);
-      const steps = records<Step>(file("steps.jsonl"));
       // Each case's own origin setup (its first origin step; the second is
       // its teardown) starts after both bases completed.
       const originSetups = [
         ...new Map(
-          steps
-            .flatMap((step) =>
-              step.event === "fixture" && step.title === 'Fixture "origin"'
-                ? [step]
-                : [],
-            )
+          run
+            .fixtureSteps("origin")
             .reverse()
             .map((step) => [step.case, step]),
         ).values(),
@@ -167,7 +109,7 @@ for (const [runner, setup] of [
         expect(step.start).toBeGreaterThanOrEqual(
           Math.max(claude ?? Infinity, codex ?? Infinity),
         );
-      const ends = steps.filter((step) => step.event === "end");
+      const ends = run.steps().filter((step) => step.event === "end");
       // Kept visible: run-owned preparation versus each case's own time.
       await test.info().attach("preparation-and-case-intervals", {
         body: JSON.stringify({
@@ -177,7 +119,7 @@ for (const [runner, setup] of [
         contentType: "application/json",
       });
 
-      const cases = records<Case>(file("cases.jsonl"));
+      const cases = run.cases();
       expect(cases.map(({ host }) => host)).toEqual([
         "claude",
         "codex",

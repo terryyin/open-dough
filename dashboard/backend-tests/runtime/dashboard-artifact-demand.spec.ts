@@ -3,7 +3,7 @@ import { createServer, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { appendedRecords } from "../../tests/support/appendedRecords.ts";
+import { appendedFileRecords } from "../../tests/support/appendedRecords.ts";
 import {
   dashboardAppArtifactKey,
   sharedDashboardBuild,
@@ -30,10 +30,6 @@ type Trace = { event: string; key: string; directory?: string };
 type Consumer = { pid: number; directory?: string; error?: string };
 type Build = { pid: number; outDir: string };
 type Outcome = "complete" | "fail" | "interrupt";
-
-function records<T>(file: string): T[] {
-  return existsSync(file) ? appendedRecords<T>(readFileSync(file, "utf8")) : [];
-}
 
 function appOutput(directory: string) {
   if (!existsSync(directory)) return undefined;
@@ -136,14 +132,16 @@ function proveArtifact(
           true,
         );
         const events = () =>
-          records<Trace>(trace).filter(({ key }) => key === artifact.key);
+          appendedFileRecords<Trace>(trace).filter(
+            ({ key }) => key === artifact.key,
+          );
         const eventCount = (event: string) =>
           events().filter((entry) => entry.event === event).length;
         const selected = outcome === "interrupt" ? 1 : 2;
         await expect.poll(() => eventCount("request")).toBe(selected);
         expect(eventCount("start")).toBe(1);
         expect(eventCount("complete")).toBe(0);
-        expect(records<Consumer>(consumers)).toEqual([]);
+        expect(appendedFileRecords<Consumer>(consumers)).toEqual([]);
 
         if (outcome === "interrupt") run.child.kill("SIGINT");
         else build.release(outcome === "fail" ? "fail" : "continue");
@@ -159,7 +157,7 @@ function proveArtifact(
           expect(appOutput(dist)).toEqual(distBefore);
         }
 
-        const observed = records<Consumer>(consumers);
+        const observed = appendedFileRecords<Consumer>(consumers);
         if (outcome === "complete") {
           expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
           expect(proof.terminal?.strictStatus).toBe("passed");

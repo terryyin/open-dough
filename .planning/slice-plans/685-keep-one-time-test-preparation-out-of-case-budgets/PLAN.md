@@ -135,7 +135,7 @@ strict reporter, not `--reporter=list`.
 
 ### 2. Boundary-only preparation rejects an unnecessary app request
 Type: Behavior
-Status: planned
+Status: done
 Proof: story example 6 and the boundary-only proof row above.
 
 Behavior: the common boundary dashboard fixture prepares its inputs → the
@@ -148,6 +148,12 @@ common readiness dependency. Replay the retained unconditional-app fault,
 observe the new assertion fail, restore it and observe green. Do not rely on
 runtime/boundary-server, which bypasses common readiness, or on an app build
 that merely finishes inside the default budget.
+
+Accepted (2026-11-18): `runtime/test-preparation-boundary.spec.ts` runs an
+inner boundary case through the ordinary dashboard fixture; it went red with
+the app requested in boundary mode while the inner case still passed.
+Refactor moved both outer specs' nested-run reading into
+`backend-tests/support/preparationProofRun.ts`.
 
 ### 3. Custom session and terminal starts prepare their actual serving inputs
 Type: Behavior
