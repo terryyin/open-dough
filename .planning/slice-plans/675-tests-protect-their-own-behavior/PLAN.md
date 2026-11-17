@@ -168,6 +168,27 @@ or inconclusive with the missing evidence. One run isolates no guidance
 effect; disclose host, CLI and context differences and effort only as
 secondary evidence.
 
+## Current continuation boundary
+
+Slice 1 published `c9b39e4b8300ec00a9cff1b95b659d44d8a22209` to
+`origin/codex/tests-protect-their-own-behavior-without-inciden`, based on the
+claim. Slice 2 preparation is retained in [redo launch evidence](redo-launch.md).
+Its clock is paused at 8.2 active minutes (6.8 remain). Slice 2 is not done.
+Records-only progress disposition: this continuation record and launch evidence
+change no product, tests or skill guidance; accepted slice-1 proof is unchanged.
+
+The recovered exact first user message includes nested Python targeting old
+`seed-391/b`, writing its receipt and launching another paid Claude session.
+This invalidates the assumption that the exact message is a task-only replay
+input. Exact evidence is preserved; a code-block-only removal is prepared but
+unselected. **Awaiting story review:** the proof/evaluation input needs Terry’s
+decision before amending the exact-input condition or launching. No paid run,
+trust change, native guard or participant message has occurred. Native trust
+and the no-competing-paid-run condition also remain unmet. No independent
+remaining authorized work can settle the redo assessment before this decision.
+Incoming trunk at `fc5bfc051` adds preparation for other stories; no named
+sibling behavior affects this slice’s historical clone or accepted proof.
+
 ## Slice 1 accepted evidence
 
 Frozen B inspected at `c629d0d93..d8efcf6fb`; candidate wording is the
@@ -199,3 +220,10 @@ coordination sibling’s behavior. Independent refactor `/root/refactor_slice1`:
 `## REFACTOR COMPLETE`, none — already clean; no edits, unchanged proof reused,
 `git diff --check` passed. Slice clock paused at 3.3 active minutes.
 Improved agent application remains unverified and owned by slices 2–3.
+
+## Story obligations
+
+### G1. Blind redo awaits input decision and paid-run trigger
+Reported: slice 2 — "No paid native launch occurred; exact frozen input contains nested launcher code targeting frozen B’s old path. The proposed task-only prompt is unselected; native trust and no-competing-paid-run checks also remain unmet."
+Story clause: "The guidance change is judged by a fresh B redo of the frozen effort execution against frozen A."
+Disposition: return
