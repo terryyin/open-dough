@@ -30,11 +30,11 @@ intent introduced or affected by a newly developed story.
 
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks ([plan](slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md))
 - [Evaluation shell checks state each fact in one line at the family entry](seeds/SEED-396-evaluation-javascript-tests.md#replace-evaluation-shell-checks) — SEED-396#replace-evaluation-shell-checks ([plan](slice-plans/679-evaluation-checks-state-facts-plainly/PLAN.md))
+- [Guidance-check participants can run their owning proof](seeds/SEED-393-test-quality-learning-from-effort-replays.md#guidance-check-participants-run-owning-proof) — SEED-393#guidance-check-participants-run-owning-proof ([plan](slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md))
 
 ## Backlog list
 
 - [Evaluation checks that restate data or enter below the family entry are removed](seeds/SEED-396-evaluation-javascript-tests.md#remove-redundant-evaluation-checks) — SEED-396#remove-redundant-evaluation-checks
-- [Guidance-check participants can run their owning proof](seeds/SEED-393-test-quality-learning-from-effort-replays.md#guidance-check-participants-run-owning-proof) — SEED-393#guidance-check-participants-run-owning-proof
 - [Recovery proof covers historical case paths](seeds/SEED-393-test-quality-learning-from-effort-replays.md#recovery-proof-covers-historical-case-paths) — SEED-393#recovery-proof-covers-historical-case-paths
 - [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-393#guidance-check-participants-run-owning-proof",
+  "mode": "story-branch",
+  "branch": "claude/guidance-check-participants-can-run-their-owning",
+  "host": "claude"
+}
