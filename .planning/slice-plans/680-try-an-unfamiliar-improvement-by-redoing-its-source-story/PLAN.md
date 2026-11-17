@@ -175,7 +175,7 @@ commands match those recorded in slices 2–3; `npm run --silent format` and
 
 ### 5. Finding triage offers the kept recipe where it applies
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: slice 4 kept the recipe → a maintainer triaging a finding whose
 recommended response changes guidance wording, with no case exercising its
