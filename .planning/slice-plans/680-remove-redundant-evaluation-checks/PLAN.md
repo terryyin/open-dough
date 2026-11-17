@@ -160,7 +160,7 @@ guard exits 0. The entry and identity checks hold no inventory assertions;
 
 ### 4. Journey assessment runs the unchanged scenario once
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the same observation file content enters `native_journey_state_assess`
 once for the ordinary success → it passes. Remove `cursor-target.txt` and its
@@ -171,6 +171,10 @@ Proof: named `native-journey-state.sh` and counterexample guard. Compare the
 deleted `write_obs` call with the surviving one to confirm there is no target
 or host variation. Do not delete this assessor check or the comparison verdict
 counterexamples on the mistaken premise that every `src/` function is private.
+
+Accepted: the `cursor-target.txt` pass (same fixed `write_obs` content) is
+removed; journey-state and the counterexample guard pass through
+`bash scripts/test.sh`, with all five rejected cases unchanged.
 
 ### 5. Corpus replay owns the repeated weekly-limit observations
 Type: Behavior

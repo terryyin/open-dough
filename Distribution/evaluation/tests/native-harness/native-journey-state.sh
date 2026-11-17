@@ -72,9 +72,6 @@ assert_passes expected.txt 'expected real fixture update state'
 assert_passes expected.txt 'named conflicting authorities and stopped' \
   valid-conflict.md
 
-write_obs "${work_dir}/cursor-target.txt"
-assert_passes cursor-target.txt 'expected real fixture update state'
-
 assessor="${source_dir}/Distribution/evaluation/src/native-journey-state.sh"
 native_assessor_counterexamples "${assessor}" "${work_dir}/expected.txt" \
   --verdict native_journey_state_status native_journey_state_reason \

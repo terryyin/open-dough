@@ -33,16 +33,16 @@ no speed or native-host claim.
 | 12 | Entry-dispatch effects are still checked | slice 3 | observed: Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh run_native_host dispatch of six cases, identity match, unknown identity/journey exit 2 (unchanged); guidance-native-entries.sh unchanged, passed |
 | 13 | Retained artifacts are still checked | slice 3 | observed: Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh retention by artifact shape, installed-input capture, amended retention blocks unchanged; passed via scripts/test.sh |
 | 14 | Identity-input invalidation is still checked | slice 3 | observed: Distribution/evaluation/tests/native-harness/native-evidence-identity.sh unchanged; passed via scripts/test.sh in slice 3 proof |
-| 15 | The identical `cursor-target` journey-state scenario's repeated pass is removed | slice 4 | |
-| 16 | The failed-update counterexample remains | slice 4 | |
-| 17 | The preservation counterexample remains | slice 4 | |
+| 15 | The identical `cursor-target` journey-state scenario's repeated pass is removed | slice 4 | observed: Distribution/evaluation/tests/native-harness/native-journey-state.sh: cursor-target write_obs/assert_passes removed; write_obs writes the same fixed content as expected.txt |
+| 16 | The failed-update counterexample remains | slice 4 | observed: Distribution/evaluation/tests/native-harness/native-journey-state.sh: native_assessor_rejects_edit failed-update with assess_with_conflict, still passing in slice 4 run |
+| 17 | The preservation counterexample remains | slice 4 | observed: Distribution/evaluation/tests/native-harness/native-journey-state.sh: native_assessor_rejects_edit protected-writes companion-preservation, unchanged and passing |
 | 18 | Shell stream assertions already owned by corpus replay are removed | slice 5 | |
 | 19 | A misclassified weekly-limit stream makes corpus replay fail naming that entry, after the shell assertions are removed | slice 5 | |
 | 20 | A weekly-limit stream gaining an invented command makes corpus replay fail naming that entry | slice 5 | |
 | 21 | Distinct command-output pairing observation stays in JavaScript | slice 5 | |
 | 22 | Distinct tool/read observations stay in JavaScript | slice 5 | |
 | 23 | The comparison assessor keeps its distinct rejected cases | slice 5 | |
-| 24 | The journey assessor keeps its distinct rejected cases | slice 4 | |
+| 24 | The journey assessor keeps its distinct rejected cases | slice 4 | observed: Distribution/evaluation/tests/native-harness/native-journey-state.sh: native_assessor_counterexamples wrong-version, missing-improvement, protected-writes, stale-target, failed-update unchanged; counterexample guard passed |
 | 25 | The probe-restoration check is kept | slice 1 | observed: native-guidance-check-launch-command-tests-probes.sh byte-unchanged (git diff); runs in final npm run test:evaluation |
 | 26 | The fixture/E2E observations are kept | slice 1 | observed: native-guidance-check-launch-command-tests.sh fixture/backend/turn-2 assertions unchanged, passed via scripts/test.sh; -e2e.sh unchanged |
 | 27 | The watchdog just-forked handler race regression is kept until equivalent entry-level protection exists | slice 5 | |
