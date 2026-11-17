@@ -187,34 +187,3 @@ speed claim.
 
 **Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md)
 
-<a id="observe-no-stale-candidate-failure-after-show-latest"></a>
-
-### Keep a departed candidate read from showing a failure after Show latest
-
-**Identity:** SEED-334#observe-no-stale-candidate-failure-after-show-latest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/686-observe-no-stale-candidate-failure-after-show-latest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3219df01ecbdefda04dcc9b3fe8261104190c6beaa7bd58ea1ea33815aeac58a","plan":"e65c21366d8b48384fc63f7a64906bc901c373e49221fbcb13adfb9ee5968437"}}
-```
-
-**Goal:** A maintainer changing Test Optimization Candidates reading learns from
-the Frontend held-answer case when a superseded revision's read can disturb
-the record Show latest selected, so the stale-read guard stays protected.
-
-**Scope:** Strengthen
-`dashboard/frontend-tests/intent/intent-test-optimization-candidates-revision.spec.ts`
-"a held answer for the old revision cannot replace the record Show latest
-selected" so it also observes the window between Show latest and the new
-record. Keep its existing assertions; no product change.
-
-**Key example:** with both `!controller.signal.aborted && readId ===
-activeRead.current` guards in `dashboard/src/IntentCandidatesRecord.tsx`
-removed, the old revision's departed read reaches the catch branch and the
-panel briefly shows "could not be read at this revision" with Retry before the
-new record arrives. The strengthened case fails on that; restored, it passes.
-
-**Provenance:** Intent Coverage check of SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
-at `309dacb410f71134bc1ff76b668bed907d541f4d`: assertion gap. The faulted case
-passed 4 of 4; an independent MutationObserver witness saw the failure state.
-Removing only one of the two conditions is an equivalent mutant there.
-
-**Plan:** [Keep a departed candidate read from showing a failure after Show latest](../slice-plans/686-observe-no-stale-candidate-failure-after-show-latest/PLAN.md)

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Kaoru-chan",
-  "email": "kaoru-chan@example.org",
-  "identity": "SEED-334#observe-no-stale-candidate-failure-after-show-latest",
-  "mode": "story-branch",
-  "branch": "claude/keep-a-departed-candidate-read-from-showing-a-fa",
-  "host": "claude"
-}
