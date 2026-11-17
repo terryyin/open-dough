@@ -293,6 +293,10 @@ Emptying the intent share broke the shard check, so `ci.yml` drops that share
 (`[1, 2, 3]`, navigation split unchanged) and the shard test injects an empty
 pattern instead. Full Frontend `intent/` (221), Backend/E2E candidates, shard
 node tests and typecheck passed.
+CI repair on `87551c3b` (run 44090579516): the `ci-proof` summary `expect`
+still declared `dashboard/tests=4:case`; now 3, matching the matrix
+(`ci-proof-actions`/`-declaration` failed before, 1346 node tests passed after).
+Repair disposition: within slice 8's refactored `ci.yml` change.
 
 ## Execution complete
 
