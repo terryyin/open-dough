@@ -1,6 +1,5 @@
 // Emphasized character ranges for words that changed inside a story-review
-// diff block: a run of removed lines followed by added lines, compared as
-// one word stream with line breaks read as whitespace.
+// removed-then-added block, compared as one word stream (line breaks as spaces).
 
 import type { DiffLine } from "./unifiedDiff.ts";
 
@@ -21,6 +20,13 @@ type FlatToken = {
 
 const wordPattern = /[A-Za-z0-9_]+|\s+|./g;
 
+// Dice of block word streams; below this, a rewrite stays line-level (~0.27 for
+// `return cached;` → `throw new Error("stale");`).
+const MIN_BLOCK_WORD_SIMILARITY = 0.5;
+
+// Skip comparison above this removed-plus-added count so large blocks stay fast.
+const MAX_BLOCK_LINES_TO_COMPARE = 200;
+
 function wordsIn(text: string) {
   return [...text.matchAll(wordPattern)].map((match) => {
     const start = match.index;
@@ -28,8 +34,7 @@ function wordsIn(text: string) {
   });
 }
 
-// Flatten block lines, joining with one space so a line break reads as
-// whitespace; that join space maps to no line.
+// Join lines with one space (line break as whitespace); the join maps to no line.
 function flattenLines(texts: readonly string[]) {
   let flat = "";
   const at: (FlatChar | null)[] = [];
@@ -76,41 +81,28 @@ function lcsTable(a: readonly string[], b: readonly string[]) {
   return table;
 }
 
-function isWordChars(text: string) {
-  return /^[A-Za-z0-9_]+$/.test(text);
-}
-
-function isSingleSpace(text: string) {
-  return text === " ";
-}
-
-function tokenAt(tokens: readonly FlatToken[], at: number) {
-  return tokens.at(at);
-}
-
-// Drop single-space glue beside an emphasized word so an inserted word does
-// not also mark its neighbouring space (rewrap); keep longer whitespace runs
-// (continuation indent) and whitespace-only changes (re-indent).
+// Drop single-space glue beside an emphasized word (rewrap); keep longer
+// whitespace runs and whitespace-only changes (re-indent).
 function emphasisChars(tokens: readonly FlatToken[], changedAt: Set<number>) {
   const hasNonSpaceChange = [...changedAt].some((at) => {
-    const token = tokenAt(tokens, at);
+    const token = tokens.at(at);
     return token !== undefined && !/^\s+$/.test(token.text);
   });
   const chars: FlatChar[] = [];
   for (const at of changedAt) {
-    const token = tokenAt(tokens, at);
+    const token = tokens.at(at);
     if (token === undefined) continue;
-    const before = tokenAt(tokens, at - 1);
-    const after = tokenAt(tokens, at + 1);
+    const before = tokens.at(at - 1);
+    const after = tokens.at(at + 1);
     if (
       hasNonSpaceChange &&
-      isSingleSpace(token.text) &&
+      token.text === " " &&
       ((before !== undefined &&
         changedAt.has(at - 1) &&
-        isWordChars(before.text)) ||
+        /^[A-Za-z0-9_]+$/.test(before.text)) ||
         (after !== undefined &&
           changedAt.has(at + 1) &&
-          isWordChars(after.text)))
+          /^[A-Za-z0-9_]+$/.test(after.text)))
     )
       continue;
     for (const char of token.chars) {
@@ -130,6 +122,14 @@ function changedWordChars(
     removed.map((token) => token.text),
     added.map((token) => token.text),
   );
+  const tokenCount = removed.length + added.length;
+  const shared = lcsAt(table, 0, 0);
+  if (
+    tokenCount === 0 ||
+    (2 * shared) / tokenCount < MIN_BLOCK_WORD_SIMILARITY
+  ) {
+    return { removedChanged: [] as FlatChar[], addedChanged: [] as FlatChar[] };
+  }
   const removedChanged = new Set<number>();
   const addedChanged = new Set<number>();
   let i = 0;
@@ -222,6 +222,12 @@ export function emphasizedRangesByLine(
       continue;
     }
     if (removed.indexes.length === 0 || added.indexes.length === 0) continue;
+    if (
+      removed.indexes.length + added.indexes.length >
+      MAX_BLOCK_LINES_TO_COMPARE
+    ) {
+      continue;
+    }
     const { removedChanged, addedChanged } = changedWordChars(
       removed.indexes.map((at) => lines.at(at)?.text ?? ""),
       added.indexes.map((at) => lines.at(at)?.text ?? ""),

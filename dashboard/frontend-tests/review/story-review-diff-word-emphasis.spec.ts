@@ -1,19 +1,22 @@
-// A story-review diff of a path with no grammar emphasizes the words that
-// changed inside a removed-then-added block, as deletions and insertions on
-// plain lines; pure additions, unchanged lines and revealed context stay
-// unmarked, and copied text stays the plain diff.
+// Plain (.txt) story-review diffs emphasize changed words in removed-then-added
+// blocks as deletions/insertions; pure adds, unchanged and revealed context do not.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
 import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
 import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
 import {
+  largeBlockLineCount,
+  largeWithSmallDiff,
+  largeWithSmallText,
   limitDiff,
   limitText,
   pureAdditionDiff,
   pureAdditionText,
   reindentDiff,
   reindentText,
+  rewriteDiff,
+  rewriteText,
   rewrapDiff,
   rewrapText,
   splitCallDiff,
@@ -29,6 +32,7 @@ import {
   selectedText,
   showPrecedingLines,
 } from "../../tests/support/reviewDiffSyntax.ts";
+import { diffHunk } from "../../tests/support/reviewPanes.ts";
 
 async function openPlainDiff(
   page: Parameters<typeof openFrontendStoryReview>[0],
@@ -194,4 +198,53 @@ test("a pure addition and revealed context have no word emphasis", async ({
   await expect(insertions(revealed)).toHaveCount(0);
   await expect(deletions(revealed)).toHaveCount(0);
   await expect(insertions(context)).toHaveText(["25"]);
+});
+
+test("a low-similarity rewrite stays line-level with no word emphasis", async ({
+  page,
+  frontendServices,
+}) => {
+  const path = "rewrite.txt";
+  const diff = await openPlainDiff(
+    page,
+    frontendServices,
+    path,
+    rewriteDiff(path),
+    rewriteText,
+    { added: 1, removed: 1 },
+  );
+
+  await expect(insertions(diff)).toHaveCount(0);
+  await expect(deletions(diff)).toHaveCount(0);
+});
+
+test("a several-hundred-line block stays line-level while a small block is emphasized", async ({
+  page,
+  frontendServices,
+}) => {
+  const path = "generated.txt";
+  const diff = await openPlainDiff(
+    page,
+    frontendServices,
+    path,
+    largeWithSmallDiff(path),
+    largeWithSmallText,
+    {
+      added: largeBlockLineCount + 1,
+      removed: largeBlockLineCount + 1,
+    },
+  );
+
+  const largeHunk = diffHunk(
+    diff,
+    `@@ -1,${String(largeBlockLineCount)} +1,${String(largeBlockLineCount)} @@`,
+  );
+  await expect(removedLine(diff, 1)).toBeVisible();
+  await expect(insertions(largeHunk)).toHaveCount(0);
+  await expect(deletions(largeHunk)).toHaveCount(0);
+
+  const smallRemoved = removedLine(diff, largeBlockLineCount + 2);
+  const smallAdded = newLine(diff, largeBlockLineCount + 2);
+  await expect(deletions(smallRemoved)).toHaveText(["20"]);
+  await expect(insertions(smallAdded)).toHaveText(["25"]);
 });

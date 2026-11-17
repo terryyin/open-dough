@@ -1,6 +1,8 @@
 // Plain-text (.txt) diffs for story-review word-emphasis journeys: a
 // one-word edit, a Markdown-style rewrap, a call split across lines,
-// re-indent, a pure addition, and a change with omitted context above.
+// re-indent, a pure addition, a low-similarity rewrite, a several-hundred-
+// line block beside a small emphasized one, and a change with omitted
+// context above.
 
 import {
   reviewedFileDiffSchema,
@@ -126,6 +128,61 @@ export const pureAdditionDiff = (path: string) =>
       "@@ -1,1 +1,2 @@",
       " keep;",
       "+only new;",
+      "",
+    ].join("\n"),
+  });
+
+export const rewriteText = {
+  kind: "text",
+  baseline: ["return cached;", ""].join("\n"),
+  tree: ['throw new Error("stale");', ""].join("\n"),
+} as const satisfies ReviewedFileText;
+
+export const rewriteDiff = (path: string) =>
+  reviewedFileDiffSchema.parse({
+    kind: "diff",
+    printed: [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      "@@ -1,1 +1,1 @@",
+      "-return cached;",
+      '+throw new Error("stale");',
+      "",
+    ].join("\n"),
+  });
+
+// Several hundred changed lines (150 removed + 150 added) plus a small
+// one-word edit later in the same file.
+export const largeBlockLineCount = 150;
+
+const largeRemoved = [...Array(largeBlockLineCount).keys()].map(
+  (at) => `old generated line ${String(at + 1)}`,
+);
+const largeAdded = [...Array(largeBlockLineCount).keys()].map(
+  (at) => `new generated line ${String(at + 1)}`,
+);
+
+export const largeWithSmallText = {
+  kind: "text",
+  baseline: [...largeRemoved, "bridge;", "const limit = 20;", ""].join("\n"),
+  tree: [...largeAdded, "bridge;", "const limit = 25;", ""].join("\n"),
+} as const satisfies ReviewedFileText;
+
+export const largeWithSmallDiff = (path: string) =>
+  reviewedFileDiffSchema.parse({
+    kind: "diff",
+    printed: [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      `@@ -1,${String(largeBlockLineCount)} +1,${String(largeBlockLineCount)} @@`,
+      ...largeRemoved.map((line) => `-${line}`),
+      ...largeAdded.map((line) => `+${line}`),
+      `@@ -${String(largeBlockLineCount + 1)},2 +${String(largeBlockLineCount + 1)},2 @@`,
+      " bridge;",
+      "-const limit = 20;",
+      "+const limit = 25;",
       "",
     ].join("\n"),
   });

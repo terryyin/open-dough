@@ -114,7 +114,7 @@ plain diff.
 
 ### 2. Rewrites and very large blocks stay line-level
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend `story-review-diff-word-emphasis.spec.ts` with the rewrite and
 large-block cases in the proof table; rerun that spec, typecheck and lint.
 
@@ -168,3 +168,6 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
   Keep emphasis assertions in `story-review-diff-word-emphasis.spec.ts`, not
   in the syntax-styling subject. Drop single-space glue beside an emphasized
   word so a rewrap insert does not also mark neighbouring spaces.
+- Slice 2: Dice similarity ≥0.5 and max 200 lines per block (skip before LCS)
+  keep the seed rewrite and several-hundred-line blocks line-level while
+  slice-1 similar blocks stay emphasized.
