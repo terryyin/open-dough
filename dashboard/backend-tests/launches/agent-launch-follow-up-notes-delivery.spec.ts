@@ -4,7 +4,7 @@
 // a notes-store write failure leaves them waiting. Admission and content:
 // agent-launch-follow-up-notes.spec.ts.
 
-import { execFileSync } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
 import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
 import {
   expect,
@@ -33,11 +33,15 @@ import {
   waitingGeneral,
 } from "./followUpNotesCases.ts";
 
-function withImmutableNotesFile(home: string, body: () => Promise<void>) {
-  const file = storyNotesFile(home);
-  execFileSync("chflags", ["uchg", file]);
+// Holds the notes store's write lock so confirmation cannot rewrite
+// story-notes.json. File chmod alone does not stop atomic rename; a sibling
+// directory lock refuses the write on Linux and macOS without touching other
+// dashboard stores in the same folder.
+function withNotesStoreWriteRefused(home: string, body: () => Promise<void>) {
+  const lock = `${storyNotesFile(home)}.lock`;
+  mkdirSync(lock);
   return body().finally(() => {
-    execFileSync("chflags", ["nouchg", file]);
+    rmSync(lock, { recursive: true, force: true });
   });
 }
 
@@ -177,7 +181,7 @@ claudeTest(
   async ({ dashboard, origin, request: api }) => {
     const revision = await publishRecoverStory(dashboard, origin);
     seedNotes(dashboard.home, { [recoverStory.identity]: [waitingGeneral] });
-    await withImmutableNotesFile(dashboard.home, async () => {
+    await withNotesStoreWriteRefused(dashboard.home, async () => {
       dashboard.claudeScenario("launched");
       const launched = await answerOf(
         launch(dashboard, followUpWithNotes(revision)),
@@ -225,13 +229,17 @@ cursorTest(
 
     cursor.releasePaint();
     await cursorExpect
-      .poll(() => keptCursor(dashboard.home).firstInput?.state)
-      .toBe("confirmed");
-    const sent = noteOf(
-      await storyNotesAnswer(api, dashboard),
-      waitingGeneral.id,
-    );
-    expect(sent.delivered).toBe(storyNoteVersion(waitingGeneral));
-    expect(storyNoteIsWaiting(sent)).toBe(false);
+      .poll(async () => {
+        if (keptCursor(dashboard.home).firstInput?.state !== "confirmed")
+          return undefined;
+        return noteOf(await storyNotesAnswer(api, dashboard), waitingGeneral.id)
+          .delivered;
+      })
+      .toBe(storyNoteVersion(waitingGeneral));
+    expect(
+      storyNoteIsWaiting(
+        noteOf(await storyNotesAnswer(api, dashboard), waitingGeneral.id),
+      ),
+    ).toBe(false);
   },
 );
