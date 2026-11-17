@@ -14,15 +14,12 @@ import {
 import {
   expectTerminalIdentity,
   expectTerminalText,
-  openTerminalPrompts,
   terminalPanel,
   terminalPromptsControl,
   terminalStatus,
 } from "../terminalScreenPage.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stoppedTracks } from "./voicePage.ts";
-
-export { openTerminalPrompts };
 
 // Safari buttons do not take pointer focus. Model that native default after
 // the page handles mousedown, while respecting cancellation of that default.
@@ -65,8 +62,8 @@ export async function openTerminalVoice(
   return { panel, open, first, second };
 }
 
-export function dictateMenuItem(menu: Locator) {
-  return menu.getByRole("menuitem", {
+export function dictateIntoTerminalControl(panel: Locator) {
+  return panel.getByRole("button", {
     name: "Dictate into terminal",
     exact: true,
   });
@@ -128,20 +125,16 @@ export async function discardRetainedTranscript(panel: Locator) {
 }
 
 export async function chooseTerminalDictation(panel: Locator) {
-  const menu = await openTerminalPrompts(panel);
-  await dictateMenuItem(menu).click();
-  await expect(menu).toHaveCount(0);
+  await dictateIntoTerminalControl(panel).click();
 }
 
 export async function expectTerminalDictationAvailable(
   panel: Locator,
   enabled: boolean,
 ) {
-  const menu = await openTerminalPrompts(panel);
-  const choice = dictateMenuItem(menu);
+  const choice = dictateIntoTerminalControl(panel);
   if (enabled) await expect(choice).toBeEnabled();
   else await expect(choice).toBeDisabled();
-  await menu.press("Escape");
 }
 
 export async function awaitRecordingBytes(page: Page, previous = 0) {
@@ -156,6 +149,7 @@ export async function awaitRecordingBytes(page: Page, previous = 0) {
 export async function expectClipStopped(page: Page, panel: Locator) {
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   await expect(terminalPromptsControl(panel)).toBeVisible();
+  await expect(dictateIntoTerminalControl(panel)).toBeVisible();
 }
 
 export async function beginTerminalClip(page: Page, panel: Locator) {
@@ -165,7 +159,8 @@ export async function beginTerminalClip(page: Page, panel: Locator) {
         .voiceObservation.bytes,
   );
   await chooseTerminalDictation(panel);
-  await expect(terminalPromptsControl(panel)).toHaveCount(0);
+  await expect(stopRecordingControl(panel)).toBeVisible();
+  await expect(terminalPromptsControl(panel)).toBeVisible();
   await expectVoiceStatusText(
     panel,
     "Recording… Stop recording when you are finished.",

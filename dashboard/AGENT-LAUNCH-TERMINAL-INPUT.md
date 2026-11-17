@@ -12,23 +12,23 @@ session.
 
 ## Common prompts
 
-The terminal header offers **Prompts** immediately before Mark as done, or with
-its other session actions when Done is unavailable, on desktop and mobile.
-The menu offers exactly `OK`, `as recommended`, and **Dictate into terminal**.
-Selecting a fixed phrase closes the menu and inserts that literal text through
-the normal attachment insert path, then focuses terminal input for editing and
-submission with deliberate Enter. Existing input remains; selecting sends no
-Enter. When input cannot be accepted, feedback names **Reconnect**, **Open
-again**, or says the terminal is still connecting. Recover, then open **Prompts**
-again; nothing is retried automatically.
+The terminal header offers **Prompts** immediately after **Dictate into
+terminal** and before Mark as done, or with its other session actions when Done
+is unavailable, on desktop and mobile. The menu offers exactly `OK` and
+`as recommended`. Selecting a fixed phrase closes the menu and inserts that
+literal text through the normal attachment insert path, then focuses terminal
+input for editing and submission with deliberate Enter. Existing input remains;
+selecting sends no Enter. When input cannot be accepted, feedback names
+**Reconnect**, **Open again**, or says the terminal is still connecting.
+Recover, then open **Prompts** again; nothing is retried automatically.
 
 ## Dictation
 
-Choose **Dictate into terminal** from **Prompts** to close the menu and start
-capture. **Stop recording** replaces **Prompts** during capture; **Prompts**
-returns when capture ends. From terminal input, **Alt+F10** focuses session
-actions; Tab reaches **Prompts**, and Enter or Space opens its menu. Use the
-menu's choices to insert a reply or start dictation.
+Activate **Dictate into terminal** in session actions to start capture without
+opening a menu. The control becomes **Stop recording** during capture;
+**Prompts** stays visible and openable beside it. From terminal input,
+**Alt+F10** focuses session actions; Tab reaches **Dictate into terminal**, then
+**Prompts**. Enter or Space on **Prompts** opens its reply menu.
 Ordinary Tab, Shift+Tab and Escape still belong to the native terminal. Permission, recording and transcription state
 are announced in the panel; Close and ordinary typing remain available. Recording
 uses the same configured OpenAI access and safe recovery guidance as launch

@@ -45,13 +45,7 @@ for (const pointer of ["desktop", "phone"] as const) {
         },
       );
       const prompts = terminalPromptsControl(panel);
-      const actions = panel.getByRole("group", {
-        name: "Session actions",
-        exact: true,
-      });
-      await expect(actions.getByRole("button").first()).toHaveAccessibleName(
-        "Prompts",
-      );
+      await expect(prompts).toBeVisible();
       for (const [phrase, prefix] of [
         ["OK", ""],
         ["as recommended", "Review "],
@@ -64,7 +58,6 @@ for (const pointer of ["desktop", "phone"] as const) {
         await expect(menu.getByRole("menuitem")).toHaveText([
           "OK",
           "as recommended",
-          "Dictate into terminal",
         ]);
         const choice = menu.getByRole("menuitem", {
           name: phrase,

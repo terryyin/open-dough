@@ -2,6 +2,7 @@
 
 **Identity:** SEED-392#separate-dashboard-terminal-dictation-from-quick-replies
 **Source:** [Separate dashboard terminal dictation from quick replies](../../seeds/SEED-392-separate-dashboard-terminal-dictation-from-quick-replies.md#separate-dashboard-terminal-dictation-from-quick-replies)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -99,7 +100,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Standalone terminal dictation beside Prompts
 Type: Behavior
-Status: planned
+Status: done
 Proof: updated `session-terminal-voice.spec.ts` and `terminalVoicePage.ts`
 helpers; consumers named in the slice 1 proof row; `npm run typecheck:dashboard`;
 `npm run lint`. Local gate:
@@ -149,4 +150,18 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
 
 ## Learnings
 
-None yet.
+- `dashboard/frontend-tests/terminals/agent-terminal-ended-input-recovery.spec.ts`
+  is a frontend helper consumer of `terminalVoicePage` (not under `e2e/`);
+  include it when those helper contracts change.
+- Prefer leaving session-action control order to the voice subject; updating
+  `session-terminal-prompts.spec.ts` for mic-first ordinals was shotgun surgery
+  cleaned in the post-change refactor.
+
+
+## Story obligations
+
+### G1. Prompts still lists only OK and as recommended
+Reported: slice 1 — "Prompts menu still offers only OK and as recommended until the three new phrases land."
+Story clause: "Its menu offers only fixed quick replies: `OK`, `as recommended`, `Try again`, `Resume`, and `Please explain`."
+Disposition: interim until slices 2
+Commitment: 4

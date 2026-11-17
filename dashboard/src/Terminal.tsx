@@ -193,7 +193,8 @@ export function Terminal({
         )}
       </div>
       <p id={inputHelp} className="visually-hidden">
-        Press Alt+F10 to focus session actions, then Tab to Prompts.
+        Press Alt+F10 to focus session actions, then Tab to Dictate into
+        terminal, then Prompts.
       </p>
       <div
         className="terminal-output"
