@@ -546,6 +546,17 @@ shard 2 the remainder. `OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT=1/2 … --list`
 17. `browser-group-shards.test.mjs` "an integrated pattern matching no spec…"
 derives its splits from the group's declared count.
 
+## Execution complete
+
+Product advice: no change to priorities. The retrospective found the
+header's pinned read counts time-dependent, one lost paging step and a stale
+link; the correction SEED-334#keep-navigation-conversion-proof-whole
+([plan 687](../687-keep-navigation-conversion-proof-whole/PLAN.md)) owns them.
+The Frontend group now carries 74 more tests on one shard; read its CI wall
+time before the sibling story SEED-334#retire-integrated-ui-test-and-its-documents
+adds its 11 specs, and rebalance with `rebalance-ci-shards` only on a measured
+need.
+
 ## Decisive premises and observations
 
 | Premise | Consuming operation | Observation (revision `4eb4f8e594ee003a2894c28c8ab2600e1c42b835`, 2026-11-17, owned workspace) | Result |
