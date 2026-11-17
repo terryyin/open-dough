@@ -162,7 +162,7 @@ kept stream.
 
 ### 4. The recipe says what the run needed and the scratch is gone
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the note is written → the recipe section is corrected to the steps
 and commands the run actually needed, or withdrawn with its reason in the
@@ -220,6 +220,10 @@ section for both cases above; `npm run --silent format` and
   `remote.git`; `git ls-remote origin` here was unchanged across the run.
   The session wrote its handoff, traces and a verify script under
   `/tmp/post-change-refactor-451-*`, outside the scratch root.
+- Slice 4: the recipe was corrected and kept; the scratch root, the session's
+  `/tmp` files and its `~/.codex/sessions` record were removed. Refactor
+  disposition: the edit stays within slice 1's accepted refactor return for
+  `guidance-checks.md`, adding no path.
 
 ## Preparation review
 
