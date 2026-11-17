@@ -113,3 +113,16 @@ None yet.
 - Independent refactor `/root/refactor_review`: production cohesive; test-only named session/operation/damage variants remove branches and one redundant pre-bootstrap zstd write. Same scenarios and observing assertions retained. Final focused command above: 8 passed (9.3s); prior whole-suite proof preserved for unchanged code/tests. Refactor consumer trace `/tmp/native-reader-gaps-refactor-consumer-trace.md`; local test helpers have no runtime consumers, planning matches excluded. `git diff --check` passed; `## REFACTOR COMPLETE`, no follow-ups. Coordinator inspected final setup/actions/assertions and accepted.
 
 - Preparation caught ESLint unbound-method on refactor's returned refresh method before commit. Already-traced mechanical repair in that accepted test path retains the usage receiver in an arrow callback; same focused command passed all 8 in 7.3s. No representation, consumer or production change. Required formatting is retried for this repair.
+
+## Retrospective
+
+- Planned execution, unchanged source/plan at established claim. Related publications: claim `bd2e79cd90df5d7481fcecc0dcf3703e55e82529` (provenance), implementation `8e62635e227962d87359188b00f8a21f9c54aba1` (sole product change). Nearby preparation/claim commits for SEED-348, SEED-392 and SEED-393 are unrelated and excluded. No source amendment or scope change.
+- Goal/scope satisfied: all four source commitments match inspected product and persisted Import/Refresh assertions. Reader host ownership reuses existing reconciliation; passive wake readers still consume only gap presence. No correction, architecture conflict, residue or supported test-cost cleanup. Dashboard local operational-state distinction under Accepted ADR 0008 is preserved; North Star has no Usage-specific unfinished direction realized here.
+- Backend service tests drove development fail-first; no browser E2E added. CLI and HTTP exercise real readers, store and reconciliation within one service, so detailed cases belong at this unit boundary. Existing Usage/effort suite remains unchanged. Final revised assertions were rerun after refactor/receiver repair.
+- Intent Coverage selection: enabled, but no protection risk. Existing tests/assertions/discovery untouched, only new cases refactored; all original faults observed fail-first. No important promise remains questioned. No automatic check requested; process therefore reviewed here, not deferred.
+- Process reviewed from actual coordinator/tool/subagent record. DearDough.md adds this execution to ODF-264 (truncated broad reads) and ODF-329 (lint-first exposed unbound method after refactor); bounded ordinary write 444 to 460 physical lines, no retention. No process-rule edits or product follow-up authorized.
+- CI for implementation remains pending on story branch observer `/tmp/dough-ci-501/watch-EAPS5a`; final result belongs to coordinator completion, not review. Review complete; planning unchanged, product advice no change, no unresolved attention.
+
+## Execution complete
+
+Product advice: no change.

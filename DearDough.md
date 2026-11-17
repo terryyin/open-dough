@@ -115,6 +115,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Inference: same bounded-retrieval deviation as this finding; complete trace discovery does not require printing every matching row. Token and elapsed savings remain unmeasured.
 
 
+- Execution: SEED-388#replace-native-reader-gaps-on-reread (first implementation `8e62635e227962d87359188b00f8a21f9c54aba1`)
+  - Timestamp: unknown (2026-11-17 execution and retrospective)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim `bd2e79cd90df5d7481fcecc0dcf3703e55e82529`)
+  - Evidence: launch `13944fac-dbe2-454e-8f90-3736a968a501`, coordinator tool results `25d1bb` and `27d978`: broad maintainer search reported 37,782 original tokens; printing the complete annotated consumer trace reported 56,939, both truncated. Later reads recovered required references and bounded runtime-consumer rows.
+  - Observed effect: avoidable output and repeated retrieval under existing targeted-retrieval guidance; no product or proof loss established.
+  - Inference: recurrence of ODF-264. Full trace discovery does not require printing every record-name match; token/time saving remains unmeasured.
+
 ## ODF-205 — Execution starts on a red trunk unannounced <a id="odf-205"></a>
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-205.md).
@@ -175,6 +183,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: the slice 1 implementation and refactor briefs forbade lint and named no strict rule, although the plan 667 and 668 rows above recorded the same two `no-param-reassign` sites in this clock. Guarded fresh delivery refused formatting on two `no-param-reassign` errors in the new `slice-clock-diagnosis.mjs`; the coordinator applied the `Object.assign`/destructure pattern, reran the 32 clock tests and retried successfully.
   - Observed effect: one withheld delivery and a coordinator repair after the refactor pass reported complete; nothing failed was committed.
   - Inference: the remedy recorded for plan 667 lived only in that execution's briefs, so it did not carry to the next execution on the same files.
+
+- Execution: SEED-388#replace-native-reader-gaps-on-reread (first implementation `8e62635e227962d87359188b00f8a21f9c54aba1`)
+  - Timestamp: unknown (2026-11-17, first delivery before implementation publication)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim `bd2e79cd90df5d7481fcecc0dcf3703e55e82529`)
+  - Evidence: implementation/refactor briefs reserved hook-owned lint for coordinator without a read-only authored-file check. Independent refactor returned `usageServer(...).refresh` as an unbound method; guarded fresh formatter refused on `@typescript-eslint/unbound-method` (`eb800c`). Coordinator retained the receiver in an arrow callback, reran all eight focused cases (7.3s), and retried successfully.
+  - Observed effect: one preparation refusal and repair after refactor completion; no failing candidate was committed or published.
+  - Inference: same concrete gap as ODF-329. The existing check prevented escape; extra agent effort was not measured.
 
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 
