@@ -2,8 +2,10 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The follow-up boundary specs' sources, requests and first-input reading:
 // agent-launch-follow-up-boundary.spec.ts (what the first input holds),
 // agent-launch-follow-up-identity.spec.ts (identity, retries and refusals),
-// agent-launch-follow-up-story.spec.ts (a done story) and the Codex and
-// Cursor specs beside them.
+// agent-launch-follow-up-story.spec.ts (a done story),
+// agent-launch-follow-up-notes.spec.ts and
+// agent-launch-follow-up-notes-admission.spec.ts (waiting notes), and the
+// Codex and Cursor specs beside them.
 
 import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";

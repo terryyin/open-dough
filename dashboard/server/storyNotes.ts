@@ -5,7 +5,9 @@ import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import {
   storyNoteChangeSchema,
+  storyNoteIsWaiting,
   storyNoteSchema,
+  type StoryNote,
   type StoryNoteChange,
   type StoryNotesAnswer,
 } from "../src/storyNote.ts";
@@ -35,6 +37,17 @@ const answerOf = (stored: StoredNotes, project: string): StoryNotesAnswer => ({
   kind: "notes",
   notes: stored[project] ?? {},
 });
+
+// Waiting notes of one story for follow-up admission, or that the store
+// could not be read.
+export async function waitingStoryNotes(
+  project: string,
+  identity: string,
+): Promise<"unreadable" | StoryNote[]> {
+  const read = await readMachineJson(notesStore());
+  if (read.kind === "unreadable") return "unreadable";
+  return (read.document[project]?.[identity] ?? []).filter(storyNoteIsWaiting);
+}
 
 async function changeNotes(
   project: string,

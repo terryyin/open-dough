@@ -170,8 +170,9 @@ note shows it waiting again, also when it is saved unchanged.
 
 ### 2. A story follow-up can send the waiting notes
 Type: Behavior
-Status: planned
-Proof: `agent-launch-follow-up-notes.spec.ts`; consumers
+Status: done
+Proof: `agent-launch-follow-up-notes.spec.ts` and
+`agent-launch-follow-up-notes-admission.spec.ts`; consumers
 `dashboard/backend-tests/launches/agent-launch-follow-up-*.spec.ts`; typecheck
 and lint.
 
@@ -237,3 +238,9 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
 - Slice 1 delivered-edit store proof lives in `story-notes-changes.spec.ts`
   (edit semantics), not `story-notes-admission.spec.ts`, after the post-change
   refactor kept admission under the 250-line check.
+- Isolated follow-up resume layout is `[established, reporting, context, own]`;
+  use `partsOf` for context checks, as the identity specs do.
+- Slice 2 notes launch proof is split: content/identity in
+  `agent-launch-follow-up-notes.spec.ts`, page/session refusals in
+  `agent-launch-follow-up-notes-admission.spec.ts`, with shared fixtures in
+  `followUpNotesCases.ts`.

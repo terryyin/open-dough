@@ -68,6 +68,16 @@ Captured context is developer-authored evidence of what the page showed when
 the note was made. It stays readable after the workspace or compared Git
 trees are gone.
 
+A Done story’s follow-up that asks to attach notes
+([Follow up](LAUNCH-FOLLOW-UP.md)) sends only the waiting notes from this
+machine’s store at admission, each with its text and context, after the
+story’s own follow-up context and outside the 4,000-character request. Sent
+notes are not attached. The session input labels them as the developer’s
+story notes and their context as what the dashboard showed when the note was
+taken. The attach choice is part of that launch’s identity; a retried start
+resends the notes saved with the attempt. Delivery into **Sent to follow-up**
+waits until the host confirms the first input.
+
 A Taken story’s workspace comparisons also offer **Add note** at the file and
 line. Its line menu holds **Add note** alone; **Follow up** retains its Done
 comparison eligibility. Notes keep the Comparison switch’s words and the
