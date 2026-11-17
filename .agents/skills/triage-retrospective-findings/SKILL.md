@@ -97,6 +97,11 @@ Recommend an evidence request, deferral, or no change when warranted; recording 
 requires explicit developer choice. For existing queued/Taken work, recommend retaining it
 under the rereview rules. Verify recommendation-only evidence/direction checksums unchanged.
 
+When a finding's recommended response changes guidance wording and no case in
+[Native guidance checks](../../../Distribution/evaluation/guidance-checks.md) exercises
+its moment, offer [one short redo of its source phase](../../../Distribution/evaluation/guidance-checks.md#redo-the-source-phase-for-an-uncovered-finding)
+as the next step's evidence.
+
 ## Proposal shape
 
 For each finding, include:

@@ -680,6 +680,14 @@ passes on such slices made no edits.
   - Evidence: subagent usage reports. Slice 4 (3-line deletion): implementer 47.7k tokens, refactor 49.3k tokens with no edits. Slice 3 (6-line change): implementer 73.1k, refactor 58.5k with no edits. Slice 5 refactor 60.5k with no edits.
   - Observed effect: about 290k subagent tokens across these passes; no defect found by the no-edit refactor passes.
   - Inference: delivery step 1 allows skipping the refactor spawn only for records-only changes or edits within an accepted refactor return. A pure test-line deletion with a clean consumer trace may deserve a similar disposition. Slice 2's refactor pass did find a real gap, so the saving is not unconditional.
+- Execution: SEED-393#try-guidance-improvements-by-redoing-the-source-story (plan 680-try-an-unfamiliar-improvement…; first implementation `a2aa0a919`)
+  - Timestamp: unknown (2026-11-17, slices 1 and 5, about 22:40–23:30 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `103754553`)
+  - Evidence: subagent usage reports. Slice 1 (a new 32-line maintainer-doc section in `Distribution/evaluation/guidance-checks.md`): refactor 54.9k tokens, "none, already clean". Slice 5 (one 4-line paragraph in a maintainer skill): refactor 51.6k tokens, no edits. Slice 4's recipe correction used the within-accepted-return disposition and spawned none.
+  - Observed effect: about 106k subagent tokens on two no-edit passes over small documentation additions; no defect found.
+  - Inference: matched to this finding as the same concrete cost (a tiny non-records change pays a full no-edit refactor pass), though the changes here were documentation additions, not test deletions. A behavior review already walked each change, which may be what made the pass redundant.
 
 ## DD-565 — Proof waiting defers read-only CI diagnosis through suite admission <a id="dd-565"></a>
 
