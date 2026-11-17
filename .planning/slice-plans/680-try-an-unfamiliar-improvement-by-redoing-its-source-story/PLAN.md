@@ -147,7 +147,7 @@ the machine awake on AC power with `caffeinate -s -i`
 
 ### 3. ODF-361 carries the verdict and the case decision
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the finished or stopped session exists → ODF-361's follow-up note
 states whether the moment was reached, the three document readings against
