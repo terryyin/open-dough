@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -7,11 +6,17 @@ import {
   launch,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
 import {
-  command,
-  report,
-  bytes,
-} from "../../tests/usage-history/agentEffortHarness.ts";
+  effortCli,
+  listedTasks,
+  succeeded,
+} from "../../tests/usage-history/agentEffortSelection.ts";
+import {
+  costReport,
+  costViews,
+  readableFact,
+} from "../../tests/usage-history/agentEffortCost.ts";
 import {
   nativeFile,
   writeClaudeSession,
@@ -80,11 +85,11 @@ test("a selected launch reports coordinator and failed/cancelled workers once, e
       )
       .please(),
   );
-  const catalog = report(home, root, ["--list"]);
+  const catalog = listedTasks(succeeded(effortCli(home, ["--list", "--json"])));
   const task = catalog.selections.find((item) => item.rootTurnId === "turn");
   if (!task) throw new Error("Expected the retained root turn in the catalog");
   const before = bytes(home);
-  const actual = report(home, root, ["--task", task.id]);
+  const actual = costReport(home, ["--task", task.id]);
   expect(actual.totals).toMatchObject({
     requests: { value: 3 },
     totalInput: { value: 140 },
@@ -109,19 +114,22 @@ test("a selected launch reports coordinator and failed/cancelled workers once, e
   });
   expect(actual.agents.some((agent) => agent.sources.length > 0)).toBe(true);
   expect(bytes(home)).toEqual(before);
-  const readable = execFileSync(
-    process.execPath,
-    [command, "--home", home, "--codex-root", root, "--task", task.id],
-    { encoding: "utf8" },
-  );
-  expect(readable).toContain("Combined known figures");
-  expect(readable).toContain("Gaps:");
+  const readable = succeeded(effortCli(home, ["--task", task.id]));
+  expect(readableFact(readable, "Combined known figures")).toMatchObject({
+    totalInput: { value: 140 },
+    output: { value: 13 },
+  });
+  expect(readableFact(readable, "Selection")).toMatchObject({
+    taskId: task.id,
+    boundary: "shared-Usage-task-ownership",
+  });
+  expect(readable).toContain("codex agent effort (codex-inclusive-input)");
+  expect(readable).toMatch(/^Gaps: .*contradictory-lineage/m);
   expect(bytes(home)).toEqual(before);
 });
 
 test("bounded Claude family counts streaming responses once and keeps worker identity and cache lifetimes", ({
   home,
-  root,
 }) => {
   const claude = path.join(home, "claude");
   const usage = {
@@ -158,7 +166,7 @@ test("bounded Claude family counts streaming responses once and keeps worker ide
       .please(),
   );
   const before = bytes(home);
-  const actual = report(home, root, [
+  const actual = costReport(home, [
     "--host",
     "claude",
     "--family",
@@ -189,4 +197,41 @@ test("bounded Claude family counts streaming responses once and keeps worker ide
     status: "unavailable",
   });
   expect(bytes(home)).toEqual(before);
+});
+
+test("known Codex inclusive input and peak survive missing cache breakdown", ({
+  home,
+  root,
+}) => {
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("inclusive")
+      .withResponse("turn", "own", { input_tokens: 123, output_tokens: 7 })
+      .please(),
+  );
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, [
+    "--host",
+    "codex",
+    "--family",
+    "inclusive",
+    "--from",
+    "2026-11-14T00:00:00.000Z",
+    "--until",
+    "2026-11-15T00:00:00.000Z",
+  ]);
+  expect(readable).toEqual(stated);
+  expect(actual.totals.totalInput.value).toBe(123);
+  expect(actual.totals.totalTokens.value).toBe(130);
+  expect(actual.totals.uncachedInput.value).toBeNull();
+  expect(actual.totals.cachedInput.value).toBeNull();
+  expect(actual.agents[0]?.peakInput).toMatchObject({
+    value: 123,
+    status: "observed-maximum",
+  });
+  expect(actual.gaps).toContain("missing-token-components");
 });

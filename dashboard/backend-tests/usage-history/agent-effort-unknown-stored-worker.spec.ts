@@ -1,4 +1,5 @@
 import { rmSync } from "node:fs";
+import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
@@ -6,7 +7,6 @@ import {
   launch,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { report } from "../../tests/usage-history/agentEffortHarness.ts";
 import {
   runImport,
   writeCodexSession,
@@ -40,10 +40,15 @@ test("a stored-only worker leaves its peak unavailable without qualifying the re
   );
   runImport(home, root);
   rmSync(workerFile);
-  const actual = report(home, root, [
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, [
     "--task",
     "SEED-358#reconstruct-codex-and-claude-code-usage-history",
   ]);
+  expect(readable).toEqual(stated);
   expect(
     actual.agents.find((agent) => agent.sessionId === "root"),
   ).toMatchObject({

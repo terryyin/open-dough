@@ -3,9 +3,16 @@ import path from "node:path";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   bytes,
-  cursorReport,
   writeCursorTranscript,
 } from "../../tests/usage-history/agentEffortHarness.ts";
+import {
+  cursorCost,
+  readableFact,
+} from "../../tests/usage-history/agentEffortCost.ts";
+import {
+  cursorCli,
+  succeeded,
+} from "../../tests/usage-history/agentEffortSelection.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Cursor reports belonging nested workers and recorded dynamic tools without charging another family", ({
@@ -50,7 +57,7 @@ test("Cursor reports belonging nested workers and recorded dynamic tools without
     makeMe.aCursorTranscript.withToolCall("TodoWrite", {}).please(),
   );
   const before = bytes(home);
-  const actual = cursorReport(home, root);
+  const actual = cursorCost(home, root);
   expect(actual.workflow).toMatchObject({
     transcripts: 3,
     workers: 2,
@@ -69,7 +76,7 @@ test("Cursor reports belonging nested workers and recorded dynamic tools without
       statSync(nested).size,
   });
   expect(
-    actual.agents.map((agent) => [agent.role, agent.workflow.toolCalls]),
+    actual.agents.map((agent) => [agent.role, agent.workflow?.toolCalls]),
   ).toEqual([
     ["coordinator", 7],
     ["worker", 1],
@@ -146,7 +153,7 @@ test("Cursor counts consistent known tool ids once and exposes conflicts and ID-
       .please(),
   );
   const before = bytes(home);
-  const actual = cursorReport(home, root);
+  const actual = cursorCost(home, root);
   expect(actual.workflow).toMatchObject({
     toolCalls: 3,
     readCalls: 1,
@@ -165,4 +172,29 @@ test("Cursor counts consistent known tool ids once and exposes conflicts and ID-
   );
   expect(actual.accounting).toContain("unknown uniqueness");
   expect(bytes(home)).toEqual(before);
+});
+
+test("Cursor readable output keeps transcript bytes as bytes and token figures unavailable", ({
+  home,
+}) => {
+  const root = path.join(home, "cursor");
+  const file = path.join(root, "family", "family.jsonl");
+  writeCursorTranscript(
+    file,
+    makeMe.aCursorTranscript.withToolCall("Read", { path: "PLAN.md" }).please(),
+  );
+  const readable = succeeded(cursorCli(home, [root], ["--family", "family"]));
+  expect(readableFact(readable, "Workflow")).toMatchObject({
+    transcripts: 1,
+    bytes: statSync(file).size,
+  });
+  const totals = readableFact(readable, "Combined known figures") as Record<
+    string,
+    { value: number | null; status: string }
+  >;
+  for (const figure of ["totalInput", "output", "totalTokens"])
+    expect(totals[figure]).toEqual({ value: null, status: "unavailable" });
+  expect(Object.values(totals)).not.toContainEqual(
+    expect.objectContaining({ value: statSync(file).size }),
+  );
 });

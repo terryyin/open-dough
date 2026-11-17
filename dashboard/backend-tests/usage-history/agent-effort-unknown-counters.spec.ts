@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import path from "node:path";
+import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
@@ -10,9 +11,13 @@ import {
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   command,
-  report,
   bytes,
 } from "../../tests/usage-history/agentEffortHarness.ts";
+import {
+  effortCli,
+  listedTasks,
+  succeeded,
+} from "../../tests/usage-history/agentEffortSelection.ts";
 import {
   runImport,
   writeClaudeSession,
@@ -39,10 +44,15 @@ test("lost native files retain known stored counters with provenance and named u
   runImport(home, root);
   rmSync(root, { recursive: true });
   const before = bytes(home);
-  const actual = report(home, root, [
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, [
     "--task",
     "SEED-358#reconstruct-codex-and-claude-code-usage-history",
   ]);
+  expect(readable).toEqual(stated);
   expect(actual.threads).toBe(1);
   expect(actual.totals).toMatchObject({
     requests: { value: 1, status: "partial" },
@@ -94,14 +104,19 @@ test("ambiguous story selection lists usable task ids instead of choosing the la
   );
   expect(failed.status).toBe(1);
   expect(failed.stderr).toContain("ambiguous");
-  const catalog = report(home, root, ["--list"]);
+  const catalog = listedTasks(succeeded(effortCli(home, ["--list", "--json"])));
   const first = catalog.selections[0];
   if (!first) throw new Error("Expected retained selections in the catalog");
   expect(failed.stderr).toContain(JSON.stringify(first.id).slice(1, -1));
   const task = catalog.selections.find((item) => item.sessionId === "first");
   if (!task)
     throw new Error("Expected the first retained session in the catalog");
-  const actual = report(home, root, ["--task", task.id]);
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, ["--task", task.id]);
+  expect(readable).toEqual(stated);
   expect(actual.totals).toMatchObject({
     output: { value: 7 },
     totalInput: { value: null, status: "unavailable" },
@@ -111,7 +126,6 @@ test("ambiguous story selection lists usable task ids instead of choosing the la
 
 test("known input and lifetime subtotals survive missing cache-read and lifetime counters", ({
   home,
-  root,
 }) => {
   writeClaudeSession(
     path.join(home, "claude"),
@@ -141,7 +155,11 @@ test("known input and lifetime subtotals survive missing cache-read and lifetime
       })
       .please(),
   );
-  const actual = report(home, root, [
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, [
     "--host",
     "claude",
     "--family",
@@ -151,6 +169,7 @@ test("known input and lifetime subtotals survive missing cache-read and lifetime
     "--until",
     "2026-11-15T00:00:00.000Z",
   ]);
+  expect(readable).toEqual(stated);
   expect(actual.totals).toMatchObject({
     totalInput: {
       value: 24,
@@ -165,7 +184,6 @@ test("known input and lifetime subtotals survive missing cache-read and lifetime
 
 test("a plain developer reply keeps shared continuation ownership with partial counter coverage", ({
   home,
-  root,
 }) => {
   const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
   const record = makeMe.aLaunchRecord
@@ -200,7 +218,12 @@ test("a plain developer reply keeps shared continuation ownership with partial c
       })
       .please(),
   );
-  const actual = report(home, root, ["--task", "SEED-345#reply"]);
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, ["--task", "SEED-345#reply"]);
+  expect(readable).toEqual(stated);
   expect(actual.totals.output).toMatchObject({ value: 18, status: "partial" });
   expect(actual.totals.totalInput).toMatchObject({
     value: null,

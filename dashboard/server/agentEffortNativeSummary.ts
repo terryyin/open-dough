@@ -7,6 +7,18 @@ import {
 import { effortAgents } from "./agentEffortObservations.ts";
 import type { UsageTask } from "./usageRecords.ts";
 import type { EffortEvidence, EffortSelection } from "./agentEffortReport.ts";
+import type { UsageSource } from "./usageRecords.ts";
+
+/** A family response the selected task could not claim (named-gap evidence). */
+export type UnownedResponse = {
+  id: string;
+  sessionId: string;
+  agentId: string | null;
+  turnId: string | null;
+  rootTurnId: string | null;
+  sources: UsageSource[];
+  gaps: string[];
+};
 
 export async function nativeEffortSummary({
   responses,
@@ -22,7 +34,7 @@ export async function nativeEffortSummary({
   host: "codex" | "claude";
   root: string;
   selection: EffortSelection;
-  unownedResponses: unknown[];
+  unownedResponses: UnownedResponse[];
 }) {
   const wakes = await effortWakes(responses);
   const incomplete = [...gaps].some(

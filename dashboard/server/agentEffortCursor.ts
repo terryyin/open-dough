@@ -6,6 +6,7 @@ import {
   cursorWorkflowTotals,
 } from "./agentEffortCursorWorkflow.ts";
 import type { effortAgents } from "./agentEffortObservations.ts";
+import type { CursorCatalogEntry } from "./agentEffortCatalog.ts";
 
 export function cursorEffortReport(options: {
   home: string;
@@ -39,8 +40,8 @@ export function cursorEffortReport(options: {
   ].sort();
   if (options.list)
     return {
-      format: "agent-effort-v1",
-      selections: families.map((directory) => ({
+      format: "agent-effort-v1" as const,
+      selections: families.map((directory): CursorCatalogEntry => ({
         host: "cursor",
         id: path.basename(directory),
         root: path.dirname(directory),

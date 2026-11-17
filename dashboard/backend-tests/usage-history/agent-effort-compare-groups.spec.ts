@@ -1,5 +1,6 @@
-import { execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+// How two groups compare: each execution stays inspectable beside its
+// deduplicated per-host group, qualified like-host deltas and supplied notes.
+import { writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -9,17 +10,14 @@ import {
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
-  report,
-  comparisonReport,
   bytes,
-  command,
   writeCursorTranscript,
 } from "../../tests/usage-history/agentEffortHarness.ts";
+import { compareViews } from "../../tests/usage-history/agentEffortCompare.ts";
 import {
   writeCodexSession,
   runImport,
 } from "../../tests/usage-history/importHarness.ts";
-import { rmSync } from "node:fs";
 
 const window = {
   from: "2026-11-14T00:00:00.000Z",
@@ -77,7 +75,8 @@ test("explicit continuation groups deduplicate overlapping selections and retain
     }),
   );
   const before = bytes(home);
-  const actual = comparisonReport(home, root, manifest);
+  const { json: actual, readable, stated } = compareViews(home, manifest);
+  expect(readable).toEqual(stated);
   expect(actual.candidate.executions).toHaveLength(3);
   expect(
     actual.candidate.executions.map((item) => item.totals.totalInput.value),
@@ -96,57 +95,25 @@ test("explicit continuation groups deduplicate overlapping selections and retain
     humanIntervention: "manual rescue",
   });
   expect(actual.warnings.join(" ")).toMatch(/settings-differences/);
-  expect(actual).not.toHaveProperty("winner");
-  const readable = execFileSync(
-    process.execPath,
-    [
-      command,
-      "--home",
-      home,
-      "--codex-root",
-      root,
-      "--claude-root",
-      path.join(home, "claude"),
-      "--comparison",
-      manifest,
-    ],
-    { encoding: "utf8" },
-  );
-  expect(readable).toContain("manual rescue");
-  expect(readable).toContain("deduplicated group");
-  expect(bytes(home)).toEqual(before);
-});
-
-test("known Codex inclusive input and peak survive missing cache breakdown", ({
-  home,
-  root,
-}) => {
-  writeCodexSession(
-    root,
-    makeMe.aCodexRollout
-      .forSession("inclusive")
-      .withResponse("turn", "own", { input_tokens: 123, output_tokens: 7 })
-      .please(),
-  );
-  const actual = report(home, root, [
-    "--host",
-    "codex",
-    "--family",
-    "inclusive",
-    "--from",
-    window.from,
-    "--until",
-    window.until,
+  expect(actual.baseline.executions[0]?.totals.totalInput.value).toBe(100);
+  expect(Object.keys(actual).sort()).toEqual([
+    "baseline",
+    "candidate",
+    "deltas",
+    "format",
+    "warnings",
   ]);
-  expect(actual.totals.totalInput.value).toBe(123);
-  expect(actual.totals.totalTokens.value).toBe(130);
-  expect(actual.totals.uncachedInput.value).toBeNull();
-  expect(actual.totals.cachedInput.value).toBeNull();
-  expect(actual.agents[0]?.peakInput).toMatchObject({
-    value: 123,
-    status: "observed-maximum",
+  expect(actual.warnings).toContain(
+    "exploratory-retrospective-comparison; no automatic improvement or causal claim",
+  );
+  expect(readable.claim).toBe(
+    "Exploratory agent effort comparison; no automatic improvement or causal claim",
+  );
+  expect(readable.candidate.notes).toMatchObject({
+    proof: "less proof",
+    humanIntervention: "manual rescue",
   });
-  expect(actual.gaps).toContain("missing-token-components");
+  expect(bytes(home)).toEqual(before);
 });
 
 test("repeated stored task selections and Cursor transcript files do not double charge and mixed hosts have no token deltas", ({
@@ -193,7 +160,8 @@ test("repeated stored task selections and Cursor transcript files do not double 
     }),
   );
   const before = bytes(home);
-  const actual = comparisonReport(home, root, manifest);
+  const { json: actual, readable, stated } = compareViews(home, manifest);
+  expect(readable).toEqual(stated);
   expect(actual.baseline.perHost[0]?.totals.totalInput.value).toBe(20);
   expect(actual.baseline.perHost[0]?.gaps).toContain(
     "stored-cross-selection-response-dedup-unprovable",

@@ -28,12 +28,12 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract ([plan](slice-plans/678-test-agent-effort-through-its-output-contract/PLAN.md))
 - [Move board, frame and project navigation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test ([plan](slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md))
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story ([plan](slice-plans/680-try-an-unfamiliar-improvement-by-redoing-its-source-story/PLAN.md))
 
 ## Backlog list
 
+- [Split the agent-effort contract guide](seeds/SEED-345-session-token-efficiency.md#split-the-agent-effort-contract-guide) — SEED-345#split-the-agent-effort-contract-guide
 - [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets

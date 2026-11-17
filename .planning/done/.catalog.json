@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_test-agent-effort-through-its-output-contract.json",
+      "identity": "SEED-345#test-agent-effort-through-its-output-contract",
+      "completedAt": "2026-11-17T14:46:29.163Z",
+      "blob": "44a7cf47967b97cf923e0d110d91ca02fb0e302c"
+    },
+    {
       "fileName": "SEED-345_reach-a-proof-decision-from-retained-evidence.json",
       "identity": "SEED-345#reach-a-proof-decision-from-retained-evidence",
       "completedAt": "2026-11-17T14:40:12.718Z",
