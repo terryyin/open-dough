@@ -1,3 +1,16 @@
+## 0.3.104 - 2026-11-17
+
+- Save, dictate, edit, and delete story notes from the Board, Review changes, and Intent. File and line notes preserve the original comparison context, including after a workspace is removed. The dashboard machine stores notes outside the project repositories.
+- Terminal dictation has its own control. The Prompts menu inserts five editable quick replies. Review changes removes the old snapshot marks.
+- Usage import and refresh replace host-specific reader gaps when a session is reread, so repaired input files clear their warnings while surviving responses keep their usage. Historical gaps stored without a host remain in the store.
+- Page-object guidance groups the mechanics of one user action in a single call and keeps the behavior under proof explicit in the scenario. Test and harness helpers use the same action-oriented names.
+
+The Promoted payload still has 379 files. This release revises the page-object convention. Dashboard changes are in the source repository.
+
+The self-installation baseline, six focused installation and release checks, and dashboard type-check passed locally. The guidance review covered saving a note, observing dialog closure as the subject of a scenario, and extending an existing page object. [Hosted trunk CI passed all 19 jobs at `c7eda48aa`](https://github.com/terryyin/open-dough/actions/runs/44039720644). The changes through source candidate `e30591d4b` affect planning records only.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this release reuses evidence for the existing installation, discovery and host-hook integrations. Freshness-ordering and oversized-file native observations remain separately pending for their unchanged guidance.
+
 ## 0.3.103 - 2026-11-17
 
 - Execute Plan records each slice's active time in its checkout. It carries the budget across handbacks, excludes commands run through the clock, and settles an ended session at its last clock command. Claude Code and Cursor report an overrun after the next tool call. Codex reports it on the next clock command. Time between the last clock command and an ended session can be undercounted.
