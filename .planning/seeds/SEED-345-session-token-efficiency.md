@@ -241,49 +241,84 @@ Each trial is judged with the
 
 **Identity:** SEED-345#test-agent-effort-through-its-output-contract
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/678-test-agent-effort-through-its-output-contract/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5b0f759d35c7f55df65d2e66711bae9b664e1965931961df8bb90e059f91c833","plan":"24a23467f9d8c3134788b2df70f3c44e77f4eeb7a345a730b51ecac32f0f5452"}}
 ```
 
-- **Scope and beneficiary.** Follow-up of the done story
-  SEED-345#compare-agent-effort-on-comparable-runs. Maintainers comparing
-  agent effort, and developers changing the effort report, get tests that
-  state what the report promises instead of how it is built today.
-- **Observed problem (2026-11-17 review).** The twelve
-  `dashboard/backend-tests/usage-history/agent-effort-*.spec.ts` files drive the
-  highest stable entry, `node dashboard/server/compareAgentEffort.ts`, so the
-  entry rule holds. But they mirror the code's structure: spec files were cut
-  module by module and slice by slice (`agentEffortCursor` ↔ `agent-effort-cursor`,
-  `agentEffortComparisonGroup` ↔ `agent-effort-group-coverage`,
-  `agentEffortNativeSummary` ↔ `agent-effort-native-family`, …), placed by the
-  slice that touched them (a single-family inclusive-input case lives in
-  `agent-effort-comparison.spec.ts`), and many cases are one regression per
-  execution patch (plan 666 obligations G1–G14). `--json` is
-  `JSON.stringify` of the internal report and the readable mode stringifies
-  internal fragments, so assertions on deep paths
-  (`candidate.perHost[0].totals.totalInput.value`), internal status strings and
-  gap codes held by one module couple the tests to internals. The harness types
-  results via `ReturnType<typeof compareEffort>`.
-- **Outcome.** `dashboard/AGENT-EFFORT.md` defines the JSON and readable
-  output a maintainer acts on: figures, their known/partial/unavailable
-  coverage, selection boundaries and named gaps. The CLI maps internal results
-  to that contract rather than dumping them; the harness types from the
-  contract. The specs are regrouped by maintainer question (what one execution
-  cost, how two groups compare, what stays unknown and why, how selections
-  resolve), each with a few representative examples, and patch-shaped cases
-  are folded in or removed when another example already protects their promise.
-- **Extended refactoring scope.** Behind the contract, reshape the
-  `agentEffort*.ts` modules by responsibility where the regrouping exposes
-  duplicated totals, coverage or deduplication logic across hosts, single and
-  group reports. Keep public CLI flags and documented behavior unchanged.
-- **Evaluation.** Every promise currently protected stays protected: for each
-  removed or merged case, name the surviving example that would fail under the
-  same fault. An internal rename or module split that preserves the documented
-  output leaves every spec untouched. No spec imports production types.
-- **Effort and boundary.** Medium, medium confidence. Read-only maintainer
-  tool; no Usage, dashboard UI or native-run changes and no paid runs.
-  [SEED-393 test focus](SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof)
-  owns the guidance side of the same pattern; this story fixes this code.
-  **Depends on:** none.
+**Goal.** Maintainers comparing agent effort, and developers changing the
+report, can rely on a documented output contract and tests that describe the
+questions they ask. An internal rename or module split preserving that contract
+requires no spec edits. This follows the delivered
+SEED-345#compare-agent-effort-on-comparable-runs; it improves changeability
+without weakening the report's proof.
+
+**Scope.** Make [AGENT-EFFORT.md](../../dashboard/AGENT-EFFORT.md) the maintained
+contract for JSON and readable output: selected boundaries, figures and units,
+known/partial/unavailable coverage, per-agent peaks, settings, provenance, and
+named gaps; comparisons retain each execution, deduplicated per-host totals,
+like-definition deltas and supplied judgment context. The CLI explicitly maps
+internal results to that contract. Keep public CLI flags and documented
+behavior, including current v1 output names and meanings.
+
+Give test support an independent representation of the documented contract;
+no spec or its output-reading harness imports production report types or derives
+expectations from production functions. Keep the real CLI as the stable entry.
+Organize examples by maintainer question: what one execution cost, how two
+groups compare, what stays unknown and why, and how selections resolve. Each
+example owns one promise; use representative data and fold patch-shaped cases
+only when a surviving example detects the same fault. For every removed or
+merged case, retain the old-to-surviving proof mapping during execution.
+
+Behind the contract, reshape `agentEffort*.ts` by responsibility where this work
+exposes duplicated totals, coverage or deduplication across hosts and single or
+group reports. Reuse shared Usage accounting and ownership. Read-only operation
+is a correctness requirement: comparisons must not refresh Usage or change the
+retained evidence being compared. Unknown counters must not become zero, and
+lower effort must not imply an automatic winner: either would mislead the
+maintainer's decision.
+
+**Scope limits.** No Usage behavior, dashboard UI, native-run, guidance, paid-run
+or savings-measurement changes. This is the code-side follow-up;
+[SEED-393's test-focus story](SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof)
+owns guidance. No dependency on that story. Medium effort, medium confidence;
+representative host differences and retained proof bound the migration.
+
+**Key examples.**
+
+1. A selected Codex launch has coordinator input/output 100/7, failed/cancelled
+   worker input/output 20/3 each, duplicate rows, and another task's response → run
+   the CLI → input 140 and output 13 for the three owned responses, with
+   source/selection context, through JSON and readable output; retained inputs
+   remain byte-for-byte unchanged. Claude disjoint input and Cursor workflow
+   figures keep their documented host meanings.
+2. Baseline input 100 and candidate selections with input 30, 20 and repeated
+   30 → compare → each selected execution remains inspectable, candidate group
+   input is 50 and the like-host difference is -50; supplied proof and rescue
+   notes remain visible without a winner. Stored/native overlap and Cursor
+   aliases retain their distinct deduplication rules.
+3. Native input is known but cache detail is missing, or only stored counters
+   survive → report → keep the known figure and qualify only affected metrics;
+   unavailable peaks/settings/wakes stay unavailable. Cursor bytes never become
+   tokens. A missing-input request qualifies its agent peak; missing wake
+   evidence alone does not.
+4. A retained result is only an empty still-running continuation or explicit
+   wait timeout → report → count conservative idle-wake exposure once; mixed,
+   progressing or unjoinable results remain unclassified, with coverage shown.
+5. An exact story identity has multiple tasks → select it → refuse ambiguity
+   and expose usable IDs through `--list`. A native family/window preserves
+   inclusive-start/exclusive-end boundaries; a Cursor window stays explicitly
+   unprovable and names the whole-family selection.
+6. Change an internal field name or split a report module while preserving the
+   documented output → run the same specs → they pass without edits. Remove a
+   promised figure, qualification or selection boundary → its owning example
+   fails. Removing a duplicate example never removes a distinct fault witness.
+
+**Current evidence.** The twelve `agent-effort-*.spec.ts` files already execute
+`node dashboard/server/compareAgentEffort.ts`, but mirror modules and execution
+patches (former plan 666, G1–G14). JSON directly serializes internal objects;
+readable output stringifies internal fragments. `agentEffortHarness.ts` derives
+output types from production return types, and Cursor selection specs import a
+production report type. Planning retains the targeted consumer trace and proof
+baseline with the plan rather than adding another permanent report.
 
 ## Ordering and scope reduction
 
