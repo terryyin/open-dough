@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_test-agent-effort-through-its-output-contract.json",
+      "identity": "SEED-345#test-agent-effort-through-its-output-contract",
+      "completedAt": "2026-11-17T14:46:29.163Z",
+      "blob": "44a7cf47967b97cf923e0d110d91ca02fb0e302c"
+    },
+    {
       "fileName": "SEED-393_recovery-proof-covers-historical-case-paths.json",
       "identity": "SEED-393#recovery-proof-covers-historical-case-paths",
       "completedAt": "2026-11-17T13:25:42.834Z",

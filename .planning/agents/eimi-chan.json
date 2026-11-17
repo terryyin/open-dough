@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Eimi-chan",
-  "email": "eimi-chan@example.org",
-  "identity": "SEED-345#test-agent-effort-through-its-output-contract",
-  "mode": "story-branch",
-  "branch": "claude/test-agent-effort-through-its-output-contract",
-  "host": "claude"
-}
