@@ -254,17 +254,21 @@ whose residue is inventoried case by case; a Codex redo is optional context.
 
 **Identity:** SEED-393#guidance-check-participants-run-owning-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the faithful native-wrapper backend and E2E success route is unobserved. The real-materialization scratch proxy still returns existing-changes/failed before backend launch (0 passed, 2 failed, 26 skipped) and no E2E Taken entry (0 passed, 4 failed); the proposed environment correction and sizing are not established."],"basis":{"document":"df24369a027e199684a41fd07ad43898fc55965bcb7dbcf4ab6e5dad80f25659","plan":"92fb76ec7406b25af9bd7502a8d8e5121744cae06196ce717627264be9bb4749"}}
 ```
 
 **Goal:** a maintainer repeating the `launch-command-tests` Native guidance
-check sees whether the participant ran the proof that owns its change. At
-present the case environment prevents that proof, so a native result cannot
-show it.
+check gives its participant an environment in which the owning backend and
+E2E proof can run, so environment failures no longer obscure whether the
+participant verifies its change.
 
-**Scope:** the case's arm environment only (fixture paths and process
-environment the participant's commands inherit), proved without a paid
-session. Retrospective correction of
+**Scope:** correct the case's fixture paths and inherited process environment,
+including startup and teardown, with credential-free proof through its real
+materialization and native sandbox wrapper. Preserve the task, frozen project
+and overlay, observer, probes, assessor, and committed baseline. This does not
+change how participant proof is assessed, repair the historical product or
+tests, qualify another host, or authorize a paid native session. The plan owns
+the correction findings, examples, decisions, and proof. Retrospective correction of
 the completed SEED-393#repeat-native-guidance-checks-on-real-story-examples. Plan:
 [676](../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md).
 
