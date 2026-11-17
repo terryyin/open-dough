@@ -42,6 +42,28 @@ report.
 Proof: the test fails with the fault above applied and passes once it is
 restored, run through `bash scripts/test.sh`.
 
+Shape: a kept record names, besides its case files, harness inputs outside
+the case directory. The commit holding the case at its historical directory
+must also hold those inputs at their recorded paths, so the test moves the
+case to the historical form and back before the harness move, and keeps
+that record afterwards. Recovery then searches past the named revision.
+
+## Decisive premises
+
+Observed at `03301978d` in this preparation's workspace, scratch edits
+reverted afterwards.
+
+| Premise | Consuming operation and form | Result |
+| --- | --- | --- |
+| The current test misses the fault | Fault applied (line 165 keeps only `cases/guidance-checks/`); `bash scripts/test.sh Distribution/evaluation/tests/native-guidance-checks/native-comparison-refresh.sh` | Exit 0 under the fault |
+| The witness still exposes the fault | Same fault; `Distribution/evaluation/src/native-guidance-check.sh --recover Distribution/evaluation/cases/guidance-checks/paused-supplier/comparisons/20261114T102744-1921.txt` | `recovery: fail`, "no case directory recorded" |
+| The planned shape discriminates | Scratch addition of the shape above (case under `Distribution/evaluation/cases/comparison/paused-supplier`, record from the refreshed comparison with case paths rewritten); `bash Distribution/evaluation/tests/native-guidance-checks/native-comparison-refresh.sh` | Restored: exit 0, `recovery: pass`, historical `case-basis-directory`, report unchanged. Faulted: exit 1, `recovery: fail` |
+
+The `native-comparison/<case>/` form takes the same route and was not run
+separately; covering one historical form is the slice's promise.
+Refinement was not needed: one Behavior slice, no slice-boundary or sizing
+concern identified.
+
 ## Verification and delivery
 
 Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
