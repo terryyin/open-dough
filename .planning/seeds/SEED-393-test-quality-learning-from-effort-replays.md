@@ -79,29 +79,138 @@ result, not a new reporting workflow.
 
 **Identity:** SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/675-tests-protect-their-own-behavior/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c8593cf8ef780ea188ed678960fd25a7d0b2da240ff58af2c621210680748913","plan":"88b2861f0a05666c57fb0f956e8d085944eaf02e0caa7308c7acc4523e878c29"}}
 ```
 
-- **Focus / value:** maintainers change one launch default without repairing
-  naming, instruction or notification tests unrelated to that value.
-- **Outcome:** tests observe the behavior their intent promises. Use actual
-  output readers where useful; separate genuinely different behaviors. Keep
-  strict format/default proof at its owner and meaningful positive witnesses.
-- **Assumption:** clearer, shorter guidance can improve the remaining mixed
-  cases without weakening proof or duplicating journeys. Existing readers and
-  builders may suffice; a new abstraction is not an acceptance requirement.
-- **Boundary example:** a naming case survives an unrelated effort change;
-  a wrong name still fails. A blank-input case proves no instruction while
-  dedicated effort proof still detects a wrong default.
-- **Final B redo:** inspect the actual tests against frozen A, including
-  implicated mixed cases and branches. Use bounded counterexamples where
-  needed to verify useful failure signals. Briefly identify retained residue;
-  no all-clean claim unless the inspected result supports it.
-- **Simplicity:** replace or shorten the existing rule first; reject extra
-  instructions or helpers that make the code harder to understand.
-- **Effort:** M, medium confidence, using SEED-345's shared-workflow band.
-  **Depends on:** none. **Safe stop:** focused protective tests have value
-  even if the verification story is not selected.
+**Goal:** Open Dough maintainers, and projects whose agents write and refactor
+tests under the shared guidance, can change one launch default without
+repairing naming, instruction, notification or persistence tests that are not
+about it, while those tests still fail for their own defects and the default's
+own tests still fail for a wrong default. The guidance change is judged by a
+fresh B redo of the frozen effort execution against frozen A.
+
+**Investigated basis.** Facts:
+
+- Current [refactor checks](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md)
+  are unchanged since the trial patch `934a51a30`. They already say “Give each
+  test one behavior … a default's value in the one test about that default”,
+  “A body that branches on its case parameter holds separate tests” and, under
+  shotgun surgery, “Acceptable extra touchpoints: tests whose subject is the
+  concept … loosen what it observes rather than update its value”.
+- The surviving Claude B residue (`c629d0d93..d8efcf6fb`, retained bundle head
+  `claude-B`) arose in two observed ways, not from absent rules:
+  - **Widened subject.** The default's promises were added inside existing
+    tests of other behaviors, with the file header rewritten to include them:
+    `feedback-maintenance-launch.spec.ts` adds an effort assertion to “an
+    attention report notifies once …” and its header gains “at Open Dough's
+    default effort”; `system-settings-feedback-maintenance.spec.ts` updates
+    three complete status strings in the persistence/privacy/reload test and
+    its header gains “with the effort its sessions run at”. The Codex
+    no-effort promise, by contrast, got its own test.
+  - **File-level subject.** `agent-launch-model-boundary.spec.ts` owns the
+    default-effort case, so its header now describes effort; its three
+    chosen-model cases then copy `--effort medium`, argv length 7 and
+    `effort: "medium"` into complete argv/record expectations.
+- Inherited case branches remain in edited families (frontend Cancel/Escape
+  model loop given effort setup; backend session kept-start ternaries); the
+  newly written max/absent loop was split. The older unedited model-display
+  loop is pre-existing.
+- Frozen plan 664, the redo's input, names spec files (not cases) as proof
+  owners and says consumers “are updated in slice 1 to expect `--effort
+  medium` in their exact argv or record”. Claude B nevertheless loosened most
+  of them, so the plan constrains files, not test focus.
+- Trunk already carries the later reader repair `0724558d6`; cleaning today's
+  tests by hand does not validate guidance.
+
+Hypotheses: naming the test's own name as its subject, and giving an added
+promise its own test, removes both residue mechanisms without new rules or
+helpers (only the B redo settles agent behavior); the plan's file-level proof
+rows do not force mixed cases (a separate case in the named file satisfies
+them).
+
+**Direction.** Compared: (a) no wording change and stricter acceptance only —
+leaves both observed misreadings in place; (b) replace the existing sentences
+so the subject unit and an added promise are explicit — recommended, smallest
+change aimed at the observed mechanisms; (c) a scratch perturbation self-check
+in the refactor pass, borrowed from sensor cross-sensitivity testing (expose
+the sensor to an interferent and confirm no response, then to its target and
+confirm response): perturb the changed value and expect only its owners to
+fail, inject a fault in the test's own promise and expect it to fail. It
+catches literal copies but not a mixed test that reads the configured default,
+and it adds a run per change; it is kept for acceptance, not guidance;
+(d) planning-side placement of new proof — overlaps the dropped planning
+candidate. Outcome (a) stays available if slice review shows (b) adds nothing.
+
+**Scope — required:**
+
+- Replace or shorten, in the existing refactor-check paragraphs, the words
+  that let a test's subject follow its file, header or plan row: a test's
+  subject is what its own name promises; a promise the change adds gets its
+  own test, sharing setup, rather than an assertion in a test of another
+  behavior or a widened name or header; an edited test body that branches by
+  case is split. No new section, rule list, helper, reader or template.
+- Keep strict format/default proof at its owner and meaningful positive
+  witnesses (such as an absence test's proof that the details loaded).
+- Final B redo under the seed's evaluation section, judged against frozen A
+  with these criteria fixed before the run:
+  1. the feedback launch default and the status line's effort are each proven
+     in a test whose name is about them, and the notification/deduplication
+     and persistence/reload tests do not observe effort;
+  2. chosen-model, naming and blank-input cases do not copy the default's
+     value, argv length or record field;
+  3. edited case-branching bodies are split, or the return names them;
+  4. bounded counterexamples: setting the scratch default to another valid
+     level fails only the default's owners, and a deliberate fault in a
+     loosened test's own promise still fails it;
+  5. the return names retained residue (for example the older unedited
+     model-display loop) and claims no all-clean result the inspection does
+     not support. Effort is secondary.
+
+**Scope limits:** consumer reach and proof selection belong to story 2;
+planning-side proof placement, a perturbation step in the guidance, the
+delivery brief's counting clause and repairs to today's product tests are not
+undertaken. A new shared reader is allowed when it simplifies, never required.
+
+**Key examples:**
+
+1. Feedback maintenance gains the default effort → the change adds a test
+   named for the feedback launch's effort; “an attention report notifies once
+   …” is unchanged → a default of `high` fails the effort test, not the
+   notification test; a second notification still fails the latter.
+2. The status line gains “medium effort” → its own test owns that phrase; the
+   persistence/reload test observes the saved host and model → a changed
+   default leaves it green; a model lost on reload still fails it.
+3. The model-boundary file owns the default-effort case → a chosen-model case
+   in it observes `--model` and its value through the reader → it never
+   names `medium` or argv length; the default case keeps exact
+   `--effort medium`.
+4. An empty ad hoc field → the test proves no instruction was sent through
+   the actual argv reader → an effort change leaves it green; a sent
+   instruction fails it; the dedicated default test detects a wrong default.
+5. The Cancel/Escape model loop receives effort setup and branches on its
+   case → it becomes separate named tests sharing setup; the unedited older
+   display loop in the same file is named as residue, not required.
+6. The first launch-boundary case is the exact command format's owner → it
+   keeps its complete argv, including the default.
+
+**Architecture:** refactor checks stay the one home of test-focus rules,
+which test optimization already links
+([ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md) §3);
+only `Distribution/src/skills` changes, and clients receive it by a later
+release ([ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)).
+The redo is acceptance of one candidate, not a host comparison
+([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)), with
+criteria fixed above before it runs
+([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
+No Accepted decision conflicts.
+
+**Evaluation:** the B redo is a paid native run triggered manually by Terry.
+Recommended host: Claude Code at the frozen Claude B settings (Opus/medium),
+whose residue is inventoried case by case; a Codex redo is optional context.
+
+- **Effort:** M, medium confidence. **Depends on:** none. **Safe stop:**
+  focused protective tests have value even if the verification story is not
+  selected.
 
 <a id="proof-reaches-unchanged-consumers-of-changed-output"></a>
 
