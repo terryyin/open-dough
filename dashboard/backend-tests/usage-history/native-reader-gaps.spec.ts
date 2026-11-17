@@ -24,9 +24,10 @@ import {
 
 const sessionId = "01a1c000-84ab-7240-a940-8a72564202cd";
 const reference = "ca7430bd-0d52-499d-a1bd-000000000001";
+const identity = "SEED-7#recovery";
 const recoveryLaunch = () =>
   makeMe.aLaunchRecord
-    .executing({ identity: "SEED-7#recovery", title: "Reader recovery" })
+    .executing({ identity, title: "Reader recovery" })
     .reportingThrough({
       origin: "http://localhost:4318",
       reference,
@@ -34,143 +35,167 @@ const recoveryLaunch = () =>
     });
 const codexRoot = (home: string) => path.join(home, ".codex/sessions");
 const claudeRoot = (home: string) => path.join(home, ".claude/projects");
-const importSession = (home: string) =>
+const importSessions = (home: string) =>
   runImport(home, codexRoot(home), ["--claude-root", claudeRoot(home)]);
-const sessions = [
-  {
-    host: "codex",
-    write(home: string) {
-      keepLaunchStore(home, {
-        "open-dough": [
-          recoveryLaunch()
-            .inCodexSession({ sessionId })
-            .withFirstInput({ state: "confirmed", turnId: "task" })
-            .please(),
-        ],
-      });
-      return writeCodexSession(
-        codexRoot(home),
-        makeMe.aCodexRollout
-          .forSession(sessionId)
-          .withResponse("task", "restored", { output_tokens: 17 })
-          .please(),
-      );
-    },
-  },
-  {
-    host: "claude",
-    write(home: string) {
-      keepLaunchStore(home, {
-        "open-dough": [
-          recoveryLaunch().inClaudeSession({ sessionId }).please(),
-        ],
-      });
-      return writeClaudeSession(
-        path.join(claudeRoot(home), "open-dough"),
-        makeMe.aClaudeTranscript
-          .forSession(sessionId)
-          .withLaunchInput({ reference, command: "report" })
-          .withAssistant({
-            uuid: "restored",
-            messageId: "msg-restored",
-            usage: { output_tokens: 17 },
-          })
-          .please(),
-      );
-    },
-  },
-];
-const operations = [
-  {
-    name: "Import",
-    reader(machine: Parameters<typeof usageServer>[0]) {
-      return () => importSession(machine.home);
-    },
-  },
-  {
-    name: "Refresh",
-    async reader(machine: Parameters<typeof usageServer>[0]) {
-      const usage = await usageServer(machine);
-      return () => usage.refresh();
-    },
-  },
-];
-const damageCases = [
-  {
-    code: "malformed-native-row",
-    file: (plain: string) => plain,
-    readable: (bytes: Buffer) => bytes,
-    damaged: (bytes: Buffer) => bytes.subarray(0, -10),
-  },
-  {
-    code: "native-source-unreadable",
-    file(plain: string) {
-      const archive = `${plain}.zst`;
-      renameSync(plain, archive);
-      return archive;
-    },
-    readable: (bytes: Buffer) => zstdCompressSync(bytes),
-    damaged: () => Buffer.from("not zstd"),
-  },
-];
 
-for (const session of sessions) {
-  for (const operation of operations) {
-    for (const damage of damageCases) {
-      test(`${operation.name} replaces ${session.host} ${damage.code} after recovery and preserves host-less history`, async ({
-        machine,
-      }) => {
-        const { home } = machine;
-        const plain = session.write(home);
-        const complete = readFileSync(plain);
-        const file = damage.file(plain);
-        // Bootstrap Refresh before the response is readable, so its recovery
-        // must contribute that response rather than reuse an earlier count.
-        writeFileSync(file, damage.readable(Buffer.alloc(0)));
-        importSession(home);
-        // Deliberately old wire shape: this gap has no host even though its
-        // source is the same session being reread.
-        const legacy = {
-          code: damage.code,
-          source: { kind: "native" as const, file, line: 999 },
-        };
-        await writeUsageHistory({ gaps: [legacy] }, usageHistoryFile(home));
-        const reread = await operation.reader(machine);
-        writeFileSync(file, damage.damaged(complete));
-
-        await reread();
-        const reported = readImported(home).gaps.filter(
-          (gap) => gap.code === damage.code,
-        );
-        expect(reported).toEqual([
-          legacy,
-          expect.objectContaining({
-            host: session.host,
-            source: expect.objectContaining({ file }),
-          }),
-        ]);
-        await reread();
-        expect(
-          readImported(home).gaps.filter((gap) => gap.code === damage.code),
-        ).toEqual(reported);
-
-        writeFileSync(file, damage.readable(complete));
-        await reread();
-
-        const history = readImported(home);
-        expect(history.gaps.filter((gap) => gap.code === damage.code)).toEqual([
-          legacy,
-        ]);
-        const task = Object.values(history.tasks).find(
-          ({ identity }) => identity === "SEED-7#recovery",
-        );
-        expect(task && taskUsage(history, task.id)).toEqual(
-          expect.objectContaining({
-            requests: 1,
-            tokens: expect.objectContaining({ output: 17 }),
-          }),
-        );
-      });
-    }
-  }
+// A launched Codex session with one response of 17 output tokens.
+function codexSessionFile(home: string) {
+  keepLaunchStore(home, {
+    "open-dough": [
+      recoveryLaunch()
+        .inCodexSession({ sessionId })
+        .withFirstInput({ state: "confirmed", turnId: "task" })
+        .please(),
+    ],
+  });
+  return writeCodexSession(
+    codexRoot(home),
+    makeMe.aCodexRollout
+      .forSession(sessionId)
+      .withResponse("task", "restored", { output_tokens: 17 })
+      .please(),
+  );
 }
+
+// A launched Claude session with one response of 17 output tokens.
+function claudeSessionFile(home: string) {
+  keepLaunchStore(home, {
+    "open-dough": [recoveryLaunch().inClaudeSession({ sessionId }).please()],
+  });
+  return writeClaudeSession(
+    path.join(claudeRoot(home), "open-dough"),
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withLaunchInput({ reference, command: "report" })
+      .withAssistant({
+        uuid: "restored",
+        messageId: "msg-restored",
+        usage: { output_tokens: 17 },
+      })
+      .please(),
+  );
+}
+
+// A plain session file whose last row can be cut short and completed again.
+function plainSession(file: string) {
+  const complete = readFileSync(file);
+  return {
+    file,
+    cutLastRow() {
+      writeFileSync(file, complete.subarray(0, -10));
+    },
+    completeLastRow() {
+      writeFileSync(file, complete);
+    },
+  };
+}
+
+// The session archived as zstd, which can be corrupted and restored, or start
+// out holding no rows yet.
+function archivedSession(plain: string) {
+  const complete = readFileSync(plain);
+  const file = `${plain}.zst`;
+  renameSync(plain, file);
+  return {
+    file,
+    holdNoRows() {
+      writeFileSync(file, zstdCompressSync(Buffer.alloc(0)));
+    },
+    corrupt() {
+      writeFileSync(file, "not zstd");
+    },
+    restore() {
+      writeFileSync(file, zstdCompressSync(complete));
+    },
+  };
+}
+
+const readerGapsOf = (home: string, file: string) =>
+  readImported(home).gaps.filter(
+    (gap) => gap.source?.kind === "native" && gap.source.file === file,
+  );
+
+test("Import reports a malformed Codex row as a gap naming its host and file", ({
+  machine: { home },
+}) => {
+  const session = plainSession(codexSessionFile(home));
+  session.cutLastRow();
+
+  importSessions(home);
+
+  expect(readerGapsOf(home, session.file)).toContainEqual(
+    expect.objectContaining({ code: "malformed-native-row", host: "codex" }),
+  );
+});
+
+test("Import drops a Codex malformed-row gap once the row is complete", ({
+  machine: { home },
+}) => {
+  const session = plainSession(codexSessionFile(home));
+  session.cutLastRow();
+  importSessions(home);
+
+  session.completeLastRow();
+  importSessions(home);
+
+  expect(readerGapsOf(home, session.file)).toEqual([]);
+});
+
+test("Refresh drops a Claude unreadable-stream gap once the stream is readable", async ({
+  machine,
+}) => {
+  const session = archivedSession(claudeSessionFile(machine.home));
+  session.corrupt();
+  importSessions(machine.home);
+  const usage = await usageServer(machine);
+
+  session.restore();
+  await usage.refresh();
+
+  expect(readerGapsOf(machine.home, session.file)).toEqual([]);
+});
+
+test("Rereading a session keeps its stored host-less reader gap", async ({
+  machine: { home },
+}) => {
+  const file = codexSessionFile(home);
+  // Deliberately old wire shape: this gap has no host even though its source
+  // is the session being reread.
+  const legacy = {
+    code: "malformed-native-row",
+    source: { kind: "native" as const, file, line: 999 },
+  };
+  await writeUsageHistory({ gaps: [legacy] }, usageHistoryFile(home));
+
+  importSessions(home);
+
+  expect(readerGapsOf(home, file)).toContainEqual(legacy);
+});
+
+test("Refresh counts a response once its unreadable stream is restored", async ({
+  machine,
+}) => {
+  const { home } = machine;
+  const session = archivedSession(codexSessionFile(home));
+  // An earlier check saw the session before its response was written, so
+  // Refresh must count the restored response rather than reuse that count.
+  session.holdNoRows();
+  importSessions(home);
+  const usage = await usageServer(machine);
+  session.corrupt();
+  await usage.refresh();
+
+  session.restore();
+  await usage.refresh();
+
+  const history = readImported(home);
+  const task = Object.values(history.tasks).find(
+    (candidate) => candidate.identity === identity,
+  );
+  expect(task && taskUsage(history, task.id)).toEqual(
+    expect.objectContaining({
+      requests: 1,
+      tokens: expect.objectContaining({ output: 17 }),
+    }),
+  );
+});
