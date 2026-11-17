@@ -15,9 +15,9 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-11-15):** [SEED-375](.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
-is queued to protect a live host test-suite owner during container diagnostics
-([DD-432](#dd-432)). [DD-529](docs/maintainer/project-test-findings.md#dd-529)
+**Maintenance assessment (2026-11-15):** SEED-375 was queued to protect a
+live host test-suite owner during container diagnostics
+([DD-432](docs/maintainer/project-findings-history.md#dd-432), since resolved). [DD-529](docs/maintainer/project-test-findings.md#dd-529)
 records the browser capacity finding.
 [Retirement decisions and recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
 include the verified runner and harness fixes. The load cases below retain the
@@ -233,16 +233,6 @@ observations remain open, unqueued.
 failure and the plan 499 recurrence. The corrected spec holds listings in
 turn. The product still starts its pace per open.
 
-
-## Container and host local-suite admission collision (queued)
-
-<a id="dd-432"></a>
-
-[DD-432](docs/maintainer/project-test-findings.md#dd-432) records a
-`scripts/ci-container.sh` run replacing a live host dashboard suite's
-`refs/dough/local-test-suite` admission owner across PID namespaces.
-[SEED-375](.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
-is queued.
 
 ## Artifact upload stall at the 6-minute dashboard job cap (open, unqueued)
 
