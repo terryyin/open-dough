@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof",
+  "title": "Tests protect their own behavior without incidental coupling",
+  "completedAt": "2026-11-17T10:34:18.619Z",
+  "developer": "Terry Yin",
+  "agent": "Julia-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

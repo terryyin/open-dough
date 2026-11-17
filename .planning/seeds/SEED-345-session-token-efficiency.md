@@ -281,8 +281,8 @@ Each trial is judged with the
   output leaves every spec untouched. No spec imports production types.
 - **Effort and boundary.** Medium, medium confidence. Read-only maintainer
   tool; no Usage, dashboard UI or native-run changes and no paid runs.
-  [SEED-393 test focus](SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof)
-  owns the guidance side of the same pattern; this story fixes this code.
+  [shared test-focus guidance](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#write-observable-cases)
+  covers the same pattern; this story fixes this code.
   **Depends on:** none.
 
 ## Ordering and scope reduction
