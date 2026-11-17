@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#move-navigation-checks-and-retire-integrated-ui-test
 **Source:** [Board, frame and project navigation](../../seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -94,7 +95,7 @@ per slice in 8.5–14.8 active minutes; these slices hold 516–771 lines.
 
 ### 1. Preserve accessible Board keyboard, touch and scroll reading
 Type: Behavior
-Status: planned
+Status: done
 Proof: `accessible-board`, `accessible-board-keyboard`, `accessible-board-touch`,
 `accessible-board-scroll` (670 lines): keyboard and touch movement, accessible
 names and reading, scroll position. Frontend homes unless a rule needs a
@@ -103,6 +104,62 @@ synthetic host.
 Behavior: a Board with Backlog, Taken and Recently done entries → keyboard,
 touch or scroll interaction → the same accessible reading, focus and movement
 in the converted cases, with the interim files gone.
+
+Assertion map (interim → Frontend, `dashboard/frontend-tests/navigation/`; every
+assertion and step carried over verbatim against `putFrontendPublished` answers):
+- `accessible-board.spec.ts` "reflows long published work for a narrow window
+  and page zoom" (side-by-side gap ≤ 24, no sideways scroll, stacked
+  direction/Backlog/Taken, long text inside cards and detail, direction
+  reachable, viewport meta) → `accessible-board.spec.ts`, same name.
+- `accessible-board.spec.ts` "keeps empty groups readable in a narrow window"
+  → `accessible-board.spec.ts`, same name.
+- `accessible-board-keyboard.spec.ts` "is read by keyboard in reading order,
+  with visible focus, and Enter follows a link" (tab stops, tabindex counts,
+  Tab leaves / Shift+Tab walks back, Inspect story → record link popup URL at
+  revision B, Hide detail returns focus) → `accessible-board-keyboard.spec.ts`,
+  same name; the hosting provider's page is answered empty by a context route.
+- `accessible-board-touch.spec.ts` three touch cases → `accessible-board-touch.spec.ts`,
+  same names; Doughnut's empty backlog is a source-scoped route answer, done
+  records come through `putFrontendDonePublication`, and "does not start another
+  session" observes no non-GET `/__agent-launch` request (was
+  `claudeLaunchCalls()`).
+- `accessible-board-scroll.spec.ts` "reads a backlog longer than one screen by
+  scrolling the Board" → `accessible-board-scroll.spec.ts`, same name.
+- `accessible-board-keyboard.spec.ts` "announces reading, the read result, and a
+  failure while focus stays where it is" and `accessible-board.spec.ts` "keeps a
+  read problem and the retained work reachable in a narrow window" →
+  `accessible-board-announcements.spec.ts`, same names. Revision moves use
+  recurring checks (`preholdRevisionStreamSlots`), the ref answered at page time
+  (the default substitute's fixed `askedAt` lies months after `pausePageClock`'s
+  time) and story records published empty (missing records answer as transient
+  404s, so detail reads never settle and no `since` check is scheduled). The held
+  read at B, the rate-limited check (502) and the 404 backlog at the moved
+  revision are route answers; their server wording stays owned by
+  `backend-tests/observation/authenticated-read-*` and
+  `e2e/observation/read-failure.spec.ts`. `pathsRead(origin)` became the page's
+  `path` reads.
+- All four interim files are deleted; every `dashboard-integrated` shard lists
+  (1/3: 29 tests, 2/3: 37, 3/3: 32; exit 0); no `accessible-*` pattern is
+  declared, so `ci.yml` is unchanged.
+
+Scratch break (Frontend boundary): `dashboard/src/StoryCardLaunches.tsx` open-session
+reason `<p id={sessionOpenId}>` renamed to `data-scratch` → `env -u NO_COLOR -u FORCE_COLOR
+-u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -i npx playwright test --config
+frontend.playwright.config.ts frontend-tests/navigation/accessible-board-touch.spec.ts
+--grep "disabled Start reason" --reporter=list --workers=1` failed at
+`toHaveAccessibleDescription` (received "Not assessed as ready"); restored, the
+navigation folder passed 7/7. A first break (card `scroll-margin-top: 0` in
+`story-cards.css`) was not caught by the converted scroll case; the original
+interim scroll spec, run from a scratch copy of `HEAD` under
+`integrated.playwright.config.ts`, also passed under it (1 passed), so no
+assertion was lost. Both scratch edits were reverted by editing back
+(`git diff dashboard/src` empty) and the scratch copy deleted.
+
+Refactor: `putFrontendBacklog` (in `dashboard/tests/support/frontendServiceState.ts`)
+publishes a backlog with no other files; `answerBoardOnPageTime` (new
+`dashboard/tests/support/frontendBoardPageTime.ts`) settles record reads and
+answers the ref at page time, so later Board revision-move cases (slice 3)
+reuse it. Navigation folder 9 passed and typecheck exit 0 after the refactor.
 
 ### 2. Preserve Board geometry and kept position
 Type: Behavior

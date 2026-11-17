@@ -1,19 +1,25 @@
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
 import {
-  publishLargeBacklog,
+  largeBacklog,
   queuedCount,
   queuedTitle,
   queuedTitles,
-} from "../accessibleBoard.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
-import { scrollYOf } from "../boardPage.ts";
-import { readWithKey } from "../boardReading.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
+  revision,
+} from "../../tests/accessibleBoard.ts";
+import { expectMembership, parts } from "../../tests/dashboardPage.ts";
+import { scrollYOf } from "../../tests/boardPage.ts";
+import { readWithKey } from "../../tests/boardReading.ts";
+import {
+  box,
+  expectNoSidewaysScrollAndWholeText,
+} from "../../tests/pageLayout.ts";
 
 test("accessible Board reads a backlog longer than one screen by scrolling the Board", async ({
   page,
+  frontendServices,
 }) => {
-  await publishLargeBacklog(page);
+  putFrontendBacklog(frontendServices, { revision, backlog: largeBacklog });
   await page.goto("/");
   const { backlog } = parts(page);
   await expectMembership(page, {

@@ -1,38 +1,32 @@
 import { type Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
 import {
   expectFocusedAndIndicated,
   expectTabOrder,
-  politeRegionsOfferedThenMarked,
   tabTo,
-} from "../accessibleReading.ts";
-import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
+} from "../../tests/accessibleReading.ts";
+import { parts, expectMembership } from "../../tests/dashboardPage.ts";
 import {
   canonicalRecord,
   enabledStoryCardLaunchActions,
   storyNotesControl,
-} from "../storyCardControls.ts";
-import { storyDetail } from "../storyCardSelection.ts";
-import {
-  pathsRead,
-  publishMovingOrigin,
-  rateLimitedAnswer,
-} from "../publishedOrigin.ts";
-import { box } from "../pageLayout.ts";
-import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
-import {
-  backlogB,
-  openAtA,
-  revisionA,
-  revisionB,
-  titlesOfB,
-} from "../refreshJourney.ts";
+} from "../../tests/storyCardControls.ts";
+import { storyDetail } from "../../tests/storyCardSelection.ts";
+import { backlogB, revisionB, titlesOfB } from "../../tests/refreshJourney.ts";
 
 test("accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
   page,
+  frontendServices,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionB, backlogB);
+  putFrontendBacklog(frontendServices, {
+    revision: revisionB,
+    backlog: backlogB,
+  });
+  // A record link leaves for the hosting provider, which answers nothing here.
+  await page
+    .context()
+    .route("https://github.com/**", (route) => route.fulfill({ body: "" }));
   await page.goto("/");
   await expectMembership(page, titlesOfB);
   const { project, development, directionToggle, backlog, taken } = parts(page);
@@ -129,93 +123,5 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     await page.keyboard.press("Enter");
     await expectFocusedAndIndicated(page, first);
     await expect(first.getByRole("link")).toHaveCount(0);
-  });
-});
-
-test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async ({
-  page,
-}) => {
-  await pausePageClock(page);
-  const origin = await openAtA(page);
-  const { status, notice, problem, retrievedAt } = parts(page);
-  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
-
-  await test.step("both polite regions are offered before they have anything new to say", async () => {
-    await expect(status).toContainText(
-      `Published work read at revision ${shortRevision(revisionA)}, retrieved `,
-    );
-    await expect(notice).toBeEmpty();
-    expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
-      true,
-      true,
-    ]);
-    // The successful result stays spoken, not shown twice in the chrome.
-    expect(
-      await box(status.getByText(/^Published work read at revision /)),
-    ).toMatchObject({ width: 1, height: 1 });
-  });
-
-  // Sessions, the perspective, the project, then System settings.
-  const settings = page.getByRole("button", {
-    name: "System settings",
-    exact: true,
-  });
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await expect(settings).toBeFocused();
-
-  await test.step("a check that finds B starts a read, which the known status region reports as under way", async () => {
-    origin.push(revisionB, backlogB);
-    const releaseFileAtB = origin.hold(revisionB);
-    await passTimeUntilChecked(page);
-    await expect(status).toHaveText(
-      "Reading published work… What is shown is still the snapshot retrieved earlier.",
-    );
-    await expect(status).toHaveAttribute("data-known", "[role='status']");
-    // A read under way is said nowhere else, so it is said in sight.
-    await expect(status).toBeInViewport({ ratio: 1 });
-    expect((await box(status)).height).toBeGreaterThanOrEqual(16);
-    await expect(settings).toBeFocused();
-    releaseFileAtB();
-  });
-
-  await test.step("the result names the revision read and when, and claims nothing more", async () => {
-    await expectMembership(page, titlesOfB);
-    await expect(status).toHaveText(
-      new RegExp(
-        `^Published work read at revision ${shortRevision(revisionB)}, retrieved [^.]+\\.$`,
-      ),
-    );
-    const retrievedB = await retrievedAt.getAttribute("datetime");
-    expect(retrievedB).not.toBe(retrievedA);
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedB ?? "");
-    await expect(status).toHaveAttribute("data-known", "[role='status']");
-    await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
-    await expect(notice).toBeEmpty();
-    expect(
-      await box(status.getByText(/^Published work read at revision /)),
-    ).toMatchObject({ width: 1, height: 1 });
-    expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
-      true,
-      true,
-    ]);
-    await expect(settings).toBeFocused();
-  });
-
-  await test.step("a failed check is an alert, and focus stays where it is", async () => {
-    const readsBefore = pathsRead(origin).length;
-    const restore = origin.answerWith("main", rateLimitedAnswer());
-    await passTimeUntilChecked(page, 502);
-    await expect(problem).toContainText(
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403)",
-    );
-    expect(pathsRead(origin)).toHaveLength(readsBefore);
-    await expect(status).toBeEmpty();
-    await expect(status).toHaveAttribute("data-known", "[role='status']");
-    await expect(status).toHaveCount(1);
-    await expect(settings).toBeFocused();
-    restore();
   });
 });

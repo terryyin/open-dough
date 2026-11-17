@@ -1,5 +1,5 @@
-import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
 import {
   longAddress,
   longBacklog,
@@ -8,20 +8,17 @@ import {
   longTitle,
   revision,
   unusableTarget,
-} from "../accessibleBoard.ts";
-import { shortRevision, openDirection, parts } from "../dashboardPage.ts";
-import { showColumn } from "../boardPage.ts";
-import { inspectedDetail } from "../storyCardControls.ts";
+} from "../../tests/accessibleBoard.ts";
 import {
-  commitAnswer,
-  notFoundAnswer,
-  publishMovingOrigin,
-  publishOrigin,
-  rawFileAnswer,
-} from "../publishedOrigin.ts";
-import { describedBacklog } from "../describedRevisions.ts";
+  shortRevision,
+  openDirection,
+  parts,
+} from "../../tests/dashboardPage.ts";
+import { showColumn } from "../../tests/boardPage.ts";
+import { inspectedDetail } from "../../tests/storyCardControls.ts";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { zoomedWindow } from "../accessibleReading.ts";
+import { zoomedWindow } from "../../tests/accessibleReading.ts";
 import {
   box,
   compactProjectSelectCut,
@@ -29,18 +26,16 @@ import {
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
   expectStackedInOrder,
-} from "../pageLayout.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/pageLayout.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 
 const narrowWindow = { width: 360, height: 740 };
 
 test("accessible Board reflows long published work for a narrow window and page zoom", async ({
   page,
+  frontendServices,
 }, testInfo) => {
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(longBacklog) },
-  });
+  putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
   await openUntilRead(page);
   const { backlog, taken, recentlyDone, direction, directionToggle } =
     parts(page);
@@ -129,14 +124,12 @@ test("accessible Board reflows long published work for a narrow window and page 
 
 test("accessible Board keeps empty groups readable in a narrow window", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize(narrowWindow);
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: {
-      revision,
-      answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
-    },
+  putFrontendBacklog(frontendServices, {
+    revision,
+    backlog: describedBacklog(makeMe.aRepository.please()),
   });
   await openUntilRead(page);
   const { backlog, taken, direction, directionText } = parts(page);
@@ -154,35 +147,4 @@ test("accessible Board keeps empty groups readable in a narrow window", async ({
   ).toBeVisible();
   await expect(parts(page).readRevision).toContainText(shortRevision(revision));
   await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-});
-
-test("accessible Board keeps a read problem and the retained work reachable in a narrow window", async ({
-  page,
-}) => {
-  await page.setViewportSize(zoomedWindow);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revision, longBacklog);
-  await pausePageClock(page);
-  await openUntilRead(page);
-  const { board, problem } = parts(page);
-  await expect(board.getByRole("article")).toHaveCount(5);
-
-  const missing = "f".repeat(40);
-  origin.push(missing, longBacklog);
-  origin.answerWith(missing, notFoundAnswer());
-  await passTimeUntilChecked(page);
-
-  // The concise problem still names the backlog path at narrow widths.
-  await expect(problem).toContainText(
-    "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
-  );
-  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-  await expectStackedInOrder([problem, board]);
-  await expect(problem.locator("time")).toHaveCount(2);
-  await expect(problem).toContainText(
-    "What is shown is the earlier snapshot, retrieved at",
-  );
-  await expect(board.getByRole("article")).toHaveCount(5);
-  await problem.scrollIntoViewIfNeeded();
-  await expect(problem).toBeInViewport();
 });

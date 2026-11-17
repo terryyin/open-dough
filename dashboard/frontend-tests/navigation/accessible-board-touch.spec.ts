@@ -1,64 +1,101 @@
-import { expect, test } from "../dashboardTest.ts";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
+  doughnutSource,
+  openDoughSource,
+  putFrontendDonePublication,
+  putFrontendBacklog,
+  type FrontendServiceState,
+} from "../../tests/support/frontendServiceState.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
+import {
+  largeBacklog,
   longBacklog,
   longIdentity,
   longPlan,
   longTitle,
-  publishLargeBacklog,
   queuedCount,
   queuedTitles,
   revision,
-} from "../accessibleBoard.ts";
+} from "../../tests/accessibleBoard.ts";
 import {
   chooseProject,
   expectProjectChoice,
   expectSettledPage,
   parts,
-} from "../dashboardPage.ts";
-import { tapColumnIndicator, expectView, wheelTo } from "../boardPage.ts";
-import { expectReadWholeInCard } from "../boardReading.ts";
+} from "../../tests/dashboardPage.ts";
 import {
-  commitAnswer,
-  publishMovingOrigin,
-  publishOrigin,
-  rawFileAnswer,
-} from "../publishedOrigin.ts";
-import { describedBacklog } from "../describedRevisions.ts";
+  tapColumnIndicator,
+  expectView,
+  wheelTo,
+} from "../../tests/boardPage.ts";
+import { expectReadWholeInCard } from "../../tests/boardReading.ts";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../pageLayout.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import { doneRecordFiles, executed } from "../recentlyDoneRecords.ts";
-import { keepLaunchRecords } from "../support/launchStore.ts";
+} from "../../tests/pageLayout.ts";
+import { doneRecordFiles, executed } from "../../tests/recentlyDoneRecords.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 
 const phoneWholeTextCut = [".owner-mark", ...compactProjectSelectCut] as const;
+const doneDirectory = ".planning/done/";
+
+// Open Dough's done records, published beside its own backlog.
+function publishDoneRecords(services: FrontendServiceState, now: number) {
+  const files = doneRecordFiles(now);
+  const bodies = Object.fromEntries(
+    Object.entries(files)
+      .filter(([path]) => path.startsWith(doneDirectory))
+      .map(([path, text]) => [path.slice(doneDirectory.length), text]),
+  );
+  const catalog = files[`${doneDirectory}.catalog.json`];
+  if (catalog === undefined) throw new Error("Expected a done catalog.");
+  putFrontendDonePublication(services, openDoughSource.id, { catalog, bodies });
+}
+
+// Doughnut publishes a backlog with nothing recorded in it.
+async function publishEmptyDoughnut(
+  page: Page,
+  services: FrontendServiceState,
+) {
+  Object.assign(services, { projects: [openDoughSource, doughnutSource] });
+  const empty = describedBacklog(makeMe.aRepository.please());
+  await page.route(
+    (url) =>
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("source") === doughnutSource.id &&
+      [...url.searchParams.keys()].every((key) =>
+        ["source", "revision"].includes(key),
+      ),
+    (route) =>
+      route.fulfill({
+        json: {
+          revision: "d7".repeat(20),
+          backlog: empty,
+          askedAt: "2026-11-05T08:00:00.000Z",
+        },
+      }),
+  );
+}
 
 test.describe("touch reading", () => {
   test.use({ hasTouch: true });
 
   test("project and column navigation keep a long story readable and its detail selected through rotation", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const origin = await publishMovingOrigin(page);
-    origin.push(revision, longBacklog, doneRecordFiles(Date.now()));
-    await publishOrigin(
-      page,
-      {
-        ref: commitAnswer("d7".repeat(20)),
-        backlog: {
-          revision: "d7".repeat(20),
-          answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
-        },
-      },
-      "nerds-odd-e/doughnut",
-    );
-    await openUntilRead(page);
+    putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
+    publishDoneRecords(frontendServices, Date.now());
+    await publishEmptyDoughnut(page, frontendServices);
+    await page.goto("/");
+    await expectSettledPage(page);
     const { taken, recentlyDone } = parts(page);
     await chooseProject(page, "Doughnut");
     await expect(parts(page).backlog).toContainText(
@@ -125,19 +162,30 @@ test.describe("touch reading", () => {
 
   test("an open session's disabled Start reason is readable without hover and does not start another session", async ({
     page,
-    dashboard,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const title = "Queue trunk integration for agents on the same machine";
-    keepLaunchRecords(dashboard, [
-      makeMe.aLaunchRecord
-        .executing({ identity: "SEED-008#same-machine-merge-queue", title })
-        .inClaudeSession({ sessionId: "aaaaaaaa-0000-4000-8000-000000000001" })
+    frontendServices.answerMachine(
+      makeMe.aMachineAnswer
+        .observingOpen(
+          makeMe.aLaunchRecord
+            .executing({ identity: "SEED-008#same-machine-merge-queue", title })
+            .inClaudeSession({
+              sessionId: "aaaaaaaa-0000-4000-8000-000000000001",
+            })
+            .please(),
+        )
         .please(),
-    ]);
-    await publishOrigin(page, {
-      ref: commitAnswer(revision),
-      backlog: { revision, answer: rawFileAnswer(longBacklog) },
+    );
+    putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
+    const launches: string[] = [];
+    page.on("request", (request) => {
+      if (
+        request.method() !== "GET" &&
+        new URL(request.url()).pathname === agentLaunchEndpoint
+      )
+        launches.push(request.url());
     });
     // The reason is brought into view where the page lays it out once every
     // card's preparation is read: until then the cards above it, and its own
@@ -156,16 +204,17 @@ test.describe("touch reading", () => {
       ).toHaveAccessibleDescription(new RegExp(openSessionStartReason));
     }
     await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-    expect(dashboard.claudeLaunchCalls()).toEqual([]);
+    expect(launches).toEqual([]);
   });
 
   test("thin Column indicators show work where the developer is reading on phone and tablet", async ({
     page,
+    frontendServices,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await publishLargeBacklog(page);
-    await openUntilRead(page);
+    putFrontendBacklog(frontendServices, { revision, backlog: largeBacklog });
+    await page.goto("/");
     await expectSettledPage(page, {
       taken: ["Repair the installer's update report"],
       backlog: queuedTitles,
