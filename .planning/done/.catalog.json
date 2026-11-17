@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-393_repeat-native-guidance-checks-on-real-story-examples.json",
+      "identity": "SEED-393#repeat-native-guidance-checks-on-real-story-examples",
+      "completedAt": "2026-11-17T09:04:19.944Z",
+      "blob": "ec3094bb8d00676f734c7c8c16e8a20343dd1f10"
+    },
+    {
       "fileName": "SEED-391_redo-the-effort-story-under-the-test-focus-guidance.json",
       "identity": "SEED-391#redo-the-effort-story-under-the-test-focus-guidance",
       "completedAt": "2026-11-17T03:40:49.227Z",
@@ -2412,12 +2418,6 @@
       "identity": "SEED-137#preserve-starts-during-dashboard-updates",
       "completedAt": "2026-10-19T00:17:57.198Z",
       "blob": "65d06d8b019bf4fb5f7f5470b51fa369f1c25884"
-    },
-    {
-      "fileName": "SEED-136_dashboard-test-bounds-and-placement.json",
-      "identity": "SEED-136#dashboard-test-bounds-and-placement",
-      "completedAt": "2026-10-18T05:47:09.965Z",
-      "blob": "f2ae59ddf9a75481b9827842ad29e8af36055403"
     }
   ],
   "unreadable": []

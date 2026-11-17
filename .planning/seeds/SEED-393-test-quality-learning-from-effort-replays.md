@@ -210,98 +210,6 @@ return names any unrun affected group and its counts match. Effort is secondary.
   **Depends on:** none. **Safe stop:** more trustworthy verification has value
   even without a broader test refactor.
 
-<a id="repeat-native-guidance-checks-on-real-story-examples"></a>
-
-### 3. Repeat native guidance checks using focused examples
-
-**Identity:** SEED-393#repeat-native-guidance-checks-on-real-story-examples
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/674-repeat-native-guidance-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a84c13242c186b8e3687c9a35e82ca898da3c4d017e8bba234454569264efe21","plan":"619291dea348d7b3e07c52a10b0ad3536f6b5329a0ea962d1eecaa5d8a18c302"}}
-```
-
-#### Goal
-
-Open Dough maintainers can select and repeat a known native guidance check
-from real work, with enough retained context to judge useful code and proof
-without reconstructing the experiment. Acceptance judges one candidate;
-comparison judges it against a stated baseline. Neither a green selected gate
-nor a clean-sounding return establishes refactoring quality.
-
-#### Scope
-
-- Add one focused test/refactoring case extracted from the retained effort
-  replay to the existing case collection. Preserve the real launch-command
-  observation, incidental consumers, owning proof and a meaningful refactoring
-  decision. Use the smallest runnable context that preserves that judgment;
-  retain more source when removal would turn it into a different exercise.
-- Establish its brief basis before native runs: unrelated default changes
-  should not break tests of naming or absent instructions; defects in those
-  promises still fail; owning default/format proof stays strict. Inspect mixed
-  cases and branches as well as any reader/helper. A mechanical value update,
-  weakened proof or unsupported clean claim cannot pass the complete review.
-- Demonstrate one short select → state criteria → pin inputs/settings → run
-  → inspect code/proof → retain reusable evidence procedure for this case and
-  the existing `unblocked-supplier` case, with its own completion/once/proof
-  criteria. Repeats remain explicitly selected and on demand.
-- Use **Native guidance checks** throughout active guidance, catalog and help,
-  and reconcile affected entry names, callers and references. Comparison and
-  A/B remain correct terms for actual two-variant comparisons. Preserve story
-  identities, Accepted ADR meanings and immutable historical records/hashes;
-  historical recovery must still reach the original inputs after names move.
-- This extraction creates a new task/basis and therefore its own stated
-  baseline. Historical A (`4b75c2888..eda73008b`, completion `c741f265f`) and
-  both frozen Bs remain unchanged provenance, never its matched comparison
-  arms. Reuse an observation only when task, context and runtime still match.
-
-**Delivery limits:** maintainer tooling and Codex qualification only. No new
-experiment engine, universal score, mandatory report form, automatic paid suite,
-host expansion, runtime-guidance adoption or release. Improving test-focus or
-consumer-selection instructions remains with stories 1 and 2; investigating an
-unfamiliar finding remains with story 4. These limits do not require rejecting
-naturally supported cases. Paid observations belong to explicitly authorized
-execution, not this preparation.
-
-#### Key examples
-
-1. A maintainer selects the effort-derived case by its workflow/traits → runs
-   its pinned neutral task → receives retained code and decisive observations
-   that distinguish protective refactoring from changed expected values.
-2. A result updates every incidental `medium` literal or drops the only useful
-   assertion → independent default perturbation and promised-behavior faults
-   are assessed → the inadequate result fails, even if its ordinary gate is
-   green or its return says all tests are focused. Exact default/format checks
-   at their owner and positive witnesses remain valid.
-3. The maintainer selects `unblocked-supplier` → follows the same procedure →
-   judges preserved partial work, one integration/filing and executed proof
-   against that case's criteria, without a new harness or universal rubric.
-4. A focused extraction differs from the historical whole-story task → a
-   comparison is requested → it uses its own frozen baseline or obtains a new
-   one; old A is neither rerun nor presented as matched. An interrupted run
-   remains incomplete and is not retried into success.
-5. Active umbrella names change → a maintainer recovers a kept historical
-   record → original recorded bytes and input hashes remain recoverable, while
-   current selection/help uses Native guidance checks.
-
-#### Architecture
-
-Reuse `Distribution/evaluation/`'s catalog, case fixture/observer/assessor,
-native host, retention and baseline boundaries. Keep the neutral participant
-apart from the assessor's answers. Deterministic controls establish tool and
-assessor discrimination; actual native sessions establish host behavior.
-Ordinary inspection owns semantic refactoring judgment that executable probes
-cannot settle. Renaming hash-bound inputs changes a future basis, not the
-historical observation: reconcile names before freezing qualification inputs.
-
-This follows [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md),
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md),
-[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-No new architecture boundary or ADR exception is needed.
-
-**Effort:** M, medium confidence; extraction fidelity and coherent renaming
-remain the delivery risks. **Depends on:** none. **Safe stop:** one qualified
-quality case retains value, with remaining obligations explicit.
-
 <a id="try-guidance-improvements-by-redoing-the-source-story"></a>
 
 ### 4. Try an unfamiliar improvement by redoing its source story
@@ -354,7 +262,7 @@ show it.
 **Scope:** the case's arm environment only (fixture paths and process
 environment the participant's commands inherit), proved without a paid
 session. Retrospective correction of
-[story 3](#repeat-native-guidance-checks-on-real-story-examples). Plan:
+the completed SEED-393#repeat-native-guidance-checks-on-real-story-examples. Plan:
 [676](../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md).
 
 <a id="recovery-proof-covers-historical-case-paths"></a>
@@ -372,7 +280,7 @@ path. Today a regression there passes that test.
 
 **Scope:** the credential-free refresh and recovery test only. Intent
 Coverage correction of
-[story 3](#repeat-native-guidance-checks-on-real-story-examples). Plan:
+the completed SEED-393#repeat-native-guidance-checks-on-real-story-examples. Plan:
 [677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md).
 
 ## Reconciliation and scope reduction
@@ -413,8 +321,6 @@ quality before evaluating a run under
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 No Accepted decision is changed by the naming proposal.
 
-
-Story 3 owns still-needed replay inputs at
-`/Users/terryyin/open-dough-scratch/seed-391/retained/`: a verified Git bundle
-of both frozen B histories, prompts/context and planning captures. Its README
-records recovery and eventual extraction/disposal; original A is unchanged.
+The frozen Codex B product and test bytes that later work needs are tracked
+in the `launch-command-tests` guidance-check case's `overlay/`. The
+assessments remain recoverable at `fbfaa116b`; original A is unchanged.
