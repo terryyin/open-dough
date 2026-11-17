@@ -1,43 +1,50 @@
-# Source-only review
+# Amended source-only review
 
-Reviewer launch: `collaboration.spawn_agent`, task `/root/source_review`,
-`fork_turns: "none"`, on 2026-11-17. The launch and returned commitments are
-retained in this execution conversation. The input supplied only the selected
-story’s original Goal, Scope, key examples, evaluation and architecture
-context, with instructions to read no project files and change nothing. It
-contained no plan, implementation, proof, suspected omission or slice scope.
+Fresh reviewer `/root/amended_source_review`, launched through
+`collaboration.spawn_agent` with `fork_turns: "none"` on 2026-11-17.
+Only input: `/tmp/seed393-amended-source.txt`, the selected amended source plus
+Terry’s explicit acceptance of skipping the redo. No plan, implementation,
+proof, suspected omission or current-slice scope was supplied; reviewer read
+no other files and changed nothing. Launch, exact input and return are in the
+execution conversation; the amended seed is retained in this revision.
+The earlier review is recoverable at `56856821c`.
+
+The source promises a reviewed guidance clarification. Rows 1–6 are observable
+guidance requirements. Rows 7–17 are the reviewer’s desired example results,
+explicitly unverified as agent outcomes under the human proof amendment; they
+are disposed through that amendment, not recorded as observed tests.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | The existing refactor-check wording makes a test’s subject “what its own name promises,” rather than allowing its file, header or plan row to determine that subject. | slice 1 | observed: Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md: Write observable cases own-name sentence; PLAN.md Slice 1 accepted evidence examples 3–4 |
-| 2 | A promise added by a change gets its own test, sharing setup. It is not added as an assertion in another behavior’s test or accommodated by widening that test’s name or header. | slice 1 | observed: Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md: added-promise sentence; PLAN.md Slice 1 accepted evidence examples 1–2 |
-| 3 | An edited test body that branches by case is split. The specific example is the Cancel/Escape model loop receiving effort setup: separate named tests share setup. The evaluation criterion also allows “or the return names them”; that qualification is weaker than the required-scope wording and should remain visible. | slice 3 |  |
-| 4 | Strict default proof remains at its existing owner. The model-boundary default case retains exact `--effort medium`. | slice 3 |  |
-| 5 | Strict command-format proof remains at its owner. The first launch-boundary case retains the complete argv, including the default. | slice 3 |  |
-| 6 | Meaningful positive witnesses remain, including an absence test’s proof that the details loaded. | slice 3 |  |
-| 7 | The feedback launch default effort is proven in a test whose name is about that effort. | slice 3 |  |
-| 8 | The status line’s effort is proven in a test whose name is about it; the example phrase is “medium effort.” | slice 3 |  |
-| 9 | Notification/deduplication tests do not observe effort. Changing the launch default leaves the unchanged “an attention report notifies once …” test green. | slice 3 |  |
-| 10 | The notification test still detects its own defect: a second notification fails it. | slice 3 |  |
-| 11 | Persistence/reload tests do not observe effort. They observe the saved host and model, and a changed default leaves them green. | slice 3 |  |
-| 12 | The persistence/reload test still detects its own defect: a model lost on reload fails it. | slice 3 |  |
-| 13 | A chosen-model case does not copy the default’s value, argv length or record field. | slice 3 |  |
-| 14 | The chosen-model case still proves its own behavior by observing `--model` and its value through the reader. | slice 3 |  |
-| 15 | Naming cases do not copy the default’s value, argv length or record field, so changing that default does not require repairing those unrelated cases. | slice 3 |  |
-| 16 | Blank-input cases do not copy the default’s value, argv length or record field. An effort change leaves the empty ad hoc field case green. | slice 3 |  |
-| 17 | The empty ad hoc field case proves through the actual argv reader that no instruction was sent. Sending an instruction still fails that test. | slice 3 |  |
-| 18 | In the bounded scratch counterexample, setting the default to another valid level fails only the default’s owners. The examples include using `high` and retaining a dedicated default test that detects a wrong default. | slice 3 |  |
-| 19 | A deliberate fault in each loosened test’s own promise still fails that test. The notification, reload and blank-input examples above are explicit instances; this requirement also covers other loosened tests. | slice 3 |  |
-| 20 | The final return names retained residue, such as the older unedited model-display loop. | slice 3 |  |
-| 21 | The final return makes no “all-clean” claim unsupported by inspection. | slice 3 |  |
+| 1 | The wording makes a test’s subject “what its own name promises,” rather than its file, header or plan row. | slice 1 | observed: refactor-checks.md own-name sentence; PLAN.md accepted examples 3–4 |
+| 2 | “A promise the change adds gets its own test, sharing setup,” rather than another assertion in a test of another behavior or a widened name/header. Examples: the feedback launch gets its own effort test; the status line’s “medium effort” phrase gets its own test. | slice 1 | observed: refactor-checks.md added-promise sentence; PLAN.md accepted examples 1–2 |
+| 3 | “An edited test body that branches by case is split.” The Cancel/Escape model loop receiving effort setup becomes separate named tests sharing setup. | slice 1 | observed: Unchanged case-parameter sentence; PLAN.md example 5 walkthrough |
+| 4 | Strict format/default proof remains at its owner. The model-boundary default case retains exact `--effort medium`; the first launch-boundary case, as exact-command-format owner, retains its complete argv including the default. | slice 1 | observed: Unchanged whole-shape/default owner sentences; PLAN.md examples 3 and 6 walkthrough |
+| 5 | Meaningful positive witnesses remain, including an absence test’s proof that the details loaded. | slice 1 | observed: Unchanged positive-distinguishing and absence sentences; PLAN.md example 6 walkthrough |
+| 6 | Refactor checks remain the one home of test-focus rules. | slice 1 | observed: Single source refactor-checks.md and unchanged source skill/test-optimization links; accepted consumer trace |
+| 7 | A default of `high` fails the feedback effort test; the dedicated default test detects a wrong default. These repeat the same default-owner expectation. |  | G2 |
+| 8 | Changing the default to `high` does not fail or require changing “an attention report notifies once …”. |  | G2 |
+| 9 | A second notification still fails that notification test. |  | G2 |
+| 10 | A changed default leaves the persistence/reload test green; that test observes the saved host and model. |  | G2 |
+| 11 | A model lost on reload still fails the persistence/reload test. |  | G2 |
+| 12 | A chosen-model case in the file containing the default-effort case observes `--model` and its value through the reader; it never names `medium` or argv length. |  | G2 |
+| 13 | For an empty ad hoc field, the test proves that no instruction was sent through the actual argv reader. |  | G2 |
+| 14 | An effort change leaves that instruction-absence test green. |  | G2 |
+| 15 | A sent instruction fails that test. |  | G2 |
+| 16 | The goal also covers changing one launch default without repairing naming tests that are not about it. No concrete naming-test walkthrough is supplied. |  | G2 |
+| 17 | Those naming tests still fail for their own defects. No concrete naming defect is specified. |  | G2 |
 
-## Unnumbered source context returned by the reviewer
+## Returned unnumbered context
 
-- The guidance is changed within existing refactor-check paragraphs, preferably by deleting, merging or replacing words. The source excludes a new section, rule list, helper, reader or template there; it separately permits a new shared reader when it simplifies and never requires one.
-- Consumer reach, planning-side proof placement, a guidance perturbation step, the delivery brief’s counting clause and repairs to today’s product tests are excluded.
-- Frozen A, frozen existing B runs, a fresh final B redo, fixed criteria, pinned candidate settings, participant blindness and bounded counterexamples describe the comparison and proof method. Effort is secondary; a single replay does not isolate a guidance effect.
-- Host/context differences, unknown measurements and stops must be disclosed. Simplified tasks cannot replace the historical comparison or treat A as matched evidence.
-- Refactor checks retain their architectural home; changes are limited to `Distribution/src/skills`, with client delivery later. Further native runs require selected-story authority.
-- No mandatory report template, counters, parser framework or blanket full suite is promised. Existing sufficient instructions may warrant investigating their application without expanding the wording.
+Acceptance uses six key-example walkthroughs and existing payload link proof.
+Frozen A and both existing B results stay unchanged; no gain or effort saving
+is claimed and no new paid trial is authorized. Older redo recommendations do
+not restore the superseded requirement. Changes remain in existing source
+paragraphs, with no new section, list, helper, reader or template required.
+The source’s reader allowance is permissive. Older unedited display residue,
+consumer reach/proof selection, planning-side proof placement, perturbation in
+guidance, counting clauses and current product-test repair remain excluded.
+Clients receive this through a later release. Baselines, trial residue,
+competing directions and effort/attribution limits are reasons, not promises.

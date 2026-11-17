@@ -59,8 +59,8 @@ result, not a new reporting workflow.
 - A never changes or reruns: product/test `4b75c2888..eda73008b`, completion
   `c741f265f`, transcript `fa9d77b7-c44c-4f51-9e03-d7b0073a5c6e`.
   The current Codex and Claude B results also stay frozen, including failures.
-- Each selected story ends with one or more fresh B redos on the same
-  historical task, judged against A. Pin the candidate guidance and settings;
+- Except for story 1’s explicit proof amendment below, each selected story
+  ends with one or more fresh B redos on the same historical task, judged against A. Pin the candidate guidance and settings;
   keep the participant blind to prior outcomes and the assessor's answers.
 - Set a few concrete quality criteria before B runs. Judge code and decisive
   proof first; effort is secondary. Disclose host/context differences, unknown
@@ -86,8 +86,8 @@ result, not a new reporting workflow.
 tests under the shared guidance, can change one launch default without
 repairing naming, instruction, notification or persistence tests that are not
 about it, while those tests still fail for their own defects and the default's
-own tests still fail for a wrong default. The guidance change is judged by a
-fresh B redo of the frozen effort execution against frozen A.
+own tests still fail for a wrong default. This delivery clarifies the guidance;
+its effect on agent behavior remains unverified.
 
 **Investigated basis.** Facts:
 
@@ -151,20 +151,17 @@ candidate. Outcome (a) stays available if slice review shows (b) adds nothing.
   case is split. No new section, rule list, helper, reader or template.
 - Keep strict format/default proof at its owner and meaningful positive
   witnesses (such as an absence test's proof that the details loaded).
-- Final B redo under the seed's evaluation section, judged against frozen A
-  with these criteria fixed before the run:
-  1. the feedback launch default and the status line's effort are each proven
-     in a test whose name is about them, and the notification/deduplication
-     and persistence/reload tests do not observe effort;
-  2. chosen-model, naming and blank-input cases do not copy the default's
-     value, argv length or record field;
-  3. edited case-branching bodies are split, or the return names them;
-  4. bounded counterexamples: setting the scratch default to another valid
-     level fails only the default's owners, and a deliberate fault in a
-     loosened test's own promise still fails it;
-  5. the return names retained residue (for example the older unedited
-     model-display loop) and claims no all-clean result the inspection does
-     not support. Effort is secondary.
+- Accept the wording through the six key-example walkthrough and existing
+  payload declaration/link proof, preserving strict owners and positive
+  witnesses. No new native redo or blind comparison is required.
+- Terry accepted skipping the redo and retaining this as a reviewed
+  clarification; improved agent behavior remains unverified. The original
+  proof promise, “The guidance change is judged by a fresh B redo of the frozen
+  effort execution against frozen A.”, is superseded for this story only.
+  The 104.49-minute frozen Claude run, the narrow wording delta and single-run
+  attribution limits informed this 2026-11-17 decision. Frozen A and both
+  existing B results stay unchanged. No behavioral gain or effort saving is
+  claimed, and no paid trial is authorized by this amendment.
 
 **Scope limits:** consumer reach and proof selection belong to the delivered
 SEED-393#proof-reaches-unchanged-consumers-of-changed-output;
