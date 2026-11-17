@@ -47,24 +47,19 @@ record_for() {
   printf '%s\n' "${record}"
 }
 
-assert_record() {
+assert_records_show_layout() {
   local listing=$1
-  local host=$2
-  local case_id=$3
-  shift 3
-  local record snippet
-  record=$(record_for "${listing}" "${host}" "${case_id}")
-  grep -Fq 'purpose:' <<< "${record}"
-  grep -Fq 'setup:' <<< "${record}"
-  grep -Fq 'dependencies:' <<< "${record}"
-  grep -Fq 'prior-evidence:' <<< "${record}"
-  for snippet in "$@"; do
-    grep -Fq "${snippet}" <<< "${record}" || {
-      printf 'FAIL: %s %s omitted %s\n' "${host}" "${case_id}" "${snippet}" >&2
-      printf '%s\n' "${record}" >&2
-      return 1
-    }
-  done
+  local incomplete
+  incomplete=$(awk '
+    BEGIN { RS = ""; ORS = "\n\n" }
+    index($0, "host: ") == 1 && !(/\npurpose: / && /\nsetup: / \
+      && /\ndependencies: / && /\nprior-evidence: /) { print }
+  ' <<< "${listing}")
+  if [[ -n ${incomplete} || ${listing} != *$'\nhost: '* ]]; then
+    echo 'FAIL: listed records lack the record layout.' >&2
+    printf '%s\n' "${incomplete:-${listing}}" >&2
+    return 1
+  fi
 }
 
 assert_listing_quiet() {

@@ -25,11 +25,11 @@ no speed or native-host claim.
 | 4 | Combined host and workflow filters return only the case matching both | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh: hosts=CODEX --where workflow=BLOCK == alpha only; fault returned alpha/beta and failed |
 | 5 | A filter matching no case returns a failure | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh: catalog --where workflow=absent must exit nonzero |
 | 6 | Case-selection, routing, entry-dispatch and identity-input checks no longer assert inventories, copied descriptions, or shipped descriptions and host/case counts | slice 3 | |
-| 7 | Invalid selections still fail before launch, and this is still checked | slice 2 | |
-| 8 | Listing starts no host, still checked | slice 2 | |
-| 9 | Listing creates no scratch, still checked | slice 2 | |
-| 10 | Listing works with read-only results, still checked | slice 2 | |
-| 11 | Listing marks a planted passing record unreviewed, still checked | slice 2 | |
+| 7 | Invalid selections still fail before launch, and this is still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: unchanged assert_invalid block (nonzero exit, error:/usage:, no sentinel calls, watched dir empty) |
+| 8 | Listing starts no host, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: assert_listing_quiet → assert_no_sentinel_calls on four wrapper listings and planted-record listing |
+| 9 | Listing creates no scratch, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: assert_listing_quiet → assert_watched_empty on the same five listings |
+| 10 | Listing works with read-only results, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: cursor listing with chmod a-w --results-dir readonly_results passes quietly |
+| 11 | Listing marks a planted passing record unreviewed, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: planted status: pass record shows prior-evidence: unreviewed, untouched conflict shows none; certified fault red, restored green |
 | 12 | Entry-dispatch effects are still checked | slice 3 | |
 | 13 | Retained artifacts are still checked | slice 3 | |
 | 14 | Identity-input invalidation is still checked | slice 3 | |

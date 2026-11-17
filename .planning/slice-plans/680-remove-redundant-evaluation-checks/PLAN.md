@@ -114,7 +114,7 @@ literal, and the launch-command test's `workflow=test refactoring` selection.
 
 ### 2. Case listing tests behavior without repeating its inventory
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: list each existing wrapper, including read-only results, then plant
 an apparent passing record and list again → no host or scratch writes,
@@ -126,6 +126,13 @@ Proof: named `native-case-selection.sh`, its real `native-case-assert.sh`
 observations, and the certification fault before/after pruning. Do not replace
 inventories with a production-derived expected inventory or remove the
 invalid-option/no-launch checks as mere configuration.
+
+Accepted: `bash scripts/test.sh` on the selection check and counterexample
+guard exits 0; the certification fault fails and restored bytes pass. Removed:
+`assert_record` with copied description snippets, per-host case counts, the
+copied delivery description loop and the fixed-case `attempt ID` wording loop.
+The refactor pass added `assert_records_show_layout`, keeping the record
+labels observed without shipped text; a dropped `setup:` line fails it.
 
 ### 3. Routing proof keeps effects rather than a second case registry
 Type: Behavior
