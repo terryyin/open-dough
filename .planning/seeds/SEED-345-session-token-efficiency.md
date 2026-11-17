@@ -118,99 +118,6 @@ Each trial is judged with the
   as quality. A fresh worker that processes fewer tokens can still cost more.
   [Context growth](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
-<a id="reach-a-proof-decision-from-retained-evidence"></a>
-
-### Reach a proof decision from retained evidence
-
-**Identity:** SEED-345#reach-a-proof-decision-from-retained-evidence
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/681-reach-a-proof-decision-from-retained-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"abda29b80571046c442ffb90b47de47e9efcb1388ed052f2af898e2296759018","plan":"764df1cd71fc94c4ea0f40ff5ffaad67567a875ccb8a5d4df03782ff333cd621"}}
-```
-
-**Goal.** A developer whose story an Open Dough coordinator executes gets each
-slice accepted as soon as the required evidence settles the decision. The
-coordinator does not keep deliberating over possible edge cases once proof is
-sufficient. A real mismatch or missing proof still stops acceptance. This
-trims coordinator time and context at every slice boundary without weakening
-proof. Refactoring stays deliberately unbounded.
-
-**Scope.** Add a simple stopping instruction to coordinator acceptance in
-`dough-execute-plan`: the
-[accept proof](../../Distribution/src/skills/dough-execute-plan/references/wrap-up.md#accept-proof)
-sequence, including its source-review comparison and consumer-trace check.
-Acceptance ends once three things hold:
-
-- each source promise, affected consumer and required gate has a decisive
-  observation;
-- the story obligations are recorded; and
-- no expected/actual mismatch remains unresolved.
-
-The coordinator then moves straight to the refactor pass. Any further
-inspection must first name either a concrete expected/actual mismatch or a
-specific evidence gap: a promise, consumer or gate without a sufficient
-observation. Broad search results that are generic or historical, such as
-retired plans, done records or unrelated text matches, get one supported
-grouped disposition rather than one judgment per match. Edit this rule's owner
-in place and add no competing rule elsewhere. Remove contrary wording that
-invites open-ended scrutiny.
-
-**Scope limits.** Start with instructions only: no timer, budget or slice
-clock change, since Terry asked for simple instructions first. The
-independent refactor pass and its lack of a time bound are unchanged. Every
-required proof row ([ODF-314](../../docs/maintainer/findings/ODF-314.md)), the
-consumer reach owned by the
-[SEED-393 consumer-verification story](https://github.com/terryyin/open-dough/blob/1a21d9a44ca019ec95392437995f622c5a5cfd7a/.planning/seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output),
-and the [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-stay as they are. CI-repair diagnosis keeps its
-[diagnosis rounds](../../Distribution/src/skills/dough-execute-plan/references/diagnosis-rounds.md).
-Execution retrospectives and story review are outside this delivery. Retaining
-output and compact hand-backs belong to
-[the sibling story](#recover-decisive-verification-evidence).
-
-**Key examples.**
-
-1. Sufficient evidence: SEED-348 slice 5 returns with 104 E2E and 23 frontend
-   cases green. The promises map to inspected assertions, the consumer trace
-   has dispositions, and the plan names its interim. The coordinator accepts and
-   dispatches the refactor pass without exploring further edge cases.
-2. Real mismatch: an inspected assertion shows a different result than the
-   promise states, such as a note saved under the wrong view. The coordinator
-   returns the slice with that expected/actual mismatch. The stopping rule
-   never suppresses it.
-3. Evidence gap: a filtered run selected fewer tests than the claimed promises
-   need. The coordinator names the uncovered promise and obtains or returns
-   for that observation before accepting.
-4. Speculative edge case: the coordinator wonders whether some unpromised
-   interaction might break but can name neither a mismatch nor a gap. It does
-   not investigate during acceptance and accepts.
-5. Noisy search: a consumer search returns hundreds of matches, mostly done
-   records and retired plans. The coordinator disposes of them as one group
-   with its reason and inspects only the relevant consumers.
-
-**Evaluation.** No paid comparison. Deterministic guidance checks come with the
-change. Judge keep or stop from the next real planned execution's trace, on
-any host, against the baseline below. Keep the change when acceptance moves
-from implementer return to refactor dispatch, and each inspection after the
-evidence is decisive names a mismatch or gap. Revise it when CI, the
-retrospective or a later slice finds a defect that the accepted evidence
-should have caught. Stop and rethink when the coordinator still deliberates
-at length without naming either.
-
-**Baseline.** SEED-348#collect-notes-for-story-follow-ups slice 5 ran on
-2026-11-17 in Codex at effort `xhigh`, from the launch reference
-`154b5180-ee1f-44b2-88e7-a70e47217593`. The implementer returned at 02:16:10
-UTC. The coordinator spent about 17 minutes until it dispatched the refactor
-at 02:33:00. It made five file and diff reads, ran no tests and waited on no
-commands. The rest was reasoning over about 390k tokens of context; 02:23:52
-to 02:31:39 had no tool call at all. The coordinator later acknowledged
-that the proof had been sufficient. Recover it from the Codex rollout
-`01a1e6bd-7803-7180-8b9b-6454fac73bbf`, items 2224–2339, and plan 671 at
-`f918ecb54b55b45b53819208f4a6d568452107d1`.
-[DD-555](../../DearDough.md#dd-555) retains the process occurrence.
-
-**Priority and effort.** Raised near the top at Terry's 2026-11-17 request.
-Small, medium confidence: one guidance owner and its checks.
-
 <a id="recover-decisive-verification-evidence"></a>
 
 ### Recover decisive verification evidence after large or cleaned-up output
@@ -224,7 +131,7 @@ Small, medium confidence: one guidance owner and its checks.
   developer or coordinator can diagnose a run or worker from recoverable
   evidence with fewer rereads and reruns, and less evidence in model context.
   Split from
-  [the stopping-rule story](#reach-a-proof-decision-from-retained-evidence)
+  [the stopping-rule story](https://github.com/terryyin/open-dough/blob/74e279020ed97da59be4ff3a3956a9c4020cf55d/.planning/seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence)
   on 2026-11-17.
 - **Evaluation.** An owned verification may emit a large result, or its runner
   may clean up temporary output. The consumer can still retrieve the exact

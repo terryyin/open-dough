@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_reach-a-proof-decision-from-retained-evidence.json",
+      "identity": "SEED-345#reach-a-proof-decision-from-retained-evidence",
+      "completedAt": "2026-11-17T14:40:12.718Z",
+      "blob": "759922c39d39a46ea291d21293d505999ec3a06d"
+    },
+    {
       "fileName": "SEED-334_move-intent-ci-proof-comparison-and-candidate-checks.json",
       "identity": "SEED-334#move-intent-ci-proof-comparison-and-candidate-checks",
       "completedAt": "2026-11-17T13:41:39.581Z",

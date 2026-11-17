@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract ([plan](slice-plans/678-test-agent-effort-through-its-output-contract/PLAN.md))
 - [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-387#intent-hint-language-for-story-review-diffs ([plan](slice-plans/663-intent-hint-language-for-story-review-diffs/PLAN.md))
-- [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence ([plan](slice-plans/681-reach-a-proof-decision-from-retained-evidence/PLAN.md))
 
 ## Backlog list
 
