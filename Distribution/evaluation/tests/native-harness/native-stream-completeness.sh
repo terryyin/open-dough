@@ -13,14 +13,15 @@ source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
 # shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
+# shellcheck source=Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh"
 context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 
-work_dir=$(mktemp -d)
-finish() {
-  chmod -R u+w "${work_dir}" 2> /dev/null || true
-  rm -rf -- "${work_dir}"
-}
-trap finish EXIT
+work_dir=''
+attempt=''
+native_check_status=0
+native_check_workspace work_dir
 # Wrapper runs copy each fixture this check builds once.
 export OPEN_DOUGH_TEST_FIXTURE_CACHE="${work_dir}/fixture-cache"
 
@@ -34,128 +35,65 @@ mkdir -p -- "${sentinel_bin}" "${watched_dir}" "${results_dir}"
 cp -- "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-agent-recorded.sh" "${sentinel_bin}/codex"
 cp -- "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-agent-recorded.sh" "${sentinel_bin}/cursor"
 chmod a+x "${sentinel_bin}/codex" "${sentinel_bin}/cursor"
-export PATH="${sentinel_bin}:${PATH}"
 
 assert_watched_empty() {
-  local leftover
-  leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
-  if [[ -n ${leftover} ]]; then
-    echo 'FAIL: scratch remained after the wrapper returned.' >&2
-    printf '%s\n' "${leftover}" >&2
-    return 1
-  fi
-}
-
-assert_not_wording_pass() {
-  local attempt=$1
-
-  if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
-    echo 'FAIL: incomplete evidence was recorded as a wording pass.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  if grep -Fq 'execution-status: completed' "${attempt}/record"; then
-    echo 'FAIL: incomplete evidence was recorded as completed.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  if grep -Fq 'execution-status: timeout' "${attempt}/record"; then
-    echo 'FAIL: incomplete evidence was recorded as a timeout.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  native_result_assert_no_discovery_fields "${attempt}/record"
+  native_check_expect_value 'wrapper scratch removed' '' "$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)"
 }
 
 run_selected_stream() {
-  local host=$1
-  local stream_kind=$2
-  local status attempt
+  local result_variable=$1 host=$2 stream_kind=$3
+  local retained_attempt
 
   : > "${run_log}"
   : > "${stdout_file}"
   : > "${stderr_file}"
-  set +e
-  env TMPDIR="${watched_dir}" PATH="${PATH}" \
-    NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
+  native_check_run "${sentinel_bin}" "${stdout_file}" "${stderr_file}" \
+    env TMPDIR="${watched_dir}" NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
     NATIVE_AGENT_STREAM="${stream_kind}" \
-    bash "${context_wrapper}" --native "${host}" clear \
-    --results-dir "${results_dir}" > "${stdout_file}" 2> "${stderr_file}"
-  status=$?
-  set -e
+    bash "${context_wrapper}" --native "${host}" clear --results-dir "${results_dir}"
   assert_watched_empty
-  if [[ ! -s ${run_log} ]]; then
-    echo "FAIL: ${host} ${stream_kind} recorded no native invocations." >&2
-    cat "${stdout_file}" >&2
-    cat "${stderr_file}" >&2
-    return 1
-  fi
-  attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if (path=="") exit 1; print path }' \
+  [[ -s ${run_log} ]]
+  retained_attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if (path=="") exit 1; print path }' \
     "${stdout_file}")
-  [[ -d ${attempt} ]]
-  [[ -f ${attempt}/record ]]
-  grep -Fq "host: ${host}" "${attempt}/record"
-  grep -Fq 'case: context/clear' "${attempt}/record"
-  grep -Fq 'origin: fresh' "${attempt}/record"
-  [[ ! -e ${attempt}/adopter ]]
-  [[ ! -e ${attempt}/candidate ]]
-  [[ ! -e ${attempt}/codex-state ]]
-  printf '%s %s\n' "${status}" "${attempt}"
+  [[ -d ${retained_attempt} ]]
+  [[ -f ${retained_attempt}/record ]]
+  native_check_expect_field 'selected host retained' "${retained_attempt}/record" host "${host}"
+  native_check_expect_field 'selected case retained' "${retained_attempt}/record" case context/clear
+  native_check_expect_field 'fresh origin retained' "${retained_attempt}/record" origin fresh
+  native_check_expect_absent 'adopter scratch not retained' "${retained_attempt}/adopter"
+  native_check_expect_absent 'candidate scratch not retained' "${retained_attempt}/candidate"
+  native_check_expect_absent 'codex-state scratch not retained' "${retained_attempt}/codex-state"
+  printf -v "${result_variable}" '%s' "${retained_attempt}"
 }
 
 assert_incomplete() {
-  local host=$1
-  local stream_kind=$2
-  local reason=$3
-  local status=$4
-  local attempt=$5
+  local host=$1 stream_kind=$2 reason=$3 status=$4 attempt=$5
 
-  if [[ ${status} -eq 0 ]]; then
-    echo "FAIL: ${host} ${stream_kind} stream returned passing." >&2
-    cat "${stdout_file}" >&2
-    cat "${stderr_file}" >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  if [[ ${status} -eq 124 ]]; then
-    echo "FAIL: ${host} ${stream_kind} stream was recorded as a timeout." >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  grep -Fq 'execution-status: incomplete' "${attempt}/record"
-  grep -Fq "execution-reason: ${reason}" "${attempt}/record"
-  grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
-  grep -Fq 'execution: incomplete' "${attempt}/observations.txt"
-  assert_not_wording_pass "${attempt}"
+  [[ ${status} -ne 0 && ${status} -ne 124 ]]
+  native_check_expect_field 'incomplete execution retained' "${attempt}/record" execution-status incomplete
+  native_check_expect_field 'incomplete reason retained' "${attempt}/record" execution-reason "${reason}"
+  native_check_expect_field 'incomplete evidence not assessed' "${attempt}/record" assessment-status not-run
+  native_check_expect_field 'assessment reason retained' "${attempt}/record" assessment-reason 'behavior not assessed'
+  native_check_expect_line 'incomplete observation retained' "${attempt}/observations.txt" 'execution: incomplete'
+  native_result_assert_no_discovery_fields "${attempt}/record"
   [[ -f ${attempt}/events.jsonl ]]
   case ${stream_kind} in
     missing)
-      if [[ -s ${attempt}/events.jsonl ]]; then
-        echo "FAIL: missing ${host} terminal stream retained nonempty events." >&2
-        cat "${attempt}/events.jsonl" >&2
-        return 1
-      fi
+      native_check_expect_value 'missing stream retains empty events' 0 "$(wc -c < "${attempt}/events.jsonl" | tr -d '[:space:]')" "${attempt}/events.jsonl"
       ;;
     truncated)
       [[ -s ${attempt}/events.jsonl ]]
-      if [[ $(native_host_stream "${host}" "${attempt}/events.jsonl" status) != truncated ]]; then
-        echo "FAIL: truncated ${host} stream retained its terminal event." >&2
-        cat "${attempt}/events.jsonl" >&2
-        return 1
-      fi
+      native_check_expect_value 'retained stream stays truncated' truncated "$(native_host_stream "${host}" "${attempt}/events.jsonl" status)" "${attempt}/events.jsonl"
       if [[ ${host} == codex ]]; then
         [[ -n $(native_host_stream codex "${attempt}/events.jsonl" response) ]]
       fi
       ;;
     unknown)
       [[ -s ${attempt}/events.jsonl ]]
-      grep -Fq '{"unrecognized":true}' "${attempt}/events.jsonl"
+      native_check_expect_line 'unknown event retained' "${attempt}/events.jsonl" '{"unrecognized":true}'
       ;;
     *)
-      echo "FAIL: unexpected stream kind ${stream_kind}." >&2
-      return 1
+      native_check_fail 'supported stream kind' 'missing, truncated or unknown' "${stream_kind}"
       ;;
   esac
 }
@@ -166,18 +104,18 @@ assert_incomplete() {
 # Distribution/evaluation/tests/native-harness/native-host-stream.test.mjs proves both for every host, and
 # native-stream-replay.sh replays real truncated streams for every host.
 for host in codex cursor; do
-  read -r status attempt < <(run_selected_stream "${host}" truncated)
+  run_selected_stream attempt "${host}" truncated
   assert_incomplete "${host}" truncated 'truncated terminal stream' \
-    "${status}" "${attempt}"
+    "${native_check_status}" "${attempt}"
   if [[ ${host} == codex ]]; then
-    grep -Fq '0001-session-state.md' "${attempt}/response.md"
+    native_check_expect_line 'partial Codex response retained' "${attempt}/response.md" '0001-session-state.md'
   fi
 done
 
-read -r status attempt < <(run_selected_stream cursor missing)
+run_selected_stream attempt cursor missing
 assert_incomplete cursor missing 'missing terminal stream' \
-  "${status}" "${attempt}"
+  "${native_check_status}" "${attempt}"
 
-read -r status attempt < <(run_selected_stream codex unknown)
+run_selected_stream attempt codex unknown
 assert_incomplete codex unknown 'unknown event shape' \
-  "${status}" "${attempt}"
+  "${native_check_status}" "${attempt}"

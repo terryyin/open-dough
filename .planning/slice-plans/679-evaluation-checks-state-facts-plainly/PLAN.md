@@ -96,7 +96,7 @@ completed`; fails before and after, passes when reverted.
 
 ### 5. The stream-completeness check states its facts through the vocabulary
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: as slice 2, for `native-stream-completeness.sh`.
 
@@ -127,9 +127,12 @@ rules in the story's Scope and the vocabulary's words by name, with
 check to source `src/` helpers; the `src/` reuse list is addressed to
 family code.
 
-Proof: read both guides against the story's Scope; the Distribution
-documentation and link checks that cover these files pass through
-`bash scripts/test.sh`.
+Proof: read both guides against the story's Scope and walk a new-check
+example; resolve their repository-relative links and named vocabulary against
+the actual helper. No existing automated documentation/link check covers these
+maintenance guides: `payload-declaration-links.sh` covers only declared
+`Distribution/src/skills` Markdown. Run the vocabulary own check and guard
+through `bash scripts/test.sh`; final evaluation proof covers the worked example.
 
 ## Current decisions
 
@@ -212,6 +215,12 @@ Runner failures retains every fact for missing/nonzero/denied hosts and cleanup 
 `slice-clock.mjs run --log /tmp/seed396-s4-<label>.log --exit-file /tmp/seed396-s4-<label>.exit -- env PATH=/opt/homebrew/bin:$PATH python3 /tmp/seed396-s4-completed-fault.py` before/after rewrite rejects failed→completed; exact source restored.
 `slice-clock.mjs run --log /tmp/seed396-s4-final-restored.log --exit-file /tmp/seed396-s4-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-runner-failures.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` passed.
 Consumer trace `/tmp/seed396-s4-consumer-trace.md`: private check only; cleanup producer unchanged. Corrected premise enumeration to include its existing cleanup call.
+
+### Slice 5
+
+Stream completeness preserves every classification, retention and scenario fact; direct named-result calls keep assertions outside process substitution.
+`slice-clock.mjs run --log /tmp/seed396-s5-<label>.log --exit-file /tmp/seed396-s5-<label>.exit -- env PATH=/opt/homebrew/bin:$PATH python3 /tmp/seed396-s5-complete-fault.py` before/after rewrite rejects truncated→complete reader fault; exact source restored.
+`slice-clock.mjs run --log /tmp/seed396-s5-final-restored.log --exit-file /tmp/seed396-s5-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-stream-completeness.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` passed. Trace `/tmp/seed396-s5-consumer-trace.md`: private check only.
 
 ## Story obligations
 
