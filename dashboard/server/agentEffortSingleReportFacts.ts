@@ -1,4 +1,5 @@
-// Nested single-report facts (dashboard/AGENT-EFFORT.md#single-report-contract).
+// Nested single-report facts
+// (dashboard/AGENT-EFFORT-OUTPUT.md#single-report-contract).
 // Nested figure, peak, wake, settings and workflow facts are mapped key by key
 // so an internal rename cannot reach the public output.
 type Figure = {

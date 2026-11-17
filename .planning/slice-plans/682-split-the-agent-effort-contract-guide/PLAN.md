@@ -1,6 +1,7 @@
 # Split the agent-effort contract guide
 
 **Source:** [correction story](../../seeds/SEED-345-session-token-efficiency.md#split-the-agent-effort-contract-guide)
+**Source review:** [source-only review](source-review.md)
 **Identity:** SEED-345#split-the-agent-effort-contract-guide
 
 ## Provenance and finding
@@ -50,7 +51,7 @@ No test run is required: no executable code changes.
 
 ### 1. A maintainer finds the output contract in its own guide
 Type: Structure
-Status: planned
+Status: done
 Proof: the checks above.
 
 Structure: move the three contract sections into the new guide, link it from
@@ -60,3 +61,10 @@ Structure: move the three contract sections into the new guide, link it from
 
 - Refinement was not needed: one Structure slice with mechanical proof.
 - Remaining slice-specific concerns: none identified in this review.
+- Slice 1 kept the CLI options paragraph (`--home`, `--store`, roots,
+  `--guidance-version`), which sat at the end of `## Single-report contract`,
+  in `AGENT-EFFORT.md` as command usage; every other moved line is verbatim in
+  `AGENT-EFFORT-OUTPUT.md`. Accepted proof: both guides 149/112 lines, no
+  `AGENT-EFFORT.md#` citation outside `.planning`, both verbatim `diff`s empty,
+  lint passes, and the 73 agent-effort backend specs pass. Refactor pass: no
+  changes.

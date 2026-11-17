@@ -1,6 +1,6 @@
 // Public single-report projection documented in
-// dashboard/AGENT-EFFORT.md#single-report-contract. Internal report results
-// reach JSON and readable output only through these explicit mappings.
+// dashboard/AGENT-EFFORT-OUTPUT.md#single-report-contract. Internal report
+// results reach JSON and readable output only through these explicit mappings.
 import type { nativeEffortSummary } from "./agentEffortNativeSummary.ts";
 import type { cursorEffortReport } from "./agentEffortCursor.ts";
 import {

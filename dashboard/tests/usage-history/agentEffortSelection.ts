@@ -1,6 +1,6 @@
 // Test-side reader for the documented agent-effort selection contract
-// (dashboard/AGENT-EFFORT.md#selection-contract). Types describe the public
-// output independently of production report types.
+// (dashboard/AGENT-EFFORT-OUTPUT.md#selection-contract). Types describe the
+// public output independently of production report types.
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { command } from "./agentEffortHarness.ts";
