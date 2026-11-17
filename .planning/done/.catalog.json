@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-387_shared-syntax-styling-control.json",
+      "identity": "SEED-387#shared-syntax-styling-control",
+      "completedAt": "2026-11-17T17:17:42.644Z",
+      "blob": "ff843ece030c143328bc94f1eac4b3d0a768baa0"
+    },
+    {
       "fileName": "SEED-345_split-the-agent-effort-contract-guide.json",
       "identity": "SEED-345#split-the-agent-effort-contract-guide",
       "completedAt": "2026-11-17T15:29:10.332Z",

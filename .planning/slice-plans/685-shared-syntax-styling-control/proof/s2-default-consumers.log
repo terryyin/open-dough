@@ -1,8 +1,0 @@
-
-Running 3 tests using 2 workers
-
-  ✓  2 [chromium] › dashboard/frontend-tests/intent/intent-code-browse-java.spec.ts:160:1 › a failed Java grammar load leaves configured source readable as exact plain text (5.7s)
-  ✓  1 [chromium] › dashboard/frontend-tests/intent/intent-code-browse-java.spec.ts:35:1 › Intent lists configured nested JUnit source, reads exact pinned Java with line numbers and theme styling, and shares Purpose/Proof with other source (9.2s)
-  ✓  3 [chromium] › dashboard/frontend-tests/review/story-review-diff-syntax-appearance.spec.ts:55:1 › diff tokens read at 4.5:1 in both appearances and match Intent's source reading of the same code (4.6s)
-
-  3 passed (13.1s)

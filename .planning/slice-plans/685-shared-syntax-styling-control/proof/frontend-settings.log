@@ -1,6 +1,0 @@
-
-Running 1 test using 1 worker
-
-  ✓  1 [chromium] › dashboard/frontend-tests/configuration/system-settings-syntax-styling.spec.ts:18:1 › System settings General shows Off and Default for syntax styling and keeps the saved choice after a refused save (2.5s)
-
-  1 passed (3.7s)

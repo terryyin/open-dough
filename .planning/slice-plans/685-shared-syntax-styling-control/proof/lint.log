@@ -1,9 +1,0 @@
-
-> lint
-> node scripts/lint.mjs
-
-Checking lint and formatting (warnings fail)...
-Checking formatting...
-[warn] dashboard/tests/support/syntaxStylingSettingsPage.ts
-[warn] Code style issues found in the above file. Run Prettier with --write to fix.
-Lint failed. Run npm run format to apply automatic fixes.
