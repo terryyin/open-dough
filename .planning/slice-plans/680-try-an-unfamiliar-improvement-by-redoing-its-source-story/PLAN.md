@@ -13,8 +13,9 @@ The story section owns the scope, restrictions, limits and key examples; this
 plan adds none.
 
 Included: the recipe section, one scratch redo of the plan 451 refactor pass
-under the candidate wording, its reading, the follow-up note on ODF-361, and
-scratch removal.
+under the candidate wording, its reading, the follow-up note on ODF-361,
+scratch removal, and, when the recipe is kept, its one-sentence trigger in
+finding triage.
 
 Excluded: a second arm, host or session; a script, assessor or case; adopting
 the candidate wording in `Distribution/src/skills`; any product or test change.
@@ -42,6 +43,7 @@ applies.
 | Mismatches named | Slices 1 and 3: the basis lists host, model, effort, release and task differences; the note says which reading each limits |
 | Session stops with a question | Slices 2–3: the quoted question in the note; no message sent after launch |
 | Recipe outgrows the run | Slice 4: the recipe is shortened to what the run needed, or withdrawn with the reason in the note |
+| Triage offers a kept recipe only to fitting findings | Slice 5: behavior review of the triage sentence walked on ODF-361 (offered) and on a finding answered by a deterministic check (not offered) |
 | Nothing published by the redo | Slice 2: `git -C <scratch> remote -v` lists only the bare repository; `git ls-remote origin` here is unchanged across the session |
 
 ## Premises
@@ -135,6 +137,24 @@ Proof: `ls ~/open-dough-scratch/seed-393-odf-361` fails; the section's
 commands match those recorded in slices 2–3; `npm run --silent format` and
 `npm run lint -- --staged` clean.
 
+### 5. Finding triage offers the kept recipe where it applies
+Type: Behavior
+Status: planned
+
+Behavior: slice 4 kept the recipe → a maintainer triaging a finding whose
+recommended response changes guidance wording, with no case exercising its
+moment, sees the proposal's next step offer the redo with the recipe link; a
+finding answered by a deterministic check or covered by a case gets no
+mention. When slice 4 withdrew the recipe, this slice is skipped and the
+return says so.
+
+Proof: the behavior review of
+[author-open-dough-skills](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review)
+walked on the edited
+[Rank and propose](../../../.agents/skills/triage-retrospective-findings/SKILL.md#rank-and-propose)
+section for both cases above; `npm run --silent format` and
+`npm run lint -- --staged` clean.
+
 ## Current decisions
 
 - Target ODF-361, host Codex, source occurrence plan 451 (the shorter phase
@@ -150,7 +170,7 @@ None yet.
 
 ## Preparation review
 
-Slice-plan refinement was not needed: four slices, one outcome and proof loop
+Slice-plan refinement was not needed: five slices, one outcome and proof loop
 each. One premise stays open and is bounded by slice 2's probe: Codex starting
 `$dough-post-change-refactor` on 0.3.81 skills in the scratch clone. No other
 slice-specific concern remains from this review.
@@ -159,7 +179,8 @@ slice-specific concern remains from this review.
 
 Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 as written; a failure inside the scratch session is recorded, not repaired
-from outside. The change is maintainer documentation and one finding note:
+from outside. The change is maintainer documentation, one maintainer-skill sentence and one
+finding note:
 the local gate is the formatter and staged lint named in the slices, on AC
 power under `caffeinate -s -i` for slice 2's wait
 ([machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)).

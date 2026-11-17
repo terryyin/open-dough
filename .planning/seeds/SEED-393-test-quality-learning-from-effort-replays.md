@@ -62,7 +62,7 @@ result, not a new reporting workflow.
 
 **Identity:** SEED-393#try-guidance-improvements-by-redoing-the-source-story
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/680-try-an-unfamiliar-improvement-by-redoing-its-source-story/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1925237f7e0ed42eb848cc20282e396c822115405b6786d86821d570fff6b4db","plan":"18132370d4490865190ec98caa53dba6a5f52e3ab2347867bd315932378f1b4c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/680-try-an-unfamiliar-improvement-by-redoing-its-source-story/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3071ec98874d66c05e23e1e7d190affb120745b42456f3aaf94be013b86dcec1","plan":"d4e2ee39324d17ab05b29511211be3ac9073a07ced0e7f72cac63fb2b103a4af"}}
 ```
 
 **Goal.** An Open Dough maintainer holding a retained finding that no
@@ -71,7 +71,9 @@ proposed guidance change from one short native redo of the phase where the
 finding occurred, before paying for a reusable case or adopting the change.
 The story's own outcome is one such decision on one finding plus the short
 recipe that produced it; a reliable effect estimate stays with a matched
-comparison.
+comparison. Afterwards the recipe is offered at the moment it applies: when
+finding triage proposes a guidance change that no case exercises, and nowhere
+else, so it needs no standing reminder.
 
 **Direction.** Compared against the same goal:
 
@@ -116,6 +118,13 @@ the source run, so every such difference is a named baseline mismatch.
   [limit](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md)
   counts normally wrapped lines), and the recipe text is corrected to what the
   run actually needed.
+- **Trigger.** When the recipe is kept, one sentence in
+  [triage-retrospective-findings](../../.agents/skills/triage-retrospective-findings/SKILL.md#rank-and-propose)
+  names it as the evidence step for a finding whose recommended response
+  changes guidance wording and whose moment no case in Native guidance checks
+  exercises. Triage already runs inside every feedback cycle, so a fitting
+  finding surfaces it; other findings never mention it. A withdrawn recipe
+  gets no link.
 - **Verdict strength.** One run supports revise or drop when the wrong outcome
   appears under the candidate, and inconclusive when the moment is not reached
   or a mismatch decides the reading. Keep means worth carrying forward within
@@ -136,7 +145,8 @@ the source run, so every such difference is a named baseline mismatch.
 
 - A second arm, second host, rerun after an inconclusive result, or a matched
   comparison.
-- A script, assessor, case registration, report template or triage-skill link.
+- A script, assessor, case registration or report template; a link from any
+  installed skill or other maintainer skill.
 - Adopting the candidate wording: the candidate exists only in the scratch
   clone, and a keep verdict feeds the finding's ordinary follow-up.
 - Findings whose response is a deterministic check need no redo and are not
@@ -159,6 +169,10 @@ the source run, so every such difference is a named baseline mismatch.
   as stopped there, and nobody answers it.
 - Setup or evidence recovery outgrows the run itself → the return says so and
   the recipe is shortened or withdrawn; an honest first decision still stands.
+- A later triage ranks a finding whose response rewords a refactor check and
+  no case covers it → the proposal's next step offers the redo with the recipe
+  link; a finding answered by a deterministic check, or one a case covers, is
+  proposed without it.
 
 **Architecture.** The recipe is maintainer guidance beside the case procedure
 it precedes, outside the installed payload
