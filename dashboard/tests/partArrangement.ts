@@ -69,10 +69,17 @@ export async function expectStackedInOrder(partsInOrder: Locator[]) {
 }
 
 // The controls share one line, side by side in their order.
-export async function expectOnOneLine(controls: Locator[]) {
+export async function expectOnOneLine(
+  controls: Locator[],
+  alignment: "top" | "center" = "top",
+) {
   const boxes = await boxesTogether(controls);
+  const line = ({ y, height }: Room) =>
+    alignment === "center" ? y + height / 2 : y;
+  const first = boxes[0];
+  if (first === undefined) return;
   for (const each of boxes)
-    expect(Math.abs(each.y - (boxes[0]?.y ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs(line(each) - line(first))).toBeLessThanOrEqual(1);
   expectEachEndsBeforeNext(boxes, "x", "width");
 }
 
@@ -98,8 +105,9 @@ async function groupLineHasRoom(group: Locator) {
 export async function expectOnOneLineWhenRoom(
   group: Locator,
   controls: Locator[],
+  alignment: "top" | "center" = "top",
 ) {
-  if (await groupLineHasRoom(group)) await expectOnOneLine(controls);
+  if (await groupLineHasRoom(group)) await expectOnOneLine(controls, alignment);
   else await expectInReadingOrder(group, controls);
 }
 

@@ -16,12 +16,25 @@ import {
   scrollTopOf,
 } from "../../tests/support/reviewPanes.ts";
 import { shownComparisonDescription } from "../../tests/support/reviewContextLine.ts";
+import {
+  reviewHeaderActions,
+  reviewRefresh,
+} from "../../tests/support/reviewControls.ts";
 import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
 
 const longDiff = frontendFileDiff(
   "story.txt",
   [...Array(120).keys()].map((n) => `+story line ${n + 1}`),
 );
+
+test("the Review changes toolbar groups the Notes icon with Refresh", async ({
+  page,
+  frontendServices,
+}) => {
+  const { review } = await openFrontendStoryReview(page, frontendServices);
+  const actions = reviewHeaderActions(review);
+  await storyNotesPage(page).expectIconBeside(actions, reviewRefresh(actions));
+});
 
 test("Taken workspace file note keeps the Comparison switch's words and endpoints; its line menu offers Add note alone", async ({
   page,

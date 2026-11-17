@@ -14,6 +14,16 @@
    code lines inside the diff, never the page. The card's action shares the launch actions' look
    (./agent-launch.css). */
 
+.story-review .side-panel-actions:has(> .story-notes-problem) {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(4 * var(--control-size) + 3 * var(--space-1));
+}
+
+.story-review .side-panel-actions > .story-notes-problem {
+  flex-basis: 100%;
+}
+
 .story-review-top {
   flex: none;
 }

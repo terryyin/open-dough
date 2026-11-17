@@ -6,16 +6,56 @@ import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisi
 import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
 import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
 import {
+  answerFrontendIntentChanges,
+  putFrontendIntentStory,
+} from "../../tests/support/frontendIntentStory.ts";
+import {
+  chooseStoryTab,
+  expectOutsideCount,
   intentDiffReading,
   intentFile,
+  outsideCount,
 } from "../../tests/support/intentStoryPage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
 } from "../../tests/intentReadingPlacePage.ts";
-import { storySummary } from "../../tests/intentModePage.ts";
+import { openStoryIntent, storySummary } from "../../tests/intentModePage.ts";
 import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
+
+test("the Intent story title shows matching Notes and Review changes icons side by side", async ({
+  page,
+  frontendServices,
+}) => {
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
+  await storyNotesPage(page).expectIconBeside(
+    storySummary(intent),
+    outsideCount(intent),
+  );
+});
+
+test("the unreadable Notes warning leaves both icons beside a long Intent story title", async ({
+  page,
+  frontendServices,
+}) => {
+  const title = "Story A shows a long title beside its review and notes";
+  putFrontendIntentStory(frontendServices, {
+    story: makeMe.aBacklogEntry.with({ ...storyA, title }).please(),
+  });
+  await answerFrontendIntentChanges(page);
+  const service = await installFrontendStoryNotes(page);
+  service.unreadable("open-dough");
+  const { intent } = await openStoryIntent(page, title);
+  await chooseStoryTab(intent, "Changed tests");
+  await page.setViewportSize({ width: 420, height: 720 });
+  const summary = storySummary(intent);
+  const notes = storyNotesPage(page);
+  await notes.expectUnreadable(summary, "The notes could not be read.");
+  await expectOutsideCount(intent, 2);
+  await notes.expectIconBeside(summary, outsideCount(intent));
+});
 
 test("a line note from Intent Changed tests records the Intent view", async ({
   page,

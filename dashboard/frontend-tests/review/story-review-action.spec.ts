@@ -81,7 +81,7 @@ test("the inspection group sits below the launch group, wraps in reading order, 
   await page.setViewportSize({ width: 1920, height: 900 });
   await expectSettledLayout(page);
   await expectOnOneLine(starts);
-  await expectOnOneLine([inspect, notes, action]);
+  await expectOnOneLine([inspect, notes, action], "center");
   await expectInReadingOrder(card, [inspect, notes, action]);
   await expectActionGlyph(action, "Review changes", "git-compare");
   await expectActionGlyph(action, "Review changes", "arrow-right", "trailing");
@@ -94,11 +94,11 @@ test("the inspection group sits below the launch group, wraps in reading order, 
     await page.setViewportSize(window);
     await page.reload();
     await expectSettledLayout(page);
-    await expectOnOneLineWhenRoom(inspectionGroup(card), [
-      inspect,
-      notes,
-      action,
-    ]);
+    await expectOnOneLineWhenRoom(
+      inspectionGroup(card),
+      [inspect, notes, action],
+      "center",
+    );
     await expectInReadingOrder(card, [...starts, inspect, notes, action]);
     await inspect.focus();
     await page.keyboard.press("Enter");

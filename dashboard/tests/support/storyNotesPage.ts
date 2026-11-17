@@ -1,5 +1,6 @@
 // Focused Story notes dialog mechanics, shared by frontend and real journeys.
 import { expect, type Locator, type Page } from "@playwright/test";
+import { box, expectOnOneLine } from "../partArrangement.ts";
 import { storyNotesControl } from "../storyCardControls.ts";
 const exactly = (text: string) =>
   new RegExp(`^${text.replace(/[.*+?^$|()[\]{}\\]/g, "\\$&")}$`);
@@ -86,6 +87,15 @@ export function storyNotesPage(page: Page) {
     },
     expectOpenerFocused: async (scope: Locator) => {
       await expect(storyNotesControl(scope)).toBeFocused();
+    },
+    expectIconBeside: async (scope: Locator, next: Locator) => {
+      const control = storyNotesControl(scope);
+      await expect(control).toHaveText("");
+      await expectOnOneLine([control, next]);
+      const icon = await box(control.locator("svg"));
+      const nextIcon = await box(next.locator("svg"));
+      expect(icon.width).toBe(nextIcon.width);
+      expect(icon.height).toBe(nextIcon.height);
     },
     edit: async (index: number, using: "mouse" | "keyboard" = "mouse") => {
       const control = entries

@@ -20,6 +20,8 @@ import {
   StoryReviewHeading,
   storyReviewPanelLabel,
 } from "./StoryReviewHeading.tsx";
+import { StoryNotes } from "./StoryNotesControl.tsx";
+import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -98,6 +100,13 @@ export function StoryReview({
           headingId={headingId}
         />
         <div className="side-panel-actions">
+          {!isReviewedSessionSubject(subject) && (
+            <StoryNotes
+              sourceId={subject.source}
+              identity={subject.identity}
+              title={title}
+            />
+          )}
           {/* Unavailable while reading, yet still focusable, so the
               keyboard stays on it. */}
           <IconButton

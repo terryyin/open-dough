@@ -1,6 +1,8 @@
 // A story's notes open over its current page, without replacing a terminal or
 // review. The card and open dialog subscribe to the same project answer.
+import { NotebookPen } from "lucide-react";
 import { useId, useRef, useState } from "react";
+import { IconButton } from "./Icon.tsx";
 import { StoryNotesDialog } from "./StoryNotesDialog.tsx";
 import { storyNotesUnreadable, useStoryNotes } from "./storyNotes.ts";
 import "./launch-dialog.css";
@@ -23,19 +25,24 @@ export function StoryNotes({
   const unreadable = answer?.kind === "unreadable";
   return (
     <>
-      <button
-        type="button"
-        className="start-launch-button"
+      <IconButton
+        label={notes.length > 0 ? `Notes (${notes.length})` : "Notes"}
+        icon={NotebookPen}
         ref={opener}
+        aria-haspopup="dialog"
         aria-describedby={unreadable ? problemId : undefined}
         onClick={() => {
           setOpen(true);
         }}
       >
-        Notes{notes.length > 0 ? ` (${notes.length})` : ""}
-      </button>
+        {notes.length > 0 && (
+          <span className="story-notes-count" aria-hidden="true">
+            {notes.length}
+          </span>
+        )}
+      </IconButton>
       {unreadable && (
-        <p id={problemId} role="status">
+        <p id={problemId} className="story-notes-problem" role="status">
           {storyNotesUnreadable}
         </p>
       )}

@@ -1,3 +1,25 @@
+.story-notes-count {
+  box-sizing: border-box;
+  position: absolute;
+  inset-block-start: calc(-0.5 * var(--space-1));
+  inset-inline-end: calc(-0.5 * var(--space-1));
+  min-width: 0.875rem;
+  padding-inline: 0.15rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-xs);
+  line-height: 0.875rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.intent-story-title-line > .story-notes-problem,
+.story-review .side-panel-actions > .story-notes-problem {
+  order: 1;
+  font-size: var(--text-xs);
+}
+
 .story-notes {
   max-width: min(38rem, calc(100vw - 2rem));
 }

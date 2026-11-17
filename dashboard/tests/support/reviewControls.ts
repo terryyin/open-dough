@@ -44,6 +44,9 @@ export const uncommittedCheck = (review: Locator) =>
 export const uncommittedLabel = (review: Locator) =>
   review.locator("label", { hasText: "Include uncommitted changes" });
 
+export const reviewHeaderActions = (review: Locator) =>
+  review.locator(".side-panel-actions");
+
 // Refresh can be pressed without waiting for the read it starts.
 export const reviewRefresh = (
   review: Locator,
