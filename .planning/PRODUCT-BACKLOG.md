@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
+- [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
 - [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines
