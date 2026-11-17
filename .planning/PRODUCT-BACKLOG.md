@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Redo the effort story under the test-focus guidance](seeds/SEED-391-check-test-focus-guidance-by-redoing-a-story.md#redo-the-effort-story-under-the-test-focus-guidance) — SEED-391#redo-the-effort-story-under-the-test-focus-guidance ([plan](slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/PLAN.md))
 - [Capture and edit story notes in the dashboard](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) — SEED-348#collect-notes-for-story-follow-ups ([plan](slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/PLAN.md))
 
 ## Backlog list
@@ -37,7 +36,6 @@ intent introduced or affected by a newly developed story.
 - [Tests protect their own behavior without incidental coupling](seeds/SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof) — SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
 - [Repeat native guidance checks using focused examples](seeds/SEED-393-test-quality-learning-from-effort-replays.md#repeat-native-guidance-checks-on-real-story-examples) — SEED-393#repeat-native-guidance-checks-on-real-story-examples
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story
-
 - [Separate dashboard terminal dictation from quick replies](seeds/SEED-392-separate-dashboard-terminal-dictation-from-quick-replies.md#separate-dashboard-terminal-dictation-from-quick-replies) — SEED-392#separate-dashboard-terminal-dictation-from-quick-replies
 - [Replace native reader gaps when a session is read again](seeds/SEED-388-measure-and-control-agent-launch-cost.md#replace-native-reader-gaps-on-reread) — SEED-388#replace-native-reader-gaps-on-reread
 - [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story
