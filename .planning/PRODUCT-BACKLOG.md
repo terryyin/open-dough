@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract ([plan](slice-plans/678-test-agent-effort-through-its-output-contract/PLAN.md))
 - [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-387#intent-hint-language-for-story-review-diffs ([plan](slice-plans/663-intent-hint-language-for-story-review-diffs/PLAN.md))
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence ([plan](slice-plans/681-reach-a-proof-decision-from-retained-evidence/PLAN.md))
+- [Move board, frame and project navigation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test ([plan](slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md))
 
 ## Backlog list
 
@@ -48,7 +49,6 @@ intent introduced or affected by a newly developed story.
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
-- [Move board, frame and project navigation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test
 - [Move story navigation checks out and retire Dashboard Integrated UI Test with its documents](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents) — SEED-334#retire-integrated-ui-test-and-its-documents
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories
