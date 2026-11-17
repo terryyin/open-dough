@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 564. Removed numbers are never reused.
+- Highest allocated local number: 565. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -428,6 +428,15 @@ slices timed by the new slice clock had no such gap.
   - Observed effect: a wrong stop. The coordinator checked the clock and resumed the same agent, which cost one extra delegation round.
   - Inference: a near-limit self-estimate now triggered a stop; checking the clock before accepting a time stop caught it.
 
+- Execution: SEED-345#test-agent-effort-through-its-output-contract (plan 678; first implementation 849f72ca97d8c72e4173244f12d5558ff2679b60)
+  - Timestamp: unknown (2026-11-17 +08:00, slice 3 first return)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 30d3acfff)
+  - Evidence: the slice 3 implementer returned "partial … I stopped near the 15-minute active clock limit (about 14 minutes used, estimated from the clock runs)". `slice-clock.mjs pause` then reported 3.8 elapsed and 11.2 remaining, no overrun. Resumed, the same agent finished at 11.8 clock minutes.
+  - Observed effect: a second wrong stop on a self-estimate; one extra delegation round.
+  - Inference: the agent counted time inside `run`, which the clock excludes. Checking the clock before accepting a time stop again caught it.
+
 ## DD-551 — A rule over retained history is accepted on fixtures before any real-history comparison
 
 A changed attribution rule passed its fixture specs and full consumer suite and was published, but its first import over this machine's retained history dropped launches to zero. Only an every-record before/after comparison on a copy exposed it, and two more real-data defects followed.
@@ -653,3 +662,35 @@ passes on such slices made no edits.
   - Evidence: subagent usage reports. Slice 4 (3-line deletion): implementer 47.7k tokens, refactor 49.3k tokens with no edits. Slice 3 (6-line change): implementer 73.1k, refactor 58.5k with no edits. Slice 5 refactor 60.5k with no edits.
   - Observed effect: about 290k subagent tokens across these passes; no defect found by the no-edit refactor passes.
   - Inference: delivery step 1 allows skipping the refactor spawn only for records-only changes or edits within an accepted refactor return. A pure test-line deletion with a clean consumer trace may deserve a similar disposition. Slice 2's refactor pass did find a real gap, so the saving is not unconditional.
+
+## ODF-443 — Refactor return reports an oversized module as within the 250-line limit <a id="odf-443"></a>
+
+[Meaning, evidence and response](docs/maintainer/findings/ODF-443.md).
+
+### Occurrences
+
+- Execution: SEED-345#test-agent-effort-through-its-output-contract (plan 678; first implementation 849f72ca97d8c72e4173244f12d5558ff2679b60)
+  - Timestamp: unknown (2026-11-17 +08:00, slice 4 refactor return before 3ba88d70)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 30d3acfff)
+  - Evidence: the slice 4 refactor return said "All touched files are 250 lines or fewer (largest 170)". `dashboard/AGENT-EFFORT.md`, edited in every slice, was 253 lines at `3ba88d70` (145 at the Take). Each slice's refactor pass reported sizes for code files only, and coordinator acceptance ran no `wc -l` over the diff. The retrospective found it and drafted correction SEED-345#split-the-agent-effort-contract-guide.
+  - Observed effect: an oversized guide was published on the branch, and a correction story and plan were needed.
+  - Inference: the size check was applied to code files rather than to every file in the diff. A mechanical line count over all changed files at acceptance would have caught it.
+
+## DD-565 — Consumer-trace output is dominated by planning-record matches, so agents fall back to plain search <a id="dd-565"></a>
+
+When run with symbol terms over report modules, `consumer-trace.mjs` returned mostly
+changed-path basename and loose sub-term matches in planning, findings and docs
+records. Agents replaced it with a targeted `git grep` and said so.
+
+### Occurrences
+
+- Execution: SEED-345#test-agent-effort-through-its-output-contract (plan 678; first implementation 849f72ca97d8c72e4173244f12d5558ff2679b60)
+  - Timestamp: unknown (2026-11-17 +08:00, slices 1–4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 30d3acfff)
+  - Evidence: slice 1 implementer: run "dominated by changed-path basename matches (87KB of planning-file hits)". Slices 2–4 implementers: output "dominated by findings and planning noise" and "loose sub-terms (Peak, Wakes, AGENT-EFFORT)". Each then used targeted `git grep` for production and test consumers.
+  - Observed effect: the scripted trace did not supply the disposition in any of the four slices. Agents' targeted searches found the consumers, and coordinator acceptance verified them.
+  - Inference: possibly related to ODF-350 and ODF-352 (broad or data-derived terms), but here the noise came from path basenames and planning records with ordinary symbol terms. Token cost was not measured.
