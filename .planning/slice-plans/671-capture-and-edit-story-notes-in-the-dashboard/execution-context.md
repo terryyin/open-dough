@@ -99,3 +99,21 @@ context. Move the small Intent view provider and its save observation from7
 to5; context display already delivered in4 reduces that slice's remaining
 work. Eight slices remain; 1–4 and their proof are preserved. Scope, PFE and
 architecture unchanged. Remaining boundaries retained as one proof loop each.
+
+- Slice5: `f918ecb54b55b45b53819208f4a6d568452107d1`, accepted on storybranch;
+  suffix base `56c456a21f7caa2db349cf252302e94e4d0a1e0e`, same observer reused
+  and exact SHA registered. Full E2E104/frontend23 passed; focused shared-label
+  refactor proof passed. G1 explicit workspace interim remains owned6.
+
+- Slice5 CI repair: `4298fddeb0c368ab3817cbfc5298b906d8be2109`, accepted
+  on the same branch, suffix base `f918ecb54b55b45b53819208f4a6d568452107d1`;
+  observer reused and revision registered. Complete run44004647060/1 inventory
+  had one failure, repaired with unchanged assertions; [proof](ci-44004647060-proof.md).
+  Managed stash restored the receipt above and dropped only its owned entry.
+- Terry's additional request is retained in
+  [SEED-345 proof decisions](../../seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence),
+  promoted to first queued story. Existing overlap avoids a duplicate; incident,
+  investigation needs, simple instructions first and unbounded refactoring
+  retained. Root owns these backlog/seed changes; include them in later story
+  delivery and mention the priority change in the final report. No guidance
+  implementation is authorized in this story.

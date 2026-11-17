@@ -36,7 +36,7 @@ Effort bands are relative. Small means one scoped host workflow. Medium means
 a shared workflow with a representative host comparison. They carry no time
 commitment.
 
-## Proposed stories in priority order
+## Proposed stories in initial priority order
 
 Each trial is judged with the
 [retained effort command](../../dashboard/AGENT-EFFORT.md).
@@ -124,12 +124,12 @@ Each trial is judged with the
 
 **Identity:** SEED-345#reach-a-proof-decision-from-retained-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Needs investigation: attribute the SEED-348 acceptance overrun, identify review instruction owners, and define decisive stopping examples and proof while keeping refactoring unbounded and trying simple instructions first."],"basis":{"document":"0165d9dab8c69979aba20d75d3c413c6857b7506fa4a3cb9842fa79659f7ba63"}}
 ```
 
-- **Scope and beneficiary.** Shared local and delegated verification. A
-  developer or coordinator can tell what a run or a worker proved and
-  diagnose a failure from a concise result with recoverable evidence.
+- **Scope and beneficiary.** Shared local and delegated verification. A developer
+  or coordinator can diagnose a run or worker from recoverable evidence and
+  finish review and acceptance once the required evidence settles the decision.
 - **Evaluation.** When an owned verification emits a large result or its
   runner cleans up temporary output, the consumer can still retrieve the
   exact command and revision, selected proof, terminal result and decisive
@@ -138,9 +138,9 @@ Each trial is judged with the
   proof gap, and points to its full report on disk. The same repair or
   acceptance decision follows with fewer rereads or reruns and less evidence
   in model context. Missing or incomplete proof is exposed.
-- **Priority.** Third. SEED-332 lost the traces needed to diagnose earlier
-  failures, and truncated output recurred (ODF-264). Claude Code coordinators
-  kept 315 hand-backs, median 7.8k characters, for the whole session.
+- **Priority.** Highest queued priority at Terry's 2026-11-17 request after
+  extended acceptance analysis during SEED-348. Investigate the
+  [incident and instruction-first stopping rule](SEED-345-session-token-efficiency/proof-decisions.md).
 - **Effort and boundary.** Medium, medium confidence. Keep every required
   proof row ([ODF-314](../../docs/maintainer/findings/ODF-314.md)). The
   [source-review bookkeeping story](https://github.com/terryyin/open-dough/blob/b6b6d04c9162a30619c3fd59c8e220d523455004/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)

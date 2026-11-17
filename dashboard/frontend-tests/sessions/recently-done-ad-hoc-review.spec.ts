@@ -148,6 +148,7 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
       pages.storyReview.expectNoComparisonSwitch();
       pages.storyReview.expectNoMarkReviewed();
       pages.storyReview.expectNoLineFollowUp();
+      pages.storyReview.expectNoNoteActions();
     },
   );
 

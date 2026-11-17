@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
 - [Separate dashboard terminal dictation from quick replies](seeds/SEED-392-separate-dashboard-terminal-dictation-from-quick-replies.md#separate-dashboard-terminal-dictation-from-quick-replies) — SEED-392#separate-dashboard-terminal-dictation-from-quick-replies
 - [Replace native reader gaps when a session is read again](seeds/SEED-388-measure-and-control-agent-launch-cost.md#replace-native-reader-gaps-on-reread) — SEED-388#replace-native-reader-gaps-on-reread
 - [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story
@@ -67,7 +68,6 @@ intent introduced or affected by a newly developed story.
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically
 - [Start Claude Code implementers from a role-sized tool set](seeds/SEED-345-session-token-efficiency.md#start-implementers-from-a-role-sized-tool-set) — SEED-345#start-implementers-from-a-role-sized-tool-set
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
-- [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
 - [Get long verification results without empty wakes](seeds/SEED-345-session-token-efficiency.md#get-long-verification-results-without-empty-wakes) — SEED-345#get-long-verification-results-without-empty-wakes
 - [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
 - [Load execution guidance for the current phase](seeds/SEED-345-session-token-efficiency.md#load-execution-guidance-for-the-current-phase) — SEED-345#load-execution-guidance-for-the-current-phase

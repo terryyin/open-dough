@@ -96,7 +96,7 @@ export function DiffLines({
   }, []);
 
   const lineMenu =
-    onLineFollowUp === undefined
+    onLineFollowUp === undefined && onLineAddNote === undefined
       ? undefined
       : {
           open: openMenu,
@@ -104,7 +104,9 @@ export function DiffLines({
             setOpenMenu({ side, line });
           },
           onClose: closeMenu,
-          onFollowUp: onLineFollowUp,
+          ...(onLineFollowUp === undefined
+            ? {}
+            : { onFollowUp: onLineFollowUp }),
           ...(onLineAddNote === undefined ? {} : { onAddNote: onLineAddNote }),
         };
 

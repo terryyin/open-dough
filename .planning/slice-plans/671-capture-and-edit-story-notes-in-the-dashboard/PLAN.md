@@ -42,8 +42,8 @@ endpoint, one page owner and one dialog; later slices add entry points and
 input, not parallel representations. This review found no remaining
 slice-specific concern.
 
-Accepted interim behavior: after slice 5 a Done story's diffs offer Add note
-while a Taken story's do not; slice 6 replaces that.
+Slice 6 replaces the accepted slice-5 interim: Taken and Done story diffs
+both offer Add note, with existing Follow up eligibility preserved.
 
 ## Ordered slices
 
@@ -153,7 +153,7 @@ Accepted proof: [slice 5](slice-5-proof.md).
 
 ### 6. Workspace reviews add notes, and sessions without a story do not
 Type: Behavior
-Status: planned
+Status: done
 Proof: `e2e/review/story-review-workspace-add-note.spec.ts` and the Done-card
 case in `story-notes.spec.ts`; consumers: the full
 `dashboard/frontend-tests/review/` and `e2e/review/` runs named in the local
@@ -171,6 +171,8 @@ launch record remains.
 - `e2e/review/story-review-diff-context.spec.ts:103` counts every button in
   a fully revealed gap; restate it on the expansion controls, the promise it
   holds, since line numbers there are now controls (premise row 1).
+
+Accepted proof: [slice 6](slice-6-proof.md).
 
 ### 7. Review changes and Intent open Story notes and keep the diff as shown
 Type: Behavior
@@ -234,4 +236,4 @@ See [execution context](execution-context.md#learnings) for the retained boundar
 ### G1. Taken workspace entry points follow Done capture
 Reported: slice 5 — "Accepted interim remains: Taken workspace Add note belongs to slice 6."
 Story clause: "Every file diff of a story in Review changes and Intent → Changed tests offers Add note beside the file path and in each line-number menu"
-Disposition: interim until slices 6
+Disposition: proved by slice 6: e2e/review/story-review-workspace-add-note.spec.ts saves file and line notes from Taken with exact context; prior Published/Landed and Intent capture proof remains green; see slice-6-proof.md.

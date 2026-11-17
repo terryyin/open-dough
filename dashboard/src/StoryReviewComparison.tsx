@@ -9,7 +9,7 @@ import { useId } from "react";
 
 export type ShownComparison = "since" | "all" | "commits";
 
-const comparisonWords: Readonly<Record<ShownComparison, string>> = {
+export const comparisonWords: Readonly<Record<ShownComparison, string>> = {
   since: "Since the review",
   all: "All changes",
   commits: "Commits",

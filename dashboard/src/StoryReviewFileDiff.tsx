@@ -35,6 +35,7 @@ import {
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
 import { useReviewRead } from "./useReviewRead.ts";
+import { reviewedFilePaths } from "./reviewedFileContext.ts";
 
 // The reviewed work whose file diff is open: a story or ad hoc session,
 // with the retained pair a historical comparison names.
@@ -60,8 +61,7 @@ function reviewFileQuery(
       : { completion: reviewed.completion }),
     baseline: from,
     tree,
-    path: file.path,
-    ...(file.kind === "renamed" ? { oldPath: file.oldPath } : {}),
+    ...reviewedFilePaths(file),
   };
 }
 
@@ -138,7 +138,7 @@ export function FileDiff({
           onRetryText={() => {
             setTextRound((round) => round + 1);
           }}
-          {...(canLineFollow
+          {...(note.available
             ? {
                 onLineAddNote: (
                   side: DiffLineSide,
@@ -147,6 +147,10 @@ export function FileDiff({
                 ) => {
                   note.open({ side, number, text });
                 },
+              }
+            : {})}
+          {...(canLineFollow
+            ? {
                 onLineFollowUp: (side: DiffLineSide, line: number) => {
                   setLineFollow({ line, side });
                 },

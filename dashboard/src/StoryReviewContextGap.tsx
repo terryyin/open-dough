@@ -28,7 +28,7 @@ export type DiffLineMenu = {
   readonly open: { readonly side: DiffLineSide; readonly line: number } | null;
   readonly onOpen: (side: DiffLineSide, line: number) => void;
   readonly onClose: () => void;
-  readonly onFollowUp: (side: DiffLineSide, line: number) => void;
+  readonly onFollowUp?: (side: DiffLineSide, line: number) => void;
   readonly onAddNote?: (side: DiffLineSide, line: number, text: string) => void;
 };
 
@@ -60,9 +60,13 @@ export function diffLineItems(
               },
             })}
         onClose={menu.onClose}
-        onFollowUp={() => {
-          menu.onFollowUp(side, value);
-        }}
+        {...(menu.onFollowUp === undefined
+          ? {}
+          : {
+              onFollowUp: () => {
+                menu.onFollowUp?.(side, value);
+              },
+            })}
       />
     );
   };

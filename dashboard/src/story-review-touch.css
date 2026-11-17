@@ -15,6 +15,12 @@
     scroll-padding-block: 0.5rem;
   }
 
+  /* Wrapped file actions must leave a usable code viewport in landscape;
+     the review body can scroll when its controls need more room. */
+  .story-review-diff > .story-review-code {
+    min-height: var(--control-size);
+  }
+
   .story-review-context-values,
   .story-review-files button,
   .story-review-comparison label,

@@ -1,9 +1,14 @@
 // Notes keep the context shown by this diff; Follow up alone verifies anchors.
 import { createContext, useContext, useRef, useState } from "react";
-import { fileFollowUpParts } from "./StoryAnchoredFollowUp.tsx";
+import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
+import { comparisonWords } from "./StoryReviewComparison.tsx";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import { fileComparisonName } from "./followUpContext.ts";
 import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
+import {
+  reviewedComparison,
+  reviewedFilePaths,
+} from "./reviewedFileContext.ts";
 import type { StoryNoteContext } from "./storyNote.ts";
 import { useStoryNoteAnnouncement } from "./storyNoteAnnouncement.ts";
 import { useStoryNotes } from "./storyNotes.ts";
@@ -14,14 +19,26 @@ import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
 export const StoryNoteView =
   createContext<StoryNoteContext["view"]>("Review changes");
 
+export const StoryNoteComparison = createContext(comparisonWords.all);
+
 export function useDiffStoryNote(
   reviewed: ReviewedWork,
   from: string,
   tree: string,
   file: ReviewedFile,
 ) {
-  const target = useDoneStoryFollowUp(reviewedStoryIdentity(reviewed.subject));
-  const parts = fileFollowUpParts(reviewed, from, tree, file);
+  const identity = reviewedStoryIdentity(reviewed.subject);
+  const done = useDoneStoryFollowUp(identity);
+  const { work } = useContext(RecentlyDoneLinkSources);
+  const active =
+    work?.source.id === reviewed.subject.source
+      ? [...work.taken, ...work.backlog].find(
+          (entry) => entry.identity === identity,
+        )
+      : undefined;
+  const story = active ?? done?.story;
+  const comparison = reviewedComparison(reviewed);
+  const workspaceComparison = useContext(StoryNoteComparison);
   const view = useContext(StoryNoteView);
   const { change } = useStoryNotes(reviewed.subject.source);
   const [context, setContext] = useState<StoryNoteContext>();
@@ -32,9 +49,9 @@ export function useDiffStoryNote(
     opener.current?.focus();
   };
   return {
-    available: target !== undefined && parts !== undefined,
+    available: story !== undefined,
     open: (line?: StoryNoteContext["line"]) => {
-      if (target === undefined || parts === undefined) return;
+      if (story === undefined) return;
       const active = document.activeElement;
       opener.current =
         active instanceof HTMLElement
@@ -43,15 +60,16 @@ export function useDiffStoryNote(
               ?.querySelector("button") ?? active)
           : null;
       setAnnouncement("");
-      const facts = parts.facts;
       setContext({
         view,
-        path: facts.path,
-        ...(facts.oldPath === undefined ? {} : { oldPath: facts.oldPath }),
+        ...reviewedFilePaths(file),
         comparison: {
-          name: fileComparisonName(facts.kind),
-          baseline: facts.baseline,
-          tree: facts.tree,
+          name:
+            comparison === undefined
+              ? workspaceComparison
+              : fileComparisonName(comparison.kind),
+          baseline: from,
+          tree,
         },
         ...(line === undefined ? {} : { line }),
       });
@@ -63,10 +81,10 @@ export function useDiffStoryNote(
             <span className="visually-hidden">{announcement}</span>
           )}
         </div>
-        {context !== undefined && target !== undefined && (
+        {context !== undefined && story !== undefined && (
           <StoryNotesDialog
-            identity={target.story.identity}
-            title={target.story.title}
+            identity={story.identity}
+            title={story.title}
             context={context}
             notes={[]}
             unreadable={false}

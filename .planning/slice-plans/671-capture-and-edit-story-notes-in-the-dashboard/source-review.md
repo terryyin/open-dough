@@ -33,10 +33,10 @@ last removing it after delivery and verification.
 | 1 | Notes are separate entries, each with its own context. | slice 2 | observed: dashboard/frontend-tests/stories/story-notes.spec.ts desktop/phone saved entries and distinct text; StoryNotesControl.tsx renders separate li keyed by server note id with story context. |
 | 2 | Notes belong to the correct project and story identity. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 3 | The collection accumulates across reviews from Taken through Done. | slice 8 |  |
-| 4 | Notes survive new launches. | slice 6 |  |
+| 4 | Notes survive new launches. | slice 6 | observed: dashboard/frontend-tests/stories/story-notes-retained.spec.ts: same note read after replacing the launch and reloading |
 | 5 | Notes survive a dashboard restart; the example restarts the dashboard and reads the saved line note. | slice 8 |  |
-| 6 | Notes survive the story moving from Taken to Done. | slice 6 |  |
-| 7 | Notes survive workspace removal; the example reads the same note from the Recently done card. | slice 6 |  |
+| 6 | Notes survive the story moving from Taken to Done. | slice 6 | observed: dashboard/frontend-tests/stories/story-notes-retained.spec.ts: Taken save read from the same identity on Done |
+| 7 | Notes survive workspace removal; the example reads the same note from the Recently done card. | slice 6 | observed: dashboard/frontend-tests/stories/story-notes-retained.spec.ts: Done card count and note with empty machine records, no active workspace or launch |
 | 8 | Every story card offers Notes. | slice 2 | observed: story-notes.spec.ts desktop/phone Backlog, Taken and Recently done Notes assertions; StoryCard and DoneStoryCard mount the same control. |
 | 9 | A card shows the current note count when notes exist; examples require one after adding the first note and an updated count after deletion. | slice 4 | observed: Real story-notes-persistence E2E first-save count1 remains green; story-notes-edit desktop/phone asserts count1 after cancel and Notes without count after confirmed delete. |
 | 10 | A card’s Notes opens Story notes for that story. | slice 2 | observed: story-notes.spec.ts opens selected card and expectContext verifies its title/identity; other-story empty list assertion. |
@@ -51,9 +51,9 @@ last removing it after delivery and verification.
 | 19 | A story that has never been reviewed can receive a general note through its card. | slice 2 | observed: story-notes.spec.ts Backlog readyStory with no prior review saves general notes through card. |
 | 20 | Every story file diff offers Add note beside the file path: Review changes and Intent → Changed tests, Taken workspace comparisons and Done Published completion or landed run alike. Amendment: Add note is offered in every story review, Taken or Done. | slice 7 |  |
 | 21 | Every story file diff offers Add note in each line-number menu, under those same views and comparison conditions, including Taken workspace comparisons and Done Published completion or landed runs. | slice 7 |  |
-| 22 | Workspace-review line numbers gain a menu containing Add note. | slice 6 |  |
+| 22 | Workspace-review line numbers gain a menu containing Add note. | slice 6 | observed: e2e/review/story-review-workspace-add-note.spec.ts: Add note-only line menu saves exact snapshot endpoints and line text |
 | 23 | Existing Follow up remains beside Add note wherever it was offered; the Done Published completion example names both the line menu and file header. | slice 7 |  |
-| 24 | A reviewed session with no story offers no Add note in its diff. | slice 6 |  |
+| 24 | A reviewed session with no story offers no Add note in its diff. | slice 6 | observed: dashboard/frontend-tests/sessions/recently-done-ad-hoc-review.spec.ts: standalone session diff has no line menu and no Add note |
 | 25 | The composer shows the note’s context before saving. | slice 5 | observed: Published real E2E and Landed frontend composer assertions show story/title, view, paths, exact endpoints and optional raw line before save; shared StoryNoteContext renderer. |
 | 26 | Note context includes the story’s identity, shown before saving and afterwards. | slice 7 |  |
 | 27 | Note context includes the story’s title, shown before saving and afterwards. | slice 7 |  |

@@ -24,7 +24,7 @@ export function DiffLineNumber({
   readonly open: boolean;
   readonly onOpen: () => void;
   readonly onClose: () => void;
-  readonly onFollowUp: () => void;
+  readonly onFollowUp?: () => void;
   readonly onAddNote?: () => void;
 }) {
   const label = lineNumberLabel(side, line);
@@ -133,17 +133,19 @@ export function DiffLineNumber({
           }}
         >
           <p className="story-review-line-menu-label">{label}</p>
-          <button
-            type="button"
-            role="menuitem"
-            className="frame-button"
-            onClick={() => {
-              onClose();
-              onFollowUp();
-            }}
-          >
-            Follow up
-          </button>
+          {onFollowUp !== undefined && (
+            <button
+              type="button"
+              role="menuitem"
+              className="frame-button"
+              onClick={() => {
+                onClose();
+                onFollowUp();
+              }}
+            >
+              Follow up
+            </button>
+          )}
           {onAddNote !== undefined && (
             <button
               type="button"

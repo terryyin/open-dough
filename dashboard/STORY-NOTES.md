@@ -44,3 +44,9 @@ and closes after saving. Its context shows the view, file path (including
 the previous path of a rename), comparison name and endpoints; a line note
 also keeps its number, side and the text as it read, including revealed
 context lines. The saved entry shows the same facts away from the diff.
+
+A Taken story’s workspace comparisons also offer **Add note** at the file and
+line. Its line menu holds **Add note** alone; **Follow up** retains its Done
+comparison eligibility. Notes keep the Comparison switch’s words and the
+actual endpoints. They stay with the story through new launches, completion
+and workspace removal. A session without a story offers no notes actions.

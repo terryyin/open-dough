@@ -17,7 +17,12 @@ export function storyNotesPage(page: Page) {
         dialog.getByRole("list", { name: "Saved notes" }),
       ).toHaveCount(0);
     },
-    fromLine: async (scope: Locator, side: "old" | "new", line: number) => {
+    fromLine: async (
+      scope: Locator,
+      side: "old" | "new",
+      line: number,
+      actions = ["Follow up", "Add note"],
+    ) => {
       await scope
         .getByRole("button", {
           name: `${side === "old" ? "Old" : "New"} line ${line}`,
@@ -25,10 +30,7 @@ export function storyNotesPage(page: Page) {
         })
         .click();
       const menu = page.getByRole("menu");
-      await expect(menu.getByRole("menuitem")).toHaveText([
-        "Follow up",
-        "Add note",
-      ]);
+      await expect(menu.getByRole("menuitem")).toHaveText(actions);
       await menu
         .getByRole("menuitem", { name: "Add note", exact: true })
         .click();
