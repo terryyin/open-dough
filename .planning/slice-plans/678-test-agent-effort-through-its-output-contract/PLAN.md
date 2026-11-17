@@ -198,6 +198,14 @@ and identity responsibilities using existing shared owners. Inspect every
 removed/merged case's surviving witness before accepting the final contract.
 Accepted proof: focused family 73 passed; comparison projection in `agentEffortComparisonReport.ts`; scratch rename of `agentEffortSingleReportFacts.ts` with production-only import updates kept specs unedited and 73 passing; scratch disable of stored/native overlap exclusion failed `agent-effort-compare-overlap.spec.ts` (expected input 50, received 70); both restored.
 
+## Execution complete
+
+Product advice: no change to priorities. The contract and question-led
+examples make later agent-effort report changes cheaper: extend a contract
+section and its test reader first. One residue correction is drafted:
+[SEED-345#split-the-agent-effort-contract-guide](../../seeds/SEED-345-session-token-efficiency.md#split-the-agent-effort-contract-guide)
+(`dashboard/AGENT-EFFORT.md` is 253 lines, over the 250-line limit).
+
 ## Current decisions and preparation assessment
 
 - Interim: unmigrated output variants and their current tests remain intact
