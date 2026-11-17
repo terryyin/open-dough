@@ -364,6 +364,18 @@ DD-378's plan-exclusion response and `SEED-229` retirement evidence are
   - Observed effect: two classification reruns; the two Settings cases have no owning story since SEED-287 closed.
   - Inference: qualified match to this finding's dashboard load facet; the Settings pair is named by no active story.
 
+- Execution: SEED-393#repeat-native-guidance-checks-on-real-story-examples (plan 674; first implementation d178ed635)
+  - Timestamp: unknown (2026-11-17, evaluation runs between 12:30 and 15:45 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take cc72d082c)
+  - Evidence:
+    - `npm run test:evaluation` at load 15–31 hit the 180 s job deadline in untouched suites, 2 jobs in one run and 15 in another. Among them were `delivery-evidence/proof-scheduling-native.sh`, `git-publication/git-publication-native-admission-closure.sh` and the baseline and admission-reuse checks. Each passed when rerun alone at load about 10.
+    - `native-guidance-checks/native-guidance-check-supplier-watch.sh` failed its 10 s `wait_for` at line 59 in two whole runs. It passed alone, on the candidate and on clean HEAD.
+    - Branch CI passed on every slice revision.
+  - Observed effect: classification reruns and a delivery that rested on targeted proof plus CI. No whole evaluation run at that load was clean.
+  - Inference: this is the evaluation family's facet of the same load class. The supplier-watch `wait_for` bounds of 10 s are a test defect under the failure policy, and no story owns them.
+
 **Response:** The per-job deadline and bounded process cleanup landed in
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [SEED-287 completed](.planning/done/SEED-287_fit-dashboard-journeys-in-default-timeout.json). The observations above still include settings cases outside its scope and loaded runs without a comparable post-response result.

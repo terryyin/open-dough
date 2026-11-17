@@ -5,6 +5,13 @@
 
 [Retained provenance, findings, PFE, decisive premises and verification decisions](preparation-evidence.md).
 
+Paths below predate the move to Native guidance checks: the entry is now
+`Distribution/evaluation/src/native-guidance-check.sh` (with its `-catalog`,
+`-run`, `-turn`, `-retain` modules), cases live in
+`Distribution/evaluation/cases/guidance-checks/` and their tests in
+`Distribution/evaluation/tests/native-guidance-checks/`
+(`native-guidance-check-<case>.sh`). Retrace them when this plan is refined.
+
 ## Goal and scope
 
 A maintainer running native comparison cases gets four fixes. Arm-owned

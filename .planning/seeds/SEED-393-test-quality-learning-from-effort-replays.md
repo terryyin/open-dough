@@ -342,6 +342,9 @@ quality case retains value, with remaining obligations explicit.
 ### 5. Guidance-check participants can run their owning proof
 
 **Identity:** SEED-393#guidance-check-participants-run-owning-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md"}
+```
 
 **Goal:** a maintainer repeating the `launch-command-tests` Native guidance
 check sees whether the participant ran the proof that owns its change. At
@@ -353,6 +356,24 @@ environment the participant's commands inherit), proved without a paid
 session. Retrospective correction of
 [story 3](#repeat-native-guidance-checks-on-real-story-examples). Plan:
 [676](../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md).
+
+<a id="recovery-proof-covers-historical-case-paths"></a>
+
+### 6. Recovery proof covers historical case paths
+
+**Identity:** SEED-393#recovery-proof-covers-historical-case-paths
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md"}
+```
+
+**Goal:** a maintainer can trust that the maintained recovery test protects
+recovery of kept records whose inputs were saved under an earlier collection
+path. Today a regression there passes that test.
+
+**Scope:** the credential-free refresh and recovery test only. Intent
+Coverage correction of
+[story 3](#repeat-native-guidance-checks-on-real-story-examples). Plan:
+[677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md).
 
 ## Reconciliation and scope reduction
 

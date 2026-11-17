@@ -159,6 +159,8 @@ native_comparison_basis_observe() {
   done < <(sed -nE 's/^(case-)?input-hash: ([0-9a-f]{64}) (.+)$/\2 \3/p' "${record}")
   printf 'recorded-inputs: %s\n' "${#native_comparison_basis_paths[@]}"
   name=$(sed -nE 's/^(comparison|case): (native-comparison\/)?//p' "${record}" | head -n 1)
+  # Kept records name the case directory of their time; keep every
+  # historical form so recovery reaches them after the collection moves.
   for path in "${native_comparison_basis_paths[@]}"; do
     [[ ${path} == *"native-comparison/${name}/"* || ${path} == *"cases/comparison/${name}/"* || ${path} == *"cases/guidance-checks/${name}/"* ]] || continue
     native_comparison_basis_case_dir=${path%%"/${name}/"*}/${name}

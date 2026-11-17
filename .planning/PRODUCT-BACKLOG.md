@@ -36,6 +36,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Guidance-check participants can run their owning proof](seeds/SEED-393-test-quality-learning-from-effort-replays.md#guidance-check-participants-run-owning-proof) — SEED-393#guidance-check-participants-run-owning-proof
+- [Recovery proof covers historical case paths](seeds/SEED-393-test-quality-learning-from-effort-replays.md#recovery-proof-covers-historical-case-paths) — SEED-393#recovery-proof-covers-historical-case-paths
 - [Tests protect their own behavior without incidental coupling](seeds/SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof) — SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story
 - [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story
