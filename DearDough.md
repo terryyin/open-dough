@@ -36,6 +36,13 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 4 (`cee9c1db2`) made each browser Playwright configuration read its job from `.github/workflows/ci.yml` at load. Its consumer trace and focused proof ran the shard, CI-proof and runner tests but not `local-test-suite*.test.mjs`, whose fixture `ci.yml` (`Distribution/tests/support/local-test-suite-checkout.mjs`) declared only `distribution-tests`. CI run 43805225551 failed Distribution Tests 3/3 ("no dashboard-integrated job"); repair `05f7ef4f0` declared the browser jobs in the fixture.
   - Observed effect: one CI failure and repair cycle on the branch; no trunk impact.
   - Inference: the changed effect was "configuration load reads the real workflow", whose consumers include every fixture that loads a configuration; tracing importers of the changed modules did not reach that fixture. Slice 1 and 2 returns had already listed `local-test-suite-checkout.mjs` as a consumer of the runner copy.
+- Execution: SEED-391#redo-the-effort-story-under-the-test-focus-guidance (plan 668; first research publication 5ea5ca123ecc8b5b87321adb69a3920bcec8f732)
+  - Timestamp: 2026-11-17T02:08:01.442516+00:00 (post-trial diagnostic completed)
+  - Tool: Codex
+  - Open Dough release: modified; replay patch 934a51a30 over historical 0.3.102 guidance
+  - Evidence: [corrected comparison](https://github.com/terryyin/open-dough/blob/fbfaa116b961a445cc606fd05363bf75f6ecad5f/.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-comparison.md), frozen product/test 8b9005acc, native completion 57f805ee2. Selected model/effort E2E gates omitted the unchanged empty-ad-hoc case; one post-trial run failed expected argv length 3 versus actual 5 including medium. Claude's wider replay had exposed the affected consumer family.
+  - Observed effect: edited backend observations improved, but the whole Codex test migration was incomplete. The outer research review initially missed it and corrected its smaller-diff inference. Both trial trees stayed frozen.
+  - Inference: selecting by edited files/new concept spelling can miss consumers coupled through old output shape. Queued response: SEED-393#proof-reaches-unchanged-consumers-of-changed-output; no all-clean or guidance-only effect claim.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -82,6 +89,13 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator launch a6f339d0-f7b7-4741-81af-665f3195db73 combined CI/delivery/fresh-increment guidance with runtime files in a tool result reporting 14823 original tokens and truncation; a later combined backlog/record-preparation/closure-publication result reported 11701 and truncation. Targeted code/reference reads subsequently recovered affected decisions. The automatic discovery probe independently caught the complete-root omission and restored cleanly (469635 ms invocation-to-report; 7.715 s all focused commands; agent/human effort unavailable).
   - Observed effect: broad outputs omitted requested passages and required bounded recovery, including in the closing review. Command handles, rejected measurements, exact reversion, CI completion and probe restoration remained recoverable.
   - Inference: recurrence of known output-scoping deviation under existing targeted-reading guidance. Mandatory reviews themselves are not called waste; the avoidable share and isolated elapsed/token saving are unmeasured.
+- Execution: SEED-391#redo-the-effort-story-under-the-test-focus-guidance (plan 668; first research publication 5ea5ca123ecc8b5b87321adb69a3920bcec8f732)
+  - Timestamp: unknown (2026-11-17 continuation and wrap-up)
+  - Tool: Codex
+  - Open Dough release: unknown (coordinator's checkout-bound installed guidance; native replay patch provenance is separate)
+  - Evidence: this coordinator conversation/tool record. Combined skill/report reads exceeded the visible output budget; a broad search over the temporary consumer inventory reported about 79,676 original tokens. Later reads targeted the missing sections. The prior ODF-264 problem recurred during this review itself.
+  - Observed effect: avoidable retrieval and context churn; narrower reads recovered the decision-relevant instructions. No extra native trial, product change or proof loss is attributed to truncation.
+  - Inference: batch independent narrow reads, not unbounded inventories or several long references together. Token or monetary saving from that practice is not measured here.
 
 ## ODF-205 — Execution starts on a red trunk unannounced <a id="odf-205"></a>
 
@@ -340,6 +354,14 @@ slices timed by the new slice clock had no such gap.
   - Evidence: agent returns against the host's recorded run durations. Slice 2 implementer "about 11 minutes, estimated and not clock-measured" against 261 s. Refactor passes "roughly 10", "roughly 12", "6" and "roughly 6 minutes" against 113 s, 158 s, 70 s and 95 s. Slices 3–5 ran under the slice clock from source: 3.4, 3.7 and 1.7 active minutes, each matching its record's periods less its `run` intervals.
   - Observed effect: no overrun and no wrong stop here, since every slice was far inside 15 minutes. An estimate of this kind near the limit would report an overrun that did not happen, or support a split that was not needed.
   - Inference: one execution, one model and short slices; the direction on long slices is not observed. Earlier findings that quote an agent's own minutes (DD-545, DD-548) may overstate those overruns.
+- Execution: SEED-391#redo-the-effort-story-under-the-test-focus-guidance (plan 668; first research publication 5ea5ca123ecc8b5b87321adb69a3920bcec8f732)
+  - Timestamp: 2026-11-17T01:08:01.140Z (first Claude refactor return)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; replay patch 934a51a30 over historical 0.3.102 guidance
+  - Evidence: [readable refactor returns](https://github.com/terryyin/open-dough/blob/fbfaa116b961a445cc606fd05363bf75f6ecad5f/.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-refactor.md). First return estimates 25 active minutes within a 00:58:57.197–01:08:01.140 UTC delegation window (9.07 elapsed minutes); later returns estimate 12, 10 and 15 minutes within approximately 3.79, 1.83 and 2.34 elapsed minutes.
+  - Observed effect: self-estimates exceed even whole delegation elapsed time; the research does not use them as actual work time. Native usage, defined transcript proxies and unavailable exact active time remain separate.
+  - Inference: changing host/model does not make a self-reported clock reliable; measured elapsed is an upper bound here, not an active-work measurement. No new runtime counter or story is selected from this occurrence.
 
 ## DD-551 — A rule over retained history is accepted on fixtures before any real-history comparison
 

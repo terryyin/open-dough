@@ -34,6 +34,10 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Verification reaches affected consumers before completion is claimed](seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output) — SEED-393#proof-reaches-unchanged-consumers-of-changed-output
+- [Tests protect their own behavior without incidental coupling](seeds/SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof) — SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
+- [Repeat native guidance checks using focused examples](seeds/SEED-393-test-quality-learning-from-effort-replays.md#repeat-native-guidance-checks-on-real-story-examples) — SEED-393#repeat-native-guidance-checks-on-real-story-examples
+- [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story
 - [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets

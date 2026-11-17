@@ -82,3 +82,23 @@ mechanism must cover all three groups, which are run with `npm run test:e2e`,
    preparation inside its budget.
 3. `intent-done-source-selection` runs first at load 30–50 → it passes with
    wide margin and keeps its two published stories and trunk-advance evidence.
+
+
+#### Current repair and remaining protection
+
+SEED-391's mandatory CI correction already moves normal shared app/server
+preparation into the common worker owner; reconcile that solution before
+changing the remaining consumers. Its [bounded input and accepted proof](https://github.com/terryyin/open-dough/blob/fbfaa116b961a445cc606fd05363bf75f6ecad5f/.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/ci-repair.md)
+retain the controlled 31-second preparation observation, hosted acceptance and
+five custom fixture profiles that were deliberately left unchanged.
+
+The 2026-11-17 Intent Coverage check at `fbfaa116b` found an assertion gap:
+`review/story-review-state-admission.spec.ts` passed after common preparation
+was faulted to request an app in boundary mode. An independent artifact trace
+observed a real 1.993-second app build. Baseline and restored checks passed
+with zero app requests; no actual delivered defect was established.
+Preserve that boundary-only behavior and add a focused infrastructure assertion
+for server-bundle preparation with zero app requests. Keep the review-state
+case's product assertions intact. The complete report is retained in SEED-391's
+completion record. This is proof strengthening within this preparation story,
+not a new product prerequisite or permission to broaden the implementation.

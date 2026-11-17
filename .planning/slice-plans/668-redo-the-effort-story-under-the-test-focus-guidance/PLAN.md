@@ -235,13 +235,13 @@ Codex E2E case fails and Claude retains residue. P's written order is useful,
 not an execution-ready proof. All measurement/context limits remain explicit.
 No research product correction remains after those record corrections; no
 trial code or guidance is adopted. E2E catches consumer coupling in the native
-work; this parent research adds no product tests. Selected process review stays
-with its existing deferred wrap-up owner. SEED-393 is unqueued/unpublished;
-retain workspace and scratch for Terry's requested review.
+work; this parent research adds no product tests. Deferred process review and
+Intent Coverage are settled in wrap-up.md. Terry authorized four SEED-393
+stories at the top of the backlog and ordinary wrap-up/landing.
 
 ## Execution complete
 
 Product advice: keep the observed narrowing, actual-reader and planning-order
 mechanisms with their recorded limits; revise the brief's counting clause.
 Oversized-follow-up remains unexercised, original Codex brief unassessed.
-Tentative SEED-393 candidates stay unselected; no guidance change is adopted.
+Queued SEED-393 approaches stay unselected; no guidance change is adopted.
