@@ -192,3 +192,19 @@ See [inspected proof and consumer dispositions](proof.md).
 Reported: slice 4 — "Independent refactoring found that env command -v can print a missing executable error on Linux, unlike the old redirected probe."
 Story clause: "keep every fact they assert today"
 Disposition: proved by slice 4: native-runner-failures.sh builtin command -v probe; /tmp/seed396-s4-refactor-focused.log runner and guard exit 0; no external command executable dependency
+
+## Execution complete
+
+Product advice: no change. Keep the sibling removal story's reviewed scope;
+the guides and helper now preserve the requested check-writing contract. No
+measured authoring-time or native-host improvement is claimed.
+
+## Retrospective state
+
+Product/proof review completed against source, initial plan at54e1b5c0e,
+all nine published implementation/repair revisions through30962c927a, and
+inspected assertion maps. ADR0004/0005 hold. Command/layer unit checks use
+real collaborators and substitute external hosts; no new E2E workflow is owed.
+No residue/correction or product-priority change identified. Process remains
+selected and deferred into wrap-up until its Intent Coverage result/disposition.
+Full local evaluation now passes; applicable final CI/shutdown is still owed.

@@ -50,3 +50,17 @@ Source-shape consumer `native-stream-replay.sh` also passed via runner, `/tmp/se
 Both guides inspected against all five rules and P01–09, including supervision/two-case catalog examples, controlled-proof limits, actual nine-word API and timeout evidence. Family src reuse addresses implementation. New-check walkthroughs follow the intended entries.
 `slice-clock.mjs run --log /tmp/seed396-s7-focused.log --exit-file /tmp/seed396-s7-focused.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-check-expectations.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` passed.
 `slice-clock.mjs run --log /tmp/seed396-s7-links.log --exit-file /tmp/seed396-s7-links.exit -- python3 /tmp/seed396-s7-links.py` resolved all27 local links/anchors. Trace `/tmp/seed396-s7-consumer-trace.md`: incoming guide links valid, no runtime prose consumer. Agent noted these independent proof commands overlapped before both terminal receipts were collected; both subsequently exit0 and mutable inputs did not overlap.
+
+## Final evaluation and owned repairs
+
+All75 job outcomes passed at30962c927a with
+`node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed396-final-evaluation2.log --exit-file /tmp/seed396-final-evaluation2.exit -- env PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/seed396-final-evaluation2-times.txt OPEN_DOUGH_TEST_OUTCOMES=/tmp/seed396-final-evaluation2-outcomes.txt caffeinate -s -i npm run test:evaluation`.
+AC power,16cores, natural load12.94 and~62%CPU idle at launch; default4jobs.
+One repeat after a demonstrated readiness repair, not a green retry.
+Original full run failed only supplier-watch; its mis-timed pre-setup readiness
+clock was reproduced before the readyFIFO repair and passed after, with all
+phase/native/job deadlines preserved. See diagnosis-supplier-watch-local.md.
+CI share1 had exhausted its absolute320s cutoff; exact discovery kept654jobs
+once while30 installation checks moved to catch-allshare3. See
+diagnosis-ci-share1-deadline.md; real postrepairCI remains the completion gate.
+Both repairs received independent clean refactor returns and focused proof.
