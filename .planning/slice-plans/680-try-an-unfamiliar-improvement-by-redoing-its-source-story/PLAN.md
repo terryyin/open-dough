@@ -191,6 +191,14 @@ walked on the edited
 section for both cases above; `npm run --silent format` and
 `npm run lint -- --staged` clean.
 
+## Execution complete
+
+Product advice: the redo kept the "counted with normal wrapping" wording for
+the file-size limit within its observed context; adopting it in
+`Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md`
+is ODF-361's ordinary follow-up, now offered by finding triage. No product
+correction is needed from this execution.
+
 ## Current decisions
 
 - Target ODF-361, host Codex, source occurrence plan 451 (the shorter phase
