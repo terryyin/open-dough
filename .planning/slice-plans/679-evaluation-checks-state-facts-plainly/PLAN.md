@@ -37,7 +37,7 @@ changes belong to
 | The six run-entry checks pass as named paths | Every slice's focused proof | `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh` with the six paths, this workspace at `d06fbd825`, 2026-11-17 | exit 0, 73 s wall |
 | A helper under `support/` is not scheduled as a job | Slice 1 adds the helper | Read `scripts/test-jobs.sh`: evaluation discovery excludes `*/support/*` | Not a job |
 | Vocabulary lines do not trip the rejected-case guard | Slices 2–6 state `assessment-status` and `execution-status` facts | Scratch-appended three `native_check_expect_*` lines to `native-run-timeout.sh`, ran `native-assessor-counterexample-guard.sh`, reverted, same workspace and date | Guard exit 0 |
-| The six checks call four production functions | Slices 2–6 keep those calls | `grep` of the six files | `native_result_assert_no_discovery_fields` (4 checks), `native_host_stream` (2), `native_run_watchdog` with `native_run_owned` (watchdog cleanup), `native_run_write_output` (workspace isolation) |
+| The six checks call five production functions | Slices 2–6 keep those calls | `grep` of the six files | `native_result_assert_no_discovery_fields` (4 checks), `native_host_stream` (2), `native_run_watchdog` with `native_run_owned` (watchdog cleanup), `native_run_write_output` (workspace isolation), `product_backlog_native_cleanup` (runner failures) |
 
 Each check's discrimination under its named break is observed inside its
 slice, before the rewrite; a check that stays green under its break stops
@@ -87,7 +87,7 @@ when reverted.
 
 ### 4. The runner-failures check states its facts through the vocabulary
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: as slice 2, for `native-runner-failures.sh`.
 
@@ -205,3 +205,17 @@ Retention preserves all artifact, field, stream, host/version, refusal/listing, 
 `slice-clock.mjs run --log /tmp/seed396-s3-<label>.log --exit-file /tmp/seed396-s3-<label>.exit -- env PATH=/opt/homebrew/bin:$PATH python3 /tmp/seed396-s3-events-fault.py` before/after rewrite fails on nonempty events; exact production bytes restored.
 `slice-clock.mjs run --log /tmp/seed396-s3-final-restored.log --exit-file /tmp/seed396-s3-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-result-retention.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` passed.
 Consumer trace `/tmp/seed396-s3-consumer-trace.md`: changed check only; helper unchanged. Removal sibling plan 680 has no delivered product change and explicitly preserves compatible rewrites/race protection.
+
+### Slice 4
+
+Runner failures retains every fact for missing/nonzero/denied hosts and cleanup evidence. Direct named-result calls preserve failure propagation; exact nonzero statuses and failed/not-run fields imply previous negative alternatives.
+`slice-clock.mjs run --log /tmp/seed396-s4-<label>.log --exit-file /tmp/seed396-s4-<label>.exit -- env PATH=/opt/homebrew/bin:$PATH python3 /tmp/seed396-s4-completed-fault.py` before/after rewrite rejects failed→completed; exact source restored.
+`slice-clock.mjs run --log /tmp/seed396-s4-final-restored.log --exit-file /tmp/seed396-s4-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-runner-failures.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` passed.
+Consumer trace `/tmp/seed396-s4-consumer-trace.md`: private check only; cleanup producer unchanged. Corrected premise enumeration to include its existing cleanup call.
+
+## Story obligations
+
+### G1. Missing-host probe stays silent on Linux
+Reported: slice 4 — "Independent refactoring found that env command -v can print a missing executable error on Linux, unlike the old redirected probe."
+Story clause: "keep every fact they assert today"
+Disposition: proved by slice 4: native-runner-failures.sh builtin command -v probe; /tmp/seed396-s4-refactor-focused.log runner and guard exit 0; no external command executable dependency
