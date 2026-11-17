@@ -25,6 +25,13 @@ delivery_evidence_capture_installed_inputs() {
     "${installed_root}/dough-execute-plan/references/wrap-up.md"
     "${installed_root}/dough-story-refinement/references/executable-proof.md"
   )
+  local reference
+  # Earlier payload revisions predate these references.
+  for reference in return-report proof-evidence; do
+    if [[ -f ${delivery_evidence_workspace}/${installed_root}/dough-execute-plan/references/${reference}.md ]]; then
+      inputs+=("${installed_root}/dough-execute-plan/references/${reference}.md")
+    fi
+  done
   if [[ ${case_name} == drift ]]; then
     inputs+=(
       "${installed_root}/dough-execute-plan/scripts/story-obligations.mjs"
@@ -65,7 +72,9 @@ delivery_evidence_write_evidence_identity() {
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
     Distribution/src/skills/dough-execute-plan/references/wrap-up.md \
-    Distribution/src/skills/dough-execute-plan/references/delegation.md
+    Distribution/src/skills/dough-execute-plan/references/delegation.md \
+    Distribution/src/skills/dough-execute-plan/references/return-report.md \
+    Distribution/src/skills/dough-execute-plan/references/proof-evidence.md
   if [[ ${case_name} == nostore || ${case_name} == deferred ]]; then
     native_result_input_hash_lines Distribution/evaluation/cases/delivery-evidence/delivery-evidence-aggregate-native-observe.sh
   fi
@@ -182,6 +191,11 @@ delivery_evidence_retain_source_acceptance() {
 }
 
 delivery_evidence_retain_review_artifacts() {
+  local evidence
+  evidence=$(git -C "${delivery_evidence_workspace}" rev-parse --path-format=absolute --git-path open-dough/evidence) || return
+  if [[ -d ${evidence} ]]; then
+    cp -R -- "${evidence}" "${native_result_attempt_dir}/proof-evidence"
+  fi
   local retain="delivery_evidence_${1}_retain_review_artifacts"
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/status-proof.md" status-proof.md
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/producer-proof.md" producer-proof.md

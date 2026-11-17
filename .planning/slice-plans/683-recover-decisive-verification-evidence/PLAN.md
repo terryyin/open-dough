@@ -47,6 +47,13 @@ which the implementer applies before editing any skill file.
   `Distribution/tests/installation/payload-declaration-links.sh` check so
   installed guidance cannot point to an omitted new reference. This is
   declaration maintenance, not an installation or release operation.
+- **Native fixture consumers:** slice 3's moved report owner changes the
+  guidance files and evidence location the existing delivery-evidence fixture
+  retains. Update that fixture's explicit input hashes and existing artifact
+  capture to keep only the checkout's Git evidence subdirectory, without
+  copying Git state or adding an adapter. Baselines without the new files or
+  evidence directory remain valid. Prove capture through deterministic helper
+  observations, including survival after fixture cleanup; no paid/native run.
 
 **Planned reorganization.** `delegation.md` is 248 lines and
 `executable-proof.md` 250, at the
@@ -140,7 +147,7 @@ overdue check names the run record as the retained command identity.
 
 ### 3. A hand-back is a short verdict over a report on disk
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `Distribution/tests/skills/dough-execute-plan/return-report.test.mjs`
 (guidance structure), `acceptance-stopping-rule.test.mjs` and
 `read-budget.test.mjs`.
@@ -158,12 +165,41 @@ candidate. The section move in [Architecture](#architecture) is part of this
 slice; every existing requirement of the return stays, word for word where it
 moves. Completion markers stay verbatim.
 
+### 4. Native acceptance inputs retain their original proof subject
+Type: Behavior
+Status: planned
+Proof: deterministic delivery-evidence fixture checks through the existing
+runner; native input, identity and artifact-capture checks. No paid/native run.
+
+Behavior: a current delivery-evidence fixture prepares a returned implementation
+for acceptance under the installed compact-return contract → its existing
+assembly and producer boundary emit a per-promise verdict, full original report
+and actual run records in the Git evidence location → the coordinator can reach
+the original observations or intentional gaps without a new transport gap
+masking them. Preserve every scenario's source conditions, claim, selected proof,
+expected acceptance/incompleteness and original full report content. Capture
+actual producer commands from their first run through the installed clock;
+invent no passing evidence, new rejection rule or missing-transport exemption.
+Payload baselines without the new contract retain their original handoff shape.
+Extend existing fixture owners, not a second scenario parser or adapter.
+
+The bounded proof loop constructs the affected acceptance families, observes
+verdict/report/record reachability and actual command metadata, and checks that
+the original sufficient and gap signals remain. Reuse unaffected runtime,
+guidance and retained-artifact proof from slices 1–3. A source-condition conflict
+or genuinely unavailable producer observation stops only that case for
+reassessment. This slice receives G3.
+
 ## Current decisions and preparation assessment
 
 - Evaluation is no slice: the story's keep, revise or stop judgment uses the
   next real planned execution after release.
-- Refinement was not needed: three Behavior slices, each with one outcome and
-  its own proof.
+- Execution refinement: retain slices 1–3 and add one Behavior slice for the
+  reached native acceptance-input consumer. The old narrative-only handoffs
+  would acquire transport gaps that mask their original proof subjects.
+  Four slices remain within the eight-slice limit; no overrun or source-scope
+  amendment. The shared model is the same verdict/report/run-record contract,
+  applied through the existing fixture assembly and producer boundaries.
 - Remaining slice-specific concerns: none identified in this review.
 
 ## Execution resume
@@ -177,11 +213,7 @@ moves. Completion markers stay verbatim.
   and the execution branch. Ordinary increments target only
   `origin/refs/heads/codex/recover-decisive-verification-evidence-after-lar`.
 - Replanning: preserve the existing planned authority. No scope amendment.
-- Setup: `npm ci` succeeded with the current lockfile and Node v24.21.0;
-  baseline `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/slice-clock.test.mjs`
-  passed. The system Bash 3.2 is unsupported; use Homebrew Bash 5 on PATH.
-  Selective formatter: `npm run --silent format`. Check-only `.githooks/pre-commit`
-  owns staged lint and dashboard typecheck when script files are staged.
+- Checkout setup and hook contract: [retained setup](execution-evidence.md#checkout-setup).
 - CI: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (CI), push-triggered;
   story-branch stream coordinator `yuma-683`, directory
   `/tmp/dough-ci-501/watch-zXkLEv`, PID 2984, session 45766, yielded cell `g800:13`.
@@ -189,9 +221,7 @@ moves. Completion markers stay verbatim.
   `pendingCi: unobserved`.
 - Applicable authoring constraints: ADR 0003 (source edits remain Proposed until
   release), ADR 0006 (one shared rule owner and execution-project perspective).
-- Slice 1 accepted on the execution branch at
-  `126391de866d4a3a40e0303c3098df318946ae33`, suffix base
-  `ace536b5eae3e657eb676afb40bb4f2af0b0461d`; observer reused and attached.
+- Accepted increments and comparison bases: [publications](execution-evidence.md#published-increments).
 
 ## Accepted execution evidence
 
@@ -203,3 +233,13 @@ See [accepted proof and refactor dispositions](execution-evidence.md).
 Reported: slice 1 — "Acceptance inspected slice-1-consumer-trace.md and found every located consumer's Disposition blank."
 Story clause: "The full report holds what the return requires today, including proof detail and the consumer-trace record."
 Disposition: proved by slice 1: corrected slice-1-consumer-trace.md in the checkout's Git evidence directory; real CLI, exit-file recovery and fixture consumers use the passing clock-surface observations, unrelated metadata and installed copies are explicitly excluded.
+
+### G2. Native fixture must retain moved evidence
+Reported: slice 3 — "Consumer inspection found explicit input hashes omit the moved report owner and native artifacts omit Git-located full reports before fixture teardown."
+Story clause: "A proof run's command, revision, result and decisive diagnostic stay recoverable after large output or runner cleanup"
+Disposition: proved by slice 3: delivery-evidence-native-routing.sh observes installed/source guidance hashes, baseline absence, and report/record/log survival after actual fixture cleanup; capture copies only Git evidence, not Git state.
+
+### G3. Legacy acceptance inputs acquire transport gaps
+Reported: slice 3 — "Native acceptance fixtures supply narrative/proof blocks without full-report paths or run JSON; new transport gaps could mask the original missing-proof subject, including sufficient scenarios."
+Story clause: "Which proof is required, the acceptance comparison and its stopping rule, and every required proof row"
+Disposition: receiving slice 4

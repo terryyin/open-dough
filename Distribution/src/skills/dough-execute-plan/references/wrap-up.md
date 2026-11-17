@@ -9,6 +9,12 @@ Apply [proof ownership](../../dough-story-refinement/references/planning.md#own-
 Complete [source-only review at acceptance](obtain-source-review.md#at-acceptance)
 before comparing the return.
 
+Use the short verdict to locate the full report and [run records](proof-evidence.md#read-the-run-record).
+A promise absent from the verdict, or a referenced report or run record missing
+from disk, is incomplete proof: return the slice naming the missing promise,
+report or record. Read from the report and logs only the parts the comparison
+below needs, under [targeted retrieval](disposable-research.md).
+
 Compare that independent return with the source, then the plan, implementation
 return, actual product and proof. In existing plan or acceptance evidence compare,
 in any equivalent layout: applicable original trigger/setup → source-expected
@@ -112,11 +118,16 @@ or evidence gap remains, inspect the smallest relevant callers or
 implementation for that gap. Return incomplete or contradictory evidence with the
 promise, inspected locations and gap; refactoring cannot supply missing behavior.
 
-Judge substance under [the return contract](delegation.md#return-a-targeted-report-with-focused-proof).
+Judge substance under [the return contract](return-report.md).
 Equivalent layouts carrying literal commands, results, owned changes, promise
 coverage, boundaries, setup and observation locations need no report-only resend
 or formatting retry. Missing terminal results or contradictions remain incomplete.
 Explicit completion markers such as `## REFACTOR COMPLETE` stay verbatim.
+
+Compare each run record's `revision` and `uncommittedChanges` with the candidate
+checkout. Proof from before a later checkout edit covers the earlier state;
+obtain only the observation that edit affects, preserving unaffected accepted
+evidence.
 
 Reuse accepted inspection only while its promise, boundary, implementation, setup
 and observations match. Recover literal commands from the original handoff; rerun

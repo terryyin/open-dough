@@ -40,6 +40,13 @@ for case_name in original terminal release drift aggregate; do
       > "${delivery_evidence_root}/product-observation.json"
     cp "${delivery_evidence_workspace}/.planning/producer-proof.md" "${delivery_evidence_root}/final-proof.txt"
   fi
+  evidence=$(git -C "${delivery_evidence_workspace}" rev-parse --path-format=absolute --git-path open-dough/evidence)
+  if [[ ${case_name} != aggregate ]]; then
+    mkdir -p -- "${evidence}"
+    printf 'full report sentinel\n' > "${evidence}/worker-report.md"
+    printf '{"exitStatus":0}\n' > "${evidence}/proof.run.json"
+    printf 'decisive diagnostic sentinel\n' > "${evidence}/proof.log"
+  fi
   delivery_evidence_retain_review_artifacts "${case_name}"
   cmp "${delivery_evidence_root}/command-results.jsonl" \
     "${native_result_attempt_dir}/command-results.jsonl"
@@ -61,6 +68,16 @@ for case_name in original terminal release drift aggregate; do
   else
     diff -r "${delivery_evidence_workspace}/e2e" "${native_result_attempt_dir}/final-product/e2e"
   fi
+  delivery_evidence_cleanup
+  [[ ! -e ${delivery_evidence_workspace} ]]
+  if [[ ${case_name} == aggregate ]]; then
+    [[ ! -e ${native_result_attempt_dir}/proof-evidence ]]
+  else
+    grep -Fxq 'full report sentinel' "${native_result_attempt_dir}/proof-evidence/worker-report.md"
+    grep -Fxq '{"exitStatus":0}' "${native_result_attempt_dir}/proof-evidence/proof.run.json"
+    grep -Fxq 'decisive diagnostic sentinel' "${native_result_attempt_dir}/proof-evidence/proof.log"
+    [[ ! -e ${native_result_attempt_dir}/proof-evidence/config ]]
+  fi
 done
 
 # Review families capture the installed guidance their round reads; drift
@@ -76,6 +93,8 @@ for host in claude codex; do
       dough-execute-plan/references/delegation.md
       dough-execute-plan/references/wrap-up.md
       dough-story-refinement/references/executable-proof.md
+      dough-execute-plan/references/return-report.md
+      dough-execute-plan/references/proof-evidence.md
     )
     [[ ${case_name} != drift ]] || expected_inputs+=(
       dough-execute-plan/scripts/story-obligations.mjs
@@ -90,6 +109,16 @@ for host in claude codex; do
     (cd -- "${delivery_evidence_workspace}" \
       && shasum -a 256 -c "${delivery_evidence_root}/installed-inputs.sha256") > /dev/null
   done
+done
+
+# Earlier payloads without the new references still have a valid capture.
+rm -- "${delivery_evidence_workspace}/${installed_root}/dough-execute-plan/references/return-report.md" \
+  "${delivery_evidence_workspace}/${installed_root}/dough-execute-plan/references/proof-evidence.md"
+delivery_evidence_capture_installed_inputs "${host}" "${case_name}"
+grep -Eq '/(return-report|proof-evidence)[.]md$' "${delivery_evidence_root}/installed-inputs.sha256" && exit 1
+delivery_evidence_write_evidence_identity original > "${root}/source-inputs"
+for reference in return-report proof-evidence; do
+  grep -Eq "^input-hash: [0-9a-f]{64} Distribution/src/skills/dough-execute-plan/references/${reference}[.]md$" "${root}/source-inputs"
 done
 
 # The amended family retains its fixture facts, final freshness and planning.

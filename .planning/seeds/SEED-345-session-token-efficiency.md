@@ -124,7 +124,7 @@ Each trial is judged with the
 
 **Identity:** SEED-345#recover-decisive-verification-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/683-recover-decisive-verification-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ffb81959c8ad32dc64b70f7a7f51f1ef199961224c7344527f4a491113c37ba","plan":"94b954acb84d8de9a7bc9b934a8df46271ced1b38eba0bdf590be18c94c017d5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/683-recover-decisive-verification-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ffb81959c8ad32dc64b70f7a7f51f1ef199961224c7344527f4a491113c37ba","plan":"2873efb2480f74d40477ac1b377c9d2ade738d97184356adf022c1b13805d232"}}
 ```
 
 **Goal.** A developer whose story an Open Dough coordinator executes gets each

@@ -53,6 +53,7 @@ managed_files+=(
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/retire-owned-watches.md
+  dough-execute-plan/references/return-report.md
   dough-execute-plan/references/runtime-setup.md
   dough-execute-plan/references/source-freshness.md
   dough-execute-plan/references/story-obligations.md
