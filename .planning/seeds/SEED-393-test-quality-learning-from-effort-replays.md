@@ -254,7 +254,7 @@ whose residue is inventoried case by case; a Codex redo is optional context.
 
 **Identity:** SEED-393#guidance-check-participants-run-owning-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the faithful native-wrapper backend and E2E success route is unobserved. The real-materialization scratch proxy still returns existing-changes/failed before backend launch (0 passed, 2 failed, 26 skipped) and no E2E Taken entry (0 passed, 4 failed); the proposed environment correction and sizing are not established."],"basis":{"document":"df24369a027e199684a41fd07ad43898fc55965bcb7dbcf4ab6e5dad80f25659","plan":"92fb76ec7406b25af9bd7502a8d8e5121744cae06196ce717627264be9bb4749"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"df24369a027e199684a41fd07ad43898fc55965bcb7dbcf4ab6e5dad80f25659","plan":"02c923c2c1f9caa825cd478c4e869affdb6b07c08544279312fe04bbebe845d0"}}
 ```
 
 **Goal:** a maintainer repeating the `launch-command-tests` Native guidance

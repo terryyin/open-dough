@@ -63,11 +63,16 @@ already documents sandbox denial of setuid `ps`. Its conservative mailbox
 fallback does not supply the historical fixture's actual process-group listing;
 changing it would not repair this case. No suitable existing repair was found.
 
-Use the shared sandbox owner only when diagnosis proves that responsibility
-shared; keep case-only setup in the case. Candidate homes at `572dc361e` are
-`case.bash` (118 lines), `native-codex.sh` (137), and, only if allocation must
-change, `native-guidance-check.sh` (186) or `native-guidance-check-run.sh` (182).
-None needs oversized-file reorganization. These are candidates, not a patch list.
+Keep the correction in the case's materialization/environment lifecycle.
+The unchanged shared wrapper already supports writable arm roots and protects
+sibling source/runtime paths. Give this case a private, usable process-listing
+tool and short private temp paths; export that environment before native start
+so resumed turns and the observer inherit it. Own generated tools, aliases and
+temp cleanup in that same case lifecycle, including partial setup failure.
+There is no demonstrated need to change the shared wrapper or arm allocator.
+At `fc5bfc051`, `case.bash` is 118 lines; an environment helper may keep its
+fixture and observation responsibilities clear. No expected edit is already
+oversized. This adds no new runner or host adapter.
 
 [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) supports
 deterministic environment proof while reserving native claims for native
@@ -78,45 +83,80 @@ topics do not govern this fixture correction.
 
 ## Decisive premises and preparation evidence
 
-Observed 2026-11-17 in this owned checkout at `572dc361e`, Codex CLI 0.169.0,
-Node 24, macOS; no model, credentials or native session used.
+Observed 2026-11-17 in this owned checkout at `fc5bfc051`, Codex CLI 0.169.0,
+Node 24.21.0, macOS. No model, credentials or native session was used.
+The fixture uses the real `case_materialize`, frozen `4b75c2888` project and
+committed overlay, and current payload; only the existing protective reference
+is applied in the disposable arm when the row names it.
 
-| Consuming operation, form and profile | Result and remaining limit |
-| --- | --- |
-| Source `native-codex.sh`; `native_codex_prepare ARM SOURCE`; wrap Node calling `spawnSync("ps", ["-axo", "pid=,pgid=,stat="], {encoding:"utf8"})` | Both `ps` and `/bin/ps`: `EPERM`, null status, undefined stdout. Unwrapped Node succeeds; `/bin/ps` is setuid. Reproduces the reported failure without a model. |
-| Same wrapper; private copy of `/bin/ps`, `chmod 755`, then `codesign --force --sign - COPY`, private bin first on PATH | Plain copy is killed; re-signed copy returns status 0, a real nonempty process table and Node's own PID. Proves a smoke check, not backend completion or CLI inheritance. |
-| `new EndpointBinding({DOUGH_GITHUB_REQUEST_OWNER_ROOT: ROOT, GH_TOKEN: "isolated-proof-token", GH_HOST: "github.com"}).directory()` through the endpoint module, byte-identical to pinned `4b75c2888` | Root length 119 rejects the socket path; root length 30 through a short alias's real child establishes a 54-byte socket path. A root that is itself a symlink is refused. No login request. Proves endpoint selection, not a browser journey. |
-| Real `case_materialize`, frozen protective reference, provisional PATH/private temp alias, then the commands in [observe-environment.bash](observe-environment.bash) | Backend: 0 passed, 2 failed, 26 skipped; initial launch answers `existing-changes`/`failed`. E2E: 0 passed, 4 failed, no Taken session entry; one timeout. Candidate environment is insufficient; causes remain open. |
-
-Literal full-fixture observation:
+Literal observation (run from the owned preparation checkout):
 
 ```sh
 PATH=/opt/homebrew/bin:$PATH caffeinate -s -i /opt/homebrew/bin/bash \
   .planning/slice-plans/676-guidance-check-participants-run-owning-proof/observe-environment.bash
 ```
 
-The retained script is working planning evidence, not an environment fix. It
-now returns nonzero on a failed group; the observed version printed failed
-verdicts but exited zero. Its fixture is nested in the owned checkout. An
-initial prototype protected that ancestor and denied writes to its fixture;
-that run is invalid. The reported run omits the explicit protected-source
-parameter to avoid this overlap. Default-deny still protects paths outside
-scratch roots. This is a proxy for the real runner's sibling source/arm layout,
-so its complete journey and protection remain unverified.
+The [script](observe-environment.bash) copies the source at HEAD, then uses
+sibling protected-source and work/arm trees. It calls
+`native_codex_prepare ARM SOURCE` and asserts real isolation is enabled.
+The consuming commands are `npx playwright test --config CONFIG --reporter=json
+SPECS`, with both backend spec paths or the E2E path from the case, through
+`native_codex_wrap env` with the private PATH/TMPDIR. Reports live inside the
+wrapper's writable temporary root. Test assertions and default timeouts are
+unchanged; no serial tail may be accepted as a pass.
 
-Before the run: 16-core Mac, AC, load 5.49/5.64/6.86, 74% memory free; one
-other checkout's E2E run visible. Chose sequential backend then E2E under
-`caffeinate -s -i`, informed by the case's roughly one-minute group timings.
-Reconsider on contention, sleep or new failures; do not raise timeouts.
+| Consuming operation, form and profile | Result and remaining limit |
+| --- | --- |
+| Wrapped Node `spawnSync("ps", ["-axo", "pid=,pgid=,stat="], {encoding:"utf8"})` with the original tool | `EPERM`, null status, undefined stdout. A complete backend negative run without the private tool reached 26 passes and two teardown failures at `processGroup.ts:185` (`stdout.split`); global cleanup also reported `ps failed (EPERM)`. It stranded workers and was interrupted after 122.4 s, then its four owned worker/server processes were terminated. The retained recipe repeats the direct tool negative rather than stranding workers again. |
+| Private copy of `/bin/ps`, `chmod 755`, `codesign --force --sign - COPY`, private bin first on PATH; full wrapped backend commands | Starting tests and the existing protective reference both pass 28/0, zero skips/flakes/global errors, successful teardown. This replaces the earlier tool-only smoke observation. |
+| Short alias to a private temp parent, whose generated endpoint roots are real children; full wrapped E2E command with the protective reference | All four cases pass, zero skips/flakes/global errors, browser/dashboard/private GitHub startup and teardown complete. The private process tool remains enabled. |
+| Same corrected environment, unchanged starting tests; full wrapped E2E command | 0/4, zero skips; each reaches the preserved `Received length: 5` assertion. No environment error substitutes for the intended starting-state failure. |
+| Same protective reference/tool, long canonical TMPDIR instead of the short alias; full wrapped E2E command | 0/4, zero skips; the page reports that published work could not be read and shows no Taken/Backlog entries. A separate invocation of the pinned `EndpointBinding.directory()` with the same long/short root forms confirms `path-too-long` for the long root and a socket path within 103 bytes for the short one, without a gh executable or stored login. The short-path browser journey above passes. |
+| Real wrapper attempts `touch SOURCE/.forbidden` on disposable protected source | Write denied and no file created. Runtime protection is unchanged and stays owned by native-wrapper proof; no write is attempted on the actual runtime. |
+| Observation exits | Owned fixture, generated tool, and short alias were removed on successful and failed observation EXIT paths. Final inspection found zero scratch roots and zero fixture-owned Node children. Setup-failure cleanup for the eventual maintained implementation remains slice-1 acceptance. |
+
+The old scratch launch failures were observation artifacts, not additional
+runner defects. Its empty fake project folders let Git walk into this owned
+worktree and report its changes; its extensionless CommonJS fake host scripts
+inherited this repository's `type: module`, causing `Illegal return statement`.
+The corrected owned observation bounds Git ancestor discovery with
+`GIT_CEILING_DIRECTORIES=WORK` and adds `{"type":"commonjs"}` at its private
+temp parent. These compensate for nesting the observation inside a repository:
+the actual runner's temp tree outside a Git/Node project has neither ancestor.
+They do not change any historical project, test, fake host, task, or overlay.
+The earlier report path outside writable TEMP_ROOT is corrected too. Source
+protection is enabled throughout the successful observations.
+
+The complete positive/starting-state sequence at 10:15 UTC returned backend
+28/0 in 10.6 s, starting E2E 0/4 at its exact argv assertion in 14.9 s,
+protective backend 28/0 in 7.4 s, and protective E2E 4/0 in 13.2 s. All had
+zero skips/flakes/global errors. The boundary-only repeat uses the same script
+with `--boundaries-only`; it reuses those complete journey results and repeats
+source protection, original-tool denial, long-path browser failure and the
+pinned endpoint witness. Its 10:18 UTC run completed with exit 0; the intended
+long-path E2E counterexample was 0/4 in 18.8 s, with no skips/flakes/global
+errors. Source writes were denied and both endpoint outcomes matched. The
+long-path page error is generic, so its observing
+assertion names that error and the separate endpoint witness owns the cause.
+
+Before the full sequence: 16-core Mac on AC, 73% memory free; load initially
+21.69/19.60/14.01, falling to about 8.8 before complete positive journeys.
+Other machine work was visible. Chose sequential groups with the unchanged
+two-worker default and `caffeinate -s -i`, using the roughly 9–18-second group
+observations. Reconsider on renewed contention or failures; raise no timeout.
+The wrapper is exercised by real child commands; this establishes environment
+feasibility, not that a paid native participant chooses to run its proof.
 
 ## Current decisions
 
-- Diagnose the remaining launch failures in the faithful sibling source/arm
-  profile before selecting a repair. Distinguish prototype artifacts from
-  runner defects; keep regression proof on the environment being repaired.
-- Use the smallest environment correction. The copied/re-signed tool is a
-  demonstrated possibility, not an adopted implementation. Preserve sandbox
-  protection and real process observations.
+- Use the demonstrated case-private environment: writable short temp paths
+  and a non-setuid, ad-hoc-signed copy of the real process-listing tool on
+  macOS, with cleanup owned by the case. Keep actual process observations;
+  never substitute synthetic process tables or weaken source/runtime isolation.
+- Keep private endpoint roots as real children of the short alias, not a
+  symlink root (the endpoint owner refuses the latter). Bound fixture ancestor
+  discovery if setup can be nested in a Git/Node project. These are fixture
+  environment choices, not repairs to the historical project or tests.
 - Trace changed environment, paths and wrapper behavior through consumers,
   including resume, comparison arms and cleanup. Shared changes need those
   callers' proof; case-only changes do not promise every case.
@@ -142,9 +182,11 @@ protection and cleanup. Record the cause, demonstrated boundary and remaining
 native-inheritance limit in `case.md`.
 
 Sizing: one cohesive environment outcome and proof loop, with the shared
-15-active-minute budget excluding command time. Diagnosis is a material risk;
-apply execution's sizing/escalation rule if it defeats that budget. Do not
-hide setup or weaken historical assertions.
+15-active-minute budget excluding command time. Diagnosis and a complete
+passing route are now observed; work is bounded to case setup/cleanup and its
+regression proof/docs. Keep them together because the outcome is one usable
+participant environment. Apply execution's sizing/escalation rule to any new
+cause. Do not hide setup or weaken historical assertions.
 
 ## Verification and preparation assessment
 
@@ -157,15 +199,19 @@ scope.
 Local gate: changed case/wrapper checks through `bash scripts/test.sh`, including
 `native-guidance-check-launch-command-tests.sh`, `…-e2e.sh`, `…-probes.sh` and
 `…-assessor.sh`, then `npm run test:evaluation`. The broader gate is justified
-by shared wrapper/path consumers and hash-bound case inputs. Long checks use
+by the case's exported environment, fixture callers and hash-bound inputs.
+Use the real macOS wrapper for the owning backend/E2E environment regression;
+portable checks alone cannot claim its sandbox behavior. Keep wrapper/resume
+checks as reused unchanged proof unless implementation actually changes that
+shared owner. Long checks use
 the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos),
 fully awake, `caffeinate -s -i` on AC. Reuse unaffected proof. No paid
 qualification; ordinary execution refactoring, delivery and CI duties apply.
 
-Slice-plan refinement was not needed: one cohesive complete environment
-journey; repartitioning cannot resolve the observed launch failures.
-Remaining slice-1 concern: faithful wrapped backend/E2E success is unobserved,
-and the scratch proxy fails before promised launches. Candidate correction
-and sizing are not established. Record not-ready until diagnosis and a
-matching observation settle these premises. No human-owned scope or pre-Take
-decision is identified by this preparation.
+Slice-plan refinement was not needed: one bounded environment journey with
+settled diagnosis, mapped proof and no independent outcome to split. One slice
+is within the eight-slice limit. This review identifies no remaining
+slice-specific or cumulative-design concern, and no human-owned pre-Take
+decision. The observed complete route settles the previous readiness blocker;
+record ready against this current story and plan. Preparation implements no
+product correction and starts no execution.
