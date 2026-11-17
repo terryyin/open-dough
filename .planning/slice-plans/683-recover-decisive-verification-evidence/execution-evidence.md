@@ -218,3 +218,22 @@ variables and implicit empty default cases. Comments documenting those bindings
 and explicit no-op defaults repaired lint without changing behavior; the guarded
 retry formatted, checked hooks, committed and published successfully. Existing
 semantic proof remained applicable. Completion-record delivery is records-only.
+
+## CI repair
+
+Execution-complete revision `db93ca41d6b24e6fc0f70b8e4a548ff8a0fa968f` reused
+failed basis `937b2255`; completion returned failure with observer retained.
+Run `44128960353` attempt 1 has complete inventory: one failed distribution
+job, caused by the new substitute's raw host-event literal. Fresh repair
+reproduced it, used the guard-documented jq construction, and added retained
+completed-execution/neutral-response facts. Guard and 20 public transport
+scenarios pass; exact commands, assertions and five consumer dispositions are
+in Git evidence `ci-repair-report-20261118.md` and its consumer trace.
+
+Disposition: already-traced repair within `/root/refactor_4`'s two test paths
+and public-host purpose; no new helper, protocol, dependency or path. Root
+inspected the diff, guard convention and new facts. Other product/observer
+proof and no-product-correction advice remain valid; this strengthens the
+previously unobserved completion distinction. Freshness remains unchanged.
+CI stash receipt was clean, OID null, at
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-zb0f3w/record.json`.

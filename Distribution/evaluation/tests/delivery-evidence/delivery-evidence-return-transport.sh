@@ -16,7 +16,7 @@ entry="${source_dir}/Distribution/evaluation/cases/git-publication/git-publicati
 
 observe_return() {
   local case_name=$1 scenario=$2 legacy_revision=${3:-}
-  local result="${root}/${case_name}-${scenario}-${legacy_revision:-current}"
+  local result="${root}/${case_name}-${scenario}-${legacy_revision:-current}" attempt
   native_check_run "${root}/bin" "${result}.stdout" "${result}.stderr" \
     env RETURN_TRANSPORT_SOURCE="${source_dir}" RETURN_TRANSPORT_CASE="${case_name}" \
     RETURN_TRANSPORT_SCENARIO="${scenario}" RETURN_TRANSPORT_RESULT="${result}.observed" \
@@ -27,6 +27,9 @@ observe_return() {
   native_check_expect_value "${case_name}/${scenario}: inputs observed before host completion" observed "$(cat "${result}.observed" 2> /dev/null || true)" "${result}.observed.diagnostic" "${result}.stdout" "${result}.stderr"
   # The substitute only observes inputs; it supplies no acceptance outcome.
   native_check_expect_status "${case_name}/${scenario}: native acceptance remains unclaimed" 1 "${native_check_status}" "${result}.stdout" "${result}.stderr"
+  attempt=$(sed -n 's/^result-path: //p' "${result}.stdout")
+  native_check_expect_field "${case_name}/${scenario}: substitute stream completed" "${attempt}/record" execution-status completed
+  native_check_expect_line "${case_name}/${scenario}: completion remains neutral" "${attempt}/response.md" 'acceptance was not performed.'
 }
 
 for case_name in selection claims consumers gaps original terminal release drift deferred; do

@@ -10,4 +10,4 @@ bash "${RETURN_TRANSPORT_SOURCE}/Distribution/evaluation/tests/delivery-evidence
   "${PWD}" "${RETURN_TRANSPORT_CASE}" "${RETURN_TRANSPORT_SCENARIO}" "${RETURN_TRANSPORT_LEGACY}" \
   > "${RETURN_TRANSPORT_RESULT}.diagnostic" 2>&1
 printf 'observed\n' > "${RETURN_TRANSPORT_RESULT}"
-printf '{"type":"result","result":"Observed the returned fixture inputs; acceptance was not performed."}\n'
+jq -n -c '{type:"result",result:"Observed the returned fixture inputs; acceptance was not performed."}'
