@@ -2,149 +2,191 @@
 id: SEED-396
 status: active
 planted: 2026-11-17
-planted_during: Terry asked to replace Distribution evaluation shell checks with fewer JavaScript tests at a higher entry point, and to keep the guideline with that tooling
+planted_during: Terry asked to replace Distribution evaluation shell checks with fewer JavaScript tests at a higher entry point; refinement on 2026-11-17 kept them in shell and re-aimed the story at their entry and expressiveness
 trigger_when: selected from the product backlog
 scope: story
 ---
 
-# SEED-396 — Evaluation checks are JavaScript at the family entry
+# SEED-396 — Evaluation shell checks enter at the command and state facts plainly
 
 <a id="replace-evaluation-shell-checks"></a>
 
-### Replace evaluation shell checks with entry-point JavaScript tests
+### Evaluation shell checks state each fact in one line at the family entry
 
 **Identity:** SEED-396#replace-evaluation-shell-checks
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/679-evaluation-checks-state-facts-plainly/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"193b1a667102e74319ae7c68eb5cf17e79cb77c845251df77005c9df6421064b","plan":"ea4ea8d7a9ac7e0e68f61e672862cc88b397044c0815a074b7efb1d28bcc7d41"}}
+```
+
+#### Goal
+
+A maintainer changing native evaluation behavior reads and writes shell
+checks that enter at the family command, or at a layer's own contract, and
+state each expected fact in one line. One guideline in
+`Distribution/evaluation` says where a check enters, what it leaves
+untested, and which words it uses. The run-entry checks are the worked
+example. The checks stay shell.
+
+#### Why shell stays
+
+The replacement with JavaScript was the starting request. Observation on
+2026-11-17 turned it down:
+
+- `npm run test:evaluation` schedules 58 shell jobs from 61 shell files
+  outside `support/` (about 5,600 lines), backed by 72 `support/` files
+  (about 7,200 lines), beside 16 `node --test` jobs.
+- Many checks already run the real command as a process with a substitute
+  host first on `PATH`: the comparison-baseline checks, the catalog check,
+  the timeout check.
+- The rejected-case checks source an assessor and call its function.
+  Production composes its layers the same way, and
+  [family layers](../../Distribution/evaluation/native-family-layers.md)
+  defines "assess judges `observations.txt`" as that layer's contract. No
+  assessor is a process, so that function is the highest entry there is.
+  About 285 rejected cases, mostly row tables, go through
+  `native_assessor_counterexamples`.
+- A smaller group sources private helpers below any entry, such as
+  `native-run-supervise.sh`, `native-comparison-verdict.sh`,
+  `native-comparison-basis.sh` and `native-journey-state.sh`.
+- CI's evaluation share took 201–204 s on the last three successful `main`
+  runs, level with the other two shares. Run time is not a motive.
+
+What the tree lacks is plain statement. The 61 checks hold 146 hand-written
+`FAIL:` blocks, 344 `grep -q` assertions, 52 `mktemp` setups and 13 private
+cleanup traps. `native-harness/native-run-timeout.sh` spends about 100 of
+its 165 lines on `if … echo FAIL … cat … exit 1` around some 15 facts. The
+rejected-case row tables show the form that works here: one line per case,
+and the helper prints the evidence when it fails.
+
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) keeps
+these checks deterministic, on real commands with controlled inputs and
+counterexamples, and keeps paid host sessions on demand.
+[ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+keeps this tooling out of the installed payload, so the guideline and the
+vocabulary live in `Distribution/evaluation`.
+
+#### Scope
+
+Required behavior:
+
+- **Guideline.** `Distribution/evaluation/README.md` and
+  [family layers](../../Distribution/evaluation/native-family-layers.md)
+  state the rules for an evaluation check:
+  - It enters at the family command with a substitute host, or at a layer
+    contract the guide names: an assessor applied to an observation through
+    the rejected-case helper.
+  - It does not source a private `src/` helper to call its functions or read
+    its globals.
+  - It does not restate data or configuration. A catalog entry, a case
+    list, a routing table or an input list lives in one place, the script
+    that owns it. A check proves the rule that consumes the data, with data
+    the check controls.
+  - It states each expected fact through the shared expectation vocabulary.
+  - Distinct behaviors stay distinct cases. Data-only variants of one
+    behavior share a row table.
+- **Expectation vocabulary.** One test-only helper under
+  `tests/native-harness/support/` gives the run-entry checks words for: a
+  scratch workspace that cleans itself up, running an entry with substitute
+  hosts while keeping its status and output, and expecting a status, a
+  record field, a line in a file, or an absent path. A failed expectation
+  names the fact and prints the evidence it read. The helper has its own
+  check, including that a failed expectation fails the job.
+- **Worked example.** The run-entry checks use the vocabulary and keep every
+  fact they assert today: `native-run-timeout.sh`,
+  `native-run-watchdog-cleanup.sh`, `native-run-workspace-isolation.sh`,
+  `native-result-retention.sh`, `native-runner-failures.sh` and
+  `native-stream-completeness.sh` (about 1,000 lines).
+
+Scope limits:
+
+- The other families keep their current form. They adopt the vocabulary
+  when next changed, under the guideline.
+- No check is removed here. Removals belong to
+  [the sibling story](#remove-redundant-evaluation-checks).
+- `cases/`, `src/`, `Distribution/tests` and the `node --test` files are
+  unchanged.
+
+Decided and not pursued:
+
+- **JavaScript replacement.** See above.
+- **Bach.** The neighbouring Doughnut project vendors the
+  Bach framework (`scripts/test/vendor/bach.sh`, 763 lines). Bach replaces
+  `PATH` with a read-only fake so that every external command becomes a
+  printed dry-run line, and a test passes when the commands it would run
+  match the commands its `-assert` function lists. These checks need the
+  opposite: real `git`, real processes and deadlines, and substitute hosts
+  placed on `PATH`. Under Bach each of those would be an `@real` exception
+  and the substitute-host mechanism would not work. Of Doughnut's 24 script
+  tests, 8 source Bach and the other 16 are plain functions on real state.
+  What Bach offers beyond that is `@assert-equals` and named test
+  functions; it has no word for a record field or for printing evidence,
+  which is the redundancy found here. Not adopted.
+
+#### Key examples
+
+- **A fact in one line.** The timeout check's hung substitute host makes the
+  context command return 124 → the check states the status, the
+  `execution-status: timeout` record field and the absent `adopter`
+  directory in one line each, with no hand-written `FAIL:` block.
+- **A failed expectation shows its evidence.** The record says
+  `execution-status: completed` where the check expects `timeout` → the job
+  fails, names the field with the expected and actual values, and prints the
+  record.
+- **Same facts after the rewrite.** A fault that today fails a run-entry
+  check, such as a retry after the deadline or an owned process left alive,
+  still fails the rewritten check.
+- **Data stays in one place.** A new check for catalog selection gives the
+  command its own two-case catalog and proves that `--where` filters by
+  trait. It does not list the shipped case names.
+- **Entry, not helper.** A new check for a supervision outcome runs the
+  context command with a substitute host. It does not source
+  `native-run-supervise.sh`.
+
+#### Evaluation
+
+The six run-entry checks contain no hand-written `FAIL:` block and no
+private scratch-cleanup trap, and each still fails on a break of a behavior
+it covers. The evaluation guides state the entry, data and vocabulary rules
+and no longer tell a new check to source `src/` helpers. On the next real
+change to an evaluation check, judge whether the vocabulary made the check
+shorter to write and its failure quicker to read.
+
+<a id="remove-redundant-evaluation-checks"></a>
+
+### Evaluation checks that restate data or enter below the family entry are removed
+
+**Identity:** SEED-396#remove-redundant-evaluation-checks
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
 #### Goal
 
-A maintainer changing native evaluation behavior proves it with JavaScript
-tests that start at the family command or the assessor, and reads one
-guideline in `Distribution/evaluation` for how those tests are written. The
-discovered shell checks under `Distribution/evaluation/tests` are gone.
+A maintainer runs fewer evaluation checks with the same protection: each
+check that only restates data or configuration, enters below the family
+entry, or repeats another check's observation is removed or moved up.
 
-#### Why this is one change
+#### Scope
 
-The main suite is already JavaScript. The evaluation tree is not.
-`npm run test:evaluation` discovers every `.sh` file under
-`Distribution/evaluation/tests`, except `support/`, through
-`scripts/test-jobs.sh`. On 2026-11-17 that tree holds:
+Candidates, none verified yet:
 
-- 61 shell files outside `support/` (about 5,600 lines). Three aggregates are
-  not scheduled as their own jobs (`git-publication-native-one-shot.sh`,
-  `git-publication-native-admission.sh`, `makeme-native-use.sh`), so the suite
-  runs 58 shell jobs.
-- 72 shell files under `support/`, sourced by those jobs.
-- 15 `node:test` files, already listed in
-  `Distribution/evaluation/tests/node-test-files`.
+- Checks that restate data or configuration, such as the shipped case names
+  in `native-guidance-check.sh`. Classify the catalog, case-selection,
+  routing, entry-dispatch and identity-input checks against the guideline's
+  data rule.
+- Checks that source private helpers: `native-journey-state.sh`, the
+  comparison checks that source `native-comparison-verdict.sh` and
+  `native-comparison-basis.sh`, and `native-run-watchdog-cleanup.sh` and
+  `native-run-workspace-isolation.sh`, which call
+  `native-run-supervise.sh` functions.
+- Overlaps: `native-stream-replay.sh` with the JavaScript stream test, and
+  the launch-command-tests case split across four files.
+- The four admission and three one-shot `exec` wrappers exist to spread one
+  suite across parallel jobs. Folding them changes job balance, not
+  coverage; decide it with CI timings.
 
-About 25 of the shell checks `source` modules in `Distribution/evaluation/src`
-and call functions such as `native_journey_state_assess` or
-`native_guidance_check_run_case`, then read globals such as
-`native_journey_state_status`. Comments on the comparison checks name
-`src/native-guidance-check.sh` as the entry, and the same files still source
-`native-observation.sh`, `native-comparison-verdict.sh`, and
-`native-comparison-basis.sh`. The maintainer command itself is executed by two
-checks. A rename or split of a private function fails those checks when the
-command's behavior is unchanged.
-
-That is below the test-boundary rule already in
-`dough-post-change-refactor`: a unit test starts at the service's command, and
-a lower entry is only for a stable domain contract. Private helpers stay
-behind the caller. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-sets the ceiling for this tree. Deterministic CI checks use real commands,
-controlled inputs, and counterexamples for runners and assessors. Paid host
-sessions stay on demand and are not a way to "raise" a CI check.
-[ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)
-keeps this tooling out of the installed payload, so the guideline belongs in
-`Distribution/evaluation`, not in an installed skill.
-
-#### What the replacement proves
-
-Write the checks as `node:test` files the existing runner already schedules.
-Each test starts a process:
-
-- a family command, such as `src/native-guidance-check.sh` or
-  `cases/git-publication/git-publication-native.sh`, with a substitute host
-  and controlled inputs; or
-- an assessor applied to `observations.txt`, which is the contract
-  [family layers](../../Distribution/evaluation/native-family-layers.md)
-  already gives assessors. Counterexamples stay. They move to JavaScript
-  that runs the assessor, and they stop sourcing it.
-
-`cases/` and `src/` stay shell and JavaScript as they are. They are the
-product under test: fixtures, runners, observers, assessors, and the
-maintainer commands. The 135 shell files under `cases/` are scenarios, not
-tests. Shell checks under `Distribution/tests` (install, CI, the runner) are
-out of this story.
-
-Distinct observable behaviors stay distinct cases. The existing rule forbids
-folding unrelated journeys into one long test to shrink a count. The
-reduction is the files and branches that only exist because a shell test
-called a private function:
-
-- Four admission checks and three one-shot checks are four-line `exec`s of an
-  aggregate. One JavaScript file per family can hold those journeys as cases.
-- `git-publication-native.sh` already piles many counterexample runners into
-  one scheduled job by sourcing support suites. Those suites become cases at
-  the publication command.
-- The launch-command-tests case is split across selection, probes, the
-  fixture's end-to-end consumer, and the assessor. One case file can keep
-  those four observations.
-- Baseline conditions, misses, readers, reuse, unavailable evidence, and
-  replay-after-cleanup are six comparison behaviors of one command. They can
-  share a file. They are not one assertion.
-- Timeout, watchdog cleanup, workspace isolation, result retention, launch
-  failure, and truncated streams are separate process outcomes of the run
-  entry. Drive them with a substitute host through that entry. Delete a
-  check that only sources `native-run-supervise.sh` once the entry-level
-  case fails when that behavior breaks.
-- `native-journey-state.sh` crafts an observations file and calls the
-  assessor function. The updated-use journey is the caller; the assessor
-  contract covers the rejection signals.
-- `native-stream-replay.sh` overlaps the shared reader in
-  `src/native-host-stream.mjs`, which already has a JavaScript test.
-
-A private-helper check is removed only when a named entry-point test fails
-if that helper breaks. A rejection signal with no remaining observation stays.
-
-#### Guideline
-
-Add the rule to the evaluation guides (`Distribution/evaluation/README.md`
-and [family layers](../../Distribution/evaluation/native-family-layers.md)),
-which today tell a new check to live in shell under `tests/<feature>/` and
-to source `src/` helpers. State:
-
-- A new evaluation check is a `node:test` file. It starts the family command,
-  or applies the assessor to observations when that is the contract.
-- It does not `source` production shell. It does not read the shell's globals.
-- Data setup uses the existing MakeMe builders. The test states only the
-  facts the behavior depends on.
-- Distinct behaviors stay separate cases. Data-only variants of one behavior
-  share a case.
-- Paid native runs stay on the command's existing `--native` path and are
-  not CI jobs.
-
-#### Boundary
-
-`Distribution/tests` shell checks, dashboard tests, and rewriting `src/` or
-`cases/` from shell into JavaScript are out of scope. So is shrinking the
-suite by deleting a behavior that no entry-point test observes.
-
-[SEED-346](SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps)
-is a ready plan for the comparison harness. Its proof is the shell pair,
-refresh, and incomplete journeys this story replaces. Those promised
-behaviors (arm cleanup, working-tree payloads, qualified-host selection,
-per-turn command facts) have to survive here. Landing that plan first avoids
-rewriting the files it names; this story does not depend on it to start.
-
-#### Evaluation
-
-`npm run test:evaluation` schedules no `.sh` file under
-`Distribution/evaluation/tests`. Every former shell check's purpose is either
-an assertion in a JavaScript test at the family command or the assessor, or
-named in the story's removal note because that entry already fails when the
-behavior breaks. The evaluation guides describe the JavaScript entry and no
-longer instruct a new shell check.
+A check is removed only when it restates data, or when a named entry-level
+check fails on a break of the behavior it covered. The estimate is on the
+order of ten of the 61 files.
+[Plan 677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md)
+names `native-comparison-refresh.sh` as its proof; leave that file to it.
