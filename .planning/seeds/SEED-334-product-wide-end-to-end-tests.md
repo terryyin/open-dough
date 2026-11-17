@@ -9,62 +9,6 @@ scope: story
 # SEED-334 — Product-wide end-to-end tests
 
 
-<a id="move-navigation-checks-and-retire-integrated-ui-test"></a>
-
-### Move board, frame and project navigation checks out of Dashboard Integrated UI Test
-
-**Identity:** SEED-334#move-navigation-checks-and-retire-integrated-ui-test
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"94fa2e48315a6122dcf5bf68ecc116c119e49d28fdf63157ea429634a0dcd97c","plan":"e60ac3d8293dda12c4a0e81823d18492909fb7682d6a7c6299f3d817ae54ce0b"}}
-```
-
-**Goal:** A maintainer keeps Board, side-panel, frame, header and project
-navigation protection in maintained Frontend, Backend or E2E homes, so those
-checks no longer depend on the interim **Dashboard Integrated UI Test**
-group.
-
-**Scope:** Convert 30 of the 41 `dashboard/tests/navigation/` specs (4,627
-lines): `accessible-board*`, `board-*`, `side-panel-width*`,
-`development-intent-frame*`, `dashboard-header*`, `frame-*-look` and
-`project-*`. Every distinct assertion, including keyboard/touch, focus,
-geometry, real browser storage/reload, non-eager read counts and held/failed
-recovery, keeps a named home at its real boundary. Remove each interim case
-only once its replacement passes. The interim group stays runnable for its
-remaining specs: its CI shard declarations and runner examples follow the
-files that remain.
-
-Scope limits: the source, story-card, notification and story-reference specs
-and the group's retirement belong to
-SEED-334#retire-integrated-ui-test-and-its-documents. No change to
-`integratedStateCompletion`, product behavior, groups or tiers, speed or shard
-targets, E2E naming or tagged-install proof.
-
-**Key examples:**
-
-1. `board-kept.spec.ts` checks that the chosen Board columns stay across a
-   project switch, a reload and a wide Board, and that a position kept under
-   the former key is recovered once. After conversion each assertion runs in a
-   named Frontend case against real browser storage, and the interim file is
-   gone.
-2. `side-panel-width-kept.spec.ts` recovers a divider-chosen width after a
-   reload within the room there is now, never replaced by an imposed width or
-   Maximize, and starts at half the room where storage is refused or
-   unusable. Those rules keep Frontend homes, with the covering variant's
-   narrow-window and wide-window recovery beside them.
-3. Help, editing, other arrow controls and modified arrows leave the selected
-   project unchanged, and focus stays usable across keyboard project switches
-   while a held previous read stays isolated. Those rules keep homes at
-   their real boundaries; the interim command no longer lists any of the 30 files while its
-   other specs still run in their declared shards.
-
-**Plan:** [Board, frame and project navigation conversion](../slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md).
-
-**Provenance:** Split from SEED-334#retire-dashboard-integrated-ui-test.
-Refinement on 2026-11-17 sized all 41 navigation specs and retirement beyond
-one plan, so the remaining navigation, the retirement and the removal of the
-group's test documents moved to
-SEED-334#retire-integrated-ui-test-and-its-documents.
-
 <a id="keep-navigation-conversion-proof-whole"></a>
 
 ### Keep the converted navigation proof whole and time-independent

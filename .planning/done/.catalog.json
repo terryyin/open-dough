@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_move-navigation-checks-and-retire-integrated-ui-test.json",
+      "identity": "SEED-334#move-navigation-checks-and-retire-integrated-ui-test",
+      "completedAt": "2026-11-17T16:53:45.603Z",
+      "blob": "639fe5ea57b6e8ee7ead2b4c0b0a91231e414a04"
+    },
+    {
       "fileName": "SEED-334_move-intent-ci-proof-comparison-and-candidate-checks.json",
       "identity": "SEED-334#move-intent-ci-proof-comparison-and-candidate-checks",
       "completedAt": "2026-11-17T13:41:39.581Z",
