@@ -64,3 +64,9 @@ CI share1 had exhausted its absolute320s cutoff; exact discovery kept654jobs
 once while30 installation checks moved to catch-allshare3. See
 diagnosis-ci-share1-deadline.md; real postrepairCI remains the completion gate.
 Both repairs received independent clean refactor returns and focused proof.
+
+## Wrap-up evidence
+
+Intent Coverage at004d9915b caught accidental reuse/overwrite of prior-complete; independently copied prior/expected bytes differed, maintained timeout diff failed, exact restoration and rerun passed. Report retained outside cleanup and passed verbatim plus disposition to Done.
+Source freshness at94948b61f absorbed only removal of spent sibling links. Attributed sibling94948b61f retains all six source files unchanged; its stream-replay source guard and our helper consumers remain unchanged. Its other assertion removals do not change this contract. Final integration CI observes the combined tree.
+Deferred process review completed: existing ODF-329 occurrence plus DD-565, recorded with supported limits and no new product correction. Other known loaded-run facets in DD-476 remain outside the partial readiness response.

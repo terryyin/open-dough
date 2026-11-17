@@ -101,8 +101,7 @@ Scope limits:
 
 - The other families keep their current form. They adopt the vocabulary
   when next changed, under the guideline.
-- No check is removed here. Removals belong to
-  [the sibling story](#remove-redundant-evaluation-checks).
+- No check is removed here.
 - `cases/`, `src/`, `Distribution/tests` and the `node --test` files are
   unchanged.
 

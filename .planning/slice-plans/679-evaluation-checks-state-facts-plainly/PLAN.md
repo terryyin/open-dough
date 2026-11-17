@@ -17,9 +17,7 @@ run-entry checks rewritten onto it with every fact kept, and the guideline in
 
 Excluded: removing or merging any check, changing where a check enters,
 other families' checks, `cases/`, `src/`, `Distribution/tests`, the
-`node --test` files, JavaScript replacement, and Bach. Removals and entry
-changes belong to
-[SEED-396#remove-redundant-evaluation-checks](../../seeds/SEED-396-evaluation-javascript-tests.md#remove-redundant-evaluation-checks).
+`node --test` files, JavaScript replacement, and Bach.
 
 ## Outside-in proof
 
@@ -195,8 +193,8 @@ Disposition: proved by slice 4: native-runner-failures.sh builtin command -v pro
 
 ## Execution complete
 
-Product advice: no change. Keep the sibling removal story's reviewed scope;
-the guides and helper now preserve the requested check-writing contract. No
+Product advice: no change. The sibling removal story has separately landed;
+the guides and helper preserve this six-check writing contract. No
 measured authoring-time or native-host improvement is claimed.
 
 ## Retrospective state
@@ -205,6 +203,8 @@ Product/proof review completed against source, initial plan at54e1b5c0e,
 all nine published implementation/repair revisions through30962c927a, and
 inspected assertion maps. ADR0004/0005 hold. Command/layer unit checks use
 real collaborators and substitute external hosts; no new E2E workflow is owed.
-No residue/correction or product-priority change identified. Process remains
-selected and deferred into wrap-up until its Intent Coverage result/disposition.
-Full local evaluation now passes; applicable final CI/shutdown is still owed.
+No residue/correction or product-priority change identified. Deferred process
+review completed using the Caught Intent Coverage report and live run history;
+ODF-329 occurrence and DD-565 recorded in DearDough.md, with no guidance
+implementation or product follow-up. Full local evaluation and exact CI
+004d9915bbc222a4404e69531fcf62e005720014 passed; shutdown confirmed.
