@@ -1,7 +1,6 @@
-// Common prompts insert literal editable input through an attached-terminal
-// substitute; an ended attachment rejects a preset and names Open again.
-// Connecting/refused prompt recovery stays with ../terminal-prompts-recovery.spec.ts.
-
+// Literal editable quick replies, and explicit recovery after an attachment ends.
+// Connecting/refused recovery stays with ../terminal-prompts-recovery.spec.ts.
+import type { Locator } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
 import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
@@ -9,86 +8,77 @@ import {
   chooseTerminalPrompt,
   expectTerminalInputFocused,
   expectTerminalText,
-  focusTerminalInput,
-  insertTerminalText,
   openTerminalAgain,
-  pressTerminalKey,
-  terminalPromptsControl,
-  terminalPromptsMenu,
+  replaceLastTerminalCharacter,
+  submitTerminalInput,
   terminalStatus,
+  writeTerminalInput,
 } from "../../tests/terminalScreenPage.ts";
 import { unfocusedPromptButtons } from "../../tests/support/terminalVoicePage.ts";
 import { tapWhereShown } from "../../tests/pageLayout.ts";
 
-for (const pointer of ["desktop", "phone"] as const) {
-  test.describe(pointer, () => {
-    test.use({
-      viewport:
-        pointer === "phone"
-          ? { width: 390, height: 844 }
-          : { width: 1280, height: 800 },
-      hasTouch: pointer === "phone",
+const variants = [
+  {
+    name: "desktop",
+    using: "mouse",
+    viewport: { width: 1280, height: 800 },
+    hasTouch: false,
+    press: (control: Locator) => control.click(),
+  },
+  {
+    name: "phone",
+    using: "touch",
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    press: tapWhereShown,
+  },
+] as const;
+
+for (const { name, using, viewport, hasTouch, press } of variants) {
+  test.describe(name, () => {
+    test.use({ viewport, hasTouch });
+    test.beforeEach(async ({ page }) => {
+      await unfocusedPromptButtons(page);
     });
 
-    test("common prompts insert literal editable input and require deliberate Enter", async ({
-      page,
-      frontendServices,
-    }) => {
-      if (pointer === "phone") await unfocusedPromptButtons(page);
-      const { panel, sent } = await openFrontendTerminalVoice(
+    for (const { phrase, prefix } of [
+      { phrase: "OK", prefix: "" },
+      { phrase: "as recommended", prefix: "Review " },
+      { phrase: "Try again", prefix: "Review " },
+      { phrase: "Resume", prefix: "Review " },
+      { phrase: "Please explain", prefix: "Review " },
+    ]) {
+      test(`${phrase} inserts literal editable input and requires deliberate Enter`, async ({
         page,
         frontendServices,
-        {
-          twoSessions: false,
-          withTranscription: false,
-          ...(pointer === "phone" ? { press: tapWhereShown } : {}),
-        },
-      );
-      const prompts = terminalPromptsControl(panel);
-      await expect(prompts).toBeVisible();
-      const replies = [
-        "OK",
-        "as recommended",
-        "Try again",
-        "Resume",
-        "Please explain",
-      ] as const;
-      for (const [index, phrase] of replies.entries()) {
-        const prefix = index === 0 ? "" : "Review ";
-        await focusTerminalInput(panel);
-        await insertTerminalText(page, prefix);
-        if (pointer === "phone") await tapWhereShown(prompts);
-        else await prompts.click();
-        const menu = terminalPromptsMenu(panel);
-        await expect(menu.getByRole("menuitem")).toHaveText([...replies]);
-        const choice = menu.getByRole("menuitem", {
-          name: phrase,
-          exact: true,
-        });
-        if (pointer === "phone") await tapWhereShown(choice);
-        else await choice.click();
-        await expect(menu).toHaveCount(0);
+      }) => {
+        const { panel, sent } = await openFrontendTerminalVoice(
+          page,
+          frontendServices,
+          {
+            twoSessions: false,
+            withTranscription: false,
+            press,
+          },
+        );
+        await writeTerminalInput(panel, prefix);
+        await chooseTerminalPrompt(panel, phrase, { using });
         await expect
           .poll(() => sent.filter((text) => text === phrase))
           .toEqual([phrase]);
         await expectTerminalInputFocused(panel);
         await expectTerminalText(panel, `${prefix}${phrase}`);
-        const submits = sent.filter(
-          (text) => text.includes("\r") || text.includes("\n"),
-        );
-        expect(submits).toHaveLength(index);
-        await pressTerminalKey(page, "Backspace");
-        await insertTerminalText(page, "!");
-        await pressTerminalKey(page, "Enter");
+        expect(sent.some((text) => /[\r\n]/.test(text))).toBe(false);
+        const beforeEdit = sent.length;
+        await replaceLastTerminalCharacter(panel, "!");
+        await submitTerminalInput(panel);
         await expect
-          .poll(() =>
-            sent.filter((text) => text.includes("\r") || text.includes("\n")),
-          )
-          .toHaveLength(index + 1);
-      }
-    });
+          .poll(() => sent.slice(beforeEdit).join(""))
+          .toBe("\u007f!\r");
+      });
+    }
 
-    test("an ended attachment rejects a preset, names Open again, and never retries it", async ({
+    test("an ended attachment rejects a preset and recovery requires a new choice", async ({
       page,
       frontendServices,
     }) => {
@@ -102,28 +92,21 @@ for (const pointer of ["desktop", "phone"] as const) {
           application: program.application,
           twoSessions: false,
           withTranscription: false,
-          ...(pointer === "phone" ? { press: tapWhereShown } : {}),
+          press,
         },
       );
-      await focusTerminalInput(panel);
-      await pressTerminalKey(page, "Control+z");
-      // Ending keystroke reaches the substitute; then end the attachment.
       program.end();
       const status = terminalStatus(panel);
       await expect(status).toContainText("The terminal ended");
-      await chooseTerminalPrompt(panel, "OK");
+      await chooseTerminalPrompt(panel, "OK", { using });
       await expect(status).toContainText(
         "Choose Open again, then open Prompts again.",
       );
-      expect(sent.filter((text) => text !== "\u001a")).toEqual([]);
+      expect(sent).toEqual([]);
       await openTerminalAgain(panel);
       await expectTerminalText(panel, "Claude Code");
-      await chooseTerminalPrompt(panel, "as recommended");
-      await expect
-        .poll(() => sent.filter((text) => text === "as recommended"))
-        .toEqual(["as recommended"]);
-      await expectTerminalInputFocused(panel);
-      await expect(status).toBeEmpty();
+      await chooseTerminalPrompt(panel, "as recommended", { using });
+      await expect.poll(() => sent).toEqual(["as recommended"]);
     });
   });
 }

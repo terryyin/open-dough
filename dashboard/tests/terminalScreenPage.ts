@@ -7,7 +7,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
-import { closeSidePanelToBoard } from "./pageLayout.ts";
+import { closeSidePanelToBoard, tapWhereShown } from "./pageLayout.ts";
 import { openTerminalControl } from "./sessionEntryAccess.ts";
 import { sidePanelNamesOf } from "./sidePanelFrame.ts";
 export { openTerminalControl } from "./sessionEntryAccess.ts";
@@ -114,13 +114,114 @@ export function terminalPromptsMenu(panel: Locator) {
   return panel.getByRole("menu", { name: "Prompts", exact: true });
 }
 
-export async function openTerminalPrompts(panel: Locator) {
-  await terminalPromptsControl(panel).click();
+export type TerminalInteraction = "mouse" | "touch" | "keyboard";
+
+export async function activateTerminalControl(
+  control: Locator,
+  using: TerminalInteraction,
+) {
+  if (using === "touch") await tapWhereShown(control);
+  else if (using === "keyboard") await control.press("Enter");
+  else await control.click();
+}
+
+export async function writeTerminalInput(panel: Locator, text: string) {
+  await focusTerminalInput(panel);
+  await insertTerminalText(panel.page(), text);
+}
+
+export async function replaceLastTerminalCharacter(
+  panel: Locator,
+  replacement: string,
+) {
+  await pressTerminalKey(panel.page(), "Backspace");
+  await insertTerminalText(panel.page(), replacement);
+}
+
+export async function submitTerminalInput(panel: Locator) {
+  await pressTerminalKey(panel.page(), "Enter");
+}
+
+export async function focusTerminalActions(panel: Locator) {
+  await pressTerminalKey(panel.page(), "Alt+F10");
+}
+
+export async function focusTerminalDictation(panel: Locator) {
+  await focusTerminalActions(panel);
+  await pressTerminalKey(panel.page(), "Tab");
+}
+
+export async function returnToTerminalDictation(panel: Locator) {
+  await pressTerminalKey(panel.page(), "Shift+Tab");
+}
+
+export async function openTerminalPrompts(
+  panel: Locator,
+  { using = "mouse" }: { using?: TerminalInteraction } = {},
+) {
+  if (using === "keyboard") {
+    await focusTerminalDictation(panel);
+    await pressTerminalKey(panel.page(), "Tab");
+  }
+  await activateTerminalControl(terminalPromptsControl(panel), using);
   return terminalPromptsMenu(panel);
 }
 
-export async function chooseTerminalPrompt(panel: Locator, phrase: string) {
-  const menu = await openTerminalPrompts(panel);
-  await menu.getByRole("menuitem", { name: phrase, exact: true }).click();
+export async function chooseTerminalPrompt(
+  panel: Locator,
+  phrase: string,
+  { using = "mouse" }: { using?: TerminalInteraction } = {},
+) {
+  const menu = await openTerminalPrompts(panel, { using });
+  const choice = menu.getByRole("menuitem", { name: phrase, exact: true });
+  await activateTerminalControl(choice, using);
   await expect(menu).toHaveCount(0);
+}
+
+export async function dismissTerminalPrompts(panel: Locator) {
+  await pressTerminalKey(panel.page(), "Escape");
+}
+
+export async function expectTerminalActionFocused(
+  panel: Locator,
+  name: string,
+) {
+  await expect(panel.getByRole("button", { name, exact: true })).toBeFocused();
+}
+
+export async function expectTerminalActionsFocused(panel: Locator) {
+  await expect(
+    panel.getByRole("group", { name: "Session actions", exact: true }),
+  ).toBeFocused();
+}
+
+export async function expectTerminalPromptFocused(
+  panel: Locator,
+  name: string,
+) {
+  await expect(
+    terminalPromptsMenu(panel).getByRole("menuitem", { name, exact: true }),
+  ).toBeFocused();
+}
+
+export async function expectTerminalPromptChoices(
+  panel: Locator,
+  phrases: readonly string[],
+) {
+  await expect(terminalPromptsMenu(panel).getByRole("menuitem")).toHaveText([
+    ...phrases,
+  ]);
+}
+
+export async function expectTerminalPromptsClosed(panel: Locator) {
+  await expect(terminalPromptsMenu(panel)).toHaveCount(0);
+}
+
+export async function expectTerminalInputDescription(
+  panel: Locator,
+  description: string | RegExp,
+) {
+  await expect(terminalScreenParts(panel).input).toHaveAccessibleDescription(
+    description,
+  );
 }
