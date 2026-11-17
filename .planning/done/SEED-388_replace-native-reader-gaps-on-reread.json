@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-388#replace-native-reader-gaps-on-reread",
+  "title": "Replace native reader gaps when a session is read again",
+  "completedAt": "2026-11-17T04:24:06.547Z",
+  "developer": "Terry Yin",
+  "agent": "Anri-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

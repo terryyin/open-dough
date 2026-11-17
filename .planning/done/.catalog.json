@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-388_replace-native-reader-gaps-on-reread.json",
+      "identity": "SEED-388#replace-native-reader-gaps-on-reread",
+      "completedAt": "2026-11-17T04:24:06.547Z",
+      "blob": "c93eddf46e84f7932de38383b6b12b142d8b854c"
+    },
+    {
       "fileName": "SEED-391_redo-the-effort-story-under-the-test-focus-guidance.json",
       "identity": "SEED-391#redo-the-effort-story-under-the-test-focus-guidance",
       "completedAt": "2026-11-17T03:40:49.227Z",
