@@ -92,8 +92,8 @@ Give the agent:
   `node '<installed-execute-plan>/scripts/consumer-trace.mjs' --checkout '<checkout>' --base <revision> [--term …]`,
   and select sufficient proof under
   [own executable proof](../../dough-story-refinement/references/planning.md#own-executable-proof),
-  including the changed surface's suite when it runs within the slice's
-  focused-check time, even when the plan says wider suites belong to CI.
+  including every suite it selects, even when the plan says wider suites
+  belong to CI.
   At a reported overrun, return unfinished work and the clock's elapsed time. With
   replanning disabled, leave the incomplete attempt in place for the coordinator's
   overrun handling.

@@ -1,6 +1,7 @@
 # Verification reaches affected consumers before completion is claimed
 
 **Source:** [selected story](../../seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-393#proof-reaches-unchanged-consumers-of-changed-output
 
 ## Goal and scope
@@ -93,7 +94,7 @@ on battery, stop the redo rather than run it under `-i` alone.
 
 ### 1. Proof reach follows where the changed output is observed
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of key examples 1–5 against the edited text, quoted
 with the sentence that settles each; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`;
 `npm run --silent format`; `git diff --stat` shows only the two guidance
@@ -108,6 +109,19 @@ subject, and reports filtered runs and counts within what it observed.
 rule instead of “one relevant test run”. Net added words stay small; prefer
 replacing the “suite covering the changed surface” sentence, the exclusion
 sentence and the “Limit success claims” sentence.
+
+Accepted 2026-11-17: executable proof's exclusion, suite and claim sentences
+replaced (net about +60 words); the premise links to it. Acceptance found the
+old rule restated in execute-plan `delegation.md` and `wrap-up.md` (“the
+changed surface's suite”); both now defer to executable proof, so the diff
+holds four guidance files. Key examples 1, 2, 4, 5 are settled by the edited
+sentences, 3 by the unchanged one-file-helper sentence. Proof: the link test
+(silent on pass; prints FAIL on a scratch broken link) exit 0;
+`node --test` of `ci-supported-host-contract` and `execution-increment-delivery`
+(they read `wrap-up.md`): 3 passed, 0 failed. Old phrases remain only in
+installed copies (release), planning records and history findings
+(ODF-107, ODF-150, ODF-473), which describe released state; wrap-up decides
+whether a finding's response line needs updating.
 
 ### 2. A blind Codex redo executes the effort plan under the changed guidance
 Type: Behavior

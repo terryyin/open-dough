@@ -74,10 +74,12 @@ consumers and any other known affected consumer ran or was reused, including
 one left unrun for CI: obtain the missing observation or
 return the slice for it. Preserve sufficient reused or equivalent-purpose proof
 and accepted evidence for unrelated consumers and unchanged boundaries. Require
-the changed surface's suite when it runs within the slice's focused-check time,
-not every suite. A discovered failure keeps the [failure policy](failure-policy.md) and
-the consumer's legitimate promise; passing by supplying the outcome in setup or
-weakening the assertion is not sufficient proof.
+the suites that
+[executable proof](../../dough-story-refinement/references/executable-proof.md)
+selects, not every suite. A discovered failure keeps the
+[failure policy](failure-policy.md) and the consumer's legitimate promise;
+passing by supplying the outcome in setup or weakening the assertion is not
+sufficient proof.
 
 For a required behavior or observation missing from the product or return, obtain
 it within authority or return it for correction before dependent acceptance. If
