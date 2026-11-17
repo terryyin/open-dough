@@ -1,6 +1,8 @@
 // Focused Story notes dialog mechanics, shared by frontend and real journeys.
 import { expect, type Locator, type Page } from "@playwright/test";
 import { storyNotesControl } from "../storyCardControls.ts";
+const exactly = (text: string) =>
+  new RegExp(`^${text.replace(/[.*+?^$|()[\]{}\\]/g, "\\$&")}$`);
 export function storyNotesPage(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Story notes", exact: true });
   const field = dialog.getByRole("textbox", { name: "Note text", exact: true });
@@ -8,34 +10,54 @@ export function storyNotesPage(page: Page) {
   const entries = dialog
     .getByRole("list", { name: "Saved notes" })
     .getByRole("listitem");
+  // A saved entry by its note text, wherever the list places it.
+  const entry = (text: string) =>
+    entries.filter({
+      has: page.locator(".story-note-text", { hasText: exactly(text) }),
+    });
+  const lineMenu = page.getByRole("menu");
+  const lineNumber = (scope: Locator, side: "old" | "new", line: number) =>
+    scope.getByRole("button", {
+      name: `${side === "old" ? "Old" : "New"} line ${line}`,
+      exact: true,
+    });
+  const chooseAddNote = async () => {
+    await lineMenu
+      .getByRole("menuitem", { name: "Add note", exact: true })
+      .click();
+    await expect(dialog).toBeVisible();
+  };
+  const saveButton = dialog.getByRole("button", {
+    name: "Save note",
+    exact: true,
+  });
+  const add = async () => {
+    await dialog.getByRole("button", { name: "Add note", exact: true }).click();
+    await expect(
+      dialog.getByRole("heading", { name: "Add note", exact: true }),
+    ).toBeVisible();
+  };
   return {
     fromFile: async (scope: Locator) => {
       await scope
         .getByRole("button", { name: "Add note", exact: true })
         .click();
       await expect(dialog).toBeVisible();
+    },
+    lineActions: async (scope: Locator, side: "old" | "new", line: number) => {
+      await lineNumber(scope, side, line).click();
+      return lineMenu.getByRole("menuitem");
+    },
+    chooseAddNote,
+    fromLine: async (scope: Locator, side: "old" | "new", line: number) => {
+      await lineNumber(scope, side, line).click();
+      await chooseAddNote();
+    },
+    expectComposerAlone: async () => {
+      await expect(field).toBeVisible();
       await expect(
         dialog.getByRole("list", { name: "Saved notes" }),
       ).toHaveCount(0);
-    },
-    fromLine: async (
-      scope: Locator,
-      side: "old" | "new",
-      line: number,
-      actions = ["Follow up", "Add note"],
-    ) => {
-      await scope
-        .getByRole("button", {
-          name: `${side === "old" ? "Old" : "New"} line ${line}`,
-          exact: true,
-        })
-        .click();
-      const menu = page.getByRole("menu");
-      await expect(menu.getByRole("menuitem")).toHaveText(actions);
-      await menu
-        .getByRole("menuitem", { name: "Add note", exact: true })
-        .click();
-      await expect(dialog).toBeVisible();
     },
     expectDiffSaved: async () => {
       await expect(dialog).toHaveCount(0);
@@ -48,8 +70,8 @@ export function storyNotesPage(page: Page) {
         page.getByText("Note saved to this story.", { exact: true }),
       ).toHaveCount(1);
     },
-    expectEntryNoLine: async (index: number) => {
-      await expect(entries.nth(index)).not.toContainText(/Line [0-9]+/);
+    expectNoteWithoutLine: async (text: string) => {
+      await expect(entry(text)).not.toContainText(/Line [0-9]+/);
     },
     expectNoComposerLine: async () => {
       await expect(dialog.locator("form")).not.toContainText(/Line [0-9]+/);
@@ -76,6 +98,8 @@ export function storyNotesPage(page: Page) {
       await expect(
         dialog.getByRole("heading", { name: "Edit note", exact: true }),
       ).toBeVisible();
+    },
+    expectComposerFocused: async () => {
       await expect(field).toBeFocused();
     },
     delete: async (index: number) => {
@@ -86,6 +110,8 @@ export function storyNotesPage(page: Page) {
       await expect(
         entries.nth(index).getByRole("group", { name: "Delete this note?" }),
       ).toBeVisible();
+    },
+    expectDeleteCancelFocused: async (index: number) => {
       await expect(
         entries.nth(index).getByRole("button", { name: "Cancel", exact: true }),
       ).toBeFocused();
@@ -115,21 +141,25 @@ export function storyNotesPage(page: Page) {
       for (const text of texts)
         await expect(dialog.locator("form")).toContainText(text);
     },
-    add: async () => {
-      await dialog
-        .getByRole("button", { name: "Add note", exact: true })
-        .click();
-      await expect(
-        dialog.getByRole("heading", { name: "Add note", exact: true }),
-      ).toBeVisible();
+    add,
+    // Adds a general note: opens the composer, writes and saves it.
+    addNote: async (text: string) => {
+      await add();
+      await field.fill(text);
+      await saveButton.click();
+      await expect(field).toHaveCount(0);
+    },
+    // Writes and saves the composer a diff opened; it closes on saving.
+    saveDiffNote: async (text: string) => {
+      await field.fill(text);
+      await saveButton.click();
+      await expect(dialog).toHaveCount(0);
     },
     type: async (text: string) => {
       await field.fill(text);
     },
     save: async () => {
-      await dialog
-        .getByRole("button", { name: "Save note", exact: true })
-        .click();
+      await saveButton.click();
     },
     cancel: async () => {
       await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -170,8 +200,8 @@ export function storyNotesPage(page: Page) {
       await expect(field).toBeVisible();
       await expect(field).toHaveValue(text);
     },
-    expectEntryContext: async (index: number, text: string | RegExp) => {
-      await expect(entries.nth(index)).toContainText(text);
+    expectNoteContext: async (text: string, context: string | RegExp) => {
+      await expect(entry(text)).toContainText(context);
     },
     expectCount: async (card: Locator, count: number) => {
       await expect(

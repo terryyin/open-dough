@@ -22,7 +22,7 @@ export async function installFrontendStoryNotes(page: Page) {
   const changes: StoryNoteChange[] = [];
   let nextHold: AnswerHold | undefined;
   let serial = 0;
-  let failNext = false;
+  let failNext: "refused" | "unreachable" | undefined;
   const notesOf = (project: string) => projects.get(project) ?? {};
   await page.route(
     (url) => url.pathname === storyNotesEndpoint,
@@ -46,8 +46,13 @@ export async function installFrontendStoryNotes(page: Page) {
           route.request().postDataJSON(),
         );
         changes.push(structuredClone(change));
-        if (failNext) {
-          failNext = false;
+        const failure = failNext;
+        failNext = undefined;
+        if (failure === "unreachable") {
+          await route.abort();
+          return;
+        }
+        if (failure === "refused") {
           await fulfillJson(route, { error: "Change refused." }, 503);
           return;
         }
@@ -89,7 +94,10 @@ export async function installFrontendStoryNotes(page: Page) {
   );
   return {
     failNextChange: () => {
-      failNext = true;
+      failNext = "refused";
+    },
+    loseNextChange: () => {
+      failNext = "unreachable";
     },
     asked: () => [...asked],
     changes: () => structuredClone(changes),

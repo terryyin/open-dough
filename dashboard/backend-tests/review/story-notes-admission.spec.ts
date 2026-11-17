@@ -1,6 +1,7 @@
 // The real HTTP boundary keeps notes in the serving machine's HOME, not a
 // repository or a page. No browser; only external host/GitHub boundaries fake.
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -123,6 +124,31 @@ test("notes are assigned ids and times, kept by project and identity, and read a
   } finally {
     await restarted.close();
   }
+});
+
+test("a save refused by unwritable records keeps no note and succeeds once they are writable", async ({
+  request,
+  dashboard,
+}) => {
+  const at = `${dashboard.baseURL}${storyNotesEndpoint}?id=open-dough`;
+  const headers = { Origin: dashboard.origin };
+  const data = { identity, action: "add", text: "Saved once writable." };
+  const file = notesFile(dashboard.home);
+  mkdirSync(path.dirname(file), { recursive: true });
+  chmodSync(path.dirname(file), 0o555);
+  try {
+    expect((await request.post(at, { headers, data })).ok()).toBe(false);
+    expect(existsSync(file)).toBe(false);
+  } finally {
+    chmodSync(path.dirname(file), 0o755);
+  }
+  const saved = await request.post(at, { headers, data });
+  expect(saved.ok()).toBe(true);
+  const answer = storyNotesAnswerSchema.parse(await saved.json());
+  if (answer.kind !== "notes") throw new Error("Expected saved notes");
+  expect(answer.notes[identity]?.map(({ text }) => text)).toEqual([
+    "Saved once writable.",
+  ]);
 });
 
 test("misdirected or malformed notes requests keep no note", async ({

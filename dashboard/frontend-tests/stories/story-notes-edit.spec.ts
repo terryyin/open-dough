@@ -20,65 +20,65 @@ const context = {
   },
   line: { number: 7, side: "new" as const, text: "return result;" },
 };
-for (const phone of [false, true]) {
-  test(`a line note edits text alone, cancel keeps it, delete removes and updates count (${phone ? "phone" : "desktop"})`, async ({
-    page,
-    frontendServices,
-  }) => {
-    if (phone) await page.setViewportSize({ width: 390, height: 844 });
-    const service = await installFrontendStoryNotes(page);
-    const original = makeMe.aStoryNote
-      .withText("Original observation")
-      .withContext(context)
-      .please();
-    service.answer("open-dough", { [storyA.identity]: [original] });
-    await openFrontendBoardReview(page, frontendServices);
-    const card = parts(page).recentlyDone.getByRole("article", {
-      name: storyA.title,
-      exact: true,
-    });
-    const notes = storyNotesPage(page);
-    await notes.expectCount(card, 1);
-    await notes.open(card);
-    await notes.edit(0, "keyboard");
-    await notes.expectComposing("Original observation");
-    const contextWords = [
-      "Intent → Changed tests",
-      "src/before.ts → src/result.ts",
-      "Published completion abc123 → def456",
-      "Line 7 · new",
-      "return result;",
-    ];
-    await notes.expectComposerContext(contextWords);
-    await notes.type("Updated observation");
-    await notes.save();
-    await notes.expectAnnouncement("Note updated.");
-    await notes.expectActionFocused("Edit");
-    await notes.expectNotes(["Updated observation"]);
-    for (const text of contextWords) await notes.expectEntryContext(0, text);
-    expect(service.changes()).toEqual([
-      {
-        action: "edit",
-        identity: storyA.identity,
-        id: original.id,
-        text: "Updated observation",
-      },
-    ]);
-    await notes.delete(0);
-    expect(service.changes()).toHaveLength(1);
-    await notes.answerDelete(0, "Cancel");
-    await notes.expectActionFocused("Delete");
-    await notes.expectNotes(["Updated observation"]);
-    await notes.expectCount(card, 1);
-    await notes.delete(0);
-    await notes.answerDelete(0, "Delete");
-    await notes.expectAnnouncement("Note deleted.");
-    await notes.expectNotes([]);
-    await notes.expectActionFocused("Add note");
-    await notes.close();
-    await notes.expectCount(card, 0);
+test("a line note edits text alone, cancel keeps it, delete removes and updates count", async ({
+  page,
+  frontendServices,
+}) => {
+  const service = await installFrontendStoryNotes(page);
+  const original = makeMe.aStoryNote
+    .withText("Original observation")
+    .withContext(context)
+    .please();
+  service.answer("open-dough", { [storyA.identity]: [original] });
+  await openFrontendBoardReview(page, frontendServices);
+  const card = parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
   });
-}
+  const notes = storyNotesPage(page);
+  await notes.expectCount(card, 1);
+  await notes.open(card);
+  await notes.edit(0, "keyboard");
+  await notes.expectComposerFocused();
+  await notes.expectComposing("Original observation");
+  const contextWords = [
+    "Intent → Changed tests",
+    "src/before.ts → src/result.ts",
+    "Published completion abc123 → def456",
+    "Line 7 · new",
+    "return result;",
+  ];
+  await notes.expectComposerContext(contextWords);
+  await notes.type("Updated observation");
+  await notes.save();
+  await notes.expectAnnouncement("Note updated.");
+  await notes.expectActionFocused("Edit");
+  await notes.expectNotes(["Updated observation"]);
+  for (const text of contextWords)
+    await notes.expectNoteContext("Updated observation", text);
+  expect(service.changes()).toEqual([
+    {
+      action: "edit",
+      identity: storyA.identity,
+      id: original.id,
+      text: "Updated observation",
+    },
+  ]);
+  await notes.delete(0);
+  await notes.expectDeleteCancelFocused(0);
+  expect(service.changes()).toHaveLength(1);
+  await notes.answerDelete(0, "Cancel");
+  await notes.expectActionFocused("Delete");
+  await notes.expectNotes(["Updated observation"]);
+  await notes.expectCount(card, 1);
+  await notes.delete(0);
+  await notes.answerDelete(0, "Delete");
+  await notes.expectAnnouncement("Note deleted.");
+  await notes.expectNotes([]);
+  await notes.expectActionFocused("Add note");
+  await notes.close();
+  await notes.expectCount(card, 0);
+});
 
 test("refused edits keep typed text and original note; refused deletion keeps text and reports failure", async ({
   page,

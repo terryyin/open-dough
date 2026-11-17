@@ -53,7 +53,6 @@ test("Taken line dictation waits for permission and transcription, then permits 
     fileDiff(review, "Added story.txt", { exact: true }),
     "new",
     1,
-    ["Add note"],
   );
   await notes.expectComposerContext([
     takenStory,
@@ -83,7 +82,6 @@ test("Taken line dictation waits for permission and transcription, then permits 
     fileDiff(review, "Added story.txt", { exact: true }),
     "new",
     1,
-    ["Add note"],
   );
   await notes.type("Typed observation");
   const held = transcription.holdNext();

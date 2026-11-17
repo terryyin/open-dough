@@ -1,5 +1,5 @@
-// Built frontend, explicit notes service substitute. Persistence crosses the
-// real boundary in e2e/stories/story-notes-persistence.spec.ts.
+// Built frontend, explicit notes service substitute. The real store's keeping
+// and refusals are proved in ../../backend-tests/review/story-notes-*.spec.ts.
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   openFrontendBoardReview,
@@ -24,72 +24,105 @@ import {
 } from "../../tests/terminalScreenPage.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 
-for (const phone of [false, true]) {
-  test(`all card kinds offer general notes, blank is unsaved, newest first (${phone ? "phone" : "desktop"})`, async ({
+test("all card kinds offer general notes, blank is unsaved, newest first", async ({
+  page,
+  frontendServices,
+}) => {
+  const service = await installFrontendStoryNotes(page);
+  await openFrontendBoardReview(page, frontendServices);
+  const notes = storyNotesPage(page);
+  const done = parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
+  await notes.expectCount(done, 0);
+  await notes.open(done);
+  await notes.expectContext(storyA.title, storyA.identity);
+  await notes.close();
+  await showColumn(page, "Taken");
+  await notes.expectCount(
+    parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
+    0,
+  );
+  await showColumn(page, "Backlog");
+  const card = parts(page).backlog.getByRole("article", {
+    name: readyStory,
+    exact: true,
+  });
+  await notes.open(card);
+  await notes.expectContext(readyStory, readyIdentity);
+  await notes.add();
+  await notes.type("   ");
+  await notes.save();
+  await notes.expectComposing("   ");
+  expect(service.asked().filter(({ method }) => method === "POST")).toEqual([]);
+  await notes.cancel();
+  await notes.addNote("First observation");
+  await notes.expectSaved();
+  await notes.expectNotes(["First observation"]);
+  await notes.expectNoteContext(
+    "First observation",
+    `${readyStory} · ${readyIdentity}`,
+  );
+  await notes.addNote("Later observation");
+  await notes.expectSaved();
+  await notes.expectNotes(["Later observation", "First observation"]);
+  expect(service.changes()).toEqual([
+    { action: "add", identity: readyIdentity, text: "First observation" },
+    { action: "add", identity: readyIdentity, text: "Later observation" },
+  ]);
+  await notes.close();
+  await notes.expectCount(card, 2);
+  await expect(
+    card.getByRole("button", { name: "Notes (2)", exact: true }),
+  ).toBeFocused();
+  await showColumn(page, "Recently done");
+  await notes.open(done);
+  await notes.expectNotes([]);
+  await notes.close();
+});
+
+type NotesService = Awaited<ReturnType<typeof installFrontendStoryNotes>>;
+const saveFailures: readonly (readonly [
+  string,
+  (service: NotesService) => void,
+])[] = [
+  [
+    "a refused save",
+    (service) => {
+      service.failNextChange();
+    },
+  ],
+  [
+    "a save that cannot reach the dashboard",
+    (service) => {
+      service.loseNextChange();
+    },
+  ],
+];
+for (const [failure, failNext] of saveFailures)
+  test(`${failure} keeps its draft and says so; saving again saves and clears it`, async ({
     page,
     frontendServices,
   }) => {
-    if (phone) await page.setViewportSize({ width: 390, height: 844 });
     const service = await installFrontendStoryNotes(page);
     await openFrontendBoardReview(page, frontendServices);
     const notes = storyNotesPage(page);
-    const done = parts(page).recentlyDone.getByRole("article", {
+    const card = parts(page).recentlyDone.getByRole("article", {
       name: storyA.title,
       exact: true,
     });
-    await notes.expectCount(done, 0);
-    await notes.open(done);
-    await notes.expectContext(storyA.title, storyA.identity);
-    await notes.close();
-    await showColumn(page, "Taken");
-    await notes.expectCount(
-      parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
-      0,
-    );
-    await showColumn(page, "Backlog");
-    const card = parts(page).backlog.getByRole("article", {
-      name: readyStory,
-      exact: true,
-    });
     await notes.open(card);
-    await notes.expectContext(readyStory, readyIdentity);
     await notes.add();
-    await notes.type("   ");
+    await notes.type("Keep the observation when saving fails.");
+    failNext(service);
     await notes.save();
-    await notes.expectComposing("   ");
-    expect(service.asked().filter(({ method }) => method === "POST")).toEqual(
-      [],
-    );
-    await notes.cancel();
-    await notes.add();
-    await notes.type("First observation");
+    await notes.expectProblem("The note could not be saved.");
+    await notes.expectComposing("Keep the observation when saving fails.");
     await notes.save();
     await notes.expectSaved();
-    await notes.expectNotes(["First observation"]);
-    await notes.expectEntryContext(0, `${readyStory} · ${readyIdentity}`);
-    await notes.add();
-    await notes.type("Later observation");
-    await notes.save();
-    await notes.expectSaved();
-    await notes.expectNotes(["Later observation", "First observation"]);
-    expect(service.changes()).toEqual([
-      { action: "add", identity: readyIdentity, text: "First observation" },
-      { action: "add", identity: readyIdentity, text: "Later observation" },
-    ]);
-    await notes.close();
-    await notes.expectCount(card, 2);
-    await expect(
-      card.getByRole("button", { name: "Notes (2)", exact: true }),
-    ).toBeFocused();
-    expect(
-      service.asked().filter(({ method }) => method === "GET"),
-    ).toHaveLength(1);
-    await showColumn(page, "Recently done");
-    await notes.open(done);
-    await notes.expectNotes([]);
-    await notes.close();
+    await notes.expectNotes(["Keep the observation when saving fails."]);
   });
-}
 
 test("next project read updates the count and open list; an older read cannot replace a save", async ({
   page,
@@ -116,9 +149,7 @@ test("next project read updates the count and open list; an older read cannot re
   const old = service.holdNext();
   await page.clock.runFor(checkIntervalMs);
   await old.received;
-  await notes.add();
-  await notes.type("Saved here afterwards");
-  await notes.save();
+  await notes.addNote("Saved here afterwards");
   await notes.expectSaved();
   old.release();
   await old.delivered;

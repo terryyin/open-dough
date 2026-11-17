@@ -64,9 +64,7 @@ test("Landed run file note shows and saves renamed path and exact comparison end
     comparison,
   ]);
   await notes.expectNoComposerLine();
-  await notes.type("Rename observation");
-  await notes.save();
-  await notes.expectDiffSaved();
+  await notes.saveDiffNote("Rename observation");
   expect(service.changes()).toEqual([
     {
       action: "add",
@@ -92,6 +90,6 @@ test("Landed run file note shows and saves renamed path and exact comparison end
   await showColumn(page, "Recently done");
   await notes.open(card);
   await notes.expectNotes(["Rename observation"]);
-  await notes.expectEntryContext(0, `${oldPath} → ${path}`);
-  await notes.expectEntryContext(0, comparison);
+  await notes.expectNoteContext("Rename observation", `${oldPath} → ${path}`);
+  await notes.expectNoteContext("Rename observation", comparison);
 });

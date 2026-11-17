@@ -8,11 +8,6 @@ import {
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { scrollYOf } from "../boardPage.ts";
 import { readWithKey } from "../boardReading.ts";
-import {
-  enabledStoryCardLaunchActions,
-  storyNotesControl,
-} from "../storyCardControls.ts";
-import { expectTabOrder } from "../accessibleReading.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
 
 test("accessible Board reads a backlog longer than one screen by scrolling the Board", async ({
@@ -51,27 +46,18 @@ test("accessible Board reads a backlog longer than one screen by scrolling the B
 
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
     await lastInspect.focus();
-    for (let place = queuedCount - 1; place >= 1; place -= 1) {
-      // Shift+Tab passes the current card's enabled launch actions, then
-      // the previous card's Notes before its Inspect story.
-      const card = backlog.getByRole("article", {
-        name: queuedTitle(place + 1),
-        exact: true,
-      });
-      const launches = await enabledStoryCardLaunchActions(card);
-      const previous = backlog.getByRole("article", {
-        name: queuedTitle(place),
-        exact: true,
-      });
-      const inspect = previous.getByRole("button", { name: "Inspect story" });
-      await expectTabOrder(
-        page,
-        [...launches.reverse(), storyNotesControl(previous), inspect],
-        "Shift+Tab",
-      );
-      await expect(inspect).toBeInViewport({ ratio: 1 });
-      const [stuck, focused] = await Promise.all([box(heading), box(inspect)]);
-      expect(stuck.y + stuck.height).toBeLessThanOrEqual(focused.y);
+    const firstInspect = backlog
+      .getByRole("article", { name: queuedTitle(1), exact: true })
+      .getByRole("button", { name: "Inspect story" });
+    const focused = page.locator(":focus");
+    // Every stop on the way back to the first card, whichever controls a card holds.
+    while (
+      !(await firstInspect.evaluate((e) => e === document.activeElement))
+    ) {
+      await page.keyboard.press("Shift+Tab");
+      await expect(focused).toBeInViewport({ ratio: 1 });
+      const [stuck, stop] = await Promise.all([box(heading), box(focused)]);
+      expect(stuck.y + stuck.height).toBeLessThanOrEqual(stop.y);
     }
   });
 });

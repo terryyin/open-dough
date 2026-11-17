@@ -40,12 +40,8 @@ test("a Taken note survives a new launch and appears on Done without workspace o
     exact: true,
   });
   const notes = storyNotesPage(page);
-  await notes.fromLine(fileDiff(review, "Added story.txt"), "new", 1, [
-    "Add note",
-  ]);
-  await notes.type("Keep this observation through completion");
-  await notes.save();
-  await notes.expectDiffSaved();
+  await notes.fromLine(fileDiff(review, "Added story.txt"), "new", 1);
+  await notes.saveDiffNote("Keep this observation through completion");
   await closeSidePanel(review);
   frontendServices.answerMachine(
     makeMe.aMachineAnswer
@@ -98,7 +94,10 @@ test("a Taken note survives a new launch and appears on Done without workspace o
     "Line 1 · new",
     "Kept line",
   ])
-    await notes.expectEntryContext(0, context);
+    await notes.expectNoteContext(
+      "Keep this observation through completion",
+      context,
+    );
   expect(service.changes()).toEqual([
     {
       action: "add",
