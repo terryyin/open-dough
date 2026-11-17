@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-393#try-guidance-improvements-by-redoing-the-source-story",
+  "host": "claude",
+  "model": "fable"
+}
