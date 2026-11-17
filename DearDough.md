@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 559. Removed numbers are never reused.
+- Highest allocated local number: 560. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -51,7 +51,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: CI run43850728441/attempt1 on `c14a77abc` failed Distribution Tests2/3 because native-stream guard rejected the new canonical Cursor fixture writer. Retained `5a49ec2ceb85e7219607ab72f03aa6dcace190a4:.planning/slice-plans/666-compare-agent-effort-on-comparable-runs/slice-4-evidence.md` records reproduction, focused repair proof and accepted repair `a399f31a6`.
   - Observed effect: focused CLI/Usage proof passed, but adding a fixture that writes native-shaped rows reached an unchanged global validator outside that proof selection. One CI repair cycle added the exact writer registration and a production-reader rejection counterexample.
   - Inference: matches missed indirect/global validation coverage. No time/token saving is measured; the final full CI gate remains required.
-
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -113,7 +112,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: resumed coordinator tool results `74cc5e` and `836310` reported20,909 and20,012 original tokens with truncation while reading a whole consumer trace and recursively locating a temporary report. Narrow section/exact-path reads recovered the needed evidence.
   - Observed effect: broad retrieval repeatedly included lexical and parked-source matches, requiring follow-up reads. No product/proof loss was established. The retained aggregate trace and runtime proof were inspected separately.
   - Inference: same bounded-retrieval deviation as this finding; complete trace discovery does not require printing every matching row. Token and elapsed savings remain unmeasured.
-
 
 - Execution: SEED-388#replace-native-reader-gaps-on-reread (first implementation `8e62635e227962d87359188b00f8a21f9c54aba1`)
   - Timestamp: unknown (2026-11-17 execution and retrospective)
@@ -556,3 +554,19 @@ The plan required a controlled end-to-end journey for each reference outcome, th
   - Observed effect: a mid-slice scope stop. The coordinator settled it, following the doughnut-title-precedence precedent, as a manual real-entry reference qualification plus stand-in CI tests. The slice took about 90 minutes of wall time.
   - Inference: when a plan names per-outcome proof through a costly runner, it should estimate one run against the CI job deadline. The saving is unmeasured.
 
+## DD-560 — A consumer trace searched by a removed phrase misses its reworded restatements <a id="dd-560"></a>
+
+An implementer changed a rule sentence and traced it with `--term` for the
+removed wording only; two other references restating the same rule in other
+words were not listed and kept the old rule until coordinator acceptance.
+
+### Occurrences
+
+- Execution: SEED-393#proof-reaches-unchanged-consumers-of-changed-output
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.103
+  - Evidence: 2026-11-17, slice 1 before `7875763cc`; implementer trace `--term 'suite covering the changed surface'` (and other removed phrases) reported no other guidance reader; coordinator `git grep "changed surface"` found execute-plan `delegation.md:95` and `wrap-up.md:77` ("the changed surface's suite"), both then aligned in `7875763cc`.
+  - Observed effect: the return claimed no remaining consumer; two restatements of the changed rule would have shipped contradicting it.
+  - Inference: literal-phrase terms find quotations, not restatements; a term for the rule's concept (here "changed surface") reached them.

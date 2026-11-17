@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-393_proof-reaches-unchanged-consumers-of-changed-output.json",
+      "identity": "SEED-393#proof-reaches-unchanged-consumers-of-changed-output",
+      "completedAt": "2026-11-17T09:11:10.249Z",
+      "blob": "d348ab96ac40d10fe01a9ddefec93278c2c06362"
+    },
+    {
       "fileName": "SEED-393_repeat-native-guidance-checks-on-real-story-examples.json",
       "identity": "SEED-393#repeat-native-guidance-checks-on-real-story-examples",
       "completedAt": "2026-11-17T09:04:19.944Z",

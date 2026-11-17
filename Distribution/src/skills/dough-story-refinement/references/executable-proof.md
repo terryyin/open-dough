@@ -59,15 +59,17 @@ invokes or imitates a changed contract, including untouched ones. Account for th
 and the observing proof in the [consumer-trace record](#record-the-consumer-trace).
 Derive obligations from each consumer's actual purpose, not its method name or
 dominant use. Exclude a consumer only when the effect does not reach its boundary;
-retain sufficient current proof for unchanged boundaries. A prior
+one that still reads the changed output is reached even when it asserts another
+subject. Retain sufficient current proof for unchanged boundaries. A prior
 unaffected-suite or unused-consumer exclusion is invalid when this change still
 reaches that consumer: reassess current consumers before relying on it.
 Incompatible purposes each need an observation; equivalent purposes may share
-sufficient proof. When the change has such consumers and the suite covering the
-changed surface runs within the slice's focused-check time, run that suite instead
-of hand-picking the consumers it contains; run consumers outside it as well. A
-change nothing else observes, such as renaming a helper used only within one
-file with no shared contract, text, value, default, or rendered output, keeps
+sufficient proof. When the change has such consumers, run every suite whose tests
+read the changed output where it is observed (its stand-in, recorder, reader, or
+rendered surface, supplied to the trace as `--term`), including unchanged tests
+and helpers: whole when it runs within the slice's focused-check time, otherwise
+its reading consumers. A change nothing else observes, such as renaming a helper
+used only within one file with no shared contract, text, value, default, or rendered output, keeps
 focused proof. For unresolved domain purpose, ask precisely about that consumer's
 requirement and stop its dependent obligation until answered rather than guessing
 policy.
@@ -99,7 +101,9 @@ without benchmarking every story or delaying independent work/setup.
 Reuse sufficient evidence. Obtain only missing observations within authorized
 work; if unavailable, report what is covered and the specific unproved promise.
 That promise remains incomplete; reporting the gap does not fulfill or remove
-it. Limit success claims to the observed cases.
+it. Limit success claims to the observed cases: name the variants a filtered run
+executed, list unrun readers of the changed output as unverified, and give a
+count only with its unit and matching the retained observation.
 
 | Situation                  | Proof                                            |
 | -------------------------- | ------------------------------------------------ |
