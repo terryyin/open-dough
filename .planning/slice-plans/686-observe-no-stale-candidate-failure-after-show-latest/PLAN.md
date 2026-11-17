@@ -69,6 +69,11 @@ reverted. Consumer trace: test-only, no runtime consumers. Learning: a
 file-level `releases` list freed in `afterEach` keeps faulted held-read cases
 from hanging to the test timeout.
 
+## Execution complete
+
+Product advice: no change. The held-answer case now protects the stale-read
+guard across the Show latest window; no product or priority learning follows.
+
 ## Local gates and current decisions
 
 - Focused gate: the command in the premise table, plus one faulted run and
