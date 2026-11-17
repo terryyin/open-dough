@@ -168,18 +168,76 @@ punctuation carry meaning prose comparison may ignore.
 ### Share one control to turn syntax styling off or choose a palette
 
 **Identity:** SEED-387#shared-syntax-styling-control
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/685-shared-syntax-styling-control/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2fe48f9e8a7e3bb501c894c2b3fc5cf1f14651a935757ecf4fddbed863b526d3","plan":"c348b55ae98b10c5a4f03ba6d673fa8d6d23f60342c6804a487b2fabe77305df"}}
+```
 
 #### Goal
 
-A developer can turn syntax styling off or choose a palette once for Intent
-source reading and story-review diffs, keeping one shared appearance.
+A developer reading Intent source or a story-review file diff can turn syntax
+styling off, or leave it on the shared Default palette, once for both readers
+so Intent and diffs always share one appearance. This keeps the
+one-shared-appearance rule SEED-377 established while giving a way to read
+plain text when token colours get in the way.
 
 #### Scope
 
-- One shared control for Intent and diffs.
-- No second, diff-only palette.
+- **One control.** System settings → General holds a single syntax-styling
+  choice, saved on this machine like the terminal theme. Intent source reading
+  and story-review file diffs both follow that choice; neither surface has its
+  own palette or off switch.
+- **Choices.** Off, or Default. Default is today's shared GitHub high-contrast
+  light and dark palettes, still following the system appearance without
+  re-tokenization. Off shows the same plain text both readers already use when
+  a path has no grammar or tokens have not arrived: markers, line backgrounds,
+  line numbers, and reading place stay; only token colours leave.
+- **Applies together.** Changing the choice restyles every open Intent reading
+  and every open story-review diff together. A reload keeps the saved choice.
+- **Unchanged.** Grammars and path/hint mapping, copied and assistive-technology
+  text (plain markers and code), word emphasis when that story's delivery is
+  present, Terminal theme, and system appearance itself.
 
-#### Notes
+**Scope limits (deferred promises):**
 
-Deferred from SEED-377. A second appearance would break the one-shared-appearance
-rule unless both readers change together.
+- Additional named palettes beyond Default (contrast against dashboard surfaces
+  and change-line backgrounds must be settled before offering them).
+- Turning word emphasis off from this control (the
+  [emphasize-changed-words](#emphasize-changed-words-in-diff-lines) story may
+  later fold that in).
+- A per-project or per-browser override of the machine-local choice.
+- An in-reader control on Intent or a diff.
+
+#### Key examples
+
+- With Default saved, a developer opens Intent on `greet.ts` and a story-review
+  diff of the same file. → Both show the same token colours as today for that
+  code, following light and dark system appearance.
+- They choose Off in System settings. → The open Intent reading and the open
+  diff both go plain immediately; `-`/`+` markers, change backgrounds and line
+  numbers stay; reading place stays.
+- They choose Default again. → Both readers show token colours again without a
+  navigation.
+- With Default saved, the system appearance flips light ↔ dark. → Both readers'
+  token colours follow, without losing place and without reading the file again.
+- After a full page reload, Off is still saved. → Intent and a newly opened
+  diff both open plain.
+- A `.txt` path (no grammar) under Default. → Still plain; Off does not change
+  it further.
+
+#### UI
+
+The control lives in System settings → General beside Terminal theme: a labelled
+choice of Off or Default, with a short note that Intent source reading and
+story-review diffs share it. No new control appears on Intent or in a file
+diff.
+
+#### Architecture
+
+No Accepted decision is affected. The preference is another machine-local
+System setting in the same family as the terminal theme
+(`localSettingRequest` / saved-on-this-machine), consumed by the shared source
+highlighter path Intent and diffs already share
+(`dashboard/src/sourceHighlight.ts`, `dashboard/src/useSourceHighlight.ts`).
+The server and its contracts gain only the setting read/save; Intent and review
+contracts otherwise stay. A second appearance in either reader alone would break
+the one-shared-appearance rule SEED-377 recorded.
