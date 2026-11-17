@@ -11,13 +11,9 @@ trap 'rm -rf -- "${root}"' EXIT
 native_case_host=codex
 delivery_evidence_scenarios='active scenarios'
 delivery_evidence_pass_basis='active basis'
-for case_name in selection claims consumers gaps aggregate nostore deferred original terminal release drift amended; do
-  native_case_known "delivery-evidence/${case_name}"
-done
+native_case_known delivery-evidence/drift
 [[ ${delivery_evidence_scenarios} == 'active scenarios' ]]
 [[ ${delivery_evidence_pass_basis} == 'active basis' ]]
-delivery_evidence_case_has_scenario drift narrowed
-delivery_evidence_case_has_scenario drift amended-corrected
 status=0
 bash "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native.sh" \
   --native codex --case delivery-evidence/missing > "${root}/unknown.txt" 2>&1 || status=$?

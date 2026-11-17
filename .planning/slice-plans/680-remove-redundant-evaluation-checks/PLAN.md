@@ -136,7 +136,7 @@ labels observed without shipped text; a dropped `setup:` line fails it.
 
 ### 3. Routing proof keeps effects rather than a second case registry
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a known delivery case query leaves an already selected scenario and
 pass basis intact, and an unknown case is refused by the real publication
@@ -150,6 +150,13 @@ enumerates the registered case names; the retained query-state and artifact
 assertions are unchanged. No private call disappears on an unproved claim of
 entry equivalence; move one only with a discriminating replacement in this
 same slice, otherwise keep it.
+
+Accepted: the 12-name `native_case_known` loop became one
+`delivery-evidence/drift` query ahead of the unchanged state-preservation
+assertions; the two copied drift scenario names went. `bash scripts/test.sh`
+on routing, `guidance-native-entries.sh`, `native-evidence-identity.sh` and the
+guard exits 0. The entry and identity checks hold no inventory assertions;
+`has_scenario` logic stays observed by `proof-scheduling-native.sh`.
 
 ### 4. Journey assessment runs the unchanged scenario once
 Type: Behavior

@@ -24,15 +24,15 @@ no speed or native-host claim.
 | 3 | Mixed-case host/workflow filter values still match (case-insensitive trait filtering) | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh: hosts=CODEX --where workflow=BLOCK == alpha (mixed case); ignored-filter fault red, restored green |
 | 4 | Combined host and workflow filters return only the case matching both | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh: hosts=CODEX --where workflow=BLOCK == alpha only; fault returned alpha/beta and failed |
 | 5 | A filter matching no case returns a failure | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh: catalog --where workflow=absent must exit nonzero |
-| 6 | Case-selection, routing, entry-dispatch and identity-input checks no longer assert inventories, copied descriptions, or shipped descriptions and host/case counts | slice 3 | |
+| 6 | Case-selection, routing, entry-dispatch and identity-input checks no longer assert inventories, copied descriptions, or shipped descriptions and host/case counts | slice 3 | observed: slice 2 pruned native-case-selection.sh copied descriptions/counts; Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh no longer enumerates registered cases or drift scenario names; guidance-native-entries.sh and native-evidence-identity.sh read: no inventory/description/count assertions |
 | 7 | Invalid selections still fail before launch, and this is still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: unchanged assert_invalid block (nonzero exit, error:/usage:, no sentinel calls, watched dir empty) |
 | 8 | Listing starts no host, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: assert_listing_quiet → assert_no_sentinel_calls on four wrapper listings and planted-record listing |
 | 9 | Listing creates no scratch, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: assert_listing_quiet → assert_watched_empty on the same five listings |
 | 10 | Listing works with read-only results, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: cursor listing with chmod a-w --results-dir readonly_results passes quietly |
 | 11 | Listing marks a planted passing record unreviewed, still checked | slice 2 | observed: Distribution/evaluation/tests/adr-awareness/native-case-selection.sh: planted status: pass record shows prior-evidence: unreviewed, untouched conflict shows none; certified fault red, restored green |
-| 12 | Entry-dispatch effects are still checked | slice 3 | |
-| 13 | Retained artifacts are still checked | slice 3 | |
-| 14 | Identity-input invalidation is still checked | slice 3 | |
+| 12 | Entry-dispatch effects are still checked | slice 3 | observed: Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh run_native_host dispatch of six cases, identity match, unknown identity/journey exit 2 (unchanged); guidance-native-entries.sh unchanged, passed |
+| 13 | Retained artifacts are still checked | slice 3 | observed: Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh retention by artifact shape, installed-input capture, amended retention blocks unchanged; passed via scripts/test.sh |
+| 14 | Identity-input invalidation is still checked | slice 3 | observed: Distribution/evaluation/tests/native-harness/native-evidence-identity.sh unchanged; passed via scripts/test.sh in slice 3 proof |
 | 15 | The identical `cursor-target` journey-state scenario's repeated pass is removed | slice 4 | |
 | 16 | The failed-update counterexample remains | slice 4 | |
 | 17 | The preservation counterexample remains | slice 4 | |
