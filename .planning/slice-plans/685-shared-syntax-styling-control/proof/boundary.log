@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › dashboard/backend-tests/configuration/syntax-styling-boundary.spec.ts:18:1 › syntax styling endpoint refuses foreign, malformed and unknown requests without changing the saved styling (813ms)
+
+  1 passed (3.7s)

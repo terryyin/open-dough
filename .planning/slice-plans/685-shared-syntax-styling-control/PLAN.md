@@ -2,6 +2,7 @@
 
 **Identity:** SEED-387#shared-syntax-styling-control
 **Source:** [Share one control to turn syntax styling off or choose a palette](../../seeds/SEED-387-deferred-syntax-styling-follow-ups.md#shared-syntax-styling-control)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -85,7 +86,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Machine-local Off/Default syntax styling setting in System settings
 Type: Structure
-Status: planned
+Status: done
 Proof: new `dashboard/backend-tests/configuration/syntax-styling-boundary.spec.ts`
 (parallel to `terminal-theme-boundary.spec.ts`: GET default, POST Off/Default,
 malformed/refused); new or extended System-settings frontend coverage that the
@@ -145,4 +146,8 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 
 ## Learnings
 
-None yet.
+- Slice 1: terminal-theme mirror (endpoints, machine JSON, provider, General
+  select, substitutes) fit without cohesive-size pressure.
+- `project-configuration.css` is already at the 250-line ceiling; shared
+  System settings choice-row chrome needs its own small CSS module
+  (`settings-choice.css`), shared by Terminal theme and Syntax styling.

@@ -1,0 +1,63 @@
+# Consumer trace
+
+## Effect terms searched
+
+| Term | Origin |
+| --- | --- |
+| `dashboard/src/SyntaxStylingSettings.tsx` | changed path |
+| `SyntaxStylingSettings.tsx` | basename of `dashboard/src/SyntaxStylingSettings.tsx` |
+| `dashboard/src/SystemSettings.tsx` | changed path |
+| `SystemSettings.tsx` | basename of `dashboard/src/SystemSettings.tsx` |
+| `dashboard/src/TerminalThemeSettings.tsx` | changed path |
+| `TerminalThemeSettings.tsx` | basename of `dashboard/src/TerminalThemeSettings.tsx` |
+| `dashboard/src/settings-choice.css` | changed path |
+| `settings-choice.css` | basename of `dashboard/src/settings-choice.css` |
+| `dashboard/src/terminal-theme-settings.css` | changed path |
+| `terminal-theme-settings.css` | basename of `dashboard/src/terminal-theme-settings.css` |
+| `syntax-styling-settings-choice` | supplied |
+| `terminal-theme-settings-choice` | supplied |
+| `settings-choice` | supplied |
+
+## Scope
+
+Whole checkout at `423bfe2ba2da`, including uncommitted and untracked files: 7145 tracked and untracked non-ignored files searched with fixed-string, case-insensitive matching.
+
+Changed files not searched: `dashboard/src/SyntaxStylingSettings.tsx`, `dashboard/src/SystemSettings.tsx`, `dashboard/src/TerminalThemeSettings.tsx`, `dashboard/src/settings-choice.css`, `dashboard/src/terminal-theme-settings.css`.
+
+## Located consumers
+
+Kinds are path hints for inspection; each file appears once. Fill every Disposition with `run`, `reused` or `excluded: <reason the effect does not reach its boundary>`.
+
+### Production
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/consumer-trace.txt` | `dashboard/src/SyntaxStylingSettings.tsx`, `SyntaxStylingSettings.tsx`, `dashboard/src/SystemSettings.tsx`, `SystemSettings.tsx` | 15: `` \| `dashboard/src/SyntaxStylingSettings.tsx` \| changed path \| `` | excluded: slice-1 implementation consumer-trace record; not a runtime consumer of the shared choice CSS |
+| `dashboard/src/App.tsx` | `SystemSettings.tsx` | 9: `import { SystemSettings } from "./SystemSettings.tsx";` | run: mounts SystemSettings (loads settings-choice.css); observed by system-settings-syntax-styling + system-settings-terminal-theme frontend specs |
+| `dashboard/src/project-configuration.css` | `SystemSettings.tsx` | 1: `/* System settings (./SystemSettings.tsx): bar, then .settings-section cards.` | excluded: CSS comment only |
+| `dashboard/src/system-settings-usage.css` | `SystemSettings.tsx` | 1: `/* System settings' views (./SystemSettings.tsx): General and Usage as a row` | excluded: CSS comment only |
+
+### Test
+
+none found (frontend specs observe the labelled choice by role/name, not the CSS class or module path; they still cover the System settings General choice row — see Additional proof)
+
+### Test support or stand-in
+
+none found
+
+### Journey or feature
+
+none found
+
+### Guidance reader
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/slice-plans/685-shared-syntax-styling-control/PLAN.md` | `dashboard/src/SystemSettings.tsx`, `SystemSettings.tsx`, `dashboard/src/TerminalThemeSettings.tsx`, `TerminalThemeSettings.tsx` | 30: `` `dashboard/src/App.tsx`), `dashboard/src/TerminalThemeSettings.tsx` in `` | excluded: plan evidence naming existing pattern |
+| `.planning/slice-plans/685-shared-syntax-styling-control/source-review.md` | `SyntaxStylingSettings.tsx`, `SystemSettings.tsx`, `TerminalThemeSettings.tsx` | 13: `\| 1 \| System settings → General holds a single labelled Off/Default syntax-styling choice beside Terminal theme, with a short note that Intent source reading a…` | excluded: planning source-review record |
+
+## Additional proof (not term-matched)
+
+Retired class names `syntax-styling-settings-choice` and `terminal-theme-settings-choice` have no remaining product or test references (grep clean). Shared `.settings-choice` layout: run
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/frontend.playwright.config.ts --reporter=list configuration/system-settings-syntax-styling.spec.ts configuration/system-settings-terminal-theme.spec.ts`
+→ 3 passed (choice still selectable; refused-save recovery still shows Off/Default or theme labels).

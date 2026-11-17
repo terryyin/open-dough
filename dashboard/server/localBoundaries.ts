@@ -1,13 +1,14 @@
 // This dashboard's local boundaries, in the order a server mounts them: the
-// project configuration, OpenAI configuration, terminal theme, feedback
-// maintenance, host status and usage JSON endpoints, instruction transcription,
-// launch-image claims, the authenticated read boundary, the launch boundary
-// with its terminal upgrades, and this process's incident record lifecycle,
-// last so a clean close ends the record after the others closed. Vite
-// mounts this list as plugins in dev and preview (`../vite.config.mts`, each through
-// `./localBoundaryPlugin.ts`), and the boundary server mounts the same list
-// on a plain HTTP server for boundary tests (`./boundaryServer.ts`), so both
-// serve the same boundaries by construction.
+// project configuration, OpenAI configuration, terminal theme, syntax styling,
+// feedback maintenance, host status and usage JSON endpoints, instruction
+// transcription, launch-image claims, the authenticated read boundary, the
+// launch boundary with its terminal upgrades, and this process's incident
+// record lifecycle, last so a clean close ends the record after the others
+// closed. Vite mounts this list as plugins in dev and preview
+// (`../vite.config.mts`, each through `./localBoundaryPlugin.ts`), and the
+// boundary server mounts the same list on a plain HTTP server for boundary
+// tests (`./boundaryServer.ts`), so both serve the same boundaries by
+// construction.
 
 import { installAuthenticatedReadMiddleware } from "./authenticatedRead.ts";
 import { installInstructionTranscriptionMiddleware } from "./instructionTranscriptionBoundary.ts";
@@ -19,6 +20,7 @@ import { installAgentLaunchMiddleware } from "./launchBoundary.ts";
 import type { LocalBoundary } from "./localBoundary.ts";
 import { installOpenAIConfigurationMiddleware } from "./openAIConfigurationBoundary.ts";
 import { installProjectConfigurationMiddleware } from "./projectConfigurationBoundary.ts";
+import { installSyntaxStylingMiddleware } from "./syntaxStylingBoundary.ts";
 import { installTerminalThemeMiddleware } from "./terminalThemeBoundary.ts";
 import { installUsageMiddleware } from "./usageBoundary.ts";
 
@@ -32,6 +34,7 @@ export const localBoundaries: readonly LocalBoundary[] = [
     install: installOpenAIConfigurationMiddleware,
   },
   { name: "dough-terminal-theme", install: installTerminalThemeMiddleware },
+  { name: "dough-syntax-styling", install: installSyntaxStylingMiddleware },
   {
     name: "dough-feedback-maintenance",
     install: installFeedbackMaintenanceMiddleware,
