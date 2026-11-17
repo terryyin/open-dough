@@ -26,6 +26,17 @@ which never reaches the agent's workspace.
 6. Retain reusable evidence: a kept record or a
    [baseline](baselines.md), and remove spent raw attempts.
 
+Both procedures were demonstrated on 2026-11-17: the effort-derived
+[launch-command-tests](cases/guidance-checks/launch-command-tests/case.md#native-qualification)
+(its own first baseline, reviewed code and residue) and
+[unblocked-supplier](cases/guidance-checks/unblocked-supplier/case.md#repeat-on-2026-11-17)
+(its own completion, once and proof criteria). A comparison needs a matched
+task and basis: reuse a case's own frozen baseline only under the
+[sufficiency rules](baselines.md#compare-another-candidate-with-saved-evidence),
+or observe both arms fresh. An extracted case never treats the whole-story
+runs it came from as its baseline. An interrupted journey stays incomplete;
+the entry never retries it.
+
 ## Select a case
 
 ```sh

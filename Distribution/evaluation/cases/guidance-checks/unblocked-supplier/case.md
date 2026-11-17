@@ -10,11 +10,11 @@ show passing proof. There are no controlled events or later wake turns.
 - workflow: ordinary execution with an available supplier (dough-execute-plan, Story Branch Mode)
 - behavior: supplier complete before session start; preserved partial work; one integration and filing; no event wakes
 - hosts: codex (qualified natively); claude, cursor: not qualified
-- qualification: one passing frozen Codex journey on 2026-11-14; rejected shortcuts covered by the controlled case journey
+- qualification: passing frozen Codex journeys on 2026-11-14 and 2026-11-17; rejected shortcuts covered by the controlled case journey
 - environment: small Node project and isolated local Git remote; no external services
 - prerequisites: Bash 5, Git, Node 24, jq; a logged-in Codex CLI for explicit native qualification
 - decisions and proof: discover published completion, consume its reader and finish slice 3 once with independent and execution-owned proof
-- duration: 1.7 s preparation, one 899.9 s turn, 902.0 s whole journey on 2026-11-14
+- duration: one turn of 899.9 s (2026-11-14) and 910.8 s (2026-11-17); whole journey 902.0 s and 921.3 s
 
 ## Source and extraction
 
@@ -124,6 +124,26 @@ must remain unknown; completeness here does not establish general accounting.
   two-space JSON plus newline reproduces original byte SHA
   `3433f8eba376865827b36e340791063f042a2a0053f7007cffd486b116c4d213`.
   No capture date, original assessment or measurement was replaced.
+
+### Repeat on 2026-11-17
+
+The same procedure, selected again with this case's own criteria: one frozen
+Codex journey (`--baseline de03ea470753da820c04b501b27a7284e612710a`,
+`gpt-6.1-sol`, `xhigh`, Codex CLI 0.169.0, load 13–18 with two other
+sessions' `codex exec` running). Preparation 9.1 s, one turn of 910.8 s,
+62 commands. It passed: partial work preserved, the supplier merged once
+(`ad0cd18`) and slice 3 filed once (`be8806a`, the six test titles split by
+starting stage), dependency satisfied, independent proof 6/6 and the agent's
+own proof passed, remote unchanged, no harness inspection. The report claims
+a local commit pending publication and slice 4 unstarted, matching the final
+state. [Its baseline](comparisons/20261117-codex-baseline.json) reassesses
+from the JSON alone (pass). The 2026-11-14 baseline was reassessed again
+into [a separate derived assessment](comparisons/20261114T162130-7b8c-assessment-20261117.json);
+its bytes stay `383b950d…`.
+
+The two passing journeys are two observations of one payload family, not a
+comparison: their payloads differ (`b4cfc5389` and `de03ea470`) and no factor
+was declared.
 
 This is one historical stochastic execution under the recorded host load and
 service latency, with no duration threshold or savings comparison. Apply the

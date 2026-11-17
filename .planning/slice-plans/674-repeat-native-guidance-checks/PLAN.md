@@ -262,7 +262,7 @@ disposable at wrap-up.
 
 ### 5. Repeat the procedure with the available-supplier case
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: select `unblocked-supplier` through the same procedure and perform
 one explicitly selected frozen Codex journey with the same model/effort and a
@@ -276,6 +276,15 @@ rewriting the existing `20261114T162130-7b8c-baseline.json`. Comparison examples
 use matched task/basis or explicitly fresh evidence; deterministic pair checks
 cover that route without adding a mandatory paid pair. Reconcile the short
 guide with both actual demonstrations and disclose unverified scope/residue.
+
+Accepted 2026-11-17: frozen Codex journey of `unblocked-supplier` (payload
+`de03ea470`, same model/effort), 921 s at load 13–18, pass on its own
+criteria; new baseline `20261117-codex-baseline.json` reassesses from JSON
+alone. The 2026-11-14 baseline was reassessed into a separate
+`20261114T162130-7b8c-assessment-20261117.json`; its bytes stay `383b950d…`.
+`guidance-checks.md` links both demonstrations and states the matched-basis
+rule for comparisons; deterministic pair checks (`native-comparison-pairs.sh`)
+keep covering that route, and no paid pair was run.
 
 ## Verification and delivery
 
