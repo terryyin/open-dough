@@ -115,24 +115,6 @@ the correction findings, examples, decisions, and proof. Retrospective correctio
 the completed SEED-393#repeat-native-guidance-checks-on-real-story-examples. Plan:
 [676](../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md).
 
-<a id="recovery-proof-covers-historical-case-paths"></a>
-
-### 6. Recovery proof covers historical case paths
-
-**Identity:** SEED-393#recovery-proof-covers-historical-case-paths
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"49a291af60ae3c627554f7c398751569693a5bfd79ceb96bebc57e5476081a8f","plan":"996b95af2b679bdc18df7a71bb9afe861c3099082cad524dfae6d992e9cf0d13"}}
-```
-
-**Goal:** a maintainer can trust that the maintained recovery test protects
-recovery of kept records whose inputs were saved under an earlier collection
-path. Today a regression there passes that test.
-
-**Scope:** the credential-free refresh and recovery test only. Intent
-Coverage correction of
-the completed SEED-393#repeat-native-guidance-checks-on-real-story-examples. Plan:
-[677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md).
-
 ## Reconciliation and scope reduction
 
 Retain the original two identities; the new validation stories have new

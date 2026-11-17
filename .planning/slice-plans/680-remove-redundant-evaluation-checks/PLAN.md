@@ -18,7 +18,7 @@ under the source's rule; do not force that outcome.
 
 Excluded: runtime and case changes, historical evidence, paid host sessions,
 JavaScript migration, new frameworks, CI redistribution, and
-`native-comparison-refresh.sh` (owned by [plan 677](../677-recovery-proof-covers-historical-case-paths/PLAN.md)).
+`native-comparison-refresh.sh` (preserved by the [completed recovery proof](https://github.com/terryyin/open-dough/blob/fe803aa79f64a4ce7cc8f506fa213b29dbcbf4fd/.planning/slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md)).
 The sibling [plan 679](../679-evaluation-checks-state-facts-plainly/PLAN.md)
 owns the vocabulary and guideline. Preserve its compatible changes and facts;
 this plan requires no new vocabulary or guideline implementation.

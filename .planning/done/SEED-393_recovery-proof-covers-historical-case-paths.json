@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-393#recovery-proof-covers-historical-case-paths",
+  "title": "Recovery proof covers historical case paths",
+  "completedAt": "2026-11-17T13:25:42.834Z",
+  "developer": "Terry Yin",
+  "agent": "Shunka-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

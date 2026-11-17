@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-393_recovery-proof-covers-historical-case-paths.json",
+      "identity": "SEED-393#recovery-proof-covers-historical-case-paths",
+      "completedAt": "2026-11-17T13:25:42.834Z",
+      "blob": "0ce72679df43ec1a1d379b55cec36d884dc0569e"
+    },
+    {
       "fileName": "SEED-393_tests-ignore-unrelated-launch-changes-without-losing-proof.json",
       "identity": "SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof",
       "completedAt": "2026-11-17T10:34:18.619Z",
@@ -23,7 +29,7 @@
       "fileName": "SEED-393_repeat-native-guidance-checks-on-real-story-examples.json",
       "identity": "SEED-393#repeat-native-guidance-checks-on-real-story-examples",
       "completedAt": "2026-11-17T09:04:19.944Z",
-      "blob": "ec3094bb8d00676f734c7c8c16e8a20343dd1f10"
+      "blob": "ee35e39f476f7628c8769788e8b528bb9fb82f65"
     },
     {
       "fileName": "SEED-348_attach-story-notes-to-follow-ups.json",

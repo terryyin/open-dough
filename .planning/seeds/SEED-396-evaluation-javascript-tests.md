@@ -201,8 +201,8 @@ Scope limits:
 
 - No production runtime, case catalog/content, historical evidence or paid
   native behavior changes. No new framework or language migration.
-- Leave `native-comparison-refresh.sh` to
-  [plan 677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md).
+- Leave `native-comparison-refresh.sh` unchanged; its historical-path proof is
+  handled by the [completed recovery correction](https://github.com/terryyin/open-dough/blob/fe803aa79f64a4ce7cc8f506fa213b29dbcbf4fd/.planning/seeds/SEED-393-test-quality-learning-from-effort-replays.md#recovery-proof-covers-historical-case-paths).
 - The four admission and three one-shot wrappers remain. Discovery schedules
   their groups once and excludes the aggregates; they partition work, not
   protection. The prior three successful CI shares were 201–204 s, comparable
