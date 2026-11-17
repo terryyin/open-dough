@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "identity": "SEED-345#reach-a-proof-decision-from-retained-evidence",
+  "mode": "story-branch",
+  "branch": "cursor/reach-a-proof-decision-from-retained-evidence",
+  "host": "cursor",
+  "model": "auto"
+}
