@@ -18,7 +18,7 @@ import {
 } from "./frontendSubstituteAnswers.ts";
 import {
   judgedCiStatus,
-  openFrontendCiStatus,
+  openServedFrontendCiStatus,
 } from "./frontendCiStatusAnswers.ts";
 
 // Opens Intent's CI status on main, judged at the judged commit by run 41
@@ -26,7 +26,7 @@ import {
 // whose proof (`intent=ci-proof`, ../../src/authenticatedIntentCiProofRead.ts)
 // holds `entries`, or the unavailable `proof` given instead; with `hold` its
 // answer waits until `held` is released. `reads` counts the page's proof
-// reads.
+// reads; `ci` serves the CI status reads.
 export async function openFrontendRunProof(
   page: Page,
   entries: readonly CiProofEntry[],
@@ -69,9 +69,10 @@ export async function openFrontendRunProof(
       );
     },
   );
-  const panel = await openFrontendCiStatus(page, status);
+  const { panel, ci } = await openServedFrontendCiStatus(page, status);
   return {
     panel,
+    ci,
     proof: proofOf(panel),
     held: hold?.held,
     reads: () => reads,

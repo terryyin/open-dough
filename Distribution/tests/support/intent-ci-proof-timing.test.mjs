@@ -7,7 +7,7 @@
 // (../../../dashboard/src/ciProofTimeWords.ts). CI status Proof, Summary rows
 // and story comparison endpoints all read it. Browser journeys:
 // ../../../dashboard/frontend-tests/intent/intent-ci-status-execution-time.spec.ts and
-// ../../../dashboard/tests/intent/intent-summary-ci-proof-gaps.spec.ts.
+// ../../../dashboard/frontend-tests/intent/intent-summary-ci-proof-gaps.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {

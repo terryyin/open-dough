@@ -15,7 +15,7 @@ import {
 // measured zero, contributions the tree does not list and a late proof answer
 // each say what they are. Missing, partial and absent evidence, each result in
 // one row and a zoomed table, and a previously retrieved judgment:
-// ../../dashboard/tests/intent/intent-summary-ci-proof-gaps.spec.ts, -table.spec.ts and -kept.spec.ts.
+// ../../dashboard/frontend-tests/intent/intent-summary-ci-proof-{gaps,table,kept,sort}.spec.ts.
 
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import { ciProofSchema } from "../../dashboard/src/ciProof.ts";

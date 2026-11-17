@@ -153,7 +153,7 @@ typecheck passed. Learning: the collector records `untimed` only `--by-file`.
 
 ### 3. Read single-run Summary evidence and keep its sorting
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-summary-ci-proof-{gaps,kept,sort,table}.spec.ts` → Frontend.
 Behavior: open/drill a run's Summary, refresh unsuccessfully or sort → own figures
 stay above children, unseen files count once in the correct outside row, partial/
@@ -163,6 +163,14 @@ whole words, unavailable children and their source/drill destinations.
 Reuse slice 2 proof/status family and published source answers; raw collector
 bytes stay owned by Backend extraction and E2E `intent-summary-ci-proof.spec.ts`.
 Check: Frontend `intent-summary-ci-proof-`, that E2E file and affected slice-2 callers.
+Accepted: the four Summary proof specs moved to Frontend over
+`frontendSummaryCiProof.ts` (tree from `summaryTreeSources`, empty scope history
+via `answerEmptyScopeHistory`); `aCiProofEvidence.withMissingNextPart()` states a
+missing part after an unbroken one. The kept spec closes G1. The interim
+"Completed ancestor" label rests on E2E `intent-ci-proof-ancestor.spec.ts`; the
+raw no-`files` check on Backend extraction and E2E `intent-summary-ci-proof`.
+Scratch break in `ciScopeProof` `outsideOf` failed 4 tests; restored passed. Full
+Frontend `intent/` (198), the E2E file, node consumers (113) and typecheck passed.
 
 ### 4. Read comparison counts and signed relative changes
 Type: Behavior
@@ -274,5 +282,5 @@ or person-owned pre-Take decision was identified.
 ### G1. Judgment beside a previously retrieved Proof has no Frontend observation yet
 Reported: slice 2 — "Slice 2 returns held, partial, multi-unit and unavailable observations in frontend-tests/intent/intent-ci-proof*.spec.ts; previously retrieved Proof has only Backend reuse in ci-proof-memory-github*.spec.ts"
 Story clause: "A run's proof is held, partial, multi-unit, unavailable or previously retrieved. Its judgment stays readable independently"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/frontend-tests/intent/intent-summary-ci-proof-kept.spec.ts after failed refresh 'Previously retrieved at' then expectCiAnswer(panel, verdict) and expectProofRows(proof, homeRows); held/partial/multi-unit/unavailable in frontend-tests/intent/intent-ci-proof*.spec.ts
 Commitment: 12a

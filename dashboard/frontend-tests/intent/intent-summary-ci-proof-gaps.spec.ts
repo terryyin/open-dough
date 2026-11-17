@@ -1,15 +1,17 @@
-import { fileSource } from "../intentCodeBrowsePage.ts";
 // A selected Intent entry's or folder's Summary when CI's evidence is
 // missing, partial or absent (../../src/IntentScopeProof.tsx,
-// ../../src/ciScopeProof.ts, ../intentSummaryCiProofFixtures.ts): a missing
-// shard and a shard without a file breakdown keep the entry's totals and
-// leave every child partial with short gap labels whose full explanation is
-// the cell's accessible description and hover, an entry-only summary is
-// labelled as having no file breakdown, and a run without a summary keeps the children for
-// drilling down, saying why as the homepage does. Complete evidence:
+// ../../src/ciScopeProof.ts): a missing shard and a shard without a file
+// breakdown keep the entry's totals and leave every child partial with short
+// gap labels whose full explanation is the cell's accessible description and
+// hover, an entry-only proof is labelled as having no file breakdown, and a
+// run without a summary keeps the children for drilling down, saying why as
+// the homepage does. The proof answer is controlled
+// (../../tests/support/frontendSummaryCiProof.ts); reading CI's collected
+// bytes into it: ../../backend-tests/intent/ci-proof-extraction.spec.ts and
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { fileSource } from "../../tests/intentCodeBrowsePage.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -17,57 +19,44 @@ import {
   expectInFull,
   expectLabelInFull,
   labelWords,
-} from "../ciEvidenceLabelsPage.ts";
-import { proofOf, run } from "../intentCiProofPage.ts";
+} from "../../tests/ciEvidenceLabelsPage.ts";
 import {
   childName,
   expectScopeRows,
   scopeFigures,
   scopeTable,
-} from "../intentScopeProofPage.ts";
+} from "../../tests/intentScopeProofPage.ts";
+import { openSummary } from "../../tests/intentSummaryCiProofFixtures.ts";
 import {
-  bothEntriesSummary,
-  openIntent,
-  openSummary,
-} from "../intentSummaryCiProofFixtures.ts";
-import { runArtifactsAnswer } from "../support/ciProofArtifacts.ts";
-import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-} from "../support/ciProofCollected.ts";
+  bothEntries,
+  openSummaryCiProof,
+} from "../../tests/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 
 const missing = "part 3 of 3 missing";
 const noBreakdown = "part 2 of 3 has no file breakdown";
 
 test("a missing shard and a shard without a file breakdown keep the entry's totals and leave every child partial", async ({
   page,
+  frontendServices,
 }) => {
-  const text = collectedSummary(
-    run,
-    [{ entry: "dashboard/tests", parts: 3 }],
-    [
-      {
-        entries: ["dashboard/tests"],
-        part: 1,
-        of: 3,
-        byFile: true,
-        record: playwrightRecord([
-          ["dashboard/tests/folder/a.spec.ts", "expected", [300]],
-        ]),
-      },
-      {
-        entries: ["dashboard/tests"],
-        part: 2,
-        of: 3,
-        byFile: false,
-        record: playwrightRecord([
-          ["dashboard/tests/folder/b.spec.ts", "expected", [100]],
-        ]),
-      },
-    ],
-  );
-  const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
+  // Part 1 broken down by file, part 2 not, part 3 never reported.
+  const { intent } = await openSummaryCiProof(page, frontendServices, [
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .withFile("dashboard/tests/folder/a.spec.ts", {
+            passed: 1,
+            durationMs: 300,
+          })
+          .withUnbrokenPart({ passed: 1, durationMs: 100 })
+          .withMissingNextPart()
+          .please(),
+      )
+      .please(),
+  ]);
   const summary = await openSummary(intent, "dashboard/tests");
   await expectScopeRows(summary, "dashboard/tests", [
     [
@@ -105,12 +94,15 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
   await expectLabelInFull(outside, "Part 2 no breakdown", noBreakdown);
 });
 
-test("an entry-only summary keeps entry totals and labels the child breakdown unavailable", async ({
+test("an entry-only proof keeps entry totals and labels the child breakdown unavailable", async ({
   page,
+  frontendServices,
 }) => {
-  const text = bothEntriesSummary(false);
-  expect(text).not.toContain('"files"');
-  const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
+  const { intent } = await openSummaryCiProof(
+    page,
+    frontendServices,
+    bothEntries(false),
+  );
   const summary = await openSummary(intent, "tests");
   const absent = evidenceLabel(summary, "No file breakdown");
   await expect(labelWords(absent)).toHaveText("No file breakdown");
@@ -133,15 +125,15 @@ test("an entry-only summary keeps entry totals and labels the child breakdown un
 
 test("a run without a CI proof summary keeps the Summary's children for drilling down and says why, as the homepage does", async ({
   page,
+  frontendServices,
 }) => {
-  const { intent, home } = await openIntent(
+  const { proof, intent } = await openSummaryCiProof(
     page,
-    () => summaryTextZipAnswer("{}"),
-    () => runArtifactsAnswer(run, undefined),
+    frontendServices,
+    [],
+    { kind: "unavailable", reason: "none" },
   );
-  await expect(proofOf(home)).toContainText(
-    "This run published no CI proof summary.",
-  );
+  await expect(proof).toContainText("This run published no CI proof summary.");
   const summary = await openSummary(intent, "dashboard/tests");
   await expect(summary.locator(".intent-summary-evidence-absent")).toHaveText(
     "This run published no CI proof summary.",

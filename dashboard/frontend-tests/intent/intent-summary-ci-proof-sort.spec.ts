@@ -5,71 +5,66 @@
 // order until a header is activated, the row for what no child row shows kept
 // last under any sort, the group unmoved, and the sort kept in memory while
 // drilling down and across Development and back, never on the URL or in
-// storage (SEED-259#scan-intent-ci-summaries key example 2). A story
-// comparison's Summary: ./intent-summary-story-comparison-sort.spec.ts.
+// storage (SEED-259#scan-intent-ci-summaries key example 2). The proof answer
+// is controlled (../../tests/support/frontendSummaryCiProof.ts). A story
+// comparison's Summary: ./intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { run } from "../intentCiProofPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   childName,
   expectScopeRows,
   scopeFigures,
   scopeTable,
   summaryRegion,
-} from "../intentScopeProofPage.ts";
-import { openIntent, openSummary } from "../intentSummaryCiProofFixtures.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-  type RecordedTest,
-} from "../support/ciProofCollected.ts";
+} from "../../tests/intentScopeProofPage.ts";
+import { openSummary } from "../../tests/intentSummaryCiProofFixtures.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 import {
   expectSortedBy,
   expectUnsortedRows,
   sortButton,
-} from "../support/expectSortedColumns.ts";
+} from "../../tests/support/expectSortedColumns.ts";
+import { openSummaryCiProof } from "../../tests/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 
 const outside = "Not in the rows above";
 const one = "1 of 1 part present";
 
-// COUNT tests of FILE, each recorded as OUTCOME taking MS.
-const tests = (
-  file: string,
-  count: number,
-  ms: number,
-  outcome: RecordedTest[1] = "expected",
-): RecordedTest[] =>
-  Array.from({ length: count }, (): RecordedTest => [file, outcome, [ms]]);
-
 // `dashboard/tests` holds `folder/` (13 tests, 6 of them in a file the tree
 // does not list), `added.spec.ts` (no CI result), `root.spec.ts` (14 tests,
 // 1 failed) and 3 tests in a file the tree does not list.
-const summaryText = collectedSummary(
-  run,
-  [{ entry: "dashboard/tests", parts: 1 }],
-  [
-    {
-      entries: ["dashboard/tests"],
-      part: 1,
-      of: 1,
-      byFile: true,
-      record: playwrightRecord([
-        ...tests("dashboard/tests/folder/a.spec.ts", 1, 300),
-        ...tests("dashboard/tests/folder/b.spec.ts", 4, 100),
-        ...tests("dashboard/tests/folder/nested/c.spec.ts", 2, 50),
-        ...tests("dashboard/tests/folder/old.spec.ts", 6, 10),
-        ...tests("dashboard/tests/root.spec.ts", 13, 20),
-        ...tests("dashboard/tests/root.spec.ts", 1, 20, "unexpected"),
-        ...tests("dashboard/tests/gone.spec.ts", 3, 10),
-      ]),
-    },
-  ],
-);
-
+const entry = makeMe.aCiProofEntry
+  .at("dashboard/tests")
+  .holding(
+    makeMe.aCiProofEvidence
+      .inUnit("case")
+      .withFile("dashboard/tests/folder/a.spec.ts", {
+        passed: 1,
+        durationMs: 300,
+      })
+      .withFile("dashboard/tests/folder/b.spec.ts", {
+        passed: 4,
+        durationMs: 400,
+      })
+      .withFile("dashboard/tests/folder/nested/c.spec.ts", {
+        passed: 2,
+        durationMs: 100,
+      })
+      .withFile("dashboard/tests/folder/old.spec.ts", {
+        passed: 6,
+        durationMs: 60,
+      })
+      .withFile("dashboard/tests/root.spec.ts", {
+        passed: 13,
+        failed: 1,
+        durationMs: 280,
+      })
+      .withFile("dashboard/tests/gone.spec.ts", { passed: 3, durationMs: 30 })
+      .please(),
+  )
+  .please();
 // The group of PATH's own figures sits above its table.
 async function expectGroupAbove(summary: Locator, path: string) {
   const group = await scopeFigures(summary, path).boundingBox();
@@ -80,12 +75,11 @@ async function expectGroupAbove(summary: Locator, path: string) {
 
 test("a folder's Summary shows its own figures above its children and keeps a Counts sort, outside row last, while drilling down and across Development", async ({
   page,
+  frontendServices,
 }) => {
-  const { intent } = await openIntent(page, () =>
-    summaryTextZipAnswer(summaryText),
-  );
-  const startUrl = page.url();
+  const { intent } = await openSummaryCiProof(page, frontendServices, [entry]);
   const summary = await openSummary(intent, "dashboard/tests");
+  const startUrl = page.url();
   const entryFigures = [
     "dashboard/tests",
     "29 passed and 1 failed test cases",
@@ -169,7 +163,14 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
     // proof after the folder first reappears.
     await untilPageReadsAnswered(page);
     await folderSorted();
-    expect(page.url()).toBe(startUrl);
+    // The URL holds only what it was opened with, nothing of the sort.
+    const opened = new URL(startUrl).searchParams;
+    expect(
+      [...new URL(page.url()).searchParams].filter(
+        ([name, value]) => opened.get(name) !== value,
+      ),
+    ).toEqual([]);
+    expect(page.url()).not.toMatch(/sort|ascending|descending|Counts/i);
     const stored = await page.evaluate(() =>
       JSON.stringify([
         Object.entries(localStorage),

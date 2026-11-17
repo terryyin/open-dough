@@ -36,8 +36,10 @@ export class CiProofEvidenceBuilder {
   #files = [];
   /** @type {CiProofFigures | undefined} */
   #unassigned;
-  /** @type {CiProofFigures[]} */
-  #unbroken = [];
+  // Parts after the declared ones, in order: present without a breakdown
+  // (their figures) or never reported (null).
+  /** @type {(CiProofFigures | null)[]} */
+  #following = [];
   /** @type {Map<number, CiProofFigures>} */
   #present = new Map();
   // Includes an empty file list (present zero), not only non-empty withFile.
@@ -130,7 +132,13 @@ export class CiProofEvidenceBuilder {
    * @param {ResultFacts} facts
    */
   withUnbrokenPart(facts) {
-    this.#unbroken.push(figuresOf(facts));
+    this.#following.push(figuresOf(facts));
+    return this;
+  }
+
+  /** One more part, after the others, never reported. */
+  withMissingNextPart() {
+    this.#following.push(null);
     return this;
   }
 
@@ -206,9 +214,13 @@ export class CiProofEvidenceBuilder {
         });
       }
     }
-    for (const figures of this.#unbroken) {
-      present.push(figures);
-      parts.push({ part: parts.length + 1, status: "present", ...figures });
+    for (const figures of this.#following) {
+      const part = parts.length + 1;
+      if (figures === null) parts.push({ part, status: "missing" });
+      else {
+        present.push(figures);
+        parts.push({ part, status: "present", ...figures });
+      }
     }
     const { untimed, ...totals } = summed(present);
     const anyUntimed = present.some((figures) => figures.untimed !== undefined);

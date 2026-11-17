@@ -101,9 +101,17 @@ export async function openFrontendCiStatus(
   page: Page,
   main = judgedCiStatus("main", "pass", "4774f60", "Add login"),
 ) {
-  await serveFrontendCiStatus(page, { main });
+  return (await openServedFrontendCiStatus(page, main)).panel;
+}
+
+// As openFrontendCiStatus, with the CI status answers that serve it.
+export async function openServedFrontendCiStatus(
+  page: Page,
+  main: IntentCiStatus,
+) {
+  const ci = await serveFrontendCiStatus(page, { main });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  return chooseCiStatus(parts(page).intent);
+  return { panel: await chooseCiStatus(parts(page).intent), ci };
 }
 
 // Fresh answers for trunk at 4774f60 Passed, the failing story's branch
