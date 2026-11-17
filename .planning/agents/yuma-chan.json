@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-345#recover-decisive-verification-evidence",
+  "mode": "story-branch",
+  "branch": "codex/recover-decisive-verification-evidence-after-lar",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
