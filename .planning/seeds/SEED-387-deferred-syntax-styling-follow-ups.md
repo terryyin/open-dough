@@ -76,9 +76,9 @@ story actually changed.
   the whole word).
 - Relating changes across separate blocks, such as detecting moved lines.
 - A side-by-side or merged inline word-diff view.
-- A control to turn emphasis off; the shared styling control
-  ([SEED-387#shared-syntax-styling-control](#shared-syntax-styling-control))
-  may later cover it.
+- A control to turn emphasis off; the shared Off/Default syntax styling
+  control may later cover it
+  ([SEED-387#more-syntax-styling-choices](#more-syntax-styling-choices)).
 
 #### Key examples
 
@@ -184,7 +184,7 @@ optional side-by-side or merged inline word-diff reading.
 - A side-by-side or merged inline word-diff view that preserves line numbers and
   line Follow up where those views still apply.
 - Turning emphasis off may be covered by
-  [SEED-387#shared-syntax-styling-control](#shared-syntax-styling-control)
+  [SEED-387#more-syntax-styling-choices](#more-syntax-styling-choices)
   rather than a separate control.
 
 #### Notes
@@ -192,23 +192,30 @@ optional side-by-side or merged inline word-diff reading.
 Whole-word block emphasis in story-review diffs is already available; these
 items remain for finer or differently shaped emphasis.
 
-<a id="shared-syntax-styling-control"></a>
+<a id="more-syntax-styling-choices"></a>
 
-### Share one control to turn syntax styling off or choose a palette
+### Offer more syntax styling choices beyond Off and Default
 
-**Identity:** SEED-387#shared-syntax-styling-control
+**Identity:** SEED-387#more-syntax-styling-choices
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
 #### Goal
 
-A developer can turn syntax styling off or choose a palette once for Intent
-source reading and story-review diffs, keeping one shared appearance.
+A developer who needs more than Off or Default can choose additional named
+syntax-styling palettes, and where needed a placement or scope for that choice,
+without breaking the one-shared-appearance rule Intent and story-review diffs
+already share.
 
 #### Scope
 
-- One shared control for Intent and diffs.
-- No second, diff-only palette.
+Deferred from SEED-387#shared-syntax-styling-control after Off/Default shipped:
 
-#### Notes
-
-Deferred from SEED-377. A second appearance would break the one-shared-appearance
-rule unless both readers change together.
+- Additional named palettes beyond Default (contrast against dashboard surfaces
+  and change-line backgrounds must be settled before offering them).
+- Turning word emphasis off from this control (the
+  [emphasize-changed-words](#emphasize-changed-words-in-diff-lines) story may
+  later fold that in).
+- A per-project or per-browser override of the machine-local choice.
+- An in-reader control on Intent or a diff.
