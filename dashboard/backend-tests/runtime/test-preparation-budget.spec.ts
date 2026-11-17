@@ -169,9 +169,13 @@ for (const [runner, setup] of [
         );
       const ends = steps.filter((step) => step.event === "end");
       // Kept visible: run-owned preparation versus each case's own time.
-      console.log(
-        JSON.stringify({ held: { releasedAt, claude, codex }, cases: ends }),
-      );
+      await test.info().attach("preparation-and-case-intervals", {
+        body: JSON.stringify({
+          held: { releasedAt, claude, codex },
+          cases: ends,
+        }),
+        contentType: "application/json",
+      });
 
       const cases = records<Case>(file("cases.jsonl"));
       expect(cases.map(({ host }) => host)).toEqual([

@@ -129,6 +129,9 @@ alone, once per run. Refactor found the two landed-CI preview readers
 25 importing E2E specs; their misleading names are a wrap-up follow-up.
 The loaded side-panel first-case run at natural 30–50 is still owed and is
 carried into slice 5's loaded acceptance with the other journeys.
+CI repair (run 44125679359): the strict reporter fails passing tests that
+print; the intervals are now a test attachment. Run local proof with the
+strict reporter, not `--reporter=list`.
 
 ### 2. Boundary-only preparation rejects an unnecessary app request
 Type: Behavior
