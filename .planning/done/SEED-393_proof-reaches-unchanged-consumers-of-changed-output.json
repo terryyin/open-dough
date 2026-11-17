@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-393#proof-reaches-unchanged-consumers-of-changed-output",
+  "title": "Verification reaches affected consumers before completion is claimed",
+  "completedAt": "2026-11-17T09:11:10.249Z",
+  "developer": "Terry Yin",
+  "agent": "Koharu-chan",
+  "host": "claude"
+}

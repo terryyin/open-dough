@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Koharu-chan",
-  "email": "koharu-chan@example.org",
-  "identity": "SEED-393#proof-reaches-unchanged-consumers-of-changed-output",
-  "mode": "story-branch",
-  "branch": "claude/verification-reaches-affected-consumers-before-c",
-  "host": "claude"
-}
