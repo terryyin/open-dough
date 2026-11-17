@@ -1,4 +1,5 @@
-// Public selection catalog projection documented in dashboard/AGENT-EFFORT.md.
+// Public selection catalog projection documented in
+// dashboard/AGENT-EFFORT-OUTPUT.md#selection-contract.
 import type { UsageTask } from "./usageRecords.ts";
 
 export type NativeCatalogEntry = Pick<

@@ -688,6 +688,14 @@ passes on such slices made no edits.
   - Evidence: subagent usage reports. Slice 1 (a new 32-line maintainer-doc section in `Distribution/evaluation/guidance-checks.md`): refactor 54.9k tokens, "none, already clean". Slice 5 (one 4-line paragraph in a maintainer skill): refactor 51.6k tokens, no edits. Slice 4's recipe correction used the within-accepted-return disposition and spawned none.
   - Observed effect: about 106k subagent tokens on two no-edit passes over small documentation additions; no defect found.
   - Inference: matched to this finding as the same concrete cost (a tiny non-records change pays a full no-edit refactor pass), though the changes here were documentation additions, not test deletions. A behavior review already walked each change, which may be what made the pass redundant.
+- Execution: SEED-345#split-the-agent-effort-contract-guide (plan 682; implementation `23e338fd7`)
+  - Timestamp: unknown (2026-11-17, before commit `23e338fd7` at 23:17:29 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `627b82320`)
+  - Evidence: the single Structure slice moved three guide sections verbatim (both `diff`s empty) and repointed seven header comments. The coordinator implemented it locally. The fresh refactor agent used 56.1k tokens and returned `## REFACTOR COMPLETE` with no edits.
+  - Observed effect: one no-edit refactor pass on a verbatim move with mechanical proof.
+  - Inference: same rule cost as the deletion-only rows, here for a verbatim relocation rather than a deletion. Matching is by the step 1 exemption gap, not by change kind.
 
 ## DD-565 — Proof waiting defers read-only CI diagnosis through suite admission <a id="dd-565"></a>
 

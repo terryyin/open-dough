@@ -322,26 +322,6 @@ guidance owners named above.
   role-specific reads keep their purpose.
   [Cursor handoff evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
 
-<a id="split-the-agent-effort-contract-guide"></a>
-
-### Split the agent-effort contract guide
-
-**Identity:** SEED-345#split-the-agent-effort-contract-guide
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/682-split-the-agent-effort-contract-guide/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1988d61caa783bbf4855504c65c687e24b169cd43bd80e7192c4f033c817a9d9","plan":"cef13cc0063df7cd76bf0b282890e2da06522946485e05227f4e3337d64c56f5"}}
-```
-
-**Goal.** Maintainers reading or changing the agent-effort output contract get
-it from guides that stay within this project's 250-line file limit, so the
-contract added by SEED-345#test-agent-effort-through-its-output-contract stays
-easy to navigate and maintain.
-
-**Scope.** Retrospective correction of that story: `dashboard/AGENT-EFFORT.md`
-grew from 145 to 253 lines. Move its output-contract sections into a cohesive
-guide, keep every documented name, shape and rule, and repoint the links and
-source comments that cite those sections. Plan:
-[682](../slice-plans/682-split-the-agent-effort-contract-guide/PLAN.md).
-
 ## Ordering and scope reduction
 
 Each story stands alone. If capacity is limited, defer the Cursor handoff first,
