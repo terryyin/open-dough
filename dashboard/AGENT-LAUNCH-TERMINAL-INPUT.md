@@ -14,8 +14,8 @@ session.
 
 The terminal header offers **Prompts** immediately after **Dictate into
 terminal** and before Mark as done, or with its other session actions when Done
-is unavailable, on desktop and mobile. The menu offers exactly `OK` and
-`as recommended`. Selecting a fixed phrase closes the menu and inserts that
+is unavailable, on desktop and mobile. The menu offers exactly `OK`, `as recommended`, `Try again`, `Resume`, and
+`Please explain`. Selecting a fixed phrase closes the menu and inserts that
 literal text through the normal attachment insert path, then focuses terminal
 input for editing and submission with deliberate Enter. Existing input remains;
 selecting sends no Enter. When input cannot be accepted, feedback names

@@ -120,7 +120,7 @@ as today.
 
 ### 2. Prompts offers the five fixed replies
 Type: Behavior
-Status: planned
+Status: done
 Proof: updated `session-terminal-prompts.spec.ts` (desktop and phone menu
 membership and insert journeys for the new phrases alongside the existing
 ones); `npm run typecheck:dashboard`; `npm run lint`. Local gate:
@@ -163,5 +163,4 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
 ### G1. Prompts still lists only OK and as recommended
 Reported: slice 1 — "Prompts menu still offers only OK and as recommended until the three new phrases land."
 Story clause: "Its menu offers only fixed quick replies: `OK`, `as recommended`, `Try again`, `Resume`, and `Please explain`."
-Disposition: interim until slices 2
-Commitment: 4
+Disposition: proved by slice 2: TerminalPrompts five-phrase list; session-terminal-prompts.spec.ts desktop+phone membership

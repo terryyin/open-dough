@@ -99,7 +99,13 @@ export function TerminalPrompts({
             }
           }}
         >
-          {["OK", "as recommended"].map((text) => (
+          {[
+            "OK",
+            "as recommended",
+            "Try again",
+            "Resume",
+            "Please explain",
+          ].map((text) => (
             <button
               key={text}
               type="button"
