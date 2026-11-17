@@ -1,6 +1,7 @@
 # Tests protect their own behavior without incidental coupling
 
 **Source:** [selected story](../../seeds/SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof)
+**Source review:** [independent source promises](source-review.md)
 **Identity:** SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
 
 ## Goal and scope
@@ -60,6 +61,29 @@ criteria are fixed in the source before the run. No North Star topic applies.
   redo start carries only this story's guidance diff on top of `934a51a30`,
   not the delivered consumer-reach guidance, so the two are not composed.
 
+## Execution context
+
+Established execution: Julia-chan, publisher
+`dashboard-territory.local-open-dough`, Story Branch Mode, owned workspace
+`/Users/terryyin/git/open-dough/.worktrees/tests-protect-their-own-behavior-without-inciden`,
+branch `codex/tests-protect-their-own-behavior-without-inciden`.
+Starting revision `4eb4f8e594ee003a2894c28c8ab2600e1c42b835`;
+published claim and initial candidate
+`c35afa491790aa019d47efef8f3e376fa8ba94fa` accepted on `origin/main`.
+Ordinary increments publish to the same branch on `origin`; no trunk landing
+is selected. The claim’s trunk CI is unobserved by this execution.
+The originating/integration checkout is `/Users/terryyin/git/open-dough`;
+its state is not a prerequisite for this owned-worktree execution.
+Checkout setup: `PATH=/opt/homebrew/bin:$PATH npm ci` with unchanged
+`package-lock.json`, then `PATH=/opt/homebrew/bin:$PATH npm run --silent lint`
+passed on 2026-11-17.
+CI: GitHub Actions `terryyin/open-dough`, verified workflow `ci.yml` (CI,
+351271804), execution branch target above. Codex yielded stream:
+coordinator `julia-tests-focus`, directory `/tmp/dough-ci-501/watch-yGKWFz`,
+PID 1471, session 62472, cell `g756:18`, checkout as above; runtime is this
+checkout’s `.agents/skills/dough-execute-plan`. No other observer is owned.
+Replanning: preserve the existing plan’s planning authority; no override.
+
 ## Proof ownership
 
 | Promise (source scope / example) | Owning slice and observable proof |
@@ -98,7 +122,7 @@ on battery, stop the redo rather than run it under `-i` alone.
 
 ### 1. A test's subject is its own name, and an added promise gets its own test
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of key examples 1–6 against the edited text, quoting
 the sentence that settles each and naming the frozen Claude B diff it would
 have changed; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`;
@@ -143,3 +167,35 @@ Behavior: the redo's checkout and transcript → inspected against frozen A
 or inconclusive with the missing evidence. One run isolates no guidance
 effect; disclose host, CLI and context differences and effort only as
 secondary evidence.
+
+## Slice 1 accepted evidence
+
+Frozen B inspected at `c629d0d93..d8efcf6fb`; candidate wording is the
+uncommitted source diff over the claim. Each source key example maps below.
+
+| Example | Settling instruction and observation |
+| --- | --- |
+| 1, feedback | “Give a promise the change adds its own test … do not add it to another behavior’s test or widen that test’s name or header.” Rejects the added effort assertion/header in `feedback-maintenance-launch.spec.ts`’s attention-report notification case. |
+| 2, status | Same sentence requires a status-effort case instead of three complete effort strings in `system-settings-feedback-maintenance.spec.ts`’s persistence/privacy/reload case. |
+| 3, model | “Its subject is what its own name promises, not its file, header or plan row” and “observe that part” reject medium, length 7 and effort fields in chosen-model cases of `agent-launch-model-boundary.spec.ts`. |
+| 4, blank input | Same subject/partial-output rule preserves the actual argv reader’s absent-instruction assertion in `agent-launch-ad-hoc-boundary.spec.ts`; frozen B already did this correctly, so no extra instruction was added. |
+| 5, branches | Existing “A body that branches on its case parameter holds separate tests” already requires splitting edited Cancel/Escape cases. Older unedited display loop is residue, not new scope. |
+| 6, owners/witnesses | Existing whole-shape/default owner and positive-distinguishing/absence sentences are unchanged; the first launch-boundary case keeps complete argv. |
+
+`node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log
+/tmp/seed393-slice1-proof.log --exit-file /tmp/seed393-slice1-proof.exit -- env
+PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+Distribution/tests/installation/payload-declaration-links.sh` passed, exit 0.
+Setup: existing payload declaration and mutation copies; observing signal:
+`check_declared_links` plus undeclared-target rejection checks. This proves
+payload link structure, not agent behavior. No test source changed.
+Consumer trace: `/tmp/seed393-slice1-consumer-trace.md`; source skill and
+test-optimization entry links retain the single home; installed copies await
+release; incidental phrase matches and frozen command fixtures do not consume
+changed text. Invocation and required project inputs remain unchanged.
+Source freshness: unchanged at trunk `3ecf64459`; incoming FollowUpBuilder
+and story-5 environment preparation do not affect this slice or a named
+coordination sibling’s behavior. Independent refactor `/root/refactor_slice1`:
+`## REFACTOR COMPLETE`, none — already clean; no edits, unchanged proof reused,
+`git diff --check` passed. Slice clock paused at 3.3 active minutes.
+Improved agent application remains unverified and owned by slices 2–3.
