@@ -2,6 +2,7 @@
 // lines and directional gutter controls that splice the next 20-line window
 // from revision file text (`./diffContextExpansion.ts`).
 
+import type { ReactNode } from "react";
 import {
   CONTEXT_EXPAND_CHUNK,
   expandGapDown,
@@ -13,6 +14,7 @@ import {
   type GapReveal,
 } from "./diffContextExpansion.ts";
 import { DiffLineNumber, type DiffLineSide } from "./DiffLineNumber.tsx";
+import type { EmphasizedRange } from "./diffWordEmphasis.ts";
 import type { DiffLineTokens } from "./diffLineTokens.ts";
 import type { SourceTokenLine } from "./sourceHighlight.ts";
 import { SourceTokens } from "./SourceTokens.tsx";
@@ -24,6 +26,25 @@ const lineMarkers: Record<DiffLine["kind"], string> = {
   unchanged: " ",
 };
 
+// Plain line text with emphasized runs as deletions or insertions.
+function emphasizedPlainText(
+  text: string,
+  ranges: readonly EmphasizedRange[],
+  kind: "added" | "removed",
+) {
+  if (ranges.length === 0) return text;
+  const Mark = kind === "added" ? "ins" : "del";
+  const parts: ReactNode[] = [];
+  let at = 0;
+  ranges.forEach((range, index) => {
+    if (range.start > at) parts.push(text.slice(at, range.start));
+    parts.push(<Mark key={index}>{text.slice(range.start, range.end)}</Mark>);
+    at = range.end;
+  });
+  if (at < text.length) parts.push(text.slice(at));
+  return parts;
+}
+
 export type DiffLineMenu = {
   readonly open: { readonly side: DiffLineSide; readonly line: number } | null;
   readonly onOpen: (side: DiffLineSide, line: number) => void;
@@ -33,12 +54,14 @@ export type DiffLineMenu = {
 };
 
 // One printed or revealed diff line (and its optional no-newline note): its
-// marker, then its code as syntax tokens or, without them, plain text.
+// marker, then its code as syntax tokens or, without them, plain text —
+// with word emphasis as deletions or insertions on plain changed lines.
 export function diffLineItems(
   line: DiffLine,
   key: string,
   tokens: SourceTokenLine | undefined,
   menu?: DiffLineMenu,
+  emphasis: readonly EmphasizedRange[] = [],
 ) {
   const number = (side: DiffLineSide, value: number | undefined) => {
     if (value === undefined) return null;
@@ -82,7 +105,15 @@ export function diffLineItems(
       {number("new", line.newNumber)}
       <span className="story-review-line-code">
         {lineMarkers[line.kind]}
-        {tokens === undefined ? line.text : <SourceTokens tokens={tokens} />}
+        {tokens === undefined ? (
+          line.kind === "unchanged" || emphasis.length === 0 ? (
+            line.text
+          ) : (
+            emphasizedPlainText(line.text, emphasis, line.kind)
+          )
+        ) : (
+          <SourceTokens tokens={tokens} />
+        )}
       </span>
     </li>,
     ...(line.noNewlineAtEnd === true

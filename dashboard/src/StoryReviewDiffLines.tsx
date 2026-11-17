@@ -21,6 +21,7 @@ import {
 } from "./diffContextExpansion.ts";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
 import type { DiffLineTokens } from "./diffLineTokens.ts";
+import { emphasizedRangesByLine } from "./diffWordEmphasis.ts";
 import { ContextGap, diffLineItems } from "./StoryReviewContextGap.tsx";
 import { parsedUnifiedDiff, type UnifiedDiff } from "./unifiedDiff.ts";
 import "./story-review-diff.css";
@@ -205,6 +206,7 @@ export function DiffLines({
       {gapBefore !== undefined && renderGap(gapBefore)}
       {hunks.map((hunk, index) => {
         const after = gapAfter(index);
+        const emphasis = emphasizedRangesByLine(hunk.lines);
         return (
           <div key={index} className="story-review-hunk-block">
             <ol
@@ -216,7 +218,13 @@ export function DiffLines({
                 {hunk.header}
               </li>
               {hunk.lines.flatMap((line, at) =>
-                diffLineItems(line, String(at), lineTokens(line), lineMenu),
+                diffLineItems(
+                  line,
+                  String(at),
+                  lineTokens(line),
+                  lineMenu,
+                  emphasis.get(at) ?? [],
+                ),
               )}
             </ol>
             {after !== undefined && renderGap(after)}

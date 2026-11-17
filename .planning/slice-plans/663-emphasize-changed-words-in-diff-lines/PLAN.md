@@ -2,6 +2,7 @@
 
 **Identity:** SEED-387#emphasize-changed-words-in-diff-lines
 **Source:** [Emphasize the changed words within a changed line](../../seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -89,7 +90,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Changed words in a changed block are emphasized on plain lines
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/frontend-tests/review/story-review-diff-word-emphasis.spec.ts`
 (cases in the proof table for slice 1) with fixture diffs and texts beside
 `dashboard/tests/support/diffSyntaxFixtures.ts`; then the consumer runs
@@ -162,4 +163,8 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 
 ## Learnings
 
-None yet.
+- Slice 1: plain `.txt` lines expose `insertion`/`deletion` in aria once
+  emphasized; token-styled lines stay unmarked until slice 3 composition.
+  Keep emphasis assertions in `story-review-diff-word-emphasis.spec.ts`, not
+  in the syntax-styling subject. Drop single-space glue beside an emphasized
+  word so a rewrap insert does not also mark neighbouring spaces.

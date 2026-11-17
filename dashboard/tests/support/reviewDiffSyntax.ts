@@ -1,6 +1,7 @@
-// A story review's file diff as its syntax styling is read: a line by its
-// side and number, its code's tokens and their computed appearance, the
-// facts that tell its change kind, and text selected across lines.
+// A story review's file diff as its lines are read: a line by its side and
+// number, emphasized words as deletions or insertions, its code's tokens and
+// their computed appearance, the facts that tell its change kind, and text
+// selected across lines.
 
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -14,6 +15,10 @@ export const newLine = (diff: Locator, number: number) =>
   diff.locator(`li.story-review-line[data-new="${String(number)}"]`);
 export const removedLine = (diff: Locator, number: number) =>
   diff.locator(`li.story-review-removed[data-old="${String(number)}"]`);
+
+// Emphasized words on a line (or in a diff) as deletions or insertions.
+export const deletions = (scope: Locator) => scope.getByRole("deletion");
+export const insertions = (scope: Locator) => scope.getByRole("insertion");
 
 // The syntax tokens of a line's (or a whole diff's) code.
 export const codeTokens = (scope: Locator) =>

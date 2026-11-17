@@ -135,6 +135,24 @@
   background: color-mix(in srgb, var(--problem) 14%, transparent);
 }
 
+/* Changed words on plain lines: underline in the line's change colour;
+   never strikethrough (the marker already says removed). */
+.story-review-line-code ins,
+.story-review-line-code del {
+  color: inherit;
+  background: transparent;
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+}
+
+.story-review-added .story-review-line-code ins {
+  text-decoration-color: var(--ready);
+}
+
+.story-review-removed .story-review-line-code del {
+  text-decoration-color: var(--problem);
+}
+
 /* Directional load-more controls in the line-number gutter for omitted
    unchanged context between printed hunks. */
 .story-review-hunk-block {
