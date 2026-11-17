@@ -2,87 +2,90 @@
 // its test entry into a folder and a test file: each Summary reads its history
 // before the child table, and file Proof's Test cases / Test file choice
 // changes the selected value, average and chart scale together, by keyboard
-// and touch, in light and dark appearance. Raw retained priors and the
-// selected landing's proof, as a machine keeps them, feed the real
-// authenticated history read of the Done story the worker keeps
-// (../support/projectScopeHistoryFixture.ts). Collecting them is
-// ../../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's.
+// and touch, in light and dark appearance. Each scope's retained history is
+// the glance read's explicit answer (../../tests/support/scopeTimingHistory.ts);
+// reading it without upstream CI requests is
+// ../../backend-tests/intent/landed-ci-scope-proof-completion.spec.ts's, and
+// collecting it is ../../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's.
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expectReadableContrast } from "../accessibleReading.ts";
+import { expectReadableContrast } from "../../tests/accessibleReading.ts";
 import {
   centreOf,
   expectFailedMarkPainted,
   expectMarkOver,
   inspectMark,
-} from "../historyChartPage.ts";
-import { fileProofTable } from "../intentFileProofPage.ts";
+} from "../../tests/historyChartPage.ts";
+import { fileProofTable } from "../../tests/intentFileProofPage.ts";
 import {
   fileReadingTab,
   proofRegion,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 import {
   chooseTimingUnit,
   expectScopeReadout,
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../intentScopeHistoryPage.ts";
-import { childName, scopeTable } from "../intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
-import { expectStackedInOrder } from "../partArrangement.ts";
+} from "../../tests/intentScopeHistoryPage.ts";
+import { childName, scopeTable } from "../../tests/intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../../tests/pageLayout.ts";
+import { expectStackedInOrder } from "../../tests/partArrangement.ts";
 import {
   expectChangeCue,
   priorBuildReferenceReading,
-} from "../priorBuildReferencePage.ts";
-import { declaredSummaryComparisonEndpointsIn } from "../support/intentSummaryStoryComparisonRepository.ts";
-import { serveSummaryComparisonStory } from "../support/intentSummaryStoryComparisonServing.ts";
-import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import { expect } from "../support/preparationPage.ts";
-import { test } from "../support/projectScopeHistoryFixture.ts";
-import { openCollectedHistoryStory } from "../support/scopeHistoryCollectedPage.ts";
-import { serveKeptScopeProofs } from "../support/scopeHistoryCollection.ts";
-import { keptScopeFileProof } from "../support/scopeHistoryProofs.ts";
-import { scopePriorReferenceHistory } from "../support/scopePriorReferenceHistory.ts";
-import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
+} from "../../tests/priorBuildReferencePage.ts";
+import {
+  scopeTimingHistory,
+  serveDoneScopeHistories,
+} from "../../tests/support/scopeTimingHistory.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import {
+  openSummaryComparison,
+  selectDoneStoryForSummaryComparison,
+} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
 
 test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
 test("drilling from a Done story's test entry to a folder and a test file reads each scope's execution time history before its table", async ({
   page,
-  dashboard,
-  origin,
-  github,
+  frontendServices,
 }) => {
-  const setup = await serveSummaryComparisonStory(
-    page,
-    origin,
-    declaredSummaryComparisonEndpointsIn(origin.project),
-  );
-  // Five priors per test case of a.spec.ts, c.spec.ts at twice and root.spec.ts
-  // at three times, each test file outcome a tenth, make each average; the
-  // sixth prior build failed.
-  const priorBuilds = [100, 100, 100, 100, 115, "failed"] as const;
-  const selectedProof = keptScopeFileProof(
-    { revision: setup.completion, runId: 103 },
-    [
-      ["folder/a.spec.ts", 120, 12],
-      ["folder/nested/c.spec.ts", 240, 24],
-      ["folder/ghost.spec.ts", 360, 36],
-      ["root.spec.ts", 720, 72],
-    ],
-  );
-  serveKeptScopeProofs(setup, [
-    [setup.completion, 103, "2026-11-07T10:00:00Z", selectedProof],
+  const setup = await prepareFrontendDoneIntent(page, frontendServices);
+  // Five measured priors and a failed sixth before the selected landing. The
+  // entry holds a.spec.ts's cases six times over, the folder three times; each
+  // test file outcome takes a tenth of its cases.
+  const scope = (
+    path: string,
+    times: number,
+    selectedMs: number,
+    averageMs: number,
+    differences: readonly [string, string],
+  ) =>
+    scopeTimingHistory(setup.completion, path, {
+      case: {
+        priors: [
+          ...[100, 100, 100, 100, 115].map((ms) => ms * times),
+          "failed",
+        ],
+        selectedMs,
+        averageMs,
+        difference: differences[0],
+      },
+      file: {
+        priors: [...[10, 10, 10, 10, 11.5].map((ms) => ms * times), "failed"],
+        selectedMs: selectedMs / 10,
+        averageMs: averageMs / 10,
+        difference: differences[1],
+      },
+    });
+  await serveDoneScopeHistories(page, [
+    scope("dashboard/tests", 6, 1440, 618, ["+822 ms", "+82 ms"]),
+    scope("dashboard/tests/folder", 3, 720, 309, ["+411 ms", "+41 ms"]),
+    scope("dashboard/tests/folder/a.spec.ts", 1, 120, 103, ["+17 ms", "+2 ms"]),
   ]);
-  await keepLandedCiHistory(
-    dashboard.home,
-    scopePriorReferenceHistory(origin, setup, priorBuilds, { selectedProof }),
-  );
-  const { intent } = await openCollectedHistoryStory(page, dashboard.origin);
-  const ciCalls = () =>
-    github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
-  const before = ciCalls().length;
+  const { intent } = await selectDoneStoryForSummaryComparison(page);
   const landing = `Selected landing ${shortSha(setup.completion)}`;
   const priors = "5 prior builds used";
 
@@ -208,5 +211,4 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   );
   await expectReadableContrast(scopeHistoryReading(fileHistory).selected);
   await expectReadableContrast(cases.readout);
-  expect(ciCalls()).toHaveLength(before);
 });

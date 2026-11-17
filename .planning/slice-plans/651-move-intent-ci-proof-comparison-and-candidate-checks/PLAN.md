@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 **Source:** [CI proof, comparison and candidate checks](../../seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks)
+**Source review:** [source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -100,7 +101,7 @@ if a slice overruns. Existing families bound the conversion work.
 
 ### 1. Read Done scope history through file Proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-scope-glance.spec.ts` → Frontend. Keep selected/folder/file values,
 seven marks and failed ×, average placement, unit-specific scales, keyboard/touch,
 removed-word absences, Baseline/Purpose/return controls and dark contrast.
@@ -111,6 +112,14 @@ Backend `landed-ci-scope-proof-completion.spec.ts` already reads entry/folder/fi
 and repeats with unchanged GitHub calls; retain it plus E2E
 `intent-scope-collected-file-timing-history.spec.ts` for real collection.
 Check: Frontend `intent-scope-glance.spec.ts`, that Backend file and E2E file.
+Accepted: interim spec moved to Frontend `intent-scope-glance.spec.ts` with every
+UI assertion kept; explicit glance answers come from `scopeTimingHistory` /
+`serveDoneScopeHistories` (`tests/support/scopeTimingHistory.ts`, also now behind
+`projectScopeHistoryFacts.scopeUnitsHistory`). The interim `ciCalls()` check rests
+on Backend `landed-ci-scope-proof-completion.spec.ts` `github.calls` unchanged.
+Scratch break: `IntentFileProof` history → `null` failed at the file
+`expectStackedInOrder`; restored passed. Frontend glance pair, Backend and E2E
+files passed. Learning: each scope and unit needs its own difference text.
 
 ### 2. Read run Proof and preserve its acquisition/refusal boundary
 Type: Behavior

@@ -1,5 +1,5 @@
 // Project Intent reads test execution time as a Done story does
-// (../tests/intent/intent-scope-glance.spec.ts): the entry and folder
+// (./intent/intent-scope-glance.spec.ts): the entry and folder
 // Summaries read history before the child table, and file Proof's Test cases /
 // Test file choice changes the observed trunk endpoint's value, average and
 // chart scale together, in light and dark appearance. Real collection is
