@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Capture and edit story notes in the dashboard](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) — SEED-348#collect-notes-for-story-follow-ups ([plan](slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/PLAN.md))
 - [Separate dashboard terminal dictation from quick replies](seeds/SEED-392-separate-dashboard-terminal-dictation-from-quick-replies.md#separate-dashboard-terminal-dictation-from-quick-replies) — SEED-392#separate-dashboard-terminal-dictation-from-quick-replies ([plan](slice-plans/673-separate-dashboard-terminal-dictation-from-quick-replies/PLAN.md))
-- [Replace native reader gaps when a session is read again](seeds/SEED-388-measure-and-control-agent-launch-cost.md#replace-native-reader-gaps-on-reread) — SEED-388#replace-native-reader-gaps-on-reread ([plan](slice-plans/669-replace-native-reader-gaps-on-reread/PLAN.md))
 - [Verification reaches affected consumers before completion is claimed](seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output) — SEED-393#proof-reaches-unchanged-consumers-of-changed-output ([plan](slice-plans/674-verification-reaches-affected-consumers/PLAN.md))
 - [Repeat native guidance checks using focused examples](seeds/SEED-393-test-quality-learning-from-effort-replays.md#repeat-native-guidance-checks-on-real-story-examples) — SEED-393#repeat-native-guidance-checks-on-real-story-examples ([plan](slice-plans/674-repeat-native-guidance-checks/PLAN.md))
 

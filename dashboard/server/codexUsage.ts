@@ -58,7 +58,7 @@ export async function* codexUsage(
     string,
     Array<(context?: TurnSettings) => UsageObservation>
   >();
-  for await (const { row, line } of nativeUsageLines(file, gaps)) {
+  for await (const { row, line } of nativeUsageLines(file, gaps, "codex")) {
     taskReader(row, { kind: "native", file, line });
     const payload = objectOf(row["payload"]);
     if (row["type"] === "session_meta" && payload["id"] === owner) {

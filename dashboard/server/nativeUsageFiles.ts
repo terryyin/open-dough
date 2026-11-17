@@ -46,7 +46,11 @@ export async function* nativeUsageFiles(
       yield file;
   }
 }
-export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
+export async function* nativeUsageLines(
+  file: string,
+  gaps: UsageGap[],
+  host: "codex" | "claude",
+) {
   const source = createReadStream(file);
   const decoder = file.endsWith(".zst") ? createZstdDecompress() : undefined;
   const input = decoder ?? source;
@@ -67,6 +71,7 @@ export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
       } catch {
         gaps.push({
           code: "malformed-native-row",
+          host,
           source: { kind: "native", file, line },
         });
       }
@@ -80,6 +85,7 @@ export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
     if (unreadable)
       gaps.push({
         code: "native-source-unreadable",
+        host,
         source: { kind: "native", file },
       });
   }

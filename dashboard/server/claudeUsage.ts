@@ -32,7 +32,7 @@ export async function* claudeUsage(
 ): AsyncGenerator<UsageObservation> {
   const taskReader = claudeTaskReader(taskSink);
   const filename = nativeUsageFileName(file);
-  for await (const { row, line } of nativeUsageLines(file, gaps)) {
+  for await (const { row, line } of nativeUsageLines(file, gaps, "claude")) {
     const sessionId = stringOf(row["sessionId"]);
     const agentId = stringOf(row["agentId"]);
     // The native row must corroborate the file's owner; copied ancestors cannot

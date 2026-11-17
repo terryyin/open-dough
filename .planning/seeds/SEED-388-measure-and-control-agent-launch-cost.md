@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-16
 planted_during: Terry Yin asked why Claude Code execution usage rose three times between 2026-10-25 and 2026-11-15
 trigger_when: selected from the product backlog
-scope: two stories
+scope: one story
 ---
 
 # SEED-388 — Measure and control what agent launches cost
@@ -16,33 +16,7 @@ the cost across 11 executions. The index now counts a launch's work after a
 developer reply on both tools, background agents at any depth, and rows whose
 text holds Unicode line separators. The [SEED-345](SEED-345-session-token-efficiency.md)
 efficiency trials use the [retained effort command](../../dashboard/AGENT-EFFORT.md)
-on this index at a known effort, so the remaining corrections come first.
-
-<a id="replace-native-reader-gaps-on-reread"></a>
-
-### Replace native reader gaps when a session is read again
-
-**Identity:** SEED-388#replace-native-reader-gaps-on-reread
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/669-replace-native-reader-gaps-on-reread/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4b4e221c433b058be50b8245c725d3bfb8b8d1fd9c4388faa8168c1f4ef4da93","plan":"85538b38d39345f48cbdcbfdd747915497fd967df4919fa47f1936be97c1eeff"}}
-```
-
-#### Goal
-
-A maintainer reading the Usage store sees only the reader gaps a session's
-native files still have. Today `malformed-native-row` and
-`native-source-unreadable` gaps carry no host, so a write that reads their
-session again keeps them: a live transcript's half-written last row, seen once
-by Refresh, stays a gap after the row completes, contrary to
-`dashboard/USAGE-HISTORY.md`. Correction of
-SEED-388#read-claude-rows-with-unicode-line-separators.
-
-#### Scope
-
-- Reader gaps name their host, so import and Refresh replace them with the
-  gaps a reread still reports, on Codex and Claude Code alike.
-- Gaps already stored without a host stay as they are: automatic repair of
-  stored history stays excluded.
+on this index at a known effort.
 
 <a id="name-the-effort-a-session-ran-with"></a>
 
