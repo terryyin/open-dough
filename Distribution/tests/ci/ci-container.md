@@ -34,11 +34,13 @@ docker image rm $(docker image ls -q open-dough-ci) && docker builder prune
 Each run mounts the checkout, and a linked worktree's common Git directory, at
 their host paths, keeps `node_modules` in a container volume so host modules
 are neither used nor overwritten, runs `npm ci`, prints the Git and Node
-versions, and then runs `scripts/test.sh` with the given paths, or the
-dashboard type-check and each browser test group unsharded with `CI=true` (so Playwright's
-`forbidOnly` and HTML report apply). `scripts/test.sh` runs with `CI` unset,
-as on any local run. A path or caller directory outside the checkout is
-refused by name. It runs as the host user with a container-local `HOME`, so
+versions, and then, with `CI=true` as on CI, runs `scripts/test.sh` with the
+given paths, or the dashboard type-check and each browser test group unsharded
+(so Playwright's `forbidOnly` and HTML report apply). `scripts/test.sh` therefore
+uses CI's job default, one per container CPU, and stays out of local full-suite
+admission: the container cannot see host processes, so a host suite keeps its
+admission while a diagnostic runs beside it. A path or caller directory
+outside the checkout is refused by name. It runs as the host user with a container-local `HOME`, so
 files it writes in the checkout stay yours. The image uses the host's native
 architecture, which may differ from CI's x86_64.
 

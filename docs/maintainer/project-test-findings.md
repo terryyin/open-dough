@@ -219,7 +219,7 @@ unknown.
 delivered the instructions in
 [Machine sleep on macOS](../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 In `SEED-241#load-intent-without-disruption-or-bulk-source-transfer`
-(`plan 477-load-intent-without-disruption`, 2026-11-05, see DD-432 below),
+(`plan 477-load-intent-without-disruption`, 2026-11-05, see [DD-432](project-findings-history.md#dd-432)),
 the main-merge dashboard suite ran under `caffeinate -s -i` and reported
 2,044 passed, 1 skipped. Two settling observations remain
 open: whether `caffeinate -s` keeps a run going that starts inside the
@@ -252,35 +252,6 @@ With `DOUGH_REVISION_STREAM_MS` lowered, `SourceRevisionStream` scheduled its pa
   - Inference: the earlier fix settled pace per open demand, not per source, so `sourceRevisionStream.ts`'s comment that a lowered pace cannot list again before open answers are observed still overstates the product; with production paces of minutes the residual race is harmless, and the spec no longer depends on it.
 
 **Responsibility and disposition (2026-11-07):** Project-owned dashboard implementation and boundary-test timing (`SourceRevisionStream`), repaired in the same execution (`1e79d44b9`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-420`); no new local story.
-
-<a id="dd-432"></a>
-
-## DD-432 — A container run took a live host run's local-suite admission
-
-`scripts/ci-container.sh` mounts the common Git directory, so its
-`scripts/test.sh` shares `refs/dough/local-test-suite` with host runs. Inside
-the container, the host owner's pid is not visible, so `living()` judged the
-host's running dashboard suite dead and replaced the owner. The host run's
-global teardown then failed to release its admission and exited 1 after every
-test had passed.
-
-### Occurrences
-- Execution: SEED-241#load-intent-without-disruption-or-bulk-source-transfer (plan 477-load-intent-without-disruption; first related implementation commit `fa9fd1a0249d41a5c590a0cbf66f40ff0728e028`)
-  - Timestamp: 2026-11-05T23:12:28+07:00 (the replacing owner's `started` field, 16:12:28 UTC)
-  - Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: the dashboard suite run for the main-merge of the story branch (22:54–23:26 +07:00, `caffeinate -s -i`) reported 2044 passed, 1 skipped, then global teardown threw "Could not release local test-suite admission." (`scripts/local-test-suite.mjs` `release`); `refs/dough/local-test-suite` afterwards held `{"pid":22,"started":"Thu Nov  5 16:12:28 2026",…}`; no host pid 22 and no container running afterwards
-  - Observed effect: an otherwise green whole-suite gate exited 1; admission did not keep the two suites from running concurrently
-  - Inference: qualified — the replacing owner's pid and UTC start match a container started by another session; the exact command is unknown. Either container runs take no host admission (or a separate ref), or owners record a pid namespace so a foreign-namespace owner is never judged dead; tolerating a taken ref at teardown alone would hide the concurrent run
-
-**Assessment (2026-11-15):** The non-browser container path still mounts the
-common Git directory and invokes `scripts/test.sh`. The admission owner is
-identified by PID and process start time in the caller's namespace. The
-exact historical container command remains unknown.
-
-**Follow-up:**
-[SEED-375](../../.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
-is queued to prevent owner replacement across that boundary and preserve host
-full-suite serialization.
 
 <a id="dd-433"></a>
 

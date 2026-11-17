@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission",
+  "title": "Keep container diagnostics from replacing a live host test-suite owner",
+  "completedAt": "2026-11-17T16:08:18.892Z",
+  "developer": "Terry Yin",
+  "agent": "Kirara-chan",
+  "host": "claude"
+}

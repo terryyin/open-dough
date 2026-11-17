@@ -45,7 +45,9 @@ function teardownOf(t) {
   return teardowns.get(t);
 }
 
-function launch(t, cwd, args, extra = {}, command = process.execPath) {
+// Runs `command` from `cwd` without this run's runner, CI and test context,
+// stopped at the test's teardown if still running.
+export function launch(t, cwd, args, extra = {}, command = process.execPath) {
   const env = { ...process.env, ...extra };
   for (const key of [
     "CI",
