@@ -176,7 +176,7 @@ Accepted proof: [slice 6](slice-6-proof.md).
 
 ### 7. Review changes and Intent open Story notes and keep the diff as shown
 Type: Behavior
-Status: planned
+Status: done
 Proof: `e2e/intent/intent-story-add-note.spec.ts` and the Notes-from-review
 case in `story-review-diff-add-note.spec.ts`; consumers `e2e/intent/` specs
 whose names begin `intent-story`; typecheck and lint.
@@ -189,6 +189,8 @@ capture and its Intent Add note observation.
 
 - **Notes** in `StoryReviewHeading.tsx` for a story subject, and beside the
   selected story in Intent; retain the view context delivered in slice 5.
+
+Accepted proof: [slice 7](slice-7-proof.md).
 
 ### 8. A note can be dictated
 Type: Behavior

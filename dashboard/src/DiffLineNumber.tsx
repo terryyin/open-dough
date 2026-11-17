@@ -36,12 +36,17 @@ export function DiffLineNumber({
   useLayoutEffect(() => {
     if (!open) return;
     const shown = menu.current;
-    const pane = root.current?.closest(".story-review-code");
+    const line = root.current;
+    const pane = line?.closest(".story-review-code");
     if (
       shown !== null &&
+      line !== null &&
       pane !== null &&
       pane !== undefined &&
-      shown.getBoundingClientRect().bottom > pane.getBoundingClientRect().bottom
+      shown.getBoundingClientRect().bottom >
+        pane.getBoundingClientRect().bottom &&
+      shown.getBoundingClientRect().height <=
+        line.getBoundingClientRect().top - pane.getBoundingClientRect().top
     ) {
       shown.style.top = "auto";
       shown.style.bottom = "100%";

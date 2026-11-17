@@ -13,6 +13,7 @@ import type { LensStory, StorySummary } from "./IntentStorySummary.tsx";
 import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import { shortRevision } from "./publishedWork.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
+import { StoryNotes } from "./StoryNotesControl.tsx";
 import { defaultStoryComparison } from "./useStoryComparison.ts";
 
 const outsideWords = (count: number) =>
@@ -97,6 +98,13 @@ export function IntentHeader({
           {story?.title ??
             (projectVisit ? "Project Intent" : "No story selected")}
         </h2>
+        {story !== undefined && (
+          <StoryNotes
+            sourceId={source}
+            identity={story.identity}
+            title={story.title}
+          />
+        )}
         {story !== undefined && outside !== undefined && (
           <StoryOutsideLocations
             source={source}

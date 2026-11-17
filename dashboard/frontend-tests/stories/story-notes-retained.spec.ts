@@ -1,7 +1,13 @@
 // One notes collection follows identity across launches and published phases.
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
+import {
+  frontendFileDiff,
+  frontendReviewIds,
+} from "../../tests/support/frontendStoryReview.ts";
+import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 import {
   putFrontendDoneRecords,
   frontendStoryLaunch,
@@ -18,24 +24,29 @@ test("a Taken note survives a new launch and appears on Done without workspace o
   frontendServices,
 }) => {
   const service = await installFrontendStoryNotes(page);
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observingOpen(frontendStoryLaunch("executing", takenStory).please())
-      .please(),
+  const { review } = await openFrontendStoryReview(
+    page,
+    frontendServices,
+    undefined,
+    (answers) => {
+      answers.answerFile(
+        frontendFileDiff("story.txt", ["+Kept line"]),
+        "story.txt",
+      );
+    },
   );
-  await openFrontendBoardReview(page, frontendServices);
-  await showColumn(page, "Taken");
   const card = parts(page).taken.getByRole("article", {
     name: takenStory,
     exact: true,
   });
   const notes = storyNotesPage(page);
-  await notes.open(card);
-  await notes.add();
+  await notes.fromLine(fileDiff(review, "Added story.txt"), "new", 1, [
+    "Add note",
+  ]);
   await notes.type("Keep this observation through completion");
   await notes.save();
-  await notes.expectSaved();
-  await notes.close();
+  await notes.expectDiffSaved();
+  await closeSidePanel(review);
   frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observingOpen(
@@ -79,12 +90,30 @@ test("a Taken note survives a new launch and appears on Done without workspace o
   await notes.expectCount(done, 1);
   await notes.open(done);
   await notes.expectNotes(["Keep this observation through completion"]);
-  await notes.expectEntryContext(0, `${takenStory} · ${takenIdentity}`);
+  for (const context of [
+    `${takenStory} · ${takenIdentity}`,
+    "Review changes",
+    "story.txt",
+    `All changes ${frontendReviewIds.baseline} → ${frontendReviewIds.tree}`,
+    "Line 1 · new",
+    "Kept line",
+  ])
+    await notes.expectEntryContext(0, context);
   expect(service.changes()).toEqual([
     {
       action: "add",
       identity: takenIdentity,
       text: "Keep this observation through completion",
+      context: {
+        view: "Review changes",
+        path: "story.txt",
+        comparison: {
+          name: "All changes",
+          baseline: frontendReviewIds.baseline,
+          tree: frontendReviewIds.tree,
+        },
+        line: { number: 1, side: "new", text: "Kept line" },
+      },
     },
   ]);
 });

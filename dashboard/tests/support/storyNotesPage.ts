@@ -61,6 +61,9 @@ export function storyNotesPage(page: Page) {
       } else await control.click();
       await expect(dialog).toBeVisible();
     },
+    expectOpenerFocused: async (scope: Locator) => {
+      await expect(storyNotesControl(scope)).toBeFocused();
+    },
     edit: async (index: number, using: "mouse" | "keyboard" = "mouse") => {
       const control = entries
         .nth(index)

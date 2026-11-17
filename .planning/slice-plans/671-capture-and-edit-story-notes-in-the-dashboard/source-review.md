@@ -40,32 +40,32 @@ last removing it after delivery and verification.
 | 8 | Every story card offers Notes. | slice 2 | observed: story-notes.spec.ts desktop/phone Backlog, Taken and Recently done Notes assertions; StoryCard and DoneStoryCard mount the same control. |
 | 9 | A card shows the current note count when notes exist; examples require one after adding the first note and an updated count after deletion. | slice 4 | observed: Real story-notes-persistence E2E first-save count1 remains green; story-notes-edit desktop/phone asserts count1 after cancel and Notes without count after confirmed delete. |
 | 10 | A card’s Notes opens Story notes for that story. | slice 2 | observed: story-notes.spec.ts opens selected card and expectContext verifies its title/identity; other-story empty list assertion. |
-| 11 | Review changes offers the same story Notes. | slice 7 |  |
-| 12 | Intent → Changed tests offers the same story Notes. | slice 7 |  |
+| 11 | Review changes offers the same story Notes. | slice 7 | observed: slice-7-proof.md: P3/P5 Review Notes shows count 1 and the existing saved story note. |
+| 12 | Intent → Changed tests offers the same story Notes. | slice 7 | observed: slice-7-proof.md: P3/P5 Intent Changed tests Notes shows the same story collection/count. |
 | 13 | Story notes lists that story’s notes. | slice 2 | observed: story-notes.spec.ts two saved texts and other-story empty list assertions. |
 | 14 | Notes appear newest first. | slice 2 | observed: story-notes.spec.ts expectNotes Later observation before First observation; StoryNotesControl.tsx savedAt descending sort. |
 | 15 | Each listed note shows its text. | slice 2 | observed: story-notes.spec.ts caller-supplied expected saved text lists. |
-| 16 | Each saved note shows its context. | slice 7 |  |
+| 16 | Each saved note shows its context. | slice 7 | observed: slice-7-proof.md: Existing slice-5/6 context implementation unchanged; P5 reads file, both line sides and revealed context; P6 reads context after Done. |
 | 17 | Story notes offers Add note for a general note. | slice 2 | observed: story-notes.spec.ts Add note opens Add note composer then saves typed general notes. |
 | 18 | A general note’s context contains the story alone, with no file or line. | slice 2 | observed: story-notes.spec.ts captured POST objects contain only action, identity and text; entry context contains story title/identity. |
 | 19 | A story that has never been reviewed can receive a general note through its card. | slice 2 | observed: story-notes.spec.ts Backlog readyStory with no prior review saves general notes through card. |
-| 20 | Every story file diff offers Add note beside the file path: Review changes and Intent → Changed tests, Taken workspace comparisons and Done Published completion or landed run alike. Amendment: Add note is offered in every story review, Taken or Done. | slice 7 |  |
-| 21 | Every story file diff offers Add note in each line-number menu, under those same views and comparison conditions, including Taken workspace comparisons and Done Published completion or landed runs. | slice 7 |  |
+| 20 | Every story file diff offers Add note beside the file path: Review changes and Intent → Changed tests, Taken workspace comparisons and Done Published completion or landed run alike. Amendment: Add note is offered in every story review, Taken or Done. | slice 7 | observed: slice-7-proof.md: P5 Published/Intent and Taken file Add note; Landed rename context passed in repair check, same shared implementation as slice 5/6. |
+| 21 | Every story file diff offers Add note in each line-number menu, under those same views and comparison conditions, including Taken workspace comparisons and Done Published completion or landed runs. | slice 7 | observed: slice-7-proof.md: P5 Published/Intent/Taken line Add note plus P6 one-line Taken pointer menu. |
 | 22 | Workspace-review line numbers gain a menu containing Add note. | slice 6 | observed: e2e/review/story-review-workspace-add-note.spec.ts: Add note-only line menu saves exact snapshot endpoints and line text |
-| 23 | Existing Follow up remains beside Add note wherever it was offered; the Done Published completion example names both the line menu and file header. | slice 7 |  |
+| 23 | Existing Follow up remains beside Add note wherever it was offered; the Done Published completion example names both the line menu and file header. | slice 7 | observed: slice-7-proof.md: P5 retains Follow up beside Add note for eligible historical line menus and Follow up still starts its existing flow. |
 | 24 | A reviewed session with no story offers no Add note in its diff. | slice 6 | observed: dashboard/frontend-tests/sessions/recently-done-ad-hoc-review.spec.ts: standalone session diff has no line menu and no Add note |
 | 25 | The composer shows the note’s context before saving. | slice 5 | observed: Published real E2E and Landed frontend composer assertions show story/title, view, paths, exact endpoints and optional raw line before save; shared StoryNoteContext renderer. |
-| 26 | Note context includes the story’s identity, shown before saving and afterwards. | slice 7 |  |
-| 27 | Note context includes the story’s title, shown before saving and afterwards. | slice 7 |  |
+| 26 | Note context includes the story’s identity, shown before saving and afterwards. | slice 7 | observed: slice-7-proof.md: Prior slice-5/6 identity-before/after proof matches unchanged context/dialog; new Notes journeys name exact story identity. |
+| 27 | Note context includes the story’s title, shown before saving and afterwards. | slice 7 | observed: slice-7-proof.md: Prior slice-5/6 title-before/after proof matches unchanged context/dialog; new Notes journeys name exact story title. |
 | 28 | Diff-note context includes the view in which the note was taken. | slice 5 | observed: Intent real E2E saves through shared diff composer and reads Intent → Changed tests back from card; Review/Landed cases observe Review changes. IntentSelectionReading provider supplies canonical view. |
 | 29 | Diff-note context includes the file path. | slice 5 | observed: Published real and Landed frontend cases observe file path before save and saved collection readback. |
 | 30 | A renamed file’s diff-note context includes its old path. | slice 5 | observed: Landed frontend case observes old-name.ts → new-name.ts, captured POST contains oldPath, saved entry keeps both paths. |
-| 31 | Diff-note context uses the comparison’s displayed name. | slice 7 |  |
-| 32 | Diff-note context includes the comparison endpoints. | slice 7 |  |
+| 31 | Diff-note context uses the comparison’s displayed name. | slice 7 | observed: slice-7-proof.md: P5 displayed Published/workspace comparison context and P6 saved All changes context. |
+| 32 | Diff-note context includes the comparison endpoints. | slice 7 | observed: slice-7-proof.md: Prior slice-6 exact real workspace endpoints remain applicable; P6 independently asserts exact submitted and Done-displayed endpoints. |
 | 33 | Line-note context includes the line number. | slice 5 | observed: Published real E2E captures new54, old54 and revealed old40, before-save and saved line labels. |
 | 34 | Line-note context includes the line’s side. | slice 5 | observed: Same real cases independently observe new/old side labels with correct line numbers. |
 | 35 | Line-note context preserves the line’s text as it read when noted. Amendment: a line note keeps text of its line. | slice 5 | observed: Published real E2E preserves changed fifty-four, line54 and revealed line40; Intent real E2E keeps completed line content; diffLineItems passes raw line.text separately from follow-up anchor. |
-| 36 | Saved context records what the page showed when the note was made; the later Done/workspace-removed example requires the same context. | slice 7 |  |
+| 36 | Saved context records what the page showed when the note was made; the later Done/workspace-removed example requires the same context. | slice 7 | observed: slice-7-proof.md: P5 real displayed file/line/view context retained; P6 now directly captures Taken line 1 and reads identical file/comparison/endpoints/line/text after Done with workspace/launch records absent. Existing real restart persistence/store proof remains applicable because those boundaries are unchanged. |
 | 37 | A note added from a file header has file and comparison context but no line. | slice 5 | observed: File-header Published/Landed cases assert no composer line, no saved line and exact captured context omits line. |
 | 38 | The developer can type note text. | slice 2 | observed: story-notes.spec.ts fills real Note text textarea and observes saved typed text. |
 | 39 | Dictation follows session-instruction permission states. | slice 8 |  |
@@ -90,15 +90,15 @@ last removing it after delivery and verification.
 | 58 | Notes are kept on the machine serving the dashboard. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 59 | Every page of that dashboard, including a phone’s page, can show the notes. | slice 2 | observed: story-notes.spec.ts desktop/phone real frontend; e2e/stories/story-notes-persistence.spec.ts real phone save and desktop reread after server restart. |
 | 60 | A change made on one page appears on other pages at their next read; the phone-save example requires the desktop page to list it at its next read. | slice 2 | observed: story-notes.spec.ts controlled external change at next shared check interval updates open list/count; stale read after save cannot overwrite; E2E independently proves page/server store use. |
-| 61 | Story notes opens over the current activity without replacing it. | slice 7 |  |
+| 61 | Story notes opens over the current activity without replacing it. | slice 7 | observed: slice-7-proof.md: P3/P5 Story notes opens over current Review/Intent; underlying diff state remains after close. |
 | 62 | An attached terminal stays attached while Story notes is used. | slice 2 | observed: story-notes.spec.ts Story notes leaves an attached terminal mounted and connected: original socket prints while open, original screen remains connected, attachment count1, output and Notes focus after close. |
-| 63 | A review keeps its comparison through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
-| 64 | A review keeps its selected file through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
-| 65 | A review keeps its reading position through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
-| 66 | Closing Story notes returns keyboard focus to the control that opened it. | slice 7 |  |
+| 63 | A review keeps its comparison through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 | observed: slice-7-proof.md: P3/P5 capture displayed comparison description before opening, compare unchanged after close. |
+| 64 | A review keeps its selected file through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 | observed: slice-7-proof.md: P3/P5 retain the selected nondefault file and its diff. |
+| 65 | A review keeps its reading position through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 | observed: slice-7-proof.md: P3/P5 retain revealed old line 40 and exact positive scroll offset. |
+| 66 | Closing Story notes returns keyboard focus to the control that opened it. | slice 7 | observed: slice-7-proof.md: P3/P5 open Notes by keyboard and observe focus on the same Notes opener after close. |
 | 67 | The add composer is headed Add note. | slice 2 | observed: storyNotesPage.add observes Add note heading in real composer. |
 | 68 | The edit composer is headed Edit note. | slice 4 | observed: storyNotesPage.edit independently observes Edit note heading and current textarea text. |
-| 69 | Composer context appears above the text. | slice 7 |  |
+| 69 | Composer context appears above the text. | slice 7 | observed: slice-7-proof.md: Unchanged composer layout/context-above-text from slice 5/6; P5 exercises both file and line composers without changing that boundary. |
 | 70 | The composer offers Dictate. | slice 8 |  |
 | 71 | The composer offers Cancel. | slice 2 | observed: story-notes.spec.ts blank composer Cancel then Add note opens clean draft; StoryNotesControl.tsx Cancel action. |
 | 72 | The composer offers Save note. | slice 2 | observed: story-notes.spec.ts Save note submit produces observed POST/list/status. |

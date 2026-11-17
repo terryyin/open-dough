@@ -18,6 +18,10 @@ export const contextLine = (review: Locator) =>
 export const reviewBody = (review: Locator) =>
   review.locator(".story-review-body");
 
+// The fixed context of the comparison currently displayed.
+export const shownComparisonDescription = (review: Locator) =>
+  review.locator(".story-review-top > div").first();
+
 // The review's feedback, announced from its fixed top: reading, refreshing,
 // refreshed, and problem messages. A file's diff has its own.
 export const reviewFeedback = (review: Locator) =>

@@ -4,6 +4,11 @@ Every Backlog, Taken and Recently done story card offers **Notes**. It opens
 **Story notes** over the page, leaving its terminal and review in place.
 The count is shown when the story has notes.
 
+The same **Notes** control appears in a story’s Review changes heading and
+beside the selected story in Intent. Story notes opens over the current
+activity. Closing it keeps the comparison, selected file, revealed context
+and reading position, and returns the keyboard to **Notes**.
+
 Choose **Add note**, type an observation, then **Save note**. A general note
 belongs to the story alone: its identity and title are shown above the text
 and with each saved entry. **Cancel** discards the draft. Blank text is not

@@ -2,6 +2,18 @@
 // the displayed facts through the shared machine-local notes boundary.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
+import type { Page } from "@playwright/test";
+import {
+  queuedIdentity,
+  type StartOrigin,
+} from "../../dashboard/tests/support/startOrigin.ts";
+import {
+  codePane,
+  scrollPane,
+  scrollTopOf,
+} from "../../dashboard/tests/support/reviewPanes.ts";
+import { shownComparisonDescription } from "../../dashboard/tests/support/reviewContextLine.ts";
+import { lineNumberControl } from "../../dashboard/tests/support/diffLineFollowUpPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
 import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
 import { contextExpansion } from "../../dashboard/tests/support/expandContextDiff.ts";
@@ -23,10 +35,7 @@ import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 import { storyNotesPage } from "../../dashboard/tests/support/storyNotesPage.ts";
 
-test("Published diff file and line notes show and keep their immutable context", async ({
-  page,
-  origin,
-}) => {
+async function openNotesReview(page: Page, origin: StartOrigin) {
   writeFileSync(
     path.join(origin.project, expandContextFile),
     expandContextLines("line", 160),
@@ -63,6 +72,14 @@ test("Published diff file and line notes show and keep their immutable context",
   const label = `Modified ${expandContextFile}`;
   await listedFile(review, label, { exact: true }).click();
   const diff = fileDiff(review, label, { exact: true });
+  return { review, diff, card };
+}
+
+test("Published diff file and line notes show and keep their immutable context", async ({
+  page,
+  origin,
+}) => {
+  const { review, diff, card } = await openNotesReview(page, origin);
   const notes = storyNotesPage(page);
   await notes.fromFile(diff);
   await notes.expectComposerContext([
@@ -124,4 +141,39 @@ test("Published diff file and line notes show and keep their immutable context",
     /Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
   );
   await notes.expectEntryNoLine(3);
+});
+
+test("Notes from Review changes preserves the displayed diff and returns focus", async ({
+  page,
+  origin,
+}) => {
+  const { review, diff } = await openNotesReview(page, origin);
+  const notes = storyNotesPage(page);
+  await notes.fromFile(diff);
+  await notes.type("Keep this review observation");
+  await notes.save();
+  await notes.expectDiffSaved();
+  await contextExpansion(
+    diff.getByRole("list", { name: "Omitted lines before the next change" }),
+    /Show 20 preceding/,
+  ).click();
+  const revealed = lineNumberControl(diff, "old", 40);
+  await expect(revealed).toHaveCount(1);
+  const code = codePane(diff);
+  const readingAt = await scrollPane(code, 150);
+  expect(readingAt).toBeGreaterThan(0);
+  const comparison = shownComparisonDescription(review);
+  await expect(comparison).toContainText("Published completion");
+  const comparisonBefore = await comparison.textContent();
+  if (comparisonBefore === null) throw new Error("Comparison was not shown");
+  await notes.expectCount(review, 1);
+  await notes.open(review, "keyboard");
+  await notes.expectContext("Story A", queuedIdentity);
+  await notes.expectNotes(["Keep this review observation"]);
+  await notes.close();
+  await notes.expectOpenerFocused(review);
+  await expect(comparison).toHaveText(comparisonBefore);
+  await expect(diff).toBeVisible();
+  await expect(revealed).toHaveCount(1);
+  expect(await scrollTopOf(code)).toBe(readingAt);
 });

@@ -117,3 +117,7 @@ architecture unchanged. Remaining boundaries retained as one proof loop each.
   retained. Root owns these backlog/seed changes; include them in later story
   delivery and mention the priority change in the final report. No guidance
   implementation is authorized in this story.
+- Slice6: `c955b00d13a5c50bf44ca31fd198b16ba9a5c632`, accepted storybranch;
+  suffix base `4298fddeb0c368ab3817cbfc5298b906d8be2109`, same observer reused
+  and exact revision registered. Full real review103/frontend proofs green;
+  G1 proved. Includes requested SEED-345 priority/investigation update.
