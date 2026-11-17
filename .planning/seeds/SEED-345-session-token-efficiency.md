@@ -124,33 +124,115 @@ Each trial is judged with the
 
 **Identity:** SEED-345#recover-decisive-verification-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/683-recover-decisive-verification-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ffb81959c8ad32dc64b70f7a7f51f1ef199961224c7344527f4a491113c37ba","plan":"94b954acb84d8de9a7bc9b934a8df46271ced1b38eba0bdf590be18c94c017d5"}}
 ```
 
-- **Scope and beneficiary.** Shared local and delegated verification. A
-  developer or coordinator can diagnose a run or worker from recoverable
-  evidence with fewer rereads and reruns, and less evidence in model context.
-  Split from
-  [the stopping-rule story](https://github.com/terryyin/open-dough/blob/74e279020ed97da59be4ff3a3956a9c4020cf55d/.planning/seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence)
-  on 2026-11-17.
-- **Evaluation.** An owned verification may emit a large result, or its runner
-  may clean up temporary output. The consumer can still retrieve the exact
-  command and revision, the selected proof, the terminal result, and the
-  decisive assertion or diagnostic artifact. While the verification runs, the
-  consumer also has a continuation handle. A worker hand-back states each
-  material promise, its observation and any proof gap, and points to its full
-  report on disk. The same repair or acceptance decision follows with fewer
-  rereads or reruns and less evidence in model context. Missing or incomplete
-  proof is exposed.
-- **Drivers.** SEED-332 lost diagnostic traces, and truncated output recurred
-  ([ODF-264](../../docs/maintainer/findings/ODF-264.md)). Claude Code
-  coordinators retained 315 hand-backs with a median 7.8k characters
-  throughout their sessions.
-- **Effort and boundary.** Medium, medium confidence. Keep every required
-  proof row ([ODF-314](../../docs/maintainer/findings/ODF-314.md)). The
-  [source-review bookkeeping story](https://github.com/terryyin/open-dough/blob/b6b6d04c9162a30619c3fd59c8e220d523455004/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
-  owns promise allocation.
-  [Output and diagnostic evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+**Goal.** A developer whose story an Open Dough coordinator executes gets each
+repair or acceptance decision from evidence that is still there when it is
+needed. A proof run's command, revision, result and decisive diagnostic stay
+recoverable after large output or runner cleanup, and a worker's hand-back is
+a short verdict that points to them. Coordinators and workers then reread and
+rerun less and carry less evidence in context, with every required proof row
+kept.
+
+**Scope.** Shared execution guidance and the installed slice clock in
+`dough-execute-plan`, on every host.
+
+- **Run record.** A proof command run through the
+  [slice clock's `run`](../../Distribution/src/skills/dough-execute-plan/references/oversized-slice.md#track-active-time)
+  leaves, beside its log, a record of the literal command, the checkout
+  revision and whether the checkout had uncommitted changes, the start time,
+  and, once it ends, the exit status. The record exists from launch and names
+  the log and exit file, so it is the continuation handle while the command
+  runs.
+- **Evidence location.** The guidance names one place for an execution's
+  logs, exit files, run records and worker reports: with the execution
+  checkout, uncommitted, outside any directory the test runner clears, so it
+  lasts until the checkout is retired.
+- **Decisive artifact.** When a decision rests on a diagnostic artifact the
+  runner may remove or overwrite, such as a trace or screenshot, the owner
+  directs it to the evidence location or copies it there before starting
+  another run. Before an expensive diagnostic run, the owner first confirms
+  on a small run that the artifact survives; this extends
+  [choose expensive proof before launch](../../Distribution/src/skills/dough-story-refinement/references/executable-proof.md#choose-expensive-proof-before-launch).
+- **Large output.** The consumer takes the terminal result from the record
+  and reads from the log only the failing assertion or summary it needs,
+  under [targeted retrieval](../../Distribution/src/skills/dough-execute-plan/references/disposable-research.md).
+- **Hand-back.** The
+  [targeted return](../../Distribution/src/skills/dough-execute-plan/references/delegation.md#return-a-targeted-report-with-focused-proof)
+  becomes a short verdict: each slice promise with its observation location
+  and result, or its named gap; the changed paths; the run records; stops and
+  consequential learnings; and the path of the full report in the evidence
+  location. The full report holds what the return requires today, including
+  proof detail and the consumer-trace record. The coordinator's
+  [proof acceptance](../../Distribution/src/skills/dough-execute-plan/references/wrap-up.md#accept-proof)
+  reads from the report and logs the parts its comparison needs. A promise
+  absent from the verdict, or a verdict whose report or record is missing, is
+  incomplete proof.
+
+Edit each rule's existing owner in place and add no competing rule.
+
+**Scope limits.** Which proof is required, the acceptance comparison and its
+stopping rule, and every required proof row
+([ODF-314](../../docs/maintainer/findings/ODF-314.md)) stay as they are. The
+[source-review bookkeeping story](https://github.com/terryyin/open-dough/blob/b6b6d04c9162a30619c3fd59c8e220d523455004/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
+owns promise allocation. How an owner waits belongs to
+[the waiting story](#get-long-verification-results-without-empty-wakes), and
+which guidance a coordinator reads to
+[the phase-guidance story](#load-execution-guidance-for-the-current-phase).
+CI evidence keeps its bounded excerpts under CI monitoring. Explicit markers
+such as `## REFACTOR COMPLETE` stay verbatim. The story adds no runner-specific
+adapter; a project's own runner settings stay with that project.
+
+**Key examples.**
+
+1. Large output: an implementer runs a 2,791-test suite through `run` and two
+   tests fail. The hand-back names the run record. The coordinator reads exit
+   status, command and revision from the record and the two failing
+   assertions from the log, without loading the log or rerunning the suite.
+2. Runner cleanup: a failing end-to-end run leaves a trace in the runner's
+   output directory, which the next run clears. The owner copies the trace to
+   the evidence location before the diagnostic rerun, so the original
+   failure's trace is still there when the rerun passes.
+3. Still running: an implementer's suite outlasts its expected window. The
+   coordinator's overdue check reads the run record: the command, its
+   revision, the log so far, and no exit status yet. It continues that run
+   rather than starting a second one.
+4. Compact hand-back: a slice with six promises returns six lines of
+   observation location and result, the changed paths, two run records and
+   the report path. The coordinator inspects the named assertions and opens
+   the report only for the consumer-trace record.
+5. Exposed gap: a hand-back covers five of six promises, or names a report
+   that is not on disk. The coordinator returns the slice naming the missing
+   promise or report, as it does for a missing proof row today.
+6. Changed revision: the record shows a run made before a later edit to the
+   checkout. The coordinator treats that proof as covering the earlier state
+   and obtains the observation the edit affects.
+
+**Evaluation.** No paid comparison. Deterministic checks for the run record
+and the guidance come with the change. Judge keep or stop from the next real
+planned execution's trace on any host, with the
+[retained effort command](../../dashboard/AGENT-EFFORT.md), against the
+baseline below. Keep the change when hand-backs are shorter than the baseline
+median, acceptance decisions are reached from records, logs and the report,
+and no proof is rerun only to recover output. Revise it when a coordinator
+needs a second round for a proof row the verdict dropped, or when CI, the
+retrospective or a later slice finds a defect the full return would have
+shown. Stop and rethink when coordinators load whole reports or logs anyway.
+
+**Baseline.** Claude Code coordinators retained 315 hand-backs of 2.78M
+characters, median 7.8k and 90th percentile 14.4k, for their whole sessions.
+SEED-332's reporter cleanup removed the traces of a diagnostic run, and
+truncated output recurred in SEED-342
+([ODF-264](../../docs/maintainer/findings/ODF-264.md)). Today `run` writes
+only the command's output and exit status, at paths the caller chooses, and
+the guidance names no location for them.
+[Output and diagnostic evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+
+**Priority and effort.** Split from
+[the stopping-rule story](https://github.com/terryyin/open-dough/blob/74e279020ed97da59be4ff3a3956a9c4020cf55d/.planning/seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence)
+on 2026-11-17. Small to medium, medium confidence: one script and the
+guidance owners named above.
 
 <a id="get-long-verification-results-without-empty-wakes"></a>
 
