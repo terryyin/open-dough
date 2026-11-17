@@ -13,6 +13,7 @@ import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { CommitList } from "./StoryReviewCommits.tsx";
 import { storyComparisonShown } from "./storyComparisonShown.ts";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
+import { reviewIntentSettingsRevision } from "./reviewDiffSyntaxHint.ts";
 
 export function ReviewBody({
   review,
@@ -47,6 +48,10 @@ export function ReviewBody({
     comparison,
     tree,
   });
+  const settingsRevision = reviewIntentSettingsRevision(
+    review,
+    shownComparison?.tree,
+  );
   return (
     <StoryNoteComparison.Provider value={comparisonWords[shown]}>
       {snapshot === undefined && shownComparison !== undefined && (
@@ -60,6 +65,7 @@ export function ReviewBody({
           tree={shownComparison.tree}
           headingId={headingId}
           browser={browser}
+          {...(settingsRevision === undefined ? {} : { settingsRevision })}
         />
       )}
       {snapshot !== undefined &&
@@ -81,6 +87,7 @@ export function ReviewBody({
           committedOnly={committedOnly}
           headingId={headingId}
           browser={browser}
+          {...(settingsRevision === undefined ? {} : { settingsRevision })}
         />
       )}
     </StoryNoteComparison.Provider>

@@ -1,11 +1,14 @@
-// Which configured Intent location owns a workspace selection, and which of
-// the files the tree lists, a selected story's overlay included, that
-// selection covers: files under a location's or folder's path, or the one
-// file. IntentBrowser uses this for a Summary's files, for Purpose's owning
-// location, and for whether the shown tree holds the selection at all
-// (`./IntentBrowser.tsx`, `./intentWorkspaceSelection.ts`).
+// Which configured Intent location owns a workspace selection, which of the
+// files the tree lists, a selected story's overlay included, that selection
+// covers, and the Intent `syntax` hint for a repository file path.
+// IntentBrowser uses this for a Summary's files, for Purpose's owning
+// location and hint, and for whether the shown tree holds the selection at
+// all (`./IntentBrowser.tsx`, `./intentWorkspaceSelection.ts`); story-review
+// diffs reuse the hint when the path names no grammar
+// (`./reviewDiffSyntaxHint.ts`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { sourceEntryOfRepositoryPath } from "./intentLocationSelection.ts";
 import {
   selectionScope,
   type IntentSelection,
@@ -25,6 +28,17 @@ export function owningLocation(
       selection.path === location.path ||
       selection.path.startsWith(`${location.path}/`),
   );
+}
+
+// Intent `syntax` hint for a repository file path from configured locations.
+export function syntaxHintOfRepositoryPath(
+  path: string,
+  locations: readonly IntentLocation[],
+): string | undefined {
+  const location = owningLocation(locations, { path });
+  return location === undefined
+    ? undefined
+    : sourceEntryOfRepositoryPath(path, location)?.hint;
 }
 
 // TREE_FILES are the files the tree lists, by repository path.

@@ -1,13 +1,19 @@
 // Syntax styling for a story-review file diff (`./StoryReviewFileDiff.tsx`):
-// the file's path selects the grammar (`./sourceHighlight.ts`), and each
-// side's whole text is tokenized once through the shared lifecycle
-// (`./useSourceHighlight.ts`), so a comment or string opened outside a hunk
-// styles the lines inside it. A removed line reads its token line from the
-// old side and every other line from the new side, by line number; a line
-// stays plain until its side's tokens arrive, or when they do not spell it.
+// the file's path selects the grammar first (`./sourceHighlight.ts`); when
+// that names none, an optional Intent `syntax` hint maps through the same
+// `sourceLanguage` Intent source reading uses. Each side's whole text is
+// tokenized once through the shared lifecycle (`./useSourceHighlight.ts`), so
+// a comment or string opened outside a hunk styles the lines inside it. A
+// removed line reads its token line from the old side and every other line
+// from the new side, by line number; a line stays plain until its side's
+// tokens arrive, or when they do not spell it.
 
 import type { ReviewedFileText } from "./storyReviewContract.ts";
-import { pathLanguage, type SourceTokenLine } from "./sourceHighlight.ts";
+import {
+  pathLanguage,
+  sourceLanguage,
+  type SourceTokenLine,
+} from "./sourceHighlight.ts";
 import type { DiffLine } from "./unifiedDiff.ts";
 import { useSourceHighlight } from "./useSourceHighlight.ts";
 
@@ -29,8 +35,15 @@ function tokenLineAt(
 export function useDiffLineTokens(
   path: string,
   text: Extract<ReviewedFileText, { kind: "text" }> | undefined,
+  syntaxHint?: string,
 ): DiffLineTokens {
-  const language = text === undefined ? undefined : pathLanguage(path);
+  const language =
+    text === undefined
+      ? undefined
+      : (pathLanguage(path) ??
+        (syntaxHint === undefined
+          ? undefined
+          : sourceLanguage(syntaxHint, path)));
   const oldSide = useSourceHighlight(text?.baseline ?? "", language);
   const newSide = useSourceHighlight(text?.tree ?? "", language);
   return (line) =>

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-387#intent-hint-language-for-story-review-diffs
 **Source:** [Style story-review diffs by Intent syntax hint when the path has no grammar](../../seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs)
+**Source review:** [source commitments](source-review.md)
 
 ## Goal and scope
 
@@ -99,7 +100,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Diffs fall back to Intent syntax hints when the path has no grammar
 Type: Behavior
-Status: planned
+Status: done
 Proof: update
 `dashboard/frontend-tests/review/story-review-diff-syntax-paths.spec.ts`
 (and/or a focused sibling under `frontend-tests/review/`) for the hint,
@@ -137,3 +138,14 @@ as written. Run Playwright with the guarded form from
 [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 (`caffeinate -s -i` when on AC power). Focused frontend review syntax specs as
 in slice 1; `npm run typecheck:dashboard`; `npm run lint`.
+
+## Accepted proof (slice 1)
+
+- Playwright: `caffeinate -s -i -- env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/frontend.playwright.config.ts --reporter=list review/story-review-diff-syntax` → 12 passed (`/tmp/slice1-pw.log`).
+- Observations: `dashboard/frontend-tests/review/story-review-diff-syntax-intent-hints.spec.ts` (shell `if` on path-silent and rename; TypeScript `const` when path wins; plain `codeTokens` 0 outside Intent / unfamiliar; published Done styles from completion); existing `story-review-diff-syntax{,-appearance,-arrival,-paths}.spec.ts` green.
+- `npm run typecheck:dashboard`; `npm run lint` — pass (rerun after post-change cohesion refactor).
+- Post-change refactor: Intent `syntaxHintOfRepositoryPath` consolidated beside `owningLocation` (`intentSelectionCoverage.ts`); Purpose and Review-changes share it. `## REFACTOR COMPLETE`.
+
+## Learnings
+
+- Frontend `intent=locations` substitute answers must match the **requested** revision body; snapshot proof pins `locations.revision` to comparison `tree`, published to `completion`.

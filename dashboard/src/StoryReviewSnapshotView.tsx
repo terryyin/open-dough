@@ -30,6 +30,8 @@ import {
   FileTree,
 } from "./StoryReviewFileTree.tsx";
 import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { useProjects } from "./projectList.tsx";
+import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 
 // What the review says in place of the browser when the comparison shown
 // lists no files.
@@ -80,6 +82,7 @@ export function SnapshotView({
   tree: comparedTree,
   commitsReview = false,
   committedOnly = false,
+  settingsRevision,
 }: {
   readonly reviewed: ReviewedWork;
   readonly snapshot?: TakenStoryReview;
@@ -90,6 +93,8 @@ export function SnapshotView({
   readonly commitsReview?: boolean;
   // Whether all changes leave the snapshot's uncommitted changes out.
   readonly committedOnly?: boolean;
+  // Intent locations revision for path-grammar fallback (`./reviewDiffSyntaxHint.ts`).
+  readonly settingsRevision?: string;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>();
   // Folders collapsed by path; every folder starts expanded on each opening,
@@ -105,6 +110,14 @@ export function SnapshotView({
     setSelectedPath(selected.path);
   // The selected file's *from* tree.
   const from = diffStartOf(comparison, selected);
+  const source = useProjects().find(
+    (project) => project.id === reviewed.subject.source,
+  );
+  const syntaxHint = useReviewDiffSyntaxHint(
+    source,
+    settingsRevision,
+    selected?.path ?? "",
+  );
   // A move asks for its file's row to be brought into view once shown.
   const browserPane = useRef<HTMLElement>(null);
   const revealing = useRef(false);
@@ -192,6 +205,7 @@ export function SnapshotView({
           from={from}
           tree={comparedTree}
           file={selected}
+          {...(syntaxHint === undefined ? {} : { syntaxHint })}
         />
       </section>
     </div>

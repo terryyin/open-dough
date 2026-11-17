@@ -24,12 +24,12 @@ import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import { sourceEntryOfRepositoryPath } from "./intentLocationSelection.ts";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import { useKeptArrangement, useKeptReading } from "./pageIntentReading.tsx";
 import {
   owningLocation,
+  syntaxHintOfRepositoryPath,
   treeHoldsSelection,
 } from "./intentSelectionCoverage.ts";
 import {
@@ -165,8 +165,8 @@ export function IntentBrowser({
 
   const selectedLocation = owningLocation(locations, selection);
   const selectedSyntaxHint =
-    scope === "file" && selectedLocation !== undefined
-      ? sourceEntryOfRepositoryPath(selectedPath, selectedLocation)?.hint
+    scope === "file"
+      ? syntaxHintOfRepositoryPath(selectedPath, locations)
       : undefined;
 
   return (
