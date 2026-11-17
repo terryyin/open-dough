@@ -1,0 +1,47 @@
+# Source review
+
+Launch: 2026-11-17, fresh general-purpose subagent (no conversation inheritance, fork or resume) at execution start, before the first delegation. Input: only the story section `SEED-345#test-agent-effort-through-its-output-contract` (Identity, Goal, Scope, Scope limits, Key examples 1–6) from `.planning/seeds/SEED-345-session-token-efficiency.md` at `30d3acfff`, with the standard source-only instructions; no plan, product, proof or slice scope. The table below retains its returned ids and text verbatim.
+
+Unnumbered context (as returned): identity and follow-on from SEED-345#compare-agent-effort-on-comparable-runs; audience; reasons (unknown-as-zero or automatic winner would mislead); scope limits (no Usage behavior, dashboard UI, native-run, guidance, paid-run or savings-measurement changes; no dependency on the shared test-focus guidance); effort hypothesis. Reviewer note: JSON and readable output kept as one promise per example; alternative triggers in examples 3 and 4 split.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | Scope ¶1: "Make AGENT-EFFORT.md (dashboard/AGENT-EFFORT.md) the maintained contract for JSON and readable output: selected boundaries, figures and units, known/partial/unavailable coverage, per-agent peaks, settings, provenance, and named gaps". Goal: "a documented output contract". | slice 4 | |
+| 2 | Scope ¶1: the contract documents that "comparisons retain each execution, deduplicated per-host totals, like-definition deltas and supplied judgment context." | slice 4 | |
+| 3 | Scope ¶1: "The CLI explicitly maps internal results to that contract." | slice 4 | |
+| 4 | Scope ¶1: "Keep public CLI flags and documented behavior, including current v1 output names and meanings." | slice 4 | |
+| 5 | Scope ¶2: "Give test support an independent representation of the documented contract; no spec or its output-reading harness imports production report types or derives expectations from production functions." | slice 4 | |
+| 6 | Scope ¶2: "Keep the real CLI as the stable entry." (specs exercise the real CLI) | slice 4 | |
+| 7 | Scope ¶2: "Organize examples by maintainer question: what one execution cost, how two groups compare, what stays unknown and why, and how selections resolve." Goal: "tests that describe the questions they ask". | slice 4 | |
+| 8 | Scope ¶2: "Each example owns one promise; use representative data and fold patch-shaped cases only when a surviving example detects the same fault." Example 6: "Removing a duplicate example never removes a distinct fault witness." | slice 4 | |
+| 9 | Scope ¶2: "For every removed or merged case, retain the old-to-surviving proof mapping during execution." | slice 4 | |
+| 10 | Scope ¶3: "reshape `agentEffort*.ts` by responsibility where this work exposes duplicated totals, coverage or deduplication across hosts and single or group reports." | slice 4 | |
+| 11 | Scope ¶3: "Reuse shared Usage accounting and ownership." | slice 4 | |
+| 12 | Scope ¶3: "Read-only operation is a correctness requirement: comparisons must not refresh Usage or change the retained evidence being compared." Example 1: "retained inputs remain byte-for-byte unchanged." | slice 4 | |
+| 13 | Example 1: selected Codex launch with coordinator 100/7, failed/cancelled workers 20/3 each, duplicate rows, and another task's response → run the CLI → "input 140 and output 13 for the three owned responses" (duplicates and the other task excluded), "with source/selection context, through JSON and readable output". | slice 2 | |
+| 14 | Example 1: "Claude disjoint input ... figures keep their documented host meanings." | slice 2 | |
+| 15 | Example 1: "Cursor workflow figures keep their documented host meanings." | slice 2 | |
+| 16 | Example 2: baseline input 100 vs candidates 30, 20, repeated 30 → compare → "each selected execution remains inspectable". | slice 4 | |
+| 17 | Example 2: "candidate group input is 50" (repeated 30 deduplicated). | slice 4 | |
+| 18 | Example 2: "the like-host difference is -50" (Scope ¶1 "like-definition deltas"). | slice 4 | |
+| 19 | Example 2: "supplied proof and rescue notes remain visible" (Scope ¶1 "supplied judgment context"). | slice 4 | |
+| 20 | Example 2: "...without a winner." Scope ¶3: "lower effort must not imply an automatic winner". | slice 4 | |
+| 21 | Example 2: "Stored/native overlap ... retain[s] [its] distinct deduplication rule[s]." | slice 4 | |
+| 22 | Example 2: "Cursor aliases retain their distinct deduplication rules." | slice 4 | |
+| 23a | Example 3: "Native input is known but cache detail is missing → report → keep the known figure and qualify only affected metrics". | slice 3 | |
+| 23b | Example 3: "...or only stored counters survive → report → keep the known figure and qualify only affected metrics". | slice 3 | |
+| 24 | Example 3: "unavailable peaks/settings/wakes stay unavailable." Scope ¶3: "Unknown counters must not become zero". | slice 3 | |
+| 25 | Example 3: "Cursor bytes never become tokens." | slice 3 | |
+| 26 | Example 3: "A missing-input request qualifies its agent peak". | slice 3 | |
+| 27 | Example 3: "missing wake evidence alone does not [qualify the agent peak]." | slice 3 | |
+| 28a | Example 4: "A retained result is only an empty still-running continuation ... → report → count conservative idle-wake exposure once". | slice 3 | |
+| 28b | Example 4: "...or explicit wait timeout → report → count conservative idle-wake exposure once". | slice 3 | |
+| 29 | Example 4: "mixed, progressing or unjoinable results remain unclassified, with coverage shown." | slice 3 | |
+| 30 | Example 5: "An exact story identity has multiple tasks → select it → refuse ambiguity". | slice 1 | observed: dashboard/backend-tests/usage-history/agent-effort-selection.spec.ts "an exact story identity with several tasks is refused…": status 1, empty stdout, stderr "Task selection is ambiguous" naming each listed id |
+| 31 | Example 5: "...and expose usable IDs through `--list`." | slice 1 | observed: agent-effort-selection.spec.ts same test: JSON --list format/exact keys/session ids, readable --list ids equal JSON, listed id selects output 7; agent-effort-cursor-selection.spec.ts "Cursor ambiguous families list recoverable roots…": readable equals JSON, exact keys, listed root recovers |
+| 32 | Example 5: "A native family/window preserves inclusive-start/exclusive-end boundaries". | slice 1 | observed: agent-effort-selection.spec.ts "a native family window includes its start and excludes its end…": 09:59:59.999/10:00/11:00 responses → output 3, requests 1, boundary explicit-half-open-native-family-window in JSON and readable |
+| 33 | Example 5: "a Cursor window stays explicitly unprovable and names the whole-family selection." | slice 1 | observed: agent-effort-cursor-selection.spec.ts "Cursor names whole-family evidence when requested time boundaries are unprovable": appliedBoundary whole-retained-directory-family with null bounds, gap requested-time-window-unprovable-whole-family-reported, readable whole-retained-directory-family |
+| 34 | Example 6: "Change an internal field name or split a report module while preserving the documented output → run the same specs → they pass without edits." Goal: "An internal rename or module split preserving that contract requires no spec edits." | slice 4 | |
+| 35 | Example 6: "Remove a promised figure, qualification or selection boundary → its owning example fails." Goal: "without weakening the report's proof." | slice 4 | |

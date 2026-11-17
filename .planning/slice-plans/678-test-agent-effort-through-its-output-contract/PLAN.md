@@ -1,6 +1,7 @@
 # Test agent effort through its output contract
 
 **Source:** [selected story](../../seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract)
+**Source review:** [source-only review](source-review.md)
 **Identity:** SEED-345#test-agent-effort-through-its-output-contract
 
 ## Goal and scope
@@ -132,7 +133,7 @@ continuing, preserve accepted proof, and keep every delivered state green.
 
 ### 1. A maintainer can resolve a selection through the documented CLI contract
 Type: Behavior
-Status: planned
+Status: done
 Proof: source example 5; real catalog/selection/refusal scenarios and named
 boundary assertions in JSON and readable/list/error output, plus the focused
 family. A temporary internal-only catalog field must not appear in output.
@@ -143,6 +144,7 @@ task/family/window boundaries follow the documented contract. Add the catalog
 and common selection contract/projection and independent test-side readers;
 regroup selection/ownership examples by this question. Do not conflate a
 whole family with a task or silently apply an unprovable Cursor window.
+Accepted proof: focused family 69 passed after refactor (`agent-effort-selection.spec.ts`, cursor-selection ambiguity/unprovable-window tests); typecheck clean; scratch catalog probe field absent from `--list --json`. Catalog projection lives in `agentEffortCatalog.ts`.
 
 ### 2. A maintainer can read what one execution cost without knowing its modules
 Type: Behavior
@@ -211,5 +213,29 @@ removed/merged case's surviving witness before accepting the final contract.
 
 ## Learnings
 
-None beyond the baseline and premises above. Execution records consequential
+- Slice 1: the Cursor report union declares `selections?: never`, so CLI projections narrowing on `"selections" in report` must treat `selections` as optional.
+
+Otherwise none beyond the baseline and premises above. Execution records consequential
 new evidence here and retains migration evidence with this plan until wrap-up.
+
+## Story obligations
+
+### G1. Single-report selection object not yet explicitly projected
+Reported: slice 1 — "The `selection` object inside single reports is not yet produced through an explicit projection; only the catalog boundary was replaced."
+Story clause: "The CLI explicitly maps internal results to that contract."
+Disposition: receiving slice 2
+
+### G2. Output-reading harness still derives report types from production
+Reported: slice 1 — "`agentEffortHarness.ts` still derives `report` / `cursorReport` / `comparisonReport` types from production."
+Story clause: "no spec or its output-reading harness imports production report types or derives expectations from production functions"
+Disposition: receiving slice 4
+
+### G3. Documented Cursor and unknown-task refusals lack an owning example
+Reported: slice 1 — "The Cursor `was not found` / missing `--family` refusal messages are documented, but this slice added no new test for them."
+Story clause: "Remove a promised figure, qualification or selection boundary → its owning example fails."
+Disposition: receiving slice 4
+
+### G4. Ownership examples not yet regrouped by maintainer question
+Reported: slice 1 — "The ownership and native-family specs were not moved into `agent-effort-selection.spec.ts`."
+Story clause: "Organize examples by maintainer question: what one execution cost, how two groups compare, what stays unknown and why, and how selections resolve."
+Disposition: receiving slice 2

@@ -3,6 +3,7 @@ import { parseArgs } from "node:util";
 import { readFileSync } from "node:fs";
 import { readEffortRequest } from "./agentEffortRequest.ts";
 import { compareEffort } from "./agentEffortComparison.ts";
+import { catalogOutput, renderCatalog } from "./agentEffortCatalog.ts";
 try {
   const { values } = parseArgs({
     options: {
@@ -30,7 +31,14 @@ try {
         values,
       )
     : await readEffortRequest(values);
-  if (values.json) console.log(JSON.stringify(report));
+  if ("selections" in report) {
+    const catalog = { selections: report.selections ?? [] };
+    console.log(
+      values.json
+        ? JSON.stringify(catalogOutput(catalog))
+        : renderCatalog(catalog),
+    );
+  } else if (values.json) console.log(JSON.stringify(report));
   else if ("baseline" in report) {
     console.log(
       "Exploratory agent effort comparison; no automatic improvement or causal claim",
@@ -56,9 +64,7 @@ try {
     }
     console.log(`Deltas: ${JSON.stringify(report.deltas)}`);
     console.log(`Warnings: ${report.warnings.join("; ")}`);
-  } else if ("selections" in report)
-    console.log(JSON.stringify(report.selections, null, 2));
-  else {
+  } else {
     console.log(`${report.host} agent effort (${report.definition})`);
     console.log(`Selection: ${JSON.stringify(report.selection)}`);
     console.log(report.accounting);

@@ -28,6 +28,31 @@ Use a separately named selection to distinguish an audit window from the whole
 retained family. Task selection uses shared Usage ownership, including replies
 and workers, and supports optional time bounds.
 
+## Selection contract
+
+Every selection outcome is one of: a catalog, a selected report or a refusal.
+
+- Catalog (`--list`, or `--host cursor --list`): JSON is
+  `{"format":"agent-effort-v1","selections":[...]}`; readable output is the
+  same `selections` array, indented. Native entries have exactly `id`, `host`,
+  `sessionId`, `rootTurnId`, `identity` and `launchedAt` (absent when unknown);
+  Cursor entries have exactly `host` (`cursor`), `id`, `root` and `directory`.
+  Pass a native `id` to `--task`; pass a Cursor `id` to `--family` with its
+  `root` as `--cursor-root`. Internal scan fields never appear.
+- Selected report: `selection.boundary` names what was selected:
+  `explicit-half-open-native-family-window` for a native family (responses at
+  `from` are included, at `until` excluded) and
+  `whole-retained-directory-family; native task/turn/time boundary unprovable`
+  for Cursor. A Cursor `--from`/`--until` is echoed in `selection.from`/`until`
+  but never applied: `selection.appliedBoundary.kind` is
+  `whole-retained-directory-family` with null bounds, and gaps include
+  `requested-time-window-unprovable-whole-family-reported`.
+- Refusal: exit status 1, nothing on stdout and one message on stderr. An exact
+  story identity matching several tasks reports `Task selection is ambiguous`
+  with the matching catalog entries; an unknown task reports `was not found`;
+  a repeated Cursor family reports `Cursor family is ambiguous`; a native
+  `--family` without `--host`, `--from` and `--until` is refused.
+
 `--home` selects the local home (default current home); `--store` selects the
 read-only Usage history file. Repeat `--codex-file` / `--claude-file` to read
 specific native files; supplying files disables that host's default root scan.

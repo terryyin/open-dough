@@ -4,6 +4,7 @@ import { scanUsageHistory, type UsageScanOptions } from "./usageScan.ts";
 import type { UsageObservation } from "./usageRecords.ts";
 import { nativeEffortSummary } from "./agentEffortNativeSummary.ts";
 import { effortGroups } from "./agentEffortGroups.ts";
+import { nativeCatalogEntry } from "./agentEffortCatalog.ts";
 
 export type EffortSelection = {
   task?: string | undefined;
@@ -50,16 +51,10 @@ export async function agentEffortReport(
     store,
   );
   const catalog = scan.tasks
-    .map(({ id, host, sessionId, rootTurnId, identity, launchedAt }) => ({
-      id,
-      host,
-      sessionId,
-      rootTurnId,
-      identity,
-      launchedAt,
-    }))
+    .map(nativeCatalogEntry)
     .sort((a, b) => a.id.localeCompare(b.id));
-  if (selection.list) return { format: "agent-effort-v1", selections: catalog };
+  if (selection.list)
+    return { format: "agent-effort-v1" as const, selections: catalog };
   if (Boolean(selection.task) === Boolean(selection.family))
     throw new Error(
       "Choose one --task ID (or exact identity), or --family SESSION; use --list for identifiers",

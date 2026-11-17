@@ -8,7 +8,13 @@ import {
   writeCursorTranscript,
 } from "../../tests/usage-history/agentEffortHarness.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { cursorEffortReport } from "../../server/agentEffortCursor.ts";
+import {
+  cursorCli,
+  listedCursorFamilies,
+  readableListing,
+  succeeded,
+  type ListedCursorFamily,
+} from "../../tests/usage-history/agentEffortSelection.ts";
 
 test("Cursor names whole-family evidence when requested time boundaries are unprovable", ({
   home,
@@ -82,49 +88,34 @@ test("Cursor ambiguous families list recoverable roots and an explicit root sele
       .please(),
   );
   const before = bytes(home);
-  const args = [
-    command,
-    "--home",
-    home,
-    "--host",
-    "cursor",
-    "--cursor-root",
-    root,
-    "--cursor-root",
-    other,
-    "--json",
-  ];
-  expect(() =>
-    execFileSync(process.execPath, [...args, "--family", "family"], {
-      stdio: "pipe",
-    }),
-  ).toThrow(/Cursor family is ambiguous/);
-  const catalog = JSON.parse(
-    execFileSync(process.execPath, [...args, "--list"], { encoding: "utf8" }),
-  ) as Extract<ReturnType<typeof cursorEffortReport>, { selections: unknown }>;
+  const roots = [root, other];
+  const refused = cursorCli(home, roots, ["--family", "family", "--json"]);
+  expect(refused.status).toBe(1);
+  expect(refused.stderr).toContain("Cursor family is ambiguous");
+  const catalog = listedCursorFamilies(
+    succeeded(cursorCli(home, roots, ["--list", "--json"])),
+  );
+  expect(catalog.format).toBe("agent-effort-v1");
+  const readable = readableListing<ListedCursorFamily>(
+    succeeded(cursorCli(home, roots, ["--list"])),
+  );
+  expect(readable).toEqual(catalog.selections);
+  for (const entry of catalog.selections)
+    expect(Object.keys(entry).sort()).toEqual([
+      "directory",
+      "host",
+      "id",
+      "root",
+    ]);
   const selected = catalog.selections.find(
     (entry) => entry.directory === path.join(other, "family"),
   );
-  expect(selected).toBeDefined();
   if (!selected) throw new Error("Expected listed Cursor family");
   const recovered = JSON.parse(
-    execFileSync(
-      process.execPath,
-      [
-        command,
-        "--home",
-        home,
-        "--host",
-        selected.host,
-        "--cursor-root",
-        selected.root,
-        "--family",
-        selected.id,
-        "--json",
-      ],
-      { encoding: "utf8" },
+    succeeded(
+      cursorCli(home, [selected.root], ["--family", selected.id, "--json"]),
     ),
-  ) as Exclude<ReturnType<typeof cursorEffortReport>, { selections: unknown }>;
+  ) as { workflow: Record<string, number | null>; gaps: string[] };
   expect(recovered.workflow).toMatchObject({
     todoWriteCalls: 0,
     readCalls: 1,
