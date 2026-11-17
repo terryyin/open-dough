@@ -28,26 +28,7 @@ See [Existing solution and direction](existing-solution.md); its decisions and e
 
 ## Current decisions
 
-- One dialog, `Story notes`, with a list and a composer; from a diff it opens
-  on the composer and closes on saving. The mockup's in-panel notes view is
-  not followed (seed UI).
-- A note is `{ id, text, savedAt, editedAt?, context? }`; `context` is
-  `{ view, path, oldPath?, comparison: { name, baseline, tree }, line?: {
-  number, side, text } }`. `view` is “Review changes” or “Intent → Changed
-  tests”. The server assigns `id` and the times.
-- Note text is trimmed, non-empty, and at most 4,000 characters, checked by
-  the page and the server. The reason is the reused dictation review and a
-  bounded machine document, not a product limit on thinking.
-- Comparison names: “Published completion”, “Landed run”, and for a workspace
-  review the words its Comparison switch shows.
-- An unreadable notes file is never moved aside. Cards say “The notes could
-  not be read.” in place of a count, and saving says it could not be saved.
-- The plan holds eight slices, the limit. If execution has to split, the
-  delivered boundary is after slice 6: Notes from the review and Intent, and
-  dictation, move together.
-- Words: **Notes**, **Story notes**, **Add note**, **Edit note**, **Save
-  note**, **Edit**, **Delete**, “The note could not be saved.”, “Note saved
-  to this story.”, “Note updated.”, “Note deleted.”
+See [current decisions](existing-solution.md#current-decisions); all remain in force.
 
 ## Proof ownership and decisive premises
 
@@ -114,7 +95,7 @@ Accepted proof: [slice 2](slice-2-proof.md).
 
 ### 3. Notes that cannot be saved or read are said, and none is lost
 Type: Behavior
-Status: planned
+Status: done
 Proof: `e2e/stories/story-notes-failed-save.spec.ts` and the unreadable case
 in `story-notes.spec.ts`; typecheck and lint.
 
@@ -123,6 +104,8 @@ dashboard is not reached → the composer stays open with its text and says
 “The note could not be saved.”, and saving again once it can saves it. An
 unreadable notes file → cards say the notes could not be read in place of a
 count.
+
+Accepted proof: [slice 3](slice-3-proof.md).
 
 ### 4. A saved note can be edited and deleted
 Type: Behavior

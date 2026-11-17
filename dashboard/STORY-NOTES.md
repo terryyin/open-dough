@@ -14,3 +14,13 @@ Notes are kept by project and story identity on the machine serving the
 dashboard, outside the project's repository. They survive dashboard restarts
 and are available to every page served by that machine, including a phone.
 Other open pages read changes at the shared 15-second check interval.
+
+If the machine cannot write its records or the dashboard cannot be reached,
+**Save note** keeps the composer open with its text and says “The note could
+not be saved.” Try **Save note** again once saving works; the note is saved
+and the composer and problem clear.
+
+If the notes file cannot be read, cards say “The notes could not be read.”
+in place of a count. Story notes says the same; it does not present the
+unreadable file as an empty collection. The machine keeps that file in place
+for recovery, and refuses to save over it.

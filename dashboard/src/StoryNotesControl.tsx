@@ -2,7 +2,11 @@
 // review. The card and open dialog subscribe to the same project answer.
 import { useEffect, useId, useRef, useState } from "react";
 import { storyNoteTextLimit } from "./storyNote.ts";
-import { storyNoteNotSaved, useStoryNotes } from "./storyNotes.ts";
+import {
+  storyNoteNotSaved,
+  storyNotesUnreadable,
+  useStoryNotes,
+} from "./storyNotes.ts";
 import "./launch-dialog.css";
 import "./story-notes.css";
 
@@ -16,26 +20,35 @@ export function StoryNotes({
   readonly title: string;
 }) {
   const { answer, change } = useStoryNotes(sourceId);
+  const problemId = useId();
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const notes = answer?.kind === "notes" ? (answer.notes[identity] ?? []) : [];
+  const unreadable = answer?.kind === "unreadable";
   return (
     <>
       <button
         type="button"
         className="start-launch-button"
         ref={opener}
+        aria-describedby={unreadable ? problemId : undefined}
         onClick={() => {
           setOpen(true);
         }}
       >
         Notes{notes.length > 0 ? ` (${notes.length})` : ""}
       </button>
+      {unreadable && (
+        <p id={problemId} role="status">
+          {storyNotesUnreadable}
+        </p>
+      )}
       {open && (
         <StoryNotesDialog
           identity={identity}
           title={title}
           notes={notes}
+          unreadable={unreadable}
           onSave={async (text) => {
             await change({ action: "add", identity, text });
           }}
@@ -53,12 +66,14 @@ function StoryNotesDialog({
   identity,
   title,
   notes,
+  unreadable,
   onSave,
   onClose,
 }: {
   readonly identity: string;
   readonly title: string;
   readonly notes: readonly import("./storyNote.ts").StoryNote[];
+  readonly unreadable: boolean;
   readonly onSave: (text: string) => Promise<void>;
   readonly onClose: () => void;
 }) {
@@ -98,6 +113,7 @@ function StoryNotesDialog({
         <p>{title}</p>
         <p className="record-identity">{identity}</p>
         <p role="status">{announcement}</p>
+        {unreadable && <p role="alert">{storyNotesUnreadable}</p>}
         <button
           type="button"
           ref={add}

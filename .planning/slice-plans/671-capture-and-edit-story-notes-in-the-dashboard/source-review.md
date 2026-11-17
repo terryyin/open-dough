@@ -81,8 +81,8 @@ last removing it after delivery and verification.
 | 49 | Delete asks for confirmation first. | slice 4 |  |
 | 50 | Cancelling deletion leaves the note. | slice 4 |  |
 | 51 | Confirming deletion removes the note from the list. The card-count effect is retained in promise 9. | slice 4 |  |
-| 52 | A failed save leaves the composer open with its text; the unwritable-records example says the composer stays open with the text. | slice 3 |  |
-| 53 | A failed save reports that the note could not be saved. | slice 3 |  |
+| 52 | A failed save leaves the composer open with its text; the unwritable-records example says the composer stays open with the text. | slice 3 | observed: e2e/stories/story-notes-failed-save.spec.ts: actual read-only HOME directory and aborted POST each leave exact draft and stored bytes unchanged; writable/reachable retry saves and next composer is empty. |
+| 53 | A failed save reports that the note could not be saved. | slice 3 | observed: e2e/stories/story-notes-failed-save.spec.ts: storyNotesPage.expectProblem observes The note could not be saved. for both unwritable and unreachable triggers; successful retry clears the problem. |
 | 54 | A failed edit preserves the composer or note as it was, including text. | slice 4 |  |
 | 55 | A failed edit reports the failure. | slice 4 |  |
 | 56 | A failed delete preserves the note as it was, including text. | slice 4 |  |
@@ -111,6 +111,6 @@ last removing it after delivery and verification.
 | 79 | Notes storage uses no server database. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 80 | Durable notes do not depend on browser storage. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 81 | An unreadable notes-store file remains recoverable. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
-| 82 | An unreadable notes store reports that notes could not be read. | slice 3 |  |
-| 83 | An unreadable notes store does not present the situation as having no notes. | slice 3 |  |
+| 82 | An unreadable notes store reports that notes could not be read. | slice 3 | observed: dashboard/frontend-tests/stories/story-notes-unreadable.spec.ts: prior count1 switches at controlled next read to unreadable; Done/Taken/Backlog status and dialog alert report The notes could not be read. |
+| 83 | An unreadable notes store does not present the situation as having no notes. | slice 3 | observed: same unreadable frontend case independently observes no counted Notes control after prior count1, alongside explicit read error; no zero/no-notes wording in StoryNotesControl; physical preservation reuses slice1 backend byte assertions. |
 | 84 | A note records no fix or resolution. | slice 2 | observed: StoryNote strict schema and StoryNotesControl.tsx render observation text and context, no fix/resolution field or action. |

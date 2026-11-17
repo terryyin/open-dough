@@ -53,6 +53,21 @@ export function storyNotesPage(page: Page) {
       await expect(
         page.getByText("Note saved to this story.", { exact: true }),
       ).toHaveCount(1);
+      await expect(field).toHaveCount(0);
+      await expect(dialog.getByRole("alert")).toHaveCount(0);
+    },
+    expectProblem: async (message: string) => {
+      await expect(
+        dialog.getByRole("alert").filter({ hasText: message }),
+      ).toBeVisible();
+    },
+    expectUnreadable: async (card: Locator, message: string) => {
+      await expect(
+        card.getByRole("status").filter({ hasText: message }),
+      ).toBeVisible();
+      await expect(card.getByRole("button", { name: /^Notes \(/ })).toHaveCount(
+        0,
+      );
     },
     expectComposing: async (text: string) => {
       await expect(field).toBeVisible();

@@ -17,6 +17,7 @@ import {
 
 export async function installFrontendStoryNotes(page: Page) {
   const projects = new Map<string, Record<string, StoryNote[]>>();
+  const unreadable = new Set<string>();
   const asked: { project: string; method: string }[] = [];
   const changes: StoryNoteChange[] = [];
   let nextHold: AnswerHold | undefined;
@@ -29,6 +30,16 @@ export async function installFrontendStoryNotes(page: Page) {
         new URL(route.request().url()).searchParams.get("id") ?? "";
       const method = route.request().method();
       asked.push({ project, method });
+      if (unreadable.has(project)) {
+        await fulfillJson(
+          route,
+          method === "POST"
+            ? { error: "The note could not be saved." }
+            : { kind: "unreadable" },
+          method === "POST" ? 500 : 200,
+        );
+        return;
+      }
       if (method === "POST") {
         const change = storyNoteChangeSchema.parse(
           route.request().postDataJSON(),
@@ -60,7 +71,11 @@ export async function installFrontendStoryNotes(page: Page) {
     asked: () => [...asked],
     changes: () => structuredClone(changes),
     answer: (project: string, notes: Record<string, StoryNote[]>) => {
+      unreadable.delete(project);
       projects.set(project, structuredClone(notes));
+    },
+    unreadable: (project: string) => {
+      unreadable.add(project);
     },
     holdNext: () => {
       const { held, hold } = holdAnswer(page);

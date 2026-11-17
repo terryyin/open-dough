@@ -67,3 +67,26 @@ Expected edits to files near the 250-line check, with their owners:
 | `dashboard/server/machineJsonStore.ts` | 235 | One message change, no growth. |
 | `dashboard/src/StoryReviewDiffLines.tsx` | 219 | Slice 5 passes the line's text through the existing menu; if it would pass 250, move the menu state (`openMenu`, `lineMenu`) to its own module in that slice, callers `StoryReviewContextGap.tsx` and `diffLineItems` unchanged in behavior. |
 | `dashboard/tests/support/voicePage.ts` | 228 | Slice 8 adds note-dialog helpers in a new support module, not here. |
+
+## Current decisions
+
+- One dialog, `Story notes`, with a list and a composer; from a diff it opens
+  on the composer and closes on saving. The mockup's in-panel notes view is
+  not followed (seed UI).
+- A note is `{ id, text, savedAt, editedAt?, context? }`; `context` is
+  `{ view, path, oldPath?, comparison: { name, baseline, tree }, line?: {
+  number, side, text } }`. `view` is “Review changes” or “Intent → Changed
+  tests”. The server assigns `id` and the times.
+- Note text is trimmed, non-empty, and at most 4,000 characters, checked by
+  the page and the server. The reason is the reused dictation review and a
+  bounded machine document, not a product limit on thinking.
+- Comparison names: “Published completion”, “Landed run”, and for a workspace
+  review the words its Comparison switch shows.
+- An unreadable notes file is never moved aside. Cards say “The notes could
+  not be read.” in place of a count, and saving says it could not be saved.
+- The plan holds eight slices, the limit. If execution has to split, the
+  delivered boundary is after slice 6: Notes from the review and Intent, and
+  dictation, move together.
+- Words: **Notes**, **Story notes**, **Add note**, **Edit note**, **Save
+  note**, **Edit**, **Delete**, “The note could not be saved.”, “Note saved
+  to this story.”, “Note updated.”, “Note deleted.”

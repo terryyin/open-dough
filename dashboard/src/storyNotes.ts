@@ -20,12 +20,13 @@ export type StoryNotes = {
   readonly change: (change: StoryNoteChange) => Promise<void>;
 };
 export const storyNoteNotSaved = "The note could not be saved.";
+export const storyNotesUnreadable = "The notes could not be read.";
 async function request(project: string, change?: StoryNoteChange) {
   return storyNotesAnswerSchema.parse(
     await localSettingRequest(
       `${storyNotesEndpoint}?id=${encodeURIComponent(project)}`,
       change,
-      change === undefined ? "The notes could not be read." : storyNoteNotSaved,
+      change === undefined ? storyNotesUnreadable : storyNoteNotSaved,
     ),
   );
 }
