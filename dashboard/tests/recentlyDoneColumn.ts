@@ -12,6 +12,7 @@ import { standaloneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { at, placed, queuedTitle } from "./recentlyDoneRecords.ts";
 import { keptSessions } from "./recentlyDoneSessions.ts";
+import { reviewChanges } from "./storyCardControls.ts";
 
 export const adHocEntry = standaloneSessionName("Ad hoc", "Open Dough session");
 export const queuedEntry = standaloneSessionName("Execution", queuedTitle);
@@ -71,3 +72,12 @@ export const revealAction = (recent: Locator) =>
 // that shows only the latest ten again.
 export const showLatestAction = (recent: Locator) =>
   recent.getByRole("button", { name: "Show latest 10" });
+
+// The standalone ad hoc session's action in the column.
+export const sessionReviewChanges = (recent: Locator, title: string) =>
+  reviewChanges(
+    recent.getByRole("article", {
+      name: standaloneSessionName("Ad hoc", title),
+      exact: true,
+    }),
+  );
