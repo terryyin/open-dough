@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-334#move-intent-ci-proof-comparison-and-candidate-checks",
+  "mode": "story-branch",
+  "branch": "claude/move-intent-ci-proof-comparison-and-candidate-ch",
+  "host": "claude"
+}
