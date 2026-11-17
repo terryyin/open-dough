@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence ([plan](slice-plans/683-recover-decisive-verification-evidence/PLAN.md))
 - [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines ([plan](slice-plans/663-emphasize-changed-words-in-diff-lines/PLAN.md))
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
-- [Share one control to turn syntax styling off or choose a palette](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#shared-syntax-styling-control) — SEED-387#shared-syntax-styling-control ([plan](slice-plans/685-shared-syntax-styling-control/PLAN.md))
 
 ## Backlog list
 
@@ -89,3 +88,4 @@ intent introduced or affected by a newly developed story.
 - [Reorder backlog stories in the dashboard](seeds/SEED-386-reorder-backlog-stories-in-the-dashboard.md#reorder-backlog-stories-in-the-dashboard) — SEED-386#reorder-backlog-stories-in-the-dashboard
 - [Name the effort a Claude Code session actually ran with](seeds/SEED-388-measure-and-control-agent-launch-cost.md#name-the-effort-a-session-ran-with) — SEED-388#name-the-effort-a-session-ran-with
 - [Richer Done follow-up card cues](seeds/SEED-395-richer-done-follow-up-card-cues.md#richer-done-follow-up-card-cues) — SEED-395#richer-done-follow-up-card-cues
+- [Offer more syntax styling choices beyond Off and Default](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#more-syntax-styling-choices) — SEED-387#more-syntax-styling-choices

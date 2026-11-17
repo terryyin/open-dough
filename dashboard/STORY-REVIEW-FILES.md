@@ -35,14 +35,17 @@ diffs, each line number is a control that opens a small menu naming the line
 including revealed context lines. The header and line menu also offer
 [Add note](STORY-NOTES.md), keeping the shown file or line context. Line numbers stay outside copied code and off the Tab order
 (`src/DiffLineNumber.tsx`, `src/StoryReviewDiffLines.tsx`). A diff's code
-carries the same syntax styling as Intent's source reading: the file's path
+carries the same syntax styling as Intent's source reading, including the
+machine-local Off/Default choice in System settings → General → Syntax styling
+(`src/useSourceHighlight.ts`, `src/savedSyntaxStyling.ts`): the file's path
 selects among the eleven grammars TypeScript, TSX, JavaScript, Java, Python,
 shell, Gherkin, Markdown, JSON, CSS and YAML first (a renamed file by its new
 path); when the path names none, an Intent `syntax` hint at the review's
 pinned settings revision may supply a known language through the same
 `sourceLanguage` mapping Intent source reading uses (`src/diffLineTokens.ts`,
-`src/reviewDiffSyntaxHint.ts`, `src/sourceHighlight.ts`). A path outside
-Intent or with an unfamiliar hint stays plain text. Removed lines are styled
+`src/reviewDiffSyntaxHint.ts`, `src/sourceHighlight.ts`). Off skips shared
+tokenization so both readers stay plain together; Default keeps today's
+palettes. A path outside Intent or with an unfamiliar hint stays plain text. Removed lines are styled
 as they read in the old file's whole text and every other line, revealed
 context included, as in the new file's. Markers and backgrounds keep telling
 the change kind, and copied and assistive-technology text stays the line's
