@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-394#express-terminal-voice-test-intent",
+  "title": "Express terminal voice test intent",
+  "completedAt": "2026-11-17T07:05:08.200Z",
+  "developer": "Terry Yin",
+  "agent": "Sola-chan",
+  "host": "codex"
+}

@@ -14,6 +14,9 @@ import {
 import {
   expectTerminalIdentity,
   expectTerminalText,
+  activateTerminalControl,
+  focusTerminalDictation,
+  type TerminalInteraction,
   terminalPanel,
   terminalPromptsControl,
   terminalStatus,
@@ -126,6 +129,35 @@ export async function discardRetainedTranscript(panel: Locator) {
 
 export async function chooseTerminalDictation(panel: Locator) {
   await dictateIntoTerminalControl(panel).click();
+}
+
+// These actions wait only for capture progress. Scenarios own status, toolbar,
+// transcript, and sent-byte observations when those are their subject.
+export async function startTerminalDictation(
+  panel: Locator,
+  { using = "mouse" }: { using?: TerminalInteraction } = {},
+) {
+  const page = panel.page();
+  const before = await page.evaluate(
+    () =>
+      (window as unknown as { voiceObservation: { bytes: number } })
+        .voiceObservation.bytes,
+  );
+  if (using === "keyboard") await focusTerminalDictation(panel);
+  await activateTerminalControl(dictateIntoTerminalControl(panel), using);
+  await expect(stopRecordingControl(panel)).toBeVisible();
+  await awaitRecordingBytes(page, before);
+}
+
+export async function finishTerminalDictation(
+  panel: Locator,
+  { using = "mouse" }: { using?: TerminalInteraction } = {},
+) {
+  if (using === "keyboard") await focusTerminalDictation(panel);
+  const stop = stopRecordingControl(panel);
+  if (using === "keyboard") await stop.press("Space");
+  else await activateTerminalControl(stop, using);
+  await expect.poll(() => stoppedTracks(panel.page())).toBe(true);
 }
 
 export async function expectTerminalDictationAvailable(
