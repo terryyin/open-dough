@@ -6,6 +6,12 @@ original brief is unavailable; its moment occurred. The source records that
 omission and retains the extra retrospective as a protocol deviation.
 This research supplies recommendations; Terry owns subsequent guidance changes.
 
+**Later correction:** the [Claude continuation](claude-comparison.md) supersedes
+this Codex-only aggregate assessment. A post-trial check finds an unchanged
+Codex E2E consumer failing on old argv length. The edited backend mechanism
+improves, but the whole test migration/proof is incomplete. Read that correction
+and the new brief/planning evidence before using these historical conclusions.
+
 ## What Terry reads first
 
 1. The five [result rows](PLAN.md#result), then the edit assessments below.
@@ -221,9 +227,9 @@ limits contamination but does not satisfy the source's no-retrospective
 protocol. The accepted source amendment continues this result with the
 deviation reported, without repeating B to erase it (G2).
 
-The matched Claude replay remains deferred pending trust; earlier authority
-persists. P execution, repeats/variance baseline and refactor-only replay are
-also deferred. Scratch artifacts stay for Terry to read. This assessment added
+The then-deferred Claude replay is now observed in the linked continuation.
+P execution, repeats/variance baseline and refactor-only replay remain deferred.
+Scratch artifacts stay for Terry to read. This historical assessment added
 no paid run, tests, guidance edits or product solution. Records-only inspection
 uses the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Source-review P04/P05/P06/P08 map to edits 1/2/3/5; P07 is the accepted

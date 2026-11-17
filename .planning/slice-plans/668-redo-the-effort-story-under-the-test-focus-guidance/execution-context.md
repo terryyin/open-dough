@@ -196,3 +196,28 @@ automatic-check selection, the test/fixture rewrites warrant one Intent
 Coverage check at closure. Process remains selected and deferred until that
 report and dispositions; no process analysis/log write was performed here.
 Explicit scratch retention until Terry reads the result remains effective.
+
+
+## Claude continuation delivered as research
+
+Terry's “ready” follows verified trust of both scratch paths. B is clean and
+native done at `9cd8ee5f24ae11abeb185542aa775b35a33c4aa2`; product/test cutoff
+`d8efcf6fb42e0fb60f6c2b3e00bb2f41d7e54881`. Native `a46d7c72…` is stopped
+and owned guard 24422 ended. P `0604c3b5…` writes its plan, then stops at its
+permission prompt, with no response supplied; readiness remains unconfirmed.
+Its official terminal receipt confirms stopped and guard 98700 ended. P's
+plan and protocol limitations are retained, never repaired from outside.
+
+[Corrected comparison](claude-comparison.md) owns the qualitative conclusion,
+first readable brief/return, inventories, metrics, P ordering and limits.
+One post-trial diagnostic finds an unchanged stale Codex E2E length assertion;
+B trees and A remain frozen. The current product's later `0724558d6` reader
+repair is already outside the experiment. Parent changes are records-only.
+SEED-393 remains an unpublished, unqueued review draft; do not retire this
+workspace with that file or delete retained scratch before Terry reads it.
+
+Parent CI ownership remains `aino-seed391`, `/tmp/dough-ci-501/watch-zEioMq`,
+PID 91282, unified session 35788 / yielded cell `g701:13`; no replacement
+provider watch is started. Fresh records-only delivery will retain its new
+candidate and register the accepted branch revision before one completion
+operation. The existing accepted code/CI basis is unchanged.

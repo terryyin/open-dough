@@ -55,8 +55,8 @@ are read from that transcript. Nothing is rerun for A.
 first?” after the Claude launch refused the scratch directory on 2026-11-16.
 The first execution and planning replay now use Codex with its configured
 model and effort, recorded from the launched sessions. The refused Claude
-attempt is retained; the matched Claude replay remains pending its trust
-prerequisite after this Codex-first run. One fresh Codex session executes
+attempt is retained; the matched Claude replay was deferred pending trust
+and is now selected below. One fresh Codex session executes
 `.planning/slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md` as it
 stood at A's Take `4b75c2888` (`3b1479996` plus the backlog claim), through
 its execution-complete record. It stops there: no wrap-up, retrospective or
@@ -91,6 +91,20 @@ with its plan removed and the same patch applied, one fresh Codex session slice-
 the story. The resulting plan is read and not executed. The delivered plan
 budgets nine specs' exact command lines as a mechanical slice 1 update; P
 shows whether planning now puts a Structure slice ahead of that change.
+
+**Selected Claude continuation (2026-11-17).** Terry requested the Claude Code
+run, then confirmed both scratch folders trusted with “ready”. Continue this
+same comparison with fresh Claude execution and planning participants, keeping
+the completed Codex observations intact and A unchanged. Use the same historical
+starts and `934a51a30` patch, requested Opus/medium, local scratch remotes and no
+post-launch participant input. Record effective settings and CLI/context changes;
+the installed CLI is now 2.1.326 versus A's 2.1.325. An explicit `--skip-retro`
+in the execution invocation enforces the originally intended stop; disclose that
+prompt difference. Planning follows execution and its plan is not executed.
+The original unreadable Codex brief stays unassessed; assess the new Claude
+brief from its own readable record. Add a qualitative comparison of actual test
+code and remaining smells, then enrich the tentative improvement stories with
+new evidence and assumptions, without queueing or implementing them.
 
 **Result.** The story's plan records, for each of the five edits, the moment
 observed (quoted from B's or P's brief, return, diff or plan), then keep,
@@ -133,8 +147,7 @@ that was read and changed nothing. Beside them:
 - B commits locally and has no hosted CI, where A published its story branch
   and watched CI.
 
-**Deferred.** The matched Claude execution/planning replay; executing P's
-plan; repeating B or rerunning A for a variance
+**Deferred.** Executing P's plan; repeating B or rerunning A for a variance
 baseline; replaying only the refactor pass on A's slice 1 change.
 
 #### Key examples

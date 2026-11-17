@@ -1,6 +1,6 @@
 # Frozen test inventory — A beside B
 
-Slice 3 (formerly slice 2); research only, 2026-11-16. Obligations [8–13](source-review.md) are the scope. No recommendation is made here.
+Slice 3 (formerly slice 2); research only, 2026-11-16. Obligations [8–13](source-review-codex-complete.md) are the scope. No recommendation is made here. Later unchanged-consumer evidence qualifies whole-result inference in [the corrected comparison](claude-comparison.md).
 
 ## Inputs, units and limits
 

@@ -42,7 +42,7 @@ No ADR or North Star topic applies.
 
 - Terry authorized Codex first. B/P use configured Codex defaults; this is
   cross-host mechanism evidence, not a guidance-only A/B effect estimate.
-- B is frozen: patched start `c629d0d9`, last product/test commit `8b9005acc`,
+- Codex B is frozen: patched start `c629d0d9`, last product/test commit `8b9005acc`,
   execution completion `57f805ee2`; local scratch origin only. Its extra
   product retrospective is retained as G2 for the final evaluation.
 - P follows B, plan only. No comparison knowledge or follow-up input is given
@@ -71,21 +71,16 @@ No ADR or North Star topic applies.
 | --- | --- | --- |
 | The guidance patch applies to the installed skill copies of the old revision | Slice 1 scratch construction | 2026-11-16, detached scratch worktree at `3b1479996`: `git diff 934a51a30^ 934a51a30 -- Distribution/src/skills \| git apply --check -p4 --directory=.agents/skills -` and the same for `.claude/skills` → both apply. The Take `4b75c2888` changes only `.planning/PRODUCT-BACKLOG.md` and `.planning/agents/yui-chan.json` (`git diff --stat 3b1479996 4b75c2888`), so the result holds there. Worktree removed. |
 | The trunk commit carries the same guidance the seed first named | Slice 1 patch source | `git patch-id` of `321e622c6` and `934a51a30` over `Distribution/src/skills` are equal (`3b6ce2a2…`). |
-| A's instruction, model, effort and evidence are readable | Slices 1, 3–4 | Transcript `fa9d77b7-…`: first message is the instruction retained in [execution context](execution-context.md#current-decisions); 340 responses, all `claude-opus-5-5` at `medium`; permission mode `auto`; Claude Code `2.1.325`, the version installed now; 20 subagent transcripts. |
+| A's instruction, model, effort and evidence are readable | Slices 1, 3–4 | Transcript `fa9d77b7-…`: first message is the instruction retained in [execution context](execution-context.md#current-decisions); 340 responses, all `claude-opus-5-5` at `medium`; permission mode `auto`; Claude Code `2.1.325`; corrected inventory: 10 child JSONL transcripts plus 10 metadata files, nine execution children before the cutoff. Claude continuation uses CLI 2.1.326. |
 | The old plan and the refined story exist where B and P read them | Slices 1, 5 | `git ls-tree 3b1479996` holds `.planning/slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md`; `0e6b0f3dc` holds the story section with state `refined`. |
 | Dependencies resolve as they did for A | B's and P's own setup | `git diff --stat 3b1479996 HEAD -- package.json package-lock.json dashboard/package.json dashboard/package-lock.json .node-version` → empty. |
 | Codex running the patched 0.3.102 skills accepts this `Established start` in a clone with local bare remote and local-only authority | Slice 1 launch | The Claude attempt refused trust before a session existed. Codex CLI 0.169.0 is installed; configured defaults are `gpt-6.1-sol` / `xhigh`, approval `never`, sandbox `danger-full-access`. Native startup, effective settings and first delegation remain bounded by slice 1's probe. No trust or permission bypass is added. |
 
 ## Concerns
 
-Codex-first refinement retains all five cohesive boundaries: one native
-startup probe, three independent readings of the reruns and one result.
-The failed Claude launch used about three active minutes and no paid
-session; the amended probe keeps that history and uses a separate clone.
-The remaining native-start uncertainty is bounded by slice 1, including
-Codex's ability to use the old skill's delegation contract. No product
-solution, architecture or observation moment changes. Host/model/context
-and provider billing differences are explicit limits, not guidance effects.
+Native startup is settled by the retained refused attempt and successful
+Codex/Claude observations. Protocol/context differences remain limits;
+no product solution or guidance revision is part of the research.
 
 ## Ordered slices
 
@@ -182,12 +177,9 @@ first.
 
 ## Accepted execution evidence
 
-[Observations](execution-observations.md) retain the quoted Claude trust
-refusal, Codex native settings/delegation/terminal proof, containment limits
-and acceptance comparison. Slice 1 was published at
-`5ea5ca123ecc8b5b87321adb69a3920bcec8f732`; G1 is proved. Original source and
-review history stay linked; all ordered statuses and obligation provenance
-are preserved.
+[Original observations](execution-observations.md) retain startup/settings,
+containment and acceptance. The [continuation](claude-comparison.md) retains
+new proof and corrections; original ordered statuses/provenance are preserved.
 
 ## Story obligations
 
@@ -195,48 +187,61 @@ are preserved.
 Reported: slice 1 — "The single native Claude launch returned exit 1: Workspace not trusted. No B session, transcript or first delegation exists; the slice 1 probe stopped before execution. Terry subsequently authorized Codex first; the amended probe owes execution in a separate clone."
 Story clause: "One fresh Codex session executes"
 Disposition: proved by slice 1: b-codex-terminal-proof.json; native thread 01a1e48a-0078-76a1-929a-c853646f3acc accepted the blind start, delegated implementation, and exited 0 at clean execution-complete commit 57f805ee2596619f80e007b9f2eff248cc5da112; no push and guard stopped. Protocol deviation is retained separately as G2.
-Commitment: P01
 ### G2. B exceeded the no-retrospective protocol
 Reported: slice 1 — "B performed a coordinator product retrospective at 14:38:18.047–14:40:14.840 UTC, although the trial source excludes it. The exact prompt stopped at the execution-complete record without disabling the skill's earlier retrospective. Only eight plan lines changed after the fourth slice commit; product/test observations are pinned before this extra review."
 Story clause: "no wrap-up, retrospective or landing."
 Disposition: owner changed "Continue the Codex-first result with B's extra retrospective retained as an observed protocol deviation."
-Commitment: P17
+Commitment: 16
 ### G3. Original Codex refactor brief is not readable
 Reported: slice 4 — "B’s first refactor message is encrypted in its root and child logs. Supported native thread/read for both omits its plaintext. Count/remedy wording is unobserved; the final judgment needs readable source or an explicit changed promise. The operator requested the developer’s choice while independent work continues."
 Story clause: "The coordinator's slice 1 refactor brief"
 Disposition: owner changed "skip its wording assessment and record edit 4 as unassessed"
-Commitment: P07
 ### G4. Intermediate refactor messages are encrypted
 Reported: slice 4 — "Intermediate candidate discussion is encrypted, although the final first-refactor return and actual changed files are readable."
 Story clause: "An Open Dough maintainer can decide, edit by edit"
 Disposition: no user cost "The story's outcome is that evidence and a recommendation per edit": the final return supplies the requested candidate dispositions and named-follow-up result, with actual diff and completion learnings; intermediate private analysis is not a required deliverable.
 
+
+### G5. P evidence has native stop, size and context limits discovered during acceptance
+Reported: slice 6 — "Independently discovered: Claude P writes a 286-line plan, then native permission stops its readiness/cleanup command because node_modules resolves outside allowed directories. Its counts/whole-consumer claim exceed retained observations; sibling artifact names and setup are visible. No operator answer or repair is supplied."
+Story clause: "The resulting plan is read and not executed."
+Disposition: proved by slice 6: claude-planning.md quotes and assesses the written Structure-first plan, audits counts/reach and discloses size, context and permission stop. The research promises reading and judging that plan, not a successful readiness transition or its execution; neither is claimed. Native stop and awake-guard termination are retained.
 ## Research evidence acceptance
 
-- Slice 3: [frozen test inventory](test-inventory.md), ids 8–13 accepted.
-- Slice 4: [refactor and measurements](refactor-and-metrics.md), ids 14–16
-  accepted as provider usage, defined proxies and explicit unavailable totals.
-  [Observation history](execution-observations.md) retains the comparisons.
-  B’s original brief remains G3; final returns supply candidate evidence.
-- Refactor disposition for these updates: records-only.
-- Slice 5: [planning replay](planning-replay.md), commitment 2 accepted:
-  P's Structure slice 2 immediately precedes the default Behavior slice 3.
+Codex's accepted slices and provenance remain in the linked original reports
+and `384713e45b7cf99110e5f7a506e5948248edb245`. The supplemental Claude
+[comparison](claude-comparison.md) adds its frozen inventory, readable refactor
+records, native usage, P plan and explicit limits. Disposition: records-only.
 
 ## Result
 
-**Codex-first result:** Terry authorized the brief omission; the extra retrospective remains a reported protocol deviation. Read [the full assessment and reading order](guidance-result.md) first.
+Read the [corrected comparison](claude-comparison.md) first; the
+[historical Codex-only assessment](guidance-result.md) remains recoverable.
+The unchanged Codex consumer failure corrects the earlier aggregate inference.
 
 | Edit | Observed moment and assessment |
 | --- | --- |
-| Shotgun surgery | [Keep within the observed refactor](guidance-result.md#edit-1--shotgun-surgery-keep-within-the-observed-refactor): B narrows unrelated backend observations; mixed feedback/status cases remain. |
-| Named behavior / reader / cases | [Keep with limits](guidance-result.md#edit-2--named-behavior-shared-reader-separate-cases-keep-with-limits): actual-command reader and separate absent-effort case; residual mixed assertions remain. |
-| Oversized named follow-up | [Not exercised in the returned outcome](guidance-result.md#edit-3--named-oversized-follow-up-not-exercised-in-the-returned-outcome): no oversized candidate identified in readable final return/learnings; no claim about encrypted intermediate discussion. |
-| Facts-only brief | [Unassessed](guidance-result.md#edit-4--facts-only-refactor-brief-unassessed): Terry authorized skipping the unavailable brief; its moment occurred (G3), with no verdict. |
-| Structure before default change | [Keep for planning](guidance-result.md#edit-5--structure-before-changing-the-default-keep-for-planning): P's Structure slice 2 immediately precedes default Behavior slice 3; unexecuted. |
+| Shotgun surgery | Keep the observed narrowing mechanism across actual-command readers; missed consumers and mixed cases remain. |
+| Named behavior / reader / cases | Keep with limits: both readers and separate effort cases work; Claude still has edited branching families and mixed observations. |
+| Oversized named follow-up | Not exercised in the returned outcomes: no oversized remainder named; no verdict on that conditional path. |
+| Facts-only brief | Revise the count/unit/classification clause from readable Claude evidence; keep remedy-free direction. Original Codex brief remains unassessed by Terry's instruction. |
+| Structure before default change | Keep for written order: both P plans narrow before default; neither executed. Claude P is over-limit and permission-stopped before confirmed readiness. |
+
+## Completion review
+
+The earlier Codex-phase review at `384713e45b` is superseded only where new
+evidence changes it: actual narrowed tests improve, while a missed unchanged
+Codex E2E case fails and Claude retains residue. P's written order is useful,
+not an execution-ready proof. All measurement/context limits remain explicit.
+No research product correction remains after those record corrections; no
+trial code or guidance is adopted. E2E catches consumer coupling in the native
+work; this parent research adds no product tests. Selected process review stays
+with its existing deferred wrap-up owner. SEED-393 is unqueued/unpublished;
+retain workspace and scratch for Terry's requested review.
 
 ## Execution complete
 
-Product advice: Keep the three observed guidance mechanisms within the
-[result's limits](guidance-result.md). Oversized-follow-up handling remains
-untested; the brief is unassessed by Terry's instruction. Guidance revision
-remains Terry's subsequent decision. Product/proof review found no correction.
+Product advice: keep the observed narrowing, actual-reader and planning-order
+mechanisms with their recorded limits; revise the brief's counting clause.
+Oversized-follow-up remains unexercised, original Codex brief unassessed.
+Tentative SEED-393 candidates stay unselected; no guidance change is adopted.
