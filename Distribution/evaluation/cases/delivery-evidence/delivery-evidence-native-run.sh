@@ -9,7 +9,7 @@
 # shellcheck disable=SC2034,SC2154,SC2312
 
 delivery_evidence_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-for delivery_evidence_part in native-cases promise-status native-evidence native-prompt native-payload; do
+for delivery_evidence_part in native-cases promise-status native-evidence native-prompt native-payload native-return; do
   # shellcheck disable=SC1090,SC1091
   source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_part}.sh"
 done
@@ -69,8 +69,26 @@ delivery_evidence_create_fixture() {
   delivery_evidence_workspace=${workspace}
 
   git init -b main "${workspace}" > /dev/null
+  delivery_evidence_return_clock=
+  delivery_evidence_return_records=()
+  # Only returned-implementation families need a clock during population.
+  # Other journeys retain their installation order and committed Git inputs.
+  if declare -F "delivery_evidence_${case_name}_return" > /dev/null \
+    && delivery_evidence_has_return_contract "${source_dir}"; then
+    delivery_evidence_install_payload "${source_dir}" "${workspace}" "${host}"
+    local installed_root=.agents/skills
+    [[ ${host} != claude ]] || installed_root=.claude/skills
+    delivery_evidence_return_clock="${workspace}/${installed_root}/dough-execute-plan/scripts/slice-clock.mjs"
+  fi
   "delivery_evidence_${case_name}_populate_fixture" "${workspace}" "${scenario}"
-  delivery_evidence_install_payload "${source_dir}" "${workspace}" "${host}"
+  if [[ -n ${delivery_evidence_return_clock} ]]; then
+    delivery_evidence_return_rows=()
+    delivery_evidence_return_notes='Stops: none reported. Consequential learnings: none reported.'
+    "delivery_evidence_${case_name}_return" "${workspace}" "${scenario}"
+    delivery_evidence_write_return "${workspace}"
+  else
+    delivery_evidence_install_payload "${source_dir}" "${workspace}" "${host}"
+  fi
 }
 
 delivery_evidence_cleanup() {

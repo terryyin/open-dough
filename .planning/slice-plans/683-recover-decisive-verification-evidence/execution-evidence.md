@@ -70,6 +70,8 @@
   `ace536b5eae3e657eb676afb40bb4f2af0b0461d`; observer reused and attached.
 - Slice 2 accepted at `51363529cfb748e2265241315e62d7f6d4ff901c`, suffix base
   `126391de866d4a3a40e0303c3098df318946ae33`; same observer reused and attached.
+- Slice 3 accepted at `064da060d88d573e7af18083a53faf91f951c521`, suffix base
+  `51363529cfb748e2265241315e62d7f6d4ff901c`; resumed observer reused and attached.
 
 ## Slice 3 acceptance
 
@@ -134,3 +136,52 @@ legacy payload behavior and all original scenario qualifications. Scenario
 owners supply explicit verdict claims/locations; actual run outcomes remain
 external observations, including zero/partial selection and deliberate gaps.
 Source-only reports and transport sentinels cannot substitute for those results.
+
+Slice 4 selected seams before edits: prepare the matching installed payload
+immediately after fixture Git initialization, keeping that installation out of
+scenario baseline commits; existing scenario owners supply explicit verdict
+claims/locations to one fixture transport helper that calls the real clock.
+`delivery-evidence-consumers-native-scenario-content.sh` is 249 lines before
+editing: extract its cohesive static product/test content into its repository
+content module, retain scenario/handoff orchestration in place, update source
+loading and input identities, and preserve all current observer proof.
+Deferred's independent status command currently precedes HEAD. Establish its
+existing baseline first, run the command, then amend that same baseline with
+the authentic retained proof bytes; record the actual earlier revision and
+why the unchanged product boundary permits reusing that observation.
+
+## Slice 4 acceptance
+
+- Clock paused at 10.2 active minutes, no overrun. Freshness unchanged at
+  `9b05c80f69b5a111ab054e822967082fe33f7a72`; incoming CI-container admission
+  work does not implement a named sibling or change this fixture boundary.
+- Inspected shared transport/assembly, per-promise return owners, explicit
+  source identity updates, deferred baseline sequencing and actual new-test
+  assertions. G3 is proved across nine affected families and legacy controls:
+  every expected promise row, original claims/gaps, full report content,
+  real argv/revision/dirty/timing/terminal records and physical references.
+  Deferred's pre-amend status proof observes unchanged source/assertion bytes.
+- Exact commands, setup, proof locations and all consumer dispositions are in
+  Git evidence `slice-4-report.md` / `slice-4-consumer-trace.md`. Terminal
+  `slice-4-consumers-4` passed eight checks; final `slice-4-transport-5` passed
+  after substantive-note, every-row and revision assertions were strengthened.
+  Earlier observer/identity/discriminator observations remain applicable.
+- First transport run exposed lost run paths in an existing subshell; braces
+  repaired that cause. A nonexistent aggregate selection ran no tests and was
+  corrected before the passing consumer batch. No unresolved failure or gap.
+- Consumers' static factory/stand-in/test/baseline functions moved unchanged
+  into `delivery-evidence-consumers-native-product-content.sh`; gaps' static
+  baseline/product/happy/requeue functions moved unchanged into its product
+  content module before adding rows would exceed 250 lines. Existing source
+  loaders and evidence identities follow both seams; each changed file fits.
+- Independent `/root/refactor_4` returned `## REFACTOR COMPLETE`. It corrected
+  only the new test's entry under `native-family-layers.md`: public family
+  command, PATH substitute host and shared expectation facts, with three
+  cohesive test-only support files. No production or observer edits.
+  Replacement proof `slice-4-refactor-transport-6` passed; its full literal
+  command/observations and annotated trace are retained in
+  `slice-4-refactor-report.md` / `slice-4-refactor-consumer-trace.md` in Git
+  evidence. Current consumer/identity/discriminator and corrected-control proof
+  remains valid. Freshness remains unchanged at the same pinned trunk.
+- No native AI or full local suite was run; actual agent compliance retains
+  its post-release evaluation owner. No unresolved follow-up or gap.

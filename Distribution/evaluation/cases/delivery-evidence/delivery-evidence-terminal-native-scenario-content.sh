@@ -127,12 +127,17 @@ delivery_evidence_terminal_populate_fixture() {
   delivery_evidence_git "${workspace}" add research .planning
   delivery_evidence_git "${workspace}" commit --quiet -m 'retained terminal summary and selected work'
   delivery_evidence_terminal_write_product "${workspace}" "${scenario}"
-  (
-    cd -- "${workspace}" || exit
-    python3 research/replacement.py > research/replacement.json
-    python3 research/check_replacement.py
-  ) > "${workspace}/.planning/producer-proof.md" 2>&1
+  delivery_evidence_run_producer "${workspace}" producer-proof bash -c \
+    'python3 research/replacement.py > research/replacement.json && python3 research/check_replacement.py' \
+    > "${workspace}/.planning/producer-proof.md" 2>&1
   mkdir -p -- "${delivery_evidence_root}/original-inputs"
   cp -R -- "${workspace}/.planning" "${workspace}/research" \
     "${delivery_evidence_root}/original-inputs/"
+}
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_terminal_return() {
+  delivery_evidence_return_notes='Stops: none reported. Consequential limits: expensive evaluator and admission-ledger calculations are existing inputs; narrative record and materiality work remain with plan slices 4 and 5.'
+  delivery_evidence_return_promise 'Slice 3: Both arms and all precomputed summary fields, cost levels, gate points and 2026 results — claimed pass; observation: research/check_replacement.py comparisons; .planning/producer-proof.md.'
+  delivery_evidence_return_promise 'Slice 3: Result qualifications — claimed pass under selected plan; observation: research/check_replacement.py dynamic label comparison and research/replacement.md; original source: .planning/seeds/SEED-106-sharadar-search-confidence.md.'
 }

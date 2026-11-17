@@ -166,3 +166,9 @@ delivery_evidence_claims_populate_fixture() {
     commit --quiet -m 'baseline with source-link product'
   delivery_evidence_claims_write_return "${workspace}" "${scenario}"
 }
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_claims_return() {
+  delivery_evidence_run_producer "$1" producer-proof node --test tests/source-link.test.mjs > "$1/.planning/producer-proof.md" 2>&1
+  delivery_evidence_return_promise '1. Bare anchors are not followable and name no repository path — claimed pass; observation: tests/source-link.test.mjs; full report retains the claimed assertion and selected proof.'
+}

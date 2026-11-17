@@ -167,7 +167,7 @@ moves. Completion markers stay verbatim.
 
 ### 4. Native acceptance inputs retain their original proof subject
 Type: Behavior
-Status: planned
+Status: done
 Proof: deterministic delivery-evidence fixture checks through the existing
 runner; native input, identity and artifact-capture checks. No paid/native run.
 
@@ -242,4 +242,4 @@ Disposition: proved by slice 3: delivery-evidence-native-routing.sh observes ins
 ### G3. Legacy acceptance inputs acquire transport gaps
 Reported: slice 3 — "Native acceptance fixtures supply narrative/proof blocks without full-report paths or run JSON; new transport gaps could mask the original missing-proof subject, including sufficient scenarios."
 Story clause: "Which proof is required, the acceptance comparison and its stopping rule, and every required proof row"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: delivery-evidence-return-transport.sh constructs all nine acceptance families and legacy controls, asserts every expected promise row, original report content and gap/sufficient signals, authentic command/revision/terminal records and reachable paths; existing observer/discriminator checks also pass.

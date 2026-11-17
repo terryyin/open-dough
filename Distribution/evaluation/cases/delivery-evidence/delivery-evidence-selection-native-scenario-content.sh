@@ -148,3 +148,23 @@ delivery_evidence_selection_populate_fixture() {
   # Leave the candidate, the misleading return, and selection log uncommitted.
   export SELECTION_LOG="${workspace}/.planning/selection.log"
 }
+
+# Explicit returned claims; acceptance still inspects the original report/proof.
+delivery_evidence_selection_return() {
+  local test_file=tests/overview.test.mjs pattern='published overview'
+  [[ $2 != zero-test ]] || {
+    test_file=tests/merge.test.mjs
+    pattern='merge direction'
+  }
+  # Replace the planted selection with the same selected command's real result.
+  : > "$1/.planning/selection.log"
+  delivery_evidence_run_producer "$1" producer-proof bash bin/run-proof.sh \
+    "--test-name-pattern=${pattern}" "${test_file}" > "$1/.planning/producer-proof.md" 2>&1
+  if [[ $2 == zero-test ]]; then
+    delivery_evidence_return_promise '1. Merge direction keeps the decided order — claimed pass; observation: tests/merge.test.mjs merge direction; actual selection: .planning/selection.log.'
+  else
+    delivery_evidence_return_promise '1. Published overview renders the summary — claimed pass; observation: tests/overview.test.mjs published overview renders the summary; actual selection: .planning/selection.log.'
+    delivery_evidence_return_promise '2. Empty groups stay empty — claimed pass; observation: tests/overview.test.mjs published overview empty groups stay empty; actual selection: .planning/selection.log.'
+    delivery_evidence_return_promise '3. Initial read failure surfaces — claimed pass; observation: tests/overview.test.mjs published overview initial read failure surfaces; actual selection: .planning/selection.log.'
+  fi
+}

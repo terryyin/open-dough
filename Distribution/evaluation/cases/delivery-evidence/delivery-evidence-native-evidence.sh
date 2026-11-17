@@ -64,11 +64,15 @@ delivery_evidence_write_evidence_identity() {
     Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-prompt.sh \
     Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-evidence.sh \
     Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-payload.sh \
+    Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-return.sh \
     Distribution/evaluation/src/native-observation.sh \
     "${case_prefix}-assess.sh" \
     "${case_prefix}-observe.sh" \
     "${case_prefix}-scenario-content.sh" \
     Distribution/evaluation/cases/git-publication/git-publication-native-run.sh
+  if declare -F "delivery_evidence_${case_name}_return" > /dev/null; then
+    native_import_closure_input_hash_lines Distribution/src/skills/dough-execute-plan/scripts/slice-clock.mjs
+  fi
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
     Distribution/src/skills/dough-execute-plan/references/wrap-up.md \
@@ -80,6 +84,9 @@ delivery_evidence_write_evidence_identity() {
   fi
   if [[ ${case_name} == deferred ]]; then
     native_result_input_hash_lines Distribution/evaluation/cases/delivery-evidence/delivery-evidence-consumers-native-scenario-content.sh
+  fi
+  if [[ ${case_name} == consumers || ${case_name} == deferred ]]; then
+    native_result_input_hash_lines Distribution/evaluation/cases/delivery-evidence/delivery-evidence-consumers-native-product-content.sh
   fi
   if [[ ${case_name} == scheduling ]]; then
     native_result_input_hash_lines \
@@ -100,6 +107,9 @@ delivery_evidence_write_evidence_identity() {
   if [[ ${case_name} == consumers ]] || delivery_evidence_requires_review "${case_name}"; then
     native_result_input_hash_lines \
       Distribution/src/skills/dough-story-refinement/references/executable-proof.md
+  fi
+  if [[ ${case_name} == gaps ]]; then
+    native_result_input_hash_lines Distribution/evaluation/cases/delivery-evidence/delivery-evidence-gaps-native-product-content.sh
   fi
   if [[ ${case_name} == original ]]; then
     native_result_input_hash_lines \

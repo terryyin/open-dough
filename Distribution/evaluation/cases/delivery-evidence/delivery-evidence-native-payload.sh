@@ -32,3 +32,13 @@ delivery_evidence_install_payload() {
   [[ ${payload} == "${source_dir}" ]] || rm -rf -- "${payload}"
   return "${status}"
 }
+
+# The selected payload's contract decides the input shape, including baselines.
+delivery_evidence_has_return_contract() {
+  local owner=Distribution/src/skills/dough-execute-plan/references/return-report.md
+  if [[ -n ${delivery_evidence_payload_revision:-} ]]; then
+    git -C "$1" cat-file -e "${delivery_evidence_payload_revision}:${owner}" 2> /dev/null
+  else
+    [[ -f $1/${owner} ]]
+  fi
+}
