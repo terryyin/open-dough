@@ -31,6 +31,7 @@ workspace=$1 clock=$2
 source "$(dirname "$0")/wait-for.bash"
 printf '%s\n' "${workspace}" > "${clock}/workspace"
 printf '%s\n' "${BASHPID}" > "${clock}/model-pid"
+printf 'ready\n' > "${clock}/model-ready"
 wait_for nonqualifying 10 "test -s '${clock}/nonqualifying'"
 # Observable command activity in the second phase cannot control release.
 printf 'command remains active after nonqualifying publication\n'
@@ -48,15 +49,16 @@ native_case_deadline=30
 native_case_grace=0
 clock() {
   mkdir -p "$1"
-  mkfifo "$1/advance" "$1/model-hold"
+  mkfifo "$1/advance" "$1/model-hold" "$1/model-ready"
 }
 clock "${work}/clock"
 export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/clock"
 
-# The external controlled clock progresses without any model poll. The
+# Preparation and the first turn finish before the model signals command entry.
+# The external controlled clock then advances without a model poll. The
 # scripted host is genuinely alive at both publications and emits no polls.
 (
-  wait_for watch-command 10 "test -s '${work}/clock/model-pid'"
+  IFS= read -r _ < "${work}/clock/model-ready"
   workspace=$(< "${work}/clock/workspace")
   grep -q dough-story-dependencies "${workspace}/.planning/seeds/SEED-324-landed-ci-repeat-checks.md" && exit 1
   grep -q 'required stability evidence and real native CLI controls intact' "${workspace}/.planning/seeds/SEED-324-landed-ci-repeat-checks.md"
@@ -163,7 +165,7 @@ clock "${work}/failed-clock"
 mkdir "${work}/clock-failure"
 export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/failed-clock"
 (
-  wait_for watch-command 10 "test -s '${work}/failed-clock/model-pid'"
+  IFS= read -r _ < "${work}/failed-clock/model-ready"
   printf 'invalid-clock-event\n' > "${work}/failed-clock/advance"
 ) &
 driver=$!
@@ -185,7 +187,7 @@ clock "${work}/rejected-clock"
 mkdir "${work}/publication-failure"
 export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/rejected-clock"
 (
-  wait_for watch-command 10 "test -s '${work}/rejected-clock/model-pid'"
+  IFS= read -r _ < "${work}/rejected-clock/model-ready"
   workspace=$(< "${work}/rejected-clock/workspace")
   hook="$(dirname "${workspace}")/remote.git/hooks/pre-receive"
   printf '#!/usr/bin/env bash\nexit 37\n' > "${hook}"
