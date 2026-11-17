@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "identity": "SEED-390#group-ad-hoc-follow-ups-with-their-done-story",
+  "mode": "story-branch",
+  "branch": "cursor/group-ad-hoc-follow-ups-with-their-done-story",
+  "host": "cursor",
+  "model": "auto"
+}

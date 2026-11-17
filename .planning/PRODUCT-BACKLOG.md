@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Verification reaches affected consumers before completion is claimed](seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output) — SEED-393#proof-reaches-unchanged-consumers-of-changed-output ([plan](slice-plans/674-verification-reaches-affected-consumers/PLAN.md))
 - [Repeat native guidance checks using focused examples](seeds/SEED-393-test-quality-learning-from-effort-replays.md#repeat-native-guidance-checks-on-real-story-examples) — SEED-393#repeat-native-guidance-checks-on-real-story-examples ([plan](slice-plans/674-repeat-native-guidance-checks/PLAN.md))
 - [Attach story notes to follow-ups and show which are waiting](seeds/SEED-348-collect-notes-for-story-follow-ups.md#attach-story-notes-to-follow-ups) — SEED-348#attach-story-notes-to-follow-ups ([plan](slice-plans/672-attach-story-notes-to-follow-ups/PLAN.md))
+- [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story ([plan](slice-plans/667-group-ad-hoc-follow-ups-with-their-done-story/PLAN.md))
 
 ## Backlog list
 
@@ -38,7 +39,6 @@ intent introduced or affected by a newly developed story.
 - [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
-- [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
 - [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-387#intent-hint-language-for-story-review-diffs
