@@ -165,7 +165,7 @@ Record `b-codex-launch.json`, events `b-codex-events.jsonl`.
 
 ### 3. The redo is judged against frozen A, with residue named
 Type: Behavior
-Status: planned
+Status: done
 Proof: `## Result` quoting the redo's consumer-trace dispositions and run
 commands for the E2E launch group, the decisive failing observation, its
 return/plan counts beside its logs, and the source's three criteria each
@@ -176,3 +176,76 @@ Behavior: the redo's checkout and transcript → inspected against frozen A
 or inconclusive with the missing evidence. One run isolates no guidance
 effect; disclose host, CLI and context differences and effort only as
 secondary evidence.
+
+## Result
+
+Assessed 2026-11-17 (slice 3), read-only, against redo `af2fcf278..4c82626a4`
+in `~/open-dough-scratch/seed-393/b-codex` (plan 664 below as `664/`), events
+`b-codex-events.jsonl` (E), child Codex rollouts of thread `01a1e7bd…` (R),
+frozen A `4b75c2888..eda73008b` and frozen Codex B `8b9005acc`.
+
+**Criteria (source Evaluation):**
+
+1. *E2E launch consumers reached — met (observed).* First trace (R `12-24-55`):
+   `consumer-trace.mjs … --base HEAD --term claudeLaunchCalls --term claudeCalls --term request.effort --term acceptLaunchRequest --term claudeLaunchInstruction --term claudeLaunchOption`;
+   it selected 60 E2E files (`664/slice-1-e2e-readers.txt`, incl. `e2e/launches/agent-launch-ad-hoc.spec.ts`).
+   Run: `… playwright … --config e2e/playwright.config.ts --workers=2 <60 files>`
+   (`664/default-effort-proof.md:41`) → log `/tmp/seed388-default-readers-e2e.log`:
+   `4 failed`, `118 passed (5.8m)`. Final trace adds `--term expectNamedAdHocCall`
+   (`664/default-effort-final-proof.md`, 821 rows).
+2. *Decisive failure on the old assumption — met, but at the helper rather than `:120`.* That log shows the ad hoc
+   spec's cases `:45` and `:131` failing at the unchanged
+   `dashboard/tests/support/unattachedLaunchAssertions.ts:25` (`+ "--effort", + "medium"`),
+   plus `voiceRecovery.ts:145` (two voice cases). The redo changed `:120` first:
+   the first attempt edited it from the trace before running any E2E check (`overrun/product.patch.gz`), and
+   commit `b1ce778c3` made it `expect(claudeLaunchInstruction(call?.argv)).toBeUndefined()`.
+   For `:120` itself, the retained diagnostic (frozen B, length 3 vs 5) stands.
+3. *No exclusion of a consumer for its subject — met (inspected).* Ad hoc spec:
+   `run: e2e; literal commands … in default-effort-proof.md`
+   (`default-effort-consumer-trace.md.gz`), later `run: final restored-default 11-case E2E`;
+   helper: `run: B1/B2/E1/I1 capture support through its listed native-reader callers`
+   (`slice-1-consumer-trace.md.gz`). The 19 excluded `claudeLaunchCalls` rows in the final trace are
+   zero-call recorders (“no admitted launch”), the Cursor host, or final-instruction readers
+   (“runtime.ts appends instruction after all options”). Each reason says the effect does not reach the row.
+   Several also add “no changed-helper call”, which is a code-proximity reason (residue).
+   Repair narrows rather than excludes: `caa2089d6` routes `expectNamedAdHocCall` through
+   `expectSingleNamedClaudeLaunch`, which still checks the name, instruction, cwd and that one call was made. A copied `--effort medium` (length 5).
+4. *Return names unrun groups; counts match — met.* The interim returns named
+   their unrun scope with units: “360 passed, 4 failed, 12 did not run”; “Integrated … was not run”
+   (`default-effort-proof.md:53`), closed later by `3 passed`.
+   Counts checked against the logs: 360/4/12 (`/tmp/seed388-slice1-backend.log`), 118/4 and 62/2
+   (`…-readers-{e2e,backend}.log`), 11 and 3 (`…-default-final-{e2e,integrated}.log`). The trace's
+   561 excluded + 123 reused + 137 run = 821 rows also matches `default-effort-final-consumer-trace.md.gz`. The final
+   return (E last line) and record (`664/PLAN.md` “Execution complete”) give no
+   counts and say “CI unobserved (no push)”. No affected group was left unrun at the end.
+
+**Observed / inferred / unverified.** *Observed:* the commands and logs above, and
+the redo's dispositions. *Inferred:* the edited guidance caused the early
+`claudeLaunchCalls` term and E2E selection. Frozen Codex B, under the old text, did not use that term. Frozen A also reached the
+E2E helpers, so these results cannot isolate the guidance. *Unverified:* I reran no tests; CI never ran
+on the redo; the frozen B `:120` diagnostic was not re-observed.
+
+**Disclosures.** Host: Codex CLI 0.169.0, `gpt-6.1-sol`/`xhigh`
+(A: Claude `claude-opus-5-5`/medium). Load at start: 15.1/18.7/16.6, on AC power. Context differences: the parent `/Users/terryyin`
+Codex trust entry, the installed `delegation.md` context line, and release tags up to `v0.3.102` in the bare
+remote. Wall time was 4h27m (04:22:16Z–08:49:42Z), with 80.9M input tokens (79.6M cached) and 264k output tokens.
+Frozen Codex B took ~1h15m and A's root ~60 min. The redo had two overruns and re-split the plan into 7 slices, adding
+2 Structure reader slices and 1 native-budget slice. Protocol: a local product retrospective preceded
+the record (execute-plan's order). The redo did nothing after `4c82626a4`, and nothing was pushed. Product: the same
+12 product files as A plus `SessionsSidebarSessionEntry.tsx`. The decisive ad hoc
+proof is stronger than A's copied length. Blanket suites: none were run. The plan-named
+backend `launches/` directory ran whole once (21.5 min at 1 worker), the 60-file E2E selection took 5.8 min, and full
+lint ran. A single run isolates no guidance effect.
+
+**Verdict: keep** the slice-1 edit. In this redo, the observation-point sentence
+(`--term`) and the exclusion and claim sentences produced the intended reach,
+dispositions and bounded counts. No sentence showed a misreading that needs a revision. The cost of
+reaching the consumers shows in the two overruns (“previously hidden consumer-reader preparation”). That cost belongs to story-size and
+story 1's narrowing, not to these words.
+
+**Residue.** The disposition reason “no changed-helper call” is code-proximity wording (watch
+for it in story 1). The redo added four individual `test.setTimeout(60_000)` overrides
+(the native-budget slice) that need an “essential” check. The second default trace
+(R `13-06-43`) omitted `claudeLaunchCalls` and relied on the slice-1 reader list.
+Its `664/` premise row still cites only the backend 319/9 run. The scratch redo and
+`/tmp/seed388-*` logs are evidence that wrap-up must retire.
