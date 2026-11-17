@@ -20,7 +20,12 @@ Return it to the slice when this slice's output already owes it; when the plan
 claims a reason the story does not record, stop for human judgment.
 Include each qualification and journey example; a heading, count or plan list
 cannot stand for a compound promise. Return a concrete expected/actual mismatch
-unless a real human amendment changes it. Broad accuracy or compatibility claims
+unless a real human amendment changes it. Accept the slice and start the
+refactor pass once each source promise, affected consumer and required gate
+has a decisive observation, the story obligations are recorded, and no
+expected/actual mismatch remains unresolved. Further inspection needs a named
+expected/actual mismatch or a specific evidence gap: a promise, consumer or
+gate without a sufficient observation. Broad accuracy or compatibility claims
 cannot replace an explicit journey's expected result. Check source completeness before reuse.
 When a slice's proof includes a developer-operated observation, accept it under
 [developer-operated observation](../../dough-story-refinement/references/executable-proof.md#plan-and-reuse-developer-operated-observation).
@@ -98,14 +103,13 @@ execution, apply that reference's same-slice rule without creating a plan.
 
 Read fixture or setup changes that turn a failing scenario green against the
 story's examples. Check a reshaped example in its real shape, file or input;
-green on a different fixture does not accept it. Examine a limit that could lose
-the only copy of paused or saved work for that consequence; guidance for a
-neighbouring case does not authorize it.
+green on a different fixture does not accept it. A neighbouring case's guidance
+does not authorize a different promised consequence.
 
 Retain the promise, accepted boundary, consumer trace, inspected setup/assertion
-locations, results and literal commands for refactoring. When a location is missing,
-the boundary unclear or evidence contradictory, inspect the smallest relevant
-callers or implementation. Return incomplete or contradictory evidence with the
+locations, results and literal commands for refactoring. When a named mismatch
+or evidence gap remains, inspect the smallest relevant callers or
+implementation for that gap. Return incomplete or contradictory evidence with the
 promise, inspected locations and gap; refactoring cannot supply missing behavior.
 
 Judge substance under [the return contract](delegation.md#return-a-targeted-report-with-focused-proof).

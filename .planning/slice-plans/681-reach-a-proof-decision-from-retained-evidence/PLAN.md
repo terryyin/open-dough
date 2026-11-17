@@ -2,6 +2,7 @@
 
 **Identity:** SEED-345#reach-a-proof-decision-from-retained-evidence
 **Source:** [Reach a proof decision from retained evidence](../../seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -68,7 +69,7 @@ the executing agent under
 
 ### 1. Acceptance ends once the evidence settles the decision
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a coordinator has a slice return whose source promises, affected
 consumers and required gates each have a decisive observation, with
@@ -104,6 +105,17 @@ and `npm run lint -- --staged` are clean.
   on battery, plug in.
 - Failures follow the
   [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+
+## Accepted proof (slice 1)
+
+- Command: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/acceptance-stopping-rule.test.mjs Distribution/tests/skills/dough-execute-plan/execution-increment-delivery.test.mjs Distribution/tests/skills/dough-execute-plan/ci-supported-host-contract.test.mjs` → exit 0 (coordinator re-ran subject after refactor reflow).
+- Product: `wrap-up.md` Accept proof states exit + refactor move, retains mismatch return and filtered-proof gap path, gates further inspection on a named mismatch or evidence gap; `executable-proof.md` Record the consumer trace allows one grouped `excluded:` for generic/historical matches.
+- Source commitments 1–8 observed in [source-review.md](./source-review.md).
+- Refactor: file-size reflow of `executable-proof.md` to 250 lines; `## REFACTOR COMPLETE`.
+
+## Learnings
+
+- Structure-test regexes that pin wrap points are brittle under file-size reflow; keep asserted phrases contiguous or update the test with the reflow.
 
 ## Concern review
 
