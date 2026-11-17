@@ -182,7 +182,7 @@ slice 3. `npm run test:evaluation` passed 71/71 (load 11–83).
 
 ### 3. Reject inadequate refactoring of the effort-derived task
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the case's assessor applies the predeclared basis to the observer's
 retained code and proof: protective refactoring passes; mechanical value
@@ -198,6 +198,27 @@ mixed feedback/status cases, branches, meaningful positive witnesses and any
 reader guarantees against actual final code. A false clean claim fails review;
 an honest residue statement does not waive an unmet promised criterion. Keep
 semantic review ordinary and separate from automatic necessary checks.
+
+Accepted 2026-11-17: `case-probes.bash` applies an unrelated perturbation
+(default effort `high`, `--effort` before `--name`) and three promise faults
+(name without `Ad hoc`, blank launch prompted `go`, admitted default `low`),
+runs only each probe's deciding specs and restores bytes; `assess.bash`
+judges observer fields, never the report. Reference qualification through
+the real entry with a substitute host (`support/launch-command-tests/
+qualify.bash`, manual): protective pass; mechanical fail (perturbation broke
+the E2E consumer); weakened fail (wrong default left its proof green);
+unchanged fail (owning proof). 178–276 s per outcome at load 17–36, almost
+all Playwright start-up, so a full probe pass cannot fit the 180 s CI job
+deadline: CI runs cheaper checks of real materialization, the real E2E
+consumer, probe edits on B's bytes and assessor counterexamples from fields.
+Clean claims, mixed cases, branches, witnesses and reader guarantees stay
+with ordinary review; a bare argv-length update without `medium` survives the
+probes (documented gap). The B helper `expectNamedAdHocCall` also carries the
+coupling, so a protective refactoring must reach it.
+Local full evaluation runs at load 25–31 had 15 unrelated 180 s timeouts and
+`native-guidance-check-supplier-watch.sh` failing a 10 s wait; each passes
+focused alone, also on clean HEAD; branch CI passed on slices 1 and 2. The
+supplier-watch wait is a load-sensitive test defect for a later correction.
 
 If extraction loses a necessary consumer or proof, restore enough original
 context within this slice; do not simplify the task into a synthetic surrogate

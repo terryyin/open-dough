@@ -1,0 +1,27 @@
+diff --git a/dashboard/tests/support/unattachedLaunchAssertions.ts b/dashboard/tests/support/unattachedLaunchAssertions.ts
+index 5bd0785..98f923c 100644
+--- a/dashboard/tests/support/unattachedLaunchAssertions.ts
++++ b/dashboard/tests/support/unattachedLaunchAssertions.ts
+@@ -28,6 +28,8 @@ export function expectNamedAdHocCall(
+         "--bg",
+         "--name",
+         `${project} · Ad hoc · ${instruction}`,
++        "--effort",
++        "medium",
+         instruction,
+       ],
+       cwd: realpathSync(path.join(dashboard.home, "git", source)),
+diff --git a/e2e/launches/agent-launch-ad-hoc.spec.ts b/e2e/launches/agent-launch-ad-hoc.spec.ts
+index 306ed3e..6511800 100644
+--- a/e2e/launches/agent-launch-ad-hoc.spec.ts
++++ b/e2e/launches/agent-launch-ad-hoc.spec.ts
+@@ -117,7 +117,8 @@ for (const blank of ["", "   "]) {
+ 
+     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
+     const [call] = dashboard.claudeLaunchCalls();
+-    expect(call?.argv).toHaveLength(3);
++    expect(call?.argv).toHaveLength(5);
++    expect(call?.argv?.slice(3)).toEqual(["--effort", "medium"]);
+     const record = await expectNoSessionEstablishment(dashboard);
+     for (const absent of ["instruction", "reporting"])
+       expect(record?.request).not.toHaveProperty(absent);

@@ -7,7 +7,7 @@
 # project's own dependencies. The observer keeps the final change against that state and
 # runs the owning backend specs and the unchanged E2E consumer itself; it
 # prints `turn-N-*` fields and judges nothing.
-# shellcheck disable=SC2034,SC2312 # case_* globals are read by the runner; observations print what each command gives.
+# shellcheck disable=SC1091,SC2034,SC2312 # Sourced probes; case_* globals are read by the runner; observations print what each command gives.
 
 case_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 case_events=''
@@ -18,6 +18,7 @@ case_backend_specs=(
   dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts
 )
 case_e2e_specs=(e2e/launches/agent-launch-ad-hoc.spec.ts)
+source "${case_dir}/case-probes.bash"
 
 # Builds ROOT/workspace: a fresh checkout of the pinned revision with the
 # overlay committed, the payload from PAYLOAD_DIR for HOST, and the
@@ -91,10 +92,20 @@ case_observe_change() {
 }
 
 # Prints the turn-N fields of ROOT after turn N and keeps the final change
-# and the executed reports in SCRATCH/case-evidence. Turn status and thread
-# come from the runner.
+# and the executed reports in SCRATCH/case-evidence; then probes the final
+# workspace (case-probes.bash). Turn status and thread come from the runner.
 case_observe() {
-  local root=$1 turn=$2 workspace="$1/workspace" evidence="$4/case-evidence" counts
+  local workspace="$1/workspace" evidence="$4/case-evidence"
+  case_observe_proof "${workspace}" "$2" "${evidence}"
+  case_observe_probes "${workspace}" "$2" "${evidence}" \
+    "$(case_tree "${workspace}" "${evidence}/final.index")"
+  rm -f -- "${evidence}/final.index"
+}
+
+# Prints the turn-N change and owning-proof fields of WORKSPACE, keeping the
+# final change and the executed reports in EVIDENCE.
+case_observe_proof() {
+  local workspace=$1 turn=$2 evidence=$3 counts
   case_observe_change "${workspace}" "${turn}" "${evidence}"
   counts=$(case_run_specs "${workspace}" dashboard/backend.playwright.config.ts \
     "${evidence}/backend-turn-${turn}.json" "${case_backend_specs[@]}")

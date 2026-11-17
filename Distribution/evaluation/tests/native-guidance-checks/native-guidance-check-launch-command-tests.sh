@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Purpose: a maintainer selects the launch-command-tests case by its workflow
-# and runs its controlled journey through the entry; the participant gets only
-# the task and the overlaid project, and the observer keeps the final change
-# and the backend and E2E results it executed itself.
+# Purpose: a maintainer selects the launch-command-tests case by its workflow;
+# its fixture gives the participant only the task and the overlaid project,
+# and its observer keeps the final change and the backend and E2E results it
+# executed itself. The E2E consumer, the probes and the assessor have their
+# own tests (native-guidance-check-launch-command-tests-e2e.sh, -probes.sh,
+# -assessor.sh); the whole journey with probes is the case's reference
+# qualification (case.md).
 # shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Sourced runner and case globals; observations print what each command gives.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
@@ -22,40 +25,24 @@ if grep -Eiq 'argv|length|medium|--effort|unchanged consumer|expected|fbfaa116|8
   exit 1
 fi
 
-# A substitute codex that leaves the workspace as it found it.
-mkdir -p -- "${work}/bin" "${work}/run"
-cat > "${work}/bin/codex" << 'HOST'
-#!/usr/bin/env bash
-[[ ${1-} == --version ]] && { echo 'codex-cli launch-command-substitute'; exit 0; }
-output=''
-while (($#)); do [[ $1 == -o ]] && output=$2; shift; done
-thread=00000000-0000-4000-8000-000000000674
-jq -nc --arg t "${thread}" '{type:"thread.started",thread_id:$t}'
-jq -nc '{type:"item.completed",item:{id:"m",type:"agent_message",text:"Left unchanged."}}'
-jq -nc '{type:"turn.completed",usage:{input_tokens:1,cached_input_tokens:0,output_tokens:1}}'
-[[ -z ${output} ]] || echo 'Left unchanged.' > "${output}"
-HOST
-chmod a+x "${work}/bin/codex"
-export PATH="${work}/bin:${PATH}" NATIVE_GUIDANCE_CHECK_OPEN_DOUGH_SOURCE=${source_dir}
-unset CODEX_HOME
-native_guidance_check_run_case launch-command-tests "${source_dir}" "${work}/run" "${work}/results" || true
-observations="${work}/run/observations.txt"
-grep -Fqx 'turn-1-status: completed' "${observations}"
-grep -Fqx 'turn-1-source: unchanged' "${observations}"
-grep -Fqx 'turn-1-backend: passed' "${observations}"
-# The frozen effort work leaves the unchanged E2E consumer failing.
-grep -Fqx 'turn-1-e2e: failed' "${observations}"
-grep -Fqx 'assessment-reason: no refactoring assessment is defined yet' "${observations}"
-evidence="${native_guidance_check_attempt}/case-evidence"
+# The fixture and the observer's change and backend proof, without probes,
+# on the starting state the participant receives; the E2E consumer has its
+# own test (native-guidance-check-launch-command-tests-e2e.sh).
+export NATIVE_GUIDANCE_CHECK_OPEN_DOUGH_SOURCE=${source_dir}
+source "${case_path}/case.bash"
+root="${work}/run"
+mkdir -p -- "${root}"
+case_materialize "${root}" "${source_dir}" codex
+workspace="${root}/workspace"
+evidence="${work}/case-evidence"
+case_observe_change "${workspace}" 1 "${evidence}" > "${work}/observations.txt"
+grep -Fqx 'turn-1-source: unchanged' "${work}/observations.txt"
 [[ -f ${evidence}/final-turn-1.diff && ! -s ${evidence}/final-turn-1.diff ]]
-jq -e '.stats.unexpected == 0 and .stats.expected > 0' "${evidence}/backend-turn-1.json" > /dev/null
-jq -e '[.. | strings | gsub("\u001b\\[[0-9;]*m"; "") | select(contains("Received length: 5"))] | length > 0' \
-  "${evidence}/e2e-turn-1.json" > /dev/null
+[[ $(case_run_specs "${workspace}" dashboard/backend.playwright.config.ts "${evidence}/backend.json" \
+  "${case_backend_specs[@]}") == '28 0' ]]
 
 # The participant's workspace holds the pinned project and its overlay, but
-# not this case or the assessor-only comparison; observations stay outside it.
-workspace=$(find "${work}/run" -maxdepth 2 -type d -name workspace | head -n 1)
-[[ -n ${workspace} ]]
+# not this case or the assessor-only comparison.
 held=$(find "${workspace}" -path "${workspace}/node_modules" -prune -o \( -path '*launch-command-tests*' \
   -o -name claude-comparison.md \) -print)
 if [[ -n ${held} ]]; then
@@ -64,7 +51,6 @@ if [[ -n ${held} ]]; then
 fi
 
 # An edited workspace keeps its final change.
-source "${case_path}/case.bash"
 case_basis=$(case_tree "${workspace}" "${work}/edited.index")
 printf '// refactored\n' >> "${workspace}/e2e/launches/agent-launch-ad-hoc.spec.ts"
 case_observe_change "${workspace}" 2 "${work}/edited" > "${work}/edited.txt"
