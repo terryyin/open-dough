@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_split-the-agent-effort-contract-guide.json",
+      "identity": "SEED-345#split-the-agent-effort-contract-guide",
+      "completedAt": "2026-11-17T15:29:10.332Z",
+      "blob": "9067a186eeb33c9e16c9e9da77ddfa7f28a0a338"
+    },
+    {
       "fileName": "SEED-345_test-agent-effort-through-its-output-contract.json",
       "identity": "SEED-345#test-agent-effort-through-its-output-contract",
       "completedAt": "2026-11-17T14:46:29.163Z",

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yui-chan",
-  "email": "yui-chan@example.org",
-  "identity": "SEED-345#split-the-agent-effort-contract-guide",
-  "mode": "story-branch",
-  "branch": "claude/split-the-agent-effort-contract-guide",
-  "host": "claude"
-}
