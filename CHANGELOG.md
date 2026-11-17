@@ -1,3 +1,17 @@
+## 0.3.103 - 2026-11-17
+
+- Execute Plan records each slice's active time in its checkout. It carries the budget across handbacks, excludes commands run through the clock, and settles an ended session at its last clock command. Claude Code and Cursor report an overrun after the next tool call. Codex reports it on the next clock command. Time between the last clock command and an ended session can be undercounted.
+- An unresolved slice or CI failure is investigated in timed evidence rounds, with a shared record and a stop after three rounds by default. Test review now narrows assertions to what each test promises, while retaining shared contract and output-shape checks where those are the subject.
+- New Claude Code dashboard launches default to medium effort, with the requested effort visible in session and feedback-maintenance details. The dashboard can review retained landings from standalone ad hoc sessions in Recently done and keeps a story-linked follow-up with its Done story on the Board.
+- Retained effort reports compare comparable Codex and Claude Code execution groups with coverage and ownership limits. Cursor reports transcript and tool activity. Claude Code usage counts nested background workers and reads transcript rows containing Unicode line separators. The Token index distinguishes work after a developer reply.
+- Distribution CI moves installation checks into its first shard to give the remaining checks more time.
+
+The Promoted payload has 379 files. It adds nine paths, revises thirteen and retires none. Dashboard and CI changes are in the source repository.
+
+The self-installation baseline, six focused installation and release checks, 33 slice-clock tests and dashboard type-check passed locally. The guidance review covered resumed slice time, a diagnosis halted at its round limit, and narrowing assertions while preserving proof of a shared contract. [Hosted trunk CI passed all 19 jobs at `d288b03f9`](https://github.com/terryyin/open-dough/actions/runs/43877232315). The subsequent changes through source candidate `7ce6ee915` are planning records.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), isolated native sessions using the installed candidate on Claude Code 2.1.326 and Cursor 2026.11.13-eacade1 received the 17-active-minute overrun on the first tool call, with no repeat on the second and one recorded overrun per checkout. Earlier native evidence covers subagent hook delivery and Claude Code's existing explicit effort flag. The freshness-ordering and oversized-file native observations remain separately pending for their unchanged guidance.
+
 ## 0.3.102 - 2026-11-16
 
 - When asked to watch a paused supplier, Execute Plan waits for changes to the named branch or story paths and reports only a publication or the deadline. Continuing a wait keeps its deadline and catches publications made while the previous result was being judged.
