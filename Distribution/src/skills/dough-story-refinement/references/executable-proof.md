@@ -124,28 +124,29 @@ The consumer-trace record is the evidence of the trace above, and the installed
 [consumer-trace script](../../dough-execute-plan/scripts/consumer-trace.mjs)
 produces it:
 `node '<installed-execute-plan>/scripts/consumer-trace.mjs' --checkout '<checkout>' --base <revision> [--term '<text>']…`,
-with `--base HEAD` for an uncommitted change. It searches the whole checkout
-for the changed files' paths and basenames, identifiers declared in changed
-hunks, changed modules' import paths, and removed literals, and lists the
-located consumers by kind, naming kinds with no match. Supply as `--term` the
-effect the diff cannot carry: retired behavior and altered preconditions, in
-the words their observers use. A derived term marked too broad lists no
-consumers; when it names the changed contract, resupply it as `--term`. When
-the record lists a step definition, page object, helper, or stand-in, add its
-step phrases or exported names that reach the effect as `--term` and rerun
-until the journeys and callers using it are listed. Give every listed consumer
+with `--base HEAD` for an uncommitted change. It searches the whole checkout for the changed files'
+paths and basenames, identifiers declared in changed hunks, changed modules' import paths, and
+removed literals, and lists the located consumers by kind, naming kinds with no match. Supply as
+`--term` the effect the diff cannot carry: retired behavior and altered preconditions, in the words
+their observers use. A derived term marked too broad lists no consumers; when it names the changed
+contract, resupply it as `--term`. When the record lists a step definition, page object, helper, or
+stand-in, add its step phrases or exported names that reach the effect as `--term` and rerun until
+the journeys and callers using it are listed. Give every listed consumer
 a disposition: `run`, `reused`, or `excluded: <reason the effect does not reach
-its boundary>`. A record with every kind empty keeps the slice's focused proof.
+its boundary>`. A named group of generic or historical matches—done records,
+retired plans, changelog entries, or unrelated text matches—may share one
+`excluded: <reason>` disposition; inspect only the relevant consumers. Every
+listed consumer still gets a disposition. A record with every kind empty keeps
+the slice's focused proof.
 
-For each affected consumer purpose, connect the changed effect and reached
-boundary to the relevant proof type and actual observation or named gap. Inspect
-how the consumer uses the effect and how its assertions or signals observe it,
-including indirect callers and enclosing observations. Distinguish behavior,
-static checks, and layout or contract observations when those boundaries are
-affected; file kind, a re-export, a file-level `run`, or one passing proof type
-cannot settle another affected purpose. Select proof from that purpose, not a
-fixed list of check types for every file. Equivalent purposes may share one
-sufficient check; independent purposes need their own sufficient observations.
+For each affected consumer purpose, connect the changed effect and reached boundary to the
+relevant proof type and actual observation or named gap. Inspect how the consumer uses the
+effect and how its assertions or signals observe it, including indirect callers and enclosing
+observations. Distinguish behavior, static checks, and layout or contract observations when
+those boundaries are affected; file kind, a re-export, a file-level `run`, or one passing proof
+type cannot settle another affected purpose. Select proof from that purpose, not a fixed list of
+check types for every file. Equivalent purposes may share one sufficient check; independent
+purposes need their own sufficient observations.
 
 Annotate the existing disposition or link to the return's evidence: identify the
 literal command or observation steps, inspected setup and observing assertion or

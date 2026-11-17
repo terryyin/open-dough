@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 566. Removed numbers are never reused.
+- Highest allocated local number: 567. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -518,7 +518,7 @@ Coordinator review continued into possible edge cases and broad consumer-match a
   - Timestamp: unknown (2026-11-17; execution and closure record)
   - Tool: Codex
   - Open Dough release: 0.3.102 (checkout-bound installed guidance at claim `681002b3946be63b7f854c4a739dcf8517a26996`)
-  - Evidence: Terry reported at least about 45 minutes for the current slice and asked about acceptance-analysis instructions; the coordinator acknowledged extending analysis beyond sufficient proof. [Retained incident and requested response](.planning/seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence); launch `154b5180-ee1f-44b2-88e7-a70e47217593`, incident at `ab1acbbac33f0a82de40321121f1c086336ec301:.planning/seeds/SEED-345-session-token-efficiency/proof-decisions.md`, and slice-5 proof at `f918ecb54b55b45b53819208f4a6d568452107d1` preserve provenance.
+  - Evidence: Terry reported at least about 45 minutes for the current slice and asked about acceptance-analysis instructions; the coordinator acknowledged extending analysis beyond sufficient proof. [Retained incident and requested response](https://github.com/terryyin/open-dough/blob/74e279020ed97da59be4ff3a3956a9c4020cf55d/.planning/seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence); launch `154b5180-ee1f-44b2-88e7-a70e47217593`, incident at `ab1acbbac33f0a82de40321121f1c086336ec301:.planning/seeds/SEED-345-session-token-efficiency/proof-decisions.md`, and slice-5 proof at `f918ecb54b55b45b53819208f4a6d568452107d1` preserve provenance.
   - Observed effect: developer interruption and an authorized priority increase for existing `SEED-345#reach-a-proof-decision-from-retained-evidence`, marked not-ready pending investigation. The 45 minutes is the developer's total elapsed estimate, not measured acceptance time.
   - Inference: start with simple stopping instructions: proceed once promises, affected consumers and gates have decisive observations; further investigation names a mismatch or specific evidence gap. Preserve required proof and unbounded refactoring; introduce no timing machinery first. Separate implementation, command waits, refactoring, CI repair and acceptance before making a measured causal claim.
 
@@ -721,3 +721,21 @@ departed read show "could not be read at this revision" after Show latest.
   - Evidence: slice 8 Accepted note at `309dacb4` PLAN.md; Intent Coverage verdict "Assertion gap" at `309dacb4`; queued SEED-334#observe-no-stale-candidate-failure-after-show-latest.
   - Observed effect: an assertion gap shipped behind a passing scratch break; one queued test-strengthening story.
   - Inference: a scratch break that changes several mechanisms shows only that some of them matter; a single-mechanism break per promised guard would have exposed the gap at slice acceptance.
+
+## DD-567 — Guidance structure-test regexes that pin soft-wrap points break under file-size reflow <a id="dd-567"></a>
+
+A new guidance-structure test asserted phrases with `\s+` across the soft-wrap
+breaks that existed at write time. The post-change file-size reflow of
+`executable-proof.md` to 250 lines rearranged those wraps, so the refactor pass
+had to re-align wrap points (or would have needed a test update) before the
+subject test stayed green.
+
+### Occurrences
+
+- Execution: SEED-345#reach-a-proof-decision-from-retained-evidence (plan 681; first implementation `9ecfd26602618771a60d89acca3ad1016b6e4d15`)
+  - Timestamp: unknown (2026-11-17; refactor pass after slice-1 acceptance, before increment `9ecfd2660`)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `cc96c5515`; Distribution sources published at `9ecfd2660`)
+  - Evidence: plan 681 Learnings (“Structure-test regexes that pin wrap points are brittle under file-size reflow”); refactor agent `8afc6ef3-96e3-4595-b23b-40b4171e0f52` (“Fixing wrap breaks so the structure-test regexes still match”; file 253→250 lines); subject test re-run exit 0 after reflow.
+  - Observed effect: extra refactor edits and a subject-test rerun to keep wrap-sensitive assertions matching; no product wording change beyond layout.
+  - Inference: structure tests that pin soft-wrap boundaries couple proof to physical line breaks the file-size check is allowed to change; contiguous asserted phrases (or updating the test with the reflow) avoids that churn. Total token/time cost unmeasured.
