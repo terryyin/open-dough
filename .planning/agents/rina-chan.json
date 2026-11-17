@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rina-chan",
-  "email": "rina-chan@example.org",
-  "identity": "SEED-393#try-guidance-improvements-by-redoing-the-source-story",
-  "mode": "story-branch",
-  "branch": "claude/try-an-unfamiliar-improvement-by-redoing-its-sou",
-  "host": "claude"
-}

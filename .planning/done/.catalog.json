@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-393_try-guidance-improvements-by-redoing-the-source-story.json",
+      "identity": "SEED-393#try-guidance-improvements-by-redoing-the-source-story",
+      "completedAt": "2026-11-17T15:21:14.625Z",
+      "blob": "8e843a70316b34bcc31f19b184e43b425bc70013"
+    },
+    {
       "fileName": "SEED-387_intent-hint-language-for-story-review-diffs.json",
       "identity": "SEED-387#intent-hint-language-for-story-review-diffs",
       "completedAt": "2026-11-17T14:17:23.319Z",
