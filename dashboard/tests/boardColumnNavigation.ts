@@ -27,15 +27,23 @@ export const columnPagingControl = (page: Page, column: ColumnName) =>
 export const columnPagingControls = (page: Page) =>
   page.getByRole("button", { name: controlName(columns.join("|")) });
 
+// Where a control lies now, read without waiting for it: a control the Board
+// is about to drop can leave between two waiting reads and hold the second.
+async function shownX(control: Locator) {
+  const [x] = await control.evaluateAll((found) =>
+    found.map((element) => element.getBoundingClientRect().x),
+  );
+  return x;
+}
+
 async function pagingControlToward(page: Page, target: number) {
-  let toward: Locator | undefined;
+  let toward: ColumnName | "none" = "none";
   for (const [index, name] of columns.entries()) {
-    const control = columnPagingControl(page, name);
-    if ((await control.count()) === 0) continue;
+    const x = await shownX(columnPagingControl(page, name));
+    if (x === undefined) continue;
     // A control lies between the shown columns and the one it names.
-    const right =
-      (await box(columnRegion(page, name))).x > (await box(control)).x;
-    if (right ? target >= index : target <= index) toward = control;
+    const right = (await box(columnRegion(page, name))).x > x;
+    if (right ? target >= index : target <= index) toward = name;
   }
   return toward;
 }
@@ -63,11 +71,14 @@ export async function showColumn(page: Page, column: ColumnName) {
   };
   for (let moves = 0; moves < columns.length; moves += 1) {
     await rested();
-    const choice: { control: Locator | undefined } = { control: undefined };
+    // A control left from a narrower Board stays until the Board remeasures,
+    // so a control counts once two readings in a row name it.
+    const seen: { control: ColumnName | "none" } = { control: "none" };
     await expect
       .poll(async () => {
-        choice.control = await pagingControlToward(page, target);
-        if (choice.control !== undefined) return true;
+        const previous = seen.control;
+        seen.control = await pagingControlToward(page, target);
+        if (seen.control !== "none") return seen.control === previous;
         // A resize can place the column outside the view before its paging
         // controls render. No control means no move only once it fits.
         const [at, view] = await Promise.all([
@@ -79,8 +90,8 @@ export async function showColumn(page: Page, column: ColumnName) {
         );
       }, "the column fits or its paging control is ready")
       .toBe(true);
-    const toward = choice.control;
-    if (toward === undefined) return;
+    if (seen.control === "none") return;
+    const toward = columnPagingControl(page, seen.control);
     // Scrolled to first where the row starts below the window, as a
     // developer would, then pressed in the part the window shows.
     const window = page.viewportSize() ?? { width: 0, height: 0 };

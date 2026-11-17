@@ -194,6 +194,8 @@ break `leastRelativeScale` 0.5 → 1 failed the relative mark; restored passed.
 Comparison/Done consumers (119 + 9) and typecheck passed. Learning for 5–6:
 reuse the `comparison` option; interim drilldown/file/sort specs time out at 30 s
 under load ≥25 with 4 workers, so their Frontend replacements remove that risk.
+Repair met here: `story-review-note-context` failed once in `showColumn`'s
+poll; see [diagnosis](diagnosis-show-column-flake.md) for cause, repair and proof.
 
 ### 5. Navigate compared scopes while retaining reading preferences
 Type: Behavior
