@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-392#separate-dashboard-terminal-dictation-from-quick-replies",
+  "title": "Separate dashboard terminal dictation from quick replies",
+  "completedAt": "2026-11-17T04:29:54.972Z",
+  "developer": "Terry Yin",
+  "agent": "Nana-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Intent Coverage — SEED-392#separate-dashboard-terminal-dictation-from-quick-replies\nChecked revision: fffe5cc4b353a13e6cd6bb17692224d9b5522e8a\nPromise: While recording, Prompts remains available (does not stop capture).\nVerdict: Caught\nNext proof action: none\nDisposition: no follow-up — maintained voice assertions catch exclusive-mount regression (session-terminal-voice.spec.ts Prompts visible while recording; beginTerminalClip).\n"
+  }
+}

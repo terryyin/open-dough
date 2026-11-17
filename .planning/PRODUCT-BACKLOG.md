@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Capture and edit story notes in the dashboard](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) — SEED-348#collect-notes-for-story-follow-ups ([plan](slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/PLAN.md))
-- [Separate dashboard terminal dictation from quick replies](seeds/SEED-392-separate-dashboard-terminal-dictation-from-quick-replies.md#separate-dashboard-terminal-dictation-from-quick-replies) — SEED-392#separate-dashboard-terminal-dictation-from-quick-replies ([plan](slice-plans/673-separate-dashboard-terminal-dictation-from-quick-replies/PLAN.md))
 
 ## Backlog list
 

@@ -251,8 +251,7 @@ Scope limits:
 
 - Sending notes to a Taken story's open session, or to any session that
   offers **Open terminal** instead of **Follow up**. These notes wait until a
-  Done follow-up attaches them. This could later join
-  [terminal quick replies](SEED-392-separate-dashboard-terminal-dictation-from-quick-replies.md).
+  Done follow-up attaches them. This could later join terminal quick replies.
 - Choosing which notes to attach, or attaching notes that were already sent.
 - Showing which session a note was sent to, or when.
 - Telling the agent which notes it has dealt with. **Sent** means only that
