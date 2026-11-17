@@ -77,7 +77,7 @@ then passes with the break reverted.
 
 ### 3. The result-retention check states its facts through the vocabulary
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: as slice 2, for `native-result-retention.sh`.
 
@@ -198,3 +198,10 @@ Timeout retains every fact (nonzero follows 124; no assessment pass follows exac
 with `before-fault` and `final-fault` rejects the same extra native_run_owned after timeout (two launches). Exact production bytes restored.
 Final proof: `slice-clock.mjs run --log /tmp/seed396-s2-final-restored.log --exit-file /tmp/seed396-s2-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-run-timeout.sh Distribution/evaluation/tests/native-harness/native-check-expectations.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` exit 0.
 Shared value/process words and owned-process cleanup are observed by self-check and timeout, their only runtime consumers. Consumer dispositions: `/tmp/seed396-s2-consumer-trace.md`.
+
+### Slice 3
+
+Retention preserves all artifact, field, stream, host/version, refusal/listing, repeated-attempt and prompt facts. Direct named-result calls keep nested expectations under errexit.
+`slice-clock.mjs run --log /tmp/seed396-s3-<label>.log --exit-file /tmp/seed396-s3-<label>.exit -- env PATH=/opt/homebrew/bin:$PATH python3 /tmp/seed396-s3-events-fault.py` before/after rewrite fails on nonempty events; exact production bytes restored.
+`slice-clock.mjs run --log /tmp/seed396-s3-final-restored.log --exit-file /tmp/seed396-s3-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-result-retention.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` passed.
+Consumer trace `/tmp/seed396-s3-consumer-trace.md`: changed check only; helper unchanged. Removal sibling plan 680 has no delivered product change and explicitly preserves compatible rewrites/race protection.
