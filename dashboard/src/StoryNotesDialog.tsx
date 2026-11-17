@@ -10,6 +10,7 @@ import { storyNoteNotSaved, storyNotesUnreadable } from "./storyNotes.ts";
 import { useStoryNoteAnnouncement } from "./storyNoteAnnouncement.ts";
 import { StoryNoteContext } from "./StoryNoteContext.tsx";
 import { StoryNoteEntry } from "./StoryNoteEntry.tsx";
+import { useLaunchInstruction } from "./LaunchInstruction.tsx";
 export function StoryNotesDialog({
   identity,
   title,
@@ -33,6 +34,11 @@ export function StoryNotesDialog({
   const dialog = useRef<HTMLDialogElement>(null);
   const add = useRef<HTMLButtonElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
+  const dictation = useLaunchInstruction(field, dialog, {
+    before: "Save note",
+    subject: "note",
+    recordLabel: "Dictate",
+  });
   const returning = useRef<HTMLButtonElement | null>(null);
   const [composer, setComposer] = useState<"add" | StoryNote | undefined>(
     context === undefined ? undefined : "add",
@@ -64,7 +70,11 @@ export function StoryNotesDialog({
       onClick={(event) => {
         event.stopPropagation();
       }}
-      onClose={onClose}
+      onClose={() => {
+        if (dictation.suspended.current) return;
+        dictation.cancel();
+        onClose();
+      }}
       onCancel={(event) => {
         if (saving) event.preventDefault();
       }}
@@ -81,6 +91,7 @@ export function StoryNotesDialog({
           hidden={composer !== undefined}
           disabled={saving}
           onClick={() => {
+            dictation.cancel();
             returning.current = add.current;
             setProblem(undefined);
             setAnnouncement("");
@@ -94,7 +105,7 @@ export function StoryNotesDialog({
             onSubmit={(event) => {
               event.preventDefault();
               const text = field.current?.value.trim() ?? "";
-              if (!text || saving) return;
+              if (!text || saving || dictation.busy) return;
               setSaving(true);
               setProblem(undefined);
               const change: StoryNoteChange = editing
@@ -139,19 +150,24 @@ export function StoryNotesDialog({
                 className="frame-input"
                 rows={4}
                 maxLength={storyNoteTextLimit}
+                readOnly={dictation.busy}
                 defaultValue={editing?.text ?? ""}
               />
+              {dictation.controls}
               {problem && <p role="alert">{problem}</p>}
               <button
                 type="button"
                 onClick={() => {
+                  dictation.cancel();
                   if (context !== undefined) dialog.current?.close();
                   else setComposer(undefined);
                 }}
               >
                 Cancel
               </button>
-              <button type="submit">Save note</button>
+              <button type="submit" disabled={dictation.busy}>
+                Save note
+              </button>
             </fieldset>
           </form>
         )}
@@ -167,6 +183,7 @@ export function StoryNotesDialog({
                   identity={identity}
                   disabled={saving || composer !== undefined}
                   onEdit={(selected, control) => {
+                    dictation.cancel();
                     returning.current = control;
                     setProblem(undefined);
                     setAnnouncement("");

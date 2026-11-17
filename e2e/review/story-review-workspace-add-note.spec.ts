@@ -26,6 +26,10 @@ import {
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { comparisonChoice } from "../../dashboard/tests/support/storyReviewMark.ts";
+import {
+  sharedDashboardBuild,
+  startDashboardServer,
+} from "../../dashboard/tests/support/dashboardServer.ts";
 
 test("Taken workspace offers Add note alone and saves file and line context", async ({
   page,
@@ -110,4 +114,36 @@ test("Taken workspace offers Add note alone and saves file and line context", as
   ]);
   await notes.expectEntryContext(0, "workspace fifty-four");
   await notes.expectEntryContext(0, expectedComparison);
+  await notes.close();
+  const port = Number(new URL(dashboard.baseURL).port);
+  await dashboard.close();
+  const restarted = await startDashboardServer({
+    mode: "preview",
+    prebuilt: sharedDashboardBuild,
+    machine: origin.machine,
+    github: dashboard.github,
+    projectFolders: ["open-dough"],
+    port,
+  });
+  try {
+    await page.reload();
+    await showColumn(page, "Taken");
+    await notes.open(card);
+    await notes.expectNotes([
+      "Workspace line observation",
+      "Workspace file observation",
+    ]);
+    for (const text of [
+      storyA.title,
+      storyA.identity,
+      "Review changes",
+      expandContextFile,
+      expectedComparison,
+      "Line 54 · new",
+      "workspace fifty-four",
+    ])
+      await notes.expectEntryContext(0, text);
+  } finally {
+    await restarted.close();
+  }
 });

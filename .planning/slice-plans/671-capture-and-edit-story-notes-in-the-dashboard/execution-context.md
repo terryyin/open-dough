@@ -121,3 +121,8 @@ architecture unchanged. Remaining boundaries retained as one proof loop each.
   suffix base `4298fddeb0c368ab3817cbfc5298b906d8be2109`, same observer reused
   and exact revision registered. Full real review103/frontend proofs green;
   G1 proved. Includes requested SEED-345 priority/investigation update.
+- Slice7: `abaf51cf352390ecfdad242cd174186f3663651f`, accepted storybranch;
+  suffix base `c955b00d13a5c50bf44ca31fd198b16ba9a5c632`, same observer reused
+  and exact revision registered.17source commitments observed, no openG1.
+  Current source pin75c9f7310d00e5ba93cc8842b86d99f0b3c756bb: upstream only
+  release/installed-guidance changes; checkout runtime unchanged until merge.

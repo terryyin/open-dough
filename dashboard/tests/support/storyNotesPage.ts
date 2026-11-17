@@ -4,6 +4,7 @@ import { storyNotesControl } from "../storyCardControls.ts";
 export function storyNotesPage(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Story notes", exact: true });
   const field = dialog.getByRole("textbox", { name: "Note text", exact: true });
+  const announcement = dialog.locator(".launch-dialog-body > [role='status']");
   const entries = dialog
     .getByRole("list", { name: "Saved notes" })
     .getByRole("listitem");
@@ -106,7 +107,7 @@ export function storyNotesPage(page: Page) {
       ).toBeFocused();
     },
     expectAnnouncement: async (message: string) => {
-      await expect(dialog.getByRole("status")).toHaveText(message);
+      await expect(announcement).toHaveText(message);
       await expect(page.getByText(message, { exact: true })).toHaveCount(1);
       await expect(field).toHaveCount(0);
     },
@@ -145,9 +146,7 @@ export function storyNotesPage(page: Page) {
       await expect(dialog.getByText(identity, { exact: true })).toBeVisible();
     },
     expectSaved: async () => {
-      await expect(dialog.getByRole("status")).toHaveText(
-        "Note saved to this story.",
-      );
+      await expect(announcement).toHaveText("Note saved to this story.");
       await expect(
         page.getByText("Note saved to this story.", { exact: true }),
       ).toHaveCount(1);

@@ -32,9 +32,9 @@ last removing it after delivery and verification.
 | --- | --- | --- | --- |
 | 1 | Notes are separate entries, each with its own context. | slice 2 | observed: dashboard/frontend-tests/stories/story-notes.spec.ts desktop/phone saved entries and distinct text; StoryNotesControl.tsx renders separate li keyed by server note id with story context. |
 | 2 | Notes belong to the correct project and story identity. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
-| 3 | The collection accumulates across reviews from Taken through Done. | slice 8 |  |
+| 3 | The collection accumulates across reviews from Taken through Done. | slice 8 | observed: slice-8-consumers.md F1: rerun Taken line capture, new launch, Done without workspace or launches, same stored context |
 | 4 | Notes survive new launches. | slice 6 | observed: dashboard/frontend-tests/stories/story-notes-retained.spec.ts: same note read after replacing the launch and reloading |
-| 5 | Notes survive a dashboard restart; the example restarts the dashboard and reads the saved line note. | slice 8 |  |
+| 5 | Notes survive a dashboard restart; the example restarts the dashboard and reads the saved line note. | slice 8 | observed: slice-8-consumers.md E1: real dashboard server restart, same HOME and port, saved workspace line note and exact context read from card |
 | 6 | Notes survive the story moving from Taken to Done. | slice 6 | observed: dashboard/frontend-tests/stories/story-notes-retained.spec.ts: Taken save read from the same identity on Done |
 | 7 | Notes survive workspace removal; the example reads the same note from the Recently done card. | slice 6 | observed: dashboard/frontend-tests/stories/story-notes-retained.spec.ts: Done card count and note with empty machine records, no active workspace or launch |
 | 8 | Every story card offers Notes. | slice 2 | observed: story-notes.spec.ts desktop/phone Backlog, Taken and Recently done Notes assertions; StoryCard and DoneStoryCard mount the same control. |
@@ -68,11 +68,11 @@ last removing it after delivery and verification.
 | 36 | Saved context records what the page showed when the note was made; the later Done/workspace-removed example requires the same context. | slice 7 | observed: slice-7-proof.md: P5 real displayed file/line/view context retained; P6 now directly captures Taken line 1 and reads identical file/comparison/endpoints/line/text after Done with workspace/launch records absent. Existing real restart persistence/store proof remains applicable because those boundaries are unchanged. |
 | 37 | A note added from a file header has file and comparison context but no line. | slice 5 | observed: File-header Published/Landed cases assert no composer line, no saved line and exact captured context omits line. |
 | 38 | The developer can type note text. | slice 2 | observed: story-notes.spec.ts fills real Note text textarea and observes saved typed text. |
-| 39 | Dictation follows session-instruction permission states. | slice 8 |  |
-| 40 | Dictation follows session-instruction recording states. | slice 8 |  |
-| 41 | Dictation follows session-instruction transcription states. | slice 8 |  |
-| 42 | Dictation follows session-instruction setup states. | slice 8 |  |
-| 43 | The transcript lands in the note text and can be corrected before saving; the Taken line-note example dictates, corrects, then saves. | slice 8 |  |
+| 39 | Dictation follows session-instruction permission states. | slice 8 | observed: story-note-voice.spec.ts and story-note-voice-recovery.spec.ts: held permission and refusal recovery retain typed draft |
+| 40 | Dictation follows session-instruction recording states. | slice 8 | observed: story-note-voice.spec.ts and story-note-voice-recovery.spec.ts: recording/read-only/Save disabled, Stop/Close and track release |
+| 41 | Dictation follows session-instruction transcription states. | slice 8 | observed: story-note-voice.spec.ts and story-note-voice-recovery.spec.ts: held transcription, refusal and abandonment, shared provider E1 remains green |
+| 42 | Dictation follows session-instruction setup states. | slice 8 | observed: story-note-voice-recovery.spec.ts: OpenAI setup returns to same typed draft |
+| 43 | The transcript lands in the note text and can be corrected before saving; the Taken line-note example dictates, corrects, then saves. | slice 8 | observed: story-note-voice.spec.ts: Taken line dictates, corrects transcript and saves exact text/context POST; E1 renews real context and restart |
 | 44 | A note with no text cannot be saved. | slice 2 | observed: story-notes.spec.ts whitespace composer stays open and independently captured POST list stays empty. |
 | 45 | Each saved note offers Edit. | slice 4 | observed: StoryNoteEntry renders Edit for every mapped note; story-notes-edit desktop/phone opens it by keyboard and observes populated Edit note composer. |
 | 46 | Editing and saving changes the note text; the example edits a line note and saves. | slice 4 | observed: story-notes-edit captures text/id-only edit POST and observes Updated observation; real story-notes-changes HTTP case observes trimmed revised text. |
@@ -99,7 +99,7 @@ last removing it after delivery and verification.
 | 67 | The add composer is headed Add note. | slice 2 | observed: storyNotesPage.add observes Add note heading in real composer. |
 | 68 | The edit composer is headed Edit note. | slice 4 | observed: storyNotesPage.edit independently observes Edit note heading and current textarea text. |
 | 69 | Composer context appears above the text. | slice 7 | observed: slice-7-proof.md: Unchanged composer layout/context-above-text from slice 5/6; P5 exercises both file and line composers without changing that boundary. |
-| 70 | The composer offers Dictate. | slice 8 |  |
+| 70 | The composer offers Dictate. | slice 8 | observed: story-note-voice.spec.ts: Dictate in composer and explicit keyboard order |
 | 71 | The composer offers Cancel. | slice 2 | observed: story-notes.spec.ts blank composer Cancel then Add note opens clean draft; StoryNotesControl.tsx Cancel action. |
 | 72 | The composer offers Save note. | slice 2 | observed: story-notes.spec.ts Save note submit produces observed POST/list/status. |
 | 73 | A composer opened from a diff opens alone. | slice 5 | observed: storyNotesPage.fromFile asserts no Saved notes list in diff composer; shared dialog opens directly in add mode for line/file context. |

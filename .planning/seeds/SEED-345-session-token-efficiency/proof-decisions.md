@@ -64,3 +64,10 @@ do not assume shorter reports alone establish an improvement.
 Earlier retained-evidence drivers remain: SEED-332 lost diagnostic traces,
 truncated output recurred (ODF-264), and Claude Code coordinators retained
 315 hand-backs with a median 7.8k characters throughout their sessions.
+
+The concurrent [SEED-393 consumer-verification story](https://github.com/terryyin/open-dough/blob/1a21d9a44ca019ec95392437995f622c5a5cfd7a/.planning/seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output)
+was also checked. It owns reaching affected output readers and limiting
+completion claims to observed proof. This story owns stopping review and
+acceptance once sufficient evidence settles the decision; it must preserve
+that consumer coverage. The related work does not replace this incident's
+stopping-rule investigation.

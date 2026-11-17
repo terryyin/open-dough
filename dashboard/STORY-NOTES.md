@@ -15,6 +15,14 @@ and with each saved entry. **Cancel** discards the draft. Blank text is not
 saved. Saved entries are listed newest first, and saving is announced once.
 A note records an observation; it has no fixed or resolved state.
 
+**Dictate** records a note using the same microphone and OpenAI setup as a
+session instruction. Choose **Stop recording**, then correct the transcript
+in the note text before **Save note**. Saving waits while permission,
+recording, transcription or transcript review is in progress. A transcript
+that exceeds the 4,000-character note limit opens for shortening or discarding
+and keeps the typed note. **Cancel** or closing Story notes stops recording
+and abandons transcription. Opening OpenAI settings keeps the draft for return.
+
 Notes are kept by project and story identity on the machine serving the
 dashboard, outside the project's repository. They survive dashboard restarts
 and are available to every page served by that machine, including a phone.

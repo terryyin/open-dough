@@ -194,8 +194,8 @@ Accepted proof: [slice 7](slice-7-proof.md).
 
 ### 8. A note can be dictated
 Type: Behavior
-Status: planned
-Proof: `dashboard/frontend-tests/stories/story-note-voice.spec.ts`; consumers
+Status: done
+Proof: `dashboard/frontend-tests/stories/story-note-voice*.spec.ts`; consumers
 `dashboard/frontend-tests/launches/session-instruction-voice-*.spec.ts` and
 `e2e/launches/session-instruction-voice*.spec.ts`; typecheck and lint.
 
@@ -207,6 +207,8 @@ of appended; closing the composer cancels a recording in progress.
 
 - Parameterize `useLaunchInstruction`'s “before Start” words; the launch
   dialog's words stay as they are.
+
+Accepted proof: [slice 8](slice-8-proof.md).
 
 ## Local gates and execution discipline
 
