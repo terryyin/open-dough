@@ -1,10 +1,14 @@
 import { revisionNotice } from "../../tests/intentPerspectivePage.ts";
-import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
+import {
+  readFailure,
+  showLatestRevision,
+} from "../../tests/intentReadRecoveryPage.ts";
 // Intent's Optimization Candidates tab, shown across a new trunk revision,
 // stays chosen (kept per project by ../../src/pageIntentMode.tsx) and keeps the
 // record of the revision Intent reads until **Show latest**, which reads the
-// record published at the new revision; a late answer for the old revision
-// never replaces it (../../src/IntentCandidatesRecord.tsx,
+// record published at the new revision; while that read is outstanding, the
+// departed old-revision read shows no failure, and its late answer never
+// replaces the new record (../../src/IntentCandidatesRecord.tsx,
 // ../../src/IntentRevisionNotice.tsx).
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
@@ -46,6 +50,13 @@ const movedRecord = openDoughCandidatesRecord.replace(
   "launch-records-poll-waits",
   "launch-records-page-clock",
 );
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  for (const release of releases.splice(0)) release();
+});
+const candidatesReadAt = (revision: string) => (params: URLSearchParams) =>
+  params.get("intent") === "test-optimization-candidates" &&
+  params.get("revision") === revision;
 
 test("Optimization Candidates shown across a new revision stays chosen and reads that revision's record after Show latest", async ({
   page,
@@ -88,12 +99,9 @@ test("a held answer for the old revision cannot replace the record Show latest s
   const { publish } = await prepareCandidateProjects(page, frontendServices, [
     openDoughAt(openDough.revision, openDoughCandidatesRecord),
   ]);
-  const releases: (() => void)[] = [];
   const oldAnswer = await holdAuthenticatedReadsWhere(
     page,
-    (params) =>
-      params.get("intent") === "test-optimization-candidates" &&
-      params.get("revision") === openDough.revision,
+    candidatesReadAt(openDough.revision),
     releases,
   );
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
@@ -105,9 +113,21 @@ test("a held answer for the old revision cannot replace the record Show latest s
 
   publish(openDoughAt(movedRevision, movedRecord));
   await passTimeUntilCheckedWhileReadsOutstanding(page);
+  const newAnswer = await holdAuthenticatedReadsWhere(
+    page,
+    candidatesReadAt(movedRevision),
+    releases,
+  );
   await showLatestRevision(revisionNotice(intent)).click();
   await expectIntentModeChosen(intent, "Optimization Candidates");
   await expectCandidatesRevision(intent, movedRevision);
+  await expect.poll(newAnswer.held).toBe(1);
+  await expect(candidatesRecord(intent)).toContainText(
+    "Reading Test Optimization Candidates",
+  );
+  await expect(readFailure(candidatesRecord(intent))).toHaveCount(0);
+
+  newAnswer.release();
   await expect(entry("launch-records-page-clock")).toBeVisible();
 
   oldAnswer.release();

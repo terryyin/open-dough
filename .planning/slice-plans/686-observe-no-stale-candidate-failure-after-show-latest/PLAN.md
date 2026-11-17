@@ -1,6 +1,7 @@
 # Keep a departed candidate read from showing a failure after Show latest
 
 **Source:** [selected story](../../seeds/SEED-334-product-wide-end-to-end-tests.md#observe-no-stale-candidate-failure-after-show-latest)
+**Source review:** [source review](source-review.md)
 **Identity:** SEED-334#observe-no-stale-candidate-failure-after-show-latest
 
 ## Goal and scope
@@ -36,7 +37,7 @@ Observed in this owned preparation workspace at
 
 ### 1. The held-answer case observes the window after Show latest
 Type: Behavior
-Status: planned
+Status: done
 Proof: the focused command above passes; with both guards faulted as above it
 fails on the held-answer case, then the fault is reverted.
 
@@ -57,6 +58,16 @@ the default test timeout; no `test.slow()`.
 
 Sizing: one test-file change with an observed scratch version fits one slice;
 no Structure slice or interim behavior.
+
+Accepted proof (2026-11-18): focused command with `--repeat-each=3`, 6 passed
+before and after the refactor (which swapped the alert locator for
+`readFailure` from `dashboard/tests/intentReadRecoveryPage.ts`). Both guards
+faulted to `if (true)`: the held-answer case failed in 7.5 s at the
+"Reading Test Optimization Candidates" assertion with the record showing
+"could not be read at this revision. Retry"; teardown no longer hangs. Fault
+reverted. Consumer trace: test-only, no runtime consumers. Learning: a
+file-level `releases` list freed in `afterEach` keeps faulted held-read cases
+from hanging to the test timeout.
 
 ## Local gates and current decisions
 
