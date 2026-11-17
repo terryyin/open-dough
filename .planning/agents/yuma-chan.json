@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-348#attach-story-notes-to-follow-ups",
+  "mode": "story-branch",
+  "branch": "cursor/attach-story-notes-to-follow-ups-and-show-which",
+  "host": "cursor",
+  "model": "auto"
+}
