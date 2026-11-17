@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Give the Dashboard Frontend group headroom on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#give-the-frontend-group-headroom-on-slow-runners) — SEED-382#give-the-frontend-group-headroom-on-slow-runners
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence
 - [Keep the converted navigation proof whole and time-independent](seeds/SEED-334-product-wide-end-to-end-tests.md#keep-navigation-conversion-proof-whole) — SEED-334#keep-navigation-conversion-proof-whole
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
