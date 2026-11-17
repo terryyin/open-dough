@@ -72,6 +72,8 @@
   `126391de866d4a3a40e0303c3098df318946ae33`; same observer reused and attached.
 - Slice 3 accepted at `064da060d88d573e7af18083a53faf91f951c521`, suffix base
   `51363529cfb748e2265241315e62d7f6d4ff901c`; resumed observer reused and attached.
+- Slice 4 accepted at `937b22553ad179da4d0bb265852b1bc2cb15e390`, suffix base
+  `064da060d88d573e7af18083a53faf91f951c521`; same observer reused and attached.
 
 ## Slice 3 acceptance
 
@@ -185,3 +187,34 @@ why the unchanged product boundary permits reusing that observation.
   remains valid. Freshness remains unchanged at the same pinned trunk.
 - No native AI or full local suite was run; actual agent compliance retains
   its post-release evaluation owner. No unresolved follow-up or gap.
+
+## Execution retrospective
+
+Reviewed planned execution from its original ready source/plan at `ace536b5e`
+through the four accepted implementation revisions above. Take/preparation
+commits are provenance, not implementation; incoming trunk stories are excluded.
+Net change has no unrelated implementation commits. Source-review commitments,
+six examples and the added native-consumer obligation match inspected code,
+guidance and proof. Existing compatibility and exact-marker contracts remain.
+ADR 0003/0005/0006 source ownership, deterministic evidence and shared-rule
+constraints hold. Dashboard North Star topics impose no changed obligation;
+the backlog's near-future intent/proof direction remains supported.
+
+No product defect, correction plan, speculative cleanup or priority change was
+identified. CLI/fixture command tests drove behavior; no browser E2E was added.
+The public native-family substitute is a controlled service-boundary check,
+not evidence of real host follow-through. No justified E2E-to-unit cleanup
+was found in this affected surface. Existing observer and discriminator proof
+remains distinct from source-structure assertions and native acceptance.
+
+Product advice: no correction; retain the source's post-release next-real-run
+evaluation. CI for `937b2255` is pending on the execution branch, not asserted
+passing. Process selection is enabled and deferred into wrap-up until the
+configured Intent Coverage check/disposition: tests/assertions were relocated
+or rewritten. No process log was accessed during that deferral.
+
+Slice 4 delivery's formatter flagged undeclared cross-file/test-harness shell
+variables and implicit empty default cases. Comments documenting those bindings
+and explicit no-op defaults repaired lint without changing behavior; the guarded
+retry formatted, checked hooks, committed and published successfully. Existing
+semantic proof remained applicable. Completion-record delivery is records-only.

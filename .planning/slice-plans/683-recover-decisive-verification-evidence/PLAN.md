@@ -190,6 +190,10 @@ guidance and retained-artifact proof from slices 1–3. A source-condition confl
 or genuinely unavailable producer observation stops only that case for
 reassessment. This slice receives G3.
 
+## Execution complete
+
+Product advice: No product correction; retain the agreed evaluation on the next real planned execution after release.
+
 ## Current decisions and preparation assessment
 
 - Evaluation is no slice: the story's keep, revise or stop judgment uses the
