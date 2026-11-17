@@ -127,8 +127,7 @@
   background: color-mix(in srgb, var(--quiet) 10%, transparent);
 }
 
-/* Line change tint (settled at 14%: tokens stay ≥4.5:1 on it; see plan
-   premise for SEED-387#emphasize-changed-words-in-diff-lines). */
+/* Line change tint (settled at 14%: tokens stay ≥4.5:1 on it). */
 .story-review-added {
   background: color-mix(in srgb, var(--ready) 14%, transparent);
 }

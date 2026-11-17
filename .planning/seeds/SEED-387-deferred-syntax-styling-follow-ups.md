@@ -163,6 +163,35 @@ above. Where it breaks: a blackline merges both versions into one text, while
 here removed and added words stay on their own lines; and code whitespace and
 punctuation carry meaning prose comparison may ignore.
 
+<a id="further-word-emphasis-follow-ups"></a>
+
+### Further word-emphasis follow-ups
+
+**Identity:** SEED-387#further-word-emphasis-follow-ups
+
+#### Goal
+
+A developer reviewing a story-review file diff can see finer or differently
+shaped change emphasis when whole-word block comparison is not enough: changed
+characters inside a word, related changes across separate blocks, or an
+optional side-by-side or merged inline word-diff reading.
+
+#### Scope
+
+- Emphasis of changed characters within a word (`limit1` → `limit2` marks the
+  changed characters, not only the whole word).
+- Relating changes across separate blocks, such as detecting moved lines.
+- A side-by-side or merged inline word-diff view that preserves line numbers and
+  line Follow up where those views still apply.
+- Turning emphasis off may be covered by
+  [SEED-387#shared-syntax-styling-control](#shared-syntax-styling-control)
+  rather than a separate control.
+
+#### Notes
+
+Whole-word block emphasis in story-review diffs is already available; these
+items remain for finer or differently shaped emphasis.
+
 <a id="shared-syntax-styling-control"></a>
 
 ### Share one control to turn syntax styling off or choose a palette
