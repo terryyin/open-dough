@@ -84,7 +84,11 @@ per agent), `peakInputRule`, `idleWakeRequests`, `idleWakeRule` and sorted
   `claude-disjoint-input`): `selection` has `kind` (`task` or
   `native-family`), `taskId`, `identity`, `rootSessionId`, `rootTurnId`,
   `nativeTurns`, `from`, `until`, `projectScope` and `boundary`; the report
-  adds `unownedResponses` and `threads`, and `guidanceVersion.evidence`. Each
+  adds `unownedResponses` (each `id`, `sessionId`, `agentId`, `turnId`,
+  `rootTurnId`, `sources`, `gaps`) and `threads`, and
+  `guidanceVersion.evidence`. `requestedSettings` is `null` or the launch's
+  `model`, `effort`, `approvalPolicy`, `sandbox`, `serviceTier`, `options` and
+  `policy`. Each
   agent has `id`, `sessionId`, `agentId`, `role` (`coordinator` or `worker`),
   `provenance`, `totals`, `observedSettings`, `sources`, `responseIds`,
   `peakInput` (observed per-agent maximum with `status`, `observedRequests`,
@@ -181,6 +185,36 @@ summed. Deltas appear only for like hosts, definitions and known metric values;
 partial values yield differences of known subtotals, with their coverage shown.
 Different settings, proof, intervention or boundaries do not suppress figures.
 Inspect the retained context before judging a difference.
+
+## Comparison contract
+
+`--comparison FILE` output is mapped explicitly from internal group results
+(`dashboard/server/agentEffortComparisonReport.ts`); JSON and readable output
+use the same mapped facts. JSON has `format` (`agent-effort-comparison-v1`),
+`baseline`, `candidate`, `deltas` and sorted `warnings`, and never a winner.
+
+- Each side has `notes` (supplied `outcome`, `proof`, `humanIntervention`, or
+  `null`), `executions` (each member's `label` plus its full
+  [single report](#single-report-contract)) and `perHost`.
+- Each `perHost` entry has `host`, `definition`, deduplicated `totals`,
+  `workflow` (Cursor counts with `workers`, otherwise `null`),
+  `idleWakeRequests`, `agents` (`host`, `id`, union-recomputed `peakInput`),
+  `sources`, `gaps` and `deduplication` (`reconciled-response-identity;
+  exact-stored-contribution-identity` or `transcript-file-identity`).
+- Each `deltas` entry, for one like host and definition, has `host`,
+  `definition`, `totals` (only metrics known on both sides: candidate minus
+  baseline `value`, both figures, and `status` `complete` or
+  `partial-known-subtotals`), `workflow` differences or `null`, and
+  `idleWakeRequests` difference or `null`.
+- `warnings` always include
+  `exploratory-retrospective-comparison; no automatic improvement or causal
+  claim` and the maintainer-judgment reminder, plus differences in settings,
+  guidance, selection, gaps or coverage, unknown settings, and hosts without a
+  like counterpart.
+- Readable output starts `Exploratory agent effort comparison; no automatic
+  improvement or causal claim`, then per side `NAME supplied notes:`, one
+  `NAME execution:` line per member (agents without `responseIds`) and
+  `NAME deduplicated group:`, then `Deltas:` and `Warnings:` (joined by `; `).
 
 ## Definitions and limits
 

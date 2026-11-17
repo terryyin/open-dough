@@ -92,11 +92,22 @@ export const cursorCost = (home: string, root: string, args: string[] = []) =>
       cursorCli(home, [root], ["--family", "family", "--json", ...args]),
     ),
   ) as CostReport;
-/** One labelled JSON fact from readable output, e.g. "Combined known figures". */
-export function readableFact(stdout: string, label: string): unknown {
+/** The text after one readable label, e.g. "Warnings". */
+export function readableLine(stdout: string, label: string) {
   const line = stdout.split("\n").find((row) => row.startsWith(`${label}: `));
-  if (!line) throw new Error(`Readable output lacks ${label}`);
-  return JSON.parse(line.slice(label.length + 2));
+  if (line === undefined) throw new Error(`Readable output lacks ${label}`);
+  return line.slice(label.length + 2);
+}
+/** One labelled JSON fact from readable output, e.g. "Combined known figures". */
+export const readableFact = (stdout: string, label: string): unknown =>
+  JSON.parse(readableLine(stdout, label));
+/** Readable agent lines state every JSON agent fact except response ids. */
+export function withoutResponseIds<Agent extends { responseIds?: unknown }>(
+  agent: Agent,
+) {
+  const stated: Partial<Agent> = { ...agent };
+  delete stated.responseIds;
+  return stated as Omit<Agent, "responseIds">;
 }
 
 /** The figures, agents, idle wakes and gaps a readable report states. */
@@ -129,13 +140,7 @@ export function costViews(home: string, args: string[], cwd?: string) {
   );
   const stated: ReadableCost = {
     totals: json.totals,
-    agents: json.agents.map((agent) => {
-      const stated: Omit<CostAgent, "responseIds"> & {
-        responseIds?: string[];
-      } = { ...agent };
-      delete stated.responseIds;
-      return stated;
-    }),
+    agents: json.agents.map(withoutResponseIds),
     idleWakeRequests: json.idleWakeRequests,
     gaps: json.gaps,
   };

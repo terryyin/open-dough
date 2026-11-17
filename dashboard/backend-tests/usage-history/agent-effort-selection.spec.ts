@@ -194,3 +194,29 @@ test("an explicit retained family remains inspectable when Usage excludes its un
   expect(actual.gaps).not.toContain("unrelated-project-excluded");
   expect(bytes(home)).toEqual(before);
 });
+
+for (const [refusal, args, message] of [
+  [
+    "an unknown task",
+    ["--task", "SEED-0#absent", "--json"],
+    "Task selection was not found",
+  ],
+  [
+    "a Cursor selection without --family",
+    ["--host", "cursor", "--json"],
+    "Choose an explicit Cursor --family SESSION",
+  ],
+  [
+    "a Cursor task selection",
+    ["--host", "cursor", "--task", "SEED-0#absent", "--json"],
+    "Cursor requires explicit --family",
+  ],
+] as const)
+  test(`${refusal} is refused with an empty report and a named reason`, ({
+    home,
+  }) => {
+    const refused = effortCli(home, [...args]);
+    expect(refused.status).toBe(1);
+    expect(refused.stdout).toBe("");
+    expect(refused.stderr).toContain(message);
+  });

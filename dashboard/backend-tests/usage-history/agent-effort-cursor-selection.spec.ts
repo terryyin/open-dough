@@ -4,7 +4,6 @@ import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   bytes,
   command,
-  cursorReport,
   writeCursorTranscript,
 } from "../../tests/usage-history/agentEffortHarness.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -15,6 +14,7 @@ import {
   succeeded,
   type ListedCursorFamily,
 } from "../../tests/usage-history/agentEffortSelection.ts";
+import { cursorCost } from "../../tests/usage-history/agentEffortCost.ts";
 
 test("Cursor names whole-family evidence when requested time boundaries are unprovable", ({
   home,
@@ -28,7 +28,7 @@ test("Cursor names whole-family evidence when requested time boundaries are unpr
       .withToolCall("TodoWrite", {})
       .please(),
   );
-  const actual = cursorReport(home, root, [
+  const actual = cursorCost(home, root, [
     "--from",
     "2026-11-14T00:00:00Z",
     "--until",
@@ -45,7 +45,7 @@ test("Cursor names whole-family evidence when requested time boundaries are unpr
     until: null,
     nativeTurnBoundary: null,
   });
-  expect(actual.workflow.todoWriteCalls).toBe(2);
+  expect(actual.workflow?.todoWriteCalls).toBe(2);
   expect(actual.gaps).toContain(
     "requested-time-window-unprovable-whole-family-reported",
   );
@@ -130,10 +130,10 @@ test("Cursor missing native family evidence remains unavailable rather than zero
   root,
 }) => {
   const before = bytes(home);
-  const actual = cursorReport(home, root);
-  expect(actual.workflow.transcripts).toBeNull();
-  expect(actual.workflow.workers).toBeNull();
-  expect(actual.workflow.bytes).toBeNull();
+  const actual = cursorCost(home, root);
+  expect(actual.workflow?.transcripts).toBeNull();
+  expect(actual.workflow?.workers).toBeNull();
+  expect(actual.workflow?.bytes).toBeNull();
   expect(actual.gaps).toContain("native-files-unavailable");
   expect(actual.totals.totalInput.value).toBeNull();
   expect(bytes(home)).toEqual(before);

@@ -14,6 +14,7 @@ import {
 } from "../../tests/usage-history/agentEffortSelection.ts";
 import {
   costReport,
+  costViews,
   readableFact,
 } from "../../tests/usage-history/agentEffortCost.ts";
 import {
@@ -196,4 +197,41 @@ test("bounded Claude family counts streaming responses once and keeps worker ide
     status: "unavailable",
   });
   expect(bytes(home)).toEqual(before);
+});
+
+test("known Codex inclusive input and peak survive missing cache breakdown", ({
+  home,
+  root,
+}) => {
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("inclusive")
+      .withResponse("turn", "own", { input_tokens: 123, output_tokens: 7 })
+      .please(),
+  );
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, [
+    "--host",
+    "codex",
+    "--family",
+    "inclusive",
+    "--from",
+    "2026-11-14T00:00:00.000Z",
+    "--until",
+    "2026-11-15T00:00:00.000Z",
+  ]);
+  expect(readable).toEqual(stated);
+  expect(actual.totals.totalInput.value).toBe(123);
+  expect(actual.totals.totalTokens.value).toBe(130);
+  expect(actual.totals.uncachedInput.value).toBeNull();
+  expect(actual.totals.cachedInput.value).toBeNull();
+  expect(actual.agents[0]?.peakInput).toMatchObject({
+    value: 123,
+    status: "observed-maximum",
+  });
+  expect(actual.gaps).toContain("missing-token-components");
 });

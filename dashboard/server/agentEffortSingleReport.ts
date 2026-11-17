@@ -8,6 +8,7 @@ import {
   idleWakes,
   observedSettings,
   peakInput,
+  requestedSettings,
   reportWorkflow,
   settingsCoverage,
   sources,
@@ -66,7 +67,7 @@ const cursorAgent = (agent: CursorReport["agents"][number]) => ({
   sources: sources(agent.sources),
   workflow: agentWorkflow(agent.workflow),
   totals: totals(agent.totals),
-  requestedSettings: agent.requestedSettings,
+  requestedSettings: requestedSettings(agent.requestedSettings),
   observedSettings: observedSettings(agent.observedSettings),
   observedSettingsCoverage: settingsCoverage(agent.observedSettingsCoverage),
   peakInput: peakInput(agent.peakInput),
@@ -79,14 +80,22 @@ const nativeOutput = (report: NativeReport) => ({
   selection: nativeSelection(report.selection),
   definition: report.definition,
   accounting: report.accounting,
-  requestedSettings: report.requestedSettings,
+  requestedSettings: requestedSettings(report.requestedSettings),
   guidanceVersion: {
     value: report.guidanceVersion.value,
     provenance: report.guidanceVersion.provenance,
     evidence: report.guidanceVersion.evidence,
   },
   sources: sources(report.sources),
-  unownedResponses: report.unownedResponses,
+  unownedResponses: report.unownedResponses.map((response) => ({
+    id: response.id,
+    sessionId: response.sessionId,
+    agentId: response.agentId,
+    turnId: response.turnId,
+    rootTurnId: response.rootTurnId,
+    sources: sources(response.sources),
+    gaps: response.gaps,
+  })),
   totals: totals(report.totals),
   threads: report.threads,
   agents: report.agents.map(nativeAgent),
@@ -103,7 +112,7 @@ const cursorOutput = (report: CursorReport) => ({
   selection: cursorSelection(report.selection),
   definition: report.definition,
   accounting: report.accounting,
-  requestedSettings: report.requestedSettings,
+  requestedSettings: requestedSettings(report.requestedSettings),
   observedSettings: observedSettings(report.observedSettings),
   observedSettingsCoverage: settingsCoverage(report.observedSettingsCoverage),
   guidanceVersion: {
@@ -124,6 +133,12 @@ export const singleReportOutput = (report: SingleReport) =>
   report.host === "cursor"
     ? cursorOutput(report)
     : nativeOutput(report as NativeReport);
+
+/** Readable agent lines state every JSON agent fact except response ids. */
+export const readableAgent = <Agent extends object>(agent: Agent) => ({
+  ...agent,
+  responseIds: undefined,
+});
 
 /** Readable lines present the same facts and caveats as the JSON output. */
 export function renderSingleReport(report: SingleReport) {
@@ -148,7 +163,7 @@ export function renderSingleReport(report: SingleReport) {
     lines.push(`Workflow: ${JSON.stringify(output.workflow)}`);
   for (const agent of output.agents)
     lines.push(
-      `${agent.role} ${agent.id}: ${JSON.stringify({ ...agent, responseIds: undefined })}`,
+      `${agent.role} ${agent.id}: ${JSON.stringify(readableAgent(agent))}`,
     );
   lines.push(`Gaps: ${output.gaps.join(", ")}`);
   return lines.join("\n");

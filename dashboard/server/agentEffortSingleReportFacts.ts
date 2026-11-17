@@ -11,7 +11,7 @@ type Figure = {
     cacheWrite: number;
   };
 };
-const figure = (fact: Figure) => ({
+export const figure = (fact: Figure) => ({
   value: fact.value,
   status: fact.status,
   missingRequests: fact.missingRequests,
@@ -161,3 +161,42 @@ export const sources = (facts: Source[]) =>
     repository: source.repository,
     revision: source.revision,
   }));
+type Requested = {
+  model?: string | undefined;
+  effort?: string | undefined;
+  approvalPolicy?: string | undefined;
+  sandbox?: string | undefined;
+  serviceTier?: string | undefined;
+  options?: string[] | undefined;
+  policy?:
+    | {
+        tracking?: string | undefined;
+        workspace?: string | undefined;
+        landing?: string | undefined;
+      }
+    | undefined;
+};
+/** Launch-requested settings; Cursor and unlaunched families report null. */
+export const requestedSettings = (requested: Requested | null) =>
+  requested && {
+    model: requested.model,
+    effort: requested.effort,
+    approvalPolicy: requested.approvalPolicy,
+    sandbox: requested.sandbox,
+    serviceTier: requested.serviceTier,
+    options: requested.options,
+    policy: requested.policy && {
+      tracking: requested.policy.tracking,
+      workspace: requested.policy.workspace,
+      landing: requested.policy.landing,
+    },
+  };
+/** A comparison group's deduplicated Cursor workflow counts. */
+export const groupWorkflow = (
+  workflow: Partial<WorkflowCounts> & { workers: number | null },
+) => ({
+  ...Object.fromEntries(
+    workflowCounts.map((key) => [key, workflow[key] ?? null]),
+  ),
+  workers: workflow.workers,
+});

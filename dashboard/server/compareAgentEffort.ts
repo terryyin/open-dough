@@ -3,6 +3,10 @@ import { parseArgs } from "node:util";
 import { readFileSync } from "node:fs";
 import { readEffortRequest } from "./agentEffortRequest.ts";
 import { compareEffort } from "./agentEffortComparison.ts";
+import {
+  comparisonOutput,
+  renderComparison,
+} from "./agentEffortComparisonReport.ts";
 import { catalogOutput, renderCatalog } from "./agentEffortCatalog.ts";
 import {
   renderSingleReport,
@@ -42,35 +46,13 @@ try {
         ? JSON.stringify(catalogOutput(catalog))
         : renderCatalog(catalog),
     );
-  } else if ("baseline" in report) {
-    if (values.json) console.log(JSON.stringify(report));
-    else {
-      console.log(
-        "Exploratory agent effort comparison; no automatic improvement or causal claim",
-      );
-      for (const name of ["baseline", "candidate"] as const) {
-        const group = report[name];
-        console.log(`${name} supplied notes: ${JSON.stringify(group.notes)}`);
-        for (const execution of group.executions) {
-          const { agents, ...summary } = execution;
-          console.log(
-            `${name} execution: ${JSON.stringify({
-              ...summary,
-              agents: agents.map((agent) => ({
-                ...agent,
-                responseIds: undefined,
-              })),
-            })}`,
-          );
-        }
-        console.log(
-          `${name} deduplicated group: ${JSON.stringify(group.perHost)}`,
-        );
-      }
-      console.log(`Deltas: ${JSON.stringify(report.deltas)}`);
-      console.log(`Warnings: ${report.warnings.join("; ")}`);
-    }
-  } else
+  } else if ("baseline" in report)
+    console.log(
+      values.json
+        ? JSON.stringify(comparisonOutput(report))
+        : renderComparison(report),
+    );
+  else
     console.log(
       values.json
         ? JSON.stringify(singleReportOutput(report))

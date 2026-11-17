@@ -180,7 +180,7 @@ Accepted proof: focused family 69 passed; uncertainty specs regrouped as `agent-
 
 ### 4. A maintainer can compare groups while retaining their evidence boundaries
 Type: Behavior
-Status: planned
+Status: done
 Proof: source example 2 and final example 6; CLI native/stored/Cursor overlap,
 group peak/coverage, like-host deltas, supplied notes and no-winner examples in
 both formats. Complete every proof-migration row. In scratch, rename or split
@@ -196,6 +196,7 @@ deltas. Document/map comparison output, regroup comparison examples and remove
 the remaining production-derived test types. Refactor implicated aggregation
 and identity responsibilities using existing shared owners. Inspect every
 removed/merged case's surviving witness before accepting the final contract.
+Accepted proof: focused family 73 passed; comparison projection in `agentEffortComparisonReport.ts`; scratch rename of `agentEffortSingleReportFacts.ts` with production-only import updates kept specs unedited and 73 passing; scratch disable of stored/native overlap exclusion failed `agent-effort-compare-overlap.spec.ts` (expected input 50, received 70); both restored.
 
 ## Current decisions and preparation assessment
 
@@ -231,12 +232,12 @@ Disposition: proved by slice 2: dashboard/server/agentEffortSingleReport.ts nati
 ### G2. Output-reading harness still derives report types from production
 Reported: slice 1 — "`agentEffortHarness.ts` still derives `report` / `cursorReport` / `comparisonReport` types from production."
 Story clause: "no spec or its output-reading harness imports production report types or derives expectations from production functions"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: dashboard/tests/usage-history/agentEffortHarness.ts keeps only command/writeCursorTranscript/bytes; no agent-effort spec or test reader imports dashboard/server (grep); agentEffortCompare.ts holds independent comparison types
 
 ### G3. Documented Cursor and unknown-task refusals lack an owning example
 Reported: slice 1 — "The Cursor `was not found` / missing `--family` refusal messages are documented, but this slice added no new test for them."
 Story clause: "Remove a promised figure, qualification or selection boundary → its owning example fails."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: agent-effort-selection.spec.ts "${refusal} is refused with an empty report and a named reason" for unknown task, Cursor without --family and Cursor --task: status 1, empty stdout, named stderr
 
 ### G4. Ownership examples not yet regrouped by maintainer question
 Reported: slice 1 — "The ownership and native-family specs were not moved into `agent-effort-selection.spec.ts`."
@@ -246,9 +247,9 @@ Disposition: proved by slice 2: cost examples regrouped as agent-effort-cost-{re
 ### G5. Nested figure, coverage and agent shapes still pass through owner objects (slice 3 mapped all but `unownedResponses` and `requestedSettings`)
 Reported: slice 2 — "`totals`, `workflow`, `sources`, `observedSettings` and agent `peakInput`/`idleWakeRequests` are still passed through as their existing owner shapes, not re-mapped key by key."
 Story clause: "The CLI explicitly maps internal results to that contract."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: agentEffortSingleReport.ts maps unownedResponses and requestedSettings key by key (typed UnownedResponse in agentEffortNativeSummary.ts); focused family 73 passed unchanged
 
 ### G6. Cursor readable output lacks its own bytes-not-tokens observation
 Reported: slice 3 — "I added no Cursor readable assertion. The `costViews` readable reader is native-only, and the Cursor spec still has only its JSON assertions plus the Cursor readable lines from slice 2."
 Story clause: "Cursor bytes never become tokens."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: agent-effort-cost-cursor.spec.ts "Cursor readable output keeps transcript bytes as bytes and token figures unavailable": readable Workflow bytes = file size, readable Combined known figures token metrics {value:null,status:unavailable}
