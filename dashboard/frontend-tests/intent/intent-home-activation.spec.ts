@@ -24,7 +24,7 @@ import {
 // notice and the shown revision, reading nothing newer.
 // Project Intent's landing journey from an entry, folder and file by click,
 // Enter and Space: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts. Opening a candidate's
-// file: ../../tests/intent/intent-test-optimization-candidates-open.spec.ts.
+// file: ./intent-test-optimization-candidates-open.spec.ts.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { parts } from "../../tests/dashboardPage.ts";

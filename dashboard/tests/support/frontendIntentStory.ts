@@ -9,7 +9,10 @@ import {
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { describedRevision } from "../describedRevisions.ts";
 import { intentSettings, intentTrunkRevision } from "./intentStoryWorktree.ts";
-import { putFrontendIntentSources } from "./frontendIntentSources.ts";
+import {
+  locationsSelectingUnder,
+  putFrontendIntentSources,
+} from "./frontendIntentSources.ts";
 import {
   frontendFileDiff,
   frontendReviewSnapshot,
@@ -75,21 +78,9 @@ export function putFrontendIntentStory(
     services,
     { ...openDoughSource, ...publication },
     locations
-      ? intentSettings.intent.locations.map((location) =>
-          makeMe.anIntentLocation
-            .at(location.path)
-            .ofKind(
-              location.path === "tests" ? "shell" : "typescript",
-              location.path === "tests" ? ["*.sh"] : ["**/*.spec.ts"],
-            )
-            .selecting(
-              ...Object.keys(intentTrunkRevision.files).filter((path) =>
-                location.path === "tests"
-                  ? path.startsWith("tests/")
-                  : path.startsWith("dashboard/tests/"),
-              ),
-            )
-            .please(),
+      ? locationsSelectingUnder(
+          intentSettings,
+          Object.keys(intentTrunkRevision.files),
         )
       : [],
     {},

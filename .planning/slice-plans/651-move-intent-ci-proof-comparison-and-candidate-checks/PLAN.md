@@ -247,7 +247,7 @@ hashes change with it.
 
 ### 7. Open recorded candidates at their Purpose targets
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-test-optimization-candidates{,-case,-open}.spec.ts` → Frontend.
 Behavior: read/select a candidate → groups, recorded fields/order, section notes,
 pinned Markdown links and hidden leading pass summary stay accurate; tabs/layout,
@@ -260,6 +260,13 @@ case-position data. Extend their project arrangements, not a second parser.
 Backend `authenticated-read-intent-candidates.spec.ts` and E2E
 `intent-candidates-read-recovery.spec.ts` keep real pinned acquisition/recovery.
 Check: the three Frontend files, those Backend/E2E files and existing reuse callers.
+Accepted: the three candidate specs moved to Frontend with titles, steps and
+assertions one-for-one over `frontendIntentCandidates.ts` (per-project
+`prepare*Candidates`); `locationsSelectingUnder` now serves it and
+`frontendIntentStory.ts`. Frontend selects files by folder only; include
+patterns stay Backend's. Scratch break of return focus failed; restored passed.
+Full Frontend `intent/` (215), Backend candidates (6), the E2E recovery file and
+typecheck passed.
 
 ### 8. Keep candidate records current without accepting stale answers
 Type: Behavior

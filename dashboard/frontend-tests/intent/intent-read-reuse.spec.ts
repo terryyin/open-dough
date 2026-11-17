@@ -1,7 +1,5 @@
-import {
-  prepareFrontendReuseJobs,
-  prepareFrontendReuseCandidates,
-} from "../../tests/support/frontendIntentReuseAnswers.ts";
+import { prepareFrontendReuseJobs } from "../../tests/support/frontendIntentReuseAnswers.ts";
+import { prepareOpenDoughCandidates } from "../../tests/support/frontendIntentCandidates.ts";
 import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent asks the read boundary once for each answer fixed at the revision
 // shown (../../src/answerMemo.ts, ../../src/repositoryFileReads.ts): reopening a
@@ -111,7 +109,7 @@ test("the Test Optimization Candidates record is read once across leaving Intent
   await page.setViewportSize({ width: 1280, height: 900 });
   const recordReads = intentReads(page, "test-optimization-candidates");
   const locationsReads = intentReads(page, "locations");
-  await prepareFrontendReuseCandidates(page, frontendServices);
+  await prepareOpenDoughCandidates(page, frontendServices);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent, development, intentChoice } = parts(page);
   const entry = candidatesRecord(intent).getByRole("article", {

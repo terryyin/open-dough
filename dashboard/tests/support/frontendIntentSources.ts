@@ -2,6 +2,7 @@
 // The caller supplies selected files; selection judgment belongs to Backend.
 import type { CatalogPublication } from "../catalogProjectRecords.ts";
 import type { IntentLocation } from "../../server/intentLocationsRead.ts";
+import type { IntentSettings } from "../../../Distribution/tests/support/intentLocationTestData.mjs";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { putFrontendPublished } from "./frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -27,6 +28,16 @@ export function putFrontendIntentSources(
     files: { ...project.files, ...files },
   });
 }
+
+// Each declared location answered with the given paths under its folder.
+export const locationsSelectingUnder = (
+  settings: IntentSettings,
+  paths: readonly string[],
+): IntentLocation[] =>
+  settings.intent.locations.map((location) => ({
+    ...location,
+    files: paths.filter((path) => path.startsWith(`${location.path}/`)),
+  }));
 
 export function putFrontendFolderSources(
   services: FrontendServiceState,

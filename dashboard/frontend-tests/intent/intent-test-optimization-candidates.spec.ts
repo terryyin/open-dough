@@ -1,4 +1,8 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import {
+  prepareDoughnutCandidates,
+  prepareOpenDoughCandidates,
+} from "../../tests/support/frontendIntentCandidates.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent reads the published Test Optimization Candidates record at the
 // observed revision (../../src/IntentCandidatesRecord.tsx) on its own
 // Optimization Candidates tab (../../src/IntentPage.tsx): entering Intent
@@ -9,27 +13,23 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // mechanism shows before that section's entries.
 
 import { findingEntryFields } from "../../src/testOptimizationCandidatesRecord.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   expandIntentGroup,
   intentGroupToggle,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
   filesColumn,
-} from "../intentModePage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import {
-  doughnutFeaturePath,
-  publishDoughnutWithCandidates,
-  publishOpenDoughWithCandidates,
-} from "../intentCandidatesFixtures.ts";
-import { doughnut, openDough } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentModePage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { doughnutFeaturePath } from "../../tests/intentCandidatesFixtures.ts";
+import { doughnut, openDough } from "../../tests/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const requiredFieldLabels = findingEntryFields
@@ -39,9 +39,10 @@ const allFieldLabels = findingEntryFields.map((field) => field.label);
 
 test("Intent opens on its Intent tab; Optimization Candidates shows Pending and Accepted groups with every recorded field without the locations and resolves evidence links at the named revision", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishOpenDoughWithCandidates(page);
+  await prepareOpenDoughCandidates(page, frontendServices);
 
   await openUntilRead(page, "/?project=open-dough");
   const { intent, intentChoice } = parts(page);
@@ -189,6 +190,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
 
 test("Intent reads a four-section record and the note naming its profile-only mechanism without presenting its leading pass summary", async ({
   page,
+  frontendServices,
 }) => {
   const mechanism =
     "Existing mechanism: `@skipOptimizationDueToKnownNecessarySlowness` on a\nScenario or Feature; normal verification and CI still run them. See\n[E2E profiling guidance](../.agents/skills/e2e-authoring/SKILL.md#test-optimization-profiling).";
@@ -206,7 +208,7 @@ test("Intent reads a four-section record and the note naming its profile-only me
       "# Test Optimization Candidates\n",
       "# Test Optimization Candidates\n\n## Latest pass\n\n- **Outcome:** Historical pass measurements.\n",
     );
-  await publishDoughnutWithCandidates(page, passSummaryRecord);
+  await prepareDoughnutCandidates(page, frontendServices, passSummaryRecord);
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();

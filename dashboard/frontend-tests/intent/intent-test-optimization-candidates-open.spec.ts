@@ -1,33 +1,40 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import {
+  prepareDoughnutCandidates,
+  prepareOpenDoughCandidates,
+  preparePygardonCandidates,
+} from "../../tests/support/frontendIntentCandidates.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Project Intent opens recorded test locations from a candidate entry on the
 // Optimization Candidates tab into the CI status tab's Purpose selection,
 // and choosing Optimization Candidates again returns the keyboard to that
 // entry without rereading (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
-} from "../intentModePage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/intentModePage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import {
   doughnutFeaturePath,
   openDoughSpecPaths,
-  publishDoughnutWithCandidates,
-  publishOpenDoughWithCandidates,
-  publishPygardonOutsideConfigured,
   pygardonClipPath,
-} from "../intentCandidatesFixtures.ts";
-import { doughnut, openDough, pygardon } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentCandidatesFixtures.ts";
+import {
+  doughnut,
+  openDough,
+  pygardon,
+} from "../../tests/intentCodeBrowseFixtures.ts";
 
 test("Intent opens a recorded location into the Intent tab's Purpose, marks the tree, and returns to the entry without rereading", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishOpenDoughWithCandidates(page);
+  await prepareOpenDoughCandidates(page, frontendServices);
 
   await openUntilRead(page, "/?project=open-dough");
   const { intent } = parts(page);
@@ -158,9 +165,10 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
 
 test("Intent explains outside configured locations for a Pygardon-shaped python path", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishPygardonOutsideConfigured(page);
+  await preparePygardonCandidates(page, frontendServices, "gherkin only");
 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
@@ -179,9 +187,10 @@ test("Intent explains outside configured locations for a Pygardon-shaped python 
 
 test("Intent leaves Doughnut prose without a gap and opens a unique bare feature name", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishDoughnutWithCandidates(page);
+  await prepareDoughnutCandidates(page, frontendServices);
 
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
