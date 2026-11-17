@@ -15,41 +15,79 @@ scope: story
 
 **Identity:** SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 651."],"basis":{"document":"b796cb68d52b56fd6c2f59016103fe94830384009d2578187031ad254026e013","plan":"6647d64578ff985e497901dfe7896f0d90c787e0bd35a27f35e67e53b4c9e036"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"66d522e5e4a148d0fbe998c78134503f8cebf4d59ca4ffd3a379ffa8793c379a","plan":"c7136fbe0b5aad86e89d6b0569f4b762fdaa454d50911f25cae9bddfc903a7ed"}}
 ```
 
-- **For / why.** A maintainer retains CI proof, story comparison, scope glance
-  and optimization-candidate regressions in their owning test layers, keeping
-  Intent's CI evidence trustworthy while the interim group shrinks.
-- **Evaluation.** The 20 remaining Intent CI specs (`intent-scope-glance`,
-  `intent-ci-proof*`, `intent-summary-*`, `intent-ci-comparison-*`,
-  `intent-test-optimization-candidates*`) have named maintained
-  Frontend/Backend/E2E assertion homes, including negative effects, focus,
-  keyboard, request counts and stale answers; a changed proof boundary catches
-  the same representative scratch break and passes restored. The
-  omitted-attempt refusal in `intent-ci-proof.spec.ts` moves to the Backend
-  CI-status/proof read boundary. A CI proof case mixing table layout with ZIP
-  acquisition and an HTTP refusal is observed at Frontend from controlled
-  answers while Backend/E2E keep real parsing, acquisition, refusal and request
-  counts. A comparison navigating scopes or a candidate opening Purpose keeps
-  values, gaps, source pinning, keyboard behavior and reading position.
-- **Scope.** Original plan 633 slices 6–10, with the same placement,
-  protection and scratch-break rules as the first story; reuse its delivered
-  CI-status (`frontendCiStatusAnswers.ts`, including `openFrontendRunProof`)
-  and history families. No navigation or reading/review conversion, runner
-  retirement, product behavior change, E2E naming or tagged install.
-- **Value / stopping point.** Each of glance, proof, comparison and candidates
-  is independently useful while the interim group still runs other cases.
-- **Sizing note.** Glance needs a built-app Done-story arrangement, and proof
-  covers seven specs; expect these to need their own slices. Before proof
-  extends `dashboard/tests/support/frontendCiStatusAnswers.ts`, separate its
-  published-project arrangements (story board, unconfigured Doughnut) from the
-  CI-status answer family.
-- **Plan:** [Provisional proof/comparison/candidate conversion](../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md),
-  awaiting story refinement before plan refinement or execution.
-- **Provenance.** Split from SEED-334#retire-dashboard-integrated-ui-test at
-  its delivered slice 5 (`4ceb02349033764c7dc0fa842e184180626f99e7`); the
-  pre-split source and plan are recoverable there.
+**Goal:** A maintainer can trust Intent's CI proof, comparisons, scope timing
+and optimization-candidate regressions while maintaining their detailed checks
+in the Frontend and Backend groups and retaining real acquisition journeys in
+E2E. Move the selected checks out of the interim Dashboard Integrated UI Test
+group without losing their protection or changing product behavior.
+
+**Scope:** Convert the 20 remaining Intent CI specs: `intent-scope-glance`,
+`intent-ci-proof*`, `intent-summary-ci-proof-*`, the four remaining
+`intent-ci-comparison-*`, the two remaining
+`intent-summary-story-comparison-*`, and `intent-test-optimization-candidates*`.
+Every distinct existing assertion, including negative effects, accessibility,
+focus, keyboard/touch, source pinning, reading position, request counts and
+stale-answer exclusion, retains an explicitly named maintained home.
+Presentation and interaction run through real production UI with controlled
+service answers; Backend/E2E retain real parsing, ZIP/artifact acquisition,
+refusal, cache identity and upstream request accounting. Remove each interim
+case only with its equivalent proof in place. Reuse the delivered CI-status,
+history, full-app Done-story, comparison and published-source arrangements.
+Separate published-project arrangements from the CI-status answer family
+before extending its run-Proof support.
+
+The omitted-attempt refusal in `intent-ci-proof.spec.ts` belongs at the Backend
+HTTP proof-read boundary. Preserve the carried collector missing-part/untimed
+ZIP extraction obligation from plan 633, rather than treating a supplied
+`makeMe.aCiProof` answer as acquisition proof. A mixed UI/acquisition case may
+have several named owners, with no assertion silently dropped or weakened.
+
+Scope limits: no navigation or reading/review conversion, runner/group
+retirement, change to `integratedStateCompletion`, product behavior change,
+E2E naming, tagged-install proof, shard rebalance or speed target. Existing
+E2E connections remain; this story does not multiply journeys for detailed
+variants. The navigation/retirement story may proceed independently and waits
+for this conversion only at its retirement step.
+
+**Key examples:**
+
+1. A Done story has selected-landing and prior-build scope evidence. Drilling
+   entry → folder → file Proof preserves each scope's values and history above
+   its table, all seven marks including the failed build, unit-specific scales,
+   touch/keyboard selection, Purpose/CI-comparison destinations and dark-mode
+   readability. Reading retained scopes makes no extra upstream CI requests,
+   proved at the Backend read boundary.
+2. A run's proof is held, partial, multi-unit, unavailable or previously
+   retrieved. Its judgment stays readable independently; Proof and Summary
+   keep run/attempt labels, counts, timings, full accessible gap explanations,
+   layout and sorting. A query omitting the attempt receives HTTP 400 without
+   asking GitHub; real collector bytes survive ZIP extraction and retain a
+   missing part and an untimed result.
+3. A comparison has partial Baseline counts, signed timing changes or a held/
+   failed locations answer. Real controls preserve unavailable differences,
+   independent units, marks, Show %, scope/file navigation, focus and reading
+   position, sort continuity/fallback and the selected revision. Summaries ask
+   for no source text; navigation adds no comparison/proof rereads. File
+   Purpose and Proof retain changed/added/renamed/merge-edited distinctions.
+4. A candidate names a full path, ambiguous or moved path, unique/duplicate
+   case or explicit line. Its recorded fields and pinned links remain accurate;
+   supported targets open Purpose at the same position, return restores entry
+   focus without a reread, and unavailable targets retain their explanations.
+   Live/empty/absent/unreadable/mismatched records, project switches and Show
+   latest preserve the selected record's revision; an old held answer cannot
+   replace the current selection.
+
+**Plan:** [CI proof, comparison and candidate conversion](../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md).
+Each converted capability remains useful while navigation cases still run in
+the interim group. Earlier plan 633 overruns require bounded proof batches;
+the plan retains that sizing history and the observed reusable arrangements.
+
+**Provenance:** Split from SEED-334#retire-dashboard-integrated-ui-test at
+its delivered slice 5 (`4ceb02349033764c7dc0fa842e184180626f99e7`); the
+pre-split source and plan are recoverable there.
 
 <a id="move-navigation-checks-and-retire-integrated-ui-test"></a>
 
