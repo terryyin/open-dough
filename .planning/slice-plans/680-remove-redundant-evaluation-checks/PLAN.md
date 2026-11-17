@@ -199,6 +199,13 @@ the story's removal rule. Final gate `npm run test:evaluation` (2 jobs, load
 about 90, AC, `caffeinate -s -i`) exits 0. Scheduled evaluation jobs remain 74;
 the branch's test diff is 89 deletions against 63 insertions.
 
+## Execution complete
+
+Product advice: no change. The cleanup removed only restated catalog,
+inventory and description data plus repeated scenarios; distinct protection
+stayed, including the Claude response-text check slice 5 found unique. Process
+review is deferred into wrap-up behind the Intent Coverage check.
+
 ## Current decisions and verification
 
 - Each slice has one bounded proof loop and a 15-active-minute budget. The
