@@ -1,5 +1,5 @@
 // Expected Proof rows for the summary comparison file journey
-// (../intent/intent-summary-story-comparison-file.spec.ts): a selected file's
+// (../../frontend-tests/intent/intent-summary-story-comparison-file.spec.ts): a selected file's
 // one compared row names its story change after its path.
 
 import type { FileComparisonRow } from "../intentFileProofPage.ts";

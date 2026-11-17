@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_move-intent-ci-proof-comparison-and-candidate-checks.json",
+      "identity": "SEED-334#move-intent-ci-proof-comparison-and-candidate-checks",
+      "completedAt": "2026-11-17T13:41:39.581Z",
+      "blob": "6033e89bb74ef9376eb0e0f0fd290e9f31a3d2db"
+    },
+    {
       "fileName": "SEED-396_replace-evaluation-shell-checks.json",
       "identity": "SEED-396#replace-evaluation-shell-checks",
       "completedAt": "2026-11-17T13:27:58.692Z",

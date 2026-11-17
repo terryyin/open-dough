@@ -1,60 +1,67 @@
-// A selected Intent entry's or folder's Summary table from CI's collected
-// file breakdown (../../src/IntentScopeProof.tsx, ../../src/ciScopeProof.ts,
-// ../intentSummaryCiProofFixtures.ts): a file CI ran that the tree does not
-// list counts once, in a listed folder's row, and outside only in that
-// folder's own Summary; and the evidence labels, the scope's own figures and
-// the table fit a zoomed or narrow window. The Summary's journey:
+// A selected Intent entry's or folder's Summary table from CI's file
+// breakdown (../../src/IntentScopeProof.tsx, ../../src/ciScopeProof.ts): a
+// file CI ran that the tree does not list counts once, in a listed folder's
+// row, and outside only in that folder's own Summary; and the evidence
+// labels, the scope's own figures and the table fit a zoomed or narrow
+// window. The proof answer is controlled
+// (../../tests/support/frontendSummaryCiProof.ts); reading CI's collected
+// bytes into it: ../../backend-tests/intent/ci-proof-extraction.spec.ts and
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   evidenceLabels,
   expectEvidenceLabels,
   expectLabelInFull,
-} from "../ciEvidenceLabelsPage.ts";
-import { run } from "../intentCiProofPage.ts";
+} from "../../tests/ciEvidenceLabelsPage.ts";
 import {
   childName,
   expectScopeRows,
   scopeFigures,
   scopeTable,
-} from "../intentScopeProofPage.ts";
+} from "../../tests/intentScopeProofPage.ts";
 import {
   allParts,
-  bothEntriesSummary,
-  openIntent,
   openSummary,
-} from "../intentSummaryCiProofFixtures.ts";
-import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
-import { wordsBrokenApart } from "../wholeWords.ts";
+} from "../../tests/intentSummaryCiProofFixtures.ts";
 import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-} from "../support/ciProofCollected.ts";
+  twiceZoomedWindow,
+  zoomedWindow,
+} from "../../tests/accessibleReading.ts";
+import { wordsBrokenApart } from "../../tests/wholeWords.ts";
+import {
+  bothEntries,
+  openSummaryCiProof,
+} from "../../tests/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 
 test("a CI file the tree does not list under a listed folder counts once, in that folder's row, and is outside only in that folder's own Summary", async ({
   page,
+  frontendServices,
 }) => {
-  const text = collectedSummary(
-    run,
-    [{ entry: "dashboard/tests", parts: 1 }],
-    [
-      {
-        entries: ["dashboard/tests"],
-        part: 1,
-        of: 1,
-        byFile: true,
-        record: playwrightRecord([
-          ["dashboard/tests/folder/a.spec.ts", "expected", [300]],
+  const { intent } = await openSummaryCiProof(page, frontendServices, [
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .withFile("dashboard/tests/folder/a.spec.ts", {
+            passed: 1,
+            durationMs: 300,
+          })
           // Not in the published tree.
-          ["dashboard/tests/folder/old.spec.ts", "expected", [100]],
-          ["dashboard/tests/root.spec.ts", "expected", [200]],
-        ]),
-      },
-    ],
-  );
-  const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
+          .withFile("dashboard/tests/folder/old.spec.ts", {
+            passed: 1,
+            durationMs: 100,
+          })
+          .withFile("dashboard/tests/root.spec.ts", {
+            passed: 1,
+            durationMs: 200,
+          })
+          .please(),
+      )
+      .please(),
+  ]);
   const one = "1 of 1 part present";
   const summary = await openSummary(intent, "dashboard/tests");
   await expectScopeRows(summary, "dashboard/tests", [
@@ -83,9 +90,13 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
 
 test("at 200% zoom and on a narrow window a folder's Summary figures and table read whole within the reading pane, nothing scrolling sideways", async ({
   page,
+  frontendServices,
 }) => {
-  const text = bothEntriesSummary(true);
-  const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
+  const { intent } = await openSummaryCiProof(
+    page,
+    frontendServices,
+    bothEntries(true),
+  );
   const summary = await openSummary(intent, "dashboard/tests");
   const rows = [
     [

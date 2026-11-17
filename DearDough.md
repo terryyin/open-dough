@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 565. Removed numbers are never reused.
+- Highest allocated local number: 566. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -51,6 +51,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: CI run43850728441/attempt1 on `c14a77abc` failed Distribution Tests2/3 because native-stream guard rejected the new canonical Cursor fixture writer. Retained `5a49ec2ceb85e7219607ab72f03aa6dcace190a4:.planning/slice-plans/666-compare-agent-effort-on-comparable-runs/slice-4-evidence.md` records reproduction, focused repair proof and accepted repair `a399f31a6`.
   - Observed effect: focused CLI/Usage proof passed, but adding a fixture that writes native-shaped rows reached an unchanged global validator outside that proof selection. One CI repair cycle added the exact writer registration and a production-reader rejection counterexample.
   - Inference: matches missed indirect/global validation coverage. No time/token saving is measured; the final full CI gate remains required.
+
+- Execution: SEED-334#move-intent-ci-proof-comparison-and-candidate-checks (plan 651; first implementation `e7aac254bbe59f5dc277d473386359dddf56132d`)
+  - Timestamp: 2026-11-17T12:56:00Z (failed CI job, run 44090579516)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `9aa696980`)
+  - Evidence: slice 8 (`87551c3b`) dropped the emptied `dashboard/tests/intent/**` share from `ci.yml` (`shards: "[1, 2, 3]"`) and ran only `browser-group-shards`, `ci-proof-frontend-report`, `ci-proof-scope` and `ci-proof-leads-table`. The `ci-proof` summary step's `expect` still declared `dashboard/tests=4:case`; `ci-proof-actions.test.mjs:71` and `ci-proof-declaration.test.mjs:97` failed in Distribution Tests 3/3. Repair `309dacb4` set 3; 1346 node tests reading `ci.yml` then passed.
+  - Observed effect: one CI failure and repair cycle on the story branch after the execution-complete record; no trunk impact.
+  - Inference: a matrix-length change reaches every declaration derived from that length in the same workflow; selecting tests by the shard concept missed the CI-proof declaration test that checks it.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -677,3 +686,38 @@ A CI failure arrived when a local full gate launched. The proof-wait rule forbad
   - Evidence: live coordinator tool history and `004d9915bbc222a4404e69531fcf62e005720014:.planning/slice-plans/679-evaluation-checks-state-facts-plainly/diagnosis-ci-share1-deadline.md`. CI run 44077311815/1 reported share 1 failure at local-gate launch. At the first bounded overdue check, the local command had existed for 16m17s while its test children had run for about 13s. Read-only CI logs then established the absolute share cutoff; a workflow-only repair preserved unfiltered evaluation selection while that proof continued.
   - Observed effect: CI classification was deferred roughly one admission window. The original local command stayed owned through its terminal result.
   - Inference: permit bounded read-only failure classification during a proof wait, with checkout mutations still held until safe. This is a triage-latency observation; no total wall-time or token saving is established.
+
+## ODF-338 — Concurrent slices invalidate proof in one checkout <a id="odf-338"></a>
+
+[Meaning, evidence and response](docs/maintainer/findings/ODF-338.md).
+
+### Occurrences
+
+- Execution: SEED-334#move-intent-ci-proof-comparison-and-candidate-checks (plan 651; first implementation `e7aac254bbe59f5dc277d473386359dddf56132d`)
+  - Timestamp: 2026-11-17T11:06:41Z (failed consumer run start)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `9aa696980`)
+  - Evidence: the coordinator ran 130 Frontend `showColumn` consumers for a flake repair while the slice 5 implementer had a scratch break (`useSummarySorting` on `useState`) applied in the same checkout. `intent-summary-ci-proof-sort` failed with folder `aria-sort` empty, exactly that break; 3 of 3 passed on clean source. Record at `309dacb4:.planning/slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/diagnosis-show-column-flake.md`.
+  - Observed effect: one false failure, a rerun and an attribution check; later briefs forbade other proof while a break was active.
+  - Inference: a scratch product break is a checkout-wide input; concurrent proof in that checkout is invalid while it is applied.
+
+## DD-566 — A compound scratch break is accepted as proof that one guard is protected <a id="dd-566"></a>
+
+Slice 8's implementer broke three things at once in `IntentCandidatesRecord.tsx`
+(no abort signal, no stale-read guard, answered over kept) and reported the
+held-answer test failing as proof that an old held answer cannot replace Show
+latest. Acceptance took it. Wrap-up's Intent Coverage check removed only the
+stale-read guards: the test passed 4 of 4, while an independent witness saw the
+departed read show "could not be read at this revision" after Show latest.
+
+### Occurrences
+
+- Execution: SEED-334#move-intent-ci-proof-comparison-and-candidate-checks (plan 651; first implementation `e7aac254bbe59f5dc277d473386359dddf56132d`)
+  - Timestamp: 2026-11-17T13:12:00Z (Intent Coverage report)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `9aa696980`)
+  - Evidence: slice 8 Accepted note at `309dacb4` PLAN.md; Intent Coverage verdict "Assertion gap" at `309dacb4`; queued SEED-334#observe-no-stale-candidate-failure-after-show-latest.
+  - Observed effect: an assertion gap shipped behind a passing scratch break; one queued test-strengthening story.
+  - Inference: a scratch break that changes several mechanisms shows only that some of them matter; a single-mechanism break per promised guard would have exposed the gap at slice acceptance.

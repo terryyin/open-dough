@@ -6,7 +6,7 @@
 // direction. Branch and Landed by signed change at every comparison scope:
 // ./intent-ci-comparison-signed-sort.test.mjs. One run's columns:
 // ./intent-ci-proof-sort.test.mjs. Browser journey:
-// ../../../dashboard/tests/intent/intent-summary-story-comparison-sort.spec.ts.
+// ../../../dashboard/frontend-tests/intent/intent-summary-story-comparison-sort.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { sortedRows } from "../../../dashboard/src/ciProofSort.ts";

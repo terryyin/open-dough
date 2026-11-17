@@ -11,12 +11,14 @@ import {
   offeredShape,
   type OptionsDefinition,
 } from "../../src/commandOptions.ts";
+import type { Page } from "@playwright/test";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { openDoughCandidatesRecord } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { describedRevisions } from "../describedRevisions.ts";
+import { storyBoardFiles } from "../intentCiStoryBoard.ts";
 import {
   defaultFrontendPublishedFiles,
   doughnutSource,
@@ -205,4 +207,27 @@ export function putFrontendPublished(
     backlog: published.backlog,
     files: { ...published.files },
   });
+}
+
+// Publishes the story board's backlog and files.
+export function publishCiStoryBoard(services: FrontendServiceState): void {
+  Object.assign(services, {
+    files: { ...services.files, ...storyBoardFiles },
+    backlog: storyBoardFiles[".planning/PRODUCT-BACKLOG.md"],
+  });
+}
+
+// Publishes Doughnut beside Open Dough, its intent locations not configured.
+export async function publishUnconfiguredDoughnut(
+  page: Page,
+  services: FrontendServiceState,
+): Promise<void> {
+  Object.assign(services, { projects: [...services.projects, doughnutSource] });
+  await page.route(
+    (url) =>
+      url.searchParams.get("intent") === "locations" &&
+      url.searchParams.get("source") === doughnutSource.id,
+    (route) =>
+      route.fulfill({ json: { revision: services.revision, locations: null } }),
+  );
 }

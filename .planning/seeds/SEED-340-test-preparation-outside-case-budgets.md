@@ -68,7 +68,8 @@ Test (`backendGlobalSetup.ts`). The former shared `globalSetup.ts` is gone.
 Each run still builds its registered artifacts when a worker first requests
 them (`runArtifacts.ts`). `side-panel-content-replacement` is now
 `e2e/navigation/side-panel-content-replacement.spec.ts`, and
-`intent-done-source-selection` remains in `dashboard/tests/intent/`. The
+`intent-done-source-selection` is now the Dashboard Frontend Test
+`dashboard/frontend-tests/intent/intent-done-source-selection.spec.ts`. The
 mechanism must cover all three groups, which are run with `npm run test:e2e`,
 `test:dashboard:integrated` and `test:dashboard:backend`.
 
@@ -102,3 +103,15 @@ for server-bundle preparation with zero app requests. Keep the review-state
 case's product assertions intact. The complete report is retained in SEED-391's
 completion record. This is proof strengthening within this preparation story,
 not a new product prerequisite or permission to broaden the implementation.
+
+The E2E case `e2e/intent/intent-ci-comparison-retry.spec.ts:30` ("Check again
+recovers a done Story Branch Baseline that failed once, then asks GitHub
+nothing") timed out twice as a worker's first case at load 27–35 on
+2026-11-17 while hosted CI passed it. Its trace spent about 20 s of the 30 s
+budget before the Check again response: `origin` 4.7 s and `dashboard` 2.6 s
+in-budget fixtures, then about 10 s publishing the compared Story Branch
+(`completedPublishedStory` CLI completion 5.6 s, planning commits 1.6 s). With
+the timeout lifted only to measure, it took 33 s. It is a first case whose own
+arrangement nears the budget once preparation is out. Its
+[diagnosis](https://github.com/terryyin/open-dough/blob/309dacb410f71134bc1ff76b668bed907d541f4d/.planning/slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/diagnosis-comparison-retry-e2e-timeout.md)
+names the remaining options.

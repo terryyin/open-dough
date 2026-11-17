@@ -1,6 +1,7 @@
 // The published tree, CI shards and opened Intent of the Summary CI proof
-// specs (../../e2e/intent/intent-summary-ci-proof.spec.ts and its -gaps, -table and -kept
-// siblings): raw runner reports as CI's collector reads them
+// journeys (../../e2e/intent/intent-summary-ci-proof.spec.ts and its
+// siblings; their frontend-only Summaries: ./support/frontendSummaryCiProof.ts):
+// raw runner reports as CI's collector reads them
 // (./support/ciProofCollected.ts), trunk judged running with its completed
 // ancestor's proof, and every source body read Intent makes of its
 // locations.
@@ -44,10 +45,10 @@ import { intentSettingsText } from "./support/intentSettingsFile.ts";
 export const spec = (name: string) => `import { test } from "@playwright/test";
 test("${name}", async () => {});
 `;
-// The published tree: dashboard/tests lists its specs at any depth, and tests
-// only its root shell checks, so tests/support/check.sh is not listed.
-const published = {
-  ".planning/open-dough.json": intentSettingsText(openDoughSettings),
+// The published tree's test sources: dashboard/tests lists its specs at any
+// depth, and tests only its root shell checks, so tests/support/check.sh is
+// not listed.
+export const summaryTreeSources = {
   "dashboard/tests/root.spec.ts": spec("root"),
   "dashboard/tests/added.spec.ts": spec("added"),
   "dashboard/tests/folder/a.spec.ts": spec("a"),
@@ -55,6 +56,10 @@ const published = {
   "dashboard/tests/folder/nested/c.spec.ts": spec("nested c"),
   "tests/root.sh": "#!/usr/bin/env bash\n",
   "tests/support/check.sh": "#!/usr/bin/env bash\n",
+};
+const published = {
+  ".planning/open-dough.json": intentSettingsText(openDoughSettings),
+  ...summaryTreeSources,
 };
 
 // Two dashboard shards and the tests share, as CI reports them.

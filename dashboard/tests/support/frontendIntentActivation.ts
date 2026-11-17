@@ -10,8 +10,8 @@ import {
   serveFrontendCiStatus,
   storyBoardCiAnswers,
   judgedCiStatus,
-  publishCiStoryBoard,
 } from "./frontendCiStatusAnswers.ts";
+import { publishCiStoryBoard } from "./frontendServiceState.ts";
 import { failing } from "../intentCiStoryBoard.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";

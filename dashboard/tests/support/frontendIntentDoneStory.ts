@@ -4,6 +4,7 @@ import type { ReviewedFile } from "../../src/storyReviewContract.ts";
 import type { IntentLocation } from "../../server/intentLocationsRead.ts";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { ComparedStoryBuilder } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { describedBacklog } from "../describedRevisions.ts";
@@ -33,10 +34,13 @@ export async function prepareFrontendDoneIntent(
     readonly files?: Readonly<Record<string, string>>;
     readonly changed?: readonly ReviewedFile[];
     readonly locations?: readonly IntentLocation[];
+    // Further facts of the Summary-scope comparison, as its builder states them.
+    readonly comparison?: (story: ComparedStoryBuilder) => ComparedStoryBuilder;
   } = {},
 ) {
   putFrontendIntentStory(services, { taken: false, workspace: false });
-  const facts = makeMe.aComparedStory.inSummaryScope().please();
+  const inScope = makeMe.aComparedStory.inSummaryScope();
+  const facts = (historical.comparison?.(inScope) ?? inScope).please();
   const { scope } = facts;
   if (scope === undefined) throw new Error("The Summary scope is required");
   const completion = facts.work.revision;
@@ -105,5 +109,5 @@ export async function prepareFrontendDoneIntent(
   review.answerFile(frontendFileDiff(path, ["+changed"]), path);
   await answerFrontendIntentCi(page, services.revision);
   await answerFrontendIntentComparison(page, facts);
-  return { completion, completedAt, review };
+  return { completion, completedAt, review, identity: facts.identity };
 }

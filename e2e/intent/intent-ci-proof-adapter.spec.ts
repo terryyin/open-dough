@@ -12,7 +12,7 @@ import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
 // A running result's proof is its completed ancestor attempt's, and a slow
 // proof read never delays the verdict. GitHub is asked for no proof. Why an
 // adapter attempt shows no proof: ./intent-ci-proof-adapter-reasons.spec.ts;
-// a GitHub Actions run's proof: ../../dashboard/tests/intent/intent-ci-proof.spec.ts; the runner's own
+// a GitHub Actions run's proof: ../../dashboard/frontend-tests/intent/intent-ci-proof.spec.ts; the runner's own
 // limits:
 // ../../Distribution/tests/skills/dough-execute-plan/ci-command-adapter-proof.test.mjs.
 

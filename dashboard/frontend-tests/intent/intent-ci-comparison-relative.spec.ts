@@ -1,7 +1,7 @@
 import {
   comparisonReading,
   comparisonEntryCell,
-} from "../intentCiComparisonPage.ts";
+} from "../../tests/intentCiComparisonPage.ts";
 // Relative timing changes in a selected story's CI comparison
 // (../../src/IntentCiTimeChange.tsx, ../../src/storyCiRelativeChange.ts):
 // each comparable change shows its signed words beside a mark whose zero sits
@@ -11,15 +11,27 @@ import {
 // and a measured zero baseline show no mark. **Show %** starts off and
 // reveals every percentage together, by keyboard too, without changing the
 // marks or the order, and stays chosen across the story's views and a visit
-// to Project Intent (SEED-275#story-intent-tabs).
+// to Project Intent (SEED-275#story-intent-tabs). The comparison and each
+// run's proof are canonical endpoint answers
+// (../../tests/support/frontendIntentComparison.ts); rule variants are
+// intent-ci-comparison-mounted-relative.spec.ts's and
+// intent-summary-story-comparison-mounted-relative.spec.ts's.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openProjectIntent, returnToStory } from "../intentModePage.ts";
-import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { prepareRelativeComparisonReading } from "../support/relativeCiComparisonReading.ts";
-import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
-import { rowNames, sortButton } from "../support/expectSortedColumns.ts";
+import {
+  openProjectIntent,
+  returnToStory,
+} from "../../tests/intentModePage.ts";
+import {
+  chooseStoryTab,
+  expectStoryTab,
+} from "../../tests/support/intentStoryPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
+import {
+  rowNames,
+  sortButton,
+} from "../../tests/support/expectSortedColumns.ts";
 import {
   expectMark,
   markGeometry,
@@ -27,44 +39,15 @@ import {
   showPercent,
   timeMarks,
   expectPercentageValues,
-} from "../support/relativeTimingMarks.ts";
-
-const timed = (path: string, ms: number) =>
-  makeMe.aCiProofEntry.at(path).timed(ms).please();
-
-// Baseline → Branch → Landed: slower 4 min → 4 min 30 s (+13%) → 5 min
-// (+25%); faster 2 min → 1 min 30 s (−25%) → 1 min (−50%); same 45 s
-// throughout; zero 0 s → 30 s twice; added only after Baseline.
-const entries = {
-  baseline: [
-    timed("e/slower", 240_000),
-    timed("e/faster", 120_000),
-    timed("e/same", 45_000),
-    timed("e/zero", 0),
-  ],
-  branch: [
-    timed("e/slower", 270_000),
-    timed("e/faster", 90_000),
-    timed("e/same", 45_000),
-    timed("e/zero", 30_000),
-    timed("e/added", 30_000),
-  ],
-  landed: [
-    timed("e/slower", 300_000),
-    timed("e/faster", 60_000),
-    timed("e/same", 45_000),
-    timed("e/zero", 30_000),
-    timed("e/added", 30_000),
-  ],
-};
+} from "../../tests/support/relativeTimingMarks.ts";
+import { relativelyTimed } from "../../tests/support/relativelyTimedStory.ts";
 
 test("relative changes share one centred scale, without a mark for an added entry or a zero baseline, and Show % reveals every percentage together", async ({
   page,
+  frontendServices,
 }) => {
-  await prepareRelativeComparisonReading(page, entries, {
-    baseline: 180000,
-    branch: 200000,
-    landed: 240000,
+  await prepareFrontendDoneIntent(page, frontendServices, undefined, {
+    comparison: relativelyTimed,
   });
   const { panel, intent } = await selectDoneStoryForCiComparison(page);
 
@@ -118,8 +101,9 @@ test("relative changes share one centred scale, without a mark for an added entr
     }
   });
 
-  // Branch and Landed of slower, faster and same, and the summary's wall time.
-  const shown = ["+13%", "−25%", "0%", "+25%", "−50%", "0%", "+33%"];
+  // Branch and Landed of slower, faster and same, the summary's wall time and
+  // its unchanged 2 min without runner waits.
+  const shown = ["+13%", "−25%", "0%", "+25%", "−50%", "0%", "+33%", "0%"];
   await test.step("Show % starts off and reveals every percentage together by keyboard, keeping marks and order", async () => {
     const toggle = showPercent(panel);
     await expect(toggle).not.toBeChecked();

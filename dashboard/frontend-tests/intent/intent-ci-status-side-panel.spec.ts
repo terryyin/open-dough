@@ -32,10 +32,10 @@ import { expectSelected } from "../../tests/storyCardSelection.ts";
 import { terminalPanel } from "../../tests/terminalScreenPage.ts";
 import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
 import {
-  publishCiStoryBoard,
   serveFrontendCiStatus,
   storyBoardCiAnswers,
 } from "../../tests/support/frontendCiStatusAnswers.ts";
+import { publishCiStoryBoard } from "../../tests/support/frontendServiceState.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 

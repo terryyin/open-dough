@@ -24,6 +24,32 @@ export async function answerFrontendIntentCi(page: Page, revision: string) {
     .please();
   await serveFrontendCiStatus(page, { main: judgment });
   await serveFrontendCiHistory(page, makeMe.aCiHistoryAnswer.please());
+  await answerEmptyScopeHistory(page, revision);
+  await page.route(
+    (url) =>
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("intent") === "ci-comparison",
+    (route) =>
+      route.fulfill({
+        json: storyCiComparisonAnswerSchema.parse(
+          makeMe.aStoryCiComparison
+            .with({
+              kind: "unavailable",
+              identity:
+                new URL(route.request().url()).searchParams.get("identity") ??
+                "",
+              explanation: "This story has no published completion record.",
+              checkedAt: "2026-11-01T00:00:00.000Z",
+            })
+            .please(),
+        ),
+      }),
+  );
+}
+
+// Answers each scope history read as empty: no landed history at `revision`
+// unless the read names another.
+export async function answerEmptyScopeHistory(page: Page, revision: string) {
   await page.route(
     (url) =>
       url.pathname === authenticatedReadEndpoint &&
@@ -45,25 +71,5 @@ export async function answerFrontendIntentCi(page: Page, revision: string) {
         ),
       });
     },
-  );
-  await page.route(
-    (url) =>
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "ci-comparison",
-    (route) =>
-      route.fulfill({
-        json: storyCiComparisonAnswerSchema.parse(
-          makeMe.aStoryCiComparison
-            .with({
-              kind: "unavailable",
-              identity:
-                new URL(route.request().url()).searchParams.get("identity") ??
-                "",
-              explanation: "This story has no published completion record.",
-              checkedAt: "2026-11-01T00:00:00.000Z",
-            })
-            .please(),
-        ),
-      }),
   );
 }

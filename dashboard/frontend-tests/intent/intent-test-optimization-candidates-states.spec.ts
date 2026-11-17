@@ -1,59 +1,73 @@
-import { readRetry } from "../intentReadRecoveryPage.ts";
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { readRetry } from "../../tests/intentReadRecoveryPage.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent explains absent, unreadable, mismatched, and empty Test
 // Optimization Candidates records on its Optimization Candidates tab while
 // location browsing stays usable on the Intent tab (example 7;
 // ../../src/IntentCandidatesRecord.tsx).
 
-import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
-import { chooseProject, parts } from "../dashboardPage.ts";
-import { expandIntentGroup } from "../intentPerspectivePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { chooseProject, parts } from "../../tests/dashboardPage.ts";
+import { expandIntentGroup } from "../../tests/intentPerspectivePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,
-} from "../pageRequestNotes.ts";
-import { publishFiles } from "../publishedOrigin.ts";
+} from "../../tests/pageRequestNotes.ts";
 import {
   emptyCandidatesRecord,
   mismatchedCandidatesRecord,
-  publishOpenDoughWithCandidates,
+  openDoughSources,
   testOptimizationCandidatesPath,
-} from "../intentCandidatesFixtures.ts";
+} from "../../tests/intentCandidatesFixtures.ts";
 import {
-  browseSpec,
   doughnut,
   doughnutSettings,
   nodeTest,
   openDough,
   openDoughSettings,
-  publishIntentProject,
   pygardon,
   pygardonSettings,
   pythonTest,
-  shellCheck,
-} from "../intentCodeBrowseFixtures.ts";
-import { intentSettingsText } from "../support/intentSettingsFile.ts";
+} from "../../tests/intentCodeBrowseFixtures.ts";
+import { prepareCandidateProjects } from "../../tests/support/frontendIntentCandidates.ts";
 
 test("Intent explains absent, unreadable, mismatched, and empty candidate records without disturbing location browsing", async ({
   page,
+  frontendServices,
 }) => {
   await pausePageClockAt(page, new Date("2026-11-05T08:00:00.000Z"));
   await page.setViewportSize({ width: 1100, height: 800 });
 
-  await publishIntentProject(page, doughnut, doughnutSettings, {
-    "scripts/backend-test-worktree-admission.test.mjs": nodeTest,
-  });
-  await publishOpenDoughWithCandidates(page, emptyCandidatesRecord);
-  await publishIntentProject(page, pygardon, pygardonSettings, {
-    [testOptimizationCandidatesPath]: mismatchedCandidatesRecord,
-    "tests/test_example.py": pythonTest,
-  });
+  const openDoughEmpty = {
+    project: openDough,
+    settings: openDoughSettings,
+    files: {
+      ...openDoughSources,
+      [testOptimizationCandidatesPath]: emptyCandidatesRecord,
+    },
+  };
+  const { publish } = await prepareCandidateProjects(page, frontendServices, [
+    {
+      project: doughnut,
+      settings: doughnutSettings,
+      files: { "scripts/backend-test-worktree-admission.test.mjs": nodeTest },
+    },
+    openDoughEmpty,
+    {
+      project: pygardon,
+      settings: pygardonSettings,
+      files: {
+        [testOptimizationCandidatesPath]: mismatchedCandidatesRecord,
+        "tests/test_example.py": pythonTest,
+      },
+    },
+  ]);
 
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
@@ -86,6 +100,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
   await test.step("Ex 7 empty: both pending and accepted are None.", async () => {
     await chooseProject(page, "Open Dough");
     await chooseOptimizationCandidates(intent);
+    await expectCandidatesRevision(intent, openDough.revision);
     await expect(candidatesRecord(intent)).toContainText(
       "This record has no pending candidates or accepted necessary costs.",
     );
@@ -109,6 +124,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
   await test.step("Ex 7 mismatched: no partial guess; locations still browse", async () => {
     await chooseProject(page, "Pygardon");
     await chooseOptimizationCandidates(intent);
+    await expectCandidatesRevision(intent, pygardon.revision);
     await expect(candidatesRecord(intent)).toContainText(
       `${testOptimizationCandidatesPath} is not a Test Optimization Candidates record`,
     );
@@ -131,17 +147,10 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
 
   await test.step("Ex 7 unreadable: own explanation with retry; locations still browse", async () => {
     const revision = "e5".repeat(20);
-    await publishFiles(page, {
-      repository: openDough.repository,
-      ref: openDough.ref,
-      revision,
-      files: {
-        ...openDough.files,
-        ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-        "dashboard/tests/intent-gherkin-browse.spec.ts": browseSpec,
-        "tests/compare-versions.sh": shellCheck,
-      },
-      unanswered: [testOptimizationCandidatesPath],
+    publish({
+      ...openDoughEmpty,
+      project: { ...openDough, revision },
+      candidatesProblem: "unreadable",
     });
     await openUntilRead(page, "/?project=open-dough&perspective=intent");
     await chooseOptimizationCandidates(intent);

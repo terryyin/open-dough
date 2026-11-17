@@ -14,32 +14,17 @@ import {
   percentages,
 } from "../../tests/support/relativeTimingMarks.ts";
 import { rowNames } from "../../tests/support/expectSortedColumns.ts";
-
-// Baseline, Branch and Landed times of entries that slow down, speed up,
-// stay, start at zero or are added.
-const relativeTimes: Record<string, (number | undefined)[]> = {
-  "e/slower": [240_000, 270_000, 300_000],
-  "e/faster": [120_000, 90_000, 60_000],
-  "e/same": [45_000, 45_000, 45_000],
-  "e/zero": [0, 30_000, 30_000],
-  "e/added": [undefined, 30_000, 30_000],
-};
-
-const relativelyTimed = (times = relativeTimes) =>
-  makeMe.aComparedStory.wallTimed().withEntries(
-    [0, 1, 2].map((at) =>
-      Object.entries(times).flatMap(([path, ms]) => {
-        const time = ms[at];
-        if (time === undefined) return [];
-        return [makeMe.aCiProofEntry.at(path).counting(1).timed(time).please()];
-      }),
-    ),
-  );
+import {
+  relativelyTimed,
+  relativeTimes,
+} from "../../tests/support/relativelyTimedStory.ts";
 
 test("summary and entries share a centred fifty percent scale with faster left and slower right", async ({
   renderComparison,
 }) => {
-  const panel = await renderComparison(relativelyTimed().please());
+  const panel = await renderComparison(
+    relativelyTimed(makeMe.aComparedStory).please(),
+  );
   await expect(comparisonEntryCell(panel, "e/slower", "Branch")).toHaveText(
     "+30 s",
   );
@@ -74,7 +59,9 @@ test("summary and entries share a centred fifty percent scale with faster left a
 test("measured unchanged time is centred while added and zero-baseline entries have no relative mark", async ({
   renderComparison,
 }) => {
-  const panel = await renderComparison(relativelyTimed().please());
+  const panel = await renderComparison(
+    relativelyTimed(makeMe.aComparedStory).please(),
+  );
   await expect(comparisonEntryCell(panel, "e/same", "Landed")).toHaveText(
     "0 s",
   );
@@ -92,7 +79,7 @@ test("measured unchanged time is centred while added and zero-baseline entries h
 test("Show % displays every comparable percentage without changing sort or geometry", async ({
   renderComparison,
 }) => {
-  const story = relativelyTimed()
+  const story = relativelyTimed(makeMe.aComparedStory)
     .withLanded({
       timeWithoutRunnerWaits: { reason: "No job graph was recorded." },
     })
@@ -140,7 +127,7 @@ test("Show % displays every comparable percentage without changing sort or geome
 test("a one hundred fifty percent outlier widens every mark's shared scale", async ({
   renderComparison,
 }) => {
-  const story = relativelyTimed({
+  const story = relativelyTimed(makeMe.aComparedStory, {
     ...relativeTimes,
     "e/outlier": [60_000, 150_000, 150_000],
   }).please();

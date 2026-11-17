@@ -16,16 +16,18 @@ rule count alone does not measure the developer's feedback path.
 | Production presentation | **Dashboard Frontend Test** static rendering cases under `frontend-tests/intent/intent-ci-comparison-*` and `intent-summary-story-comparison-*` use actual production TSX/full CSS and fresh pages with controlled answers. Separate mounted bindings own real sort/Show %/navigation callbacks, providers and native keyboard actions. |
 | Actual acquisition | `ci-comparison-history-integration.spec.ts`: real Git history through the production acquisition boundary; `intent-ci-comparison.spec.ts` and `intent-ci-comparison-adapter.spec.ts`: default GitHub/adapter acquisition to displayed Done comparison |
 | Exceptional acquisition | `intent-ci-comparison-cancelled-landing.spec.ts`, `intent-ci-comparison-taken.spec.ts` and `intent-ci-comparison-adapter-taken.spec.ts`: cancelled later-build, pushed-head and adapter Taken connections |
-| Navigation and preferences | `intent-ci-comparison-drilldown-relative.spec.ts`, `intent-ci-comparison-relative.spec.ts`, `intent-summary-story-comparison-file.spec.ts`, `-renamed.spec.ts`, `-sort.spec.ts` and `-source.spec.ts`: built-app scope navigation, keyboard/Purpose/Review, source pinning and cross-story preference continuity |
-| Held reads and retry | `intent-ci-comparison-locations.spec.ts` and `intent-ci-comparison-retry.spec.ts`: comparison visibility during held/failing reads, actual API and upstream request accounting, same-process recovery and real shallow-history recovery |
+| Built-app counts and relative marks | Frontend `intent-ci-comparison-count-gaps.spec.ts` and `intent-ci-comparison-relative.spec.ts` over canonical endpoint answers: count gaps across overall, entry, Summary, file Proof and tree evidence; shared signed-mark scale, Show % by keyboard and its continuity through Project Intent |
+| Navigation and preferences | Frontend `intent-ci-comparison-drilldown-relative.spec.ts`, `intent-summary-story-comparison-file.spec.ts` and `-sort.spec.ts` over canonical endpoint answers: scope navigation with per-display scales, Show % and sort continuity across stories, keyboard/Purpose return, merge-edited Proof, and no Summary source-text or comparison/proof rereads; E2E `intent-summary-story-comparison-renamed.spec.ts` and `-source.spec.ts`: acquired source pinning |
+| Held reads and retry | Frontend `intent-ci-comparison-locations.spec.ts` over canonical endpoint answers: one header and usable comparison while historical locations are held or failed, Changed tests loading/failure/Retry at the completion revision, and no browser comparison reread; E2E `intent-ci-comparison-retry.spec.ts`: actual API and upstream request accounting, same-process recovery and real shallow-history recovery |
 | Landed recovery connections | Backend `intent-ci-comparison-pending-proof.spec.ts` keeps three real-server connections: an equivalent landing's malformed listing bytes through the default parsers to the public pending gap, the measured point and final reuse; and, for each provenance, a provider-directed wait under the request owner's controlled clock and one owner process. `intent-ci-comparison-receipt.spec.ts` and `landed-ci-history-comparison-run.spec.ts` retain the persisted receipt lifetime and public history. A later landing's proof wait past the revision walk has no real-server case; see the [later pending-proof coverage map](#later-pending-proof-coverage-map). Browser `intent-ci-comparison-missing-run.spec.ts`, `-pending-proof.spec.ts` and `-trunk-finality.spec.ts` retain actual controls, timing/source cues and Trunk NoBuild despite an available later build. |
 | Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `e2e/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
 
-Backend filenames above are under `dashboard/backend-tests/intent/`;
-presentation filenames under `dashboard/frontend-tests/intent/`; other browser
-filenames are under `dashboard/tests/intent/`. The rendering and in-process
-cases replace rule variants formerly repeated through whole-app setup. The
-retained journeys own connections those boundaries cannot establish.
+Backend filenames above are under `dashboard/backend-tests/intent/`,
+presentation and other Frontend filenames under
+`dashboard/frontend-tests/intent/`, and E2E filenames under `e2e/intent/`. The
+rendering and in-process cases replace rule variants formerly repeated through
+whole-app setup. The retained journeys own connections those boundaries cannot
+establish.
 
 ## Arrangement and isolation
 
@@ -88,9 +90,6 @@ npm run test:dashboard:backend -- \
   backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
   backend-tests/intent/landed-ci-history-comparison-run.spec.ts \
   backend-tests/intent/landed-ci-history-no-proof-recovery.spec.ts
-npm run test:dashboard:integrated -- \
-  tests/intent/intent-ci-comparison \
-  tests/intent/intent-summary-story-comparison
 npm run test:e2e -- \
   intent/intent-ci-comparison \
   intent/intent-summary-story-comparison \

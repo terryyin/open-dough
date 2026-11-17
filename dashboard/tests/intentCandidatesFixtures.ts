@@ -1,5 +1,5 @@
 // Published Test Optimization Candidates records for Intent journeys
-// (`./intent/intent-test-optimization-candidates.spec.ts`), shaped like the real
+// (`../frontend-tests/intent/intent-test-optimization-candidates.spec.ts`), shaped like the real
 // Open Dough, Doughnut, and Pygardon records summarised in SEED-192.
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
