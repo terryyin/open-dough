@@ -176,11 +176,15 @@ test("overlapping E2E patterns fail every shard and the unsplit run before any t
 
 test("an integrated pattern matching no spec fails the configuration naming it", () => {
   // Every spec moved out of a folder shard 1 names, its pattern left behind.
-  const edit = (text) =>
-    text.replace(
-      "1: dashboard/tests/navigation/board-*",
-      "1: dashboard/tests/retired/** dashboard/tests/navigation/board-*",
-    );
+  const edit = (text) => {
+    const start = text.indexOf("\n  dashboard-integrated:");
+    assert.ok(start >= 0, "the integrated group is not in the workflow");
+    const edited =
+      text.slice(0, start) +
+      text.slice(start).replace(/^( +1: )/m, "$1dashboard/tests/retired/** ");
+    assert.notEqual(edited, text, "the scratch edit did not apply");
+    return edited;
+  };
   withScratchGroup(
     "dashboard-integrated",
     { edit },

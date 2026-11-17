@@ -363,3 +363,12 @@ declared shard.
 Slice-plan refinement was not needed: slices follow spec families within
 plan 647's measured per-slice range, and no slice holds an independent second
 outcome. This review found no remaining slice-specific concern.
+
+## CI repairs
+
+- Slice 3 (`e10d6698`, run 44113467112/1, Distribution Tests 3/3):
+  `browser-group-shards.test.mjs` "an integrated pattern matching no spec fails
+  the configuration naming it" replaced the literal `1: dashboard/tests/navigation/board-*`,
+  which slice 3 dropped, so its scratch edit did nothing. It now prefixes the
+  integrated group's shard 1 line whatever it names and fails if the edit does
+  not apply; `node --test` on it and its two sibling shard tests passed 20/20.
