@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Tests protect their own behavior without incidental coupling](seeds/SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof) — SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
+- [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract
 - [Try an unfamiliar improvement by redoing its source story](seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story) — SEED-393#try-guidance-improvements-by-redoing-the-source-story
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
 - [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story

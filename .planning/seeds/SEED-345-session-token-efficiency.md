@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-14
 planted_during: Terry Yin requested Codex, Cursor and Claude Code token-efficiency audits and retention of their reconciled findings
 trigger_when: Terry selects an efficiency story for refinement
-scope: six stories
+scope: seven stories
 ---
 
 # SEED-345 — Improve session token efficiency across Open Dough projects
@@ -234,6 +234,56 @@ Each trial is judged with the
 - **Effort and boundary.** Small, medium confidence. Independent review and
   role-specific reads keep their purpose.
   [Cursor handoff evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
+
+<a id="test-agent-effort-through-its-output-contract"></a>
+
+### Test agent effort through its output contract
+
+**Identity:** SEED-345#test-agent-effort-through-its-output-contract
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Scope and beneficiary.** Follow-up of the done story
+  SEED-345#compare-agent-effort-on-comparable-runs. Maintainers comparing
+  agent effort, and developers changing the effort report, get tests that
+  state what the report promises instead of how it is built today.
+- **Observed problem (2026-11-17 review).** The twelve
+  `dashboard/backend-tests/usage-history/agent-effort-*.spec.ts` files drive the
+  highest stable entry, `node dashboard/server/compareAgentEffort.ts`, so the
+  entry rule holds. But they mirror the code's structure: spec files were cut
+  module by module and slice by slice (`agentEffortCursor` ↔ `agent-effort-cursor`,
+  `agentEffortComparisonGroup` ↔ `agent-effort-group-coverage`,
+  `agentEffortNativeSummary` ↔ `agent-effort-native-family`, …), placed by the
+  slice that touched them (a single-family inclusive-input case lives in
+  `agent-effort-comparison.spec.ts`), and many cases are one regression per
+  execution patch (plan 666 obligations G1–G14). `--json` is
+  `JSON.stringify` of the internal report and the readable mode stringifies
+  internal fragments, so assertions on deep paths
+  (`candidate.perHost[0].totals.totalInput.value`), internal status strings and
+  gap codes held by one module couple the tests to internals. The harness types
+  results via `ReturnType<typeof compareEffort>`.
+- **Outcome.** `dashboard/AGENT-EFFORT.md` defines the JSON and readable
+  output a maintainer acts on: figures, their known/partial/unavailable
+  coverage, selection boundaries and named gaps. The CLI maps internal results
+  to that contract rather than dumping them; the harness types from the
+  contract. The specs are regrouped by maintainer question (what one execution
+  cost, how two groups compare, what stays unknown and why, how selections
+  resolve), each with a few representative examples, and patch-shaped cases
+  are folded in or removed when another example already protects their promise.
+- **Extended refactoring scope.** Behind the contract, reshape the
+  `agentEffort*.ts` modules by responsibility where the regrouping exposes
+  duplicated totals, coverage or deduplication logic across hosts, single and
+  group reports. Keep public CLI flags and documented behavior unchanged.
+- **Evaluation.** Every promise currently protected stays protected: for each
+  removed or merged case, name the surviving example that would fail under the
+  same fault. An internal rename or module split that preserves the documented
+  output leaves every spec untouched. No spec imports production types.
+- **Effort and boundary.** Medium, medium confidence. Read-only maintainer
+  tool; no Usage, dashboard UI or native-run changes and no paid runs.
+  [SEED-393 test focus](SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof)
+  owns the guidance side of the same pattern; this story fixes this code.
+  **Depends on:** none.
 
 ## Ordering and scope reduction
 
