@@ -48,3 +48,7 @@ export function countAuthenticatedReads(
   });
   return () => reads;
 }
+
+// How many reads of one project's published source the page has asked from now on.
+export const countProjectReads = (page: Page, source: string) =>
+  countAuthenticatedReads(page, (params) => params.get("source") === source);

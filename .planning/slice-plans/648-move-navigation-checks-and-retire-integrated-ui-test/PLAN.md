@@ -481,7 +481,7 @@ empty after):
 
 ### 7. Preserve project selection and keyboard navigation
 Type: Behavior
-Status: planned
+Status: done
 Proof: `project-selection`, `project-keyboard-navigation`,
 `project-keyboard-navigation-eligibility`, `project-keyboard-navigation-focus`
 (625 lines): selection, page-wide arrow cycling, protected contexts and
@@ -495,6 +495,56 @@ checks (`Distribution/tests/support/ci-browser-groups.test.mjs`) and
 Behavior: arrow keys and project choice → the eligible project selected with
 focus kept; the interim group still runs its remaining specs in every
 declared shard.
+
+Assertion map (all homes under `dashboard/frontend-tests/navigation/`, same
+test names; projects answer through `answerOwnPublications` /
+`answerCatalogProjects`):
+- `project-selection` both tests → `project-selection.spec.ts`. Each
+  project's own Board after a switch, with no other project's stories (slice
+  2's reliance), is its `expectMembership` plus `not.toContainText` lines in
+  "selecting Doughnut…" and "returning to Open Dough…". The GitHub `ref` /
+  `content` request lists become the page's authenticated reads per `source`
+  (`countAuthenticatedReads`): Doughnut 0 before its choice, Open Dough
+  unchanged while Doughnut shows, Open Dough read again on return. Shared
+  identity, selection moving between projects and canonical-record links stay
+  as they were.
+- `project-keyboard-navigation` (3 tests) → `project-keyboard-navigation.spec.ts`;
+  the roster step opens `?view=roster` and checks the roster names Doughnut
+  after ArrowRight with `view=roster` kept. Doughnut's failed-profile wording
+  ("Assignment unknown…") stays with `e2e/stories/agent-roster.spec.ts` "a card's agent portrait opens the project's agent roster, …" (29 "Assignment unknown. Agent profiles could not be read." members).
+- `project-keyboard-navigation-eligibility` (help modal, editable and other
+  arrow controls, prevented keys; modified keys) →
+  `project-keyboard-navigation-eligibility.spec.ts`; Open Dough from
+  `openFrontendTakenBacklog` (preparation badges supply the help control).
+- `project-keyboard-navigation-focus` → `project-keyboard-navigation-focus.spec.ts`:
+  the held previous read is every Doughnut read held by
+  `holdAuthenticatedReadsWhere`; Open Dough republished at `e2…` must show
+  alone with System settings focused, and after release no Doughnut story
+  shows and no further Doughnut read was made (`countAuthenticatedReads`).
+- `publishCatalogProjects` left `dashboard/tests/projectKeyboardNavigationJourney.ts`
+  (no consumer remains).
+
+Scratch breaks (Frontend boundary, each reverted, `git diff dashboard/src`
+empty after):
+- `src/projectKeyboardNavigation.ts` dropped `event.shiftKey` from the
+  modifier test and planned focus never moved to the selected radio:
+  `npx playwright test --config dashboard/frontend.playwright.config.ts
+  …/project-keyboard-navigation*.spec.ts --workers=2` exit 1; "modified arrow
+  keys do not cycle projects" (Open Dough not checked) and "focus stays
+  useful…" (Pygardon radio not focused) failed; the other 4 passed.
+- `src/authenticatedGet.ts` stopped passing `signal` and `src/requestedRead.ts`
+  dropped both `signal.aborted` returns: the focus spec exit 1, the held step
+  never showed Open Dough's new Board. (Dropping only the `requestedRead.ts`
+  returns passed: the departure abort still ends the held fetch.)
+- Restored: 8 new tests passed, then with `dashboard-header*` and
+  `development-intent-frame*` consumers 22 passed.
+
+Interim group: `shards: "[1, 2]"`, `1: dashboard/tests/navigation/source-*`,
+shard 2 the remainder. `OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT=1/2 … --list`
+3 tests in 1 file, `2/2` 30 tests in 10 files, unsplit 33 in 11, none of the
+30 story files. `dashboard/tests/shards.md` table and job counts now say 2 and
+17. `browser-group-shards.test.mjs` "an integrated pattern matching no spec…"
+derives its splits from the group's declared count.
 
 ## Decisive premises and observations
 

@@ -1,41 +1,33 @@
 // Protected keyboard contexts keep their own arrow behavior and leave the
 // selected project unchanged until an eligible page-wide shortcut resumes.
 
-import { expect, test } from "../dashboardTest.ts";
-import { expectRoute, openDough } from "../agentRosterRecords.ts";
-import { parts, projectTab } from "../dashboardPage.ts";
-import { catalogPublications } from "../catalogProjectRecords.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { publishFiles } from "../publishedOrigin.ts";
 import {
-  buildOpenDoughReadinessRepo,
-  plannedReady,
-} from "../storyReadinessFixture.ts";
-import { publishCatalogProjects } from "../projectKeyboardNavigationJourney.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import { settings } from "../support/systemSettingsPage.ts";
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import {
+  answerCatalogProjects,
+  answerOwnPublications,
+} from "../../tests/support/frontendCatalogProjects.ts";
+import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
+import { expectRoute } from "../../tests/agentRosterRecords.ts";
+import { parts, projectTab } from "../../tests/dashboardPage.ts";
+import { settings } from "../../tests/support/systemSettingsPage.ts";
+
+type PreventingWindow = Window & {
+  __projectArrowPrevent?: (event: KeyboardEvent) => void;
+};
 
 test("help modal, editing, other arrow controls, and prevented keys leave the project unchanged", async ({
   page,
-  afterGitHubStops,
+  frontendServices,
 }) => {
-  const repo = await buildOpenDoughReadinessRepo(afterGitHubStops);
-  await publishCommittedOrigin(page, {
-    repoDir: repo.directory,
-    revision: repo.revision,
-    repository: openDough.repository,
-  });
-  for (const published of [
+  await answerOwnPublications(page, frontendServices, [
     catalogPublications.doughnut,
     catalogPublications.pygardon,
-  ]) {
-    await publishFiles(page, published);
-  }
-
-  await openUntilRead(page);
-  await expect(
-    page.getByRole("article", { name: plannedReady.title }),
-  ).toBeVisible();
+  ]);
+  await openFrontendTakenBacklog(page);
   const { preparationHelp } = parts(page);
   await expect(projectTab(page, "Open Dough")).toBeChecked();
 
@@ -95,30 +87,23 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
         }
       };
       window.addEventListener("keydown", prevent, true);
-      (
-        window as Window & {
-          __projectArrowPrevent?: (event: KeyboardEvent) => void;
-        }
-      ).__projectArrowPrevent = prevent;
+      Object.assign(window, { __projectArrowPrevent: prevent });
     });
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     await expect(projectTab(page, "Open Dough")).toBeChecked();
     await page.evaluate(() => {
-      const prevent = (
-        window as Window & {
-          __projectArrowPrevent?: (event: KeyboardEvent) => void;
-        }
-      ).__projectArrowPrevent;
-      if (prevent) {
-        window.removeEventListener("keydown", prevent, true);
-      }
+      const prevent = (window as PreventingWindow).__projectArrowPrevent;
+      if (prevent) window.removeEventListener("keydown", prevent, true);
     });
   });
 });
 
-test("modified arrow keys do not cycle projects", async ({ page }) => {
-  await publishCatalogProjects(page);
+test("modified arrow keys do not cycle projects", async ({
+  page,
+  frontendServices,
+}) => {
+  await answerCatalogProjects(page, frontendServices);
   await page.goto("/");
   await settings(page).focus();
 

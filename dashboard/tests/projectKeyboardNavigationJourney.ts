@@ -16,8 +16,6 @@ import {
   catalogExpectations,
   type CatalogExpectation,
 } from "./catalogProjectExpectations.ts";
-import { catalogPublications } from "./catalogProjectRecords.ts";
-import { publishFiles } from "./publishedOrigin.ts";
 
 export const {
   openDough: openDoughProject,
@@ -25,12 +23,6 @@ export const {
   pygardon: pygardonProject,
   terryTalks: terryTalksProject,
 } = catalogExpectations;
-
-export async function publishCatalogProjects(page: Page): Promise<void> {
-  for (const published of Object.values(catalogPublications)) {
-    await publishFiles(page, published);
-  }
-}
 
 // The Board shows this catalog project's one Taken and one Backlog story.
 export async function expectCatalogStories(

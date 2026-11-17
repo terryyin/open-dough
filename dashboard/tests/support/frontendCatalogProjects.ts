@@ -12,20 +12,33 @@ import {
 import { installFrontendIntentRevisionAnswers } from "./frontendIntentRevisionAnswers.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 
-// Lists `publications` after the listed projects, each answering its own.
+// Lists `publications` after the listed projects, each answering its own; a
+// later `publish` moves a project to its newly published revision.
 export async function answerOwnPublications(
   page: Page,
   services: FrontendServiceState,
   publications: readonly CatalogPublication[],
-): Promise<void> {
+) {
   const answers = await installFrontendIntentRevisionAnswers(page, services);
-  for (const project of publications) {
+  const publish = (project: CatalogPublication) => {
     answers.publish({
       project,
       locations: { revision: project.revision, locations: null },
       files: {},
     });
-  }
+  };
+  publications.forEach(publish);
+  return { publish };
+}
+
+// Lists `publications` only, each answering its own.
+export async function answerOnlyPublications(
+  page: Page,
+  services: FrontendServiceState,
+  publications: readonly CatalogPublication[],
+) {
+  Object.assign(services, { projects: [] });
+  return answerOwnPublications(page, services, publications);
 }
 
 // Lists the catalog projects only, each answering its own publication.
@@ -33,8 +46,7 @@ export async function answerCatalogProjects(
   page: Page,
   services: FrontendServiceState,
 ): Promise<void> {
-  Object.assign(services, { projects: [] });
-  await answerOwnPublications(
+  await answerOnlyPublications(
     page,
     services,
     Object.values(catalogPublications),

@@ -188,8 +188,9 @@ test("an integrated pattern matching no spec fails the configuration naming it",
   withScratchGroup(
     "dashboard-integrated",
     { edit },
-    ({ testDir, selection }) => {
-      for (const split of [undefined, "1/3", "3/3"])
+    ({ testDir, selection, shards }) => {
+      // The share naming the pattern, the last share, and the whole group.
+      for (const split of [undefined, `1/${shards}`, `${shards}/${shards}`])
         assert.throws(
           () => dashboardTestMatch(testDir, split, selection),
           new Error(

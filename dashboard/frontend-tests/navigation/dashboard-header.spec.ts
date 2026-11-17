@@ -9,9 +9,8 @@
 // reads on one line. Phone-width compact journeys are
 // ./dashboard-header-compact.spec.ts's.
 
-import type { Page } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import { countAuthenticatedReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 import {
   answerCatalogProjects,
@@ -51,10 +50,6 @@ import {
   openDoughProject,
 } from "../../tests/projectKeyboardNavigationJourney.ts";
 
-// The page's published reads of one project: none is read again unasked.
-const projectReads = (page: Page, source: string) =>
-  countAuthenticatedReads(page, (params) => params.get("source") === source);
-
 const layouts = [
   { width: 1280, height: 800, compact: false },
   { width: 700, height: 720, compact: false },
@@ -80,7 +75,7 @@ for (const viewport of layouts) {
       pygardon,
       terryTalks,
     ]);
-    const openDoughReads = projectReads(page, "open-dough");
+    const openDoughReads = countProjectReads(page, "open-dough");
     await page.goto("/");
     // A wider installed font reproduces the Linux first-row wrapping; the
     // same geometry, text and keyboard promises must still hold.
@@ -177,8 +172,8 @@ test("banner project selection reads the selected project's actual published wor
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await answerCatalogProjects(page, frontendServices);
-  const openDoughReads = projectReads(page, "open-dough");
-  const doughnutReads = projectReads(page, "doughnut");
+  const openDoughReads = countProjectReads(page, "open-dough");
+  const doughnutReads = countProjectReads(page, "doughnut");
   await page.goto("/");
   const { banner, project } = parts(page);
   const sessions = sessionsSidebarParts(page).button;
