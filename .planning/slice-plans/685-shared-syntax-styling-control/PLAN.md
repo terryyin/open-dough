@@ -156,3 +156,7 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
   when the board is hidden.
 - Intent docs at the 250-line ceiling: keep Off/Default detail in
   `dashboard/STORY-REVIEW-FILES.md` and a short cross-link in Intent.
+
+## Execution complete
+
+Product advice: reasoned no-change — shared Off/Default syntax styling is delivered; parallel terminal-theme stack remains by design until a third machine-local preset appears; sibling emphasize-changed-words stays Taken and orthogonal.

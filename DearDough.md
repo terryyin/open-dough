@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 568. Removed numbers are never reused.
+- Highest allocated local number: 569. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -796,3 +796,21 @@ records. Agents replaced it with a targeted `git grep` and said so.
   - Evidence: slice 1 implementer: run "dominated by changed-path basename matches (87KB of planning-file hits)". Slices 2–4 implementers: output "dominated by findings and planning noise" and "loose sub-terms (Peak, Wakes, AGENT-EFFORT)". Each then used targeted `git grep` for production and test consumers.
   - Observed effect: the scripted trace did not supply the disposition in any of the four slices. Agents' targeted searches found the consumers, and coordinator acceptance verified them.
   - Inference: possibly related to ODF-350 and ODF-352 (broad or data-derived terms), but here the noise came from path basenames and planning records with ordinary symbol terms. Token cost was not measured.
+
+## DD-569 — Implementer focused-proof logs stay under /tmp, so acceptance re-runs the same gates <a id="dd-569"></a>
+
+Slice implementers write focused proof under an ephemeral `/tmp` directory when the
+plan `proof/` path is not used. The return already reports green results, but the
+coordinator cannot recover durable logs beside the plan and re-runs the same
+commands into `.planning/.../proof/` before delivery.
+
+### Occurrences
+
+- Execution: SEED-387#shared-syntax-styling-control (first implementation `0e5cd3be0671d37c5470fe7f5b79bae06947a989`; Behavior tip `d2e7a1b45b84b64cb362391ed8321be37309c182`)
+  - Timestamp: unknown (2026-11-18 +08:00; between slice-2 return and publish `d2e7a1b45`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `423bfe2ba2da6533c91692001c53ee31864b1880`)
+  - Evidence: slice-2 implementer `4ad1b464-60a8-4d49-967a-6c5ad164926b` wrote logs under `/tmp/dough-slice-2-proof-59355` after a slice-clock path issue, then returned green journey/e2e/Default-consumer/typecheck/lint counts. Coordinator turn after return searched `/tmp` and plan `proof/`, then re-ran journey, e2e and Default consumers into `.planning/slice-plans/685-shared-syntax-styling-control/proof/s2-*.log` before refactor/delivery. Slice 1 had already used the plan `proof/` path successfully.
+  - Observed effect: one extra full focused-proof cycle on the same green gates solely to place durable acceptance logs; no disputed product result and no CI impact.
+  - Inference: naming the plan `proof/` directory (as slice 1 did) or copying `/tmp` logs into it on return would skip the re-run; elapsed/token saving is unmeasured.
