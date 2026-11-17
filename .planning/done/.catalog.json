@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-375_keep-container-diagnostics-from-replacing-host-suite-admission.json",
+      "identity": "SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission",
+      "completedAt": "2026-11-17T16:08:18.892Z",
+      "blob": "bf40d8c486250954151cf46a9073b51d189527a0"
+    },
+    {
       "fileName": "SEED-345_split-the-agent-effort-contract-guide.json",
       "identity": "SEED-345#split-the-agent-effort-contract-guide",
       "completedAt": "2026-11-17T15:29:10.332Z",

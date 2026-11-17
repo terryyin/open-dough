@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Kirara-chan",
-  "email": "kirara-chan@example.org",
-  "identity": "SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission",
-  "mode": "story-branch",
-  "branch": "claude/keep-container-diagnostics-from-replacing-a-live",
-  "host": "claude"
-}
