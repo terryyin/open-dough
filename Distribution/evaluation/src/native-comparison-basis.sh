@@ -25,7 +25,7 @@ declare -gA native_comparison_basis_digests=()
 native_comparison_basis_lacking=0
 
 # Leaves case_identity, the pathspec of the case files under CASE_DIR that
-# native_comparison_case_files (native-comparison-run.sh) hashes: all but
+# native_guidance_check_case_files (native-guidance-check-run.sh) hashes: all but
 # the case's description and its kept comparisons.
 native_comparison_basis_case_identity() {
   case_identity=("$1" ":(exclude)$1/case.md" ":(exclude)$1/comparisons")
@@ -160,7 +160,7 @@ native_comparison_basis_observe() {
   printf 'recorded-inputs: %s\n' "${#native_comparison_basis_paths[@]}"
   name=$(sed -nE 's/^(comparison|case): (native-comparison\/)?//p' "${record}" | head -n 1)
   for path in "${native_comparison_basis_paths[@]}"; do
-    [[ ${path} == *"native-comparison/${name}/"* || ${path} == *"cases/comparison/${name}/"* ]] || continue
+    [[ ${path} == *"native-comparison/${name}/"* || ${path} == *"cases/comparison/${name}/"* || ${path} == *"cases/guidance-checks/${name}/"* ]] || continue
     native_comparison_basis_case_dir=${path%%"/${name}/"*}/${name}
     break
   done

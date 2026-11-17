@@ -47,7 +47,6 @@ if it finds a root-level `.sh` or `.test.mjs` file.
 | [Git publication](git-publication/) | Worktree preparation, admission, publication, and landing |
 | [Installation](installation/) | Install, release verification, payload checks, and updates |
 | [MakeMe](makeme/) | Test-entry selection and installed MakeMe guidance |
-| [Native comparison](native-comparison/) | Comparison cases, baselines, and recovery |
 | [Native harness](native-harness/) | Host setup, streams, timeouts, and retained results |
 | [Product backlog](product-backlog/) | Installed backlog editing and Take |
 | [Test runner](test-runner/) | Discovery, execution, reporting, and browser runner isolation |
@@ -205,11 +204,12 @@ Native checks read a Claude Code, Codex, or Cursor output stream only through
 one reader, and a replay check holds that reader to retained real streams:
 [native host streams](../evaluation/native-host-streams.md).
 
-## Native comparison cases
+## Native guidance checks
 
-Versioned examples from real work compare a baseline and a candidate payload
-in fresh native sessions on demand; routine runs use substitute hosts only:
-[native comparison cases](../evaluation/comparison.md).
+Versioned examples from real work check guidance in fresh native sessions on
+demand, alone or as a baseline-candidate pair; routine runs use substitute
+hosts only: [Native guidance checks](../evaluation/guidance-checks.md) and
+[comparisons](../evaluation/comparison.md).
 
 ## Shared installation and update protections
 

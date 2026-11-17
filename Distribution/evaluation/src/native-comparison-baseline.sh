@@ -4,14 +4,14 @@
 # shellcheck disable=SC2034,SC2154,SC2312 # Runner globals, set for the frozen arm.
 native_comparison_baseline_capture() {
   local case_name=$1 source_dir=$2 work=$3 results_dir=$4 case_files tree
-  native_comparison_case_files "${source_dir}" "${case_name}" || return 2
-  native_comparison_basis_commit "${source_dir}" "Distribution/evaluation/cases/comparison/${case_name}" \
-    "${case_files[@]}" "${native_comparison_inputs[@]}" "${native_run_supervision_inputs[@]}" \
+  native_guidance_check_case_files "${source_dir}" "${case_name}" || return 2
+  native_comparison_basis_commit "${source_dir}" "Distribution/evaluation/cases/guidance-checks/${case_name}" \
+    "${case_files[@]}" "${native_guidance_check_inputs[@]}" "${native_run_supervision_inputs[@]}" \
     "${native_comparison_pair_inputs[@]}" > /dev/null || return 2
   native_comparison_pair_freeze baseline "${native_comparison_pair_baseline}" "${work}" || return 2
-  local native_comparison_payload_dir="${work}/payload-baseline" native_comparison_payload_revision native_comparison_payload_requested
-  read -r native_comparison_payload_revision tree native_comparison_payload_requested < "${work}/payload-baseline.id"
-  native_comparison_run_case "${case_name}" "${source_dir}" "${work}" "${results_dir}"
+  local native_guidance_check_payload_dir="${work}/payload-baseline" native_guidance_check_payload_revision native_guidance_check_payload_requested
+  read -r native_guidance_check_payload_revision tree native_guidance_check_payload_requested < "${work}/payload-baseline.id"
+  native_guidance_check_run_case "${case_name}" "${source_dir}" "${work}" "${results_dir}"
 }
 
 native_comparison_baseline_export() {

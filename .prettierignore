@@ -3,17 +3,16 @@ dist/
 coverage/
 .planning/
 # Kept comparison evidence is immutable, including compact baseline JSON.
-Distribution/tests/native-comparison/*/comparisons/
-Distribution/evaluation/cases/comparison/*/comparisons/
+Distribution/evaluation/cases/guidance-checks/*/comparisons/
 # Frozen terminal scenario input is pinned by retained native evidence.
 Distribution/evaluation/cases/delivery-evidence/fixtures/terminal-precomputed.json
 **/dough-execute-plan/scripts/test-entry-rules-runtime.mjs
 **/dough-makeme/scripts/minimatch.bundle.mjs
 
 # Frozen project inputs keep the exact bytes recorded by comparison cases.
-Distribution/evaluation/cases/comparison/paused-supplier/basis/
-Distribution/evaluation/cases/comparison/paused-supplier/supplier/
-Distribution/evaluation/cases/comparison/paused-supplier/delivered/
-Distribution/evaluation/cases/comparison/paused-supplier/partial/
-Distribution/evaluation/cases/comparison/paused-supplier/published/
-Distribution/evaluation/cases/comparison/paused-supplier/completed/
+Distribution/evaluation/cases/guidance-checks/paused-supplier/basis/
+Distribution/evaluation/cases/guidance-checks/paused-supplier/supplier/
+Distribution/evaluation/cases/guidance-checks/paused-supplier/delivered/
+Distribution/evaluation/cases/guidance-checks/paused-supplier/partial/
+Distribution/evaluation/cases/guidance-checks/paused-supplier/published/
+Distribution/evaluation/cases/guidance-checks/paused-supplier/completed/

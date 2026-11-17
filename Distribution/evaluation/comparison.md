@@ -1,38 +1,12 @@
-# Native comparison cases
+# Native comparison pairs and records
 
-`Distribution/evaluation/src/native-comparison.sh` runs versioned examples from real
-work in fresh native Codex sessions: one journey of a case, or a matched
-pair of a baseline and a candidate Open Dough payload judged outcome first.
-It is maintainer tooling; nothing here is installed in a client project.
-Paid sessions run only when a human asks for them: `npm test`, CI and the
-command's default mode never start a real host. Put Bash 5 first on PATH
+A [Native guidance check](guidance-checks.md) runs one case journey. This
+guide covers what `Distribution/evaluation/src/native-guidance-check.sh` adds
+for a matched pair of a baseline and a candidate Open Dough payload judged
+outcome first: supported conditions, pairs, refusals, records, refresh,
+recovery, evidence retention and measurement limits. Paid sessions run only
+when a human asks for them. Put Bash 5 first on PATH
 (`PATH=/opt/homebrew/bin:$PATH` on macOS) for every command below.
-
-Each case lives in `Distribution/evaluation/cases/comparison/<case>/`: `case.md`
-(origin, extraction, selection traits, measured durations and kept
-comparisons), the neutral `task.txt` (and `wake.txt` for later turns), the
-fixture and observer `case.bash`, and the separate assessor `assess.bash`,
-which never reaches the agent's workspace.
-
-## Select a case
-
-```sh
-Distribution/evaluation/src/native-comparison.sh --list
-Distribution/evaluation/src/native-comparison.sh --list --where hosts=codex --where workflow=blocked
-Distribution/evaluation/src/native-comparison.sh --list --where prerequisites=nix
-```
-
-`--list` prints each case's traits from its `case.md` Selection section:
-workflow, hosts, prerequisites, decisions-and-proof and duration. Each
-`--where TRAIT=TEXT` keeps the cases whose trait contains TEXT, ignoring case.
-
-| Case                        | What it exercises                                                                                                         | Preparation and run, as measured on 2026-11-14                                                      |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `paused-supplier`           | hold a blocked slice through a diagnostic pass, an unchanged wake and an early publication, then continue once with proof | under 2 s; four turns of about 20 min per arm                                                       |
-| `unblocked-supplier`        | discover the already-completed supplier and finish the same partial execution once, with no event wakes                   | 1.7 s; one turn of 15 min                                                                           |
-| `doughnut-title-precedence` | calibrate a real project's maintained proof against a plausible fault                                                     | about 1–1.6 min and 4.5 GB per arm, with Nix, network and an arm-owned MySQL; one turn of 10–15 min |
-
-These are single observations at host load about 3–16, not cost estimates.
 
 ## Supported conditions
 
@@ -64,17 +38,7 @@ runtime (`Distribution/evaluation/src/native-codex.sh`). Known constraints:
   admits the JVM attach handshake files Mockito's self-attach writes under
   `/var/folders`.
 
-## Run a journey or a pair
-
-One journey of a case, with this checkout's working tree as the payload
-(arms live under `TMPDIR`, which must exist):
-
-```sh
-mkdir -p "$HOME/tmp/native-comparison"
-PATH=/opt/homebrew/bin:$PATH TMPDIR=$HOME/tmp/native-comparison \
-  Distribution/evaluation/src/native-comparison.sh --native codex --case paused-supplier \
-  --model gpt-6.1-sol --effort xhigh --results-dir "$HOME/tmp/native-comparison-results"
-```
+## Run a pair
 
 A pair freezes two commits of `--payload-repo` (default this checkout) and
 declares the factor under test, its intended gain and the quality criteria
@@ -84,7 +48,7 @@ and proof must hold before effort counts.
 
 ```sh
 PATH=/opt/homebrew/bin:$PATH TMPDIR=$HOME/tmp/native-comparison \
-  Distribution/evaluation/src/native-comparison.sh --native codex --case paused-supplier \
+  Distribution/evaluation/src/native-guidance-check.sh --native codex --case paused-supplier \
   --baseline v0.3.98 --candidate "$(git rev-parse HEAD)" \
   --factor 'Open Dough payload only: release v0.3.98 versus this commit' \
   --gain 'the same outcome and decisive proof with fewer commands and empty-wake work' \
@@ -154,7 +118,7 @@ To keep a native pair, copy its `record` to the case's `comparisons/`
 under the pair attempt's name (`<attempt id>.txt`, as
 `20261114T045440-40bf.txt`) and summarize it under the case's Comparisons
 section; commit both. Never edit a kept record afterwards, and never keep a
-record from a substitute host (`Distribution/evaluation/tests/native-comparison/native-comparison-incomplete.sh`
+record from a substitute host (`Distribution/evaluation/tests/native-guidance-checks/native-comparison-incomplete.sh`
 rejects one). `case.md` and `comparisons/` are outside the case's identity,
 so kept records and measurements do not change the basis.
 
@@ -168,8 +132,8 @@ agent-facing input (task, wake, overlays, events or setup) changed, and only
 when a human asks.
 
 ```sh
-PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh \
-  --recover Distribution/evaluation/cases/comparison/paused-supplier/comparisons/20261114T045440-40bf.txt
+PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-guidance-check.sh \
+  --recover Distribution/evaluation/cases/guidance-checks/paused-supplier/comparisons/20261114T045440-40bf.txt
 ```
 
 `--recover` finds the commit whose files match the record's hashes,
@@ -178,23 +142,6 @@ commits, labels and the `codex` on PATH) as `rerun-limit:` lines, and prints
 the record unchanged. It never reruns, and it does not recheck the project
 basis or its services. An edited record, or one whose inputs no commit holds,
 is not recovered.
-
-## Add a case
-
-Extract a case from a real decision with its proof: keep its source session or
-replay, project revision, extraction recipe, starting state, neutral task,
-setup and separate assessor. Keep the smallest context that still requires the
-original judgment; a controlled event or scripted proof must replace waiting,
-not the decision being measured. Keep expected answers in the assessor and
-`case.bash` controller, never in the agent's workspace, and leave the project's
-ordinary requirements and tests available to the agent.
-
-Before a case informs a comparison, qualify it natively: one journey must show
-the intended decision and its proof, and a plausible wrong decision must fail
-the assessor as a rejected case. Record measured preparation and native
-durations in `case.md`, labelling older timings as historical. Reuse the
-family's runner, payload installation, host supervision and stream helpers;
-recover earlier cases through Git rather than a separate registry.
 
 ## Retain and remove evidence
 
@@ -234,17 +181,6 @@ which the command prints as `result-path:`.
 - Workers come from the session records; recoveries and interventions count
   what the runner did (it never retries a turn, and Codex runs without
   approval prompts), not a human's work around the command.
-
-## Credential-free checks
-
-`npm test` runs the default mode (the catalog), each case's own proof
-(`native-comparison-<case>.sh`), substitute pairs and the pair judge's
-rejected cases (`native-comparison-pairs.sh`), refusals and incomplete pairs
-(`native-comparison-incomplete.sh`) and refresh and recovery
-(`native-comparison-refresh.sh`). Substitute hosts prove the runner,
-observer, assessors and judge; they never stand in for native behavior.
-`native-comparison-baselines.sh` also exercises frozen capture, export and
-reassessment after raw cleanup, complete failures and insufficient proof.
 
 The review of ADR 0005's A/B guidance against these cases' observations is
 in [the native comparison review](native-comparison-adr-0005-review.md).

@@ -16,7 +16,7 @@ export function assessBaseline(archive, source, temporary) {
     throw new Error("invalid baseline case");
   const assessor = join(
     source,
-    "Distribution/evaluation/cases/comparison",
+    "Distribution/evaluation/cases/guidance-checks",
     archive.case,
     "assess.bash",
   );

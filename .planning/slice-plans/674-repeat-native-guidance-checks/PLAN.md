@@ -2,6 +2,7 @@
 
 **Identity:** SEED-393#repeat-native-guidance-checks-on-real-story-examples
 **Source:** [Repeat native guidance checks using focused examples](../../seeds/SEED-393-test-quality-learning-from-effort-replays.md#repeat-native-guidance-checks-on-real-story-examples)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -108,7 +109,7 @@ clock. Keep proof and cleanup with the outcome. No speculative Structure slice.
 
 ### 1. Select and recover cases through Native guidance checks
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: given the existing collection and kept observations, a maintainer
 selects a case through the consistently named entry/guidance and can recover
@@ -125,6 +126,21 @@ inspect old-name matches so active callers and historical strings are treated
 according to their purpose. Trace callers beyond direct imports, including
 test wrappers, shared-inputs and CI discovery. Preserve old qualifications as
 dated evidence; do not claim that new hashes imply a fresh native run.
+
+Accepted 2026-11-17: entry `src/native-guidance-check.sh` with its catalog,
+preflight, options, run, turn and retain modules; collection
+`cases/guidance-checks/` (shared fixture `supplier-fixture.sh`); tests in
+`tests/native-guidance-checks/`; procedure and catalog in `guidance-checks.md`.
+Pair, baseline, basis, verdict, archive and recovery keep comparison names, as
+do record identities (`case: native-comparison/<case>`) and historical path
+matchers in `native-comparison-basis.sh`, which recovery needs. All 8 kept
+records are byte-identical; `--assess-baseline` passed (source integrity
+`f9e4123d…`) and `--recover` reached 49 byte-identical inputs at `764c4e0f`.
+`npm run test:evaluation` and `npm run lint` passed (load 23–75; 180 s
+deadline timeouts in standalone reruns reproduced identically at `cc72d082c`).
+Learning: `--recover` prints an empty `record-history` until the move is
+committed. Queued plan 621 (SEED-346) still names pre-rename paths; retrace it
+when that story is next refined.
 
 ### 2. Select an effort-derived case that rejects inadequate refactoring
 Type: Behavior

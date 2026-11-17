@@ -52,7 +52,7 @@ export function baselineApplicability(file, current) {
     // scalar observations and hashes, so their changes require fresh capture.
     // Setup and observer also share case.bash: its changes require fresh capture.
     const derivedReaders = new Set([
-      "native-comparison-retain.sh",
+      "native-guidance-check-retain.sh",
       "native-observation.sh",
       "native-result-retain.sh",
       "native-result-retain-journey.sh",

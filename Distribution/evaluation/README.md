@@ -20,12 +20,12 @@ per check, under the existing Distribution Tests Intent and CI proof producer.
 See [setup prerequisites](native-setup.md) for pinned
 Node, Bash, platform libraries and bounded acquisition.
 
-Explicit native acceptance and comparison are on demand:
+Explicit native acceptance and Native guidance checks are on demand:
 
 ```sh
 bash Distribution/evaluation/cases/git-publication/git-publication-native.sh --help
-bash Distribution/evaluation/src/native-comparison.sh --list
-bash Distribution/evaluation/src/native-comparison.sh --list --where hosts=codex --where workflow=blocked
+bash Distribution/evaluation/src/native-guidance-check.sh --list
+bash Distribution/evaluation/src/native-guidance-check.sh --list --where hosts=codex --where workflow=blocked
 ```
 
 Use each entry's help and case listing for supported host/case options. Native
@@ -35,8 +35,8 @@ make no performance or host qualification claim (ADR 0005).
 
 Acceptance is explicit: publication uses `--native HOST --case CASE
 --results-dir DIR`; page-object authoring uses its positional host/mode/artifact
-directory. Comparison options, payload selection, refusals and recovery are in
-the comparison guide. These entries keep their existing supported hosts; listing
+directory. Case selection and one journey are in the guidance-check guide; pair options,
+payload selection, refusals and recovery are in the comparison guide. These entries keep their existing supported hosts; listing
 a case or passing a controlled check does not qualify a native host.
 For long local runs follow the maintained [macOS sleep guard and power
 condition](../tests/local-test-resources.md#machine-sleep-on-macos) and shared
@@ -52,7 +52,8 @@ deadline, named-file and reporting contracts as the [shared runner](../tests/REA
 | [Host streams](native-host-streams.md) | Sole reader, retained corpus and replay limits |
 | [Publication acceptance](acceptance.md) | Explicit native journeys and evidence review |
 | [Page-object authoring](native-page-objects.md) | Explicit authoring probes and controlled browser proof |
-| [Comparisons](comparison.md) | Case selection, pairs, provenance, recovery and limits |
+| [Native guidance checks](guidance-checks.md) | Case selection, procedure, one journey and new cases |
+| [Comparisons](comparison.md) | Pairs, records, refresh, recovery and limits |
 | [Baselines](baselines.md) | Frozen evidence and justified reuse |
 | [Combined shares](../tests/runner-settings.md) | One discovery; `Distribution/evaluation/**` is CI's share 2 |
 
@@ -63,6 +64,6 @@ maintenance material and do not become installed runtime content.
 
 Retained stream replay inputs live in `tests/fixtures/native-streams/`. Historical
 records retain their original paths and hashes; comparison recovery through
-`src/native-comparison.sh --recover RECORD` preserves the original record.
+`src/native-guidance-check.sh --recover RECORD` preserves the original record.
 See [family boundaries](native-family-layers.md) and
 [Distribution test commands](../tests/README.md).

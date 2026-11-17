@@ -73,14 +73,16 @@ Current operational families, each `<family>-native-<layer>` in `cases/`:
   counterexamples under `tests/git-publication/support/`.
 - product-backlog: only `product-backlog-native-evidence.sh` is shared; its
   guard, use and take cases stay separate.
-- native-comparison ([native comparison cases](comparison.md)): each
-  case under `Distribution/evaluation/cases/comparison/<case>/` keeps its fixture
+- native guidance checks ([guide](guidance-checks.md), [pairs](comparison.md)): each
+  case under `Distribution/evaluation/cases/guidance-checks/<case>/` keeps its fixture
   and observer in `case.bash` and its assessor in `assess.bash`, with rejected
-  cases in `tests/native-comparison/`. Shared `src/native-comparison-` modules: `-run` and `-retain` (one journey), `-pair`,
+  cases in `tests/native-guidance-checks/`. Entry `src/native-guidance-check.sh`
+  with `-catalog`, `-preflight`, `-options` and one journey's `-run`, `-turn`
+  and `-retain`; `src/native-comparison-` modules: `-pair`,
   `-pair-observe` and `-verdict` (a pair, its
   observer and judge), `-basis` and `-basis-verdict` (a pair's Git basis and
-  recovery judge), `-preflight` and `-catalog`. Test-only `-verdict-counterexamples` and
-  `-pair-fixture` live in `tests/native-comparison/support/`;
+  recovery judge). Test-only `-verdict-counterexamples` and
+  `-pair-fixture` live in `tests/native-guidance-checks/support/`;
   `tests/native-harness/support/native-agent-paused-supplier.sh` is the substitute host.
 
 Rules for a new family:
