@@ -337,6 +337,23 @@ quality case retains value, with remaining obligations explicit.
   it can use current tools without story 3. **Safe stop:** an honest first
   decision is useful even when no reusable case is extracted.
 
+<a id="guidance-check-participants-run-owning-proof"></a>
+
+### 5. Guidance-check participants can run their owning proof
+
+**Identity:** SEED-393#guidance-check-participants-run-owning-proof
+
+**Goal:** a maintainer repeating the `launch-command-tests` Native guidance
+check sees whether the participant ran the proof that owns its change. At
+present the case environment prevents that proof, so a native result cannot
+show it.
+
+**Scope:** the case's arm environment only (fixture paths and process
+environment the participant's commands inherit), proved without a paid
+session. Retrospective correction of
+[story 3](#repeat-native-guidance-checks-on-real-story-examples). Plan:
+[676](../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md).
+
 ## Reconciliation and scope reduction
 
 Retain the original two identities; the new validation stories have new

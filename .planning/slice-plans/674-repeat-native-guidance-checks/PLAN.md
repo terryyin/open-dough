@@ -343,3 +343,18 @@ renumbered to 4 and 5 (five of eight). Evidence: B's two backend launch specs
 ran 28 passed in 14.8 s at load 24–31 in a worktree at `8b9005acc`
 (`s2-src-backend.log`); the E2E consumer is untimed.
 Readiness is recorded by the preparation recorder, not this prose.
+
+## Execution complete
+
+Product advice: The case extracted from the effort replay is a usable,
+selectable Native guidance check. Its first frozen Codex baseline passed,
+and review showed the decisive coupling refactored, with some narrowing the
+probes do not see. Before the next repeat, execute the correction
+[SEED-393#guidance-check-participants-run-owning-proof](../676-guidance-check-participants-run-owning-proof/PLAN.md).
+The participant's own proof could not run in the case environment, so a
+repeat cannot show whether guidance led to executed proof. A full probe
+pass costs 3–5 minutes per outcome, almost all of it Playwright start-up,
+so reference qualification stays a manual step. Queued plan 621
+(SEED-346) still names pre-rename paths; retrace them when it is next
+refined. Story 4 remains independent and unaffected.
+Process review: deferred into wrap-up with its Intent Coverage check.
