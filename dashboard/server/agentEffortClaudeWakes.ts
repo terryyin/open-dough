@@ -17,7 +17,7 @@ export async function claudeWakes(file: string, requests: UsageObservation[]) {
   const rows = new Map<string, Row>();
   const gaps: UsageGap[] = [];
   let conflictingUuid = false;
-  for await (const { row } of nativeUsageLines(file, gaps)) {
+  for await (const { row } of nativeUsageLines(file, gaps, "claude")) {
     const uuid = stringOf(row["uuid"]);
     if (uuid) {
       const previous = rows.get(uuid);

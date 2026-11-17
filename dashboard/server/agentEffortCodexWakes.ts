@@ -22,7 +22,7 @@ export async function codexWakes(file: string, requests: UsageObservation[]) {
   let turn: string | undefined;
   let interrupted = false;
   const gaps: UsageGap[] = [];
-  for await (const { row } of nativeUsageLines(file, gaps)) {
+  for await (const { row } of nativeUsageLines(file, gaps, "codex")) {
     const payload = objectOf(row["payload"]);
     if (row["type"] === "response_item") {
       const type = payload["type"];

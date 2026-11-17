@@ -2,6 +2,17 @@
 
 **Identity:** SEED-388#replace-native-reader-gaps-on-reread
 **Source:** [Selected story](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#replace-native-reader-gaps-on-reread)
+**Source review:** [Independent promises](source-review.md)
+
+## Execution context
+
+- Story Branch Mode; owned execution checkout `/Users/terryyin/git/open-dough/.worktrees/replace-native-reader-gaps-when-a-session-is-rea`, branch `codex/replace-native-reader-gaps-when-a-session-is-rea`.
+- Originating and integration checkout `/Users/terryyin/git/open-dough`; authorized remote `origin`, trunk `main`. Established workspace reused; starting revision `a8c858e41acd4f38068ec8a9595570c0df64ce7d`.
+- Publisher `dashboard-territory.local-open-dough`, agent Anri-chan; published claim and candidate `bd2e79cd90df5d7481fcecc0dcf3703e55e82529`, confirmed on origin's execution branch. Claim CI: unobserved.
+- Checkout setup: locked `npm ci` and `npm run typecheck:dashboard` passed. Check-only commit hook owns staged lint and typecheck; delivery performs selective formatting. No generation trigger.
+- Replanning: preserve existing planning authority; no explicit overrun replanning option.
+- CI: GitHub Actions `terryyin/open-dough`, execution branch, verified `ci.yml` / CI. Coordinator `anri-388`, directory `/tmp/dough-ci-501/watch-EAPS5a`, PID 46889, stream session 53315, yielded cell `g726:11`, runtime `.agents/skills/dough-execute-plan`; checkout as above.
+- Removal check: replacement of stale session gaps has no later planned slice or conflicting source promise; host-less stored gaps remain excluded.
 
 ## Goal and scope
 
@@ -61,7 +72,7 @@ Observed 2026-11-16 at `a3553a7ad`, Node v24.21.0.
 
 ### 1. Name the host on native reader gaps
 Type: Behavior
-Status: planned
+Status: done
 Proof: the cases above, fail-first on `a3553a7ad`; the whole
 `dashboard/backend-tests/usage-history` directory; typecheck and lint.
 
@@ -87,3 +98,18 @@ review found no remaining slice-specific concern.
 ## Learnings
 
 None yet.
+
+## Accepted slice 1 proof
+
+- Freshness: unchanged against trunk `4e92ca857857cc177e5387112b1652b08373e70c`; no named coordination sibling changed this slice's behavior.
+- Original trigger: both hosts, each Import/Refresh, malformed final row or unreadable zstd. `native-reader-gaps.spec.ts` builds launch and transcript through MakeMe, imports an empty file, injects an explicit legacy gap without host, then writes damage. Initial persisted-gap assertion observes host and source; repeated reread observes still-reported damage retained once; repaired reread observes only the exact legacy gap remains, and taskUsage observes one restored request / 17 output tokens. Product assigns host at both nativeUsageLines gap sites and four callers; existing gapSessionKeys/reconciledGaps replaces only hosted session keys. All four source commitments observed.
+- Fail-first on established baseline `bd2e79cd90df`: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/native-reader-gaps.spec.ts --reporter=list` — eight failures specifically missing host. This baseline still contained the reader defect identified at `a3553a7ad`.
+- Same command after implementation and tightened empty-file bootstrap — 8 passed (12.0s).
+- `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --reporter=list` — 181 passed (2.9m). Only the new cases' bootstrap was tightened afterward; their focused rerun preserves earlier production and unchanged-test proof.
+- All commands ran through slice-clock run. Logs and terminal exit files: `/tmp/native-reader-gaps-{red,green,recovery}.{log,exit}`. Implementation 4.2 active minutes; clock paused before acceptance.
+- Consumer trace produced with installed consumer-trace.mjs at claim base, supplied terms nativeUsageLines, malformed-native-row, native-source-unreadable; annotated result `/tmp/native-reader-gaps-consumer-trace.md`. Inspected production purposes: usageScan/importUsageHistory/usageImport (CLI), usageRefresh/usageRefreshFiles (HTTP), usageGapReconciliation (persisted session replacement), agentEffortRequest/agentEffortReport/agentEffortWakes and both wake readers (passive effort classification). Import/Refresh matrix observes persisted replacement. Existing agent-effort-wakes scenarios assert request totals, classified/unclassified counts, clock/progress and storage bytes for both hosts; agent-effort-peaks missing-readable-row case asserts lower-bound peak and malformed-native-row. These all ran in the 181 cases. Other imports use unchanged objectOf/stringOf/timestampOf/nativeUsageFileName, lineage or task facts; the host parameter does not reach those exports. Broad PLAN.md/source-review and fixture-name matches are record references, outside the reader-gap contract. No runtime consumer left unproved.
+- No test outside the slice subject was edited. No generation trigger, live action, expensive full-suite gate or unresolved proof gap. Staged lint/typecheck remain hook-owned.
+
+- Independent refactor `/root/refactor_review`: production cohesive; test-only named session/operation/damage variants remove branches and one redundant pre-bootstrap zstd write. Same scenarios and observing assertions retained. Final focused command above: 8 passed (9.3s); prior whole-suite proof preserved for unchanged code/tests. Refactor consumer trace `/tmp/native-reader-gaps-refactor-consumer-trace.md`; local test helpers have no runtime consumers, planning matches excluded. `git diff --check` passed; `## REFACTOR COMPLETE`, no follow-ups. Coordinator inspected final setup/actions/assertions and accepted.
+
+- Preparation caught ESLint unbound-method on refactor's returned refresh method before commit. Already-traced mechanical repair in that accepted test path retains the usage receiver in an arrow callback; same focused command passed all 8 in 7.3s. No representation, consumer or production change. Required formatting is retried for this repair.
