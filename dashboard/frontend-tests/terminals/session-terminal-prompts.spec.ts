@@ -45,27 +45,22 @@ for (const pointer of ["desktop", "phone"] as const) {
         },
       );
       const prompts = terminalPromptsControl(panel);
-      const actions = panel.getByRole("group", {
-        name: "Session actions",
-        exact: true,
-      });
-      await expect(actions.getByRole("button").first()).toHaveAccessibleName(
-        "Prompts",
-      );
-      for (const [phrase, prefix] of [
-        ["OK", ""],
-        ["as recommended", "Review "],
-      ] as const) {
+      await expect(prompts).toBeVisible();
+      const replies = [
+        "OK",
+        "as recommended",
+        "Try again",
+        "Resume",
+        "Please explain",
+      ] as const;
+      for (const [index, phrase] of replies.entries()) {
+        const prefix = index === 0 ? "" : "Review ";
         await focusTerminalInput(panel);
         await insertTerminalText(page, prefix);
         if (pointer === "phone") await tapWhereShown(prompts);
         else await prompts.click();
         const menu = terminalPromptsMenu(panel);
-        await expect(menu.getByRole("menuitem")).toHaveText([
-          "OK",
-          "as recommended",
-          "Dictate into terminal",
-        ]);
+        await expect(menu.getByRole("menuitem")).toHaveText([...replies]);
         const choice = menu.getByRole("menuitem", {
           name: phrase,
           exact: true,
@@ -81,7 +76,7 @@ for (const pointer of ["desktop", "phone"] as const) {
         const submits = sent.filter(
           (text) => text.includes("\r") || text.includes("\n"),
         );
-        expect(submits).toHaveLength(phrase === "OK" ? 0 : 1);
+        expect(submits).toHaveLength(index);
         await pressTerminalKey(page, "Backspace");
         await insertTerminalText(page, "!");
         await pressTerminalKey(page, "Enter");
@@ -89,7 +84,7 @@ for (const pointer of ["desktop", "phone"] as const) {
           .poll(() =>
             sent.filter((text) => text.includes("\r") || text.includes("\n")),
           )
-          .toHaveLength(phrase === "OK" ? 1 : 2);
+          .toHaveLength(index + 1);
       }
     });
 

@@ -24,12 +24,11 @@ import { observeMicrophone } from "../../tests/support/voicePage.ts";
 import {
   awaitRecordingBytes,
   beginTerminalClip,
-  dictateMenuItem,
+  dictateIntoTerminalControl,
   expectClipStopped,
   expectVoiceStatus,
   expectVoiceStatusEmpty,
   expectVoiceStatusText,
-  openTerminalPrompts,
   stopRecordingControl,
   stopTerminalClip,
   unfocusedPromptButtons,
@@ -74,17 +73,25 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
     panel.getByRole("group", { name: "Session actions", exact: true }),
   ).toBeFocused();
   await pressTerminalKey(page, "Tab");
+  await expect(dictateIntoTerminalControl(panel)).toBeFocused();
+  await pressTerminalKey(page, "Tab");
   await expect(terminalPromptsControl(panel)).toBeFocused();
   await pressTerminalKey(page, "Enter");
   const menu = terminalPromptsMenu(panel);
   await expect(
     menu.getByRole("menuitem", { name: "OK", exact: true }),
   ).toBeFocused();
-  await pressTerminalKey(page, "End");
-  await expect(dictateMenuItem(menu)).toBeFocused();
-  await pressTerminalKey(page, "Enter");
+  await expect(
+    menu.getByRole("menuitem", { name: "Dictate into terminal", exact: true }),
+  ).toHaveCount(0);
+  await pressTerminalKey(page, "Escape");
   await expect(menu).toHaveCount(0);
-  await expect(terminalPromptsControl(panel)).toHaveCount(0);
+  await expect(terminalPromptsControl(panel)).toBeFocused();
+  await pressTerminalKey(page, "Shift+Tab");
+  await expect(dictateIntoTerminalControl(panel)).toBeFocused();
+  await pressTerminalKey(page, "Enter");
+  await expect(stopRecordingControl(panel)).toBeVisible();
+  await expect(terminalPromptsControl(panel)).toBeVisible();
   await expectVoiceStatus(panel, "Recording…");
   await focusTerminalInput(panel);
   await insertTerminalText(page, "also ");
@@ -92,6 +99,23 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
     panel.getByRole("button", { name: "Close", exact: true }),
   ).toBeEnabled();
   await awaitRecordingBytes(page);
+  await pressTerminalKey(page, "Alt+F10");
+  await pressTerminalKey(page, "Tab");
+  await expect(stopRecordingControl(panel)).toBeFocused();
+  await pressTerminalKey(page, "Tab");
+  await expect(terminalPromptsControl(panel)).toBeFocused();
+  await pressTerminalKey(page, "Enter");
+  const recordingMenu = terminalPromptsMenu(panel);
+  await expect(
+    recordingMenu.getByRole("menuitem", { name: "OK", exact: true }),
+  ).toBeFocused();
+  await pressTerminalKey(page, "Enter");
+  await expect(recordingMenu).toHaveCount(0);
+  await expect(stopRecordingControl(panel)).toBeVisible();
+  await expectVoiceStatus(panel, "Recording…");
+  await expect
+    .poll(() => sent.filter((value) => value === "OK"))
+    .toEqual(["OK"]);
   await pressTerminalKey(page, "Alt+F10");
   await pressTerminalKey(page, "Tab");
   await expect(stopRecordingControl(panel)).toBeFocused();
@@ -155,19 +179,20 @@ test.describe("phone terminal microphone", () => {
     const transcription = requireTranscription(opened.transcription);
     const { panel, sent } = opened;
     transcription.answerText("the session header");
+    const dictate = dictateIntoTerminalControl(panel);
     const prompts = terminalPromptsControl(panel);
     const done = panel.getByRole("button", {
       name: "Mark as done",
       exact: true,
     });
     const close = control(panel, "Close");
+    expect((await box(dictate)).x).toBeLessThan((await box(prompts)).x);
     expect((await box(prompts)).x).toBeLessThan((await box(done)).x);
     await focusByTouch(panel);
     await insertTerminalText(page, "Review ");
-    const menu = await openTerminalPrompts(panel);
-    await tapWhereShown(dictateMenuItem(menu));
-    await expect(menu).toHaveCount(0);
-    await expect(prompts).toHaveCount(0);
+    await tapWhereShown(dictate);
+    await expect(stopRecordingControl(panel)).toBeVisible();
+    await expect(prompts).toBeVisible();
     await expectVoiceStatus(panel, "Recording…");
     await awaitRecordingBytes(page);
     await tapWhereShown(stopRecordingControl(panel));
@@ -186,7 +211,7 @@ test.describe("phone terminal microphone", () => {
       .poll(() => sent.some((value) => value.includes("\r")))
       .toBe(true);
     await page.setViewportSize({ width: 390, height: 400 });
-    for (const fitted of [prompts, done, close]) {
+    for (const fitted of [dictate, prompts, done, close]) {
       await expect(fitted).toBeInViewport({ ratio: 1 });
       const bounds = await box(fitted);
       expect(bounds.width).toBeGreaterThanOrEqual(44);

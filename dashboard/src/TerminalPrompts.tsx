@@ -1,5 +1,5 @@
-// One terminal header slot offers fixed replies or dictation. Menu selection
-// closes before acting; successful reply offers return focus through insert.
+// Terminal header replies menu: fixed phrases only. Dictation is a sibling
+// session-actions control (ADR 0008 browser presentation over insert).
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { MessageSquareText } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
@@ -7,12 +7,8 @@ import "./terminal-prompts.css";
 
 export function TerminalPrompts({
   insert,
-  dictate,
-  dictateDisabled,
 }: {
   readonly insert: (text: string) => void;
-  readonly dictate: () => void;
-  readonly dictateDisabled: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
@@ -103,7 +99,13 @@ export function TerminalPrompts({
             }
           }}
         >
-          {["OK", "as recommended"].map((text) => (
+          {[
+            "OK",
+            "as recommended",
+            "Try again",
+            "Resume",
+            "Please explain",
+          ].map((text) => (
             <button
               key={text}
               type="button"
@@ -118,17 +120,6 @@ export function TerminalPrompts({
               {text}
             </button>
           ))}
-          <button
-            type="button"
-            role="menuitem"
-            className="frame-button"
-            disabled={dictateDisabled}
-            onClick={() => {
-              choose(dictate);
-            }}
-          >
-            Dictate into terminal
-          </button>
         </div>
       )}
     </div>

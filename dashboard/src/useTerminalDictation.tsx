@@ -1,5 +1,7 @@
+// Session-panel dictation beside Prompts (ADR 0008): browser presentation over
+// the attachment insert path; header actions stay on the session panel.
 import { useContext, useState } from "react";
-import { Square } from "lucide-react";
+import { Mic, Square } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { TerminalPrompts } from "./TerminalPrompts.tsx";
 import { useInstructionRecording } from "./useInstructionRecording.ts";
@@ -33,29 +35,37 @@ export function useTerminalDictation(
   });
   const recordingNow = recording.phase === "recording";
   return {
-    control: recordingNow ? (
-      <IconButton
-        label="Stop recording"
-        icon={Square}
-        onClick={recording.stop}
-      />
-    ) : (
-      <TerminalPrompts
-        insert={(text) => {
-          setPresetProblem(
-            insert(text)
-              ? undefined
-              : recovery() === undefined
-                ? "The terminal is still connecting. Open Prompts again once it connects."
-                : `Choose ${recovery()}, then open Prompts again.`,
-          );
-        }}
-        dictateDisabled={pending !== undefined || recording.busy}
-        dictate={() => {
-          setProblem(undefined);
-          void recording.record();
-        }}
-      />
+    control: (
+      <>
+        {recordingNow ? (
+          <IconButton
+            label="Stop recording"
+            icon={Square}
+            onClick={recording.stop}
+          />
+        ) : (
+          <IconButton
+            label="Dictate into terminal"
+            icon={Mic}
+            disabled={pending !== undefined || recording.busy}
+            onClick={() => {
+              setProblem(undefined);
+              void recording.record();
+            }}
+          />
+        )}
+        <TerminalPrompts
+          insert={(text) => {
+            setPresetProblem(
+              insert(text)
+                ? undefined
+                : recovery() === undefined
+                  ? "The terminal is still connecting. Open Prompts again once it connects."
+                  : `Choose ${recovery()}, then open Prompts again.`,
+            );
+          }}
+        />
+      </>
     ),
     feedback: (
       <>
