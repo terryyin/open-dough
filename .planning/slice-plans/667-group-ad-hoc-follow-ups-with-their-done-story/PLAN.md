@@ -293,3 +293,9 @@ this review.
 - `caffeinate -s -i npm run test:dashboard:integrated -- --workers=1 dashboard/tests/navigation/story-reference` — 19 passed (ordinary reference policy preserved).
 - `caffeinate -s -i npm run test:e2e -- --workers=1 e2e/stories/recently-done-follow-up.spec.ts` — 1 passed (Taken names source after real card launch).
 - `npm run typecheck:dashboard` — pass.
+
+## Execution complete
+
+Product advice: no change
+
+Deferred process review selected into wrap-up (intent coverage protection-risk on the rewritten E2E naming assertion).
