@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Replace evaluation shell checks with entry-point JavaScript tests](seeds/SEED-396-evaluation-javascript-tests.md#replace-evaluation-shell-checks) — SEED-396#replace-evaluation-shell-checks
 - [Guidance-check participants can run their owning proof](seeds/SEED-393-test-quality-learning-from-effort-replays.md#guidance-check-participants-run-owning-proof) — SEED-393#guidance-check-participants-run-owning-proof
 - [Recovery proof covers historical case paths](seeds/SEED-393-test-quality-learning-from-effort-replays.md#recovery-proof-covers-historical-case-paths) — SEED-393#recovery-proof-covers-historical-case-paths
 - [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract
