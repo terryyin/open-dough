@@ -10,9 +10,9 @@
 // ./intentLocationHeaderLook.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";
 import { parts } from "./dashboardParts.ts";
+import { countAuthenticatedReads } from "./support/frontendAuthenticatedReadControl.ts";
 
 // The project, Development's view and the perspective the address names.
 export function expectAddress(
@@ -115,19 +115,11 @@ export async function expandIntentFolders(
 }
 
 // How many Intent locations reads the page has asked.
-export function countLocationsReads(page: Page) {
-  let reads = 0;
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    ) {
-      reads += 1;
-    }
-  });
-  return () => reads;
-}
+export const countLocationsReads = (page: Page) =>
+  countAuthenticatedReads(
+    page,
+    (params) => params.get("intent") === "locations",
+  );
 
 // Every Intent group header starts collapsed with no file/list body shown.
 export async function expectIntentGroupsCollapsed(intent: Locator) {

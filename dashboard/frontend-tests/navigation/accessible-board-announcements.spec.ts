@@ -1,21 +1,18 @@
-import type { Page } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
-import { answerBoardOnPageTime } from "../../tests/support/frontendBoardPageTime.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { answerBoardOnPausedPageTime } from "../../tests/support/frontendBoardPageTime.ts";
+import {
+  controlFrontendAuthenticatedRead,
+  countAuthenticatedReads,
+} from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { politeRegionsOfferedThenMarked } from "../../tests/accessibleReading.ts";
 import {
   expectMembership,
   parts,
   shortRevision,
 } from "../../tests/dashboardPage.ts";
-import {
-  pausePageClock,
-  passTimeUntilChecked,
-} from "../../tests/autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../../tests/autoRefreshJourney.ts";
 import { longBacklog, revision } from "../../tests/accessibleBoard.ts";
 import { zoomedWindow } from "../../tests/accessibleReading.ts";
 import {
@@ -33,17 +30,6 @@ import {
   titlesOfB,
 } from "../../tests/refreshJourney.ts";
 
-function pathsRead(page: Page): string[] {
-  const paths: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    const path = url.searchParams.get("path");
-    if (url.pathname === authenticatedReadEndpoint && path !== null)
-      paths.push(path);
-  });
-  return paths;
-}
-
 test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async ({
   page,
   frontendServices,
@@ -52,13 +38,13 @@ test("accessible Board announces reading, the read result, and a failure while f
     revision: revisionA,
     backlog: backlogA,
   });
-  const read = pathsRead(page);
+  const pathReads = countAuthenticatedReads(page, (params) =>
+    params.has("path"),
+  );
   const check = await controlFrontendAuthenticatedRead(page, (params) =>
     params.has("since"),
   );
-  await answerBoardOnPageTime(page, frontendServices);
-  await pausePageClock(page);
-  await preholdRevisionStreamSlots(page);
+  await answerBoardOnPausedPageTime(page, frontendServices);
   await page.goto("/");
   await expectMembership(page, titlesOfA);
   const { status, notice, problem, retrievedAt } = parts(page);
@@ -138,7 +124,7 @@ test("accessible Board announces reading, the read result, and a failure while f
   });
 
   await test.step("a failed check is an alert, and focus stays where it is", async () => {
-    const readsBefore = read.length;
+    const readsBefore = pathReads();
     // Backend authenticated-read specs prove the boundary's wording.
     check.respond(
       {
@@ -152,7 +138,7 @@ test("accessible Board announces reading, the read result, and a failure while f
     await expect(problem).toContainText(
       "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403)",
     );
-    expect(read).toHaveLength(readsBefore);
+    expect(pathReads()).toBe(readsBefore);
     await expect(status).toBeEmpty();
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(status).toHaveCount(1);
@@ -167,9 +153,7 @@ test("accessible Board keeps a read problem and the retained work reachable in a
 }) => {
   await page.setViewportSize(zoomedWindow);
   putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
-  await answerBoardOnPageTime(page, frontendServices);
-  await pausePageClock(page);
-  await preholdRevisionStreamSlots(page);
+  await answerBoardOnPausedPageTime(page, frontendServices);
   await page.goto("/");
   const { board, problem } = parts(page);
   await expect(board.getByRole("article")).toHaveCount(5);

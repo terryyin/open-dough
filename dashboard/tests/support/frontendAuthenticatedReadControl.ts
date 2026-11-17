@@ -1,6 +1,7 @@
-// Controlled failure answers at the authenticated-read service boundary.
-// Holds use the existing holdAuthenticatedReads helpers; successful reads fall
-// through to the owning frontend service substitute.
+// Controlled failure answers at the authenticated-read service boundary, and
+// counts of the page's reads there. Holds use the existing
+// holdAuthenticatedReads helpers; successful reads fall through to the owning
+// frontend service substitute.
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { fulfillJson } from "./frontendSubstituteAnswers.ts";
@@ -32,4 +33,18 @@ export async function controlFrontendAuthenticatedRead(
       answer = { body, status };
     },
   };
+}
+
+// How many reads matching `which` the page has asked of the boundary from now on.
+export function countAuthenticatedReads(
+  page: Page,
+  which: (params: URLSearchParams) => boolean,
+) {
+  let reads = 0;
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === authenticatedReadEndpoint && which(url.searchParams))
+      reads += 1;
+  });
+  return () => reads;
 }

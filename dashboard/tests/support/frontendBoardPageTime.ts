@@ -2,7 +2,9 @@
 // paused clock (../autoRefreshJourney.ts).
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { pausePageClock } from "../autoRefreshJourney.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
+import { preholdRevisionStreamSlots } from "./revisionStreamSlots.ts";
 
 const readsWith = (keys: string) => (url: URL) =>
   url.pathname === authenticatedReadEndpoint &&
@@ -10,12 +12,15 @@ const readsWith = (keys: string) => (url: URL) =>
 
 // Every story record is published empty, so detail reads settle as gaps
 // rather than transient failures the page keeps retrying before it checks.
-// The ref is resolved when the page asks, on the page's own clock, so its next
-// revision check falls due as page time passes.
-export async function answerBoardOnPageTime(
+// The ref is resolved when the page asks, on the page's own clock, paused
+// before the page opens; with both stream slots held elsewhere, the page's
+// next revision check falls due only as a step passes page time.
+export async function answerBoardOnPausedPageTime(
   page: Page,
   services: FrontendServiceState,
 ): Promise<void> {
+  await pausePageClock(page);
+  await preholdRevisionStreamSlots(page);
   await page.route(readsWith("source,revision,path"), (route) => {
     const params = new URL(route.request().url()).searchParams;
     return route.fulfill({

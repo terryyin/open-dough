@@ -1,7 +1,6 @@
 // Intent locations recover through the page's shared schedule while the
 // published observation keeps checking its own revision.
 
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { setPageVisibility } from "../../tests/autoRefreshJourney.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { pausePageClockAt } from "../../tests/dashboardTest.ts";
@@ -20,7 +19,10 @@ import {
 } from "../../tests/intentReadRecoveryPage.ts";
 import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
 import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import {
+  controlFrontendAuthenticatedRead,
+  countAuthenticatedReads,
+} from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { noticedResumeTime } from "../../tests/limitNotice.ts";
@@ -132,15 +134,10 @@ test("published detail and Intent locations share a wait, and healing detail lea
   await pausePageClockAt(page, opened);
   await preholdRevisionStreamSlots(page);
   putScriptIntentSources(frontendServices);
-  let detailReads = 0;
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("path") === ".planning/seeds/SEED-302-queued.md"
-    )
-      detailReads += 1;
-  });
+  const detailReads = countAuthenticatedReads(
+    page,
+    (params) => params.get("path") === ".planning/seeds/SEED-302-queued.md",
+  );
   const detail = await controlFrontendAuthenticatedRead(
     page,
     (params) => params.get("path") === ".planning/seeds/SEED-302-queued.md",
@@ -160,21 +157,21 @@ test("published detail and Intent locations share a wait, and healing detail lea
   const intentProblem = readFailure(intent);
   await expect(publishedProblem).toBeVisible();
   await expect(intentProblem).toContainText("could not be reached");
-  expect([detailReads, reads()]).toEqual([1, 1]);
+  expect([detailReads(), reads()]).toEqual([1, 1]);
 
   detail.pass();
   await advanceRecoveryClock(page, 14_000);
-  expect([detailReads, reads()]).toEqual([1, 1]);
+  expect([detailReads(), reads()]).toEqual([1, 1]);
   await advanceRecoveryClock(page, 1_250);
-  expect([detailReads, reads()]).toEqual([2, 2]);
+  expect([detailReads(), reads()]).toEqual([2, 2]);
   await expect(publishedProblem).toHaveCount(0);
   await expect(intentProblem).toContainText("could not be reached");
 
   locations.pass();
   await advanceRecoveryClock(page, 29_000);
-  expect([detailReads, reads()]).toEqual([2, 2]);
+  expect([detailReads(), reads()]).toEqual([2, 2]);
   await advanceRecoveryClock(page, 1_250);
-  expect([detailReads, reads()]).toEqual([2, 3]);
+  expect([detailReads(), reads()]).toEqual([2, 3]);
   await expect(intentLocationName(intent, "scripts")).toBeVisible();
 });
 

@@ -1,12 +1,16 @@
-// Compact title select on a phone-width column (../src/banner.css):
+// Compact title select on a phone-width column (../../src/banner.css):
 // one-line banner with mark-as-Sessions toggle, labelled perspective, compact
 // project select (may truncate), and settings; touch and keyboard choose a
 // project, Escape leaves the selection, resize keeps it across tab radios and
 // compact control, and page-wide arrow cycling focuses the shown compact title
 // control. No separate panel icon or level-1 project title.
 
-import { expect, test } from "../dashboardTest.ts";
-import { expectBannerRow, expectPinnedShortBanner } from "../bannerReading.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
+import {
+  expectBannerRow,
+  expectPinnedShortBanner,
+} from "../../tests/bannerReading.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
@@ -14,24 +18,23 @@ import {
   parts,
   pressProjectListKeys,
   projectTab,
-} from "../dashboardPage.ts";
-import { expectFrameIconControl } from "../frameIconControl.ts";
+} from "../../tests/dashboardPage.ts";
+import { expectFrameIconControl } from "../../tests/frameIconControl.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
-} from "../pageLayout.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { settings } from "../support/systemSettingsPage.ts";
-import { focusCanonicalRecord } from "../storyCardControls.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+} from "../../tests/pageLayout.ts";
+import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+import { settings } from "../../tests/support/systemSettingsPage.ts";
+import { focusCanonicalRecord } from "../../tests/storyCardControls.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
 import {
   doughnutProject,
   expectCatalogStories,
   openDoughProject,
-  publishCatalogProjects,
   pygardonProject,
-} from "../projectKeyboardNavigationJourney.ts";
+} from "../../tests/projectKeyboardNavigationJourney.ts";
 
 test.describe("compact project title select on a phone-width column", () => {
   const { portrait } = phoneLaunchTouchViewport;
@@ -41,8 +44,9 @@ test.describe("compact project title select on a phone-width column", () => {
 
     test("one-line banner: mark-as-Sessions, perspective, project select, settings", async ({
       page,
+      frontendServices,
     }) => {
-      await publishCatalogProjects(page);
+      await answerCatalogProjects(page, frontendServices);
       await page.goto("/");
       const { banner, projectCompact, perspective } = parts(page);
       const sessions = sessionsSidebarParts(page).button;
@@ -74,8 +78,9 @@ test.describe("compact project title select on a phone-width column", () => {
 
     test("keyboard reaches Pygardon or Escape leaves Open Dough on the title control", async ({
       page,
+      frontendServices,
     }) => {
-      await publishCatalogProjects(page);
+      await answerCatalogProjects(page, frontendServices);
       await page.goto("/");
       const { projectCompact } = parts(page);
       await expect(projectCompact).toHaveText("Open Dough");
@@ -100,8 +105,9 @@ test.describe("compact project title select on a phone-width column", () => {
 
     test("resizing keeps Doughnut across tab radios and compact select", async ({
       page,
+      frontendServices,
     }) => {
-      await publishCatalogProjects(page);
+      await answerCatalogProjects(page, frontendServices);
       await page.goto("/");
       const { projectCompact, banner } = parts(page);
       await expect(projectCompact).toHaveText("Open Dough");
@@ -122,8 +128,9 @@ test.describe("compact project title select on a phone-width column", () => {
 
     test("page-wide Right Arrow selects Doughnut and focuses the compact title control", async ({
       page,
+      frontendServices,
     }) => {
-      await publishCatalogProjects(page);
+      await answerCatalogProjects(page, frontendServices);
       await page.goto("/");
       await expect(parts(page).projectCompact).toHaveText("Open Dough");
       const { backlog, projectCompact } = parts(page);

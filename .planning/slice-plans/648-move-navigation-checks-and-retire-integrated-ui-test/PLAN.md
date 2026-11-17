@@ -423,7 +423,7 @@ passed 7/7 with `--workers=2`.
 
 ### 6. Preserve the dashboard header and frame looks
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard-header`, `dashboard-header-compact`, `frame-board-look`,
 `frame-launch-look`, `frame-sessions-look` (758 lines): one journey per banner
 container branch, row below the banner, empty columns and failed reads in the
@@ -431,6 +431,53 @@ frame's look, whole text in a narrow window.
 
 Behavior: each banner width branch and frame look → the same geometry,
 readability and wording in Frontend cases.
+
+Assertion map (all homes under `dashboard/frontend-tests/navigation/`):
+- `dashboard-header` per-layout journey (1280, 700, 520, 320 Verdana): reach,
+  no product img/h1/panel icon/Refresh-Retry, pinned short banner, compact
+  select or one-line choices, Sessions/System settings icon controls, whole
+  text, one banner row and keyboard stops, Shift+Tab below the banner →
+  `dashboard-header.spec.ts` "selected project banner remains reachable at
+  …" (Open Dough's long Board via `publishLargeBacklog`, three catalog
+  projects via `answerOwnPublications`). The non-eager read count
+  (`origin.requests` length 2) is the page's own authenticated reads per
+  `source`: Open Dough's settled opening is 20 and is still 20 after the
+  keyboard walk.
+- `dashboard-header` project switch → same file, "banner project selection
+  reads the selected project's actual published work" (`answerCatalogProjects`;
+  Board membership via `expectCatalogStories`); after the switch Open Dough's
+  and Doughnut's authenticated reads are each exactly 6.
+- `dashboard-header-compact` (4 tests) → `dashboard-header-compact.spec.ts`,
+  same names, `answerCatalogProjects` for `publishCatalogProjects`.
+- `frame-board-look` row/Board look → `frame-board-look.spec.ts` same name
+  (`openFrontendTakenBacklog` supplies Start session and both columns).
+- `frame-board-look` empty column and failed read → same file, same name; the
+  failed check is a `controlFrontendAuthenticatedRead` 502 answer; the server's
+  wording stays with `dashboard/backend-tests/observation/authenticated-read-*`.
+- `frame-board-look` no projects (dev server) → same file, same name, with
+  `projects: []`; the dev environment's empty first start stays with
+  `project-add`/`project-configuration` (dashboard/tests/README.md).
+- `frame-launch-look` (refinement look, Start session at narrow and 200%,
+  roster look) → `frame-launch-look.spec.ts` same names.
+- `frame-sessions-look` → `frame-sessions-look.spec.ts`: one working
+  long-titled Execution session and one waiting for input, observed by the
+  machine read; the terminal through `installAttachedTerminalSubstitute`
+  (header shows `attached`, not a session-id prefix).
+- `dashboard/tests/longTitleLaunch.ts` keeps only `longTitle`; its committed
+  origin helpers had no other consumer.
+
+Scratch breaks (Frontend boundary, each reverted, `git diff dashboard/src`
+empty after):
+- Removed the `TriangleAlert` icon from `src/PublishedReadFailure.tsx`:
+  `npx playwright test --config dashboard/frontend.playwright.config.ts
+  …/dashboard-header.spec.ts …/frame-board-look.spec.ts --workers=2` exit 1;
+  "an empty column and a failed read …" failed (decorative icon count 0, expected 1).
+- `src/project-select.css` choice span `white-space: normal; max-width: 3em`:
+  same command on `dashboard-header.spec.ts` exit 1; 1280 and 700 failed the
+  one-line choices `[1,1,1,1]`, 520 failed reach. Restored: all 20 passed.
+- An extra duplicate `fetch` per read in `src/authenticatedGet.ts`: same
+  command on `dashboard-header.spec.ts` exit 1; every layout journey received
+  40 for 20 and the switch 11 for 6. Restored: `--repeat-each=2` 10 passed.
 
 ### 7. Preserve project selection and keyboard navigation
 Type: Behavior

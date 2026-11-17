@@ -84,11 +84,10 @@ Put a check where it is cheapest to prove, and prove it once:
   `project-configuration`'s empty development first start,
   `project-remove`'s removal of development's last project, the machine file
   `system-settings-openai` and `system-settings-terminal-theme` share across
-  both environments, and `frame-board-look`'s frame with no project
-  configured, a state only development starts in.
+  both environments.
 - **A layout rule is proved once per CSS branch**, in the journey whose
-  state change is observed at that width (`navigation/dashboard-header.spec.ts` and
-  `navigation/dashboard-header-compact.spec.ts` run one journey per container branch of
+  state change is observed at that width (`../frontend-tests/navigation/dashboard-header.spec.ts` and
+  `../frontend-tests/navigation/dashboard-header-compact.spec.ts` run one journey per container branch of
   `banner.css`; `../frontend-tests/navigation/side-panel-width*.spec.ts`
   prove the panel's query from each side once), and a font case only where
   a font reproduces a wrap. A presentation-only check, one with no state
