@@ -3,27 +3,12 @@
 // changed files in the comparison shown, with their change kinds, in a file
 // browser the developer can hide or show. The browser shows each file by
 // name under folders that collapse and expand (`./StoryReviewFileTree.tsx`).
-// The browser lists the comparison shown: all changes from the baseline, or
-// the changes since the review from the restated marked tree, a flagged
-// file's from the marked tree, or from the baseline when the story kept it
-// as marked. The review opens on the first file in the browser's order.
-// Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`) from its
-// *from* tree, headed by its kind and full path and flagged when it includes
-// trunk's changes since the review, shown from the top while the browser
-// keeps its scroll; the two fill the review's body, each scrolling on its
-// own. A worktree that matches its baseline, or a snapshot that matches the
-// marked one, says so in place of the browser, as do all changes that leave
-// uncommitted changes out of a worktree with nothing committed; after trunk
-// was integrated since the mark, it says nothing changed beyond what trunk
-// now holds, since
-// story work that reached trunk counts as trunk's. A refreshed snapshot, or
-// the other comparison, keeps the browser as it was, its collapsed folders,
-// and the selected file while the files shown still list their paths;
-// otherwise the first file shown is selected. Previous file and Next file
-// beside the diff's heading move the selection in the browser's order
-// (`./StoryReviewFileMoves.tsx`), expanding the folders that hold the file
-// moved to and scrolling the browser to bring its row into view.
-
+// The review opens on the first file in the browser's order. Selecting a file
+// reads its diff (`./StoryReviewFileDiff.tsx`) from the comparison's start,
+// with its kind and full path in the heading. The browser and diff scroll
+// independently. Empty comparisons describe what was compared. A refreshed
+// snapshot or a comparison switch keeps the collapsed folders and selected
+// file while the file is still listed; otherwise the first file is selected.
 import { useLayoutEffect, useRef, useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
@@ -50,14 +35,12 @@ import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
 // lists no files.
 function NoChanges({
   snapshot,
-  sinceReview,
   commitsReview,
   committedOnly,
   published,
   sessionSubject,
 }: {
   readonly snapshot?: TakenStoryReview;
-  readonly sinceReview: boolean;
   readonly commitsReview: boolean;
   readonly committedOnly: boolean;
   readonly published: boolean;
@@ -80,18 +63,10 @@ function NoChanges({
         Nothing is committed yet: every change in this worktree is uncommitted.
       </p>
     );
-  if (!sinceReview)
-    return (
-      <p>
-        No changes: the worktree matches baseline{" "}
-        <code>{shortRevision(baselineRevision(snapshot))}</code>.
-      </p>
-    );
   return (
     <p>
-      {snapshot.since?.trunkIntegrated === true
-        ? "Nothing changed since the review beyond what trunk now holds."
-        : "Nothing changed since the review."}
+      No changes: the worktree matches baseline{" "}
+      <code>{shortRevision(baselineRevision(snapshot))}</code>.
     </p>
   );
 }
@@ -100,7 +75,6 @@ export function SnapshotView({
   reviewed,
   snapshot,
   comparison,
-  sinceReview,
   headingId,
   browser,
   tree: comparedTree,
@@ -109,9 +83,7 @@ export function SnapshotView({
 }: {
   readonly reviewed: ReviewedWork;
   readonly snapshot?: TakenStoryReview;
-  // The comparison shown, and whether it is the changes since the review.
   readonly comparison: ReviewComparison;
-  readonly sinceReview: boolean;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
   readonly tree: string;
@@ -164,7 +136,6 @@ export function SnapshotView({
   return selected === undefined ? (
     <NoChanges
       {...(snapshot === undefined ? {} : { snapshot })}
-      sinceReview={sinceReview}
       commitsReview={commitsReview}
       committedOnly={committedOnly}
       published={reviewed.completion !== undefined}

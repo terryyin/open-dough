@@ -13,7 +13,6 @@ import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import type { AdmittedStoryReview } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
-import { reviewMark } from "./storyReviewMarks.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
@@ -26,10 +25,6 @@ export async function storyReviewResponse(
     request.runs.length === 0
       ? {}
       : { runs: request.runs.map(reviewRunChoice) };
-  const mark =
-    "established" in request
-      ? await reviewMark(request.sourceId, request.identity)
-      : undefined;
   const body = await withResponseSignal(
     res,
     async (signal): Promise<StoryReview> => {
@@ -78,7 +73,6 @@ export async function storyReviewResponse(
             profileDirectory: agentProfileDirectoryOf(knownSource(sourceId)),
           },
           shown,
-          mark,
           signal,
         );
         if (local.kind === "unavailable" && request.fallback !== undefined)

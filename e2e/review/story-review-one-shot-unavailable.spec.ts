@@ -1,6 +1,6 @@
 // Honest empty and unavailable captured comparisons never substitute current trunk.
 import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
@@ -41,9 +41,6 @@ for (const captured of [true, false]) {
         );
       }
       await expect(review.getByRole("list")).toHaveCount(0);
-      await expect(
-        review.getByRole("button", { name: "Mark reviewed" }),
-      ).toHaveCount(0);
       await expect(
         review.getByRole("button", { name: "Hide files" }),
       ).toHaveCount(0);
@@ -90,9 +87,6 @@ test("missing captured objects or the saved common repository expose an unavaila
       explanation: "The captured landing repository is missing or unreadable.",
     });
     await expect(review.getByRole("list")).toHaveCount(0);
-    await expect(
-      review.getByRole("button", { name: "Mark reviewed" }),
-    ).toHaveCount(0);
   } finally {
     renameSync(held, repository);
   }

@@ -49,8 +49,7 @@ its control is described by them in words (`2 lines added, 1 line removed`).
 The snapshot reads them with `git diff --numstat -M -z` over the same _from_
 tree and tree as each comparison's file list, joined by path
 (`server/storyReviewFiles.ts`), so no request reads them per file: counts in
-all changes run from the baseline, counts in the changes since the review
-from the restated tree, and a file that includes trunk's changes counts from
-its `includesTrunkFrom`, as its diff does. A file shows counts only when its
+each comparison use its starting tree, and a file that includes trunk's
+changes counts from its `includesTrunkFrom`, as its diff does. A file shows counts only when its
 diff adds or removes a line: a binary, mode-only, or empty file shows none. A
 collapsed folder's count stays the changed files it holds.

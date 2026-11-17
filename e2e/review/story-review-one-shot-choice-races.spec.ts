@@ -6,7 +6,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import {
   test as base,

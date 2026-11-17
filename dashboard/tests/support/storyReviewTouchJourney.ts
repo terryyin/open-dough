@@ -43,7 +43,7 @@ import {
   reviewRegion,
   comparisonChoice,
   comparisonLabel,
-} from "./storyReviewMark.ts";
+} from "./reviewControls.ts";
 import { largeWorktree } from "./storyReviewWorktree.ts";
 
 // The comparison holds what the touch assertions distinguish, as the phone

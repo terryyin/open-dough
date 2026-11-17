@@ -14,7 +14,6 @@ import { queuedIdentity } from "../../tests/support/startOrigin.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-  storyReviewMarkEndpoint,
   reviewedFileDiffSchema,
 } from "../../src/storyReviewContract.ts";
 
@@ -73,14 +72,6 @@ test("foreign or malformed historical review requests cannot choose a repository
     { headers: { Origin: "https://elsewhere.test" } },
   );
   expect(crossOrigin.status()).toBe(403);
-  const mark = await request.post(
-    `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
-    {
-      headers: { Origin: dashboard.origin },
-      data: { ...named, baseline: receipt.base, tree: receipt.revision },
-    },
-  );
-  expect(mark.status()).toBe(400);
   const valid = await getReview(
     request,
     dashboard,

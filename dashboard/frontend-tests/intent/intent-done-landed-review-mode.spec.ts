@@ -7,7 +7,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../tests/support/storyReviewMark.ts";
+} from "../../tests/support/reviewControls.ts";
 import { reviewChanges } from "../../tests/storyCardControls.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";

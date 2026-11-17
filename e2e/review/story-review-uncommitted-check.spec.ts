@@ -4,18 +4,16 @@
 // opening over the whole snapshot. Off, the review lists the committed files
 // alone with their committed lines and counts, and says in words, as the
 // check's description, that uncommitted changes are left out; on again shows
-// the whole snapshot, and neither reads a snapshot, a range, or a mark. The
+// the whole snapshot without reading a new snapshot or commit range. The
 // selected file stays selected while both list it, and otherwise the first
 // file is. A worktree without uncommitted changes offers no check; one with
-// nothing committed says so while the check is off and keeps the check. Mark
-// reviewed with the check off marks the whole snapshot.
+// nothing committed says so while the check is off and keeps the check.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
-  storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
@@ -31,14 +29,11 @@ import {
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
 import {
-  keptStoryAMark,
-  markReviewed,
-  openStoryReview,
   reviewRegion,
   uncommittedCheck as check,
-  uncommittedLeftOut as leftOut,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   nestedWorktree,
   storyWorktree,
@@ -52,18 +47,12 @@ function storyWorktreeEditedAgain(origin: StartOrigin) {
   return { workspace };
 }
 
-// The snapshot, range, and mark requests the page has made so far.
+// The snapshot and range requests the page has made so far.
 function reviewRequests(page: Page) {
   const made: string[] = [];
   page.on("request", (request) => {
     const { pathname } = new URL(request.url());
-    if (
-      [
-        storyReviewEndpoint,
-        storyReviewRangeEndpoint,
-        storyReviewMarkEndpoint,
-      ].includes(pathname)
-    )
+    if ([storyReviewEndpoint, storyReviewRangeEndpoint].includes(pathname))
       made.push(pathname);
   });
   return () => made;
@@ -85,8 +74,6 @@ test("the check leaves uncommitted changes out of all changes and back without r
   // On at opening: the whole snapshot.
   await expect(whole).toBeVisible();
   await expect(check(review)).toBeChecked();
-  await expect(check(review)).not.toHaveAccessibleDescription(leftOut);
-  await expect(review.getByText(leftOut)).toHaveCount(0);
   await fileRow(review, "Added story.txt").press("Enter");
   await expectLineCounts(review, "Added story.txt", "+2 −0");
   await expect(diff).toContainText("+story");
@@ -112,16 +99,13 @@ test("the check leaves uncommitted changes out of all changes and back without r
   );
   await expect(diff).toContainText("+story");
   await expect(diff).not.toContainText("+more");
-  await expect(review.getByText(leftOut)).toBeVisible();
   await expect(check(review)).not.toBeChecked();
-  await expect(check(review)).toHaveAccessibleDescription(leftOut);
 
   // On again: the whole snapshot, as read at opening.
   await check(review).check();
   await expect(whole).toBeVisible();
   await expectLineCounts(review, "Added story.txt", "+2 −0");
   await expect(diff).toContainText("+more");
-  await expect(review.getByText(leftOut)).toHaveCount(0);
   expect(requests()).toEqual([]);
 });
 
@@ -189,43 +173,8 @@ test("with nothing committed, the check off says so, lists no files, and stays t
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
-  await expect(review.getByText(leftOut)).toBeVisible();
   await expect(check(review)).not.toBeChecked();
 
   await check(review).check();
   await expect(whole).toBeVisible();
-});
-
-test("Mark reviewed with the check off marks the whole snapshot, and the review says so before and after", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = storyWorktreeEditedAgain(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  const shown = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  await check(review).uncheck();
-  const committed = changedFilesList(review, "4 changed files");
-  await expect(committed).toBeVisible();
-  await expect(review.getByText(leftOut)).toBeVisible();
-  expect(shown.committed?.tree).not.toBe(shown.tree);
-
-  const marking = page.waitForRequest(
-    (request) => new URL(request.url()).pathname === storyReviewMarkEndpoint,
-  );
-  await markReviewed(review);
-  expect((await marking).postDataJSON()).toMatchObject({
-    tree: shown.tree,
-    baseline: shown.baseline,
-  });
-  expect(keptStoryAMark(dashboard)).toMatchObject({
-    tree: shown.tree,
-    baseline: shown.baseline,
-  });
-  await expect(review).toContainText("This snapshot is marked reviewed,");
-  await expect(review.getByText(leftOut)).toBeVisible();
-  await expect(check(review)).not.toBeChecked();
-  await expect(committed).toBeVisible();
 });

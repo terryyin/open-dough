@@ -15,3 +15,6 @@ export async function chooseCommit(
   await press(row);
   await expectReviewRead(review);
 }
+
+export const commitRangeHeading = (review: Locator) =>
+  review.locator(".story-review-range-heading");

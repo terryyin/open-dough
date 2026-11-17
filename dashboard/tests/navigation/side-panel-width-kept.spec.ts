@@ -6,7 +6,7 @@
 // page's lifetime. Each test's browser context keeps its own storage; the real
 // `claude` is never reached.
 
-import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewRegion } from "../support/reviewControls.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {

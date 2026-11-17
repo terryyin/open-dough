@@ -17,7 +17,7 @@ import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
 
 import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 import { fileBrowser } from "../../tests/support/reviewContextLine.ts";
-import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../tests/support/reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   fileReadingTab,

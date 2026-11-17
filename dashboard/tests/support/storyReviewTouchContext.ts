@@ -8,8 +8,8 @@ import {
 // comparison opened by touch (./storyReviewTouchJourney.ts), which also says
 // which viewport owns what no arrangement changes.
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
-import { comparisonChoice } from "./storyReviewMark.ts";
-import { reviewRefresh } from "./reviewControls.ts";
+
+import { reviewRefresh, comparisonChoice } from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";

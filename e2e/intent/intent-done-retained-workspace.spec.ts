@@ -1,5 +1,5 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can

@@ -50,6 +50,4 @@ points. A vanished endpoint resets the range permanently to the newest item,
 including when committing removes Uncommitted changes. Its later return cannot
 restore the old range. Switching comparisons preserves the chosen range;
 closing and opening starts again. Refresh announces the file count of the
-comparison shown, waiting for a refreshed range read to settle. Mark reviewed
-in Commits still marks the whole snapshot, and a marked story's next opening
-starts on Since the review.
+comparison shown, waiting for a refreshed range read to settle.

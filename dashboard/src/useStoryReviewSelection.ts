@@ -20,7 +20,7 @@ export function useStoryReviewSelection({
   round,
   completed = false,
   enabled = true,
-  initial = "since",
+  initial = "all",
   historical: historicalComparison = false,
 }: {
   readonly subject: ReviewedWorkSubject;

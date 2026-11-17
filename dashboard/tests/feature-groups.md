@@ -17,7 +17,7 @@ add a browser feature group.
 | `launches/` | Work initiation, startup choices, reconciliation and automatic triggers. |
 | `sessions/` | Session discovery, status, recovery, completion, reports and history. |
 | `terminals/` | Interactive attachment, input, dictation, resizing and reconnection. |
-| `review/` | Story comparisons, diffs, commit ranges, landed runs and review marks. |
+| `review/` | Story comparisons, diffs, commit ranges and landed runs. |
 | `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
 | `navigation/` | Destinations, selection, history, paging, panels and focus. |
 | `observation/` | Published-source consistency, freshness, refresh and read recovery. |
@@ -42,7 +42,7 @@ fixtures stay in this `tests/` tree.
 | `launches/` | Work initiation, startup choices, reconciliation and automatic triggers. |
 | `sessions/` | Session discovery, status, recovery, completion, reports and history. |
 | `terminals/` | Interactive attachment, input, dictation, resizing and reconnection. |
-| `review/` | Story comparisons, diffs, commit ranges, landed runs and review marks. |
+| `review/` | Story comparisons, diffs, commit ranges and landed runs. |
 | `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
 | `observation/` | Published-source consistency, freshness, refresh and read recovery. |
 | `runtime/` | Serving, production updates and test harness operation. |

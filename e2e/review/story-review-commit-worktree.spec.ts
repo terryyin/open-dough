@@ -1,26 +1,27 @@
 // The virtual newest item accounts for the whole snapshot without pretending
-// to be a commit, and Mark reviewed always marks that whole snapshot.
+// to be a commit.
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import {
+  commitRangeHeading,
+  chooseCommit,
+} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
-  keptStoryAMark,
-  markReviewed,
-  openStoryReview,
-  reopenStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
-import { markStoryReview } from "../../dashboard/tests/support/storyReviewTrunk.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   observed,
   storyWorktree,
   unchangedWorktree,
   writeAt,
 } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { showCommits } from "../../dashboard/tests/support/reviewRead.ts";
+import {
+  showCommits,
+  openStoryReview,
+} from "../../dashboard/tests/support/reviewRead.ts";
 import {
   expectTreeRows,
   changedFilesList,
@@ -86,7 +87,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
       name: "Changes in 4 commits and Uncommitted changes",
     }),
   ).toBeVisible();
-  await expect(review.locator(".story-review-since")).toContainText(
+  await expect(commitRangeHeading(review)).toContainText(
     "to Uncommitted changes.",
   );
   await expect(
@@ -121,45 +122,4 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
   await expect(review.locator(".story-review-added")).toHaveText([
     "+only uncommitted",
   ]);
-});
-
-test("a marked review opens on Since the review and marking from Commits marks the whole snapshot", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { story, card, review } = await markStoryReview(
-    page,
-    dashboard,
-    origin,
-  );
-  writeAt(story.workspace, "src/b.ts", "uncommitted b\n");
-  const snapshot = await reopenStoryReview(page, card);
-  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
-  await comparisonChoice(review, "Commits", { exact: true }).check();
-  // Choose a committed item alone, excluding the new uncommitted file from
-  // the displayed range; marking must nevertheless keep the full snapshot.
-  const rows = review
-    .getByRole("list", { name: "Story commits", exact: true })
-    .getByRole("button");
-  await chooseCommit(review, rows.nth(1));
-  await chooseCommit(review, rows.nth(1));
-  await expect(
-    review.getByRole("heading", { name: "Changes in 1 commit" }),
-  ).toBeVisible();
-  await expect(
-    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
-      "button",
-      { name: "Modified src/c.ts" },
-    ),
-  ).toBeVisible();
-  await markReviewed(review);
-  expect(keptStoryAMark(dashboard)).toMatchObject({
-    tree: snapshot.tree,
-    baseline: snapshot.baseline,
-  });
-  const again = await reopenStoryReview(page, card);
-  expect(again.since?.files).toEqual([]);
-  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
-  await expect(review).toContainText("Nothing changed since the review.");
 });

@@ -3,7 +3,7 @@
 Which workspace a [story review](AGENT-LAUNCH-REVIEW.md) reads.
 
 One rule picks it for the card that offers **Review changes** and for the
-boundary that answers the review, its file diffs and its mark
+boundary that answers the review and its file diffs
 (`reviewWorkspaceOf` in `src/storyReviewWorkspace.ts`; the offer itself,
 always made for a completed story, is `storyComparisonOffered`). The most
 recent kept launch record by `launchedAt`, whether it names a start or a
@@ -32,7 +32,6 @@ still offers **Review changes**, and the review opens with one explanation in
 its feedback, where an unreadable trunk is explained: “Several worktrees on
 this machine hold this story's claim for <agent>: <a>, <b>. The review cannot
 choose one.”, each worktree as the context line would show it, in path order.
-It shows no context line, files, diff, or marking controls, and the file,
-range and mark requests are refused with the same words (409), so none of
-those worktrees is read or marked. A kept launch record naming a workspace
+The panel shows the explanation in place of the comparison. File and range
+requests return the same explanation (409). A kept launch record naming a workspace
 still comes first, however many worktrees are found.

@@ -27,10 +27,12 @@ import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecor
 import {
   openStoryReview,
   reopenStoryReview,
+} from "../../dashboard/tests/support/reviewRead.ts";
+import {
   reviewRegion,
   uncommittedCheck,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   commitUnpublished,
   openTaken,

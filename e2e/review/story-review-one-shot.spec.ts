@@ -5,7 +5,7 @@ import {
   listedFile,
   fileDiff,
 } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
@@ -74,9 +74,6 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   await expect(review).toContainText(receipt.revision);
   await expect(review).toContainText("Refinement launched");
   await expect(review).toContainText("origin/main");
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
   const files = changedFilesList(review, "5 changed files");
   await expect(files).toBeVisible();
   await expect(

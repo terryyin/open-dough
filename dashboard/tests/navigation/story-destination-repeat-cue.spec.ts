@@ -16,7 +16,8 @@ import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import { openStoryReview } from "../support/reviewRead.ts";
+import { reviewRegion } from "../support/reviewControls.ts";
 import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
 
 const storyUrl = `/?${new URLSearchParams({ project: "open-dough", story: queuedIdentity })}`;

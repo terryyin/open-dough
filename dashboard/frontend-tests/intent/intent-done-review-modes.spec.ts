@@ -2,7 +2,7 @@ import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
 import { fileBrowser } from "../../tests/support/reviewContextLine.ts";
-import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../tests/support/reviewControls.ts";
 import { reviewChanges } from "../../tests/storyCardControls.ts";
 import { parts } from "../../tests/dashboardPage.ts";
 import { showColumn } from "../../tests/boardPage.ts";

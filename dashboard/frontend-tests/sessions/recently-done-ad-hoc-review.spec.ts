@@ -1,7 +1,6 @@
 // A standalone ad hoc Done entry in Recently done offers Review changes and
 // opens its retained landing in the side panel: session label as title, landed
-// context, file browser and first file's diff; no Comparison switch, Mark
-// reviewed or line Follow up; selected story cleared; Close returns the
+// context, file browser and first file's diff; no Comparison switch or line Follow up; selected story cleared; Close returns the
 // keyboard to the action and keeps Recently done's range and counts. An entry
 // without a landing offers the action too. Absent, unreadable and empty
 // answers explain the gap with no file browser or diff. Linked ad hoc rows
@@ -146,7 +145,6 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
       );
       pages.storyReview.expectFileDiff(`Modified ${deliveredPath}`, "after");
       pages.storyReview.expectNoComparisonSwitch();
-      pages.storyReview.expectNoMarkReviewed();
       pages.storyReview.expectNoLineFollowUp();
       pages.storyReview.expectNoNoteActions();
     },

@@ -4,7 +4,7 @@
 // commits one file and edits another lists the new committed files, still
 // off, and announces their count; once everything is committed Refresh
 // offers no check over the whole snapshot, and uncommitted changes appearing
-// later are offered included. Since the review and Commits offer no check,
+// later are offered included. Commits offers no check,
 // and returning to All changes finds it as it was left. Off, Previous file
 // and Next file move through the committed files alone and a binary file's
 // diff is read to the head's tree; Close and Review changes starts with the
@@ -26,14 +26,14 @@ import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
   comparisonChoice,
-  markReviewed,
+  reviewRegion,
+  uncommittedCheck as check,
+} from "../../dashboard/tests/support/reviewControls.ts";
+import {
   refreshReview,
   openStoryReview,
   reopenStoryReview,
-  reviewRegion,
-  uncommittedCheck as check,
-  uncommittedLeftOut as leftOut,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewRead.ts";
 import {
   commitAll,
   git,
@@ -75,7 +75,6 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
     "story.txt",
   ]);
   await expect(check(review)).not.toBeChecked();
-  await expect(review.getByText(leftOut)).toBeVisible();
   await expect(reviewFeedback(review)).toHaveText(refreshed(5));
 
   // The agent commits everything: no check, the whole snapshot.
@@ -93,7 +92,6 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
     "unstaged.txt",
   ]);
   await expect(review.getByRole("checkbox")).toHaveCount(0);
-  await expect(review.getByText(leftOut)).toHaveCount(0);
   await expect(reviewFeedback(review)).toHaveText(refreshed(7));
 
   // Uncommitted work again: the check is back, on.
@@ -102,11 +100,10 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
   expect(again.committed?.files).toHaveLength(7);
   await expect(list(8)).toBeVisible();
   await expect(check(review)).toBeChecked();
-  await expect(review.getByText(leftOut)).toHaveCount(0);
   await expect(reviewFeedback(review)).toHaveText(refreshed(8));
 });
 
-test("Since the review and Commits offer no check, and All changes finds it as it was left", async ({
+test("Commits offers no check, and All changes finds it as it was left", async ({
   page,
   dashboard,
   origin,
@@ -117,19 +114,8 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   const review = reviewRegion(page);
   const choose = (name: string) =>
     comparisonChoice(review, name, { exact: true }).check();
-  const since = review.getByRole("heading", {
-    name: "Changes since the review",
-  });
   const committed = changedFilesList(review, "4 changed files");
 
-  // Marked, then changed: Refresh shows the changes since the review.
-  await markReviewed(review);
-  writeAt(workspace, "later.txt", "later\n");
-  await refreshReview(review, { exact: true });
-  await expect(since).toBeVisible();
-  await expect(review.getByRole("checkbox")).toHaveCount(0);
-
-  await choose("All changes");
   await expect(check(review)).toBeChecked();
   await check(review).uncheck();
   await expectTreeRows(committed, committedFiles);
@@ -139,16 +125,9 @@ test("Since the review and Commits offer no check, and All changes finds it as i
     review.getByRole("list", { name: "Story commits", exact: true }),
   ).toBeVisible();
   await expect(review.getByRole("checkbox")).toHaveCount(0);
-  await expect(review.getByText(leftOut)).toHaveCount(0);
-
-  await choose("Since the review");
-  await expect(since).toBeVisible();
-  await expect(review.getByRole("checkbox")).toHaveCount(0);
-  await expect(review.getByText(leftOut)).toHaveCount(0);
 
   await choose("All changes");
   await expect(check(review)).not.toBeChecked();
-  await expect(review.getByText(leftOut)).toBeVisible();
   await expectTreeRows(committed, committedFiles);
 });
 
@@ -202,6 +181,5 @@ test("with the check off the file moves stay within the committed files and a bi
 
   await reopenStoryReview(page, card);
   await expect(check(review)).toBeChecked();
-  await expect(review.getByText(leftOut)).toHaveCount(0);
   await expect(changedFilesList(review, "7 changed files")).toBeVisible();
 });

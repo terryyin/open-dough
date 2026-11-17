@@ -13,7 +13,7 @@ import {
   uncommittedLabel,
   comparisonChoice,
   comparisonLabel,
-} from "./storyReviewMark.ts";
+} from "./reviewControls.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
 // Adjacent React text nodes carry the marker and the file's original text.

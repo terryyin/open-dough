@@ -1,15 +1,16 @@
 // Anchored range identities survive new heads and refreshed virtual points;
 // vanished endpoints reset permanently to the latest default.
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import {
+  commitRangeHeading,
+  chooseCommit,
+} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
-  refreshReview,
-  openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   commitAll,
   git,
@@ -20,6 +21,8 @@ import {
 import {
   expectReviewRead,
   showCommits,
+  refreshReview,
+  openStoryReview,
 } from "../../dashboard/tests/support/reviewRead.ts";
 import {
   expectTreeRows,
@@ -107,7 +110,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   ]);
   await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
   await expect(rows.last()).toHaveAttribute("aria-pressed", "false");
-  await expect(review.locator(".story-review-since")).toContainText(
+  await expect(commitRangeHeading(review)).toContainText(
     "fourth story commit to",
   );
   await expect(feedback).toHaveText(

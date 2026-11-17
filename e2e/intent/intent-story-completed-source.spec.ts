@@ -1,4 +1,4 @@
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";

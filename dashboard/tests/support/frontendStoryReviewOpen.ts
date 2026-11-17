@@ -18,7 +18,7 @@ import {
   type FrontendStoryReview,
 } from "./frontendStoryReview.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import { reviewRegion } from "./storyReviewMark.ts";
+import { reviewRegion } from "./reviewControls.ts";
 import {
   openFrontendBoardReview,
   storyA,

@@ -5,7 +5,7 @@ import {
   fileDiff,
   listedFile,
 } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -77,9 +77,6 @@ async function inspectDelivered(
   await expect(review).toContainText("Execution launched");
   await expect(review).toContainText(receipt.base);
   await expect(review).toContainText(receipt.revision);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
   for (const [file, content] of [
     ["earlier.txt", "+earlier local commit"],
     ["pending.txt", "+pending default-checkout work"],

@@ -7,15 +7,20 @@ import {
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
-import { showCommits } from "../../dashboard/tests/support/reviewRead.ts";
+import {
+  commitRangeHeading,
+  chooseCommit,
+} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import {
+  showCommits,
+  openStoryReview,
+} from "../../dashboard/tests/support/reviewRead.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
-  openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   git,
   observed,
@@ -84,7 +89,7 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
-  await expect(review.locator(".story-review-since")).toContainText(
+  await expect(commitRangeHeading(review)).toContainText(
     `From ${snapshot.commits[0]?.shortRevision} newest story edit to ${snapshot.commits[0]?.shortRevision} newest story edit.`,
   );
   const files = changedFilesList(review, "1 changed file", { exact: true });

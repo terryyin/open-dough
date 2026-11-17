@@ -8,14 +8,12 @@
 // folder in the context line. Once the agent publishes the commit the head
 // equals trunk, and Refresh still lists its file beside the untracked one,
 // taken out of trunk as the story's own, while Commits offers Uncommitted
-// changes and no commit. Mark reviewed marks that worktree's snapshot, and
-// after Refresh a later edit is what Since the review lists.
+// changes and no commit.
 
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { existsSync, writeFileSync } from "node:fs";
 import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 import path from "node:path";
-import { storyReviewMarkEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
@@ -28,14 +26,13 @@ import {
 } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import {
-  expectSinceTheReview,
-  keptStoryAMark,
-  markReviewed,
   refreshReview,
   openStoryReview,
+} from "../../dashboard/tests/support/reviewRead.ts";
+import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   commitAll,
   git,
@@ -107,20 +104,5 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
     await comparisonChoice(review, "Commits", { exact: true }).check();
     await expect(commits).toHaveText(["Uncommitted changes"]);
     await comparisonChoice(review, "All changes", { exact: true }).check();
-  });
-
-  await test.step("Mark reviewed marks the worktree's snapshot, and after Refresh a later edit is what Since the review lists", async () => {
-    const marked = page.waitForResponse(
-      (answered) =>
-        new URL(answered.url()).pathname === storyReviewMarkEndpoint,
-    );
-    await markReviewed(review);
-    expect((await marked).status()).toBe(200);
-    writeFileSync(path.join(workspace, "a.ts"), "export const a = 1;\n");
-    const since = await refreshReview(review);
-    expect(since.since?.files.map((file) => file.path)).toEqual(["a.ts"]);
-    await comparisonChoice(review, "Since the review").check();
-    await expectSinceTheReview(review, keptStoryAMark(dashboard));
-    await expectTreeRows(changedFilesList(review, "1 changed file"), ["a.ts"]);
   });
 });

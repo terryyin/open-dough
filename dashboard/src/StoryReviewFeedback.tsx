@@ -1,5 +1,5 @@
 // The story review's one status region: snapshot and range read progress,
-// Refresh's displayed comparison counts, marking, read failures, and, for as
+// Refresh's displayed comparison counts, read failures, and, for as
 // long as the snapshot is shown, that this machine's Git kept a Trunk Mode
 // story's published commits in its baseline.
 import { shortRevision } from "./publishedWork.ts";
@@ -7,7 +7,6 @@ import { changedFiles } from "./StoryReviewFileTree.tsx";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import {
   baselineRevision,
-  type MarkReviewedAnswer,
   type ReviewComparison,
   type ReviewRange,
   type StoryReview,
@@ -23,9 +22,7 @@ export function ReviewFeedback({
   range,
   shown,
   comparison,
-  since,
   round,
-  made,
 }: {
   readonly review: StoryReview | undefined;
   readonly reading: boolean;
@@ -33,9 +30,7 @@ export function ReviewFeedback({
   readonly range: RangeRead;
   readonly shown: ShownComparison;
   readonly comparison: ReviewComparison | undefined;
-  readonly since: ReviewComparison | undefined;
   readonly round: number;
-  readonly made: MarkReviewedAnswer | undefined;
 }) {
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const kept =
@@ -60,7 +55,6 @@ export function ReviewFeedback({
         )}
       {!reading &&
         round > 0 &&
-        made === undefined &&
         snapshot !== undefined &&
         (shown === "commits" ? (
           comparison !== undefined && (
@@ -69,16 +63,11 @@ export function ReviewFeedback({
               chosen range.
             </p>
           )
-        ) : since === undefined ? (
+        ) : (
           <p>
             Review refreshed:{" "}
             {changedFiles((comparison ?? snapshot).files.length)} against
             baseline <code>{shortRevision(baselineRevision(snapshot))}</code>.
-          </p>
-        ) : (
-          <p>
-            Review refreshed: {changedFiles(since.files.length)} since the
-            review.
           </p>
         ))}
       {!reading && round > 0 && review?.kind === "landed" && (
@@ -101,8 +90,6 @@ export function ReviewFeedback({
         </p>
       )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
-      {made?.kind === "marked" && <p>Marked reviewed.</p>}
-      {made?.kind === "unavailable" && <p>{made.explanation}</p>}
       {problem !== undefined && <p>The review could not be read: {problem}</p>}
       {review?.kind === "unavailable" && (
         <p>

@@ -15,7 +15,7 @@ import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
-import { comparison, reviewRegion } from "./support/storyReviewMark.ts";
+import { comparison, reviewRegion } from "./support/reviewControls.ts";
 
 export class StoryReview extends PageObject {
   get #review() {
@@ -80,17 +80,6 @@ export class StoryReview extends PageObject {
   expectNoComparisonSwitch() {
     return this.cueHere("Story review: shows no Comparison switch", () =>
       expect(comparison(this.#review)).toHaveCount(0),
-    );
-  }
-
-  expectNoMarkReviewed() {
-    return this.cueHere("Story review: shows no Mark reviewed", () =>
-      expect(
-        this.#review.getByRole("button", {
-          name: "Mark reviewed",
-          exact: true,
-        }),
-      ).toHaveCount(0),
     );
   }
 

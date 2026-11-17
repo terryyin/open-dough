@@ -2,7 +2,6 @@
 import type { Page, Route } from "@playwright/test";
 import {
   reviewedFileTextSchema,
-  type MarkReviewedAnswer,
   type ReviewedFileDiff,
   type ReviewedFileText,
   type ReviewRange,
@@ -28,7 +27,7 @@ export type Bucket<T> = {
 
 export const keyFor = (value: string | undefined) => value ?? "*";
 
-export function takeQueued<T>(map: Map<string, T>, key: string) {
+function takeQueued<T>(map: Map<string, T>, key: string) {
   const staged = map.get(key) ?? map.get("*");
   if (map.has(key)) map.delete(key);
   else if (staged !== undefined) map.delete("*");
@@ -72,10 +71,8 @@ export type ReviewBuckets = {
   readonly ranges: Bucket<ReviewRange>;
   readonly files: Bucket<ReviewedFileDiff>;
   readonly texts: Bucket<ReviewedFileText>;
-  readonly marks: Bucket<MarkReviewedAnswer>;
   readonly fileByPath: Map<string, ReviewedFileDiff>;
   readonly textByPath: Map<string, ReviewedFileText>;
-  markAnswer: MarkReviewedAnswer | undefined;
 };
 
 const emptyBucket = <T>(settle: () => T): Bucket<T> => ({
@@ -121,11 +118,7 @@ export function createReviewBuckets(initial: StoryReview): ReviewBuckets {
         tree: "story\n",
       }),
     ),
-    marks: emptyBucket(() => {
-      throw new Error("mark settle unused");
-    }),
     fileByPath: new Map(),
     textByPath: new Map(),
-    markAnswer: undefined,
   };
 }

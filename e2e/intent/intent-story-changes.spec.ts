@@ -1,6 +1,6 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import {
   filesColumn,
   intentModeViews,

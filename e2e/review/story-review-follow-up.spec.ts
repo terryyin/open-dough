@@ -34,7 +34,7 @@ import {
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
 import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";

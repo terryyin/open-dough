@@ -4,31 +4,23 @@
 // launch evidence. File reads name hexadecimal comparison objects and literal
 // changed paths, including a rename's old path. Historical reads must match that
 // comparison's pair and file list through admitHistoricalReviewedFile.
-// Marking is a same-origin POST of the workspace snapshot's tree and baseline.
 // Commit ranges name listed fromTree/fromBaseline and tree/baseline points;
 // the range reader confirms their objects exist. Uncommitted changes compare
 // the head tree with the snapshot tree on the same baseline. Optional
 // integrations name selected merges' listed parent points and destination
 // baselines, without accepting paths or rereading history.
 
-import {
-  reviewedWorkspace,
-  queriedWorkspace,
-} from "./storyReviewWorkspaceAdmission.ts";
-import type { IncomingMessage } from "node:http";
+import { queriedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { z } from "zod";
 import {
-  markReviewedRequestSchema,
   objectIdSchema,
   reviewedPathSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
 } from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
-import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
-import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { admitHistoricalReviewedFile } from "./storyReviewHistoricalFileAdmission.ts";
 import { queriedReviewIdentity } from "./storyReviewRunAdmission.ts";
 import {
@@ -107,7 +99,7 @@ export async function rangeRequest(
   });
   if (!query.success)
     throw new RefusedRequest(400, "The commit range names a malformed object.");
-  const { established } = await queriedWorkspace(url);
+  const established = await queriedWorkspace(url);
   return { kind: "story-review-range", established, ...query.data };
 }
 
@@ -177,7 +169,7 @@ async function admitReviewedFile(
   }
   return {
     kind,
-    repository: (await queriedWorkspace(url)).established.workspace,
+    repository: (await queriedWorkspace(url)).workspace,
     ...file,
   };
 }
@@ -188,26 +180,6 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedReviewedFile> {
 
 export async function fileTextRequest(url: URL): Promise<AdmittedReviewedFile> {
   return admitReviewedFile(url, "story-review-file-text", "file text");
-}
-
-export async function markReviewedRequest(
-  req: IncomingMessage,
-): Promise<AdmittedStoryReviewMark> {
-  const parsed = markReviewedRequestSchema.safeParse(await jsonBody(req));
-  if (!parsed.success)
-    throw new RefusedRequest(400, "The review mark request is malformed.");
-  const { source, identity, established } = await reviewedWorkspace(
-    parsed.data.source,
-    parsed.data.identity,
-  );
-  return {
-    kind: "story-review-mark",
-    sourceId: source.id,
-    identity,
-    established,
-    tree: parsed.data.tree,
-    baseline: parsed.data.baseline,
-  };
 }
 
 export {

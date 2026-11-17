@@ -11,14 +11,13 @@ import { git } from "../../tests/support/storyReviewWorktree.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-  storyReviewMarkEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 
 test.use({ serverMode: "boundary" });
 
 for (const mode of ["trunk", "story-branch"] as const)
-  test(`${mode} completion refuses mismatched literal-file identities, paths, callers and review marks`, async ({
+  test(`${mode} completion refuses mismatched literal-file identities, paths and callers`, async ({
     request,
     dashboard,
     origin,
@@ -99,14 +98,6 @@ for (const mode of ["trunk", "story-branch"] as const)
           )
         ).status(),
       ).toBe(403);
-      const mark = await request.post(
-        `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
-        {
-          headers: { Origin: dashboard.origin },
-          data: { ...named, baseline: review.baseline, tree: review.tree },
-        },
-      );
-      expect(mark.status()).toBe(404);
       const fixed = await get(
         request,
         dashboard,

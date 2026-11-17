@@ -1,4 +1,7 @@
-import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  reviewRefresh,
+  reviewRegion,
+} from "../../dashboard/tests/support/reviewControls.ts";
 // A Trunk Mode story taken in a terminal (./story-review-trunk-worktree.spec.ts)
 // beside other worktrees of the project's checkout, each added by Git and
 // authored through the real per-worktree authorship
@@ -8,8 +11,7 @@ import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
 // the review reads the story's worktree alone. Two worktrees holding the story's
 // claim are not chosen between: Review changes opens a review that says so
 // and names both as the context line would show them, with no context line,
-// file browser, diff, or marking controls, and the boundary refuses to read
-// or mark either.
+// file browser, diff, or comparison controls, and the boundary refuses to read either.
 
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { writeFileSync } from "node:fs";
@@ -20,7 +22,6 @@ import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-  storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
@@ -49,12 +50,7 @@ import {
   type StartOrigin,
   type TakenStart,
 } from "../../dashboard/tests/support/startOrigin.ts";
-import {
-  keptReviewMarks,
-  openStoryReview,
-  reviewedRefs,
-  reviewRegion,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
 import {
   commitAll,
   git,
@@ -171,27 +167,12 @@ test("two worktrees holding the story's claim open a review that names both and 
   await expect(review.getByRole("region")).toHaveCount(0);
   await expect(review.getByRole("radio")).toHaveCount(0);
   await expect(review.getByRole("checkbox")).toHaveCount(0);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
   await expect(reviewRefresh(review)).toBeVisible();
 
-  // The boundary refuses to mark or read either worktree, with the same
-  // words.
+  // The boundary refuses to read either worktree with the same explanation.
   const story = { source: "open-dough", identity: queuedIdentity };
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const refused = { error: explanation };
-  const mark = await page.request.post(
-    `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
-    {
-      headers: { Origin: dashboard.origin },
-      data: { ...story, tree, baseline: claim },
-    },
-  );
-  expect(mark.status()).toBe(409);
-  expect(await mark.json()).toEqual(refused);
-  expect(keptReviewMarks(dashboard)).toBeUndefined();
-  expect(reviewedRefs(origin.project)).toBe("");
   for (const [endpoint, query] of [
     [storyReviewFileEndpoint, { baseline: claim, tree, path: "notes.md" }],
     [

@@ -1,5 +1,5 @@
-// The comparison chosen for a snapshot: all changes, changes since its
-// review, or a contiguous range's two points. Range answers apply only after the read
+// The comparison chosen for a snapshot: all changes or a contiguous commit
+// range. Range answers apply only after the read
 // for the points currently chosen has settled. All changes of a snapshot
 // holding uncommitted changes can leave them out: its committed work alone,
 // to the head's tree, which came with the snapshot.
@@ -71,12 +71,7 @@ export function useStoryReviewComparison({
     );
   };
   const shown: ShownComparison =
-    chosen === "commits" && newest !== undefined
-      ? "commits"
-      : chosen === "since" && snapshot?.since !== undefined
-        ? "since"
-        : "all";
-  const since = chosen === "since" ? snapshot?.since : undefined;
+    chosen === "commits" && newest !== undefined ? "commits" : "all";
   // The committed work alone, which all changes can show in place of the
   // whole snapshot.
   const committed = shown === "all" ? snapshot?.committed : undefined;
@@ -111,8 +106,10 @@ export function useStoryReviewComparison({
       ? undefined
       : shown === "commits"
         ? rangeComparison
-        : (since ??
-          committedShown ?? { from: snapshot.baseline, files: snapshot.files });
+        : (committedShown ?? {
+            from: snapshot.baseline,
+            files: snapshot.files,
+          });
   const tree =
     shown === "commits"
       ? rangeComparison?.tree
@@ -121,7 +118,6 @@ export function useStoryReviewComparison({
     items,
     selectedItems,
     shown,
-    since,
     committed,
     // Whether all changes leave the snapshot's uncommitted changes out.
     committedOnly: committedShown !== undefined,

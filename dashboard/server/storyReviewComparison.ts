@@ -12,29 +12,19 @@
 // story edit or the resolution restores that tree's original content.
 
 import {
-  type MarkUncomparable,
-  type RestatedComparison,
+  type ReviewComparison,
   type ReviewedFile,
   type ReviewIntegration,
 } from "../src/storyReviewContract.ts";
 import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
 import { mergeTreeOutput } from "./mergeTreeOutput.ts";
-import {
-  baselinesDiffer,
-  reviewPointObjects,
-  type ReviewPoint,
-} from "./storyReviewPoints.ts";
+import { reviewPointObjects, type ReviewPoint } from "./storyReviewPoints.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 
-// Whether the repository holds the point's tree and its baseline: a commit,
-// or for a from point, which a mark can supply, a tree as well.
-async function holdsPoint(
-  point: ReviewPoint,
-  call: GitCall,
-  baselineType?: "tree",
-) {
+// Whether the repository holds the point's tree and baseline commit.
+async function holdsPoint(point: ReviewPoint, call: GitCall) {
   try {
-    for (const object of reviewPointObjects(point, baselineType)) {
+    for (const object of reviewPointObjects(point)) {
       await runGit(["rev-parse", "--verify", "--quiet", object], call);
     }
     return true;
@@ -141,18 +131,20 @@ export async function listedFrom(
   ].sort(byPath);
 }
 
-// The points' comparison, with whether trunk was integrated between them,
-// or why the from point cannot be compared.
+// The range comparison, or why the from point cannot be compared.
 export async function compareReviewPoints(
   from: ReviewPoint,
   to: ReviewPoint,
   call: GitCall,
-  integrations: readonly ReviewIntegration[] = [],
+  integrations: readonly ReviewIntegration[],
 ): Promise<
-  | { readonly kind: "comparison"; readonly comparison: RestatedComparison }
-  | { readonly kind: "uncomparable"; readonly reason: MarkUncomparable }
+  | { readonly kind: "comparison"; readonly comparison: ReviewComparison }
+  | {
+      readonly kind: "uncomparable";
+      readonly reason: "unreadable" | "not-restated";
+    }
 > {
-  if (!(await holdsPoint(from, call, "tree")))
+  if (!(await holdsPoint(from, call)))
     return { kind: "uncomparable", reason: "unreadable" };
   const restatement = await restatedPoint(from, to.baseline, call);
   if (restatement === undefined)
@@ -204,7 +196,6 @@ export async function compareReviewPoints(
   return {
     kind: "comparison",
     comparison: {
-      trunkIntegrated: await baselinesDiffer(from, to, call),
       from: tree,
       files: await listedFrom(
         tree,

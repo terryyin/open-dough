@@ -1,7 +1,7 @@
 import { fileBrowser } from "./reviewContextLine.ts";
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { codePane } from "./reviewPanes.ts";
-import { reviewRegion } from "./storyReviewMark.ts";
+import { reviewRegion } from "./reviewControls.ts";
 import {
   filesColumn,
   storySummary,

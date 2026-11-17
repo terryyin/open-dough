@@ -3,21 +3,17 @@
 import { frontendFileDiff } from "./frontendStoryReviewFixtures.ts";
 import type { Page } from "@playwright/test";
 import {
-  markReviewedAnswerSchema,
-  markReviewedRequestSchema,
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
   reviewRangeSchema,
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
-  storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 
 export {
-  markReviewedAnswerSchema,
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
   reviewRangeSchema,
@@ -25,10 +21,8 @@ export {
 };
 import {
   answerBucket,
-  takeQueued,
   type ReviewBuckets,
 } from "./frontendStoryReviewAnswers.ts";
-import { answerHeld, fulfillJson } from "./frontendSubstituteAnswers.ts";
 
 export async function installReviewRoutes(page: Page, state: ReviewBuckets) {
   await page.route(
@@ -98,37 +92,6 @@ export async function installReviewRoutes(page: Page, state: ReviewBuckets) {
             tree: "story\n",
           }),
       );
-    },
-  );
-  await page.route(
-    (url) => url.pathname === storyReviewMarkEndpoint,
-    async (route) => {
-      state.asked.push(storyReviewMarkEndpoint);
-      const planned = takeQueued(state.marks.next, "*");
-      const hold = takeQueued(state.marks.holds, "*");
-      await answerHeld(hold, async () => {
-        const request = markReviewedRequestSchema.parse(
-          route.request().postDataJSON(),
-        );
-        const body =
-          planned ??
-          state.markAnswer ??
-          markReviewedAnswerSchema.parse({
-            kind: "marked",
-            mark: {
-              tree: request.tree,
-              baseline: request.baseline,
-              markedAt: "2026-01-01T00:00:00.000Z",
-            },
-          });
-        if (body.kind === "marked" && state.snapshot.kind === "snapshot") {
-          // Object.assign keeps no-param-reassign clean on the accessor.
-          Object.assign(state, {
-            snapshot: { ...state.snapshot, mark: body.mark },
-          });
-        }
-        await fulfillJson(route, body);
-      });
     },
   );
 }

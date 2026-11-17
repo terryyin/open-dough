@@ -25,7 +25,6 @@ export function ReviewBody({
   subject,
   headingId,
   browser,
-  since,
   committedOnly,
 }: {
   readonly review: StoryReview | undefined;
@@ -38,7 +37,6 @@ export function ReviewBody({
   readonly subject: ReviewedWorkSubject;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
-  readonly since: ReviewComparison | undefined;
   // Whether all changes leave the snapshot's uncommitted changes out.
   readonly committedOnly: boolean;
 }) {
@@ -60,7 +58,6 @@ export function ReviewBody({
           reviewed={shownComparison.reviewed}
           comparison={shownComparison.comparison}
           tree={shownComparison.tree}
-          sinceReview={false}
           headingId={headingId}
           browser={browser}
         />
@@ -81,7 +78,6 @@ export function ReviewBody({
           tree={shownComparison.tree}
           commitsReview={shown === "commits"}
           comparison={shownComparison.comparison}
-          sinceReview={since !== undefined}
           committedOnly={committedOnly}
           headingId={headingId}
           browser={browser}

@@ -25,7 +25,7 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { comparisonChoice } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { comparisonChoice } from "../../dashboard/tests/support/reviewControls.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,

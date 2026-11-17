@@ -29,7 +29,7 @@ multiple-owner history supplies no guess. That owner and all discoverable
 historical owners' profiles attribute the story commits. The published commit rule removes those
 commits from the fixed revision, leaving other stories' interleaved changes out.
 This survives branch and workspace deletion and stays fixed as trunk advances,
-using the same file browser and literal diffs without launch or marking semantics.
+using the same file browser and literal diffs.
 
 A completion with no recoverable agent, incomplete claims, unreadable Git
 objects, an owning or completion merge with more than two parents, or an
@@ -97,8 +97,8 @@ commit whose own profile names the story while its parent's does not, so the
 claim, preparation commits, merges, and the agent's commits for another story
 stay trunk's. Each story commit is taken out newest first by
 `git merge-tree --write-tree --name-only -z --merge-base=<commit> <tree so far>
-<commit's first parent>`, the restatement the changes since the review use,
-which writes tree objects and touches no index, worktree, or ref. A file
+<commit's first parent>`, which writes tree objects without changing the
+index, worktree, or refs. A file
 whose story change Git cannot take out, because trunk then changed the same
 lines, is conflicted in that restatement: all changes lists it with its kind,
 counts and diff from trunk as it was before the story's first change to it,
@@ -107,33 +107,35 @@ the tree of the first parent of the oldest story commit that changed its path
 merge's own edits use the merge tree without them as `<parent>`), which is the
 file's `includesTrunkFrom`, so the line's net change by both is shown rather
 than hidden. Its control's name, its row, and its diff heading say it
-“includes trunk's changes”, as in the changes since the review, and the
-committed work alone lists it the same way. The answer
-then carries `published`, the trunk revision the commits were taken out of
+“includes trunk's changes”. The committed work alone lists it the same way.
+The answer carries `published`, the trunk revision the commits were taken out of
 (`trunk`, the merge-base) and how many (`commits`), and `baseline` names the
 resulting tree; with nothing published since the claim it carries no
 `published` and `baseline` is the merge-base. Commits and its Uncommitted
 changes item stay the worktree's own, with the merge-base as their points, so
 a published commit is not listed there. Taking the commits out needs Git 2.45
-or later, as restating the mark does; when this machine's Git cannot (an
+or later. When this machine's Git cannot take the commits out (an
 older one says the tree is not a commit, and any other failed restatement
 counts the same), the review is not failed: nothing is taken out, `baseline`
 stays the merge-base, `published` also carries `kept: "not-restated"`, the
 context line reads as for any worktree, and the review's status region says,
 for as long as that snapshot is shown, “This machine's Git cannot take the
 story's 2 published commits out of trunk, so All changes shows only what is
-not yet published.” (`src/StoryReviewFeedback.tsx`). A mark taken against
-trunk less the story's commits is then one this Git cannot restate on the
-merge-base, which [review marks](STORY-REVIEW-MARKS.md) explain.
+not yet published.” (`src/StoryReviewFeedback.tsx`).
 
 The [file browser](STORY-REVIEW-FILES.md) shows the snapshot's changed files
 under their folders, each file's kind told by its name's style.
 
+**All changes** opens with **Include uncommitted changes** checked whenever
+there are staged, unstaged, or untracked changes. Unchecking it shows the
+committed work from the same snapshot, including its file list, counts, and
+diffs. Refresh keeps the choice while there are uncommitted changes. When
+they disappear, the checkbox goes away and returns checked if they reappear.
+
 The list and every file diff come from that one snapshot until Refresh takes
 a new one. A file's diff is Git's unified diff from its _from_ tree in the
-comparison shown, the baseline, the restated or the marked tree, to the
-snapshot tree, with renames diffed against their old path; the file diff
-request names that _from_ tree as `baseline`. Each line shows its number in
+comparison shown to its end tree, with renames diffed against their old path.
+The file diff request names that _from_ tree as `baseline`. Each line shows its number in
 the old file, the new file, or both, counted from its hunk's header
 (`src/unifiedDiff.ts`); Git's no-newline note takes none. The numbers are
 generated beside the line, outside its text, so copying code leaves them
@@ -170,11 +172,8 @@ and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
 icon controls shared with the terminal. Directly beneath the header, the
 review's top stays in place while the panes beneath it scroll. It holds
-the context line, the review's feedback, and, for a snapshot, its marking
-controls: the Comparison switch, the changes since the review's heading, and
-Mark reviewed with what the review says of the mark
-(`src/StoryReviewContextLine.tsx`, `src/StoryReview.tsx`,
-`src/StoryReviewMark.tsx`). The context line is one line that never wraps:
+the context line, the review's feedback, and any available comparison
+controls (`src/StoryReviewContextLine.tsx`, `src/StoryReview.tsx`). The context line shows the
 branch, the baseline's short revision with the `<remote>/<target>` it meets,
 worktree, and, while the comparison shown lists files, Hide files / Show
 files for the file browser. Values that do not fit are shortened, the
@@ -191,9 +190,8 @@ changes and after Refresh, name that trunk revision too (`baselineRevision` in
 review's accessible description, not a visible line. The feedback region,
 beneath the context line, announces reading, refreshing, refreshed, and
 problem messages, and an unavailable review's explanation. A review with no
-changes shows its context line above “No changes”, and changes since the
-review with no file above “Nothing changed since the review.”; none of these
-nor an unavailable review shows the file browser or a diff.
+changes shows its context line above “No changes”. Empty and unavailable
+comparisons leave the file browser and diff out of the panel.
 
 With touch input, the context disclosure, comparison labels, file and folder
 rows, commit rows and uncommitted-changes label offer at least the shared
@@ -241,8 +239,7 @@ Long code lines scroll sideways inside the diff, and file names inside the
 browser, without widening the page. A pane's scroll position can be clamped
 when its enlarged view no longer has enough content below that position.
 
-The [review mark](STORY-REVIEW-MARKS.md), [Commits comparison](STORY-REVIEW-COMMITS.md)
-and [Landed runs comparison](STORY-REVIEW-LANDED-RUNS.md) extend this panel: marks
-for Changes since the review; Commits for first-parent ranges; Landed runs for each
+The [Commits comparison](STORY-REVIEW-COMMITS.md) shows first-parent ranges.
+The [Landed runs comparison](STORY-REVIEW-LANDED-RUNS.md) reads each
 retained delivered pair after retirement, including a standalone ad hoc session's
 Recently done **Review changes**.

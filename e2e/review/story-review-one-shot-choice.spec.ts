@@ -1,5 +1,5 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-// Every retained run is a keyboard choice beside the marked live workspace.
+// Every retained run is a keyboard choice beside the live workspace.
 import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import {
@@ -15,15 +15,12 @@ import { refreshAndRead } from "../../dashboard/tests/support/reviewRead.ts";
 import { openCapturedReview } from "../../dashboard/tests/support/oneShotReview.ts";
 import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import {
-  markReviewed,
-  keptStoryAMark,
-  reviewedRefs,
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 
-test("keyboard choices show each retained captured or legacy run beside the live marked comparison without changing its mark", async ({
+test("keyboard choices show each retained captured or legacy run beside the live workspace comparison", async ({
   page,
   dashboard,
   origin,
@@ -39,16 +36,13 @@ test("keyboard choices show each retained captured or legacy run beside the live
     choices.legacy.key,
   ]);
   const review = reviewRegion(page);
-  await markReviewed(review);
-  const mark = keptStoryAMark(dashboard);
-  const refs = reviewedRefs(origin.project);
   addLiveEdit(choices.workspace);
   await refreshAndRead(review);
   await expect(review).toContainText(
-    "Review refreshed: 1 changed file since the review",
+    "Review refreshed: 2 changed files against baseline",
   );
   await expect(
-    comparisonChoice(review, "Since the review", { exact: true }),
+    comparisonChoice(review, "All changes", { exact: true }),
   ).toBeChecked();
   const radio = comparisonChoice(review, "Landed runs", { exact: true });
   await radio.focus();
@@ -79,9 +73,6 @@ test("keyboard choices show each retained captured or legacy run beside the live
       run.record.launchedAt,
     );
     await expect(review).toContainText("origin/main");
-    await expect(
-      review.getByRole("button", { name: "Mark reviewed" }),
-    ).toHaveCount(0);
   }
   await select.focus();
   await page.keyboard.press("End");
@@ -101,19 +92,14 @@ test("keyboard choices show each retained captured or legacy run beside the live
       (record) => record.session.sessionId === choices.legacy.session.sessionId,
     )?.request.reporting,
   ).toBeUndefined();
-  expect(keptStoryAMark(dashboard)).toEqual(mark);
-  expect(reviewedRefs(origin.project)).toBe(refs);
-  await comparisonChoice(review, "Since the review", { exact: true }).focus();
+  await comparisonChoice(review, "All changes", { exact: true }).focus();
   await page.keyboard.press("Space");
   await expect(review.getByRole("listbox")).toHaveCount(0);
   await expect(
-    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+    changedFilesList(review, "2 changed files", { exact: true }).getByRole(
       "button",
-      { name: "Added after-mark.txt", exact: true },
+      { name: "Added live-edit.txt", exact: true },
     ),
-  ).toBeVisible();
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
   ).toBeVisible();
   await comparisonChoice(review, "Commits", { exact: true }).check();
   const commits = review.getByRole("list", {
@@ -129,18 +115,10 @@ test("keyboard choices show each retained captured or legacy run beside the live
   await expect(review.locator(".story-review-added")).toHaveText(["+live.txt"]);
   await radio.check();
   await expect(select).toHaveValue(choices.second.key);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
   await comparisonChoice(review, "Commits", { exact: true }).check();
   await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.nth(0)).toHaveAttribute("aria-pressed", "false");
   await expect(review.locator(".story-review-added")).toHaveText(["+live.txt"]);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toBeVisible();
-  expect(keptStoryAMark(dashboard)).toEqual(mark);
-  expect(reviewedRefs(origin.project)).toBe(refs);
   await closeSidePanel(review);
   await expect(reviewChanges(card)).toBeFocused();
 });

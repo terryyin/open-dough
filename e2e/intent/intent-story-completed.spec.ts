@@ -15,7 +15,7 @@
 // clears it while the review stays open.
 
 import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";

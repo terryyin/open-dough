@@ -31,11 +31,9 @@ import {
   retainedLanding,
 } from "../../dashboard/tests/support/oneShotLandingRecovery.ts";
 import { landingReceiptSchema } from "../../dashboard/src/launchLanding.ts";
-import { storyReviewMarkEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { observeLandingRecoveryIntent } from "../../dashboard/tests/support/landingRecoveryIntent.ts";
 
 test("a lost reconciled push result and record write recover the exact original launch once after retirement", async ({
-  page,
   dashboard,
   origin,
   codexProtocol: native,
@@ -48,31 +46,6 @@ test("a lost reconciled push result and record write recover the exact original 
   const original = stored(dashboard.home)[0];
   if (original === undefined) throw new Error("No real launch");
   const { established, reporting } = context(original);
-  const tree = git(established.workspace, "rev-parse", "HEAD^{tree}");
-  const mark = await page.request.post(
-    `${dashboard.origin}${storyReviewMarkEndpoint}`,
-    {
-      headers: { Origin: dashboard.origin },
-      data: {
-        source: "open-dough",
-        identity: established.identity,
-        tree,
-        baseline: established.startingRevision,
-      },
-    },
-  );
-  expect(await mark.json()).toMatchObject({ kind: "marked" });
-  const marksFile = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/review-marks.json",
-  );
-  const markBefore = readFileSync(marksFile, "utf8");
-  const refsBefore = git(
-    origin.project,
-    "for-each-ref",
-    "refs/open-dough/reviewed",
-    "--format=%(refname) %(objectname)",
-  );
   commit(established.workspace, "own-1.txt");
   const originalTip = commit(established.workspace, "own-2.txt");
   const anotherWriter = commit(origin.project, "another-writer.txt");
@@ -152,7 +125,7 @@ test("a lost reconciled push result and record write recover the exact original 
       revision: input.submission["revision"],
       delivery: input.submission["delivery"],
     });
-    const repository = retireReviewRun(
+    retireReviewRun(
       { record: original, established, reporting },
       origin,
       input.submission["revision"] ?? "",
@@ -208,15 +181,6 @@ test("a lost reconciled push result and record write recover the exact original 
     });
     expect(readFileSync(input.pending, "utf8")).toBe(retainedInputBytes);
     expect(gitFault.pushes()).toBe(1);
-    expect(readFileSync(marksFile, "utf8")).toBe(markBefore);
-    expect(
-      git(
-        repository,
-        "for-each-ref",
-        "refs/open-dough/reviewed",
-        "--format=%(refname) %(objectname)",
-      ),
-    ).toBe(refsBefore);
   } finally {
     await proxy.close();
     await receiver.close();

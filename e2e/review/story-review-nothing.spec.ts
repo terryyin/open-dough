@@ -1,5 +1,10 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  reviewRefresh,
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
@@ -14,11 +19,7 @@ import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
 // refuses.
 
 import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
@@ -173,9 +174,6 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   await expect(review).toContainText("target origin/main");
   await expect(reviewBody(review)).toBeEmpty();
   await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
 
   // A later opening reads the same gap.
   await closeSidePanel(review);

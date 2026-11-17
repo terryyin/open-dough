@@ -1,16 +1,11 @@
-// Which comparison of a story's snapshot its review
-// (`./StoryReview.tsx`) shows: the changes since the review, or all
-// changes against trunk, or selected commits. All changes and Since the
-// review come with the snapshot; Commits reads the selected points. Native
-// radios keep the choice keyboard-operable and say
-// which is shown.
+// All changes comes with the workspace snapshot; Commits reads the selected
+// points. Native radios also offer available historical comparisons.
 
 import { useId } from "react";
 
-export type ShownComparison = "since" | "all" | "commits";
+export type ShownComparison = "all" | "commits";
 
 export const comparisonWords: Readonly<Record<ShownComparison, string>> = {
-  since: "Since the review",
   all: "All changes",
   commits: "Commits",
 };
@@ -18,7 +13,6 @@ export const comparisonWords: Readonly<Record<ShownComparison, string>> = {
 export function ComparisonSwitch({
   shown,
   onSwitch,
-  since,
   commits,
   landed = false,
   published = false,
@@ -26,7 +20,6 @@ export function ComparisonSwitch({
 }: {
   readonly shown: ShownComparison | "landed" | "published";
   readonly onSwitch: (shown: ShownComparison | "landed" | "published") => void;
-  readonly since: boolean;
   readonly commits: boolean;
   readonly landed?: boolean;
   readonly published?: boolean;
@@ -40,7 +33,6 @@ export function ComparisonSwitch({
       aria-label="Comparison"
     >
       {[
-        ...(workspace && since ? ["since" as const] : []),
         ...(workspace ? ["all" as const] : []),
         ...(commits ? ["commits" as const] : []),
         ...(published ? ["published" as const] : []),

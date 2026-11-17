@@ -4,7 +4,7 @@
 // real completion publish path (../../dashboard/tests/support/adHocCompletedAssociation.ts) and
 // Intent review helpers (../../dashboard/tests/support/intentStoryPage.ts).
 import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import {
   expect,
   queuedCodexPreviewTest as test,

@@ -1,18 +1,23 @@
 // Ranges and individual merges leave trunk out and expose conflict resolutions.
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import {
+  commitRangeHeading,
+  chooseCommit,
+} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
-  openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   integrateTrunk,
-  markedWorktree,
+  worktreeWithStoryCommits,
 } from "../../dashboard/tests/support/storyReviewTrunk.ts";
-import { showCommits } from "../../dashboard/tests/support/reviewRead.ts";
+import {
+  showCommits,
+  openStoryReview,
+} from "../../dashboard/tests/support/reviewRead.ts";
 import {
   expectTreeRows,
   changedFilesList,
@@ -31,21 +36,17 @@ for (const conflicted of [false, true]) {
     dashboard,
     origin,
   }) => {
-    const story = markedWorktree(origin);
+    const story = worktreeWithStoryCommits(origin);
     integrateTrunk(origin, story, conflicted ? "c story and trunk" : undefined);
     keepLaunchRecord(dashboard, story.workspace);
-    const snapshot = await openStoryReview(
-      page,
-      await openBacklog(page, origin),
-    );
+    await openStoryReview(page, await openBacklog(page, origin));
     const review = reviewRegion(page);
-    expect(snapshot.mark).toBeUndefined();
     await showCommits(review);
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
     await expect(rows).toHaveCount(2);
-    await expect(review.locator(".story-review-since")).toContainText(
+    await expect(commitRangeHeading(review)).toContainText(
       "Trunk was integrated within the range",
     );
     if (conflicted) {
@@ -101,7 +102,7 @@ test("an integration resolved back to the oldest parent stays flagged and is dif
   dashboard,
   origin,
 }) => {
-  const story = markedWorktree(origin);
+  const story = worktreeWithStoryCommits(origin);
   integrateTrunk(origin, story, "c 5");
   keepLaunchRecord(dashboard, story.workspace);
   await openStoryReview(page, await openBacklog(page, origin));
@@ -134,7 +135,7 @@ test("a clean integration of disjoint changes in one file shows only the story e
   dashboard,
   origin,
 }) => {
-  const story = markedWorktree(origin);
+  const story = worktreeWithStoryCommits(origin);
   // Restore c.ts and edit a.ts far from the sixth line trunk will edit.
   // All selected commits therefore leave only this story edit in the range.
   writeAt(story.workspace, "src/c.ts", sixth("c"));

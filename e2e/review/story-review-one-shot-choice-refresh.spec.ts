@@ -3,7 +3,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -171,7 +171,4 @@ test("Refresh replaces an expired choice with the remaining captured run and fal
   await expect(select.locator("option")).toHaveCount(1);
   await expect(review).toContainText("no captured landing comparison");
   await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
 });

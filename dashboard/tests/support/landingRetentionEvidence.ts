@@ -1,34 +1,19 @@
-// Mark and attention evidence originate from the actual product operations.
-import { readFileSync, writeFileSync } from "node:fs";
+// Completion and refusal evidence originate from the actual product operations.
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { expect } from "@playwright/test";
-import type { DashboardServer } from "./dashboardServer.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { completionSchema } from "../../src/completionReport.ts";
-import { storyReviewMarkEndpoint } from "../../src/storyReviewContract.ts";
 import { context } from "./oneShotLanding.ts";
-import { git } from "./launchLanding.ts";
 import { reportingChild, quote } from "./completionRecovery.ts";
 
 export async function retainedLandingEvidence(
-  receiver: DashboardServer,
   original: LaunchRecord,
   cwd: string,
   submission: Record<string, string>,
 ) {
-  const { established, reporting } = context(original);
-  const marked = await fetch(`${reporting.origin}${storyReviewMarkEndpoint}`, {
-    method: "POST",
-    headers: { Origin: reporting.origin, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      source: "open-dough",
-      identity: established.identity,
-      tree: git(established.workspace, "rev-parse", "HEAD^{tree}"),
-      baseline: established.startingRevision,
-    }),
-  });
-  expect(await marked.json()).toMatchObject({ kind: "marked" });
+  const { reporting } = context(original);
   const message = path.join(cwd, "retention-attention.txt");
   writeFileSync(
     message,
@@ -40,17 +25,6 @@ export async function retainedLandingEvidence(
   );
   expect(completed.ok, completed.stderr).toBe(true);
   const completion = completionSchema.parse(JSON.parse(completed.stdout));
-  const file = path.join(
-    receiver.home,
-    ".open-dough/dashboard/review-marks.json",
-  );
-  const mark = readFileSync(file, "utf8");
-  const markedRefs = git(
-    established.workspace,
-    "for-each-ref",
-    "refs/open-dough/reviewed",
-    "--format=%(refname) %(objectname)",
-  );
   for (const changed of [
     { reference: randomUUID() },
     { identity: "SEED-B#b" },
@@ -65,5 +39,5 @@ export async function retainedLandingEvidence(
     });
     expect([404, 409]).toContain(refused.status);
   }
-  return { completion, mark, file, markedRefs };
+  return completion;
 }

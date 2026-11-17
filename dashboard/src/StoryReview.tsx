@@ -5,8 +5,6 @@ import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { SidePanelControls } from "./SidePanelControls.tsx";
-import type * as Review from "./storyReviewContract.ts";
-import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
 import { ReviewContext, reviewDescription } from "./StoryReviewContext.tsx";
 import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
@@ -14,6 +12,7 @@ import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
+import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
@@ -21,7 +20,6 @@ import {
   StoryReviewHeading,
   storyReviewPanelLabel,
 } from "./StoryReviewHeading.tsx";
-import { reviewedStorySubject } from "./reviewedWorkSubject.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -64,23 +62,12 @@ export function StoryReview({
     includeUncommitted,
     setIncludeUncommitted,
   } = useStoryReviewRequest(request, round);
-  // Mark reviewed's answer for the review it marked, and whether a mark is
-  // still being made.
-  const [made, setMade] = useState<{
-    readonly of: Review.StoryReview;
-    readonly answer: Review.MarkReviewedAnswer;
-  }>();
-  const [marking, setMarking] = useState(false);
-  const madeHere =
-    made !== undefined && made.of === review ? made.answer : undefined;
   const published = review?.kind === "published" ? review : undefined;
-  const snapshot = review?.kind === "snapshot" ? review : undefined;
   const {
     items,
     selectedItems,
     trunkIntegrated,
     shown,
-    since,
     committed,
     committedOnly,
     range,
@@ -94,19 +81,9 @@ export function StoryReview({
     includeUncommitted,
     active: selectedRun === undefined,
   });
-  // The mark the review states: one made on the review shown since it was
-  // read, or the one it was read with unless the changes since the review
-  // are headed by it.
-  const stated =
-    madeHere?.kind === "marked"
-      ? madeHere.mark
-      : since === undefined
-        ? snapshot?.mark
-        : undefined;
   useEffect(() => {
     body.current?.focus();
   }, [request]);
-  const storySubject = reviewedStorySubject(subject);
   return (
     <section
       className="side-panel story-review"
@@ -143,9 +120,7 @@ export function StoryReview({
         {reviewDescription(review)}
       </p>
       <div className="story-review-top">
-        {(runs.length > 0 ||
-          workspace?.since !== undefined ||
-          items.length > 0) && (
+        {(runs.length > 0 || items.length > 0) && (
           <ComparisonSwitch
             shown={
               selectedRun === undefined
@@ -166,7 +141,6 @@ export function StoryReview({
               }
             }}
             workspace={workspace !== undefined}
-            since={workspace?.since !== undefined}
             commits={workspace !== undefined && items.length > 0}
             landed={runs.length > 0}
             published={availablePublished !== undefined}
@@ -189,41 +163,29 @@ export function StoryReview({
           range={range}
           shown={selectedRun === undefined ? shown : "all"}
           comparison={comparison}
-          since={since}
           round={round}
-          made={madeHere}
         />
-        {snapshot !== undefined && storySubject !== undefined && (
-          <MarkingControls
-            snapshot={snapshot}
-            shown={shown}
-            selectedItems={selectedItems}
-            trunkIntegrated={trunkIntegrated}
-            sinceReview={since !== undefined}
-            stated={stated}
-            busy={reading || marking}
-            {...(committed === undefined
-              ? {}
-              : {
-                  uncommitted: {
-                    included: includeUncommitted,
-                    onInclude: setIncludeUncommitted,
-                  },
-                })}
-            onMark={() => {
-              const of = snapshot;
-              setMarking(true);
-              void requestMarkReviewed({
-                source: storySubject.source,
-                identity: storySubject.identity,
-                tree: of.tree,
-                baseline: of.baseline,
-              }).then((answer) => {
-                setMade({ of, answer });
-                setMarking(false);
-              });
-            }}
-          />
+        {review?.kind === "snapshot" &&
+          shown === "commits" &&
+          selectedItems.length > 0 && (
+            <CommitRangeHeading
+              selected={selectedItems}
+              trunkIntegrated={trunkIntegrated}
+            />
+          )}
+        {review?.kind === "snapshot" && committed !== undefined && (
+          <div className="story-review-uncommitted">
+            <label>
+              <input
+                type="checkbox"
+                checked={includeUncommitted}
+                onChange={(event) => {
+                  setIncludeUncommitted(event.target.checked);
+                }}
+              />{" "}
+              Include uncommitted changes
+            </label>
+          </div>
         )}
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
@@ -238,7 +200,6 @@ export function StoryReview({
           subject={subject}
           headingId={headingId}
           browser={browser}
-          since={since}
           committedOnly={committedOnly}
         />
       </div>

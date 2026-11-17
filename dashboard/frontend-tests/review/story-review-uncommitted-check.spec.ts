@@ -1,11 +1,6 @@
-// All changes can leave uncommitted changes out without rereading the
-// snapshot, range or mark; Mark reviewed with the check off marks the whole
-// snapshot.
-
 import type { Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
-  storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
 } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
@@ -23,23 +18,15 @@ import {
   changedFilesList,
 } from "../../tests/support/reviewTreeRows.ts";
 import {
-  markReviewed,
   reviewRegion,
   uncommittedCheck as check,
-  uncommittedLeftOut as leftOut,
-} from "../../tests/support/storyReviewMark.ts";
+} from "../../tests/support/reviewControls.ts";
 
 function reviewRequests(page: Page) {
   const made: string[] = [];
   page.on("request", (request) => {
     const { pathname } = new URL(request.url());
-    if (
-      [
-        storyReviewEndpoint,
-        storyReviewRangeEndpoint,
-        storyReviewMarkEndpoint,
-      ].includes(pathname)
-    )
+    if ([storyReviewEndpoint, storyReviewRangeEndpoint].includes(pathname))
       made.push(pathname);
   });
   return () => made;
@@ -110,9 +97,7 @@ test("the check leaves uncommitted changes out of all changes and back without r
   await expectLineCounts(review, "Added story.txt", "+1 −0");
   await expect(diff).toContainText("+story");
   await expect(diff).not.toContainText("+more");
-  await expect(review.getByText(leftOut)).toBeVisible();
   await expect(check(review)).not.toBeChecked();
-  await expect(check(review)).toHaveAccessibleDescription(leftOut);
   answers.answerFile(
     frontendFileDiff("story.txt", ["+story", "+more"]),
     "story.txt",
@@ -120,53 +105,5 @@ test("the check leaves uncommitted changes out of all changes and back without r
   await check(review).check();
   await expect(whole).toBeVisible();
   await expect(diff).toContainText("+more");
-  await expect(review.getByText(leftOut)).toHaveCount(0);
   expect(requests()).toEqual([]);
-});
-
-test("Mark reviewed with the check off marks the whole snapshot", async ({
-  page,
-  frontendServices,
-}) => {
-  const snapshot = frontendReviewSnapshot({
-    files: [
-      {
-        kind: "added",
-        path: "story.txt",
-        lines: { added: 2, removed: 0 },
-      },
-    ],
-    uncommitted: {
-      kind: "uncommitted",
-      tree: frontendReviewIds.tree,
-      baseline: frontendReviewIds.baseline,
-      fromTree: frontendReviewIds.baseline,
-      fromBaseline: frontendReviewIds.baseline,
-    },
-    committed: {
-      from: frontendReviewIds.baseline,
-      tree: frontendReviewIds.head,
-      files: [
-        {
-          kind: "added",
-          path: "story.txt",
-          lines: { added: 1, removed: 0 },
-        },
-      ],
-    },
-  });
-  await openFrontendStoryReview(page, frontendServices, snapshot);
-  const review = reviewRegion(page);
-  await check(review).uncheck();
-  await expect(changedFilesList(review, "1 changed file")).toBeVisible();
-  const marking = page.waitForRequest(
-    (request) => new URL(request.url()).pathname === storyReviewMarkEndpoint,
-  );
-  await markReviewed(review);
-  expect((await marking).postDataJSON()).toMatchObject({
-    tree: snapshot.tree,
-    baseline: snapshot.baseline,
-  });
-  await expect(review).toContainText("This snapshot is marked reviewed,");
-  await expect(check(review)).not.toBeChecked();
 });

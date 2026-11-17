@@ -18,15 +18,8 @@ const lineCountsSchema = z.object({
 });
 export type LineCounts = z.infer<typeof lineCountsSchema>;
 
-// What every changed file may say beside its kind and paths: its line counts
-// when Git counted them, and, for a file of the changes since the review that
-// trunk, integrated since the mark, and the story both changed in a way Git
-// cannot separate, that it includes trunk's changes -- its kind, diff, and
-// line counts then run from this tree instead of the comparison's *from*
-// tree: the marked one, or the baseline when the story kept its marked
-// version. A file of all changes whose published story change trunk then
-// changed inseparably says the same, from trunk's tree before the story
-// first changed it.
+// Line counts and an alternate starting tree for changes to a file that Git
+// cannot separate from trunk's. The kind, diff and counts all use that tree.
 const fileFacts = {
   lines: lineCountsSchema.optional(),
   includesTrunkFrom: objectIdSchema.optional(),

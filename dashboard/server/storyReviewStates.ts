@@ -2,9 +2,7 @@
 // project id and story identity in
 // `~/.open-dough/dashboard/story-review-states.json`, resolved through
 // `HOME`: an entry means the story is reviewed, and no entry means it is not.
-// A missing or unreadable file reads as every story unreviewed. It is not
-// the story review's snapshot marks (`./storyReviewMarks.ts`): neither reads
-// or changes the other. Nothing is written to a project's repository. The
+// A missing or unreadable file reads as every story unreviewed. The
 // file is read, replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.
 

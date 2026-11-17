@@ -5,9 +5,6 @@
 // `./storyReviewWorkspace.ts` owns the workspace selection on both sides; the
 // historical comparison comes from captured landing facts or published Git
 // completion and execution evidence, never a fabricated launch.
-// Only a workspace snapshot can be marked reviewed: the story's one mark on
-// this machine. Its changes since the mark exclude trunk's changes when the
-// repository can still read and restate the marked snapshot.
 
 import { z } from "zod";
 import { objectIdSchema, reviewedFileSchema } from "./storyReviewFiles.ts";
@@ -15,23 +12,17 @@ import {
   landedReviewContextSchema,
   reviewRunChoiceSchema,
 } from "./storyReviewLandedRun.ts";
-import { markUncomparableSchema, reviewMarkSchema } from "./reviewMark.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
-// One file's diff within a snapshot: named by the `baseline` and `tree`
-// object IDs it compares -- the file's *from* tree in the comparison shown,
-// the baseline, the restated or the marked tree, and the snapshot's tree --
-// and the file's path
-// (and old path for a rename), so any file diff the page opens reads the
-// same observation as the file list.
+// The file diff reads the same comparison as the file list. The query names
+// the start and end objects as `baseline` and `tree`, and supplies the file's
+// path and, for a rename, its old path.
 export const storyReviewFileEndpoint = "/__agent-launch/review/file";
 // The same admitted comparison's file text at its *from* and snapshot trees,
 // for expanding omitted unified-diff context without a second identity.
 export const storyReviewFileTextEndpoint = "/__agent-launch/review/file/text";
 export const storyReviewRangeEndpoint = "/__agent-launch/review/range";
-// Where a same-origin POST marks the snapshot shown as reviewed.
-export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
 // How long one review read may take before the boundary gives it up: a
 // snapshot, trunk's fetch included, a chosen range, or a file's diff or text.
 export const storyReviewWaitMs = 60_000;
@@ -50,32 +41,12 @@ export {
   type LineCounts,
   type ReviewedFile,
 } from "./storyReviewFiles.ts";
-export {
-  markReviewedAnswerSchema,
-  markReviewedRequestSchema,
-  markUnavailable,
-  markUncomparableSchema,
-  reviewMarkSchema,
-  type MarkReviewedAnswer,
-  type MarkReviewedRequest,
-  type MarkUncomparable,
-  type ReviewMark,
-} from "./reviewMark.ts";
-
 // A snapshot's changed files from one *from* tree to the snapshot's tree.
 export const reviewComparisonSchema = z.object({
   from: objectIdSchema,
   files: z.array(reviewedFileSchema),
 });
 export type ReviewComparison = z.infer<typeof reviewComparisonSchema>;
-
-// A comparison whose `from` is an earlier point's tree restated on the later
-// point's baseline, with whether trunk was integrated between them: the two
-// baselines differ as trees, whichever of them is a commit.
-export const restatedComparisonSchema = reviewComparisonSchema.extend({
-  trunkIntegrated: z.boolean(),
-});
-export type RestatedComparison = z.infer<typeof restatedComparisonSchema>;
 
 // Two repository points supplied by the snapshot's first-parent commit list.
 export const reviewCommitSchema = z.object({
@@ -113,7 +84,8 @@ export const reviewIntegrationSchema = z.strictObject({
 export type ReviewIntegration = z.infer<typeof reviewIntegrationSchema>;
 
 export const reviewRangeSchema = z.discriminatedUnion("kind", [
-  restatedComparisonSchema.extend({
+  reviewComparisonSchema.extend({
+    trunkIntegrated: z.boolean(),
     kind: z.literal("comparison"),
     tree: objectIdSchema,
   }),
@@ -173,8 +145,7 @@ export const storyReviewSchema = z
       head: objectIdSchema,
       // The workspace's files as observed, written as a tree object: every
       // file diff of this snapshot compares the *from* tree of the comparison
-      // shown with it: `baseline` for `files`; for `since`, its `from`; or in
-      // either, the file's `includesTrunkFrom`.
+      // shown with it: `baseline` for `files`, or the file's `includesTrunkFrom`.
       tree: objectIdSchema,
       files: z.array(reviewedFileSchema),
       commits: z.array(reviewCommitSchema),
@@ -185,17 +156,6 @@ export const storyReviewSchema = z
       committed: reviewComparisonSchema
         .extend({ tree: objectIdSchema })
         .optional(),
-      // The story's mark on this machine, when it has one.
-      mark: reviewMarkSchema.optional(),
-      // With a mark the repository holds, the same snapshot compared with it:
-      // the changes since the review. Its `from` is the marked tree restated on `baseline`, leaving
-      // out what came only from trunk -- the marked tree itself while
-      // `baseline` is the mark's -- and its file diffs compare `from`, or a
-      // file's `includesTrunkFrom`, with `tree`. Its baselines are the mark's
-      // and `baseline`.
-      since: restatedComparisonSchema.optional(),
-      // With a mark that cannot be compared, in place of `since`: why.
-      markUncomparable: markUncomparableSchema.optional(),
     }),
     z.object({
       kind: z.literal("unavailable"),

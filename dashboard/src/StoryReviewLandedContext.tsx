@@ -1,4 +1,4 @@
-// Historical context names the fixed accepted pair, without workspace or marking semantics.
+// Historical context names the fixed accepted pair.
 import type { LandedReviewContext } from "./storyReviewLandedRun.ts";
 import {
   FileBrowserToggle,

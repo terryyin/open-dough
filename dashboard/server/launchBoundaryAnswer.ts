@@ -28,7 +28,6 @@ import {
   storyReviewFileTextResponse,
   storyReviewResponse,
 } from "./storyReviewSnapshot.ts";
-import { markReviewedResponse } from "./storyReviewMarks.ts";
 import { storyReviewRangeResponse } from "./storyReviewRange.ts";
 import { completedStoryAssociationResponse } from "./completedStoryAssociationAdmission.ts";
 import { withTerminalHandoff } from "./terminalHandoff.ts";
@@ -145,8 +144,6 @@ export async function answer(
         return await storyReviewFileTextResponse(request, res);
       case "story-review-range":
         return await storyReviewRangeResponse(request, res);
-      case "story-review-mark":
-        return await markReviewedResponse(request);
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };
       case "sessions":

@@ -54,15 +54,13 @@ export async function resolvedWorkspace(
   };
 }
 
-// The workspace the named story's review reads: its file diffs, commit
-// ranges and mark. Several worktrees holding the story's claim are refused
-// with their explanation, so none of them is read or marked.
-export async function reviewedWorkspace(
-  sourceId: string | null,
-  identityNamed: string | null,
-) {
-  const source = knownSource(sourceId);
-  const identity = workIdentitySchema.safeParse(identityNamed);
+// File and commit-range reads use the same workspace selection as the
+// snapshot. Several worktrees holding the story's claim yield an explanation.
+export async function queriedWorkspace(url: URL): Promise<ReviewedWorkspace> {
+  const source = knownSource(url.searchParams.get("source"));
+  const identity = workIdentitySchema.safeParse(
+    url.searchParams.get("identity"),
+  );
   if (!identity.success)
     throw new RefusedRequest(400, "The review identity is malformed.");
   const resolved = await resolvedWorkspace(
@@ -77,16 +75,5 @@ export async function reviewedWorkspace(
     );
   if (resolved.kind === "ambiguous")
     throw new RefusedRequest(409, resolved.explanation);
-  return {
-    source,
-    identity: identity.data,
-    established: resolved.established,
-  };
+  return resolved.established;
 }
-
-// The workspace the story named in the query reviews.
-export const queriedWorkspace = (url: URL) =>
-  reviewedWorkspace(
-    url.searchParams.get("source"),
-    url.searchParams.get("identity"),
-  );

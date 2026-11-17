@@ -11,7 +11,7 @@
 // tree shows, the story's added one included. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   expectOutsideCount,

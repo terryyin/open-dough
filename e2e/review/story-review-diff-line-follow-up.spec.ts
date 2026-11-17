@@ -36,7 +36,7 @@ import {
 } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import type { Page } from "@playwright/test";
 import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
 

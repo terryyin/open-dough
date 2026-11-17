@@ -1,5 +1,8 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  reviewRefresh,
+  reviewRegion,
+} from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review folders collapse and expand by pointer and keyboard, of
 // Story A's worktree changing nested files (../../dashboard/tests/support/storyReviewWorktree.ts):
 // collapsed, a folder hides its rows and tells how many changed files it
@@ -8,7 +11,7 @@ import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
 // shows every folder expanded.
 
 import { diffHeading } from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";

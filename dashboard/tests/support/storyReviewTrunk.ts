@@ -1,19 +1,4 @@
-// Story A's worktree as the trunk tests (../../../e2e/review/story-review-since-trunk.spec.ts)
-// mark it and then integrate trunk: trunk's `README.md` and `src/{a,b,c}.ts`,
-// a story slice that lands on trunk after the mark, and the line of
-// `src/c.ts` that trunk and the story both change, or trunk's `README.md`
-// alone.
-
-import type { Page } from "@playwright/test";
-import type { DashboardServer } from "./dashboardServer.ts";
-import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { keepLaunchRecord } from "./storyLaunchRecord.ts";
-import {
-  markReviewed,
-  openStoryReview,
-  reviewRegion,
-} from "./storyReviewMark.ts";
 import {
   addStoryWorktree,
   commitAll,
@@ -26,10 +11,10 @@ import {
 export const sixth = (word: string, line = `${word} 5`) =>
   lines(word).replace(`${word} 5\n`, `${line}\n`);
 
-// Story A's worktree as it is marked: off trunk's `README.md` and
+// Story A's worktree starts from trunk's `README.md` and
 // `src/{a,b,c}.ts`, a committed slice adding `landed.txt`, then its change to
 // `src/c.ts`'s sixth line, `c story`.
-export function markedWorktree(origin: StartOrigin) {
+export function worktreeWithStoryCommits(origin: StartOrigin) {
   const project = origin.project;
   writeAt(project, "README.md", sixth("readme"));
   for (const word of ["a", "b", "c"])
@@ -46,25 +31,7 @@ export function markedWorktree(origin: StartOrigin) {
   return { workspace, landed };
 }
 
-// Story A's review, opened from its card and marked reviewed: the worktree,
-// the card, the review, and the marked snapshot.
-export async function markStoryReview(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-  prepare?: (workspace: string) => void,
-) {
-  const story = markedWorktree(origin);
-  prepare?.(story.workspace);
-  keepLaunchRecord(dashboard, story.workspace);
-  const card = await openBacklog(page, origin);
-  const marked = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  await markReviewed(review);
-  return { story, card, review, marked };
-}
-
-// After the mark: trunk takes the landed slice and changes `README.md`,
+// Trunk takes the landed slice and changes `README.md`,
 // `src/a.ts`, and `src/c.ts`'s sixth line to `c trunk`; the story merges
 // trunk, settling `src/c.ts`'s conflict with the sixth line given. Without
 // one, trunk changes `README.md` only and the story merges it cleanly.

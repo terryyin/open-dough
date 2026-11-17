@@ -4,13 +4,11 @@ import {
   keyFor,
 } from "./frontendStoryReviewAnswers.ts";
 // Controllable story-review answers for frontend-only journeys at the
-// snapshot, range, file diff, file text and mark boundaries. Default settle
-// is a minimal unmarked snapshot; a case may hold or stage the next ask per
-// endpoint. Mark POSTs update the settled snapshot's mark.
+// snapshot, range, file diff and file text boundaries. The default is a
+// minimal snapshot; a case may hold or stage the next ask per endpoint.
 
 import type { Page } from "@playwright/test";
 import type {
-  MarkReviewedAnswer,
   ReviewedFileDiff,
   ReviewedFileText,
   ReviewRange,
@@ -19,7 +17,6 @@ import type {
 import { frontendReviewSnapshot } from "./frontendStoryReviewFixtures.ts";
 import {
   installReviewRoutes,
-  markReviewedAnswerSchema,
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
   reviewRangeSchema,
@@ -60,11 +57,6 @@ export type FrontendStoryReview = {
   readonly holdNextFileText: (
     path?: string,
   ) => ReturnType<ReturnType<typeof controls>["holdNext"]>;
-  readonly answerMark: (answer: MarkReviewedAnswer) => void;
-  readonly answerNextMark: (answer: MarkReviewedAnswer) => void;
-  readonly holdNextMark: () => ReturnType<
-    ReturnType<typeof controls>["holdNext"]
-  >;
 };
 
 export async function installFrontendStoryReview(
@@ -77,7 +69,6 @@ export async function installFrontendStoryReview(
   const rangeCtl = controls(page, state.ranges);
   const fileCtl = controls(page, state.files);
   const textCtl = controls(page, state.texts);
-  const markCtl = controls(page, state.marks);
   return {
     asked: () => [...state.asked],
     snapshot: () => state.snapshot,
@@ -113,14 +104,5 @@ export async function installFrontendStoryReview(
       textCtl.answerNext(reviewedFileTextSchema.parse(text), path);
     },
     holdNextFileText: (path) => textCtl.holdNext(path),
-    answerMark: (answer) => {
-      Object.assign(state, {
-        markAnswer: markReviewedAnswerSchema.parse(answer),
-      });
-    },
-    answerNextMark: (answer) => {
-      markCtl.answerNext(markReviewedAnswerSchema.parse(answer));
-    },
-    holdNextMark: () => markCtl.holdNext(),
   };
 }

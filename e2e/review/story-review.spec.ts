@@ -17,7 +17,7 @@ import {
   hunkLines,
   pageFits,
 } from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../../dashboard/tests/accessibleReading.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";

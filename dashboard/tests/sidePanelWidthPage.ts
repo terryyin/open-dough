@@ -3,7 +3,7 @@
 // synthetic `claude` (./fixtures/fake-claude), which prints its terminal size
 // whenever that changes.
 
-import { reviewRegion } from "./support/storyReviewMark.ts";
+import { reviewRegion } from "./support/reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   storyReviewEndpoint,

@@ -18,7 +18,7 @@ export const frontendReviewIds = {
   uncommittedTree: oid(6),
 } as const;
 
-// A minimal unmarked snapshot: one added file and one commit unless overridden.
+// A minimal snapshot: one added file and one commit unless overridden.
 export function frontendReviewSnapshot(
   overrides: Partial<TakenStoryReview> = {},
 ): TakenStoryReview {
@@ -58,9 +58,6 @@ export function frontendReviewSnapshot(
     ],
     uncommitted: overrides.uncommitted,
     committed: overrides.committed,
-    mark: overrides.mark,
-    since: overrides.since,
-    markUncomparable: overrides.markUncomparable,
     published: overrides.published,
     runs: overrides.runs,
     selectedRun: overrides.selectedRun,

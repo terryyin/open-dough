@@ -14,7 +14,7 @@ import {
   diffHeading,
   diffLines,
 } from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { storyReviewWaitMs } from "../../dashboard/src/storyReviewContract.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";

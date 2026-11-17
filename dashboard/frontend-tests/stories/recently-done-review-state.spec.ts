@@ -3,8 +3,7 @@
 // card offers Reviewed, which asks before undoing review. Either saved change
 // keeps the card, its place, its sessions, the column's count, the Selected
 // story and the Side panel as they were, keeps the keyboard on the card, and
-// is announced once. Snapshot-mark and repository passivity, and persistence
-// across reload/restart: ../../../e2e/stories/recently-done-review-state-persistence.spec.ts.
+// is announced once. Repository passivity and persistence across reload and restart: ../../../e2e/stories/recently-done-review-state-persistence.spec.ts.
 // Project refresh and a second page of the same server:
 // ../../../e2e/stories/recently-done-review-state-refresh.spec.ts.
 // Cards whose record is not read, and touch input:

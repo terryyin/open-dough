@@ -3,10 +3,9 @@
 // ../../e2e/stories/recently-done-review-state-*.spec.ts): three done stories
 // completed on another machine and published on the private origin's trunk,
 // none of them ever run here; a card's Story actions with its review state;
-// and what this machine keeps of that state, and of the story review's
-// snapshot marks, in its local records.
+// and what this machine keeps of that state in its local records.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -201,29 +200,6 @@ export function keptReviewStates(
         Record<string, unknown>
       >)
     : undefined;
-}
-
-// The review marks file of the story review's Mark reviewed, holding a
-// snapshot mark for `story`, as a review of its workspace would have left it.
-export function keepSnapshotMark(dashboard: DashboardServer, story: Story) {
-  const file = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/review-marks.json",
-  );
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(
-    file,
-    `${JSON.stringify({
-      "open-dough": {
-        [story.identity]: {
-          tree: "a".repeat(40),
-          baseline: "b".repeat(40),
-          markedAt: "2026-11-01T10:00:00.000Z",
-        },
-      },
-    })}\n`,
-  );
-  return () => readFileSync(file, "utf8");
 }
 
 // What the project's repository holds: the origin's trunk, the checkout's

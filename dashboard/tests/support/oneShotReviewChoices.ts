@@ -97,7 +97,7 @@ export const reviewChoices = (
 ) => reviewChoicesNamed(dashboard, origin, native, ["first", "second"]);
 export function addLiveEdit(workspace: string) {
   writeFileSync(
-    path.join(workspace, "after-mark.txt"),
-    "after workspace mark\n",
+    path.join(workspace, "live-edit.txt"),
+    "uncommitted workspace edit\n",
   );
 }

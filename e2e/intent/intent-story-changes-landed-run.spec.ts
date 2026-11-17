@@ -47,7 +47,7 @@ import {
   uncommittedCheck,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 
 test.use({ preparationHost: "codex" });
 

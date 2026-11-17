@@ -7,7 +7,7 @@ import {
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
@@ -54,9 +54,6 @@ test("a CLI-completed story without a local launch opens fixed published changes
   expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
   const review = reviewRegion(page);
   await expect(review).toContainText("Published completion");
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
   await listedFile(review, "Modified shared.txt", { exact: true }).click();
   const diff = fileDiff(review, "Modified shared.txt");
   await expect(diff.locator(".story-review-added")).toHaveText([

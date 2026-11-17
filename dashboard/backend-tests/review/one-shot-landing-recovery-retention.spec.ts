@@ -65,8 +65,7 @@ test("an original kept bound launch first captures and retries after its actual 
       false,
     );
     const input = retainedLanding(original);
-    const evidence = await retainedLandingEvidence(
-      receiver,
+    const completion = await retainedLandingEvidence(
       original,
       origin.machine,
       input.submission,
@@ -109,7 +108,7 @@ test("an original kept bound launch first captures and retries after its actual 
       receivedAt: prepared?.receivedAt,
       state: "recorded",
     });
-    expect(stored(receiver.home)[0]?.completion).toEqual(evidence.completion);
+    expect(stored(receiver.home)[0]?.completion).toEqual(completion);
     expect(keptAttempts(receiver)).toHaveLength(0);
     const repository = retireReviewRun(
       { record: original, established, reporting },
@@ -196,15 +195,6 @@ test("an original kept bound launch first captures and retries after its actual 
     expect(
       git(repository, "for-each-ref", "--format=%(refname) %(objectname)"),
     ).toBe(beforeRefusal);
-    expect(readFileSync(evidence.file, "utf8")).toBe(evidence.mark);
-    expect(
-      git(
-        repository,
-        "for-each-ref",
-        "refs/open-dough/reviewed",
-        "--format=%(refname) %(objectname)",
-      ),
-    ).toBe(evidence.markedRefs);
     await recordOperation(
       receiver,
       "updateRecord",

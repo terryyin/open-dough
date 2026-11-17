@@ -4,10 +4,7 @@
 // stay in trunk, so All changes lists the unpublished and uncommitted changes
 // against the merge-base as for any worktree, the context line reads as any
 // baseline's, and the feedback says, for as long as the snapshot is shown,
-// that the story's published commits could not be taken out. A mark taken
-// against trunk less those commits, by a Git that could take them out, is
-// then explained as one this Git cannot compare, and the review still lists
-// all changes.
+// that the story's published commits could not be taken out.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "../../dashboard/tests/support/preparationPage.ts";
@@ -22,19 +19,12 @@ import {
   changedFilesList,
 } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import {
-  changedPaths,
-  keptStoryAMark,
-  markReviewed,
   openStoryReview,
   refreshReview,
-  reviewRegion,
-  comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
-import {
-  gitRestates,
-  olderGit,
-} from "../../dashboard/tests/support/storyReviewOlderGit.ts";
+} from "../../dashboard/tests/support/reviewRead.ts";
+import { olderGit } from "../../dashboard/tests/support/storyReviewOlderGit.ts";
 import {
   commitUnpublished,
   openTaken,
@@ -45,7 +35,6 @@ import {
 import {
   branch,
   git,
-  writeAt,
 } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 
 // Trunk up to Yui-chan's claim of Story A in Trunk Mode.
@@ -86,7 +75,10 @@ olderGit(
         });
         expect(snapshot.baseline).toBe(trunk);
         // Not `src/a.ts` or `d.md`, which the story published.
-        expect(changedPaths(snapshot.files)).toEqual(["notes.md", "src/g.ts"]);
+        expect(snapshot.files.map(({ path }) => path)).toEqual([
+          "notes.md",
+          "src/g.ts",
+        ]);
         await expectTreeRows(changedFilesList(review, "2 changed files"), [
           "src",
           "  g.ts",
@@ -126,44 +118,5 @@ olderGit(
         );
       },
     );
-  },
-);
-
-olderGit(
-  "a mark taken against trunk less the story's commits is explained by a Git that cannot take them out, beside all changes",
-  async ({ page, dashboard, origin, pathPrefix }) => {
-    gitRestates(pathPrefix ?? [], true);
-    const { workspace, trunk } = trunkModeStory(origin, { published: 1 });
-    commitUnpublished(workspace);
-    keepLaunchRecord(dashboard, workspace);
-    const marked = await openStoryReview(page, await openTaken(page, origin));
-    const review = reviewRegion(page);
-    expect(marked.published).toEqual({ trunk, commits: 1 });
-    expect(git(workspace, "cat-file", "-t", marked.baseline)).toBe("tree");
-    await markReviewed(review);
-    expect(keptStoryAMark(dashboard)?.baseline).toBe(marked.baseline);
-
-    gitRestates(pathPrefix ?? [], false);
-    writeAt(workspace, "notes.md", "more notes\n");
-    const kept = await refreshReview(review);
-
-    expect(kept.published).toEqual({ trunk, commits: 1, kept: "not-restated" });
-    expect(kept.baseline).toBe(trunk);
-    expect(kept.since).toBeUndefined();
-    expect(kept.markUncomparable).toBe("not-restated");
-    expect(changedPaths(kept.files)).toEqual(["notes.md", "src/g.ts"]);
-    await expectTreeRows(changedFilesList(review, "2 changed files"), [
-      "src",
-      "  g.ts",
-      "notes.md",
-    ]);
-    await expect(review).toContainText(
-      "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
-    );
-    await expect(comparisonChoice(review, "Since the review")).toHaveCount(0);
-    await expect(reviewFeedback(review)).toContainText(
-      keptIn("1 published commit"),
-    );
-    await expectPlainContextLine(review, trunk);
   },
 );

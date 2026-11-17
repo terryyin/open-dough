@@ -31,7 +31,7 @@ import {
 } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 import { storyNotesPage } from "../../dashboard/tests/support/storyNotesPage.ts";
 

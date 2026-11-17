@@ -34,7 +34,7 @@ import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import { notRefinedStory } from "../../tests/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
-import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
+import { reviewRegion } from "../../tests/support/reviewControls.ts";
 
 async function expectSettledLayout(page: Page) {
   await expectSettledPage(page);

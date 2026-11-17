@@ -5,15 +5,18 @@ import {
   listedFile,
 } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import {
+  commitRangeHeading,
+  chooseCommit,
+} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
 import {
-  openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { storyWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
 
@@ -52,9 +55,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
     });
     const files = changedFilesList(review, "1 changed file", { exact: true });
     await expect(heading).toBeVisible();
-    await expect(review.locator(".story-review-since")).toContainText(
-      "story file to",
-    );
+    await expect(commitRangeHeading(review)).toContainText("story file to");
     await listedFile(files, "Added story.txt", { exact: true }).click();
     await expect(review.locator(".story-review-added")).toHaveText(["+story"]);
     held.release();
@@ -70,9 +71,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
         }),
     );
     await expect(heading).toBeVisible();
-    await expect(review.locator(".story-review-since")).toContainText(
-      "story file to",
-    );
+    await expect(commitRangeHeading(review)).toContainText("story file to");
     await expect(
       listedFile(files, "Added story.txt", { exact: true }),
     ).toBeVisible();

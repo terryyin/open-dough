@@ -14,9 +14,6 @@ import {
 } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
-import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
-import { markReviewedRequest } from "./storyReviewAdmission.ts";
-import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import {
@@ -65,7 +62,6 @@ export type Admitted =
   | { readonly kind: "cursor-sessions" }
   | AdmittedHostOptions
   | LaunchExactAdmitted
-  | AdmittedStoryReviewMark
   | {
       // Answered once the launch is accepted.
       readonly kind: "accept";
@@ -168,7 +164,6 @@ const postRequests = new Map<
   [agentDeleteEndpoint, deleteRequest],
   [agentRecoverEndpoint, recoverRequest],
   [agentStopEndpoint, stopRequest],
-  [storyReviewMarkEndpoint, markReviewedRequest],
   [agentAcceptEndpoint, launchRequest],
   [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],
   [agentReconciledEndpoint, (req) => attemptRequest(req, "reconciled")],

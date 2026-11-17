@@ -10,7 +10,7 @@ export const reviewRegion = (
     name: exact ? /^(?:Story|Session) review$/ : /(?:Story|Session) review/,
   });
 
-// A marked story's comparison switch.
+// The story review's comparison switch.
 export const comparison = (review: Locator) =>
   review.getByRole("radiogroup", { name: "Comparison" });
 
@@ -36,17 +36,13 @@ export async function expectShown(review: Locator, shown: string) {
   await expect(choices.getByRole("radio", { checked: true })).toHaveCount(1);
 }
 
-// The check that leaves uncommitted changes out of all changes, among the
-// marking controls, and the line they show while it is off.
+// The check that controls whether All changes includes uncommitted changes.
 export const uncommittedCheck = (review: Locator) =>
   review.getByRole("checkbox", { name: "Include uncommitted changes" });
 
 // The visible label is the touch tap target for that check.
 export const uncommittedLabel = (review: Locator) =>
   review.locator("label", { hasText: "Include uncommitted changes" });
-
-export const uncommittedLeftOut =
-  "Uncommitted changes are left out. Mark reviewed still marks the whole snapshot.";
 
 // Refresh can be pressed without waiting for the read it starts.
 export const reviewRefresh = (

@@ -1,14 +1,17 @@
 // A contiguous range uses its oldest parent and newest tree, while trunk
-// integrations are restated by the same comparison as Since the review.
+// the comparison restates the starting tree across trunk integrations.
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import {
+  commitRangeHeading,
+  chooseCommit,
+} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
 import {
-  openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { olderGit } from "../../dashboard/tests/support/storyReviewOlderGit.ts";
 import {
   observed,
@@ -40,7 +43,7 @@ test("two ends select three commits in either direction, reset to one, and survi
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
-  await expect(review.locator(".story-review-since")).toContainText(
+  await expect(commitRangeHeading(review)).toContainText(
     `From ${snapshot.commits[3]?.shortRevision} rename with a small edit to ${snapshot.commits[1]?.shortRevision} delete a file and redraw the image.`,
   );
   for (const at of [2, 3, 4]) {

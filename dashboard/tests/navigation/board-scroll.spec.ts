@@ -1,6 +1,6 @@
 import { maximizeSidePanel, restoreSidePanel } from "../sidePanelFrame.ts";
 import { reviewChanges } from "../storyCardControls.ts";
-import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewRegion } from "../support/reviewControls.ts";
 import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";

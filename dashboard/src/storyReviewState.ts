@@ -1,8 +1,7 @@
 // A done story's review state, kept per project and story identity on the
 // machine serving the dashboard (`../server/storyReviewStates.ts`): the
 // developer's judgment that they reviewed the story, independent of its
-// sessions, launches and workspaces, and of the story review's snapshot marks
-// (`./reviewMark.ts`). A story with no saved state is unreviewed. Local
+// sessions, launches and workspaces. A story with no saved state is unreviewed. Local
 // evidence only, never a published story fact.
 import { z } from "zod";
 import { workIdentitySchema } from "./launchRequest.ts";

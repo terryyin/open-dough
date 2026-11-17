@@ -26,9 +26,11 @@ import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecor
 import {
   refreshReview,
   openStoryReview,
+} from "../../dashboard/tests/support/reviewRead.ts";
+import {
   reviewRegion,
   uncommittedCheck,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
   openTaken,
   publishRewrittenLine,

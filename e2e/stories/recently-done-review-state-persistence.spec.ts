@@ -1,6 +1,5 @@
 // Story review state survives page reload and a real dashboard restart.
-// Keyboard Unreview after restart preserves card order, selection, snapshot
-// marks and repository bytes. The card-interaction journey remains in
+// Keyboard Unreview after restart preserves card order, selection and repository bytes. The card-interaction journey remains in
 // ../../dashboard/frontend-tests/stories/recently-done-review-state.spec.ts.
 
 import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
@@ -8,7 +7,6 @@ import {
   doneCard,
   doneStories,
   expectReviewed,
-  keepSnapshotMark,
   keptReviewStates,
   markAsReviewed,
   openRecentlyDone,
@@ -36,13 +34,11 @@ import {
 
 const titles = doneStories.map(({ title }) => title);
 
-test("review state survives reload and restart, with keyboard Unreview preserving the selected story and local snapshot mark", async ({
+test("review state survives reload and restart, with keyboard Unreview preserving the selected story", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const snapshotMark = keepSnapshotMark(dashboard, storyA);
-  const marked = snapshotMark();
   await publishDoneStories(page, origin);
   const repository = await repositoryState(origin);
   const recent = await openRecentlyDone(page);
@@ -105,7 +101,6 @@ test("review state survives reload and restart, with keyboard Unreview preservin
       await page.reload();
       await expectReviewed(a, false);
       await expectReviewed(b, true);
-      expect(snapshotMark()).toBe(marked);
       expect(await repositoryState(origin)).toEqual(repository);
     } finally {
       await restarted.close();

@@ -60,7 +60,7 @@ export function CommitRangeHeading({
   const count = selected.filter((item) => item.kind === "commit").length;
   const uncommitted = selected.some((item) => item.kind === "uncommitted");
   return (
-    <div className="story-review-since">
+    <div className="story-review-range-heading">
       <h3>
         {count === 0 ? (
           "Uncommitted changes"

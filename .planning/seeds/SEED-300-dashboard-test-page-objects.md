@@ -97,7 +97,7 @@ Source observations on 2026-11-11 at `07320772f`:
   service answers. They return the same named comparison region, but static
   markup has no interactive event handlers. Share browser observations across
   these boundaries while preserving each setup's proof meaning.
-- `storyCardPages.ts` and `support/storyReviewMark.ts` independently locate
+- `storyCardPages.ts` and `support/reviewRead.ts` independently locate
   Review changes. `navigation/story-reference-done-cancellation.spec.ts`
   visibly splits pointer-down, held-answer release and pointer-up.
 - `intentReadRecoveryPage.ts` is already shared by integrated/frontend cases.

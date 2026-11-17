@@ -28,7 +28,7 @@ Recently done's shown range and entry counts.
 
 A landed run can also be reviewed after its workspace and branches
 are retired. The Comparison switch offers **Landed runs** beside the
-workspace's All changes, Since the review and Commits choices. Its bounded native
+workspace's All changes and Commits choices. Its bounded native
 listbox, labelled **Landed run**, offers every landed refinement or execution run,
 newest first by launch time, including older runs without a reporting handoff. The initial run is the
 newest captured comparison, or the newest landed run's evidence gap when none
@@ -40,8 +40,7 @@ context names **Landed run**, its workflow/time, authorized remote target, and
 exact captured base and accepted revision. The existing file browser, counts, rename detection, binary
 explanation and file moves compare those two commits.
 
-Switching to a run hides Mark reviewed and leaves the story's mark and workspace
-comparison unchanged. Returning to the workspace restores its comparison and
+Returning to the workspace restores its comparison and
 chosen Commits range. Refresh keeps the chosen run while retained, including when
 a new capture appears; when it is deleted or expires, Refresh selects the newest
 remaining captured run, or the newest retained evidence gap. A delayed reply for
@@ -49,8 +48,7 @@ an earlier run or file cannot replace the later choice. Maximize, resize, Hide/S
 files, narrow layout and Close/focus return use the same panel and browser.
 Refresh and restart read the fixed pair even when trunk has advanced or reverted
 the result. Historical reads use the original saved common Git repository and
-write no ref, index or checkout content; they neither fetch trunk nor replace the
-workspace review mark.
+read the captured pair without fetching trunk or writing to the repository.
 
 A valid empty comparison says that this run's delivered comparison is empty;
 an ad hoc session's empty landing says this session's delivered comparison is

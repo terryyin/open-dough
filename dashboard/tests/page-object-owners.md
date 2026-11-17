@@ -7,8 +7,8 @@ For journey rules and shared conventions, see [Writing a browser journey](writin
 `storyCardControls.ts` owns Review changes. `support/reviewControls.ts` owns
 the review region, comparison/run choices, uncommitted check and Refresh
 controls without waiting for their answers. Reading operations in
-`support/reviewRead.ts` and `support/storyReviewMark.ts` keep the waits they
-need; a journey holding an answer can press the same control separately.
+`support/reviewRead.ts` wait for answers. A journey holding an answer can
+press the same control separately.
 Tree, diff and context readers accept the scenario's independent expected facts.
 
 `sidePanelFrame.ts` shares Close, Maximize/Restore and covering operations with

@@ -4,13 +4,13 @@ import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
 import {
-  openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import {
-  markedWorktree,
+  worktreeWithStoryCommits,
   sixth,
 } from "../../dashboard/tests/support/storyReviewTrunk.ts";
 import {
@@ -31,7 +31,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
   dashboard,
   origin,
 }) => {
-  const story = markedWorktree(origin);
+  const story = worktreeWithStoryCommits(origin);
   git(story.workspace, "mv", "src/c.ts", "src/d.ts");
   commitAll(story.workspace, "rename c to d");
   git(origin.project, "merge", "--quiet", "--ff-only", story.landed);

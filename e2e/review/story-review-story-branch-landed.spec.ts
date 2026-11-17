@@ -13,7 +13,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
@@ -177,9 +177,6 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   await expect(context.last()).toContainText(
     `From ${trunkTip} to ${accepted}.`,
   );
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
   await expect(listedFile(review, /trunk-only\.txt/)).toHaveCount(0);
   // The file both changed shows the story's change against trunk's at the
   // base: trunk's own line is no change.

@@ -1,5 +1,8 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  reviewRefresh,
+  reviewRegion,
+} from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review stays the snapshot taken when it opened, of Story A's
 // worktree (../../dashboard/tests/support/storyReviewWorktree.ts), while the worktree moves on:
 // a further commit to the open file and a new file change neither the file
@@ -14,7 +17,7 @@ import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
 // first file.
 
 import { diffLines } from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
