@@ -16,9 +16,7 @@ run-entry checks rewritten onto it with every fact kept, and the guideline in
 
 Excluded: removing or merging any check, changing where a check enters,
 other families' checks, `cases/`, `src/`, `Distribution/tests`, the
-`node --test` files, JavaScript replacement, and Bach. Removals and entry
-changes belong to
-[SEED-396#remove-redundant-evaluation-checks](../../seeds/SEED-396-evaluation-javascript-tests.md#remove-redundant-evaluation-checks).
+`node --test` files, JavaScript replacement, and Bach.
 
 ## Outside-in proof
 
