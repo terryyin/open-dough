@@ -16,7 +16,7 @@ import { keepLandedCiHistory } from "./landedCiHistory.ts";
 import { startLandedCiReader } from "./landedCiReader.ts";
 import { commonGitDir } from "./launchLanding.ts";
 import { chooseStoryTab } from "./intentStoryPage.ts";
-import { queuedClaudePreviewTest } from "./preparationPage.ts";
+import { test as preparationTest } from "./preparationPage.ts";
 import { openDoneStoryIntent } from "./scopeHistoryCollectedPage.ts";
 import { serveKeptScopeProofs } from "./scopeHistoryCollection.ts";
 import {
@@ -28,11 +28,13 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 
 // The page's dashboard is the reader itself: no collecting dashboard runs on
-// the machine before it or beside it.
-export const test = queuedClaudePreviewTest
+// the machine before it or beside it; its preview inputs are worker
+// preparation (./serverInputWorkerFixtures.ts).
+export const test = preparationTest
   .extend(startingFromKeptSummaryComparisonStory)
   .extend({
-    dashboard: async ({ github, origin }, use) => {
+    dashboard: async ({ dashboardPreviewReady, github, origin }, use) => {
+      await Promise.resolve(dashboardPreviewReady);
       const reader = await startLandedCiReader({ github }, origin, "preview");
       await use(reader);
       await reader.close();

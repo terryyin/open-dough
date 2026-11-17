@@ -70,7 +70,8 @@ const test = base.extend<{
     await use(machine);
     rmSync(machine, { recursive: true, force: true });
   },
-  dashboard: async ({ github, machine }, use) => {
+  dashboard: async ({ dashboardPreviewReady, github, machine }, use) => {
+    await Promise.resolve(dashboardPreviewReady);
     const server = await serve(github, machine);
     await use(server);
     await server.close();

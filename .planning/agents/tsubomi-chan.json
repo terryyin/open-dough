@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsubomi-chan",
-  "email": "tsubomi-chan@example.org",
-  "identity": "SEED-340#keep-one-time-test-preparation-out-of-case-budgets",
-  "mode": "story-branch",
-  "branch": "claude/keep-one-time-browser-test-preparation-out-of-ca",
-  "host": "claude"
-}

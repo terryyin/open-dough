@@ -17,6 +17,12 @@ import { largeWorktree, wideLine } from "./storyReviewWorktree.ts";
 // The selected diff's independently scrollable code and rendered lines.
 export const codePane = (diff: Locator) => diff.locator(".story-review-code");
 
+// The code pane stays busy while its omitted context is read; gap rows that
+// arrive with that context move the printed lines below them.
+export async function expectContextRead(code: Locator) {
+  await expect(code).toHaveAttribute("aria-busy", "false");
+}
+
 export const diffLines = (
   scope: Locator,
   options: { hasText?: string | RegExp } = {},

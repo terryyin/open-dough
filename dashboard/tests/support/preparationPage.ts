@@ -22,7 +22,14 @@ export const test = base.extend<
 >({
   preparationHost: ["claude", { option: true }],
   originRepository: queuedOriginRepository,
-  origin: async ({ originRepository, preparationHost }, use) => {
+  // Both hosts' queued bases are worker preparation
+  // (./serverInputWorkerFixtures.ts), so a first case of either host, or with
+  // a later-revision override, copies a prepared base in its own time.
+  origin: async (
+    { queuedOriginsReady, originRepository, preparationHost },
+    use,
+  ) => {
+    await Promise.resolve(queuedOriginsReady);
     const origin = await startOrigin(originRepository, {
       host: preparationHost,
     });
@@ -71,25 +78,7 @@ export const test = base.extend<
   },
 });
 
-// These reading journeys use the queued Claude preview inputs before their
-// private origin, without moving any preparation out of suite elapsed.
-export const queuedClaudePreviewTest = test.extend({
-  originRepository: async (
-    { queuedClaudePreviewReady, originRepository },
-    use,
-  ) => {
-    await Promise.resolve(queuedClaudePreviewReady);
-    await use(originRepository);
-  },
-});
-
-// Codex reading journeys need their own queued installation plus the same preview.
-export const queuedCodexPreviewTest = test.extend({
-  originRepository: async (
-    { queuedCodexPreviewReady, originRepository },
-    use,
-  ) => {
-    await Promise.resolve(queuedCodexPreviewReady);
-    await use(originRepository);
-  },
-});
+// Every preparation journey already takes its queued origin and serving
+// inputs as worker preparation; these names keep their readers' imports.
+export const queuedClaudePreviewTest = test;
+export const queuedCodexPreviewTest = test;

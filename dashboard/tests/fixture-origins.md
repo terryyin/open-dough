@@ -10,10 +10,19 @@ skills (`support/startOriginPreparation.ts`). A description sharing their
 first revision starts from that origin, its checkout pushing the later ones,
 each on the parents it names; another is materialized privately on that
 installation, once per process.
+Every `support/preparationPage.ts` origin first takes the worker's
+`queuedOriginsReady` (`support/serverInputWorkerFixtures.ts`): both layouts'
+queued origins, prepared within cold worker preparation's own lifetime, so a
+first case of either host, or with later revisions of that description, only
+copies a prepared origin in its own time. The layout no case of that worker
+uses is one more run-owned preparation, not one per case; it stays in the
+run's elapsed time (`../backend-tests/runtime/test-preparation-budget.spec.ts`).
 A worker may also keep the origin one start of a description left
 (`keepStartedOrigin`), as it does for the kept published story
-(`support/keptPublishedStory.ts`); later starts of that description in the
-worker are copies of it and push nothing.
+(`support/keptPublishedStory.ts`) and the real-CLI compared Story Branch
+history under its own description (`support/keptComparedStoryBranch.ts`);
+later starts of that description in the worker are copies of it and push
+nothing.
 Tests clone private copies with independent objects, refs, config, indexes and
 HOME. Nested configurations can inherit the outer runner's artifacts. Without
 an owner, a start prepares only its layout and removes that preparation after

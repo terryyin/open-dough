@@ -1,6 +1,6 @@
 import { fileBrowser } from "./reviewContextLine.ts";
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
-import { codePane } from "./reviewPanes.ts";
+import { codePane, expectContextRead } from "./reviewPanes.ts";
 import { reviewRegion } from "./reviewControls.ts";
 import {
   filesColumn,
@@ -196,7 +196,7 @@ export function intentDiffReading(intent: Locator) {
 async function expectDiffReady(code: Locator) {
   await expect(code).toBeVisible();
   // Omitted context must be known before its gaps are read.
-  await expect(code).toHaveAttribute("aria-busy", "false");
+  await expectContextRead(code);
 }
 export const readIntentDiff = (intent: Locator) =>
   intentDiffReading(intent).code.innerText();

@@ -25,11 +25,9 @@ export const test = base.extend<{
   baseURL: string;
   page: Page;
 }>({
-  // Accepted cost: a worker's first case waits here for the run's one shared
-  // dashboard build (about 2 s in CI). The build is the app under test and is
-  // made once per run; the wait only lands on whichever case starts a worker.
-  // eslint-disable-next-line no-empty-pattern
-  frontendApp: async ({}, use) => {
+  // The worker's dashboardAppReady has built the app before any case starts.
+  frontendApp: async ({ dashboardAppReady }, use) => {
+    await Promise.resolve(dashboardAppReady);
     const server = await startFrontendAppServer();
     await use(server);
     await server.close();
