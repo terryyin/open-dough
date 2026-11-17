@@ -187,7 +187,7 @@ note text.
 
 ### 3. The follow-up dialog offers Attach story notes
 Type: Behavior
-Status: planned
+Status: done
 Proof: `follow-up-attach-notes.spec.ts`; consumers named in the slice 3 row;
 typecheck and lint.
 
@@ -244,3 +244,5 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
   `agent-launch-follow-up-notes.spec.ts`, page/session refusals in
   `agent-launch-follow-up-notes-admission.spec.ts`, with shared fixtures in
   `followUpNotesCases.ts`.
+- On case-insensitive APFS, do not name `attachStoryNotes.ts` beside
+  `AttachStoryNotes.tsx`; words live in `attachStoryNotesWords.ts`.

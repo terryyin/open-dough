@@ -72,6 +72,17 @@ export const storyNotesAnswerSchema = z.discriminatedUnion("kind", [
 ]);
 export type StoryNotesAnswer = z.infer<typeof storyNotesAnswerSchema>;
 
+/** Notes for one story from the page answer, or empty while unread or missing. */
+export function storyNotesFor(
+  answer: StoryNotesAnswer | undefined,
+  identity: string,
+): { readonly notes: readonly StoryNote[]; readonly unreadable: boolean } {
+  if (answer?.kind === "unreadable") return { notes: [], unreadable: true };
+  if (answer?.kind === "notes")
+    return { notes: answer.notes[identity] ?? [], unreadable: false };
+  return { notes: [], unreadable: false };
+}
+
 export const storyNoteChangeSchema = z.discriminatedUnion("action", [
   z.strictObject({
     identity: workIdentitySchema,

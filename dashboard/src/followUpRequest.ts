@@ -124,3 +124,12 @@ export function sameFollowUpSource(
   if (a === undefined || b === undefined) return a === b;
   return followUpSourceKey(a) === followUpSourceKey(b);
 }
+
+// Names `notes: true` on a story source when the dialog asks to attach notes.
+export function followUpSourceAttachingNotes(
+  source: FollowUpSource | undefined,
+  attach: boolean,
+): FollowUpSource | undefined {
+  if (source === undefined || !attach || !("story" in source)) return source;
+  return { story: { ...source.story, notes: true } };
+}

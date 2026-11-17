@@ -68,15 +68,21 @@ Captured context is developer-authored evidence of what the page showed when
 the note was made. It stays readable after the workspace or compared Git
 trees are gone.
 
-A Done story’s follow-up that asks to attach notes
-([Follow up](LAUNCH-FOLLOW-UP.md)) sends only the waiting notes from this
-machine’s store at admission, each with its text and context, after the
-story’s own follow-up context and outside the 4,000-character request. Sent
-notes are not attached. The session input labels them as the developer’s
-story notes and their context as what the dashboard showed when the note was
-taken. The attach choice is part of that launch’s identity; a retried start
-resends the notes saved with the attempt. Delivery into **Sent to follow-up**
-waits until the host confirms the first input.
+A Done story’s follow-up dialog offers **Attach story notes**
+([Follow up](LAUNCH-FOLLOW-UP.md)): checked with “<w> waiting of <n> notes”
+when notes wait; unavailable with “No waiting notes” when none wait or the
+story has none; unavailable with “The notes could not be read.” when the
+notes could not be read. Starting while it is checked asks the server to
+attach notes; unchecking or cancelling asks for none. The server then sends
+only the waiting notes from this machine’s store at admission, each with its
+text and context, after the story’s own follow-up context and outside the
+4,000-character request. Sent notes are not attached. The session input
+labels them as the developer’s story notes and their context as what the
+dashboard showed when the note was taken. The attach choice is part of that
+launch’s identity; a retried start resends the notes saved with the attempt.
+Delivery into **Sent to follow-up** waits until the host confirms the first
+input. A Taken story’s card still shows how many notes are waiting, and
+offers no way to send them until the story is Done.
 
 A Taken story’s workspace comparisons also offer **Add note** at the file and
 line. Its line menu holds **Add note** alone; **Follow up** retains its Done

@@ -52,6 +52,8 @@ import { usePageSessions } from "./pageSessions.ts";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 import { MessageSquarePlus, SquareTerminal } from "lucide-react";
 import { FollowUpSubject, type FollowUpShown } from "./FollowUpSubject.tsx";
+import { followUpSourceAttachingNotes } from "./followUpRequest.ts";
+import { sessionAttachingStoryNotes } from "./AttachStoryNotes.tsx";
 import { Icon } from "./Icon.tsx";
 import "./agent-launch.css";
 import "./frame-controls.css";
@@ -88,10 +90,15 @@ export function StartSession({
   readonly showTrigger?: boolean;
   readonly onClosed?: () => void;
 }) {
-  const attempt = launches.adHocAttemptOf(sourceId, followUp?.source);
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
   // Each opening starts from the default choices.
   const [policy, setPolicy] = useState(unattachedPolicyOf({}));
+  // Kept after accept so Follow up still finds an attempt keyed with notes.
+  const [attachNotes, setAttachNotes] = useState(false);
+  const attempt = launches.adHocAttemptOf(
+    sourceId,
+    followUpSourceAttachingNotes(followUp?.source, attachNotes),
+  );
   const starting = attempt?.kind === "starting";
   const answerId = useId();
   const progress = useRef<HTMLParagraphElement>(null);
@@ -101,6 +108,10 @@ export function StartSession({
   );
   const { presentTerminal } = usePageSessions();
   const opened = useRef(false);
+  const storyIdentity =
+    followUp !== undefined && "story" in followUp.source
+      ? followUp.source.story.identity
+      : undefined;
   useEffect(() => {
     if (!autoOpen || opened.current) return;
     opened.current = true;
@@ -171,11 +182,16 @@ export function StartSession({
           }
           description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's folder"}, with no story or skill${followUp === undefined ? "" : ", sending this context with your request"}. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
-          session={unattachedSession({
-            policy,
-            onPolicy: setPolicy,
-            offer: launches.sessionPolicyOffer(sourceId, "ad-hoc", host),
-          })}
+          session={sessionAttachingStoryNotes(
+            unattachedSession({
+              policy,
+              onPolicy: setPolicy,
+              offer: launches.sessionPolicyOffer(sourceId, "ad-hoc", host),
+            }),
+            storyIdentity === undefined
+              ? undefined
+              : { sourceId, identity: storyIdentity, onAttach: setAttachNotes },
+          )}
           effects={
             <>
               <strong className="launch-dialog-summary">
@@ -204,7 +220,7 @@ export function StartSession({
                     ),
                   });
               },
-              followUp?.source,
+              followUpSourceAttachingNotes(followUp?.source, attachNotes),
             )
           }
           onClose={(accepted) => {
@@ -212,8 +228,11 @@ export function StartSession({
             closeDialog(accepted);
             // Keep the launcher mounted through an accepted start so the
             // blank follow-up can present its terminal; Cancel clears a
-            // line-menu host.
-            if (!accepted) onClosed?.();
+            // line-menu host and drops an unchecked attach choice.
+            if (!accepted) {
+              setAttachNotes(false);
+              onClosed?.();
+            }
           }}
         />
       )}

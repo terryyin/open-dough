@@ -20,7 +20,14 @@ model, Attach images, field, Session group, defaults, gating and
 confirmations, plus a read-only line naming the entry as it reads (a
 session's label, or a story's “identity — title”) and a one-line-per-item
 list of the context it supplies (`src/FollowUpSubject.tsx`,
-`src/followUpContext.ts`). A done story's comes first: when it was completed
+`src/followUpContext.ts`). A Done story's dialog also offers **Attach story
+notes** below the instruction and above **Start**
+(`src/AttachStoryNotes.tsx`): checked with “<w> waiting of <n> notes” when
+notes wait; unavailable with “No waiting notes” when none wait or the story
+has none; unavailable with “The notes could not be read.” when the notes
+could not be read. Starting while it is checked names `notes: true`;
+unchecking or cancelling names none. A session follow-up offers no attach
+choice. A done story's comes first: when it was completed
 (UTC), by which developer with which agent, and that it is done, so its seed
 and plan may have been removed while its records remain in the project's
 history under its identity; or, holding no session, that no session context

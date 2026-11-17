@@ -4,6 +4,7 @@ import { useId, useRef, useState } from "react";
 import { StoryNotesDialog } from "./StoryNotesDialog.tsx";
 import {
   storyNoteIsWaiting,
+  storyNotesFor,
   storyNotesWaitingDescription,
 } from "./storyNote.ts";
 import { storyNotesUnreadable, useStoryNotes } from "./storyNotes.ts";
@@ -24,8 +25,7 @@ export function StoryNotes({
   const waitingId = useId();
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
-  const notes = answer?.kind === "notes" ? (answer.notes[identity] ?? []) : [];
-  const unreadable = answer?.kind === "unreadable";
+  const { notes, unreadable } = storyNotesFor(answer, identity);
   const waiting = notes.filter(storyNoteIsWaiting).length;
   const described = unreadable
     ? problemId
