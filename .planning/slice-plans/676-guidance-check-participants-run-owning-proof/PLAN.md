@@ -2,6 +2,7 @@
 
 **Identity:** SEED-393#guidance-check-participants-run-owning-proof
 **Source:** [Guidance-check participants can run their owning proof](../../seeds/SEED-393-test-quality-learning-from-effort-replays.md#guidance-check-participants-run-owning-proof)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -167,7 +168,7 @@ feasibility, not that a paid native participant chooses to run its proof.
 
 ### 1. Participants execute the case's complete owning proof
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a materialized arm gives participant commands usable native tools
 and writable private temp paths within existing isolation; backend and E2E
@@ -187,6 +188,21 @@ passing route are now observed; work is bounded to case setup/cleanup and its
 regression proof/docs. Keep them together because the outcome is one usable
 participant environment. Apply execution's sizing/escalation rule to any new
 cause. Do not hide setup or weaken historical assertions.
+
+Accepted proof (2026-11-17): case-local `case-environment.bash`, sourced by
+`case.bash` and exported from `case_materialize`; the four
+`native-guidance-check-launch-command-tests-environment*.sh` checks and their
+support helper drive the real wrapper on macOS (portable lifecycle checks
+elsewhere). After the refactor pass the eight launch-command-tests checks
+passed together through `bash scripts/test.sh` at load 42–50, then
+`npm run test:evaluation` passed at load 38→18, leaving no `/tmp/lct.*` alias.
+Source-review rows record each observation.
+
+Learning: under load 32–39 an earlier gate timed out in about twenty untouched
+native evaluation checks, and the sandboxed protective E2E once gave 3/1 from a
+historical Playwright 30 s test timeout; none recurred below load 40. Each
+sandboxed materializing check costs about 40–95 s under load against the
+180 s runner deadline, so keep one Playwright group per check.
 
 ## Verification and preparation assessment
 
@@ -215,3 +231,15 @@ slice-specific or cumulative-design concern, and no human-owned pre-Take
 decision. The observed complete route settles the previous readiness blocker;
 record ready against this current story and plan. Preparation implements no
 product correction and starts no execution.
+
+## Story obligations
+
+### G1. Native participant inheritance remains unobserved
+Reported: slice 1 — "Whether a native Codex participant actually inherits this environment through its own command execution, and chooses to run its proof, needs a separately authorized paid capture."
+Story clause: "authorize a paid native session"
+Disposition: excluded "authorize a paid native session"
+
+### G2. A deadline-killed environment check can leave its short temp alias
+Reported: slice 1 — "When `scripts/test.sh` kills a test at its deadline, the EXIT trap may not finish ... could leave a `/tmp/lct.*` directory."
+Story clause: "gives its participant an environment in which the owning backend and E2E proof can run"
+Disposition: no user cost "gives its participant an environment in which the owning backend and E2E proof can run": only a SIGKILL after the runner's TERM grace skips the EXIT trap (TERM runs it, observed), leaving one empty /tmp directory holding a dangling symlink; every existing materializing check already leaves its larger mktemp arm on that same path, and the participant's own runner path calls case_cleanup.

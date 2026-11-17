@@ -19,10 +19,12 @@ case_backend_specs=(
 )
 case_e2e_specs=(e2e/launches/agent-launch-ad-hoc.spec.ts)
 source "${case_dir}/case-probes.bash"
+source "${case_dir}/case-environment.bash"
 
 # Builds ROOT/workspace: a fresh checkout of the pinned revision with the
 # overlay committed, the payload from PAYLOAD_DIR for HOST, and the
-# project's locked dependencies. Leaves case_basis, the starting state's tree,
+# project's locked dependencies, then exports the participant environment
+# (case-environment.bash). Leaves case_basis, the starting state's tree,
 # and case_project_basis.
 case_materialize() {
   local root=$1 payload=$2 host=$3 workspace="$1/workspace"
@@ -38,6 +40,7 @@ case_materialize() {
   case_basis=$(case_tree "${workspace}" "${root}/basis.index") || return
   (cd -- "${workspace}" && npm ci --no-audit --no-fund --ignore-scripts) \
     > "${root}/setup.log" 2>&1 || return
+  case_environment_prepare "${root}" || return
   case_project_basis="open-dough=${case_revision} overlay=$(case_overlay_identity) basis=${case_basis}"
 }
 

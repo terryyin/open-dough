@@ -7,11 +7,10 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 source "${source_dir}/Distribution/evaluation/src/native-guidance-check-run.sh"
 case_path="${source_dir}/Distribution/evaluation/cases/guidance-checks/launch-command-tests"
-work=$(mktemp -d)
-trap 'rm -rf -- "${work}"' EXIT
-
 export NATIVE_GUIDANCE_CHECK_OPEN_DOUGH_SOURCE=${source_dir}
 source "${case_path}/case.bash"
+work=$(mktemp -d)
+trap 'case_cleanup; rm -rf -- "${work}"' EXIT
 case_materialize "${work}" "${source_dir}" codex
 [[ $(case_run_specs "${work}/workspace" e2e/playwright.config.ts "${work}/e2e.json" \
   "${case_e2e_specs[@]}") == '0 4' ]]
