@@ -178,7 +178,7 @@ removed; journey-state and the counterexample guard pass through
 
 ### 5. Corpus replay owns the repeated weekly-limit observations
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the maintained replay runs each reviewed stream once, including the
 two empty weekly-limit streams → wrong completion or command count fails with
@@ -189,6 +189,15 @@ all distinct JavaScript reader observations.
 Proof: named `native-stream-replay.sh` and `native-host-stream.test.mjs`.
 Repeat both recorded faults against core replay with the loop gone, then
 restore and pass. Retain the corpus expectations byte-for-byte.
+
+Accepted: the loop's status and zero-command assertions and the 679c wording
+check are gone; both faults fail core replay naming `20260923T044643-3342` and
+`20260923T062305-679c`, and restored bytes pass. One `weekly limit` response
+grep on 3342 stays: an adapter fault returning the wrong Claude response text
+passed replay and the JavaScript reader test, so it is unique protection under
+the story's removal rule. Final gate `npm run test:evaluation` (2 jobs, load
+about 90, AC, `caffeinate -s -i`) exits 0. Scheduled evaluation jobs remain 74;
+the branch's test diff is 89 deletions against 63 insertions.
 
 ## Current decisions and verification
 
