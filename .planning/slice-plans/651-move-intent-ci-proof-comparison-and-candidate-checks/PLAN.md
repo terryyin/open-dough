@@ -174,7 +174,7 @@ Frontend `intent/` (198), the E2E file, node consumers (113) and typecheck passe
 
 ### 4. Read comparison counts and signed relative changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-count-gaps.spec.ts` and
 `intent-ci-comparison-relative.spec.ts` → Frontend built app.
 Behavior: compare partial/ambiguous counts and timed units → overall, entry,
@@ -185,6 +185,15 @@ preserves mark geometry/order and survives Project Intent and back.
 Reuse `answerFrontendIntentComparison` with canonical endpoint proofs; retain
 existing mounted/unit rule variants rather than adding another renderer.
 Check: Frontend both converted files and existing mounted relative/gap owners.
+Accepted: both specs moved to Frontend with assertions verbatim through
+`prepareFrontendDoneIntent(..., { comparison })`, which applies MakeMe steps to
+the canonical Summary-scope compared story; `relativelyTimed` is shared with the
+mounted relative spec. `shown` gains one "0%": canonical `wallTimed()` endpoints
+measure time without runner waits (interim setup only, never asserted). Scratch
+break `leastRelativeScale` 0.5 → 1 failed the relative mark; restored passed.
+Comparison/Done consumers (119 + 9) and typecheck passed. Learning for 5–6:
+reuse the `comparison` option; interim drilldown/file/sort specs time out at 30 s
+under load ≥25 with 4 workers, so their Frontend replacements remove that risk.
 
 ### 5. Navigate compared scopes while retaining reading preferences
 Type: Behavior

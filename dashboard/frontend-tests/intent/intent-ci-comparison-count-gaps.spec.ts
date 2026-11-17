@@ -1,31 +1,41 @@
-import { fileProofTable } from "../intentFileProofPage.ts";
-import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Count eligibility reaches overall Counts, entry rows, Summary, Proof and
-// tree accessible evidence. Detailed endpoint/unit variations are Node cases.
-import { expect, test } from "../support/preparationPage.ts";
+// tree accessible evidence in the built app. The comparison and each run's
+// proof are canonical endpoint answers
+// (../../tests/support/frontendIntentComparison.ts); acquiring and counting
+// them is ../../backend-tests/intent/ci-comparison-*.spec.ts's and
+// ../../../e2e/intent/intent-ci-comparison*.spec.ts's. Endpoint/unit rule
+// variants are intent-ci-comparison-mounted-gaps.spec.ts's and
+// intent-summary-story-comparison-mounted-gaps.spec.ts's.
+import { fileProofTable } from "../../tests/intentFileProofPage.ts";
+import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { Page } from "@playwright/test";
+import type { CiProofEntry } from "../../src/ciProof.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
+  fileReadingTab,
   intentLocationName,
-} from "../intentPerspectivePage.ts";
-import { childName, scopeTable } from "../intentScopeProofPage.ts";
-import { intentLocationHeader } from "../intentLocationHeaderLook.ts";
+  proofRegion,
+} from "../../tests/intentPerspectivePage.ts";
+import { childName, scopeTable } from "../../tests/intentScopeProofPage.ts";
+import { intentLocationHeader } from "../../tests/intentLocationHeaderLook.ts";
 import {
   aSpec,
   entry,
   folder,
-  publishUnitsComparison,
-} from "../support/ciComparisonUnitsJourney.ts";
-import { expectCueState } from "../support/expectCiComparisonCues.ts";
-import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
+} from "../../tests/support/ciComparisonUnitsJourney.ts";
+import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
 import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
-import { intentFile } from "../support/intentStoryPage.ts";
-import { summaryComparisonChanges } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
+} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+import { intentFile } from "../../tests/support/intentStoryPage.ts";
+import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonFixture.ts";
 
 // The decisive case gap belongs to Baseline; complete files remain independent.
 function countedEntry(
@@ -52,15 +62,26 @@ function countedEntry(
     .please();
 }
 
+// The Done story whose Baseline, Branch and Landed proofs hold ENTRIES.
+async function prepareCountedComparison(
+  page: Page,
+  services: FrontendServiceState,
+  entries: readonly CiProofEntry[],
+) {
+  await prepareFrontendDoneIntent(page, services, undefined, {
+    comparison: (story) => story.withEntries(entries.map((held) => [held])),
+  });
+}
+
 test("partial case observations retain their gap in overall Counts and entry rows while complete files alone supply the cue", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  await publishUnitsComparison(page, origin, {
-    baseline: [countedEntry(3, 1, "missing")],
-    branch: [countedEntry(4, 2)],
-    landed: [countedEntry(5, 2)],
-  });
+  await prepareCountedComparison(page, frontendServices, [
+    countedEntry(3, 1, "missing"),
+    countedEntry(4, 2),
+    countedEntry(5, 2),
+  ]);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const overall = comparisonReading(panel).overallCounts;
   await expect(overall).toContainText(
@@ -86,13 +107,13 @@ test("partial case observations retain their gap in overall Counts and entry row
 
 test("ambiguous Baseline parts keep count claims out of Summary, file Proof and the tree's visible and accessible evidence", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  await publishUnitsComparison(page, origin, {
-    baseline: [countedEntry(3, 1, "ambiguous")],
-    branch: [countedEntry(4, 1)],
-    landed: [countedEntry(5, 1)],
-  });
+  await prepareCountedComparison(page, frontendServices, [
+    countedEntry(3, 1, "ambiguous"),
+    countedEntry(4, 1),
+    countedEntry(5, 1),
+  ]);
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, entry);
   const own = summary.getByRole("group", {

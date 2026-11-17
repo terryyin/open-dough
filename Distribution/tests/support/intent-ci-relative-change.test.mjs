@@ -3,7 +3,7 @@
 // ../../../dashboard/src/ciProofTimeWords.ts): relative only to a positive
 // baseline, one scale reaching one side at 50% and widening for a larger
 // change, and signed whole percentages. The summary's and entries' marks in
-// the browser: ../../../dashboard/tests/intent/intent-ci-comparison-relative.spec.ts.
+// the browser: ../../../dashboard/frontend-tests/intent/intent-ci-comparison-relative.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
