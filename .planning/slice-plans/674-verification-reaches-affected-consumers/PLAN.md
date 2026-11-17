@@ -125,7 +125,7 @@ whether a finding's response line needs updating.
 
 ### 2. A blind Codex redo executes the effort plan under the changed guidance
 Type: Behavior
-Status: planned
+Status: done
 Proof: launch record (command, cwd, prompt path, CLI version, effective
 model/effort from native metadata, power/load, start/end, exit) and the
 redo's head; `git -C <redo> diff --stat c629d0d93 <redo start>` lists only
@@ -137,6 +137,31 @@ Codex executes plan 664 from the rebuilt start in a scratch clone under
 its execution-complete record or a recorded stop, and that stop is retained
 rather than coached. Before launch, confirm Terry's trigger, AC power and
 that no other paid run competes.
+
+Prepared 2026-11-17, not launched: `~/open-dough-scratch/seed-393/`
+`b-codex-remote.git` (`main` `4b75c2888`; story branch at `af2fcf278`, one
+commit on `c629d0d93` applying `dc483b4dc..7875763cc -- Distribution/src/skills`
+to both installed roots), clone `b-codex` (clean, only that origin; plan 664
+byte-identical to `c629d0d93`), `b-codex-prompt.txt` (seed-391 prompt with
+workspace, SHAs and skill path only changed) and `launch-b-codex.sh` (AC-power,
+clean-clone and run-once guards; writes `b-codex-launch.json`). The installed
+`delegation.md` differs from source in one context line (“At the active
+limit…”), so its two replaced lines were applied with the installed context
+kept; the +/- lines match the source diff. Codex CLI 0.169.0, `gpt-6.1-sol`,
+`xhigh`, approval `never`, `danger-full-access`, no scratch trust entry, but a
+parent `/Users/terryyin` trust entry: disclose as a context difference. The
+bare remote carries release tags up to `v0.3.102`, all at or before A's Take.
+
+Ran 2026-11-17 on Terry's in-session go-ahead: `launch-b-codex.sh` from
+04:22:16Z to 08:49:42Z, exit 0, AC power, load 15.1/18.7/16.6 at start
+(37 a minute earlier, from other work). Native thread
+`01a1e7bd-c8e0-7f21-a9a1-f49fe951fcd9`: CLI 0.169.0, `gpt-6.1-sol`, `xhigh`.
+Redo head `4c82626a4` (“Record local execution completion…”), clean, eight
+commits over `af2fcf278`, final message “Completed all seven slices locally …
+Nothing pushed; stopped before wrap-up.” The scratch bare remote is unchanged
+(`main` `4b75c2888`, story branch `af2fcf278`); the clone has no other remote.
+Real `origin/main` moved `4e92ca857`→`0bf601c73` from unrelated trunk work.
+Record `b-codex-launch.json`, events `b-codex-events.jsonl`.
 
 ### 3. The redo is judged against frozen A, with residue named
 Type: Behavior
