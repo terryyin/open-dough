@@ -292,6 +292,18 @@ unchanged; decisive premises have observed results. This review identified no re
 acceptance and new discriminating assertions are execution obligations, not
 claims supplied by these lower-load preparation observations.
 
+## Execution complete
+
+Product advice: no change to near-future direction. The decisive proof was the
+nested run that turns red when a preparation dependency is removed; timing
+under raised load only confirmed it. The retrospective's correction
+[SEED-340#declare-every-worker-preparation-with-its-own-budget](../688-declare-every-worker-preparation-with-its-own-budget/PLAN.md)
+pools the compared-history fixture, gives the remaining worker preparations
+their own lifetime, removes leftover opt-ins and makes the proofs lasting.
+A product follow-up: a diff's line numbers move while its read context adds
+gap rows, so a user's click can land on another line (CI repair `d285e9d`).
+Process review is deferred into wrap-up's intent coverage check.
+
 ## Story obligations
 
 ### G1. Loaded first-case acceptance at one-minute load 30–50

@@ -145,3 +145,24 @@ the timeout lifted only to measure, it took 33 s. It is a first case whose own
 arrangement nears the budget once preparation is out. Its
 [diagnosis](https://github.com/terryyin/open-dough/blob/309dacb410f71134bc1ff76b668bed907d541f4d/.planning/slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/diagnosis-comparison-retry-e2e-timeout.md)
 names the remaining options.
+
+<a id="declare-every-worker-preparation-with-its-own-budget"></a>
+
+### Declare every worker preparation with its own budget
+
+**Identity:** SEED-340#declare-every-worker-preparation-with-its-own-budget
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/688-declare-every-worker-preparation-with-its-own-budget/PLAN.md"}
+```
+
+**Goal:** A maintainer relies on the preparation mechanism that
+SEED-340#keep-one-time-test-preparation-out-of-case-budgets delivered: every
+worker-scoped preparation lives in the shared worker pool with its own
+preparation lifetime, no leftover per-spec opt-in suggests otherwise, and
+its proofs are lasting and run once.
+
+**Scope:** Correct that execution's test support, the remaining worker
+fixtures its retrospective found on `preparationPage` consumers, and its
+runtime proofs; no product change.
+
+**Plan:** [Worker preparation correction](../slice-plans/688-declare-every-worker-preparation-with-its-own-budget/PLAN.md).
