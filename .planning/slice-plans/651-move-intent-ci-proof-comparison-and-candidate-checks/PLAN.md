@@ -294,6 +294,19 @@ Emptying the intent share broke the shard check, so `ci.yml` drops that share
 pattern instead. Full Frontend `intent/` (221), Backend/E2E candidates, shard
 node tests and typecheck passed.
 
+## Execution complete
+
+Product advice: no change to priorities. The 20 Intent CI specs now live in
+Frontend with named Backend/E2E owners; the interim group holds only navigation
+(107 tests/41 files), so the navigation/retirement stories start from that and
+from `ci.yml`'s renumbered integrated shares. Give SEED-340 the
+[comparison retry diagnosis](diagnosis-comparison-retry-e2e-timeout.md): its
+first E2E case spends ~20 s on fixtures and Done-story publication under load
+≥27, the class SEED-340 owns. Its seed and SEED-319 still place moved
+`intent-done-source-selection` / `intent-ci-done-reference-lifecycle` under
+`dashboard/tests/intent/`. Process review is deferred into wrap-up with the
+Intent Coverage check.
+
 ## Decisive premises and observations
 
 [Preparation observations](PREPARATION-EVIDENCE.md) retain the literal commands,
