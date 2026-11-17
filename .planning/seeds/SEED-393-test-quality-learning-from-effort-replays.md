@@ -79,7 +79,7 @@ result, not a new reporting workflow.
 
 **Identity:** SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/675-tests-protect-their-own-behavior/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c8593cf8ef780ea188ed678960fd25a7d0b2da240ff58af2c621210680748913","plan":"88b2861f0a05666c57fb0f956e8d085944eaf02e0caa7308c7acc4523e878c29"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/675-tests-protect-their-own-behavior/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e7be0c6e86df1420c92891e8a080a3a1343cc5b9ac287a1d1808675a4b135d72","plan":"c92684867342cd27155418de2dffed8e10670098d9ef8388d73423b0c08d3822"}}
 ```
 
 **Goal:** Open Dough maintainers, and projects whose agents write and refactor
@@ -166,7 +166,8 @@ candidate. Outcome (a) stays available if slice review shows (b) adds nothing.
      model-display loop) and claims no all-clean result the inspection does
      not support. Effort is secondary.
 
-**Scope limits:** consumer reach and proof selection belong to story 2;
+**Scope limits:** consumer reach and proof selection belong to the delivered
+SEED-393#proof-reaches-unchanged-consumers-of-changed-output;
 planning-side proof placement, a perturbation step in the guidance, the
 delivery brief's counting clause and repairs to today's product tests are not
 undertaken. A new shared reader is allowed when it simplifies, never required.

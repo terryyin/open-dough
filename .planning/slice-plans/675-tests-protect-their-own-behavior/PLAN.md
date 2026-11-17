@@ -25,8 +25,8 @@ own the test-focus rules (“Write observable cases” and “Shotgun surgery”
 [test optimization tactics](../../../Distribution/src/skills/dough-test-optimization/references/optimization-tactics.md)
 link to them and need no change. The redo reuses the SEED-391 construction at
 `fbfaa116b:.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/`
-and the retained inputs in `/Users/terryyin/open-dough-scratch/seed-391/retained/`
-(`replays.bundle`, `b-claude-prompt.txt`, `b-claude-launch.json`).
+and recovers its inputs from Git and the frozen transcripts; the earlier
+scratch copies under `~/open-dough-scratch/seed-391/` are gone.
 
 [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
 §3: one home for the rule. [ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md):
@@ -51,11 +51,14 @@ criteria are fixed in the source before the run. No North Star topic applies.
   native metadata.
 - Redo input mirrors frozen Claude B: start `c629d0d93` (A's Take plus
   `934a51a30`) with this story's guidance diff applied to both installed
-  roots, plan 664 as A left it, the retained `b-claude-prompt.txt` (local bare
-  remote, local-only, `--skip-retro`, stop at the execution-complete record).
+  roots, plan 664 as A left it, and frozen Claude B's exact first message
+  (transcript `a46d7c72-ae04-4349-b60f-6f3f85545033`: `--skip-retro`,
+  local-only, stop at the execution-complete record) with only its workspace
+  path changed to the new clone, whose sole remote is a local bare repository.
   The participant receives no prior outcome, this story's text or criteria.
-- A, frozen Codex B and frozen Claude B are never rerun or changed. Story 2's
-  Codex redo is a separate run; the two redos are not composed.
+- A, frozen Codex B and frozen Claude B are never rerun or changed. The
+  redo start carries only this story's guidance diff on top of `934a51a30`,
+  not the delivered consumer-reach guidance, so the two are not composed.
 
 ## Proof ownership
 
@@ -74,7 +77,7 @@ criteria are fixed in the source before the run. No North Star topic applies.
 | --- | --- | --- |
 | The current guidance is the guidance the frozen B ran | Slice 1 edits current text; slice 3 attributes differences to the edit | `git log -- Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md` at `e7cba86a8`: last change `934a51a30`, the trial patch. |
 | Default perturbation discriminates incidental literal copies from owners | Slice 3 criterion 4 | 2026-11-17, scratch worktree of `d8efcf6fb` (frozen Claude B product/test), integration `node_modules` linked (package files unchanged against integration HEAD), `defaultEffort: "high"` in `dashboard/src/hostDescription.ts`, AC power: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx --no-install playwright test --config dashboard/backend.playwright.config.ts --reporter=list --workers=1 launches/agent-launch-model-boundary.spec.ts -g <title>` per test (the describe is serial) → the three chosen-model cases and the default-effort owner fail; the chosen-effort case passes. Same config over `feedback-maintenance-launch.spec.ts` and `agent-launch-ad-hoc-boundary.spec.ts` → all pass, including the mixed notification test, which reads the configured default. So perturbation detects literal copies but not mixed promises; criterion 1 is settled by inspection. Edit reverted, worktree removed. E2E persistence strings were not run; they copy the literal and are covered by inspection. |
-| The redo can be rebuilt from retained evidence | Slice 2 construction | `git bundle list-heads replays.bundle` → `claude-B` `9cd8ee5f2` (fetched and inspected 2026-11-17; `c629d0d93..d8efcf6fb` diffs read). `claude --version` → 2.1.326, the frozen B's CLI per `b-claude-launch.json` (command form `claude --bg --name … --model opus --effort medium <prompt>`). The scratch trust step that frozen B needed is part of slice 2's launch. |
+| The redo can be rebuilt from Git and the frozen transcripts | Slice 2 construction | Re-observed 2026-11-17 at `74cc07039`: the scratch `retained/` directory is gone; `git cat-file -t` → commit for `c629d0d93` (start), `d8efcf6fb` (Claude B product/test cutoff) and `9cd8ee5f2` (Claude B head) in this repository; transcript `a46d7c72-…` first user message holds the exact frozen B instruction; the construction and command form `claude --bg --name … --model opus --effort medium <prompt>` are recorded at `fbfaa116b:.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/` (`execution-context.md`, `execution-observations.md`, `claude-comparison.md`). `claude --version` → 2.1.326, frozen B's CLI. The new clone's Claude trust step is part of slice 2's launch. |
 
 ## Concerns
 
@@ -124,8 +127,7 @@ Claude Code executes plan 664 from the rebuilt start in a scratch clone
 under `~/open-dough-scratch/seed-393/tests-focus/` with only a local bare
 remote → it stops at its execution-complete record or a recorded stop, and
 that stop is retained rather than coached. Before launch, confirm Terry's
-trigger, AC power and that no other paid run (such as story 2's redo)
-competes.
+trigger, AC power and that no other paid run competes.
 
 ### 3. The redo is judged against frozen A, with residue named
 Type: Behavior
