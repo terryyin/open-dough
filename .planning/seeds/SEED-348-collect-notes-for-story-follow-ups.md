@@ -28,7 +28,7 @@ session startup and edits made while a launch is in progress.
 
 **Identity:** SEED-348#collect-notes-for-story-follow-ups
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4ecd706eea92b02961b89f0169f8c2c4b6e67f4b42c6a0365ff7ea4393fbbf75","plan":"0a550ee4d9cc93bbba06b23f2e28ab5b7a05b67b4f55950bfdd8cadec21447ae"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4ecd706eea92b02961b89f0169f8c2c4b6e67f4b42c6a0365ff7ea4393fbbf75","plan":"00b802d07ec329786b97830d3b6d5e863b675ba8b034ff4b2e2b8d07b9c937f0"}}
 ```
 
 **Beneficiary**

@@ -54,19 +54,19 @@ last removing it after delivery and verification.
 | 22 | Workspace-review line numbers gain a menu containing Add note. | slice 6 |  |
 | 23 | Existing Follow up remains beside Add note wherever it was offered; the Done Published completion example names both the line menu and file header. | slice 7 |  |
 | 24 | A reviewed session with no story offers no Add note in its diff. | slice 6 |  |
-| 25 | The composer shows the note’s context before saving. | slice 5 |  |
+| 25 | The composer shows the note’s context before saving. | slice 5 | observed: Published real E2E and Landed frontend composer assertions show story/title, view, paths, exact endpoints and optional raw line before save; shared StoryNoteContext renderer. |
 | 26 | Note context includes the story’s identity, shown before saving and afterwards. | slice 7 |  |
 | 27 | Note context includes the story’s title, shown before saving and afterwards. | slice 7 |  |
-| 28 | Diff-note context includes the view in which the note was taken. | slice 7 |  |
-| 29 | Diff-note context includes the file path. | slice 5 |  |
-| 30 | A renamed file’s diff-note context includes its old path. | slice 5 |  |
+| 28 | Diff-note context includes the view in which the note was taken. | slice 5 | observed: Intent real E2E saves through shared diff composer and reads Intent → Changed tests back from card; Review/Landed cases observe Review changes. IntentSelectionReading provider supplies canonical view. |
+| 29 | Diff-note context includes the file path. | slice 5 | observed: Published real and Landed frontend cases observe file path before save and saved collection readback. |
+| 30 | A renamed file’s diff-note context includes its old path. | slice 5 | observed: Landed frontend case observes old-name.ts → new-name.ts, captured POST contains oldPath, saved entry keeps both paths. |
 | 31 | Diff-note context uses the comparison’s displayed name. | slice 7 |  |
 | 32 | Diff-note context includes the comparison endpoints. | slice 7 |  |
-| 33 | Line-note context includes the line number. | slice 5 |  |
-| 34 | Line-note context includes the line’s side. | slice 5 |  |
-| 35 | Line-note context preserves the line’s text as it read when noted. Amendment: a line note keeps text of its line. | slice 5 |  |
+| 33 | Line-note context includes the line number. | slice 5 | observed: Published real E2E captures new54, old54 and revealed old40, before-save and saved line labels. |
+| 34 | Line-note context includes the line’s side. | slice 5 | observed: Same real cases independently observe new/old side labels with correct line numbers. |
+| 35 | Line-note context preserves the line’s text as it read when noted. Amendment: a line note keeps text of its line. | slice 5 | observed: Published real E2E preserves changed fifty-four, line54 and revealed line40; Intent real E2E keeps completed line content; diffLineItems passes raw line.text separately from follow-up anchor. |
 | 36 | Saved context records what the page showed when the note was made; the later Done/workspace-removed example requires the same context. | slice 7 |  |
-| 37 | A note added from a file header has file and comparison context but no line. | slice 5 |  |
+| 37 | A note added from a file header has file and comparison context but no line. | slice 5 | observed: File-header Published/Landed cases assert no composer line, no saved line and exact captured context omits line. |
 | 38 | The developer can type note text. | slice 2 | observed: story-notes.spec.ts fills real Note text textarea and observes saved typed text. |
 | 39 | Dictation follows session-instruction permission states. | slice 8 |  |
 | 40 | Dictation follows session-instruction recording states. | slice 8 |  |
@@ -102,9 +102,9 @@ last removing it after delivery and verification.
 | 70 | The composer offers Dictate. | slice 8 |  |
 | 71 | The composer offers Cancel. | slice 2 | observed: story-notes.spec.ts blank composer Cancel then Add note opens clean draft; StoryNotesControl.tsx Cancel action. |
 | 72 | The composer offers Save note. | slice 2 | observed: story-notes.spec.ts Save note submit produces observed POST/list/status. |
-| 73 | A composer opened from a diff opens alone. | slice 5 |  |
-| 74 | A composer opened from a diff closes on saving. | slice 5 |  |
-| 75 | Saving is announced exactly once. | slice 2 | observed: storyNotesPage.expectSaved checks one matching status and one rendered save announcement after save. |
+| 73 | A composer opened from a diff opens alone. | slice 5 | observed: storyNotesPage.fromFile asserts no Saved notes list in diff composer; shared dialog opens directly in add mode for line/file context. |
+| 74 | A composer opened from a diff closes on saving. | slice 5 | observed: All real file/line and Intent saves assert composer unmounted and exactly one surviving polite save announcement. |
+| 75 | Saving is announced exactly once. | slice 2 | observed: General/edit collection proof retained; slice5 Published file/new/old/revealed and Intent/Landed saves each close composer and leave exactly one polite announcement and one matching message across consecutive triggers; page-scoped owner channel clears prior owner. All note frontend consumers passed after change. |
 | 76 | Notes are stored beside the story review states. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 77 | Notes are never a published story fact. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 78 | Notes are not published into the project repository. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |

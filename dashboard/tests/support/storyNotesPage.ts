@@ -8,6 +8,49 @@ export function storyNotesPage(page: Page) {
     .getByRole("list", { name: "Saved notes" })
     .getByRole("listitem");
   return {
+    fromFile: async (scope: Locator) => {
+      await scope
+        .getByRole("button", { name: "Add note", exact: true })
+        .click();
+      await expect(dialog).toBeVisible();
+      await expect(
+        dialog.getByRole("list", { name: "Saved notes" }),
+      ).toHaveCount(0);
+    },
+    fromLine: async (scope: Locator, side: "old" | "new", line: number) => {
+      await scope
+        .getByRole("button", {
+          name: `${side === "old" ? "Old" : "New"} line ${line}`,
+          exact: true,
+        })
+        .click();
+      const menu = page.getByRole("menu");
+      await expect(menu.getByRole("menuitem")).toHaveText([
+        "Follow up",
+        "Add note",
+      ]);
+      await menu
+        .getByRole("menuitem", { name: "Add note", exact: true })
+        .click();
+      await expect(dialog).toBeVisible();
+    },
+    expectDiffSaved: async () => {
+      await expect(dialog).toHaveCount(0);
+      await expect(
+        page
+          .locator('[aria-live="polite"]')
+          .filter({ hasText: "Note saved to this story." }),
+      ).toHaveCount(1);
+      await expect(
+        page.getByText("Note saved to this story.", { exact: true }),
+      ).toHaveCount(1);
+    },
+    expectEntryNoLine: async (index: number) => {
+      await expect(entries.nth(index)).not.toContainText(/Line [0-9]+/);
+    },
+    expectNoComposerLine: async () => {
+      await expect(dialog.locator("form")).not.toContainText(/Line [0-9]+/);
+    },
     open: async (card: Locator, using: "mouse" | "keyboard" = "mouse") => {
       const control = storyNotesControl(card);
       if (using === "keyboard") {
@@ -62,7 +105,7 @@ export function storyNotesPage(page: Page) {
       await expect(page.getByText(message, { exact: true })).toHaveCount(1);
       await expect(field).toHaveCount(0);
     },
-    expectComposerContext: async (texts: readonly string[]) => {
+    expectComposerContext: async (texts: readonly (string | RegExp)[]) => {
       for (const text of texts)
         await expect(dialog.locator("form")).toContainText(text);
     },
@@ -123,7 +166,7 @@ export function storyNotesPage(page: Page) {
       await expect(field).toBeVisible();
       await expect(field).toHaveValue(text);
     },
-    expectEntryContext: async (index: number, text: string) => {
+    expectEntryContext: async (index: number, text: string | RegExp) => {
       await expect(entries.nth(index)).toContainText(text);
     },
     expectCount: async (card: Locator, count: number) => {

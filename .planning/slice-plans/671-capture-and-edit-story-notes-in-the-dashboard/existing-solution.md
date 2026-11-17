@@ -62,7 +62,7 @@ Expected edits to files near the 250-line check, with their owners:
 
 | File | Lines | Decision |
 | --- | --- | --- |
-| `dashboard/src/IntentFileReading.tsx` | 244 | Not edited. The view a note was taken in reaches the composer through a context Intent provides from a smaller owner, defaulting to Review changes. |
+| `dashboard/src/IntentFileReading.tsx` | 244 | Not edited. The view a note was taken in reaches the composer through a context Intent provides from a smaller owner (for example `IntentSelectionReading`), defaulting to Review changes. This provider is owned by slice 5 when the shared actions first appear. |
 | `dashboard/src/StoryReview.tsx` | 247 | Not edited. The review's **Notes** control goes in `StoryReviewHeading.tsx` (36). |
 | `dashboard/server/machineJsonStore.ts` | 235 | One message change, no growth. |
 | `dashboard/src/StoryReviewDiffLines.tsx` | 219 | Slice 5 passes the line's text through the existing menu; if it would pass 250, move the menu state (`openMenu`, `lineMenu`) to its own module in that slice, callers `StoryReviewContextGap.tsx` and `diffLineItems` unchanged in behavior. |

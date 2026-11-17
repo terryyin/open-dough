@@ -17,6 +17,7 @@ export function DiffLineNumber({
   onOpen,
   onClose,
   onFollowUp,
+  onAddNote,
 }: {
   readonly side: DiffLineSide;
   readonly line: number;
@@ -24,6 +25,7 @@ export function DiffLineNumber({
   readonly onOpen: () => void;
   readonly onClose: () => void;
   readonly onFollowUp: () => void;
+  readonly onAddNote?: () => void;
 }) {
   const label = lineNumberLabel(side, line);
   const menuId = useId();
@@ -32,7 +34,21 @@ export function DiffLineNumber({
   const menu = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (open) menu.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    if (!open) return;
+    const shown = menu.current;
+    const pane = root.current?.closest(".story-review-code");
+    if (
+      shown !== null &&
+      pane !== null &&
+      pane !== undefined &&
+      shown.getBoundingClientRect().bottom > pane.getBoundingClientRect().bottom
+    ) {
+      shown.style.top = "auto";
+      shown.style.bottom = "100%";
+    }
+    shown
+      ?.querySelector<HTMLButtonElement>("button")
+      ?.focus({ preventScroll: true });
   }, [open]);
 
   useEffect(() => {
@@ -128,6 +144,19 @@ export function DiffLineNumber({
           >
             Follow up
           </button>
+          {onAddNote !== undefined && (
+            <button
+              type="button"
+              role="menuitem"
+              className="frame-button"
+              onClick={() => {
+                onAddNote();
+                onClose();
+              }}
+            >
+              Add note
+            </button>
+          )}
         </div>
       )}
     </span>

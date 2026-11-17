@@ -13,7 +13,8 @@ diff in Review changes (Published completion or a landed run) and in
 Intent → Changed tests Purpose also offers Follow up beside the file path
 for the whole file, even when that card still offers Open terminal; a
 retained workspace snapshot does not. In those diffs, each line number opens
-a menu that offers Follow up for that line and side. Follow up opens the
+a menu that offers Follow up for that line and side, beside
+[Add note](STORY-NOTES.md) for saving an observation with that context. Follow up opens the
 [Start session](LAUNCH-START.md#start-session) dialog with the same host,
 model, Attach images, field, Session group, defaults, gating and
 confirmations, plus a read-only line naming the entry as it reads (a

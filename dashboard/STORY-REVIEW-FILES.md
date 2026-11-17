@@ -32,8 +32,8 @@ completion or landed run, that heading also offers
 about the whole file; a retained workspace snapshot does not. In those same
 diffs, each line number is a control that opens a small menu naming the line
 (for example “Old line 85”) and offering Follow up for that line and side,
-including revealed context lines; the menu holds only Follow up until story
-notes add more. Line numbers stay outside copied code and off the Tab order
+including revealed context lines. The header and line menu also offer
+[Add note](STORY-NOTES.md), keeping the shown file or line context. Line numbers stay outside copied code and off the Tab order
 (`src/DiffLineNumber.tsx`, `src/StoryReviewDiffLines.tsx`). A diff's code
 carries the same syntax styling as Intent's source reading, chosen by the
 file's path among the eleven grammars TypeScript, TSX, JavaScript, Java,

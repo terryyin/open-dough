@@ -109,10 +109,10 @@ test.describe("diff line Follow up menu", () => {
     const oldFiftyFour = lineNumberControl(diff, "old", 54);
     const newFiftyFour = lineNumberControl(diff, "new", 54);
 
-    await test.step("pointer opens the menu naming the line with only Follow up", async () => {
+    await test.step("pointer opens the menu naming the line with Follow up and Add note", async () => {
       await openLineMenu(oldFiftyFour, "pointer");
       const menu = await expectLineMenuOpen(page, "Old line 54");
-      await expect(menu.getByRole("menuitem")).toHaveCount(1);
+      await expect(menu.getByRole("menuitem")).toHaveCount(2);
       await page.keyboard.press("Escape");
       await expect(menu).toHaveCount(0);
       await expect(oldFiftyFour).toBeFocused();

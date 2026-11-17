@@ -36,3 +36,11 @@ announced once, with the keyboard returned to an available control.
 A refused edit keeps the composer and typed text with “The note could not be
 saved.” A refused delete keeps the saved entry and says “The note could not
 be deleted.” Try the action again once the dashboard can keep changes.
+
+A Done story’s Published completion or Landed run offers **Add note** beside
+the file path and beside **Follow up** in each line-number menu, in Review
+changes and Intent → Changed tests. The composer opens alone over the diff
+and closes after saving. Its context shows the view, file path (including
+the previous path of a rename), comparison name and endpoints; a line note
+also keeps its number, side and the text as it read, including revealed
+context lines. The saved entry shows the same facts away from the diff.

@@ -124,14 +124,16 @@ Accepted proof: [slice 4](slice-4-proof.md).
 
 ### 5. A Done story's diff adds file and line notes with their context
 Type: Behavior
-Status: planned
-Proof: `e2e/review/story-review-diff-add-note.spec.ts` (slice 5 row); consumers
+Status: done
+Proof: `e2e/review/story-review-diff-add-note.spec.ts`,
+`e2e/intent/intent-story-add-note.spec.ts` (Add note/view case), and a
+Landed run context variant at the frontend boundary; consumers
 `e2e/review/story-review-diff-line-follow-up.spec.ts`,
 `e2e/intent/intent-story-follow-up.spec.ts` and
 `dashboard/frontend-tests/review/`; typecheck and lint.
 
 Behavior: a Done story's Published completion or landed run in Review changes
-→ the file header offers **Add note** beside **Follow up**, and each line
+or Intent → Changed tests → the file header offers **Add note** beside **Follow up**, and each line
 number's menu offers both; the composer shows the story, the view, the path
 (and a rename's old path), the comparison name and endpoints, and for a line
 its number, side and text; the saved note shows the same context in Story
@@ -141,6 +143,13 @@ notes.
   its text from the hunk or revealed context line.
 - `StoryReviewFileDiff` mounts the composer for a line; `StoryReviewFileHeader`
   for the file. Context from `fileFollowUpParts`.
+- Shared diff actions appear in both views immediately: provide the correct
+  view from a smaller Intent owner (such as `IntentSelectionReading`), keeping
+  `IntentFileReading` untouched. Capture/view proof belongs here, not slice 7.
+- A successful diff save closes its composer and announces once from a
+  surviving owner; preserve existing Follow up wire context without note text.
+
+Accepted proof: [slice 5](slice-5-proof.md).
 
 ### 6. Workspace reviews add notes, and sessions without a story do not
 Type: Behavior
@@ -173,11 +182,11 @@ whose names begin `intent-story`; typecheck and lint.
 Behavior: a story's Review changes and Intent → Changed tests → **Notes** with
 the story's count opens Story notes; closing it leaves the comparison,
 selected file, revealed lines and reading position as they were and returns
-the keyboard to **Notes**. A note added from a diff in Changed tests says it
-was taken in Intent → Changed tests.
+the keyboard to **Notes**. Reuse slice 5’s already-correct diff-note view
+capture and its Intent Add note observation.
 
 - **Notes** in `StoryReviewHeading.tsx` for a story subject, and beside the
-  selected story in Intent; the view context provided by Intent.
+  selected story in Intent; retain the view context delivered in slice 5.
 
 ### 8. A note can be dictated
 Type: Behavior
@@ -218,4 +227,11 @@ See [Execution context](execution-context.md); its decisions and evidence apply 
 
 ## Learnings
 
-None yet.
+See [execution context](execution-context.md#learnings) for the retained boundary refinement.
+
+## Story obligations
+
+### G1. Taken workspace entry points follow Done capture
+Reported: slice 5 — "Accepted interim remains: Taken workspace Add note belongs to slice 6."
+Story clause: "Every file diff of a story in Review changes and Intent → Changed tests offers Add note beside the file path and in each line-number menu"
+Disposition: interim until slices 6

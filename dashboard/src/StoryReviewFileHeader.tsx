@@ -2,6 +2,7 @@
 // path (`ReviewedFileName`), and, for a Done story's Published completion or
 // landed run, Follow up beside that path (`./StoryAnchoredFollowUp.tsx`).
 
+import { useDiffStoryNote } from "./StoryDiffNote.tsx";
 import type { ReactNode } from "react";
 import { StoryFileFollowUp } from "./StoryAnchoredFollowUp.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
@@ -41,6 +42,7 @@ export function ReviewedFileHeader({
   readonly headingId?: string;
   readonly moves?: ReactNode;
 }) {
+  const note = useDiffStoryNote(reviewed, from, tree, file);
   return (
     <div className="story-review-diff-heading">
       <h3 id={headingId}>
@@ -52,6 +54,18 @@ export function ReviewedFileHeader({
         tree={tree}
         file={file}
       />
+      {note.available && (
+        <button
+          type="button"
+          className="frame-button"
+          onClick={() => {
+            note.open();
+          }}
+        >
+          Add note
+        </button>
+      )}
+      {note.content}
       {moves}
     </div>
   );

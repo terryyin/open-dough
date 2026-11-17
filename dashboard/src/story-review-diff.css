@@ -26,12 +26,13 @@
    file, which keep their place at its end. */
 .story-review-diff-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 0.5rem;
 }
 
 .story-review-diff-heading h3 {
-  flex: 1;
+  flex: 1 1 12rem;
   min-width: 0;
 }
 

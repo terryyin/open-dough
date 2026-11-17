@@ -38,7 +38,10 @@ export async function openLineMenu(
 export async function expectLineMenuOpen(page: Page, label: string) {
   const menu = lineNumberMenu(page, label);
   await expect(menu).toBeVisible();
-  await expect(menu.getByRole("menuitem")).toHaveText(["Follow up"]);
+  await expect(menu.getByRole("menuitem")).toHaveText([
+    "Follow up",
+    "Add note",
+  ]);
   return menu;
 }
 

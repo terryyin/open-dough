@@ -80,3 +80,22 @@ Reporting never declares story complete or stops session by itself.
   access in a test; mechanical typed full-shape assertion and focused proof
   passed before guarded retry. Current source pin7ce6ee91536ba1c445bd30cac9913910a9169e03,
   only unrelated preparation arrived on trunk; no named-sibling hold.
+
+- Slice4: `56c456a21f7caa2db349cf252302e94e4d0a1e0e`, accepted on storybranch,
+  suffix base `6eb0561760df59742f35d6fedb539db02d8e910d`; same observer reused
+  and exact revision registered. Independent refactor no edits; gates passed.
+- Remaining-boundary refinement after4: retain5–8, shift Intent view-provider
+  and capture proof7→5 because shared diff components expose actions then.
+  Context display delivered4 offsets that small current responsibility; eight
+  slices still fit the existing model/15-minute hypotheses. No source outcome,
+  sibling order, selected solution or architecture change; no overrun occurred.
+
+## Learnings
+
+After slice 4, shared `IntentFileReading` mounts both `ReviewedFileHeader`
+and `FileDiff` (lines176–189). New diff actions therefore appear in Intent
+at slice5, so a default Review changes label would save wrong immutable
+context. Move the small Intent view provider and its save observation from7
+to5; context display already delivered in4 reduces that slice's remaining
+work. Eight slices remain; 1–4 and their proof are preserved. Scope, PFE and
+architecture unchanged. Remaining boundaries retained as one proof loop each.
