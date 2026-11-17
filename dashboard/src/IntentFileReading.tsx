@@ -186,6 +186,7 @@ export function IntentFileReading({
                 from={changeFrom}
                 tree={story.shown.tree}
                 file={change}
+                {...(syntaxHint === undefined ? {} : { syntaxHint })}
               />
             </div>
           ) : read?.state === "failed" ? (

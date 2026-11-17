@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-387_intent-hint-language-for-story-review-diffs.json",
+      "identity": "SEED-387#intent-hint-language-for-story-review-diffs",
+      "completedAt": "2026-11-17T14:17:23.319Z",
+      "blob": "b0e92d3ff4636c82e74053466534ed9439d4413e"
+    },
+    {
       "fileName": "SEED-334_move-intent-ci-proof-comparison-and-candidate-checks.json",
       "identity": "SEED-334#move-intent-ci-proof-comparison-and-candidate-checks",
       "completedAt": "2026-11-17T13:41:39.581Z",

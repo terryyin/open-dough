@@ -3,11 +3,11 @@
 // printed hunks via `./StoryReviewDiffLines.tsx`, with omitted unchanged lines
 // available from the same comparison's file text (`./diffContextExpansion.ts`)
 // as disposable presentation state, and every line's code syntax-styled from
-// that text by the file's path (`./diffLineTokens.ts`). Both are fixed by the
-// two trees, so the page asks each once (`./useReviewRead.ts`); an
-// unavailable answer is asked again. When a Done story offers line Follow up,
-// DiffLines opens that line's menu and this file mounts the same Start
-// session dialog for the line.
+// that text by the file's path, falling back to an optional Intent `syntax`
+// hint (`./diffLineTokens.ts`). Both are fixed by the two trees, so the page
+// asks each once (`./useReviewRead.ts`); an unavailable answer is asked again.
+// When a Done story offers line Follow up, DiffLines opens that line's menu
+// and this file mounts the same Start session dialog for the line.
 
 import { useDiffStoryNote } from "./StoryDiffNote.tsx";
 import { useState } from "react";
@@ -75,11 +75,14 @@ export function FileDiff({
   from,
   tree,
   file,
+  syntaxHint,
 }: {
   readonly reviewed: ReviewedWork;
   readonly from: string;
   readonly tree: string;
   readonly file: ReviewedFile;
+  // Intent `syntax` hint when the path names no grammar (`./diffLineTokens.ts`).
+  readonly syntaxHint?: string;
 }) {
   const note = useDiffStoryNote(reviewed, from, tree, file);
   const query = reviewFileQuery(reviewed, from, tree, file);
@@ -110,7 +113,7 @@ export function FileDiff({
     text === undefined
       ? undefined
       : { baseline: textLines(text.baseline), tree: textLines(text.tree) };
-  const lineTokens = useDiffLineTokens(file.path, text);
+  const lineTokens = useDiffLineTokens(file.path, text, syntaxHint);
   const textProblem =
     textRead.problem ??
     (textRead.answer?.kind === "unavailable"
