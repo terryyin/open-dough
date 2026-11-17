@@ -204,6 +204,16 @@ historical Playwright 30 s test timeout; none recurred below load 40. Each
 sandboxed materializing check costs about 40–95 s under load against the
 180 s runner deadline, so keep one Playwright group per check.
 
+## Execution complete
+
+Product advice: no correction. The case now gives participants a usable
+backend and E2E proof environment, proven credential-free through the real
+macOS wrapper. Whether a native participant actually runs its proof stays
+unobserved; a paid native repeat of this case needs separate authority and
+would now answer it. The four sandbox checks run only on macOS and each
+materializes a full arm (about 40–95 s under load), adding local suite time
+without CI cost.
+
 ## Verification and preparation assessment
 
 Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
