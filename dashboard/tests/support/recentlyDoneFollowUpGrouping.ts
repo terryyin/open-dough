@@ -1,7 +1,9 @@
-// Frontend fixtures for closed ad hoc story follow-ups on Recently done cards
-// (`../../frontend-tests/sessions/recently-done-follow-up-*.spec.ts`): a named
-// source story, builders for its own sessions and story follow-ups, and a Board
-// opened on substituted machine answers.
+// Frontend fixtures for ad hoc story follow-ups on Recently done
+// (`../../frontend-tests/sessions/recently-done-follow-up-*.spec.ts`,
+// `../../frontend-tests/sessions/follow-up-source-navigation.spec.ts`): a named
+// source story, builders for its sessions and story follow-ups, and a Board
+// opened on substituted machine answers. Catalogued done records for that
+// source are `./followUpSourceCatalog.ts`.
 
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -10,7 +12,6 @@ import { standaloneSessionName } from "../dashboardPage.ts";
 import { expect } from "./frontendApp.ts";
 import {
   frontendRevision,
-  putFrontendDoneRecords,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
 
@@ -87,20 +88,6 @@ export function ownStorySession(
     .completedWith({ message: "" })
     .markedDoneAt(doneAt)
     .please();
-}
-
-export function publishSourceCard(services: FrontendServiceState) {
-  putFrontendDoneRecords(services, "open-dough", [
-    makeMe.aDoneRecord
-      .with({
-        ...sourceStory,
-        completedAt,
-        developer: "Terry Yin",
-        agent: "viktor-chan",
-        host: "codex",
-      })
-      .please(),
-  ]);
 }
 
 export async function openBoard(

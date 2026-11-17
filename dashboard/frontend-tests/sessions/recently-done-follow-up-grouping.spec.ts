@@ -12,10 +12,10 @@ import { installFrontendSessionActions } from "../../tests/support/frontendSessi
 import { doneCard } from "../../tests/recentlyDoneReviewState.ts";
 import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { publishSourceCard } from "../../tests/support/followUpSourceCatalog.ts";
 import {
   adHocName,
   openBoard,
-  publishSourceCard,
   sourceStory,
   storyFollowUp,
 } from "../../tests/support/recentlyDoneFollowUpGrouping.ts";

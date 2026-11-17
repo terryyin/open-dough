@@ -1,6 +1,7 @@
 // A Taken story follow-up names its source and reveals that Recently done
 // card through the page's story navigation and disposable range.
 
+import type { Page } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { parts } from "../../tests/dashboardPage.ts";
 import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
@@ -17,19 +18,26 @@ import { installFrontendDoneBodyReads } from "../../tests/support/frontendDoneBo
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { putFrontendDoneRecords } from "../../tests/support/frontendServiceState.ts";
 import { showColumn } from "../../tests/boardPage.ts";
+import { showLatestAction } from "../../tests/recentlyDoneColumn.ts";
 import {
-  followSource,
-  followUpSourceLink,
-  openBoard,
+  doneDestination,
+  followStoryReferenceLink,
+  referenceNotice,
+  storyReferenceLink,
+} from "../../tests/storyReference.ts";
+import {
   publishOlderSource,
   publishRecentSourceBatch,
-  showLatestTen,
-  sourceDoneCard,
   sourceFileName,
-  sourceNotice,
+} from "../../tests/support/followUpSourceCatalog.ts";
+import {
+  openBoard,
   sourceStory,
   storyFollowUp,
-} from "../../tests/support/followUpSourceNavigation.ts";
+} from "../../tests/support/recentlyDoneFollowUpGrouping.ts";
+
+const sourceDestination = (page: Page) =>
+  doneDestination(parts(page).recentlyDone, sourceStory.identity);
 
 const instruction = "Tighten the source reveal wording";
 
@@ -51,12 +59,12 @@ test("a Taken follow-up names its source by title when read, and by identity whi
   await openBoard(page, frontendServices, [followUp]);
 
   const taken = takenAdHocSession(page, instruction);
-  await expect(followUpSourceLink(taken, sourceStory.identity)).toBeVisible();
-  await expect(followUpSourceLink(taken, sourceStory.title)).toHaveCount(0);
+  await expect(storyReferenceLink(taken, sourceStory.identity)).toBeVisible();
+  await expect(storyReferenceLink(taken, sourceStory.title)).toHaveCount(0);
 
   held.release();
-  await expect(followUpSourceLink(taken, sourceStory.title)).toBeVisible();
-  await expect(followUpSourceLink(taken, sourceStory.identity)).toHaveCount(0);
+  await expect(storyReferenceLink(taken, sourceStory.title)).toBeVisible();
+  await expect(storyReferenceLink(taken, sourceStory.identity)).toHaveCount(0);
 });
 
 test("keyboard source reveal beyond ten on a narrow reduced-motion viewport focuses the card and keeps the selected story", async ({
@@ -72,22 +80,22 @@ test("keyboard source reveal beyond ten on a narrow reduced-motion viewport focu
 
   await showColumn(page, "Taken");
   const taken = takenAdHocSession(page, instruction);
-  await expect(followUpSourceLink(taken, sourceStory.title)).toBeVisible();
-  await expect(sourceDoneCard(page)).toHaveCount(0);
+  await expect(storyReferenceLink(taken, sourceStory.title)).toBeVisible();
+  await expect(sourceDestination(page)).toHaveCount(0);
 
   const selected = storyCard(parts(page).taken, takenStory);
   await emptyArea(selected).click();
   await expectSelected(selected, true);
 
-  await followSource(taken, sourceStory.title, "keyboard");
-  const destination = sourceDoneCard(page);
+  await followStoryReferenceLink(taken, sourceStory.title, "keyboard");
+  const destination = sourceDestination(page);
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expect(parts(page).recentlyDone).toContainText(
     "Showing 12 of 12 entries.",
   );
   await expectSelected(selected, true);
-  await expect(showLatestTen(page)).toBeVisible();
+  await expect(showLatestAction(parts(page).recentlyDone)).toBeVisible();
 });
 
 test("keyboard source reveal beyond ten keeps an open Side panel and leaves selection alone under reduced motion", async ({
@@ -111,8 +119,8 @@ test("keyboard source reveal beyond ten keeps an open Side panel and leaves sele
   await openBoard(page, frontendServices, [followUp]);
 
   const taken = takenAdHocSession(page, instruction);
-  await expect(followUpSourceLink(taken, sourceStory.title)).toBeVisible();
-  await expect(sourceDoneCard(page)).toHaveCount(0);
+  await expect(storyReferenceLink(taken, sourceStory.title)).toBeVisible();
+  await expect(sourceDestination(page)).toHaveCount(0);
 
   const takenStoryCard = storyCard(parts(page).taken, takenStory);
   await expectSelected(takenStoryCard, false);
@@ -121,8 +129,8 @@ test("keyboard source reveal beyond ten keeps an open Side panel and leaves sele
   const panel = terminalPanel(page);
   await expect(panel).toBeVisible();
 
-  await followSource(taken, sourceStory.title, "keyboard");
-  const destination = sourceDoneCard(page);
+  await followStoryReferenceLink(taken, sourceStory.title, "keyboard");
+  const destination = sourceDestination(page);
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expectSelected(takenStoryCard, false);
@@ -141,19 +149,19 @@ test("an older catalogued source reveals on demand, restores with Show latest 10
   await openBoard(page, frontendServices, [followUp]);
 
   const taken = takenAdHocSession(page, instruction);
-  await expect(sourceDoneCard(page)).toHaveCount(0);
+  await expect(sourceDestination(page)).toHaveCount(0);
 
-  await followSource(taken, sourceStory.title);
-  const destination = sourceDoneCard(page);
+  await followStoryReferenceLink(taken, sourceStory.title);
+  const destination = sourceDestination(page);
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
 
-  await showLatestTen(page).click();
-  await expect(sourceDoneCard(page)).toHaveCount(0);
+  await showLatestAction(parts(page).recentlyDone).click();
+  await expect(sourceDestination(page)).toHaveCount(0);
 
-  await followSource(taken, sourceStory.title);
-  await expect(sourceDoneCard(page)).toBeFocused();
-  await expect(sourceDoneCard(page)).toBeInViewport({ ratio: 0.5 });
+  await followStoryReferenceLink(taken, sourceStory.title);
+  await expect(destination).toBeFocused();
+  await expect(destination).toBeInViewport({ ratio: 0.5 });
 });
 
 test("a failed source body keeps the Taken entry naming the identity and still reveals the gap card", async ({
@@ -172,19 +180,17 @@ test("a failed source body keeps the Taken entry naming the identity and still r
   await openBoard(page, frontendServices, [followUp]);
 
   const taken = takenAdHocSession(page, instruction);
-  await expect(followUpSourceLink(taken, sourceStory.identity)).toBeVisible();
+  await expect(storyReferenceLink(taken, sourceStory.identity)).toBeVisible();
   await expect(taken).toBeVisible();
 
   // Fail the reveal's body read as well as the naming read.
   bodies.failNext(sourceFileName);
-  await followSource(taken, sourceStory.identity);
-  const destination = parts(page).recentlyDone.locator(
-    `[data-done-story="${sourceStory.identity}"]`,
-  );
+  await followStoryReferenceLink(taken, sourceStory.identity);
+  const destination = sourceDestination(page);
   await expect(destination).toBeFocused();
   await expect(destination).toContainText("This done story could not be read.");
   await expect(taken).toBeVisible();
-  await expect(followUpSourceLink(taken, sourceStory.identity)).toBeVisible();
+  await expect(storyReferenceLink(taken, sourceStory.identity)).toBeVisible();
 });
 
 test("an absent source keeps the Taken entry accessible with honest unavailable feedback", async ({
@@ -212,14 +218,14 @@ test("an absent source keeps the Taken entry accessible with honest unavailable 
   await openBoard(page, frontendServices, [followUp]);
 
   const taken = takenAdHocSession(page, instruction);
-  await expect(followUpSourceLink(taken, identity)).toBeVisible();
+  await expect(storyReferenceLink(taken, identity)).toBeVisible();
 
-  await followSource(taken, identity);
-  await expect(sourceNotice(page)).toContainText(
+  await followStoryReferenceLink(taken, identity);
+  await expect(referenceNotice(page)).toContainText(
     `${identity} is unavailable in Open Dough's dashboard`,
   );
-  await expect(
-    parts(page).recentlyDone.locator(`[data-done-story="${identity}"]`),
-  ).toHaveCount(0);
+  await expect(doneDestination(parts(page).recentlyDone, identity)).toHaveCount(
+    0,
+  );
   await expect(taken).toBeVisible();
 });

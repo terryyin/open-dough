@@ -15,13 +15,13 @@ import {
 } from "../../tests/support/fileFollowUpPage.ts";
 import { doneCard } from "../../tests/recentlyDoneReviewState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { publishSourceCard } from "../../tests/support/followUpSourceCatalog.ts";
 import {
   adHocName,
   completedAt,
   openBoard,
   otherStory,
   ownStorySession,
-  publishSourceCard,
   sourceStory,
   storyFollowUp,
 } from "../../tests/support/recentlyDoneFollowUpGrouping.ts";

@@ -1,51 +1,18 @@
-// Taken follow-up source reference: naming and reveal observations for
-// `../../frontend-tests/sessions/follow-up-source-navigation.spec.ts`.
+// Catalogued done records for the shared follow-up source story
+// (`./recentlyDoneFollowUpGrouping.ts`): one card, a recent batch that places
+// the source beyond the default ten, and an older source outside that window.
+// `../../frontend-tests/sessions/follow-up-source-navigation.spec.ts` and the
+// Recently done follow-up grouping specs publish through here.
 
-import type { Locator, Page } from "@playwright/test";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { parts } from "../dashboardPage.ts";
-import { doneCard } from "../recentlyDoneReviewState.ts";
-import { showLatestAction } from "../recentlyDoneColumn.ts";
-import { referenceNotice } from "../storyReference.ts";
-import {
-  openBoard,
-  sourceStory,
-  storyFollowUp,
-} from "./recentlyDoneFollowUpGrouping.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   putFrontendDoneRecords,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
-
-export { sourceStory, storyFollowUp, openBoard };
+import { completedAt, sourceStory } from "./recentlyDoneFollowUpGrouping.ts";
 
 export const sourceFileName = doneRecordFileName(sourceStory.identity);
-
-export const followUpSourceLink = (entry: Locator, name: string) =>
-  entry.getByRole("link", { name, exact: true });
-
-export async function followSource(
-  entry: Locator,
-  name: string,
-  using: "click" | "keyboard" = "click",
-) {
-  const link = followUpSourceLink(entry, name);
-  if (using === "keyboard") {
-    await link.focus();
-    await link.press("Enter");
-  } else {
-    await link.click();
-  }
-}
-
-export const sourceDoneCard = (page: Page, title = sourceStory.title) =>
-  doneCard(page, title);
-
-export const sourceNotice = (page: Page) => referenceNotice(page);
-
-export const showLatestTen = (page: Page) =>
-  showLatestAction(parts(page).recentlyDone);
 
 function doneRecord(identity: string, title: string, completed: string) {
   return makeMe.aDoneRecord
@@ -58,6 +25,12 @@ function doneRecord(identity: string, title: string, completed: string) {
       host: "codex",
     })
     .please();
+}
+
+export function publishSourceCard(services: FrontendServiceState) {
+  putFrontendDoneRecords(services, "open-dough", [
+    doneRecord(sourceStory.identity, sourceStory.title, completedAt),
+  ]);
 }
 
 // Recent fillers plus the source, newest first by completion: source at

@@ -1,5 +1,6 @@
 // A story reference: a consumer card's Dependencies disclosure lists each
-// supplier by its title (or identity while unavailable), and following one moves the reader to that
+// supplier by its title (or identity while unavailable), and a Taken follow-up
+// names its source the same way. Following either link moves the reader to that
 // story's card. While a destination is still being read, the Board's one
 // Story reference navigation notice says why, and a Recently done destination
 // waits in place under its identity. What the reader does next, and when the
@@ -27,9 +28,14 @@ export async function openDependencies(
 export const dependencyList = (card: Locator) =>
   card.getByRole("list", { name: "Story dependencies" });
 
-// The card's reference to a supplier, by the supplier's displayed title or fallback identity.
+// A story reference link labelled by title or identity. Dependency explanations
+// and a Taken follow-up's source share this control.
+export const storyReferenceLink = (scope: Locator, name: string) =>
+  scope.getByRole("link", { name, exact: true });
+
+// The card's reference to a supplier, inside its Dependencies disclosure.
 export const storyReference = (card: Locator, title: string) =>
-  dependencyList(card).getByRole("link", { name: title, exact: true });
+  storyReferenceLink(dependencyList(card), title);
 
 // Follows the card's reference labelled `title` by pointer, touch, or from the
 // keyboard (focused, then Enter), in its open Dependencies disclosure.
@@ -41,6 +47,22 @@ export async function followReference(
   const reference = storyReference(card, title);
   if (using === "keyboard") await reference.press("Enter");
   else await reference[using]();
+}
+
+// Follows the story reference link an entry shows directly, by pointer or from
+// the keyboard (focused, then Enter).
+export async function followStoryReferenceLink(
+  entry: Locator,
+  name: string,
+  using: "click" | "keyboard" = "click",
+) {
+  const link = storyReferenceLink(entry, name);
+  if (using === "keyboard") {
+    await link.focus();
+    await link.press("Enter");
+  } else {
+    await link.click();
+  }
 }
 
 // The Board's one announcement about following a story reference, empty
