@@ -6,7 +6,8 @@
 # names the commit holding its case basis and refuses an uncommitted one; a
 # refreshed assessment, committed, gives a new basis and a new record while
 # the earlier record stays as it was; after the files move, --recover finds
-# each record's basis by its hashes and prints the record unchanged; drift
+# each record's basis by its hashes, including historical case paths, and
+# prints the record unchanged; drift
 # in payloads and host is stated, never rerun; an edited record or one whose
 # inputs no commit holds is not recovered; and the recovery judge's rejected
 # cases.
@@ -91,6 +92,22 @@ cmp -s "${first}" "${source_repo}/${comparisons}/first.txt"
 cp -- "${second}" "${source_repo}/${comparisons}/second.txt"
 commit 'Keep the refreshed comparison' > /dev/null
 
+# Earlier collections kept this case under cases/comparison/. Keep a commit
+# with its files there while the other recorded harness inputs still exist
+# at their original paths, then return the case before the harness moves.
+historical_case=Distribution/evaluation/cases/comparison/paused-supplier
+mkdir -p -- "${source_repo}/$(dirname -- "${historical_case}")"
+git -C "${source_repo}" mv "${case_dir}" "${historical_case}"
+historical_basis=$(commit 'Keep the case at its historical collection path')
+git -C "${source_repo}" mv "${historical_case}" "${case_dir}"
+commit 'Return the case to the current collection' > /dev/null
+# Its named revision predates the move: recovery must find the matching
+# historical basis by hashes rather than rely on that named revision.
+historical=${work}/historical.txt
+sed "s|${case_dir}/|${historical_case}/|g" "${second}" > "${historical}"
+cp -- "${historical}" "${source_repo}/${comparisons}/historical.txt"
+commit 'Keep the historical-path comparison' > /dev/null
+
 # The harness moves, as trunk once moved tests/ under Distribution/.
 git -C "${source_repo}" mv Distribution Moved
 commit 'Move the harness' > /dev/null
@@ -114,6 +131,15 @@ grep -Fqx "case-input-hash: ${assessment_a%% *} ${case_dir}/assess.bash" "${firs
 recover second "${moved}/second.txt"
 grep -Fqx "case-basis-revision: ${basis_b}" "${work}/second.out"
 report_is second "${second}"
+recover historical "${moved}/historical.txt" || {
+  cat "${work}/historical.out" >&2
+  exit 1
+}
+grep -Fqx "case-basis-revision: ${historical_basis}" "${work}/historical.out"
+grep -Fqx "case-basis-directory: ${historical_case}" "${work}/historical.out"
+grep -Fqx 'recovery: pass' "${work}/historical.out"
+report_is historical "${historical}"
+cmp -s "${historical}" "${moved}/historical.txt"
 
 # The same dependency can be named by both the case and supervision. Recovery
 # preserves a consistently repeated input rather than treating its blob as lost.

@@ -2,6 +2,32 @@
 
 **Identity:** SEED-393#recovery-proof-covers-historical-case-paths
 **Source:** [Recovery proof covers historical case paths](../../seeds/SEED-393-test-quality-learning-from-effort-replays.md#recovery-proof-covers-historical-case-paths)
+**Source review:** [Independent source commitments](source-review.md)
+
+## Execution context
+
+- Story Branch Mode; owned established workspace
+  `/Users/terryyin/git/open-dough/.worktrees/recovery-proof-covers-historical-case-paths`,
+  branch `codex/recovery-proof-covers-historical-case-paths`; integration checkout
+  `/Users/terryyin/git/open-dough`; authorized target `origin/main`.
+- Identity `SEED-393#recovery-proof-covers-historical-case-paths`, publisher
+  `dashboard-territory.local-open-dough`, agent Shunka-chan.
+  Starting revision `1c7709ca7a4f8e998a177bcbf40d1f374b5fb4a3`;
+  accepted claim and candidate `1081555ef6e339ab4a5d4d8b1ec78031bcff3475`.
+- Established start reports Changed since readiness review. The source and
+  single test slice align; the recorded Ready assessment remains unchanged.
+  Existing planning authority is retained; no explicit overrun option supplied.
+- Checkout setup: locked npm and browser acquisition, then
+  `PATH="/opt/homebrew/bin:$PATH" node scripts/setup-native.mjs check` passed
+  with Node 24.21.0 and Chromium 158.0.8127.18. Bash 5 is selected through
+  `/opt/homebrew/bin` for proof commands. Commit hook is check-only; selective
+  formatting uses `npm run format`.
+- CI: GitHub Actions `ci.yml` (CI, workflow 351271804), push-triggered;
+  observer target `terryyin/open-dough`,
+  `codex/recovery-proof-covers-historical-case-paths`, coordinator
+  `shunka-seed393-recovery`, directory `/tmp/dough-ci-501/watch-UDVaEO`,
+  PID 95739, session 30804, yielded cell `g794:15`, bound to this checkout.
+  The startup claim on trunk has `pendingCi: unobserved`.
 
 ## Provenance and findings
 
@@ -32,7 +58,7 @@ exposes a defect. Keep the default timeouts.
 
 ### 1. Recovery test covers a record saved under a historical path
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the maintained refresh and recovery test recovers a record whose
 inputs were saved under a historical case-directory form. It asserts
@@ -69,3 +95,49 @@ concern identified.
 Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 as written. Local gate: the changed test through `bash scripts/test.sh`, then
 `npm run test:evaluation` under `caffeinate -s -i` on AC.
+
+## Slice 1 acceptance
+
+- Source review commitment 1: the regression in historical collection-path
+  recovery must fail the maintained test. The test now commits the case at
+  `Distribution/evaluation/cases/comparison/paused-supplier`, returns it to
+  the current collection, keeps the refreshed record with historical case
+  paths and its older named revision, then moves the harness. The historical
+  recovery assertions require the matching historical basis revision and
+  directory, `recovery: pass`, unchanged emitted bytes (`report_is`) and
+  unchanged stored bytes (`cmp`). No product change was needed.
+- Focused proof passed:
+  `PATH="/opt/homebrew/bin:$PATH" node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed393-recovery-focused.log --exit-file /tmp/seed393-recovery-focused.exit -- bash scripts/test.sh Distribution/evaluation/tests/native-guidance-checks/native-comparison-refresh.sh`.
+- Isolated fault/restoration proof passed:
+  `PATH="/opt/homebrew/bin:$PATH" node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed393-recovery-mutation.log --exit-file /tmp/seed393-recovery-mutation.exit -- bash /tmp/seed393-recovery-mutation.sh`.
+  The script clones the published source, copies the changed test and removes
+  both historical forms from `native_comparison_basis_observe`. The named
+  runner exits 1 with `recovery: fail` and `no case directory recorded`;
+  restoring the exact basis source makes that same named runner exit 0.
+  Temporary clone removed; scratch fault was never applied to this checkout.
+- Broader gate passed:
+  `PATH="/opt/homebrew/bin:$PATH" node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed393-recovery-evaluation.log --exit-file /tmp/seed393-recovery-evaluation.exit -- env OPEN_DOUGH_TEST_JOBS=2 caffeinate -s -i npm run test:evaluation`.
+  Actual macOS host was on AC, load 22.81/28.41/27.24, memory 59% free;
+  two workers bounded pressure from other unowned work. No competing owned
+  heavy verification. The run advanced normally and exited 0. Reconsider
+  this choice after contention, a failure or changed workload.
+- Freshness before acceptance: unchanged at trunk
+  `1081555ef6e339ab4a5d4d8b1ec78031bcff3475`; no incoming commits since the
+  claim, so no newly landed named sibling can affect inherited behavior.
+- Consumer trace: supplied terms `historical_case`, `case-basis-directory`,
+  `native-comparison-refresh`; real maintainer entry and basis implementation
+  are observed through focused recovery. Credential-free guidance still
+  names this test. Other matches are planning references or retained evidence,
+  with no changed runtime contract. Inspectable scratch trace:
+  `/tmp/seed393-recovery-consumers.md`.
+- Implementation returned uncommitted at 3 active minutes; no overrun and no
+  source promise or required proof left uncovered. Test file is 216 lines.
+- Independent refactor `/root/refactor_recovery_test`: none — already clean;
+  `## REFACTOR COMPLETE`, no edits or tests. Accepted boundaries, setup,
+  observations and consumer trace remain unchanged.
+- Delivery freshness: unchanged at pinned trunk
+  `9b033247c70d52c56136f6ed21c78f22797cd44f`. Incoming sibling
+  `SEED-393#guidance-check-participants-run-owning-proof` is attributed to
+  implementation `80ecc810a` and closure `465b6acef`. Its launch-command-tests
+  environment changes do not affect the paused-supplier case, recovery entry
+  or historical-basis implementation exercised here. No renewed proof needed.
