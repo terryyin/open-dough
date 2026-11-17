@@ -175,3 +175,15 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 - Slice 3: compose emphasis in `diffLineCode.tsx` (not Intent `SourceTokens`);
   settle line tint at the existing 14%; styled proof lives in
   `story-review-diff-word-emphasis-composition.spec.ts`.
+
+## Execution complete
+
+Product advice: No backlog or priority change. Close this Taken story through
+wrap-up once final CI on `7785f1530` settles; leave
+SEED-387#shared-syntax-styling-control and the deferred character-/cross-block/
+side-by-side promises as they are. In wrap-up assimilation, drop the SEED-387
+plan identity from the `story-review-diff.css` tint comment, and run intent
+coverage on the removed syntax aria assertion (replacement proof is the
+word-emphasis role/copy cases). Pending CI does not block that product verdict;
+hosted proof remains conditional until the retained observer reports. Process
+review deferred into wrap-up for intent-coverage dispositions.
