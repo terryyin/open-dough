@@ -68,3 +68,8 @@ Structure: move the three contract sections into the new guide, link it from
   `AGENT-EFFORT.md#` citation outside `.planning`, both verbatim `diff`s empty,
   lint passes, and the 73 agent-effort backend specs pass. Refactor pass: no
   changes.
+
+## Execution complete
+
+Product advice: no change. The correction delivered the split without product
+learning that changes queued work.

@@ -680,6 +680,14 @@ passes on such slices made no edits.
   - Evidence: subagent usage reports. Slice 4 (3-line deletion): implementer 47.7k tokens, refactor 49.3k tokens with no edits. Slice 3 (6-line change): implementer 73.1k, refactor 58.5k with no edits. Slice 5 refactor 60.5k with no edits.
   - Observed effect: about 290k subagent tokens across these passes; no defect found by the no-edit refactor passes.
   - Inference: delivery step 1 allows skipping the refactor spawn only for records-only changes or edits within an accepted refactor return. A pure test-line deletion with a clean consumer trace may deserve a similar disposition. Slice 2's refactor pass did find a real gap, so the saving is not unconditional.
+- Execution: SEED-345#split-the-agent-effort-contract-guide (plan 682; implementation `23e338fd7`)
+  - Timestamp: unknown (2026-11-17, before commit `23e338fd7` at 23:17:29 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `627b82320`)
+  - Evidence: the single Structure slice moved three guide sections verbatim (both `diff`s empty) and repointed seven header comments. The coordinator implemented it locally. The fresh refactor agent used 56.1k tokens and returned `## REFACTOR COMPLETE` with no edits.
+  - Observed effect: one no-edit refactor pass on a verbatim move with mechanical proof.
+  - Inference: same rule cost as the deletion-only rows, here for a verbatim relocation rather than a deletion. Matching is by the step 1 exemption gap, not by change kind.
 
 ## DD-565 — Proof waiting defers read-only CI diagnosis through suite admission <a id="dd-565"></a>
 
