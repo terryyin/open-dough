@@ -8,6 +8,7 @@
 // agent-launch-follow-up-codex.spec.ts.
 
 import { realpathSync } from "node:fs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   attempts,
@@ -18,7 +19,6 @@ import {
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { expect, test } from "../../tests/support/cursorStart.ts";
 import type { FakeCursor } from "../../tests/support/fakeCursor.ts";
-import { followUpOf } from "../../tests/support/followUpSources.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import { isolatedSession } from "../../tests/support/startSessionLanding.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
@@ -59,7 +59,7 @@ test("a blank follow-up with a chosen model on Default main starts on that model
     launch(dashboard, {
       ...cursorRequest,
       model: "gpt-5.2",
-      followUp: followUpOf(quiet),
+      followUp: makeMe.aFollowUp.ofSession(quiet).please(),
     }),
   );
 
@@ -100,7 +100,7 @@ test("with Isolated workspace, a start continued after the source record is gone
       ...cursorRequest,
       instruction: text,
       policy: isolated,
-      followUp: followUpOf(source),
+      followUp: makeMe.aFollowUp.ofSession(source).please(),
     }),
   );
   expect(unconfirmed.kind, JSON.stringify(unconfirmed)).toBe("uncertain");

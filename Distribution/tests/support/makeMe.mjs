@@ -2,6 +2,7 @@
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { FileFollowUpBuilder } from "./followUpFileTestData.mjs";
+import { FollowUpBuilder } from "./followUpTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
@@ -60,6 +61,7 @@ import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
  * @property {ReleaseBuilder} aRelease
  * @property {DoneRecordBuilder} aDoneRecord
  * @property {FileFollowUpBuilder} aFileFollowUp
+ * @property {FollowUpBuilder} aFollowUp
  * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentSettingsBuilder} intentSettings
  * @property {TestOptimizationCandidatesRecordBuilder} aTestOptimizationCandidatesRecord
@@ -161,6 +163,12 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new FileFollowUpBuilder();
+      },
+    },
+    aFollowUp: {
+      enumerable: true,
+      get() {
+        return new FollowUpBuilder();
       },
     },
     anIntentLocation: {

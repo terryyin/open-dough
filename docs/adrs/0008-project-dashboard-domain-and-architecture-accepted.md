@@ -2,21 +2,6 @@
 
 **Status:** Accepted
 
-**Accepted:** 2026-10-27, by Terry Yin, including the dashboard UI concepts below.
-
-**Amended:** 2026-11-09, at Terry Yin's direction, so closing the Side panel
-preserves the currently selected story across the dashboard.
-
-**Clarified:** 2026-11-08, at Terry Yin's direction, to include selection from
-Recently done sessions and preserve the current perspective.
-
-**Date:** 2026-09-19
-
-**Decision makers:** Terry Yin
-
-**Consulted:** Terry Yin supplied the dashboard requirements and directed the
-UI concept definitions and acceptance on 2026-10-27.
-
 ## Context
 
 Continuous trunk integration makes project progress harder to understand through
@@ -49,6 +34,7 @@ proposes a strongly typed stack; its tool choices are not accepted by this ADR.
 | Developer identity | A reusable name, distinct from a story, assignment, or AI session. |
 | Developer assignment | An undertaking to prepare or execute identified work. Its profile records the current developer, activity, and available tool/model information. |
 | Launch workflow | What a dashboard launch starts on one work item, such as execution or refinement: the skill it runs. A launch is local evidence and never settles or moves a story. |
+| Follow-up | A new ad hoc session that carries the records of a retained Done session or done story whose conversation can no longer be continued. The source stays Done. |
 | Execution mode | The workflow by which a story is executed and integrated. Story Branch Mode and Trunk Mode have different publication locations. |
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
 | Product intent | The maintained definition of intended behavior: what the current product is meant to do and why. It evolves with the product and survives individual stories. Each Product intent contains Purpose and Proof. |
@@ -67,11 +53,9 @@ structural elements. Mapping and filtering remain design possibilities.
 Product intents describe the current product and evolve with intentional
 changes. A regression supplies evidence against fulfillment while the product
 intent remains the expectation to evaluate. Completing and removing planning
-records must leave lasting product knowledge in its maintained home, following
-[ADR 0000](./0000-use-adrs-accepted.md). Future possibilities stay in planning.
+records must leave lasting product knowledge in its maintained home. Future possibilities stay in planning.
 
-[ADR 0001](./0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
-records the shared vocabulary. Each Product intent contains **Purpose**, the
+Each Product intent contains **Purpose**, the
 expected behavior and why it matters, and **Proof**, executable verification
 and supporting evidence. Proof distinguishes maintained procedures from
 particular observed results.
@@ -190,8 +174,6 @@ for agent cooperation.
 Prefer server-sent events (SSE) for live dashboard status updates and WebSocket for interactive terminal input and output, as described in the [Architectural North Star](../../.planning/NORTH-STAR.md#dashboard-status-delivery).
 Dashboard data maps directly to the domain model across the wire and in each layer, with the minimum necessary translation under [ADR 0002](./0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
 
-[ADR 0009](./0009-git-branching-and-integration.md) proposes branching and
-integration direction and remains Proposed.
 Owned workspaces publish to remote destinations; remote trunk is the shared
 integration authority. The dashboard observes accepted remote revisions for
 published progress and uses machine-local evidence for checkout activity.
@@ -214,8 +196,6 @@ protocol.
 Use the [requirements](../project-visibility-requirements.md) for local-edit,
 freshness, and recovery examples. Recheck observable checkout state around
 local mutations and preserve changes from human developers and other tools.
-Terry's 2026-09-28 direction replaces this record's earlier default-checkout
-ownership and coordination proposal.
 
 ### Incremental scope
 
@@ -259,11 +239,9 @@ This direction selects no new GUI framework, daemon, database, schema, or
 distributed scheduler.
 
 This decision builds on
-[ADR 0001 — Ubiquitous language](./0001-ubiquitous-language-accepted.md),
-particularly its story and slice concepts, and
 [ADR 0002 — Software development lifecycle principles](./0002-software-development-lifecycle-principles-accepted.md),
 particularly whole-product understanding, continuous integration, direct domain
-mapping, and incremental learning. No exception to either is proposed.
+mapping, and incremental learning. No exception to it is proposed.
 
 Treat [ADR 0007](./0007-software-development-lifecycles.md) as a proposal;
 follow ADR 0002 while its delayed-integration conflict remains unresolved.

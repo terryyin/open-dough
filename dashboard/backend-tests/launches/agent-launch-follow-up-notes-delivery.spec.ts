@@ -5,6 +5,7 @@
 // agent-launch-follow-up-notes.spec.ts.
 
 import { mkdirSync, rmSync } from "node:fs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
 import {
   expect,
@@ -15,10 +16,7 @@ import {
   test as cursorTest,
 } from "../../tests/support/cursorStart.ts";
 import { keptCursor } from "../../tests/support/keptCursorTurn.ts";
-import {
-  recoverStory,
-  storyFollowUpOf,
-} from "../../tests/support/followUpStories.ts";
+import { recoverStory } from "../../tests/support/followUpStories.ts";
 import {
   storyNoteIsWaiting,
   storyNotesEndpoint,
@@ -85,9 +83,10 @@ function noteOf(answer: StoryNotesAnswer, id: string) {
 const followUpWithNotes = (revision: string) => ({
   ...request,
   instruction: "Send the waiting notes",
-  followUp: {
-    story: { ...storyFollowUpOf(recoverStory, revision).story, notes: true },
-  },
+  followUp: makeMe.aFollowUp
+    .ofStory(recoverStory, revision)
+    .attachingNotes()
+    .please(),
 });
 
 claudeTest(

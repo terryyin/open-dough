@@ -180,10 +180,14 @@ launch allocates its reporting reference at `.please()` unless the case states
 one. Given the landing builder, `.withLanding(makeMe.aLaunchLanding…)` stores
 that landing under the launch's reference unless the landing states
 `.forLaunch(reference)`; `.withCapturedLanding` and a completed landing keep it
-as given. Anchor a story follow-up on that launch's landed run with
+as given. Name a Follow-up with `makeMe.aFollowUp.ofSession(record).please()` or
+`makeMe.aFollowUp.ofStory(story, revision).please()`. Ask for waiting notes
+with `.attachingNotes()`, keep resolved context with `.withContext(text)`,
+record attached versions with `.withAttachedNotes(notes)`, and anchor a file
+with `.anchoredAt(file)`. The file on a landed run comes from
 `makeMe.aFileFollowUp.onLandedRunOf(record).at({ path, line, side }).please()`,
-which takes the comparison and reference from the record. Send it through the
-case's request helper and keep the expected host input independent.
+which takes the comparison and reference from the record. Send the Follow-up
+through the case's request helper and keep the expected host input independent.
 [Reporting](support/launchReportingTestData.mjs) ·
 [File follow-up](support/followUpFileTestData.mjs) ·
 [Landed-run admission](../../dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts)

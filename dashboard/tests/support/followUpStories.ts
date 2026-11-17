@@ -156,8 +156,3 @@ export function storyContextOf(
     ...sessions,
   ].join("\n");
 }
-
-// The source a follow-up of `story`, shown at `revision`, names.
-export const storyFollowUpOf = (story: Story, revision: string) => ({
-  story: { identity: story.identity, revision },
-});

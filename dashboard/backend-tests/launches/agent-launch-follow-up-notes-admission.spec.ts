@@ -4,12 +4,9 @@
 // What waiting notes send and launch identity:
 // agent-launch-follow-up-notes.spec.ts.
 
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { accept } from "../../tests/agentLaunchBoundary.ts";
-import {
-  recoverStory,
-  storyFollowUpOf,
-} from "../../tests/support/followUpStories.ts";
-import { followUpOf } from "../../tests/support/followUpSources.ts";
+import { recoverStory } from "../../tests/support/followUpStories.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { storyNoteVersion } from "../../src/storyNote.ts";
@@ -31,7 +28,10 @@ test("refuses a follow-up naming notes on a session source before starting claud
 
   const response = await accept(dashboard, {
     ...request,
-    followUp: { session: followUpOf(source).session, notes: true },
+    followUp: {
+      ...makeMe.aFollowUp.ofSession(source).please(),
+      notes: true,
+    },
   });
 
   expect(response.status, response.body).toBe(400);
@@ -51,10 +51,10 @@ test("refuses a follow-up carrying note text the page composed before starting c
   const response = await accept(dashboard, {
     ...request,
     followUp: {
-      story: {
-        ...storyFollowUpOf(recoverStory, revision).story,
-        notes: true,
-      },
+      ...makeMe.aFollowUp
+        .ofStory(recoverStory, revision)
+        .attachingNotes()
+        .please(),
       notes: [
         {
           id: waitingGeneral.id,
@@ -81,18 +81,16 @@ test("refuses a follow-up carrying attached note versions the page composed befo
 
   const response = await accept(dashboard, {
     ...request,
-    followUp: {
-      story: {
-        ...storyFollowUpOf(recoverStory, revision).story,
-        notes: true,
-      },
-      notes: [
+    followUp: makeMe.aFollowUp
+      .ofStory(recoverStory, revision)
+      .attachingNotes()
+      .withAttachedNotes([
         {
           id: waitingGeneral.id,
           version: storyNoteVersion(waitingGeneral),
         },
-      ],
-    },
+      ])
+      .please(),
   });
 
   expect(response.status, response.body).toBe(400);

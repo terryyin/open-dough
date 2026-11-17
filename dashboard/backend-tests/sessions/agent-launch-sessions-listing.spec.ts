@@ -21,7 +21,6 @@ import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { installFakeCodex } from "../../tests/support/fakeCodex.ts";
 import {
   followUpContextOf,
-  followUpOf,
   quietSession,
   quietTitle,
 } from "../../tests/support/followUpSources.ts";
@@ -139,11 +138,14 @@ test("lists open and Done follow-ups by source and restores the Done context fro
   try {
     const now = new Date();
     const source = quietSession("follow-up-source", now);
-    const followUpSource = followUpOf(source);
+    const followUpSource = makeMe.aFollowUp.ofSession(source).please();
     const context = followUpContextOf(quietTitle, [
       `- Original request: ${quietTitle}`,
       "- Final report: No final report was submitted.",
     ]);
+    const recordedFollowUp = () =>
+      makeMe.aFollowUp.ofSession(source).withContext(context).please();
+    const recorded = recordedFollowUp();
     const instruction = "Check the changelog again";
     const firstInput = `${context}\n\n${instruction}`;
     const followUp = (sessionId: string) =>
@@ -151,7 +153,7 @@ test("lists open and Done follow-ups by source and restores the Done context fro
         .adHoc({
           instruction,
           title: "Follow up on the changelog",
-          followUp: { ...followUpSource, context },
+          followUp: recordedFollowUp(),
         })
         .inCodexSession({
           sessionId,
@@ -198,7 +200,7 @@ test("lists open and Done follow-ups by source and restores the Done context fro
         full,
       ),
     ).toMatchObject({
-      request: { title, followUp: { ...followUpSource, context } },
+      request: { title, followUp: recorded },
       firstInput: { instruction: firstInput },
     });
   } finally {

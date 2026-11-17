@@ -8,11 +8,11 @@
 // agent-launch-follow-up-file-admission.spec.ts. Story-only follow-ups:
 // agent-launch-follow-up-story.spec.ts.
 
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
 import {
   completedRenamedFileStory,
   fileFactsOf,
-  fileFollowUpOf,
   fileStoryContextOf,
   publishedReviewOf,
   renamedNewPath,
@@ -21,6 +21,7 @@ import {
 } from "../../tests/support/followUpCompletedFile.ts";
 import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
+import { queuedIdentity } from "../../tests/support/startOrigin.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -55,7 +56,10 @@ test("a renamed file's new line 12 sends both paths, the comparison and the line
     launch(dashboard, {
       ...request,
       instruction: text,
-      followUp: fileFollowUpOf(revision, file),
+      followUp: makeMe.aFollowUp
+        .ofStory(queuedIdentity, revision)
+        .anchoredAt(file)
+        .please(),
     }),
   );
 
@@ -97,7 +101,10 @@ test("a file that includes trunk's changes names that file's own base in the com
     launch(dashboard, {
       ...request,
       instruction: "Check the mixed line",
-      followUp: fileFollowUpOf(revision, file),
+      followUp: makeMe.aFollowUp
+        .ofStory(queuedIdentity, revision)
+        .anchoredAt(file)
+        .please(),
     }),
   );
 
@@ -115,10 +122,10 @@ test("follow-ups of two lines are two launches, and repeating one resumes its ke
   const renamed = review.files.find((file) => file.path === renamedNewPath);
   if (renamed?.kind !== "renamed") throw new Error("expected rename");
   const lineOf = (line: number) =>
-    fileFollowUpOf(
-      revision,
-      fileFactsOf(review, renamed, { line, side: "new" }),
-    );
+    makeMe.aFollowUp
+      .ofStory(queuedIdentity, revision)
+      .anchoredAt(fileFactsOf(review, renamed, { line, side: "new" }))
+      .please();
   const start = (line: number) => ({
     ...request,
     instruction: "  ",
@@ -164,7 +171,10 @@ test("a blank file follow-up sends the story and file context without a request 
     launch(dashboard, {
       ...request,
       instruction: "  ",
-      followUp: fileFollowUpOf(revision, anchor),
+      followUp: makeMe.aFollowUp
+        .ofStory(queuedIdentity, revision)
+        .anchoredAt(anchor)
+        .please(),
     }),
   );
 

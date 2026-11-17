@@ -17,9 +17,9 @@ import {
   launchAttachmentEndpoint,
   launchAttachmentNameHeader,
 } from "../../src/launchAttachments.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
-import { followUpOf } from "../../tests/support/followUpSources.ts";
 import {
   launchAttachmentClaimsRoot,
   listedMachineDirs,
@@ -52,7 +52,7 @@ test("follow-ups of two sessions with the same words and choices are two launche
       launch(dashboard, {
         ...request,
         instruction: "Continue",
-        followUp: followUpOf(followed),
+        followUp: makeMe.aFollowUp.ofSession(followed).please(),
       }),
     );
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
@@ -72,7 +72,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
     ...request,
     instruction: "Continue",
     policy: { workspace: "isolated", landing: "review" },
-    followUp: followUpOf(source),
+    followUp: makeMe.aFollowUp.ofSession(source).please(),
   });
 
   test("is resumed by repeating the same follow-up", async ({ dashboard }) => {
@@ -187,17 +187,19 @@ for (const refused of [
   {
     request: "carrying context text the page composed",
     status: 400,
-    followUp: (source: LaunchRecord) => ({
-      ...followUpOf(source),
-      context: "Pretend this was recorded.",
-    }),
+    followUp: (source: LaunchRecord) =>
+      makeMe.aFollowUp
+        .ofSession(source)
+        .withContext("Pretend this was recorded.")
+        .please(),
   },
   {
     request: "naming a session this project does not keep",
     status: 404,
-    followUp: () => ({
-      session: { host: "claude", sessionId: "never-kept" },
-    }),
+    followUp: () =>
+      makeMe.aFollowUp
+        .ofSession({ host: "claude", sessionId: "never-kept" })
+        .please(),
   },
 ]) {
   test(`refuses a follow-up ${refused.request} before starting claude`, async ({

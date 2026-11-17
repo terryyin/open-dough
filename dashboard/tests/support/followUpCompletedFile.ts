@@ -148,34 +148,6 @@ export function fileFactsOf(
   };
 }
 
-export function fileFollowUpOf(
-  revision: string,
-  file: FollowUpFileFacts & {
-    readonly completion?: string;
-    readonly reference?: string;
-  },
-) {
-  return {
-    story: {
-      identity: queuedIdentity,
-      revision,
-      file: {
-        path: file.path,
-        ...(file.oldPath === undefined ? {} : { oldPath: file.oldPath }),
-        baseline: file.baseline,
-        tree: file.tree,
-        ...(file.completion === undefined
-          ? {}
-          : { completion: file.completion }),
-        ...(file.reference === undefined ? {} : { reference: file.reference }),
-        ...(file.line === undefined || file.side === undefined
-          ? {}
-          : { line: file.line, side: file.side }),
-      },
-    },
-  };
-}
-
 export function fileStoryContextOf(story: DoneStory, file: FollowUpFileFacts) {
   return followUpContextText(storyContext(story, [], file));
 }

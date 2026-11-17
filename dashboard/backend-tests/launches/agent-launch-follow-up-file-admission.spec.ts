@@ -11,7 +11,6 @@ import { accept, launch } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import {
   fileFactsOf,
-  fileFollowUpOf,
   publishedReviewOf,
   serveDoneAtTrunk,
 } from "../../tests/support/followUpCompletedFile.ts";
@@ -77,7 +76,10 @@ test.describe("after a delivered two-line file", () => {
       launch(dashboard, {
         ...request,
         instruction: "Inspect the delivered file",
-        followUp: fileFollowUpOf(tree, file),
+        followUp: makeMe.aFollowUp
+          .ofStory(storyA, tree)
+          .anchoredAt(file)
+          .please(),
       }),
     );
 
@@ -123,16 +125,20 @@ for (const refused of [
     const literal = review.files.find((file) => file.path === "[literal]*.txt");
     if (literal === undefined) throw new Error("expected literal file");
     const base = fileFactsOf(review, literal, { line: 1, side: "new" });
-    const followUp = {
-      ...fileFollowUpOf(revision, { ...base, ...refused.change }),
-      ...(refused.context === undefined ? {} : { context: refused.context }),
-    };
+    const anchor = { ...base, ...refused.change };
+    const followUp = makeMe.aFollowUp
+      .ofStory(queuedIdentity, revision)
+      .anchoredAt(anchor);
+    const sent =
+      refused.context === undefined
+        ? followUp.please()
+        : followUp.withContext(refused.context).please();
     keepLaunchRecords(dashboard, []);
     dashboard.claudeScenario("launched");
 
     const response = await accept(dashboard, {
       ...request,
-      followUp,
+      followUp: sent,
     });
 
     expect(response.status, response.body).toBe(refused.status);

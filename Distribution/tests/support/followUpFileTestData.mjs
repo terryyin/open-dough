@@ -1,9 +1,10 @@
 // @ts-check
-// The file a story follow-up anchors on, as the page names it in the Start
-// request (`fileFollowUpOf` sends it): a path, and a line and side, on the
-// comparison a kept launch landed. The launch built by `makeMe.aLaunchRecord`
-// with a reporting context and landing supplies the comparison's endpoints and
-// the reporting reference that names its landed run.
+// The file a story Follow-up anchors on, as the page names it in the Start
+// request (`makeMe.aFollowUp.ofStory(...).anchoredAt(...)` sends it): a path,
+// and a line and side, on the comparison a kept launch landed. The launch
+// built by `makeMe.aLaunchRecord` with a reporting context and landing
+// supplies the comparison's endpoints and the reporting reference that names
+// its landed run.
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../../dashboard/src/followUpContext.ts").FollowUpFileFacts} FollowUpFileFacts */

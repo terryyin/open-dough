@@ -9,12 +9,12 @@
 // agent-launch-follow-up-story.spec.ts. Identity without notes:
 // agent-launch-follow-up-identity.spec.ts.
 
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import {
   recoverStory,
   storyContextOf,
-  storyFollowUpOf,
 } from "../../tests/support/followUpStories.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { developerStoryNotesLabel } from "../../src/followUpStoryNotes.ts";
@@ -56,12 +56,10 @@ test("a story follow-up with notes: true sends only waiting notes with text and 
     launch(dashboard, {
       ...request,
       instruction: text,
-      followUp: {
-        story: {
-          ...storyFollowUpOf(recoverStory, revision).story,
-          notes: true,
-        },
-      },
+      followUp: makeMe.aFollowUp
+        .ofStory(recoverStory, revision)
+        .attachingNotes()
+        .please(),
     }),
   );
 
@@ -111,7 +109,7 @@ test("a story follow-up without notes: true sends none of the story's notes", as
     launch(dashboard, {
       ...request,
       instruction: "Continue without notes",
-      followUp: storyFollowUpOf(recoverStory, revision),
+      followUp: makeMe.aFollowUp.ofStory(recoverStory, revision).please(),
     }),
   );
 
@@ -144,9 +142,10 @@ test("a retried start with notes: true resends the saved notes after an in-fligh
     ...request,
     instruction: "Continue with notes",
     policy: { workspace: "isolated" as const, landing: "review" as const },
-    followUp: {
-      story: { ...storyFollowUpOf(recoverStory, revision).story, notes: true },
-    },
+    followUp: makeMe.aFollowUp
+      .ofStory(recoverStory, revision)
+      .attachingNotes()
+      .please(),
   };
   const admitted = `${storyContextOf(recoverStory, completedAt, "no session")}\n${notesContextOf([waitingGeneral])}`;
   dashboard.claudeScenario("refused");
@@ -205,13 +204,14 @@ test("notes: true and without it are two launches; repeating the same choice res
     ...request,
     instruction: "Same words",
     policy: { workspace: "isolated" as const, landing: "review" as const },
-    followUp: {
-      story: { ...storyFollowUpOf(recoverStory, revision).story, notes: true },
-    },
+    followUp: makeMe.aFollowUp
+      .ofStory(recoverStory, revision)
+      .attachingNotes()
+      .please(),
   };
   const withoutNotes = {
     ...withNotes,
-    followUp: storyFollowUpOf(recoverStory, revision),
+    followUp: makeMe.aFollowUp.ofStory(recoverStory, revision).please(),
   };
   dashboard.claudeScenario("refused");
   const refused = await answerOf(launch(dashboard, withNotes));

@@ -83,10 +83,7 @@ test("ad hoc follow-up matching includes a story's file, line and side", () => {
   const completion = "cd".repeat(20);
   const baseline = "ef".repeat(20);
   const tree = "01".repeat(20);
-  const story = {
-    identity: "SEED-A#a",
-    revision,
-  };
+  const story = { identity: "SEED-A#a" };
   const file = {
     path: "new/a.ts",
     oldPath: "old/a.ts",
@@ -94,32 +91,29 @@ test("ad hoc follow-up matching includes a story's file, line and side", () => {
     tree,
     completion,
   };
-  const withFile = {
-    ...blank,
-    followUp: { story: { ...story, file } },
+  const storyFollowUp = (
+    anchor?: typeof file & { line?: number; side?: "old" | "new" },
+  ) => {
+    const followUp = makeMe.aFollowUp.ofStory(story, revision);
+    if (anchor !== undefined) followUp.anchoredAt(anchor);
+    return followUp.please();
   };
+  const withFile = { ...blank, followUp: storyFollowUp(file) };
   const withLine = {
     ...blank,
-    followUp: {
-      story: { ...story, file: { ...file, line: 12, side: "new" as const } },
-    },
+    followUp: storyFollowUp({ ...file, line: 12, side: "new" }),
   };
   const otherLine = {
     ...blank,
-    followUp: {
-      story: { ...story, file: { ...file, line: 11, side: "new" as const } },
-    },
+    followUp: storyFollowUp({ ...file, line: 11, side: "new" }),
   };
   expect(sameLaunch(withFile, { ...withFile })).toBe(true);
   expect(sameLaunch(withLine, { ...withLine })).toBe(true);
   expect(sameLaunch(withFile, withLine)).toBe(false);
   expect(sameLaunch(withLine, otherLine)).toBe(false);
-  expect(
-    sameLaunch(withFile, {
-      ...blank,
-      followUp: { story },
-    }),
-  ).toBe(false);
+  expect(sameLaunch(withFile, { ...blank, followUp: storyFollowUp() })).toBe(
+    false,
+  );
 });
 
 test("ad hoc matching includes the Workspace and After checks choices, the default ones when none are named", () => {

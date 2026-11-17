@@ -9,6 +9,7 @@
 
 import { rm } from "node:fs/promises";
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   attempts,
   continued,
@@ -17,13 +18,11 @@ import {
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { expect, stored, test } from "../../tests/support/codexStart.ts";
 import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
-import { followUpOf } from "../../tests/support/followUpSources.ts";
 import {
   doneStoryFiles,
   quietStorySessions,
   recoverStory,
   storyContextOf,
-  storyFollowUpOf,
 } from "../../tests/support/followUpStories.ts";
 import { publishes } from "../../tests/support/publishedRepository.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
@@ -86,7 +85,7 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
       ...codex,
       instruction: text,
       policy: isolated,
-      followUp: storyFollowUpOf(recoverStory, trunk),
+      followUp: makeMe.aFollowUp.ofStory(recoverStory, trunk).please(),
     }),
   );
 
@@ -115,7 +114,10 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
   });
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     instruction: text,
-    followUp: { ...storyFollowUpOf(recoverStory, trunk), context },
+    followUp: makeMe.aFollowUp
+      .ofStory(recoverStory, trunk)
+      .withContext(context)
+      .please(),
   });
   // The story's sessions stay Done and unchanged.
   expect(stored(dashboard.home).slice(0, kept.length)).toEqual(kept);
@@ -138,7 +140,7 @@ test("Continue after Codex refused and the source record is gone rebuilds the in
       ...codex,
       instruction: text,
       policy: isolated,
-      followUp: followUpOf(source),
+      followUp: makeMe.aFollowUp.ofSession(source).please(),
     }),
   );
   expect(refused.kind, JSON.stringify(refused)).toBe("failed");
@@ -181,7 +183,7 @@ test("repeating a follow-up with only its pending Codex input kept recovers the 
   const followUp = {
     ...codex,
     instruction: "Check the cache again",
-    followUp: followUpOf(source),
+    followUp: makeMe.aFollowUp.ofSession(source).please(),
   };
   native.refuseInput = true;
   expect((await answerOf(launch(dashboard, followUp))).kind).toBe("uncertain");

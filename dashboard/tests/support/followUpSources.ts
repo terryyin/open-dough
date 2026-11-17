@@ -37,11 +37,6 @@ export const quietSession = (sessionId: string, doneAt: Date): LaunchRecord =>
     .markedDoneAt(doneAt.toISOString())
     .please();
 
-// The source a follow-up of `record` names.
-export const followUpOf = (record: LaunchRecord) => ({
-  session: { host: record.session.host, sessionId: record.session.sessionId },
-});
-
 // What every follow-up's context block opens with.
 export const followUpPreamble =
   "Follow-up context: this session follows up earlier work in this project whose conversation can no longer be continued. These are the records the dashboard still holds of it; they state nothing beyond what was recorded.";

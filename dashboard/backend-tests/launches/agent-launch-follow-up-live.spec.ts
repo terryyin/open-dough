@@ -1,10 +1,10 @@
 // A second dashboard server sees the machine's active follow-up attempt even
 // after the source session expires.
 
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptAttempts, settledOutcome } from "../../tests/acceptedAttempts.ts";
 import { accept, attempts } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { followUpOf } from "../../tests/support/followUpSources.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { reported, request } from "./followUpBoundaryCases.ts";
@@ -26,7 +26,7 @@ test("repeating a follow-up active on another server answers with the running at
     const followUp = {
       ...request,
       instruction: "Check the cache again",
-      followUp: followUpOf(source),
+      followUp: makeMe.aFollowUp.ofSession(source).please(),
     };
     dashboard.claudeScenario("held");
     expect(JSON.parse((await accept(dashboard, followUp)).body)).toMatchObject({

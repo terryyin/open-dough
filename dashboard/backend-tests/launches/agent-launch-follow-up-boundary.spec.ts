@@ -11,7 +11,6 @@ import { realpathSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
-import { followUpOf } from "../../tests/support/followUpSources.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import {
@@ -45,7 +44,7 @@ test("Default main · Wait for review sends the context, then the request, then 
     launch(dashboard, {
       ...request,
       instruction: text,
-      followUp: followUpOf(source),
+      followUp: makeMe.aFollowUp.ofSession(source).please(),
     }),
   );
 
@@ -62,7 +61,10 @@ test("Default main · Wait for review sends the context, then the request, then 
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     title: text,
     instruction: text,
-    followUp: { ...followUpOf(source), context: reportedContext },
+    followUp: makeMe.aFollowUp
+      .ofSession(source)
+      .withContext(reportedContext)
+      .please(),
   });
   expect(launched.record).not.toHaveProperty("establishedSession");
   // The source stays Done and unchanged.
@@ -79,7 +81,7 @@ test("a blank follow-up on Default main sends the context and the reporting cont
     launch(dashboard, {
       ...request,
       instruction: "  ",
-      followUp: followUpOf(quiet),
+      followUp: makeMe.aFollowUp.ofSession(quiet).please(),
     }),
   );
 
@@ -111,7 +113,7 @@ test("Isolated workspace sends its block and the reporting context, then the con
       ...request,
       instruction: text,
       policy: { workspace: "isolated", landing: "review" },
-      followUp: followUpOf(source),
+      followUp: makeMe.aFollowUp.ofSession(source).please(),
     }),
   );
 
@@ -147,7 +149,7 @@ test("a final report longer than the instruction field's limit is sent whole bes
     launch(dashboard, {
       ...request,
       instruction: text,
-      followUp: followUpOf(source),
+      followUp: makeMe.aFollowUp.ofSession(source).please(),
     }),
   );
 

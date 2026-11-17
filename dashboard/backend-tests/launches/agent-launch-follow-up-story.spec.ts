@@ -22,7 +22,6 @@ import {
   quietStorySessions,
   recoverStory,
   storyContextOf,
-  storyFollowUpOf,
 } from "../../tests/support/followUpStories.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { publishes } from "../../tests/support/publishedRepository.ts";
@@ -84,7 +83,7 @@ test("a done story's follow-up sends its published facts and each Done session i
     launch(dashboard, {
       ...request,
       instruction: text,
-      followUp: storyFollowUpOf(recoverStory, revision),
+      followUp: makeMe.aFollowUp.ofStory(recoverStory, revision).please(),
     }),
   );
 
@@ -99,7 +98,10 @@ test("a done story's follow-up sends its published facts and each Done session i
   });
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     instruction: text,
-    followUp: { ...storyFollowUpOf(recoverStory, revision), context },
+    followUp: makeMe.aFollowUp
+      .ofStory(recoverStory, revision)
+      .withContext(context)
+      .please(),
   });
   // Its facts are the done record published at the revision shown.
   expect(dashboard.github.calls.map(({ request }) => request)).toContainEqual(
@@ -124,7 +126,7 @@ test("a done story with no session kept sends its facts and that no session cont
     launch(dashboard, {
       ...request,
       instruction: "Continue",
-      followUp: storyFollowUpOf(otherStory, revision),
+      followUp: makeMe.aFollowUp.ofStory(otherStory, revision).please(),
     }),
   );
 
@@ -146,7 +148,7 @@ test("follow-ups of two stories with the same words and choices are two launches
     ...request,
     instruction: "Continue",
     policy: { workspace: "isolated", landing: "review" },
-    followUp: storyFollowUpOf(story, revision),
+    followUp: makeMe.aFollowUp.ofStory(story, revision).please(),
   });
   dashboard.claudeScenario("refused");
   const refused = await answerOf(
@@ -210,7 +212,7 @@ for (const refused of [
 
     const response = await accept(dashboard, {
       ...request,
-      followUp: { story: { identity: refused.identity, revision } },
+      followUp: makeMe.aFollowUp.ofStory(refused.identity, revision).please(),
     });
 
     expect(response.status, response.body).toBe(refused.status);
