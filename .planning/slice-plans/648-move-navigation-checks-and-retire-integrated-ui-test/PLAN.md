@@ -368,7 +368,7 @@ passed 50/50 with `--workers=2`; typecheck exit 0. After the gap closure,
 
 ### 5. Preserve the Development and Intent frame
 Type: Behavior
-Status: planned
+Status: done
 Proof: `development-intent-frame`, `development-intent-frame-keyboard`,
 `development-intent-frame-sessions` (516 lines): perspective default and
 persistence across project change, Back/Forward/reload and System settings,
@@ -376,6 +376,50 @@ unconfigured Intent wording, perspective keys and sessions placement.
 
 Behavior: switching perspective or project, or navigating history → the frame
 keeps the selected perspective and project as today.
+
+Assertion map (interim → Frontend, `dashboard/frontend-tests/navigation/`,
+same file names and test names; catalog projects answer their own
+publications with no intent locations through the new
+`tests/support/frontendCatalogProjects.ts` in place of the published origin):
+- `development-intent-frame.spec.ts` → same file, all four tests with every
+  step: first-visit Development with stories and direction, meaning marks,
+  Intent keeping the project and history length +1, Doughnut keeping Intent
+  and its read revision, Back/Back/Forward/Forward/reload addresses and
+  content, Development resuming Doughnut's stories, direction and Start
+  session. The selected project kept across reload with its own Board (slice
+  2's hand-off) is the first test's new step "a reload keeps Doughnut selected
+  with its own Board" (Doughnut checked, Development, Doughnut's catalog
+  stories, no Open Dough story). System settings Back/reload/Development to
+  roster, the phone banner case, and the failed published read (404 answered
+  through `controlFrontendAuthenticatedRead`; its boundary wording stays the
+  E2E read-failure journey's) keep their names.
+- `development-intent-frame-keyboard.spec.ts` → same file and name, every
+  step.
+- `development-intent-frame-sessions.spec.ts` → same file, both names: the
+  machine's sessions read observes a Pygardon refinement session (Pygardon
+  answering `pygardonBacklog`) beside the Taken story's Execution session, so
+  the sidebar lists 2 entries (interim 4: the server's extra Doughnut and
+  removed sessions belong to `e2e/sessions/sessions-sidebar-navigation*`);
+  the terminal is the attached-terminal substitute, its `attaches()` count
+  `toBe(1)` in place of the synthetic `claude`'s attach records, its echo in
+  place of `echo …`, and `attached pygardon` in place of the session id. The
+  covering case uses the Taken story's session and `takenIdentity` for
+  `data-selected-story`.
+- All three interim files deleted; no shard pattern named them. Shards list
+  1/3: 3 tests, 2/3: 30, 3/3: 25, each exit 0; typecheck exit 0; eslint and
+  prettier check exit 0.
+
+Scratch break (Frontend boundary): `dashboard/src/dashboardRouteUrl.ts`
+`params.get("perspective")` read as `params.get("perspective-broken")` (the
+address no longer names the perspective) → `env -u NO_COLOR -u FORCE_COLOR -u
+GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -i npx playwright test --config
+frontend.playwright.config.ts
+frontend-tests/navigation/development-intent-frame.spec.ts --grep "project
+changes, history and reload" --reporter=list --workers=1` exit 1, failed in
+"Back returns to Open Dough's Intent…" at `expectNotConfiguredIntent`
+(`toHaveAccessibleName("Intent")`, checked radio was Development); restored
+by editing back (`git diff dashboard/src` empty). The seven new cases then
+passed 7/7 with `--workers=2`.
 
 ### 6. Preserve the dashboard header and frame looks
 Type: Behavior

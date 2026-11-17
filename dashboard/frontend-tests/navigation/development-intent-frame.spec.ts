@@ -1,20 +1,22 @@
 // Development and Intent: two perspectives of the selected project in the one
-// dashboard frame (../intentPerspectivePage.ts). Development is the first-visit
-// default; Intent keeps the selected project and, when no intent locations are
-// published, says so naming the setting and file, never that the project has
-// no tests or Proof, even when the published read failed. Changing projects
-// keeps the perspective; Back, Forward, reload and System settings return to
-// it; Development resumes its stories or roster. Its keys are
-// development-intent-frame-keyboard.spec.ts's, its sessions
-// development-intent-frame-sessions.spec.ts's, and the banner's geometry
-// dashboard-header.spec.ts's.
+// dashboard frame (../../tests/intentPerspectivePage.ts). Development is the
+// first-visit default; Intent keeps the selected project and, when no intent
+// locations are published, says so naming the setting and file, never that the
+// project has no tests or Proof, even when the published read failed. Changing
+// projects keeps the perspective; Back, Forward, reload and System settings
+// return to it, and a reload keeps the selected project with its own Board;
+// Development resumes its stories or roster. Its keys are
+// ./development-intent-frame-keyboard.spec.ts's, its sessions
+// ./development-intent-frame-sessions.spec.ts's.
 
-import { expect, test } from "../dashboardTest.ts";
-import { historyLength } from "../sessionNavigationJourney.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
+import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import { historyLength } from "../../tests/sessionNavigationJourney.ts";
 import {
   expectBelowBanner,
   expectPinnedShortBanner,
-} from "../bannerReading.ts";
+} from "../../tests/bannerReading.ts";
 import {
   chooseProject,
   expectProblemAndNoSnapshot,
@@ -24,36 +26,34 @@ import {
   projectTab,
   rosterParts,
   shortRevision,
-} from "../dashboardPage.ts";
+} from "../../tests/dashboardPage.ts";
 import {
   expectAddress,
   expectNotConfiguredIntent,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-} from "../pageLayout.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
-import { expectPerspectiveMeaningMarks } from "../perspectiveMarks.ts";
+} from "../../tests/pageLayout.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+} from "../../tests/pageRequestNotes.ts";
+import { expectPerspectiveMeaningMarks } from "../../tests/perspectiveMarks.ts";
 import {
   doughnutProject,
   expectCatalogStories,
   openDoughProject,
-  publishCatalogProjects,
-} from "../projectKeyboardNavigationJourney.ts";
-import {
-  commitAnswer,
-  notFoundAnswer,
-  publishOrigin,
-} from "../publishedOrigin.ts";
-import { back, settings } from "../support/systemSettingsPage.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+} from "../../tests/projectKeyboardNavigationJourney.ts";
+import { back, settings } from "../../tests/support/systemSettingsPage.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
 
 test("Intent keeps the selected project and says no intent locations are configured; project changes, history and reload keep it, and Development resumes the stories", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await publishCatalogProjects(page);
+  await answerCatalogProjects(page, frontendServices);
   await openUntilRead(page);
   const { development, intentChoice, perspective, readRevision } = parts(page);
   // Development is the first-visit default, with its stories and direction.
@@ -123,12 +123,21 @@ test("Intent keeps the selected project and says no intent locations are configu
     await expect(parts(page).intent).toHaveCount(0);
     expectAddress(page, { project: "doughnut", perspective: null });
   });
+
+  await test.step("a reload keeps Doughnut selected with its own Board", async () => {
+    await reloadUntilRead(page);
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
+    await expect(development).toBeChecked();
+    await expectCatalogStories(page, doughnutProject);
+    await expect(parts(page).board).not.toContainText(openDoughProject.taken);
+  });
 });
 
 test("System settings from Intent returns to the project and Intent with the keyboard on System settings, and Development returns to the roster", async ({
   page,
+  frontendServices,
 }) => {
-  await publishCatalogProjects(page);
+  await answerCatalogProjects(page, frontendServices);
   await page.goto("/?project=doughnut&view=roster");
   const { roster } = rosterParts(page);
   const { development, intentChoice } = parts(page);
@@ -141,11 +150,12 @@ test("System settings from Intent returns to the project and Intent with the key
   await expectNotConfiguredIntent(page, "Doughnut");
   await expect(roster).toBeHidden();
   // Intent keeps the roster to return to.
-  expectAddress(page, {
+  const intentAtRoster = {
     project: "doughnut",
     view: "roster",
     perspective: "intent",
-  });
+  };
+  expectAddress(page, intentAtRoster);
 
   await test.step("Back from System settings returns to Doughnut's Intent", async () => {
     await settings(page).click();
@@ -153,11 +163,7 @@ test("System settings from Intent returns to the project and Intent with the key
     await back(page).click();
     await expectNotConfiguredIntent(page, "Doughnut");
     await expect(settings(page)).toBeFocused();
-    expectAddress(page, {
-      project: "doughnut",
-      view: "roster",
-      perspective: "intent",
-    });
+    expectAddress(page, intentAtRoster);
   });
 
   await test.step("a reloaded System settings still returns to Doughnut's Intent", async () => {
@@ -174,20 +180,17 @@ test("System settings from Intent returns to the project and Intent with the key
     await development.click();
     await expect(roster).toBeVisible();
     await expect(parts(page).intent).toHaveCount(0);
-    expectAddress(page, {
-      project: "doughnut",
-      view: "roster",
-      perspective: null,
-    });
+    expectAddress(page, { ...intentAtRoster, perspective: null });
   });
 });
 
 test("at a phone width the perspective stays reachable under the compact title, and choosing a project there keeps Intent", async ({
   page,
+  frontendServices,
 }) => {
   const { portrait } = phoneLaunchTouchViewport;
   await page.setViewportSize(portrait);
-  await publishCatalogProjects(page);
+  await answerCatalogProjects(page, frontendServices);
   await openUntilRead(page);
   const { intentChoice, perspective, projectCompact } = parts(page);
   await expect(projectCompact).toHaveText("Open Dough");
@@ -208,15 +211,19 @@ test("at a phone width the perspective stays reachable under the compact title, 
 
 test("with the published read failed, Intent still says only that no intent locations are configured, and Development keeps the read problem", async ({
   page,
+  frontendServices,
 }) => {
-  const revision = "6f".repeat(20);
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: notFoundAnswer() },
+  Object.assign(frontendServices, {
+    locations: { revision: frontendServices.revision, locations: null },
   });
-  await page.goto("/");
+  // The boundary's 404 wording is the E2E read-failure journey's to prove.
   const message =
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
+  const backlogRead = await controlFrontendAuthenticatedRead(page, (params) =>
+    [...params.keys()].every((key) => ["source", "revision"].includes(key)),
+  );
+  backlogRead.respond({ error: message }, 404);
+  await page.goto("/");
   await expectProblemAndNoSnapshot(page, message);
   const { development, intentChoice, problem } = parts(page);
   await intentChoice.click();
