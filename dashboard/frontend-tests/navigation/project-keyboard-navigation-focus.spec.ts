@@ -3,7 +3,7 @@
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { answerOnlyPublications } from "../../tests/support/frontendCatalogProjects.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { holdProjectReads } from "../../tests/holdAuthenticatedReads.ts";
 import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
@@ -63,11 +63,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
   await test.step("keyboard switch while a previous read is held shows only the destination", async () => {
     // Every Doughnut read from now on is held until released.
     const doughnutReads = countProjectReads(page, doughnut.id);
-    const heldDoughnut = await holdAuthenticatedReadsWhere(
-      page,
-      (params) => params.get("source") === doughnut.id,
-      [],
-    );
+    const heldDoughnut = await holdProjectReads(page, doughnut.id, []);
     await projectTab(page, "Doughnut").check();
     await expect.poll(heldDoughnut.held).toBeGreaterThan(0);
     const heldReads = doughnutReads();

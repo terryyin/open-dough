@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#retire-integrated-ui-test-and-its-documents
 **Source:** [Story destination and card selection](../../seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -98,7 +99,7 @@ slice has 15 active minutes excluding command time.
 
 ### 1. Arrive at a story from its URL
 Type: Behavior
-Status: planned
+Status: done
 Proof: `notification-story-navigation` tests "cold story URL waits…",
 "reload, direct open, and history…", "a target in a hidden column…" and
 "opening the roster…" in
@@ -111,6 +112,50 @@ Behavior: a story URL opened cold, reloaded, reached through Back or Forward,
 or naming a hidden column → the page waits for the named project, then the
 card holds the keyboard in view with the route kept; a project choice clears
 the target; reduced motion scrolls with `behavior: auto`.
+
+Assertion map (interim → `frontend-tests/navigation/story-url-destination.spec.ts`,
+same test names; arrangement `tests/support/frontendStoryUrlDestination.ts`):
+
+- Cold URL: project choice Doughnut; revision requested
+  (`target.requests > 1` → Doughnut's reads held, `held() > 0`); no reveal;
+  card absent; Open Dough not read (`other.requests` → `countProjectReads(open-dough) = 0`);
+  after release arrived (focused, in view); Open Dough's telling absent;
+  route `story` kept; no hash; Tab keeps keyboard within the card; no
+  "Reading preparation…"; Inspect expands and no further reveal. All in
+  "cold story URL waits…" (three steps).
+- Reload/history: focused; destination cue with motion; not selected; cue
+  ends; reload arrives; Open Dough choice shows its card and clears `story`;
+  Back refocuses with cue and keeps `story`; Forward shows Open Dough and
+  clears it. All in "reload, direct open, and history…" (page clock paused).
+- Hidden column: 650×750, reduced motion; arrived; `.board-row`
+  `data-hidden="1 3"`; reveal `{ behavior: "auto" }`. In "a target in a hidden
+  column…".
+- Roster: card focused; roster button opens "Agent roster" and clears
+  `story`; Back keeps the card in view, restores `story`, keyboard within. In
+  "opening the roster…" (Open Dough alone, Akiho executing the Taken story;
+  the interim Pygardon and unlistable profiles were incidental).
+- No host action (`claudeLaunchCalls`, `claudeAttaches`, Claude `resume`,
+  Codex thread/turn calls; all reached only through the page's launch or
+  attach requests) → `recordHostRequests` equals `[]` (no non-GET
+  `/__agent-launch*`, no `/__agent-terminal*` request or WebSocket) at the end
+  of each of the four tests. Server-side launch effects stay with E2E
+  `sessions/session-alerts-navigation.spec.ts` and the launch Backend cases.
+
+Scratch break (P5): `dashboard/src/StoryDestination.tsx`, first line of the
+`useLayoutEffect`: `if (enabled && knownProject && !listed) document.body.scrollIntoView();`
+(scroll before the named project's revision answers). `node .claude/skills/dough-execute-plan/scripts/slice-clock.mjs run … -- env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-url-destination.spec.ts -g "cold story URL" --reporter=list --workers=2`:
+exit 1, `expect(await revealsOf(page)).toEqual([])` received one reveal.
+Product restored from a copy (`git status` clean for `dashboard/src`); the
+full spec then: 4 passed (4.7 s), exit 0.
+
+Refactor: `recordHostRequests` moved to `tests/support/frontendHostRequests.ts`
+and `holdProjectReads` to `tests/holdAuthenticatedReads.ts` (also used by
+`project-keyboard-navigation-focus.spec.ts`), ready for slices 2 and 4; the
+roster case reuses `takenStory`/`takenIdentity` from `agentRosterRecords.ts`.
+Both specs 5 passed after it. Learning for slice 4: `publishRosterStory`
+duplicates `stories/agent-roster-collection.spec.ts` `openRoster` setup (Open
+Dough with one agent executing its Taken story); fold them together when slice
+4 or a later change next touches roster setup.
 
 ### 2. Explain a story destination that cannot be shown
 Type: Behavior
@@ -173,7 +218,7 @@ Observed in this workspace at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`,
 | P2. The Frontend homes the slices extend run here (slices 1, 2, 4). | `npx playwright test --config dashboard/frontend.playwright.config.ts navigation/project-selection.spec.ts sessions/recently-done-sessions-select configuration/system-settings-project-management-touch.spec.ts --reporter=list --workers=2`: 15 passed (14.4 s). The shared-identity arrangement, held revision and dependency answers are new; slices 1 and 4 build them first, and a case they cannot express keeps a Backend or E2E home under the proof rule above. |
 | P3. Removing the four specs leaves both shards selecting specs and the shard checks green (every slice). | With the four specs moved aside: shard 1/2 lists 3 tests in 1 file, shard 2/2 lists 19 tests in 6 files; `bash scripts/test.sh Distribution/tests/support/browser-group-shards.test.mjs Distribution/tests/support/ci-browser-groups.test.mjs` exit 0. Specs restored. |
 | P4. Shared support survives the deletions (slices 2–4). | `grep` importers: `notificationStoryJourney.ts`, `storyDependencyFixture.ts` and `destinationCue.ts` are imported by E2E specs or the seven remaining interim specs; none becomes unused here. Execution's consumer trace rechecks after each deletion. |
-| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. |
+| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). |
 
 Refinement: not needed; four slices with one proof loop each, no cumulative
 design beyond the two small arrangements named above.

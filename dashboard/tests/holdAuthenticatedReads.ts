@@ -3,8 +3,11 @@
 // (`../frontend-tests/intent/intent-selection-reads.spec.ts`, `../frontend-tests/intent/intent-revision-notice.spec.ts`,
 // `../frontend-tests/intent/intent-revision-update-outcomes.spec.ts`,
 // `../frontend-tests/intent/intent-revision-update-boundaries.spec.ts`,
-// `../frontend-tests/intent/intent-story-coverage.spec.ts`). Its route pattern also
-// serves journeys that observe Session details' reads
+// `../frontend-tests/intent/intent-story-coverage.spec.ts`), and of one
+// project's reads for navigation journeys
+// (`../frontend-tests/navigation/project-keyboard-navigation-focus.spec.ts`,
+// `../frontend-tests/navigation/story-url-destination.spec.ts`). Its route
+// pattern also serves journeys that observe Session details' reads
 // (`./support/historicalCreditReads.ts`).
 
 import type { Page, Route } from "@playwright/test";
@@ -22,6 +25,19 @@ export function holdAuthenticatedReadsOf(
   return holdAuthenticatedReadsWhere(
     page,
     (params) => params.get("path") === path,
+    releases,
+  );
+}
+
+// Holds the page's reads of project `source` until the returned release.
+export function holdProjectReads(
+  page: Page,
+  source: string,
+  releases: (() => void)[],
+) {
+  return holdAuthenticatedReadsWhere(
+    page,
+    (params) => params.get("source") === source,
     releases,
   );
 }
