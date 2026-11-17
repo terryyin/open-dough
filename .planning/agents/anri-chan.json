@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-388#replace-native-reader-gaps-on-reread",
+  "mode": "story-branch",
+  "branch": "codex/replace-native-reader-gaps-when-a-session-is-rea",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
