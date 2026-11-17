@@ -201,7 +201,7 @@ loaded first-case run moves to slice 5's loaded acceptance.
 
 ### 5. The complete CI comparison retry journey has private prepared history
 Type: Behavior
-Status: planned
+Status: done
 Proof: independent copies, real CLI provenance, and the full original retry
 case plus its shallow-history sibling under the required loaded conditions.
 
@@ -223,7 +223,16 @@ Implemented (2026-11-18): `keptComparedStoryBranch.ts` completes the real
 history once per worker (cold preparation lifetime) under its own
 `preparedHistory` description; the retry case copies it and publishes its own
 answers. At load 4–7 the fresh first cases took retry 3.7 s, side-panel
-4.0 s, Done-source 2.5 s. Loaded acceptance at natural 30–50 is G1.
+4.0 s, Done-source 2.5 s.
+Loaded acceptance (2026-11-18): natural load stayed under 7, so on the
+developer's direction 36 `yes` burners (nice 5, 17–45% CPU each, contending
+with the tests' equal priority) raised the one-minute load. AC power,
+`caffeinate -s -i`, one worker, strict reporter, each spec a fresh run:
+retry first case 7.2 s at load 32.2→45.3 (worker preparation: server inputs
+4.4 s, origins 2.1 s, kept history 3.2 s); side-panel 8.6 s at 45.3→45.4
+(inputs 3.6 s, origins 1.6 s); Done-source 2.8 s at 45.4→47.0 (app 3.5 s).
+Every case passed with 21–27 s of its 30 s budget left; all preparation
+ran in worker fixtures outside the case budgets.
 CI repair (run 44133975335): the diff-line Follow up case clicked a line
 number while its context read was still adding gap rows above it, so the
 release landed elsewhere. It now waits for the code pane's read context
@@ -285,8 +294,7 @@ claims supplied by these lower-load preparation observations.
 
 ## Story obligations
 
-### G1. Loaded first-case acceptance not yet observed at natural load 30–50
+### G1. Loaded first-case acceptance at one-minute load 30–50
 Reported: slice 5 — "Natural load stayed at 4.8–6.6 the whole slice, so the 30–50 window never came."
 Story clause: "first cases keep a wide margin at a one-minute load of 30–50 with default timeouts"
-Disposition: return
-Commitment: 2, 11, 12
+Disposition: proved by slice 5: slice 5's loaded acceptance (burner-raised load 32–47, first cases 2.8–8.6 s)
