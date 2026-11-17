@@ -1,14 +1,15 @@
 // What Recently done lists for the project shown. It combines published
-// stories by completion time and saved Done sessions by launch time; only
-// closed sessions are nested in done cards, and unknown or failed published
-// details leave their standalone access intact. The done catalog places every
-// done story before its record is read, so the combined list, its count, and
-// where each session belongs are known at once. Only the first ten entries
-// show until the developer asks for the next ten, or a journey lands on an
-// entry beyond them, and the developer can return to the latest ten
-// (`./recentlyDoneRange.ts`), and only the records of the
-// stories shown are read (`./doneDetails.ts`); a story shown before its
-// record answers keeps its place, with its sessions, under its identity.
+// stories by completion time and saved Done sessions by launch time; listed
+// cards nest their own closed sessions and closed story follow-ups
+// (`./recentlyDoneListing.ts`), and unknown or failed published details leave
+// their standalone access intact. The done catalog places every done story
+// before its record is read, so the combined list, its count, and where each
+// session belongs are known at once. Only the first ten entries show until the
+// developer asks for the next ten, or a journey lands on an entry beyond them,
+// and the developer can return to the latest ten (`./recentlyDoneRange.ts`),
+// and only the records of the stories shown are read (`./doneDetails.ts`); a
+// story shown before its record answers keeps its place, with its sessions,
+// under its identity.
 // The saved sessions decide which stories the first entries hold, so no
 // record is read before the page's first read of them ends; a read that ends
 // unanswered lets the stories shown without them be read.
@@ -19,13 +20,13 @@
 // it. `./RecentlyDone.tsx` presents it.
 
 import { useLayoutEffect } from "react";
-import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { storySessionsOf, type LaunchWithState } from "./agentLaunch.ts";
+import type { LaunchWithState } from "./agentLaunch.ts";
 import type { ColumnSummary } from "./columnSummary.ts";
 import { useDoneDetails } from "./doneDetails.ts";
 import { recentDoneRecords } from "./doneStories.ts";
 import type { CreationView } from "./launchCreation.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { holdsEntry, newestFirst, type Listed } from "./recentlyDoneListing.ts";
 import {
   shownPrefix,
   usePageRange,
@@ -34,48 +35,7 @@ import {
 } from "./recentlyDoneRange.ts";
 import { sessionKey } from "./sessionReference.ts";
 
-export type Listed =
-  | {
-      readonly at: number;
-      readonly record: CataloguedDoneRecord;
-      // The story's sessions, oldest first.
-      readonly sessions: readonly LaunchWithState[];
-    }
-  | { readonly at: number; readonly session: LaunchWithState };
-
-// Done stories by completion, each holding its sessions, and the sessions of
-// no listed done story by launch, newest first; sessions launched at one
-// moment keep their newest-first order.
-function newestFirst(
-  records: readonly CataloguedDoneRecord[],
-  sessions: readonly LaunchWithState[],
-  sourceId: string,
-): readonly Listed[] {
-  const cards = records.map((record) => ({
-    at: Date.parse(record.completedAt),
-    record,
-    sessions: storySessionsOf(sessions, sourceId, record.identity),
-  }));
-  const held = new Set(cards.flatMap((card) => card.sessions));
-  return [
-    ...cards,
-    ...sessions
-      .filter((session) => !held.has(session))
-      .toReversed()
-      .map((session) => ({ at: Date.parse(session.launchedAt), session })),
-  ].sort((one, other) => other.at - one.at);
-}
-
-const holds = (each: Listed, session: string) =>
-  "record" in each
-    ? each.sessions.some((held) => sessionKey(held.session) === session)
-    : sessionKey(each.session.session) === session;
-
-// Whether `each` is, or holds, the entry holding the keyboard.
-const holdsEntry = (each: Listed, held: HeldEntry) =>
-  held.story === undefined
-    ? holds(each, held.session)
-    : "record" in each && each.record.identity === held.story;
+export type { Listed } from "./recentlyDoneListing.ts";
 
 // Answers the page's destination in this project once the list can place it:
 // once the sessions and done catalog have placed its story or session, the

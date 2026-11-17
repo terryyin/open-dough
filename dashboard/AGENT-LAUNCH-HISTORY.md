@@ -35,10 +35,15 @@ Adding, closing or reopening a local entry creates no published Take or completi
 scan, disclosures, attention and original attribution.
 
 Recently done combines published done stories by completion time and saved Done
-sessions by launch time. A done-story card holds only its marked-done sessions,
-newest first, with the same state and actions; later launches do not move the
+sessions by launch time. A done-story card holds its marked-done sessions and
+the project's closed ad hoc follow-ups whose retained request names that
+story's full identity, newest first, each with its own label, status, host and
+actions; the story's own sessions remain a separate collection from those
+follow-ups for Follow up's offer and context. Later launches do not move the
 card. Closed sessions without a shown done card remain standalone, including
-those whose story is active. A launch closed as
+those whose story is active and Done follow-ups whose source card is not
+listed. Ordinary ad hoc sessions and session-sourced follow-ups keep their
+existing placement. A launch closed as
 [returned to the backlog](AGENT-LAUNCH-COMPLETION.md) follows the same rules,
 reading Returned to backlog where Done would read, in the same tone and with
 the same note while its native session works; a later launch of its story has

@@ -1,6 +1,7 @@
 # Group ad hoc follow-ups with their Done story
 
 **Source:** [selected story](../../seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-390#group-ad-hoc-follow-ups-with-their-done-story
 
 ## Goal and scope
@@ -143,7 +144,7 @@ No paid, credentialed, native-host, or developer-operated premise needs a probe.
 ### 1. Find closed follow-ups on their source story
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: given a Done story with open card and file or line follow-ups, read
 the Board → each is a Taken entry and the card holds neither. Mark one Done →
@@ -265,3 +266,18 @@ interim lack of a source link is replaced by slice 2. Both human-owned
 boundaries are settled and their frontend mechanisms were observed. No
 remaining slice-specific concern or human-owned decision was identified in
 this review.
+
+## Learnings
+
+- Extract listing/membership (`recentlyDoneListing.ts`) before growing
+  `recentlyDoneView.ts` kept the range hook under 250 and preserved the
+  `Listed` import path for callers.
+- Split the subject frontend journeys into movement vs membership specs with
+  a shared fixture module so each file stayed under the size check after
+  refactor.
+
+## Accepted proof (slice 1)
+
+- `caffeinate -s -i npm run test:dashboard:frontend -- --workers=1 --reporter=line dashboard/frontend-tests/sessions/recently-done-follow-up-grouping.spec.ts dashboard/frontend-tests/sessions/recently-done-follow-up-membership.spec.ts` — 6 passed (Taken↔card movement, shared card/reload, reopen, cross-story/project, unlisted standalone, Follow up context sessions-only).
+- Broader consumers (pre-refactor): sessions/recently-done, stories/recently-done, agent-launch-ad-hoc-sessions — pass; behavior-preserving extract left them unchanged.
+- `npm run typecheck:dashboard` — pass.
