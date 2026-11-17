@@ -96,11 +96,11 @@ neither evaluation tooling nor this seed. No scratch source edit was retained.
 | --- | --- |
 | Maintainer selects an existing case | `PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh --list --where workflow='ordinary execution'` returned `unblocked-supplier` with its traits, exit 0. `--help` printed the journey, capture, pair and recovery forms (usage exit 2). Slice 1 rechecks through renamed entry. |
 | Native route reaches its unpaid boundary | Bash 5.3.20 and Node 24.21.0 match requirements; Git/jq/Codex are on PATH. `PATH=/opt/homebrew/bin:$PATH bash -c 'source Distribution/evaluation/src/native-comparison-retain.sh; source Distribution/evaluation/src/native-comparison-preflight.sh; native_comparison_preflight codex unblocked-supplier "$PWD" "$PWD"'` passed; `codex login status` reported logged in using ChatGPT. The first ad hoc source call omitted `retain.sh` and refused before work; the complete call above settled that omission. No native launch or fixture qualification is inferred. |
-| A saved native baseline is consumed by today's assessor | `PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh --assess-baseline Distribution/evaluation/cases/comparison/unblocked-supplier/comparisons/20261114T162130-7b8c-baseline.json` exited 0 with `status: pass`: preserved partial work, one integration/filing, independent and executed proof. Source integrity `f9e4123df34433aedf76e74c5a5b0fb7a284d0db95d9435415ae8ed38069b8ad`. Slice 1 repeats after relocation; slice 4 obtains the fresh selected journey, not a claim that reassessment is a fresh run. |
+| A saved native baseline is consumed by today's assessor | `PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh --assess-baseline Distribution/evaluation/cases/comparison/unblocked-supplier/comparisons/20261114T162130-7b8c-baseline.json` exited 0 with `status: pass`: preserved partial work, one integration/filing, independent and executed proof. Source integrity `f9e4123df34433aedf76e74c5a5b0fb7a284d0db95d9435415ae8ed38069b8ad`. Slice 1 repeats after relocation; slice 5 obtains the fresh selected journey, not a claim that reassessment is a fresh run. |
 | Old names/hashes can recover original evidence | `PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh --recover Distribution/evaluation/cases/comparison/paused-supplier/comparisons/20261114T102744-1921.txt` exited 0: 49 inputs byte-identical at `764c4e0fe0ce9f478750323de6a9f30c76a7e61a`, historical directory `Distribution/tests/native-comparison/paused-supplier`, record unchanged. Slice 1 must preserve this result after renaming; recovery is not rematerialization or a paid rerun. |
-| Effort source contains a real missed judgment | [Corrected comparison at fbfaa116](https://github.com/terryyin/open-dough/blob/fbfaa116b961a445cc606fd05363bf75f6ecad5f/.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-comparison.md) records the unchanged Codex E2E diagnostic: argv length expected 3, actual 5 including medium, exit 1. Direct `git show 8b9005acc:dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts` and `.../agent-launch-ad-hoc-boundary.spec.ts` show real reader-based observations and retained mixed cases. This proves the source judgment, not a not-yet-built extraction. Slice 2 proves its new fixture and assessment. |
-| Retained source is recoverable | `git bundle verify /Users/terryyin/open-dough-scratch/seed-391/retained/replays.bundle` passed against required ancestor `4b75c28885e49ace352561cad01907926e066fdd`; heads are Codex `57f805ee2` and Claude `9cd8ee5f2`. Its README names the unchanged A and recovery/disposal owner. Slice 2 retains the portable necessary inputs before scratch disposal at wrap-up. |
-| New fixture preserves the decision; Codex produces assessable evidence | These are new capability/qualification outcomes, not observed facts. Slice 2 establishes fixture discrimination locally before any paid launch. Slice 3 is the early paid probe of the new native case; failure or missing evidence stops its dependent qualification/comparison claims and changes the remaining plan. Slice 4 qualifies only its selected existing case/profile. Model/host conditions are recorded at launch; stale setup or authentication is rechecked there. |
+| Effort source contains a real missed judgment | [Corrected comparison at fbfaa116](https://github.com/terryyin/open-dough/blob/fbfaa116b961a445cc606fd05363bf75f6ecad5f/.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-comparison.md) records the unchanged Codex E2E diagnostic: argv length expected 3, actual 5 including medium, exit 1. Direct `git show 8b9005acc:dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts` and `.../agent-launch-ad-hoc-boundary.spec.ts` show real reader-based observations and retained mixed cases. This proves the source judgment, not a not-yet-built extraction. Slices 2 and 3 prove its new fixture and assessment. |
+| Retained source is recoverable | `git bundle verify /Users/terryyin/open-dough-scratch/seed-391/retained/replays.bundle` passed against required ancestor `4b75c28885e49ace352561cad01907926e066fdd`; heads are Codex `57f805ee2` and Claude `9cd8ee5f2`. Its README names the unchanged A and recovery/disposal owner. Slice 2 retains the portable necessary inputs (as a tracked overlay; Codex B is not on origin) before scratch disposal at wrap-up. |
+| New fixture preserves the decision; Codex produces assessable evidence | These are new capability/qualification outcomes, not observed facts. Slices 2–3 establish fixture discrimination locally before any paid launch. Slice 4 is the early paid probe of the new native case; failure or missing evidence stops its dependent qualification/comparison claims and changes the remaining plan. Slice 5 qualifies only its selected existing case/profile. Model/host conditions are recorded at launch; stale setup or authentication is rechecked there. |
 
 ## Ordered slices
 
@@ -142,15 +142,51 @@ Learning: `--recover` prints an empty `record-history` until the move is
 committed. Queued plan 621 (SEED-346) still names pre-rename paths; retrace it
 when that story is next refined.
 
-### 2. Select an effort-derived case that rejects inadequate refactoring
+### 2. Select and observe an effort-derived refactoring task
+Type: Behavior
+Status: done
+
+Behavior: given the retained real-work input, a maintainer selects the
+effort-derived case from the catalog by its traits and runs its controlled
+journey through the entry. The fixture materializes origin `4b75c2888` plus a
+tracked overlay of Codex B's `dashboard/` and `e2e/` bytes (`git diff
+4b75c2888 8b9005acc -- dashboard e2e`, 33 files) kept in the case directory,
+because neither Codex B commit is on origin. The neutral task is a bounded
+refactoring request over the launch-command tests
+(`agent-launch-model-boundary`, `agent-launch-ad-hoc-boundary` and the
+unchanged E2E consumer `e2e/launches/agent-launch-ad-hoc.spec.ts`). The
+independent observer retains the final diff and the executed backend and E2E
+results. Record origin, overlay provenance, extraction differences,
+traits/prerequisites, measured preparation and per-run durations, and that its
+own baseline comes from slice 4.
+
+Proof: the controlled journey through `native-guidance-check.sh` with a
+substitute host materializes the fixture, gives the participant only the task
+and the overlaid project (no assessor answers, prior outcomes or repaired
+code), and retains final code plus executed proof for an unchanged-workspace
+outcome. `--list --where workflow=…` selects the case. Measure one E2E
+consumer run; if it makes the controlled journey unaffordable, stop for a
+scope decision with that measurement rather than dropping the consumer.
+
+Accepted 2026-11-17: case `launch-command-tests`. The fixture copies
+`overlay/` (B's whole bytes at `8b9005acc` of the 33 changed `dashboard/` and
+`e2e/` paths; a single diff file exceeded the 250-line limit) over origin
+`4b75c2888`, commits it, installs the payload and runs `npm ci`. The observer
+keeps `case-evidence/final-turn-N.diff` against a post-setup tree (payload
+install changes `.cursor/hooks.json`) and its own backend/E2E JSON reports.
+Starting state: backend 28 passed; the unchanged E2E consumer fails 4 with
+"Expected length: 3 / Received length: 5". Measured at load 24–31:
+materialize 10 s, `npm ci` 11 s, backend 30 s, E2E 30 s; the credential-free
+case test takes about 30 s. `assess.bash` is a failing placeholder owned by
+slice 3. `npm run test:evaluation` passed 71/71 (load 11–83).
+
+### 3. Reject inadequate refactoring of the effort-derived task
 Type: Behavior
 Status: planned
 
-Behavior: given the retained real-work input, a maintainer selects a focused
-refactoring task with neutral participant context and a short predeclared
-assessment basis. Its independent observer retains final code and executed
-proof. Materialize the fixture, demonstrate preserved source judgment and
-record origin, extraction differences, traits/prerequisites and own baseline.
+Behavior: the case's assessor applies the predeclared basis to the observer's
+retained code and proof: protective refactoring passes; mechanical value
+updates, weakened owning proof and unsupported clean claims fail.
 
 Proof: the case's controlled end-to-end journey accepts a protective reference
 outcome and rejects a mechanical-value-only result and weakened owning proof.
@@ -168,7 +204,7 @@ context within this slice; do not simplify the task into a synthetic surrogate
 and reuse A. If meaningful discrimination cannot be retained at bounded cost,
 stop that path for a scope decision with the failed extraction evidence.
 
-### 3. Qualify the focused case with one frozen native observation
+### 4. Qualify the focused case with one frozen native observation
 Type: Behavior
 Status: planned
 
@@ -179,7 +215,7 @@ one frozen Codex capture of the effort-derived case using the existing
 harness revision. This is the early native probe; no baseline from original A.
 
 Proof: review final code, recorded execution-owned and independent proof and
-assessment against slice 2's criteria. Record pass/fail/incomplete accurately,
+assessment against slice 3's criteria. Record pass/fail/incomplete accurately,
 requested/applied conditions, blind-context limits, load, duration and unknown
 measurements. Export sufficient portable evidence, reassess after raw cleanup
 in an isolated copy, preserving the original archive. If semantic inspection
@@ -189,7 +225,7 @@ reassessment proves the missing semantic judgment. A completed failing
 candidate can qualify the check if its evidence explains the actual failure;
 no guidance-improvement claim follows from one observation.
 
-### 4. Repeat the procedure with the available-supplier case
+### 5. Repeat the procedure with the available-supplier case
 Type: Behavior
 Status: planned
 
@@ -251,4 +287,15 @@ procedure with separate domain criteria. Cumulatively this remains one case/
 runner/retention model, not case-specific runner branches. Four slices are
 within the eight-slice limit. No remaining slice-specific concern was found;
 the unobserved native behavior is bounded by the paid probe and explicit stop
-above. Readiness is recorded by the preparation recorder, not this prose.
+above.
+Refined in execution, 2026-11-17: original slice 2 stopped at 2.5 active
+minutes with no changes. False premise: Codex B `8b9005acc`/`57f805ee2` are
+not on origin (`git merge-base --is-ancestor` fails; no remote branch
+contains them); `fbfaa116` and `4b75c2888` are. Decision: a tracked overlay on
+origin `4b75c2888`, which keeps scratch paths out and publishes no experiment
+branch. Fixture/observer and controlled discrimination are independent
+outcomes and proof loops, so slice 2 split into slices 2 and 3; later slices
+renumbered to 4 and 5 (five of eight). Evidence: B's two backend launch specs
+ran 28 passed in 14.8 s at load 24–31 in a worktree at `8b9005acc`
+(`s2-src-backend.log`); the E2E consumer is untimed.
+Readiness is recorded by the preparation recorder, not this prose.

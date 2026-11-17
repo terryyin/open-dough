@@ -91,6 +91,10 @@ const shapeWriters = new Map([
     "writes a Codex session's final report for the calibration observer",
   ],
   [
+    "Distribution/evaluation/tests/native-guidance-checks/native-guidance-check-launch-command-tests.sh",
+    "substitute Codex leaving the launch-command workspace unchanged",
+  ],
+  [
     "Distribution/evaluation/tests/native-harness/support/native-agent-recorded.sh",
     "substitute agent writing recorded-context streams",
   ],
