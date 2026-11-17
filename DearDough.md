@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 568. Removed numbers are never reused.
+- Highest allocated local number: 570. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -796,3 +796,38 @@ records. Agents replaced it with a targeted `git grep` and said so.
   - Evidence: slice 1 implementer: run "dominated by changed-path basename matches (87KB of planning-file hits)". Slices 2–4 implementers: output "dominated by findings and planning noise" and "loose sub-terms (Peak, Wakes, AGENT-EFFORT)". Each then used targeted `git grep` for production and test consumers.
   - Observed effect: the scripted trace did not supply the disposition in any of the four slices. Agents' targeted searches found the consumers, and coordinator acceptance verified them.
   - Inference: possibly related to ODF-350 and ODF-352 (broad or data-derived terms), but here the noise came from path basenames and planning records with ordinary symbol terms. Token cost was not measured.
+
+## DD-569 — Local browser proof with the list reporter hides the strict reporter's output rule <a id="dd-569"></a>
+
+Implementers ran focused Playwright proof with `--reporter=list`, which
+replaces the project's strict reporter that fails any passing test writing
+output. A new runtime spec's `console.log` passed locally and failed hosted CI.
+
+### Occurrences
+
+- Execution: SEED-340#keep-one-time-test-preparation-out-of-case-budgets (plan 685; first implementation 06eccefa7)
+  - Timestamp: 2026-11-18T00:36:37+08:00 (repair commit; failure in run 44125679359)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 5100215c8)
+  - Evidence: run 44125679359 dashboard-backend shard 1/3 failed all three `test-preparation-budget.spec.ts` cases on the strict reporter; repair d7fbd57e1 moved the intervals to `test.info().attach`. The coordinator's own memory then still advised `--reporter=list` for single specs.
+  - Observed effect: one stash/repair/publish cycle and one cancelled CI run; later briefs forbade `--reporter=list` and no recurrence followed.
+  - Inference: local proof differing from CI's reporter is the cause; the saving of matching it is unmeasured.
+
+## DD-570 — A natural-load acceptance gates completion on machine state no agent controls <a id="dd-570"></a>
+
+The story required first-case proof at natural one-minute load 30–50, and the
+maintained resource guide says burners do not stand in for natural load. Natural
+load stayed at 4–7, so the finished story waited until the developer directed
+burner load instead.
+
+### Occurrences
+
+- Execution: SEED-340#keep-one-time-test-preparation-out-of-case-budgets (plan 685; first implementation 06eccefa7)
+  - Timestamp: 2026-11-18 +08:00 (slice 5 wait to developer direction; exact time unknown)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 5100215c8)
+  - Evidence: obligation G1 in plan 685 ("Natural load stayed at 4.8–6.6"); background natural-load wait; developer: "Please proceed without waiting. Figure out other ways to increase the load." 36 nice-5 burners then gave load 32–47 and all three first cases passed with 21–27 s left. Intent Coverage later caught the removed preparation dependency by timeout in the nested proof at load 5–8.
+  - Observed effect: completion was held with all slices otherwise delivered; the decisive protection came from the load-independent nested proof, not the loaded timing.
+  - Inference: a load-independent discriminating proof plus optional loaded timing may serve such stories without an uncontrollable gate.
