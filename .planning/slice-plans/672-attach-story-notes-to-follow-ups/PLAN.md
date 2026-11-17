@@ -10,8 +10,9 @@ context. Each note shows whether it is waiting or sent, and the card shows how
 many are waiting. The story section owns the scope, the scope limits and the
 key examples; this plan adds none.
 
-Terry settled two boundaries on 2026-11-17. Only waiting notes are attached.
-Notes on a Taken story wait until a Done follow-up sends them.
+Terry settled three boundaries on 2026-11-17. Only waiting notes are attached.
+Notes on a Taken story wait until a Done follow-up sends them. Saving an edit
+of a sent note, changed or not, is how it is sent again.
 
 Dependency: this story starts only after
 [Capture and edit story notes](../../seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups)
@@ -41,6 +42,8 @@ PFE findings and choices:
   assigned by the server. The note gains `delivered?: string`, the version a
   session received. A note is waiting when `delivered` differs from its
   version. Editing a note keeps `delivered`, so the edited note waits again.
+  Every saved edit gets a new `editedAt`, also when the text is the same, and
+  **Save note** stays available on an unchanged **Edit note**.
 - **Request.** `followUpStorySchema` in `src/followUpRequest.ts` gains
   `notes: true` when the page asks to attach notes, and `followUpSourceKey`
   includes it. The attach choice therefore becomes part of the launch
@@ -104,6 +107,8 @@ hosts.
   write confirms them.
 - Delivery is recorded only for a note whose current version is the one that
   was attached.
+- A saved edit with unchanged text is a new version, so the note waits again.
+  This is the way to send a sent note again; there is no separate action.
 - Words: **Attach story notes**, **Waiting for follow-up**, **Sent to
   follow-up**, “<n> notes waiting” / “1 note waiting” on the card, the detail
   “<w> waiting of <n> notes”, “No waiting notes”, and “The notes could not be
@@ -113,7 +118,7 @@ hosts.
 
 | Promise (story scope / example) | Owning slice and observable proof |
 | --- | --- |
-| New notes are waiting; a note with a delivered version shows **Sent to follow-up**; editing it puts it back to waiting; the card counts the waiting notes and shows nothing when none are | 1: `dashboard/frontend-tests/stories/story-notes.spec.ts` (from plan 671) with the notes substitute answering waiting and delivered notes; `dashboard/backend-tests/review/story-notes-admission.spec.ts` — an edit of a note with `delivered` keeps it and returns a new version |
+| New notes are waiting; a note with a delivered version shows **Sent to follow-up**; editing it puts it back to waiting; the card counts the waiting notes and shows nothing when none are | 1: `dashboard/frontend-tests/stories/story-notes.spec.ts` (from plan 671) with the notes substitute answering waiting and delivered notes; `dashboard/backend-tests/review/story-notes-admission.spec.ts` — an edit of a note with `delivered` keeps it and returns a new version, also when the text is unchanged; in `story-notes.spec.ts`, **Edit** on a sent note and **Save note** with no change shows it waiting |
 | A story follow-up asking for notes sends the waiting notes, with text and context, after the story's context and outside the 4,000-character request; sent notes are not sent; a follow-up without notes sends none; a session follow-up cannot ask for notes; a page cannot send note text | 2: new `dashboard/backend-tests/launches/agent-launch-follow-up-notes.spec.ts` (boundary server, fake Claude, as `agent-launch-follow-up-story.spec.ts`) — first input layout via `expectFollowUpInput`; refusals of `notes` on a session source and of any note text in the request |
 | The attach choice is part of the launch identity; a retried start sends the saved notes | 2: same spec — the same request resumes the kept start and its saved notes after a note was edited; the opposite choice starts elsewhere (as `agent-launch-follow-up-identity.spec.ts`) |
 | The follow-up dialog from the card, file header and line menu offers **Attach story notes**, checked with counts when notes wait, unavailable when none wait or the story has none, and says when notes could not be read; unchecking or cancelling sends none | 3: new `dashboard/frontend-tests/launches/follow-up-attach-notes.spec.ts` with the notes substitute and the recorded request; consumers `e2e/stories/recently-done-follow-up.spec.ts`, `e2e/review/story-review-follow-up.spec.ts`, `e2e/review/story-review-diff-line-follow-up.spec.ts`, `e2e/intent/intent-story-follow-up.spec.ts` |
@@ -128,6 +133,8 @@ hosts.
 | Every confirmed first input reaches the launch-record file through `replaceRecords` | Slice 4's listener | 2026-11-17, read at `2a206edf7`: `launchStore()` in `server/launchRecordDocument.ts` is used only by `readStoredRecords` and `replaceRecords`; the confirming writers (`launchRecording.ts`, `launchRun.ts:224`, `launchVerification.ts:140`, `hosts/cursor/runnerKeep.ts:28`, `hosts/codex/recovery.ts`) call `keepRecord`, `updateRecord` or `replaceKeptSession`, which write through it. A single writer is a structural fact, so the read settles it; slice 4's spec observes the behavior. |
 | Claude's record means delivered input | Slice 4's delivered rule | 2026-11-17, read at `2a206edf7`: `AGENT-LAUNCH-HOSTS.md` says Claude's prompt is the `claude --bg` argument, confirmed through `claude agents --json --all`, and that Claude records "remain confirmed"; `hosts/claude/` records no `firstInput`. |
 | The resolved follow-up context reaches each host's first input, and a later Cursor ready screen confirms it | Slices 2 and 4 | 2026-11-17, this workspace at `2a206edf7` with the integration checkout's `node_modules` linked: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts --reporter=list terminals/agent-terminal-cursor-launch-wait launches/agent-launch-follow-up-cursor` → 5 passed, including “a later ready screen accepts the instruction” and a recorded context sent after its source is gone. |
+| A follow-up's record without `firstInput` is always Claude's | Slice 4's delivered rule | 2026-11-17, read at `a8c858e41`: `server/unattachedInput.ts` gives a follow-up a first input whenever it has a context, so it is never a blank launch (`hosts/codex/launch.ts:74`, `hosts/cursor/launch.ts:144` decide blank from an empty input). Codex and Cursor keep their record through `launchRecording.session(session, firstInput)`, whose `firstInput` is required. The only writers without it are `launchRun.ts:224`, reached when the host recorded nothing itself, and `launchVerification.ts`, which takes story launches only. Slice 4's Cursor case observes an unconfirmed record leaving notes waiting. |
+| A settled follow-up does not absorb a later identical one | Slice 2's launch identity | 2026-11-17, read at `a8c858e41`: `server/agentLaunchAccept.ts` continues a retained matching attempt only while it needs reconciliation or its start is still running, and `pendingInputRecord` matches only an unconfirmed first input. A second blank follow-up with **Attach story notes** after the first was confirmed is a new launch that resolves the notes afresh. |
 | The notes store, endpoint and page owner exist with plan 671's shapes | Every slice | Supplied by the dependency; its plan's Current decisions record the shapes. They cannot be observed before that story is delivered. The dependency's condition covers this, and the Dependency paragraph above says what to do if the shapes differ. |
 
 ## Concerns
@@ -155,7 +162,7 @@ rows); `npm run typecheck:dashboard`; `npm run lint`.
 Behavior: a story with notes → **Story notes** shows each note as **Waiting
 for follow-up** or **Sent to follow-up**. The card says how many are waiting
 while any are, and shows nothing about waiting once none are. Editing a sent
-note shows it waiting again.
+note shows it waiting again, also when it is saved unchanged.
 
 - `delivered` in the note contract, and the shared waiting rule; the store
   keeps `delivered` on edit.

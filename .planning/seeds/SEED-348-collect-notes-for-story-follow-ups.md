@@ -173,7 +173,7 @@ story to wrap up removes it after the behavior is delivered and verified.
 {"schemaVersion":1,"identity":"SEED-348#attach-story-notes-to-follow-ups","dependencies":[{"supplier":{"identity":"SEED-348#collect-notes-for-story-follow-ups","href":"seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups"},"implementation":"The capture story delivers saved, editable story notes that retain their source context. The attachment story delivers the follow-up handoff and waiting state.","rationale":"The follow-up behavior needs the actual notes a developer saved and edited. A parallel or temporary capture workflow would repeat the capture story and would not prove that the follow-up receives those same entries.","condition":"The dashboard can save and reopen a story's notes with their source context, and edits to those entries are retained.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/672-attach-story-notes-to-follow-ups/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"22cb24d27c396346700de2890e0a81da3c7dcc1eef231e64d18c049524404d46","plan":"0ec9dfafe222a2d4b0b29acd770d7f774205c5c4bcfc424d1e5424020c54813d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/672-attach-story-notes-to-follow-ups/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"56e25fade0ecd853aada76a9ef8c053fd20970ee0c26a15c952216c8dda9e286","plan":"5b7285074dd7655c723451f6e4e2e739d86cb4dba1a9abe88194409eb362a411"}}
 ```
 
 **Beneficiary**
@@ -195,9 +195,15 @@ to remember which ones they already sent.
 A note is waiting until a session confirms it received that note's current
 text. The dashboard records which version of each note was delivered, at the
 moment the host confirms the follow-up's first input. A note is waiting when it
-has never been delivered, or when it has been edited since it was. Only waiting
-notes are attached, so **waiting** means exactly what the next follow-up will
-get.
+has never been delivered, or when an edit has been saved since it was. Only
+waiting notes are attached, so **waiting** means exactly what the next
+follow-up will get.
+
+**Sent** says a session received the note, not that it dealt with it. A
+session can stop early or handle only some of its notes. Saving an edit of a
+sent note, with or without a change to its text, is how the developer sends it
+again. Terry chose this on 2026-11-17 over a separate **Send again** action,
+which would add a control to this story.
 
 Considered and set aside:
 
@@ -223,7 +229,8 @@ Required behavior:
 
 - Each note is **Waiting for follow-up** until a session receives its current
   text, then **Sent to follow-up**. New notes are waiting, and so is a sent note
-  after its text is edited. **Story notes** shows each note's state. A story
+  once an edit of it is saved, whether or not the text changed. **Story notes**
+  shows each note's state. A story
   card shows how many of its notes are waiting, for example “2 notes waiting”,
   while at least one is; the count goes away when none are.
 - Every follow-up dialog for a Done story offers **Attach story notes**: the
@@ -270,6 +277,9 @@ Scope limits:
 - Edit one of those sent notes. It shows **Waiting for follow-up** again and
   the card says “1 note waiting”. A follow-up from a file header attaches only
   that note, with its new text.
+- A follow-up received a note and ended without dealing with it. Open **Edit**
+  on that sent note and save it unchanged. It shows **Waiting for follow-up**,
+  and the next follow-up attaches it.
 - Uncheck **Attach story notes**, or cancel the dialog. The session gets no
   notes, and both notes stay waiting.
 - Start a follow-up with notes attached, and the start is refused or its first
