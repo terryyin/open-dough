@@ -18,20 +18,24 @@ import {
 } from "./frontendSubstituteAnswers.ts";
 import {
   judgedCiStatus,
-  openServedFrontendCiStatus,
+  openIntentCiStatusPanel,
+  serveFrontendCiStatus,
 } from "./frontendCiStatusAnswers.ts";
 
-// Opens Intent's CI status on main, judged at the judged commit by run 41
+type RunProofAnswer = { readonly hold?: boolean; readonly proof?: CiProof };
+
+// Serves trunk's CI status, judged at the judged commit by run 41
 // (../intentCiProofPage.ts) as `facts` add, Passed unless they say otherwise,
-// whose proof (`intent=ci-proof`, ../../src/authenticatedIntentCiProofRead.ts)
-// holds `entries`, or the unavailable `proof` given instead; with `hold` its
-// answer waits until `held` is released. `reads` counts the page's proof
-// reads; `ci` serves the CI status reads.
-export async function openFrontendRunProof(
+// and that run's proof (`intent=ci-proof`,
+// ../../src/authenticatedIntentCiProofRead.ts) holding `entries`, or the
+// unavailable `proof` given instead; with `hold` its answer waits until
+// `held` is released. Other runs' proof reads fall through. `reads` counts
+// the page's reads of this run's proof; `ci` serves the CI status reads.
+export async function serveFrontendRunProof(
   page: Page,
   entries: readonly CiProofEntry[],
   facts: Partial<IntentCiStatus> = {},
-  answer: { readonly hold?: boolean; readonly proof?: CiProof } = {},
+  answer: RunProofAnswer = {},
 ) {
   const status = judgedCiStatus("main", "pass", judged, "Add login", {
     runUrl,
@@ -55,7 +59,8 @@ export async function openFrontendRunProof(
   await page.route(
     (url) =>
       url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "ci-proof",
+      url.searchParams.get("intent") === "ci-proof" &&
+      url.searchParams.get("run") === String(status.runId),
     async (route) => {
       reads += 1;
       await answerHeld(hold?.hold, () =>
@@ -69,12 +74,19 @@ export async function openFrontendRunProof(
       );
     },
   );
-  const { panel, ci } = await openServedFrontendCiStatus(page, status);
-  return {
-    panel,
-    ci,
-    proof: proofOf(panel),
-    held: hold?.held,
-    reads: () => reads,
-  };
+  const ci = await serveFrontendCiStatus(page, { main: status });
+  return { ci, held: hold?.held, reads: () => reads };
+}
+
+// Opens Intent's CI status over serveFrontendRunProof's answers: its panel
+// and the run's Proof within it.
+export async function openFrontendRunProof(
+  page: Page,
+  entries: readonly CiProofEntry[],
+  facts: Partial<IntentCiStatus> = {},
+  answer: RunProofAnswer = {},
+) {
+  const served = await serveFrontendRunProof(page, entries, facts, answer);
+  const panel = await openIntentCiStatusPanel(page);
+  return { ...served, panel, proof: proofOf(panel) };
 }

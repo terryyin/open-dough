@@ -199,7 +199,7 @@ poll; see [diagnosis](diagnosis-show-column-flake.md) for cause, repair and proo
 
 ### 5. Navigate compared scopes while retaining reading preferences
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-drilldown-relative.spec.ts`,
 `intent-summary-story-comparison-{file,sort}.spec.ts` → Frontend built app.
 Behavior: drill story → entry → nested folder → file, change view/story and return
@@ -212,6 +212,14 @@ Reuse Done/source/review owners with explicit clean/merge-edited answers and
 Story B's one-run answer; Git/diff judgment remains Backend/E2E's. Retain E2E
 `intent-summary-story-comparison-{source,renamed}.spec.ts` for acquired sources.
 Check: Frontend the three files, their mounted bindings and those E2E files.
+Accepted: the drilldown, file and sort specs moved to Frontend with assertions
+verbatim over `prepareFrontendDoneIntent`; Story B's one run comes from
+`frontendQueuedStoryOneRun.ts` through `serveFrontendRunProof` (run-41 only).
+File Proof cue variants rest on `intent-summary-story-comparison-mounted-file`.
+Scratch breaks (sort kept-reading → state, modified label, Summary comparison
+reread) each failed; restored passed. New tests take 9–19 s. Consumers (26 + 24),
+E2E consumers and typecheck passed; the E2E source/renamed pair timed out at
+load 52–55 and passed 3/3 at load 34 with one worker (15–18 s each).
 
 ### 6. Read a comparison independently of locations availability
 Type: Behavior

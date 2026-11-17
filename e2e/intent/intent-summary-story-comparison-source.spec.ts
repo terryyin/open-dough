@@ -3,7 +3,7 @@ import { expectFileComparisonRow } from "../../dashboard/tests/intentFileProofPa
 // A completed story's unchanged file reads Purpose from its landed revision,
 // excluding later inventory, while Proof keeps the compact build comparison.
 // Changed-file Purpose and Proof journeys live in
-// ../../dashboard/tests/intent/intent-summary-story-comparison-file.spec.ts.
+// ../../dashboard/frontend-tests/intent/intent-summary-story-comparison-file.spec.ts.
 
 import {
   expect,

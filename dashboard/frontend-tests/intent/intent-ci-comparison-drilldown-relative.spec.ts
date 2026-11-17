@@ -1,39 +1,46 @@
 // One comparison language while drilling: each displayed scope scales only
-// its own figures and rows, with one live story preference and no CI reread.
+// its own figures and rows, with one live story preference, no source-text
+// read for a Summary and no comparison or proof reread. The comparison and
+// each run's proof are the canonical Summary-scope answers
+// (../../tests/support/frontendIntentComparison.ts); a request log observes
+// the browser's requests only.
 import type { Locator } from "@playwright/test";
-import { fileComparisonCell } from "../intentFileProofPage.ts";
+import { fileComparisonCell } from "../../tests/intentFileProofPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
+import {
+  fileReadingTab,
+  proofRegion,
+} from "../../tests/intentPerspectivePage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
   intentReadingPane,
-} from "../intentReadingPlacePage.ts";
+} from "../../tests/intentReadingPlacePage.ts";
 import {
   childName,
   scopeComparisonFigure,
   scopeComparisonCell,
   summaryRegion,
-} from "../intentScopeProofPage.ts";
-import { openCiEntry } from "../intentCiProofPage.ts";
-import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
-import { pausePageClockAt } from "../dashboardTest.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../support/preparationPage.ts";
-import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
+} from "../../tests/intentScopeProofPage.ts";
+import { openCiEntry } from "../../tests/intentCiProofPage.ts";
+import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
 import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
-import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
+} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+import {
+  chooseStoryTab,
+  expectStoryTab,
+} from "../../tests/support/intentStoryPage.ts";
 import {
   expectMark,
   markGeometry,
   percentages,
   showPercent,
-} from "../support/relativeTimingMarks.ts";
+} from "../../tests/support/relativeTimingMarks.ts";
 
 // These journeys change the reading scope, not time. Recurring revision
 // checks would otherwise race the final no-reread observation on a busy host.
@@ -46,12 +53,10 @@ const compared = (region: Locator) =>
 
 test("story, location, folder and file share signed words, preference and per-display relative scales without rereading CI", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 600 });
-  await publishSummaryComparisonStory(page, origin, {
-    variant: "own-conflict-extra",
-  });
+  await prepareFrontendDoneIntent(page, frontendServices);
   const ciReads: string[] = [];
   const textReads: string[] = [];
   page.on("request", (request) => {

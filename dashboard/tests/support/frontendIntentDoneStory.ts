@@ -109,5 +109,5 @@ export async function prepareFrontendDoneIntent(
   review.answerFile(frontendFileDiff(path, ["+changed"]), path);
   await answerFrontendIntentCi(page, services.revision);
   await answerFrontendIntentComparison(page, facts);
-  return { completion, completedAt, review };
+  return { completion, completedAt, review, identity: facts.identity };
 }

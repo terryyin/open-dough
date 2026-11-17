@@ -1,30 +1,34 @@
 // Cross-story reading preferences: Summary keeps its sort while drilling, uses
-// tree order for a missing column, and restores that sort when its story returns.
-// Column ordering and zoom rules live in ../../frontend-tests/intent/intent-summary-story-comparison-mounted-sort.spec.ts.
+// tree order for a missing column, and restores that sort when its story
+// returns. Story A's comparison is the canonical Summary-scope answer; Story
+// B's Summary is one trunk run's (../../tests/support/frontendQueuedStoryOneRun.ts).
+// Column ordering and zoom rules live in
+// intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../support/intentSummarySortTest.ts";
-import { showColumn } from "../boardPage.ts";
-import { parts } from "../dashboardPage.ts";
-import { scopeTable } from "../intentScopeProofPage.ts";
-import { openSummary } from "../intentSummaryCiProofFixtures.ts";
-import { emptyArea, expectSelected } from "../storyCardSelection.ts";
-import { expectStoryTab } from "../support/intentStoryPage.ts";
-import { serveSummaryComparisonStory } from "../support/intentSummaryStoryComparisonServing.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { showColumn } from "../../tests/boardPage.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { scopeTable } from "../../tests/intentScopeProofPage.ts";
+import { openSummary } from "../../tests/intentSummaryCiProofFixtures.ts";
+import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
+import { expectStoryTab } from "../../tests/support/intentStoryPage.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { answerQueuedStoryOneRun } from "../../tests/support/frontendQueuedStoryOneRun.ts";
 import {
   drillComparisonChild,
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
+} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
 import {
   expectSortedBy,
   expectUnsortedRows,
   sortButton,
-} from "../support/expectSortedColumns.ts";
+} from "../../tests/support/expectSortedColumns.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
-} from "../support/summaryComparisonExpectedRows.ts";
+} from "../../tests/support/summaryComparisonExpectedRows.ts";
 
 const entry = "dashboard/tests";
 // The entry's children in the tree's order, as the comparison names them.
@@ -71,13 +75,10 @@ async function selectStoryFromDevelopment(
 
 test("Summary keeps its sort through drilling and story selection, falling back for missing columns and restoring it on return", async ({
   page,
-  comparisonRepository,
+  frontendServices,
 }) => {
-  await serveSummaryComparisonStory(
-    page,
-    comparisonRepository,
-    comparisonRepository,
-  );
+  await prepareFrontendDoneIntent(page, frontendServices);
+  await answerQueuedStoryOneRun(page, frontendServices);
   const { intent, card: storyA } =
     await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, entry);
