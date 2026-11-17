@@ -8,6 +8,10 @@ import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNote
 import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
 import { parts } from "../../tests/dashboardParts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyNoteSentToFollowUp,
+  storyNoteWaitingForFollowUp,
+} from "../../src/storyNote.ts";
 
 const context = {
   view: "Intent → Changed tests" as const,
@@ -79,6 +83,44 @@ for (const phone of [false, true]) {
     await notes.expectCount(card, 0);
   });
 }
+
+test("saving an unchanged edit of a sent note shows it waiting again", async ({
+  page,
+  frontendServices,
+}) => {
+  const service = await installFrontendStoryNotes(page);
+  const sent = makeMe.aStoryNote
+    .withText("Send this again unchanged")
+    .withContext(context)
+    .savedAt("2026-11-17T00:10:00.000Z")
+    .deliveredAs("2026-11-17T00:10:00.000Z")
+    .please();
+  service.answer("open-dough", { [storyA.identity]: [sent] });
+  await openFrontendBoardReview(page, frontendServices);
+  const card = parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
+  const notes = storyNotesPage(page);
+  await notes.expectWaiting(card, 0);
+  await notes.open(card);
+  await notes.expectNoteState(0, storyNoteSentToFollowUp);
+  await notes.edit(0);
+  await notes.expectComposing("Send this again unchanged");
+  await notes.save();
+  await notes.expectAnnouncement("Note updated.");
+  await notes.expectNoteState(0, storyNoteWaitingForFollowUp);
+  await notes.close();
+  await notes.expectWaiting(card, 1);
+  expect(service.changes()).toEqual([
+    {
+      action: "edit",
+      identity: storyA.identity,
+      id: sent.id,
+      text: "Send this again unchanged",
+    },
+  ]);
+});
 
 test("refused edits keep typed text and original note; refused deletion keeps text and reports failure", async ({
   page,

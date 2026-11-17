@@ -2,7 +2,9 @@
 
 Every Backlog, Taken and Recently done story card offers **Notes**. It opens
 **Story notes** over the page, leaving its terminal and review in place.
-The count is shown when the story has notes.
+The count is shown when the story has notes. While any note is waiting for a
+follow-up, **Notes** is described with “1 note waiting” or “<n> notes waiting”;
+that waiting count goes away once none are.
 
 The same **Notes** control appears in a story’s Review changes heading and
 beside the selected story in Intent. Story notes opens over the current
@@ -13,7 +15,10 @@ Choose **Add note**, type an observation, then **Save note**. A general note
 belongs to the story alone: its identity and title are shown above the text
 and with each saved entry. **Cancel** discards the draft. Blank text is not
 saved. Saved entries are listed newest first, and saving is announced once.
-A note records an observation; it has no fixed or resolved state.
+A note records an observation. Each saved entry shows **Waiting for follow-up**
+until a session receives its current text, then **Sent to follow-up**. New notes
+are waiting. Saving an edit of a sent note, with or without changing its text,
+makes it waiting again so it can be sent once more.
 
 **Dictate** records a note using the same microphone and OpenAI setup as a
 session instruction. Choose **Stop recording**, then correct the transcript
@@ -38,9 +43,10 @@ in place of a count. Story notes says the same; it does not present the
 unreadable file as an empty collection. The machine keeps that file in place
 for recovery, and refuses to save over it.
 
-Each saved entry offers **Edit** and **Delete**. **Edit** opens **Edit note**
-with the saved text and context; **Save note** changes the text while keeping
-its original context and saved time. Diff context includes the view, current
+Each saved entry offers **Edit** and **Delete**, including after it is sent.
+**Edit** opens **Edit note** with the saved text and context; **Save note**
+changes the text while keeping its original context and saved time, and keeps
+any delivery so the new version waits again. Diff context includes the view, current
 and previous file paths, comparison and endpoints, and a line's number, side
 and original text. **Delete** asks in place. **Cancel** keeps the entry;
 confirming removes it and updates the card's count. Updates and deletions are

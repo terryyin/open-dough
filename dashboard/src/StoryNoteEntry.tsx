@@ -4,7 +4,7 @@ import { useState } from "react";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import { StoryNoteContext } from "./StoryNoteContext.tsx";
 import { storyNoteNotDeleted } from "./storyNotes.ts";
-import type { StoryNote } from "./storyNote.ts";
+import { storyNoteDeliveryLabel, type StoryNote } from "./storyNote.ts";
 export function StoryNoteEntry({
   note,
   title,
@@ -38,6 +38,7 @@ export function StoryNoteEntry({
         identity={identity}
         context={note.context}
       />
+      <p className="story-note-delivery">{storyNoteDeliveryLabel(note)}</p>
       <button
         type="button"
         disabled={disabled || asking.shown}

@@ -2,6 +2,10 @@
 // review. The card and open dialog subscribe to the same project answer.
 import { useId, useRef, useState } from "react";
 import { StoryNotesDialog } from "./StoryNotesDialog.tsx";
+import {
+  storyNoteIsWaiting,
+  storyNotesWaitingDescription,
+} from "./storyNote.ts";
 import { storyNotesUnreadable, useStoryNotes } from "./storyNotes.ts";
 import "./launch-dialog.css";
 import "./story-notes.css";
@@ -17,17 +21,24 @@ export function StoryNotes({
 }) {
   const { answer, change } = useStoryNotes(sourceId);
   const problemId = useId();
+  const waitingId = useId();
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const notes = answer?.kind === "notes" ? (answer.notes[identity] ?? []) : [];
   const unreadable = answer?.kind === "unreadable";
+  const waiting = notes.filter(storyNoteIsWaiting).length;
+  const described = unreadable
+    ? problemId
+    : waiting > 0
+      ? waitingId
+      : undefined;
   return (
     <>
       <button
         type="button"
         className="start-launch-button"
         ref={opener}
-        aria-describedby={unreadable ? problemId : undefined}
+        aria-describedby={described}
         onClick={() => {
           setOpen(true);
         }}
@@ -37,6 +48,11 @@ export function StoryNotes({
       {unreadable && (
         <p id={problemId} role="status">
           {storyNotesUnreadable}
+        </p>
+      )}
+      {!unreadable && waiting > 0 && (
+        <p id={waitingId} role="status">
+          {storyNotesWaitingDescription(waiting)}
         </p>
       )}
       {open && (

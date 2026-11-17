@@ -12,6 +12,7 @@ import { showColumn } from "../../tests/boardPage.ts";
 import {
   readyIdentity,
   readyStory,
+  takenIdentity,
   takenStory,
 } from "../../tests/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -23,6 +24,10 @@ import {
   terminalScreenParts,
 } from "../../tests/terminalScreenPage.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
+import {
+  storyNoteSentToFollowUp,
+  storyNoteWaitingForFollowUp,
+} from "../../src/storyNote.ts";
 
 for (const phone of [false, true]) {
   test(`all card kinds offer general notes, blank is unsaved, newest first (${phone ? "phone" : "desktop"})`, async ({
@@ -90,6 +95,61 @@ for (const phone of [false, true]) {
     await notes.close();
   });
 }
+
+test("waiting and sent notes show their state; the card counts only waiting notes", async ({
+  page,
+  frontendServices,
+}) => {
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
+  const service = await installFrontendStoryNotes(page);
+  const waiting = makeMe.aStoryNote
+    .withText("Still waiting")
+    .identifiedAs("34810000-0000-4000-8000-000000000101")
+    .please();
+  const sent = makeMe.aStoryNote
+    .withText("Already sent")
+    .identifiedAs("34810000-0000-4000-8000-000000000102")
+    .savedAt("2026-11-17T00:10:00.000Z")
+    .deliveredAs("2026-11-17T00:10:00.000Z")
+    .please();
+  service.answer("open-dough", {
+    [storyA.identity]: [waiting, sent],
+    [takenIdentity]: [waiting],
+  });
+  await openFrontendBoardReview(page, frontendServices);
+  const notes = storyNotesPage(page);
+  const done = parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
+  await notes.expectCount(done, 2);
+  await notes.expectWaiting(done, 1);
+  await notes.open(done);
+  await notes.expectNotes(["Already sent", "Still waiting"]);
+  await notes.expectNoteState(0, storyNoteSentToFollowUp);
+  await notes.expectNoteState(1, storyNoteWaitingForFollowUp);
+  await notes.expectEntryActions(0);
+  await notes.close();
+  service.answer("open-dough", {
+    [storyA.identity]: [sent],
+    [takenIdentity]: [waiting],
+  });
+  await page.clock.runFor(checkIntervalMs);
+  await notes.expectCount(done, 1);
+  await notes.expectWaiting(done, 0);
+  await notes.open(done);
+  await notes.expectNoteState(0, storyNoteSentToFollowUp);
+  await notes.expectEntryActions(0);
+  await notes.close();
+  await showColumn(page, "Taken");
+  const taken = parts(page).taken.getByRole("article", {
+    name: takenStory,
+    exact: true,
+  });
+  await notes.expectCount(taken, 1);
+  await notes.expectWaiting(taken, 1);
+});
 
 test("next project read updates the count and open list; an older read cannot replace a save", async ({
   page,

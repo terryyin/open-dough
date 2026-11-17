@@ -2,6 +2,7 @@
 
 **Identity:** SEED-348#attach-story-notes-to-follow-ups
 **Source:** [Attach story notes to follow-ups and show which are waiting](../../seeds/SEED-348-collect-notes-for-story-follow-ups.md#attach-story-notes-to-follow-ups)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -118,7 +119,7 @@ hosts.
 
 | Promise (story scope / example) | Owning slice and observable proof |
 | --- | --- |
-| New notes are waiting; a note with a delivered version shows **Sent to follow-up**; editing it puts it back to waiting; the card counts the waiting notes and shows nothing when none are | 1: `dashboard/frontend-tests/stories/story-notes.spec.ts` with the notes substitute answering waiting and delivered notes; `dashboard/backend-tests/review/story-notes-admission.spec.ts` — an edit of a note with `delivered` keeps it and returns a new version, also when the text is unchanged; in `dashboard/frontend-tests/stories/story-notes-edit.spec.ts`, **Edit** on a sent note and **Save note** with no change shows it waiting |
+| New notes are waiting; a note with a delivered version shows **Sent to follow-up**; editing it puts it back to waiting; the card counts the waiting notes and shows nothing when none are | 1: `dashboard/frontend-tests/stories/story-notes.spec.ts` with the notes substitute answering waiting and delivered notes; `dashboard/backend-tests/review/story-notes-changes.spec.ts` — an edit of a note with `delivered` keeps it and returns a new version, also when the text is unchanged; in `dashboard/frontend-tests/stories/story-notes-edit.spec.ts`, **Edit** on a sent note and **Save note** with no change shows it waiting |
 | A story follow-up asking for notes sends the waiting notes, with text and context, after the story's context and outside the 4,000-character request; sent notes are not sent; a follow-up without notes sends none; a session follow-up cannot ask for notes; a page cannot send note text | 2: new `dashboard/backend-tests/launches/agent-launch-follow-up-notes.spec.ts` (boundary server, fake Claude, as `agent-launch-follow-up-story.spec.ts`) — first input layout via `expectFollowUpInput`; refusals of `notes` on a session source and of any note text in the request |
 | The attach choice is part of the launch identity; a retried start sends the saved notes | 2: same spec — the same request resumes the kept start and its saved notes after a note was edited; the opposite choice starts elsewhere (as `agent-launch-follow-up-identity.spec.ts`) |
 | The follow-up dialog from the card, file header and line menu offers **Attach story notes**, checked with counts when notes wait, unavailable when none wait or the story has none, and says when notes could not be read; unchecking or cancelling sends none | 3: new `dashboard/frontend-tests/launches/follow-up-attach-notes.spec.ts` with the notes substitute and the recorded request; consumers `e2e/stories/recently-done-follow-up.spec.ts`, `e2e/review/story-review-follow-up.spec.ts`, `e2e/review/story-review-diff-line-follow-up.spec.ts`, `e2e/intent/intent-story-follow-up.spec.ts` |
@@ -155,9 +156,9 @@ Each slice targets 15 active minutes.
 
 ### 1. Notes show whether they are waiting or sent
 Type: Behavior
-Status: planned
+Status: done
 Proof: `story-notes.spec.ts`, `story-notes-edit.spec.ts` and
-`story-notes-admission.spec.ts` (slice 1 row); `npm run typecheck:dashboard`; `npm run lint`.
+`story-notes-changes.spec.ts` (slice 1 row); `npm run typecheck:dashboard`; `npm run lint`.
 
 Behavior: a story with notes → **Story notes** shows each note as **Waiting
 for follow-up** or **Sent to follow-up**. The card says how many are waiting
@@ -231,4 +232,8 @@ start fully awake, and on AC power wrap long or full runs in `caffeinate -s -i`.
 
 ## Learnings
 
-None yet.
+- `StoryNotesDialog` sorts notes by `savedAt` newest-first; seeded substitute
+  order for list assertions must match that sort, not insertion order.
+- Slice 1 delivered-edit store proof lives in `story-notes-changes.spec.ts`
+  (edit semantics), not `story-notes-admission.spec.ts`, after the post-change
+  refactor kept admission under the 250-line check.

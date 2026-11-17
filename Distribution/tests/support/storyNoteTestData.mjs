@@ -34,6 +34,12 @@ export class StoryNoteBuilder {
     return this;
   }
 
+  /** @param {string} at version (`editedAt ?? savedAt`) a session received */
+  deliveredAs(at) {
+    this.#note.delivered = at;
+    return this;
+  }
+
   /** @returns {StoryNote} */
   please() {
     return structuredClone(this.#note);

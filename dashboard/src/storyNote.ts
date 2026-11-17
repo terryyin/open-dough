@@ -35,9 +35,33 @@ export const storyNoteSchema = z.strictObject({
   text: storyNoteTextSchema,
   savedAt: z.iso.datetime(),
   editedAt: z.iso.datetime().optional(),
+  delivered: z.iso.datetime().optional(),
   context: storyNoteContextSchema.optional(),
 });
 export type StoryNote = z.infer<typeof storyNoteSchema>;
+
+/** Server-assigned version a follow-up can deliver: the last edit, else save. */
+export const storyNoteVersion = (
+  note: Pick<StoryNote, "savedAt" | "editedAt">,
+): string => note.editedAt ?? note.savedAt;
+
+/** Waiting when never delivered, or when the current version differs. */
+export const storyNoteIsWaiting = (
+  note: Pick<StoryNote, "savedAt" | "editedAt" | "delivered">,
+): boolean => note.delivered !== storyNoteVersion(note);
+
+export const storyNoteWaitingForFollowUp = "Waiting for follow-up";
+export const storyNoteSentToFollowUp = "Sent to follow-up";
+export const storyNoteDeliveryLabel = (
+  note: Pick<StoryNote, "savedAt" | "editedAt" | "delivered">,
+): string =>
+  storyNoteIsWaiting(note)
+    ? storyNoteWaitingForFollowUp
+    : storyNoteSentToFollowUp;
+
+/** Card description while any notes wait for a follow-up. */
+export const storyNotesWaitingDescription = (waiting: number): string =>
+  waiting === 1 ? "1 note waiting" : `${waiting} notes waiting`;
 
 export const storyNotesAnswerSchema = z.discriminatedUnion("kind", [
   z.strictObject({
