@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# A matched pair of journeys of one versioned comparison case: a baseline and
+# A matched pair of journeys of one versioned guidance-check case: a baseline and
 # a candidate Open Dough payload, each a commit frozen and materialized before
 # either arm starts, run through the case runner
-# (Distribution/evaluation/src/native-comparison-run.sh) in fresh arms under one case
+# (Distribution/evaluation/src/native-guidance-check-run.sh) in fresh arms under one case
 # basis, host and settings, then judged outcome first
 # (Distribution/evaluation/src/native-comparison-verdict.sh). Each arm keeps its own root,
 # workspace, remote, session state and retained attempt; the pair keeps a
@@ -24,7 +24,7 @@
 # shellcheck disable=SC1090,SC1091,SC2034,SC2154,SC2312 # Sourced case and helper globals; fields print as observed.
 
 native_comparison_pair_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-source "${native_comparison_pair_dir}/native-comparison-run.sh"
+source "${native_comparison_pair_dir}/native-guidance-check-run.sh"
 source "${native_comparison_pair_dir}/native-comparison-pair-observe.sh"
 source "${native_comparison_pair_dir}/native-comparison-verdict.sh"
 source "${native_comparison_pair_dir}/native-comparison-basis.sh"
@@ -93,24 +93,24 @@ native_comparison_pair_freeze() {
 # Runs ARM's journey under WORK/ARM with its frozen payload.
 native_comparison_pair_arm() {
   local case_name=$1 source_dir=$2 work=$3 results_dir=$4 arm=$5
-  local native_comparison_payload_dir="${work}/payload-${arm}" native_comparison_payload_revision
-  local tree native_comparison_payload_requested
-  read -r native_comparison_payload_revision tree native_comparison_payload_requested \
+  local native_guidance_check_payload_dir="${work}/payload-${arm}" native_guidance_check_payload_revision
+  local tree native_guidance_check_payload_requested
+  read -r native_guidance_check_payload_revision tree native_guidance_check_payload_requested \
     < "${work}/payload-${arm}.id"
   mkdir -p -- "${work}/${arm}"
-  native_comparison_run_case "${case_name}" "${source_dir}" "${work}/${arm}" "${results_dir}" \
+  native_guidance_check_run_case "${case_name}" "${source_dir}" "${work}/${arm}" "${results_dir}" \
     > "${work}/${arm}/run.log" 2>&1 || true
 }
 
 native_comparison_pair() {
   local case_name=$1 source_dir=$2 work=$3 results_dir=$4 arm condition case_files events empty_events
-  local case_path="${source_dir}/Distribution/evaluation/cases/comparison/${case_name}" observations dest
+  local case_path="${source_dir}/Distribution/evaluation/cases/guidance-checks/${case_name}" observations dest
   native_comparison_pair_attempt=
   # The case basis both arms must run: its files and the runner's inputs,
   # committed, so the record can name the commit that holds them.
-  native_comparison_case_files "${source_dir}" "${case_name}" || return 2
+  native_guidance_check_case_files "${source_dir}" "${case_name}" || return 2
   native_comparison_pair_basis_revision=$(native_comparison_basis_commit "${source_dir}" \
-    "Distribution/evaluation/cases/comparison/${case_name}" "${case_files[@]}" "${native_comparison_inputs[@]}" \
+    "Distribution/evaluation/cases/guidance-checks/${case_name}" "${case_files[@]}" "${native_guidance_check_inputs[@]}" \
     "${native_run_supervision_inputs[@]}" "${native_comparison_pair_inputs[@]}") || return
   native_comparison_pair_identify baseline "${native_comparison_pair_baseline}" "${work}" \
     && native_comparison_pair_freeze candidate "${native_comparison_pair_candidate}" "${work}" \
@@ -120,7 +120,7 @@ native_comparison_pair() {
     && printf '%s\n%s\n' "${case_events}" "${case_empty_events-}")
   read -ra events <<< "${events}"
   {
-    native_result_input_hash_lines "${case_files[@]}" "${native_comparison_inputs[@]}"
+    native_result_input_hash_lines "${case_files[@]}" "${native_guidance_check_inputs[@]}"
     native_result_supervision_input_hash_lines
   } > "${work}/basis"
   native_result_allocate_attempt "${results_dir}" codex "native-comparison-pair/${case_name}"
@@ -176,7 +176,7 @@ native_comparison_pair_declare() {
   printf 'host: codex\n'
   printf 'requested-settings: %s\n' "${native_codex_settings[*]:-host defaults}"
   printf 'arms: %s\n' "${native_comparison_pair_arms}"
-  printf 'machine: %s\n' "$(native_comparison_machine)"
+  printf 'machine: %s\n' "$(native_guidance_check_machine)"
   sed 's/^input-hash:/case-input-hash:/' "${work}/basis"
   native_result_input_hash_lines "${native_comparison_pair_inputs[@]}"
 }

@@ -8,7 +8,7 @@ import { archiveObservationText } from "../../src/native-comparison-archive-evid
 import {
   captureWatch,
   watchFields,
-} from "../../cases/comparison/supplier-watch/evidence.mjs";
+} from "../../cases/guidance-checks/supplier-watch/evidence.mjs";
 import {
   captureCodexWaitSession as capture,
   codexReceiptRows as outputs,

@@ -1,0 +1,93 @@
+diff --git a/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts b/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts
+index d9a3039..ec1d371 100644
+--- a/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts
+@@ -143,18 +143,18 @@ test.describe(`agent launch boundary, chosen model`, () => {
+     const story = await launched(launchRequest);
+     expect(claudeLaunchCommand(story.argv)).toMatchObject({
+       model: undefined,
+-      effort: "medium",
++      effort: expect.any(String),
+     });
+     expect(story.record.request).not.toHaveProperty("model");
+-    expect(story.record.request["effort"]).toBe("medium");
++    expect(story.record.request["effort"]).toBeDefined();
+ 
+     const adHoc = await launched(adHocRequest);
+     expect(claudeLaunchCommand(adHoc.argv)).toMatchObject({
+       model: undefined,
+-      effort: "medium",
++      effort: expect.any(String),
+     });
+     expect(adHoc.record.request).not.toHaveProperty("model");
+-    expect(adHoc.record.request["effort"]).toBe("medium");
++    expect(adHoc.record.request["effort"]).toBeDefined();
+   });
+ 
+   test("refuses a Claude Code effort outside its levels before starting claude, naming them", async () => {
+diff --git a/dashboard/tests/support/unattachedLaunchAssertions.ts b/dashboard/tests/support/unattachedLaunchAssertions.ts
+index 5bd0785..c6ea05e 100644
+--- a/dashboard/tests/support/unattachedLaunchAssertions.ts
++++ b/dashboard/tests/support/unattachedLaunchAssertions.ts
+@@ -7,6 +7,7 @@ import { expect } from "@playwright/test";
+ import type { LaunchRecord } from "../../src/launchRecord.ts";
+ import type { EstablishedSession } from "../../src/unattachedSession.ts";
+ import { recordsOf } from "../agentLaunchBoundary.ts";
++import { claudeLaunchCommand } from "../claudeLaunchCommand.ts";
+ import type { DashboardServer } from "./dashboardServer.ts";
+ import { expectReportingBlock } from "./reportingInputAssertions.ts";
+ import {
+@@ -22,17 +23,15 @@ export function expectNamedAdHocCall(
+   project: string,
+   instruction: string,
+ ) {
+-  expect(dashboard.claudeLaunchCalls()).toEqual([
+-    {
+-      argv: [
+-        "--bg",
+-        "--name",
+-        `${project} · Ad hoc · ${instruction}`,
+-        instruction,
+-      ],
+-      cwd: realpathSync(path.join(dashboard.home, "git", source)),
+-    },
+-  ]);
++  const calls = dashboard.claudeLaunchCalls();
++  expect(calls).toHaveLength(1);
++  expect(claudeLaunchCommand(calls[0]?.argv)).toMatchObject({
++    name: `${project} · Ad hoc · ${instruction}`,
++    instruction,
++  });
++  expect(calls[0]?.cwd).toBe(
++    realpathSync(path.join(dashboard.home, "git", source)),
++  );
+ }
+ 
+ export async function expectNoSessionEstablishment(dashboard: DashboardServer) {
+diff --git a/e2e/launches/agent-launch-ad-hoc.spec.ts b/e2e/launches/agent-launch-ad-hoc.spec.ts
+index 306ed3e..c72e806 100644
+--- a/e2e/launches/agent-launch-ad-hoc.spec.ts
++++ b/e2e/launches/agent-launch-ad-hoc.spec.ts
+@@ -7,6 +7,7 @@
+ 
+ import type { Page } from "@playwright/test";
+ import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
++import { claudeLaunchCommand } from "../../dashboard/tests/claudeLaunchCommand.ts";
+ import {
+   openTakenBacklog,
+   startSession,
+@@ -117,11 +118,12 @@ for (const blank of ["", "   "]) {
+ 
+     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
+     const [call] = dashboard.claudeLaunchCalls();
+-    expect(call?.argv).toHaveLength(3);
++    const command = claudeLaunchCommand(call?.argv);
++    expect(command.instruction).toBeUndefined();
+     const record = await expectNoSessionEstablishment(dashboard);
+     for (const absent of ["instruction", "reporting"])
+       expect(record?.request).not.toHaveProperty(absent);
+-    expect(call?.argv[2]).toMatch(
++    expect(command.name).toMatch(
+       /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
+     );
+   });

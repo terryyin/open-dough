@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-393_repeat-native-guidance-checks-on-real-story-examples.json",
+      "identity": "SEED-393#repeat-native-guidance-checks-on-real-story-examples",
+      "completedAt": "2026-11-17T09:04:19.944Z",
+      "blob": "ec3094bb8d00676f734c7c8c16e8a20343dd1f10"
+    },
+    {
       "fileName": "SEED-348_attach-story-notes-to-follow-ups.json",
       "identity": "SEED-348#attach-story-notes-to-follow-ups",
       "completedAt": "2026-11-17T08:48:56.206Z",

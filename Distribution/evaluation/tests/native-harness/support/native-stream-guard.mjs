@@ -87,8 +87,12 @@ const shapeWriters = new Map([
     "substitute Codex writing one thread's turns for the paused-supplier case",
   ],
   [
-    "Distribution/evaluation/tests/native-comparison/native-comparison-doughnut-title-precedence.sh",
+    "Distribution/evaluation/tests/native-guidance-checks/native-guidance-check-doughnut-title-precedence.sh",
     "writes a Codex session's final report for the calibration observer",
+  ],
+  [
+    "Distribution/evaluation/tests/native-guidance-checks/support/launch-command-tests/qualify.bash",
+    "substitute Codex leaving a launch-command reference outcome for qualification",
   ],
   [
     "Distribution/evaluation/tests/native-harness/support/native-agent-recorded.sh",

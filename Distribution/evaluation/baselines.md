@@ -1,7 +1,8 @@
 # Save, reuse and reassess native comparison baselines
 
-Use the [native comparison entry](comparison.md) for catalog selection,
-runtime requirements, authorization and ordinary journey/pair operation.
+Use [Native guidance checks](guidance-checks.md) for case selection and one
+journey, and [the comparison guide](comparison.md) for runtime requirements,
+authorization and pairs.
 
 ## Save one frozen baseline
 
@@ -11,9 +12,9 @@ installs that revision, runs one case journey and exports its compact evidence:
 
 ```sh
 PATH=/opt/homebrew/bin:$PATH TMPDIR=$HOME/tmp/native-comparison \
-  Distribution/evaluation/src/native-comparison.sh --native codex --case paused-supplier \
+  Distribution/evaluation/src/native-guidance-check.sh --native codex --case paused-supplier \
   --baseline v0.3.98 --model gpt-6.1-sol --effort xhigh \
-  --save-baseline Distribution/evaluation/cases/comparison/paused-supplier/comparisons/baseline-v0.3.98.json \
+  --save-baseline Distribution/evaluation/cases/guidance-checks/paused-supplier/comparisons/baseline-v0.3.98.json \
   --results-dir "$HOME/tmp/native-comparison-results"
 ```
 
@@ -27,9 +28,9 @@ the command never retries a session.
 Export an already retained journey, or one arm of a pair, without a new session:
 
 ```sh
-PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh \
+PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-guidance-check.sh \
   --export-baseline /path/to/retained/attempt --arm baseline \
-  --save-baseline Distribution/evaluation/cases/comparison/paused-supplier/comparisons/baseline-observed.json
+  --save-baseline Distribution/evaluation/cases/guidance-checks/paused-supplier/comparisons/baseline-observed.json
 ```
 
 For a journey, `--export-baseline` names its attempt directory. For a pair it
@@ -58,8 +59,8 @@ not zero; CLI cumulative usage is never added to native response counters.
 Replay the current case assessor after removing the raw evidence:
 
 ```sh
-PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-comparison.sh \
-  --assess-baseline Distribution/evaluation/cases/comparison/paused-supplier/comparisons/baseline-observed.json \
+PATH=/opt/homebrew/bin:$PATH Distribution/evaluation/src/native-guidance-check.sh \
+  --assess-baseline Distribution/evaluation/cases/guidance-checks/paused-supplier/comparisons/baseline-observed.json \
   > /path/to/derived-assessment.json
 ```
 
@@ -80,9 +81,9 @@ command, and supply the exact saved observation with `--reuse-baseline FILE`:
 
 ```sh
 PATH=/opt/homebrew/bin:$PATH TMPDIR=$HOME/tmp/native-comparison \
-  Distribution/evaluation/src/native-comparison.sh --native codex --case paused-supplier \
+  Distribution/evaluation/src/native-guidance-check.sh --native codex --case paused-supplier \
   --baseline v0.3.98 --candidate candidate-commit \
-  --reuse-baseline Distribution/evaluation/cases/comparison/paused-supplier/comparisons/baseline-v0.3.98.json \
+  --reuse-baseline Distribution/evaluation/cases/guidance-checks/paused-supplier/comparisons/baseline-v0.3.98.json \
   --factor 'payload guidance only' --gain 'fewer commands through the same proof' \
   --quality 'current case outcome and decisive proof' \
   --model gpt-6.1-sol --effort xhigh --arms sequential \

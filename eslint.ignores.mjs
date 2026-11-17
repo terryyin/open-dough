@@ -16,4 +16,6 @@ export default [
   "e2e/test-results/",
   "e2e/playwright-report/",
   "**/dough-execute-plan/scripts/test-entry-rules-runtime.mjs",
+  // Frozen project files of a guidance-check case, linted by their own project.
+  "Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/",
 ];

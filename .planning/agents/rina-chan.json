@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rina-chan",
-  "email": "rina-chan@example.org",
-  "identity": "SEED-393#repeat-native-guidance-checks-on-real-story-examples",
-  "mode": "story-branch",
-  "branch": "claude/repeat-native-guidance-checks-using-focused-exam",
-  "host": "claude"
-}

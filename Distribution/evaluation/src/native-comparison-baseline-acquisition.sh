@@ -7,7 +7,7 @@ native_comparison_baseline_acquire() {
   read -r revision _ < "${work}/payload-baseline.id"
   route=substitute
   [[ ! -L $(command -v codex) ]] || route=native
-  machine=$(native_comparison_machine)
+  machine=$(native_guidance_check_machine)
   native_comparison_acquisition_arguments=("${work}" "${dest}" "${source_dir}" "${reuse_baseline:-}"
     "${case_name}" "${revision}" "${model}" "${effort}" "$(codex --version | head -n 1)"
     "${route}" "${machine}" "${require_usage:-false}" "${fresh_pair:-false}" "$(command -v codex)")

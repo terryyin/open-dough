@@ -7,12 +7,12 @@ import { readCodexSession, readHostStream } from "./native-host-stream.mjs";
 import {
   coordinatorProofCalls,
   ownedProofFromRecords,
-} from "../cases/comparison/paused-supplier/owned-proof.mjs";
+} from "../cases/guidance-checks/paused-supplier/owned-proof.mjs";
 
 import {
   captureWatch,
   watchFields,
-} from "../cases/comparison/supplier-watch/evidence.mjs";
+} from "../cases/guidance-checks/supplier-watch/evidence.mjs";
 
 export function retainedWatch(attempt, observations) {
   if (!observations.has("turn-2-producer-schedule")) return null;

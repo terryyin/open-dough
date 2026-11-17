@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PATH substitute `codex` for credential-free runs of the supplier comparison
-# cases (Distribution/evaluation/cases/comparison/{paused,unblocked}-supplier). Answers
+# cases (Distribution/evaluation/cases/guidance-checks/{paused,unblocked}-supplier). Answers
 # `--version`, `exec ... -C DIR -o FILE PROMPT` and `exec resume ... -o FILE
 # THREAD PROMPT` with a complete Codex JSON stream for one thread, and, under
 # CODEX_HOME, keeps a session record of each turn's model, effort, sandbox
