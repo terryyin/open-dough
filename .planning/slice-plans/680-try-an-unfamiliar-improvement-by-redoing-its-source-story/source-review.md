@@ -35,7 +35,7 @@ architecture notes, the planning decisions and the effort line.
 | 9 | When kept, one sentence in triage-retrospective-findings Rank and propose names the recipe with a link as the evidence step for a finding whose response changes guidance wording and whose moment no case exercises | slice 5 | |
 | 10 | Triage offers the recipe for no other finding: one answered by a deterministic check or covered by a case is proposed without it | slice 5 | |
 | 11 | A withdrawn recipe gets no link | slice 5 | |
-| 12 | The participant receives no prior outcome, finding text or comparison purpose | slice 2 | |
-| 13 | The scratch clone has no real remote, so the redo can publish nothing | slice 2 | |
-| 14 | The paid native session runs only under the execution instruction's authorization, once, never from a test command or CI | slice 2 | |
+| 12 | The participant receives no prior outcome, finding text or comparison purpose | slice 2 | observed: PLAN.md Learnings slice 2 run: instruction file holds only the skill name and the local-only line |
+| 13 | The scratch clone has no real remote, so the redo can publish nothing | slice 2 | observed: PLAN.md Learnings slice 2 run: remote -v lists only the bare remote.git; ls-remote origin unchanged |
+| 14 | The paid native session runs only under the execution instruction's authorization, once, never from a test command or CI | slice 2 | observed: PLAN.md Learnings slice 2 run: one hand-started codex exec under this execution, exit 0, no relaunch; no test command or CI |
 | 15 | The saved baseline and the source execution's records are not edited | slice 3 | |

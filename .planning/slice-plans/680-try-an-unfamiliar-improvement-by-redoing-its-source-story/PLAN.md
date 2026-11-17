@@ -121,7 +121,7 @@ walked on the section for ODF-361; `npm run --silent format` and
 
 ### 2. One fresh Codex session starts on the pinned state under the candidate wording
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: `~/open-dough-scratch/seed-393-odf-361/` holds a bare repository
 with `main` at `7466db352^` plus one commit that states, in both installed
@@ -202,7 +202,24 @@ section for both cases above; `npm run --silent format` and
 
 ## Learnings
 
-None yet.
+- Slice 2 run (2026-11-17), scratch `~/open-dough-scratch/seed-393-odf-361/`:
+  bare `remote.git` `main` = `d7d014025` (`7466db352^`) plus `e81d64d88`, the
+  candidate in both installed `refactor-checks.md` copies ("Shorten or split
+  every checked file exceeding **250 lines**, counted with normal wrapping,
+  before claiming refactoring complete."). Clone `work` carried
+  `git diff 7466db352^ 7466db352` uncommitted with the new paragraph folded at
+  80: `wc -l` → 253, 19 paths in `git status --short`. Instruction file:
+  `$dough-post-change-refactor` / `Local only: publish nothing.` Launch:
+  `caffeinate -s -i perl -e 'alarm shift; exec @ARGV' 1800 codex exec --json
+  --output-last-message final.txt - < prompt.txt` from `work`, on AC,
+  14:49:09–15:00:08 UTC, exit 0, nothing sent. The stream's first event
+  carries only the thread id; the session rollout records `gpt-6.1-sol`,
+  effort `xhigh` (user config, approval `never`, sandbox
+  `danger-full-access`); Codex warned that untrusted project-local config was
+  disabled, and skills still loaded. `git -C work remote -v` lists only
+  `remote.git`; `git ls-remote origin` here was unchanged across the run.
+  The session wrote its handoff, traces and a verify script under
+  `/tmp/post-change-refactor-451-*`, outside the scratch root.
 
 ## Preparation review
 
