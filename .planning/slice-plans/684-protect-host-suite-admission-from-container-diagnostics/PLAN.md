@@ -1,6 +1,7 @@
 # Protect host suite admission from container diagnostics
 
 **Source:** [selected story](../../seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
+**Source review:** [source commitments](source-review.md)
 **Identity:** SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 
 ## Goal and scope
@@ -109,7 +110,7 @@ adds newly reached consumers before acceptance.
 
 ### 1. Container diagnostics leave the host's suite admission intact
 Type: Behavior
-Status: planned
+Status: done
 Proof: all promise rows above, including the new entry-executing regression,
 its failure with the plain CI assignment removed, and a real Colima replay.
 
@@ -134,6 +135,18 @@ and failing outcomes, existing host regression proof and a short guide change
 fit one 15-active-minute slice; command time is separate. There is no preceding
 Structure slice or interim behavior. The cumulative design remains one CI
 admission rule, with no additional namespace policy.
+
+Accepted proof (2026-11-17): the plain entry runs `scripts/test.sh` with
+`CI=true`; guide and helper header agree. The focused gate above plus the new
+`ci-container-admission.test.mjs` passed (passing pathless, failing pathless,
+selected); removing the plain `CI=true` failed both pathless cases at the exact
+ref assertion. Real Colima replay, pass and fail variants, kept the exact host
+ref until release and the host exited 0; scratch volumes were removed. The
+refactor pass exported the fixtures' `launch` for the diagnostic run, rerunning
+only the new test. Commitments C001–C017 are observed in
+[source-review.md](source-review.md). Learnings: Colima mounts only home paths,
+so a real-runtime fixture needs `TMPDIR` under home; a pathless runner fixture
+must create `Distribution/evaluation/tests`, which Git does not keep empty.
 
 ## Local gates and current decisions
 

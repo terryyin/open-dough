@@ -3,8 +3,9 @@
 #
 # Diagnosis only: runs chosen checks (scripts/test.sh with the given paths, or
 # the whole suite when none) on CI's platform, or with --dashboard CI's
-# dashboard type-check and every browser test group, unsharded and with
-# CI=true.
+# dashboard type-check and every browser test group, unsharded. Both run with
+# CI=true, as CI does: the container cannot see host processes, so it stays
+# out of the host's local full-suite admission and takes CI's job default.
 # Neither `npm test` nor CI uses it. It builds a cached image once, mounts this
 # checkout (and a linked worktree's common Git directory) at their host paths,
 # keeps node_modules in a container volume so host modules are neither used
@@ -165,6 +166,6 @@ if [[ ${DASHBOARD} == true ]]; then
   cd -- "${SOURCE_DIR}"
   CI=true exec bash -euo pipefail -c "${DASHBOARD_STEPS}"
 fi
-exec bash "${SOURCE_DIR}/scripts/test.sh" "$@"
+CI=true exec bash "${SOURCE_DIR}/scripts/test.sh" "$@"
 '
 exec docker "${run_args[@]}" "${image}" bash -c "${entry}" ci-container "$@"
