@@ -127,6 +127,8 @@
   background: color-mix(in srgb, var(--quiet) 10%, transparent);
 }
 
+/* Line change tint (settled at 14%: tokens stay ≥4.5:1 on it; see plan
+   premise for SEED-387#emphasize-changed-words-in-diff-lines). */
 .story-review-added {
   background: color-mix(in srgb, var(--ready) 14%, transparent);
 }
@@ -135,8 +137,9 @@
   background: color-mix(in srgb, var(--problem) 14%, transparent);
 }
 
-/* Changed words on plain lines: underline in the line's change colour;
-   never strikethrough (the marker already says removed). */
+/* Changed words (plain or inside syntax tokens): underline in the line's
+   change colour over that tint; never strikethrough (the marker already
+   says removed). Emphasized runs stay <ins>/<del>, never span. */
 .story-review-line-code ins,
 .story-review-line-code del {
   color: inherit;

@@ -3,7 +3,8 @@
 // text (`./diffContextExpansion.ts`) in 20-line windows as disposable
 // presentation state. Line numbers sit beside each line so copying code
 // leaves them behind; when a Done story offers line Follow up, each number
-// opens that line's menu (`./DiffLineNumber.tsx`).
+// opens that line's menu (`./DiffLineNumber.tsx`). Changed blocks gain word
+// emphasis ranges (`./diffWordEmphasis.ts`) composed by `./diffLineCode.tsx`.
 
 import {
   useCallback,

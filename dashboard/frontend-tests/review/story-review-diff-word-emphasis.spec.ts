@@ -1,5 +1,7 @@
-// Plain (.txt) story-review diffs emphasize changed words in removed-then-added
-// blocks as deletions/insertions; pure adds, unchanged and revealed context do not.
+// Story-review diffs emphasize changed words in removed-then-added blocks as
+// deletions/insertions on plain lines; pure adds, unchanged and revealed
+// context do not. Styled composition and appearance live in the companion
+// composition spec.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
@@ -22,8 +24,8 @@ import {
   splitCallDiff,
   splitCallText,
 } from "../../tests/support/diffWordEmphasisFixtures.ts";
+import { openPlainWordEmphasisDiff } from "../../tests/support/diffWordEmphasisOpen.ts";
 import {
-  codeTokens,
   deletions,
   insertions,
   newLine,
@@ -34,37 +36,12 @@ import {
 } from "../../tests/support/reviewDiffSyntax.ts";
 import { diffHunk } from "../../tests/support/reviewPanes.ts";
 
-async function openPlainDiff(
-  page: Parameters<typeof openFrontendStoryReview>[0],
-  frontendServices: Parameters<typeof openFrontendStoryReview>[1],
-  path: string,
-  diff: ReturnType<typeof limitDiff>,
-  text: typeof limitText,
-  lines: { added: number; removed: number },
-) {
-  const { review } = await openFrontendStoryReview(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({
-      files: [{ kind: "modified" as const, path, lines }],
-    }),
-    (answers) => {
-      answers.answerFile(diff, path);
-      answers.answerFileText(text, path);
-    },
-  );
-  await fileRow(review, `Modified ${path}`).click();
-  const diffPane = fileDiff(review, `Modified ${path}`);
-  await expect(codeTokens(diffPane)).toHaveCount(0);
-  return diffPane;
-}
-
 test("changed words in a block are deletions and insertions; copy stays plain", async ({
   page,
   frontendServices,
 }) => {
   const path = "limit.txt";
-  const diff = await openPlainDiff(
+  const diff = await openPlainWordEmphasisDiff(
     page,
     frontendServices,
     path,
@@ -99,7 +76,7 @@ test("a three-line rewrap gaining a word emphasizes only that word", async ({
   frontendServices,
 }) => {
   const path = "wrap.txt";
-  const diff = await openPlainDiff(
+  const diff = await openPlainWordEmphasisDiff(
     page,
     frontendServices,
     path,
@@ -121,7 +98,7 @@ test("splitting a call across lines emphasizes the added comma, indent and argum
   frontendServices,
 }) => {
   const path = "call.txt";
-  const diff = await openPlainDiff(
+  const diff = await openPlainWordEmphasisDiff(
     page,
     frontendServices,
     path,
@@ -140,7 +117,7 @@ test("re-indent emphasizes the changed whitespace on both lines", async ({
   frontendServices,
 }) => {
   const path = "indent.txt";
-  const diff = await openPlainDiff(
+  const diff = await openPlainWordEmphasisDiff(
     page,
     frontendServices,
     path,
@@ -205,7 +182,7 @@ test("a low-similarity rewrite stays line-level with no word emphasis", async ({
   frontendServices,
 }) => {
   const path = "rewrite.txt";
-  const diff = await openPlainDiff(
+  const diff = await openPlainWordEmphasisDiff(
     page,
     frontendServices,
     path,
@@ -223,7 +200,7 @@ test("a several-hundred-line block stays line-level while a small block is empha
   frontendServices,
 }) => {
   const path = "generated.txt";
-  const diff = await openPlainDiff(
+  const diff = await openPlainWordEmphasisDiff(
     page,
     frontendServices,
     path,

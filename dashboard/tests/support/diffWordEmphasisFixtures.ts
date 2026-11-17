@@ -1,8 +1,8 @@
-// Plain-text (.txt) diffs for story-review word-emphasis journeys: a
-// one-word edit, a Markdown-style rewrap, a call split across lines,
-// re-indent, a pure addition, a low-similarity rewrite, a several-hundred-
-// line block beside a small emphasized one, and a change with omitted
-// context above.
+// Diffs for story-review word-emphasis journeys (plain `.txt` and styled
+// `.ts` paths reuse the same limit texts): a one-word edit, a Markdown-style
+// rewrap, a call split across lines, re-indent, a pure addition, a
+// low-similarity rewrite, a several-hundred-line block beside a small
+// emphasized one, and a change with omitted context above.
 
 import {
   reviewedFileDiffSchema,

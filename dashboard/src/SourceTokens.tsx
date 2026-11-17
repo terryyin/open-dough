@@ -8,7 +8,11 @@ import type { CSSProperties } from "react";
 import type { SourceTokenLine } from "./sourceHighlight.ts";
 import "./source-tokens.css";
 
-function tokenStyle(token: SourceTokenLine[number]): CSSProperties | undefined {
+// Shared by Intent's SourceTokens and story-review lines that split tokens at
+// emphasis ranges without changing this component's own output.
+export function tokenStyle(
+  token: SourceTokenLine[number],
+): CSSProperties | undefined {
   if (token.light === undefined && token.dark === undefined) return undefined;
   return {
     ...(token.light === undefined ? {} : { ["--shiki-light"]: token.light }),

@@ -58,8 +58,8 @@ reserves “Highlight”: code and words say “emphasis”.
 | Text carries it; copy stays plain | 1: same spec — insertion/deletion roles on the emphasized words; `selectedText` across an emphasized block equals the plain markers and code |
 | Rewrites stay line-level | 2: same spec — `return cached;` → `throw new Error("stale");` has no insertion or deletion |
 | Responsive; large block line-level only | 2: same spec — a block of several hundred changed lines opens with no insertion or deletion in it and its first line visible within the default timeout, while a small block in the same file is emphasized |
-| Emphasis composes with syntax tokens; stays on the same words when tokens arrive | 3: the `const limit` example on a `.ts` path — the emphasized `25` is a token with the number's colour inside `insertion`; arrival case: insertion present while `codeTokens` is 0, same text after tokens arrive |
-| Underline ≥3:1 vs line background; tokens ≥4.5:1 on the tinted background; light and dark; appearance change restyles both | 3: appearance case using `expectReadableContrast` on an emphasized token in light and dark, and the underline colour's contrast against the line background computed the same way |
+| Emphasis composes with syntax tokens; stays on the same words when tokens arrive | 3: `story-review-diff-word-emphasis-composition.spec.ts` — the `const limit` example on a `.ts` path — the emphasized `25` is a token with the number's colour inside `insertion`; arrival case: insertion present while `codeTokens` is 0, same text after tokens arrive |
+| Underline ≥3:1 vs line background; tokens ≥4.5:1 on the tinted background; light and dark; appearance change restyles both | 3: same composition spec — appearance case using `expectReadableContrast` on an emphasized token in light and dark, and the underline colour's contrast against the line background computed the same way |
 | Line Follow up, context expansion, numbers, notes, reading position unchanged | 1–3: the consumers below stay green |
 | Maintained words | 3: `dashboard/STORY-REVIEW-FILES.md` describes emphasis; module headers name it |
 
@@ -128,8 +128,9 @@ emphasized.
 
 ### 3. Emphasis composes with syntax styling and stays readable
 Type: Behavior
-Status: planned
-Proof: extend `story-review-diff-word-emphasis.spec.ts` with the `.ts`
+Status: done
+Proof: extend word-emphasis coverage in
+`story-review-diff-word-emphasis-composition.spec.ts` with the `.ts`
 composition and arrival cases and the light/dark appearance case
 (`expectReadableContrast` from `dashboard/tests/accessibleReading.ts`); rerun
 the slice-1 consumer commands (frontend `review/`, e2e `review/`),
@@ -171,3 +172,6 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 - Slice 2: Dice similarity ≥0.5 and max 200 lines per block (skip before LCS)
   keep the seed rewrite and several-hundred-line blocks line-level while
   slice-1 similar blocks stay emphasized.
+- Slice 3: compose emphasis in `diffLineCode.tsx` (not Intent `SourceTokens`);
+  settle line tint at the existing 14%; styled proof lives in
+  `story-review-diff-word-emphasis-composition.spec.ts`.
