@@ -1,7 +1,10 @@
 // Explicit services for whole-app visits; Git/source judgment stays Backend/E2E.
 import { expect, type Page } from "@playwright/test";
 import { expectStoryComparisonRead } from "./intentStoryPage.ts";
-import type { FrontendServiceState } from "./frontendServiceState.ts";
+import {
+  publishUnconfiguredDoughnut,
+  type FrontendServiceState,
+} from "./frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   putFrontendIntentStory,
@@ -10,7 +13,6 @@ import {
 } from "./frontendIntentStory.ts";
 import { frontendFileDiff } from "./frontendStoryReview.ts";
 import { answerFrontendIntentCi } from "./frontendIntentCi.ts";
-import { publishUnconfiguredDoughnut } from "./frontendCiStatusAnswers.ts";
 import { openStoryIntent, chooseStoryTab } from "../intentModePage.ts";
 
 export async function selectTakenStoryInIntent(

@@ -19,9 +19,10 @@ import {
 // attempt or revision, or when no completed run is shown, one line under
 // Proof says why, and the judgment reads exactly as with no summary; Check
 // again reads both again. A ciAdapter attempt's reasons:
-// ./intent-ci-proof-adapter-reasons.spec.ts. A run with a summary or a gap, and one
-// browser refusal:
-// ../../dashboard/tests/intent/intent-ci-proof.spec.ts; query-shape refusals:
+// ./intent-ci-proof-adapter-reasons.spec.ts. A run with a summary or a gap:
+// ../../dashboard/frontend-tests/intent/intent-ci-proof.spec.ts; the omitted-
+// attempt refusal:
+// ../../dashboard/backend-tests/intent/intent-ci-proof-read.spec.ts; query-shape refusals:
 // ../../Distribution/tests/support/dashboard-ci-proof-parse.test.mjs; a running
 // result's ancestor proof and the per-attempt memory:
 // ./intent-ci-proof-ancestor.spec.ts.

@@ -30,10 +30,12 @@ import {
 } from "../../tests/pageRequestNotes.ts";
 import {
   judgedCiStatus,
-  publishCiStoryBoard,
-  publishUnconfiguredDoughnut,
   serveFrontendCiStatus,
 } from "../../tests/support/frontendCiStatusAnswers.ts";
+import {
+  publishCiStoryBoard,
+  publishUnconfiguredDoughnut,
+} from "../../tests/support/frontendServiceState.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 
 const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");

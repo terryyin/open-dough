@@ -28,10 +28,10 @@ import {
 } from "../../tests/pageRequestNotes.ts";
 import {
   judgedCiStatus,
-  publishCiStoryBoard,
   serveFrontendCiStatus,
   storyBoardCiAnswers,
 } from "../../tests/support/frontendCiStatusAnswers.ts";
+import { publishCiStoryBoard } from "../../tests/support/frontendServiceState.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 
 const mainAt = (state: "pass" | "failed") =>

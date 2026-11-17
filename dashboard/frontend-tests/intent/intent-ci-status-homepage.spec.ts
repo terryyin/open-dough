@@ -41,11 +41,13 @@ import {
 } from "../../tests/pageRequestNotes.ts";
 import {
   judgedCiStatus,
-  publishUnconfiguredDoughnut,
   serveFrontendCiStatus,
 } from "../../tests/support/frontendCiStatusAnswers.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import {
+  publishUnconfiguredDoughnut,
+  type FrontendServiceState,
+} from "../../tests/support/frontendServiceState.ts";
 
 const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");
 

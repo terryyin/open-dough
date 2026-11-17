@@ -2,8 +2,8 @@
 // (`../../../dashboard/server/intentCiProofRead.ts` `parseIntentCiProofRead`):
 // one run, its attempt and its revision, or one ciAdapter attempt's run,
 // attempt id, discovered branch and revision, and nothing else, before any
-// GitHub call or adapter run. One browser refusal remains in
-// ../../../dashboard/tests/intent/intent-ci-proof.spec.ts.
+// GitHub call or adapter run. The HTTP refusal of an omitted attempt:
+// ../../../dashboard/backend-tests/intent/intent-ci-proof-read.spec.ts.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { parseIntentCiProofRead } from "../../../dashboard/server/intentCiProofRead.ts";

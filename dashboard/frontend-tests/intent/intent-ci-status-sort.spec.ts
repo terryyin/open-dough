@@ -17,7 +17,7 @@ import {
   rowNames,
   sortButton,
 } from "../../tests/support/expectSortedColumns.ts";
-import { openFrontendRunProof } from "../../tests/support/frontendCiStatusAnswers.ts";
+import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 
 // tests/a 12.5 s with 4 tests; tests/b 340 ms with 3 tests, 1 failed;

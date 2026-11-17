@@ -123,7 +123,7 @@ files passed. Learning: each scope and unit needs its own difference text.
 
 ### 2. Read run Proof and preserve its acquisition/refusal boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-proof.spec.ts`, `intent-ci-proof-accessibility.spec.ts`,
 `intent-ci-proof-grouped-location.spec.ts` → Frontend UI assertions. Keep the
 held Proof/visible verdict, attempt/link/revision, grouped units, counts/gaps,
@@ -140,6 +140,16 @@ untimed evidence. Retain listing/download counts and attempt memory in
 `intent-ci-proof-units.spec.ts` retain actual acquisition/display connections.
 Check: Frontend `intent-ci-proof`, Backend `ci-proof-` and
 `intent-ci-proof-read.spec.ts`, the two named E2E files.
+Accepted: published story-board/unconfigured arrangements moved to
+`frontendServiceState.ts`; `openFrontendRunProof` moved to
+`frontendCiRunProofAnswers.ts` with `{hold, proof}`. The three Proof specs moved
+to Frontend with assertions verbatim; listing/download counts rest on Backend
+`ci-proof-memory-github.spec.ts`. New Backend `intent-ci-proof-read.spec.ts`
+(400, no GitHub call, attempt=1 control) and `ci-proof-extraction.spec.ts`
+(real CLI `--by-file` → ZIP → reader). Scratch breaks on `CiProofTable` rows,
+the attempt refusal and the missing part each failed; restored passed. 63
+Frontend consumer specs (148), Backend `ci-proof-` (21), the two E2E files and
+typecheck passed. Learning: the collector records `untimed` only `--by-file`.
 
 ### 3. Read single-run Summary evidence and keep its sorting
 Type: Behavior
@@ -257,3 +267,12 @@ revision/state controls; existing owners keep one model across slices.
 Slice-plan refinement was not needed: construction replaced the five provisional
 batches with eight bounded outcomes and mapped proof. No remaining slice concern
 or person-owned pre-Take decision was identified.
+
+
+## Story obligations
+
+### G1. Judgment beside a previously retrieved Proof has no Frontend observation yet
+Reported: slice 2 — "Slice 2 returns held, partial, multi-unit and unavailable observations in frontend-tests/intent/intent-ci-proof*.spec.ts; previously retrieved Proof has only Backend reuse in ci-proof-memory-github*.spec.ts"
+Story clause: "A run's proof is held, partial, multi-unit, unavailable or previously retrieved. Its judgment stays readable independently"
+Disposition: receiving slice 3
+Commitment: 12a

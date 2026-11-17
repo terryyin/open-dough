@@ -9,7 +9,7 @@ import { expectFileProofRows } from "../../dashboard/tests/intentFileProofPage.t
 // Summary and a file's Proof show each unit's results apart with their own
 // time and parts, never one combined count, and a declared unit no fragment
 // reached stays visible as missing in that unit (SEED-281 examples 36, 37,
-// 40). Decisive grouped-location facts: ../../dashboard/tests/intent/intent-ci-proof-grouped-location.spec.ts.
+// 40). Decisive grouped-location facts: ../../dashboard/frontend-tests/intent/intent-ci-proof-grouped-location.spec.ts.
 // Version 1 summaries: ./intent-ci-proof-legacy-results.spec.ts. Collector and
 // reader rules:
 // ../../Distribution/tests/skills/dough-test-optimization/ci-proof-units.test.mjs,

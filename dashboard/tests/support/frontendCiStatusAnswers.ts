@@ -4,10 +4,8 @@
 // arranged by the case; a fresh answer the page received becomes the
 // branch's kept one, as the Backend keeps it, and a failed fresh read keeps
 // the earlier one. The family counts the page's reads by form and can fail or
-// hold one branch's next fresh read; the run an answer names can show its
-// proof. Also the published projects those journeys judge: the story board
-// (../intentCiStoryBoard.ts) with its branches' answers, and Doughnut with no
-// intent locations configured. Other authenticated reads fall through
+// hold one branch's next fresh read. Also the story board's branches'
+// answers (../intentCiStoryBoard.ts). Other authenticated reads fall through
 // to ./frontendServiceSubstitutes.ts. Which answer the Backend chooses and
 // acquires is proved by ../../backend-tests/intent/ and ../../../e2e/intent/.
 
@@ -15,11 +13,9 @@ import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { IntentCiStatus } from "../../src/authenticatedIntentCiStatusRead.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import type { CiProofEntry } from "../../src/ciProof.ts";
 import { parts } from "../dashboardPage.ts";
-import { proofOf, run } from "../intentCiProofPage.ts";
-import { failing, running, storyBoardFiles } from "../intentCiStoryBoard.ts";
-import { chooseCiStatus, judged, runUrl } from "../intentCiStatusPage.ts";
+import { failing, running } from "../intentCiStoryBoard.ts";
+import { chooseCiStatus } from "../intentCiStatusPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   answerHeld,
@@ -28,10 +24,6 @@ import {
   type AnswerHold,
   type HeldAnswer,
 } from "./frontendSubstituteAnswers.ts";
-import {
-  doughnutSource,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
 
 export type FrontendCiStatusAnswers = {
   // The page's CI status reads so far, by form.
@@ -103,48 +95,6 @@ export async function serveFrontendCiStatus(
   };
 }
 
-// Opens Intent's CI status on main, judged at the judged commit by run 41
-// (../intentCiProofPage.ts) as `facts` add, Passed unless they say otherwise,
-// whose proof (`intent=ci-proof`, ../../src/authenticatedIntentCiProofRead.ts)
-// holds `entries`. Reading the run's artifacts into a proof is the Backend's
-// (../../../e2e/intent/intent-ci-proof*.spec.ts).
-export async function openFrontendRunProof(
-  page: Page,
-  entries: readonly CiProofEntry[],
-  facts: Partial<IntentCiStatus> = {},
-) {
-  const status = judgedCiStatus("main", "pass", judged, "Add login", {
-    runUrl,
-    runId: run.runId,
-    runAttempt: run.attempt,
-    ...facts,
-  });
-  const proof = makeMe.aCiProof
-    .forRun({
-      repository: run.repository,
-      revision: run.revision,
-      runId: run.runId,
-      runAttempt: run.attempt,
-    })
-    .entries([...entries])
-    .please();
-  await page.route(
-    (url) =>
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "ci-proof",
-    (route) =>
-      fulfillJson(route, {
-        runId: status.runId,
-        runAttempt: status.runAttempt,
-        revision: status.revision,
-        checkedAt: status.checkedAt,
-        proof,
-      }),
-  );
-  const panel = await openFrontendCiStatus(page, status);
-  return { panel, proof: proofOf(panel) };
-}
-
 // Opens Intent's CI status on main, judged as `main` says, Passed at 4774f60
 // unless it says otherwise: its panel.
 export async function openFrontendCiStatus(
@@ -154,14 +104,6 @@ export async function openFrontendCiStatus(
   await serveFrontendCiStatus(page, { main });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   return chooseCiStatus(parts(page).intent);
-}
-
-// Publishes the story board's backlog and files.
-export function publishCiStoryBoard(services: FrontendServiceState): void {
-  Object.assign(services, {
-    files: { ...services.files, ...storyBoardFiles },
-    backlog: storyBoardFiles[".planning/PRODUCT-BACKLOG.md"],
-  });
 }
 
 // Fresh answers for trunk at 4774f60 Passed, the failing story's branch
@@ -182,21 +124,6 @@ export function storyBoardCiAnswers(): Record<string, IntentCiStatus> {
       "Start the story",
     ),
   };
-}
-
-// Publishes Doughnut beside Open Dough, its intent locations not configured.
-export async function publishUnconfiguredDoughnut(
-  page: Page,
-  services: FrontendServiceState,
-): Promise<void> {
-  Object.assign(services, { projects: [...services.projects, doughnutSource] });
-  await page.route(
-    (url) =>
-      url.searchParams.get("intent") === "locations" &&
-      url.searchParams.get("source") === doughnutSource.id,
-    (route) =>
-      route.fulfill({ json: { revision: services.revision, locations: null } }),
-  );
 }
 
 // A fresh judgment of `branch`: `state` at the commit `short` abbreviates,

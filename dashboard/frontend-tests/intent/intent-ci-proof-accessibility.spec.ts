@@ -1,40 +1,41 @@
-import { intentReadingPane } from "../intentReadingPlacePage.ts";
+import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
 import {
   ciProofReading,
-  artifactId,
   ciEntryName,
   expectProofRows,
   failedVerdict,
-  openFailedRun,
   proofColumns,
   proofTable,
-  run,
-} from "../intentCiProofPage.ts";
-import { expectCiAnswer } from "../intentCiStatusPage.ts";
+} from "../../tests/intentCiProofPage.ts";
+import { expectCiAnswer } from "../../tests/intentCiStatusPage.ts";
 // Proof table accessibility at narrow and zoomed windows: rows stay whole,
 // the reading pane never scrolls sideways, and keyboard navigation passes
 // sortable headers in their visible order. Multi-unit locations keep labeled
 // lines and full gap descriptions readable in that same boundary. Basic proof
 // behavior: ./intent-ci-proof.spec.ts.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
+import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 
-import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
-import { wordsBrokenApart } from "../wholeWords.ts";
-import { attemptLink, evidenceLabels } from "../ciEvidenceLabelsPage.ts";
-import { parts } from "../dashboardPage.ts";
-import { summaryRegion } from "../intentScopeProofPage.ts";
 import {
-  proofSummaryForEntries,
-  runArtifactsAnswer,
-  summaryZipAnswer,
-} from "../support/ciProofArtifacts.ts";
+  twiceZoomedWindow,
+  zoomedWindow,
+} from "../../tests/accessibleReading.ts";
+import { wordsBrokenApart } from "../../tests/wholeWords.ts";
+import {
+  attemptLink,
+  evidenceLabels,
+} from "../../tests/ciEvidenceLabelsPage.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { summaryRegion } from "../../tests/intentScopeProofPage.ts";
+
+const failed = { state: "failed" } as const;
 
 test("at 200% zoom and on a narrow window each entry's row reads whole within the reading pane, nothing scrolls sideways and the keyboard passes the table", async ({
   page,
 }) => {
   const longEntry = "src/skills/dough-test-optimization/scripts";
-  const summary = proofSummaryForEntries(run, [
+  const summary = [
     makeMe.aCiProofEntry
       .at(longEntry)
       .holding(
@@ -74,7 +75,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
           .please(),
       )
       .please(),
-  ]);
+  ];
   const gapWhy = "Partial: part 2 of 3 missing";
   const rows = [
     [
@@ -87,11 +88,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     ],
     ["dashboard/tests", "12 passed test cases", "2 min"],
   ] as const;
-  const { panel, proof } = await openFailedRun(
-    page,
-    () => runArtifactsAnswer(run, artifactId),
-    () => summaryZipAnswer(summary),
-  );
+  const { panel, proof } = await openFrontendRunProof(page, summary, failed);
   await expectProofRows(proof, rows);
   const fileGap = ciProofReading(proof).unitLines.filter({
     hasText: "Part 2 missing",
