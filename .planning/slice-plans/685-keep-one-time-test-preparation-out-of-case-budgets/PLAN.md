@@ -4,6 +4,7 @@
 
 **Source:** [refined story](../../seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets).
 Preparation only; this plan grants no execution authority.
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -99,7 +100,7 @@ results, limits and recoverable sources; no implementation has been accepted.
 
 ### 1. Ordinary origins arrive prepared for either host
 Type: Behavior
-Status: planned
+Status: done
 Proof: story examples 1, 2, 5 and the first proof row above.
 
 Behavior: a fresh plain preparationPage case, on either host and with a queued
@@ -116,6 +117,18 @@ Hold a producer at an observed gate to locate work outside case time; no sleep
 or timeout extension.
 Run the host/override/group selections and loaded side-panel journey. Keep
 run elapsed and unused-host cost visible. Include docs/fixture-origins updates.
+
+Accepted (2026-11-18, load 6–11 AC): worker `queuedOriginsReady` in
+`serverInputWorkerFixtures.ts` (extracted from pageTest, 249→163) prepares
+both queued layouts; `runtime/test-preparation-budget.spec.ts` gates both
+clones before any case under all three group setups and goes red (30 s) when
+`origin` drops the dependency. Unused layout adds ~0.2 s concurrently, ~1.5 s
+alone, once per run. Refactor found the two landed-CI preview readers
+(`ciFollowUpSettledReading`, `projectScopeHistoryFixture`) now take
+`dashboardPreviewReady`. The wrapper names are kept as aliases of `test` for
+25 importing E2E specs; their misleading names are a wrap-up follow-up.
+The loaded side-panel first-case run at natural 30–50 is still owed and is
+carried into slice 5's loaded acceptance with the other journeys.
 
 ### 2. Boundary-only preparation rejects an unnecessary app request
 Type: Behavior
@@ -181,6 +194,8 @@ Keep baseline planning/claim history, completion parents and endpoint IDs from
 the real operations. Run other helper consumers reached by the actual diff;
 no wholesale shared-helper migration is assumed. Keep the second case's
 shallow/unshallow recovery private and unchanged.
+Also run slice 1's fresh side-panel-content-replacement first case in the
+same natural 30–50 loaded acceptance.
 
 ## Verification and delivery gates
 

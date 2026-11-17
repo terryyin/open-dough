@@ -1,0 +1,93 @@
+// The worker fixtures that request what a worker's servers and installed
+// origins start from, declared with the suite's other worker fixtures in
+// ./pageTest.ts. Each takes the bounded worker lifetime of cold shared
+// preparation (coldInputPreparation), so the first case waits for none of it
+// in its own default 30 seconds. Preparation stays in the run's elapsed time
+// and is deduplicated by the run owner (./runArtifacts.ts).
+import type { Fixtures } from "@playwright/test";
+import { coldInputPreparation } from "./publishedMainWorkerFixtures.ts";
+
+export type FixtureServerMode = "preview" | "boundary";
+type Host = "claude" | "codex";
+
+export type ServerInputWorkerFixtures = {
+  serverMode: FixtureServerMode;
+  dashboardServerInputsReady: undefined;
+  dashboardPreviewReady: undefined;
+  queuedOriginsReady: undefined;
+  queuedCodexOriginReady: undefined;
+  queuedClaudePreviewReady: undefined;
+  queuedClaudeBoundaryReady: undefined;
+  queuedCodexPreviewReady: undefined;
+};
+
+// Requests the named hosts' queued origins, the server bundle, and the app
+// build unless only boundary servers start.
+async function prepareServerInputs(
+  hosts: readonly Host[],
+  serverMode: FixtureServerMode | undefined,
+) {
+  const [artifacts, origins, app, bundle] = await Promise.all([
+    import("./runArtifacts.ts"),
+    import("./startOriginPreparation.ts"),
+    import("./dashboardBuild.ts"),
+    import("./serverBundle.ts"),
+  ]);
+  await Promise.all(
+    [
+      ...hosts.map((host) => origins.startOriginArtifactKey(host, "queued")),
+      ...(serverMode === "preview" ? [app.dashboardAppArtifactKey] : []),
+      ...(serverMode === undefined ? [] : [bundle.serverBundleArtifactKey]),
+    ].map((key) => artifacts.requestRunArtifact(key)),
+  );
+}
+
+function prepared(
+  hosts: readonly Host[],
+  serverMode: FixtureServerMode | undefined,
+) {
+  // eslint-disable-next-line no-empty-pattern
+  return async ({}, use: (value: undefined) => Promise<void>) => {
+    await prepareServerInputs(hosts, serverMode);
+    await use(undefined);
+  };
+}
+
+export const serverInputWorkerFixtures: Fixtures<
+  object,
+  ServerInputWorkerFixtures
+> = {
+  serverMode: ["preview", { scope: "worker", option: true }],
+  dashboardServerInputsReady: [
+    async ({ serverMode }, use) => {
+      await prepareServerInputs([], serverMode);
+      await use(undefined);
+    },
+    coldInputPreparation,
+  ],
+  // Reading-only previews need the app and boundaries, with no installed origin.
+  dashboardPreviewReady: [prepared([], "preview"), coldInputPreparation],
+  // Installed preparation origins: both hosts' queued bases, so a worker that
+  // runs either host, or both, starts each private copy from a prepared base.
+  queuedOriginsReady: [
+    prepared(["claude", "codex"], undefined),
+    coldInputPreparation,
+  ],
+  // Each host's preview needs its queued origin and the same immutable app inputs.
+  queuedClaudePreviewReady: [
+    prepared(["claude"], "preview"),
+    coldInputPreparation,
+  ],
+  // Boundary servers on the queued Claude origin open no app.
+  queuedClaudeBoundaryReady: [
+    prepared(["claude"], "boundary"),
+    coldInputPreparation,
+  ],
+  queuedCodexPreviewReady: [
+    prepared(["codex"], "preview"),
+    coldInputPreparation,
+  ],
+  // Requested only by native readers that need this installed queued input.
+  // Its setup has the worker's default budget, before a reading test starts.
+  queuedCodexOriginReady: [prepared(["codex"], undefined), { scope: "worker" }],
+};

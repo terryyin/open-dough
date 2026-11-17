@@ -19,7 +19,8 @@
 // `@playwright/test` under `dashboard/tests/`.
 //
 // Every worker-scoped fixture of the suite is declared here, whichever specs
-// take it; the published-main ones come from ./publishedMainWorkerFixtures.ts.
+// take it; the published-main ones come from ./publishedMainWorkerFixtures.ts
+// and the server and origin inputs from ./serverInputWorkerFixtures.ts.
 // Playwright runs a test only in a worker whose fixture pool
 // declares the same worker-scoped fixtures (the worker hash is the set of
 // those registrations, not the fixtures a test uses), so a worker-scoped
@@ -40,122 +41,35 @@ import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
 import {
-  coldInputPreparation,
   publishedMainWorkerFixtures,
   type PublishedMainWorkerFixtures,
 } from "./publishedMainWorkerFixtures.ts";
+import {
+  serverInputWorkerFixtures,
+  type ServerInputWorkerFixtures,
+} from "./serverInputWorkerFixtures.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
 
 export { expect } from "@playwright/test";
-
-export type FixtureServerMode = "preview" | "boundary";
+export type { FixtureServerMode } from "./serverInputWorkerFixtures.ts";
 
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
 
-// Requests what a worker's servers start from, so the first test waits for
-// none of it in its own time: the host's queued origin when it has one, the
-// server bundle, and the app build unless only boundary servers start. Its
-// fixtures, like the published-main ones, take the bounded worker lifetime of
-// cold shared preparation (coldInputPreparation).
-async function prepareServerInputs(
-  host: "claude" | "codex" | undefined,
-  serverMode: FixtureServerMode,
-) {
-  const [artifacts, origins, app, bundle] = await Promise.all([
-    import("./runArtifacts.ts"),
-    import("./startOriginPreparation.ts"),
-    import("./dashboardBuild.ts"),
-    import("./serverBundle.ts"),
-  ]);
-  await Promise.all(
-    [
-      ...(host === undefined
-        ? []
-        : [origins.startOriginArtifactKey(host, "queued")]),
-      ...(serverMode === "preview" ? [app.dashboardAppArtifactKey] : []),
-      bundle.serverBundleArtifactKey,
-    ].map((key) => artifacts.requestRunArtifact(key)),
-  );
-}
-
 // Playwright's worker-only extension takes an empty test-fixture type.
 const workerTest = base.extend<
   object,
-  PublishedMainWorkerFixtures & {
-    serverMode: FixtureServerMode;
-    dashboardServerInputsReady: undefined;
-    launchJourney: LaunchJourney;
-    comparisonRenderer: ComparisonRenderer;
-    dashboardPreviewReady: undefined;
-    queuedCodexOriginReady: undefined;
-    queuedClaudePreviewReady: undefined;
-    queuedClaudeBoundaryReady: undefined;
-    queuedCodexPreviewReady: undefined;
-    keptStory: StartRepository;
-    keptIntentStory: StartRepository;
-    keptSummaryComparisonStory: StartRepository;
-  }
+  PublishedMainWorkerFixtures &
+    ServerInputWorkerFixtures & {
+      launchJourney: LaunchJourney;
+      comparisonRenderer: ComparisonRenderer;
+      keptStory: StartRepository;
+      keptIntentStory: StartRepository;
+      keptSummaryComparisonStory: StartRepository;
+    }
 >({
-  serverMode: ["preview", { scope: "worker", option: true }],
-  dashboardServerInputsReady: [
-    async ({ serverMode }, use) => {
-      await prepareServerInputs(undefined, serverMode);
-      await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  // Reading-only previews need the app and boundaries, with no installed origin.
-  dashboardPreviewReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await prepareServerInputs(undefined, "preview");
-      await use(undefined);
-    },
-    coldInputPreparation,
-  ],
+  ...serverInputWorkerFixtures,
   ...publishedMainWorkerFixtures,
-  // Each host's preview needs its queued origin and the same immutable app inputs.
-  queuedClaudePreviewReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await prepareServerInputs("claude", "preview");
-      await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  // Boundary servers on the queued Claude origin open no app.
-  queuedClaudeBoundaryReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await prepareServerInputs("claude", "boundary");
-      await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  queuedCodexPreviewReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await prepareServerInputs("codex", "preview");
-      await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  // Requested only by native readers that need this installed queued input.
-  // Its setup has the worker's default budget, before a reading test starts.
-  queuedCodexOriginReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const [{ requestRunArtifact }, { startOriginArtifactKey }] =
-        await Promise.all([
-          import("./runArtifacts.ts"),
-          import("./startOriginPreparation.ts"),
-        ]);
-      await requestRunArtifact(startOriginArtifactKey("codex", "queued"));
-      await use(undefined);
-    },
-    { scope: "worker" },
-  ],
   // Story A published as completed and kept (./keptPublishedStory.ts), on the
   // queued trunk, on Intent's and on the summary comparison's: the worker
   // that takes one prepares it before its first such case and answers the

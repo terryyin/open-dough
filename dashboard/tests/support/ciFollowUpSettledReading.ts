@@ -11,15 +11,17 @@ import { keepRepeatLandingForPage } from "./ciFollowUpPageLanding.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import { startingFromKeptIntentStory } from "./keptPublishedStory.ts";
 import { startLandedCiReader } from "./landedCiReader.ts";
-import { queuedClaudePreviewTest as base } from "./preparationPage.ts";
+import { test as base } from "./preparationPage.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
 export { expect } from "./preparationPage.ts";
 
 // The page's dashboard is the reader itself: no collecting dashboard runs on
-// the machine before it or beside it.
+// the machine before it or beside it; its preview inputs are worker
+// preparation (./serverInputWorkerFixtures.ts).
 export const test = base.extend(startingFromKeptIntentStory).extend({
-  dashboard: async ({ github, origin }, use) => {
+  dashboard: async ({ dashboardPreviewReady, github, origin }, use) => {
+    await Promise.resolve(dashboardPreviewReady);
     const reader = await startLandedCiReader({ github }, origin, "preview");
     await use(reader);
     await reader.close();
