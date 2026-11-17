@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
 - [Keep a departed candidate read from showing a failure after Show latest](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-no-stale-candidate-failure-after-show-latest) — SEED-334#observe-no-stale-candidate-failure-after-show-latest ([plan](slice-plans/686-observe-no-stale-candidate-failure-after-show-latest/PLAN.md))
+- [Move story destination and card selection checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents) — SEED-334#retire-integrated-ui-test-and-its-documents ([plan](slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md))
 
 ## Backlog list
 
@@ -42,7 +43,6 @@ intent introduced or affected by a newly developed story.
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
-- [Move story destination and card selection checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents) — SEED-334#retire-integrated-ui-test-and-its-documents
 - [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group
 - [Carry dashboard test knowledge in test code and remove its Markdown](seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code) — SEED-334#carry-dashboard-test-knowledge-in-code
