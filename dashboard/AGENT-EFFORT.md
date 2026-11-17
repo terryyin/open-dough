@@ -66,9 +66,20 @@ per agent), `peakInputRule`, `idleWakeRequests`, `idleWakeRule` and sorted
 
 - Figures: `totals` and each agent's `totals` hold `requests`, `totalInput`,
   `cachedInput`, `uncachedInput`, `cacheWrite`, `cacheWrite5m`, `cacheWrite1h`,
-  `output`, `reasoningOutput` and `totalTokens`, each `{value, status}` in
+  `output`, `totalTokens` and, only when present (Cursor),
+  `reasoningOutput`, each `{value, status}` in
   tokens (requests in requests). `status` is `complete`, `partial` (a known
-  subtotal) or `unavailable` (`value` null).
+  subtotal) or `unavailable` (`value` null, never zero). Per-counter figures
+  may add `missingRequests`; `totalInput` may add `missingComponents`
+  (`uncachedInput`, `cachedInput`, `cacheWrite` request counts).
+- `idleWakeRequests` has `value`, `status`, `classifiedRequests`,
+  `unclassifiedRequests`, `progressRequests`, `mixedResultRequests`,
+  `clockOnlyRequests` and `coverage` when wake evidence was examined; Cursor
+  reports only `value` null with `status` `unavailable`. `observedSettings`
+  entries have `model`, `effort`, `serviceTier` and `requests`; `sources`
+  entries have `kind`, `file` and, when recorded, `line`, `repository` and
+  `revision`. These nested
+  facts are mapped key by key (`agentEffortSingleReportFacts.ts`).
 - Codex/Claude (`definition` `codex-inclusive-input` or
   `claude-disjoint-input`): `selection` has `kind` (`task` or
   `native-family`), `taskId`, `identity`, `rootSessionId`, `rootTurnId`,

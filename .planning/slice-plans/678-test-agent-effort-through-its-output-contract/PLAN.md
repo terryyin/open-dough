@@ -163,7 +163,7 @@ Accepted proof: focused family 69 passed (`agent-effort-cost-*.spec.ts`, selecti
 
 ### 3. A maintainer can distinguish known figures from gaps in the evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: source examples 3/4; missing native/cache/input/wake/settings evidence,
 stored counters, Cursor unsupported metrics and conservative join scenarios.
 Assert known subtotals, null versus zero, affected coverage and named reasons
@@ -176,6 +176,7 @@ Finish the documented coverage/gap projection and independent single-report
 test contract; regroup uncertainty examples and shared data-only variants.
 Reshape coverage responsibilities where repeated rules are exposed without
 collapsing input completeness into unrelated wake or settings completeness.
+Accepted proof: focused family 69 passed; uncertainty specs regrouped as `agent-effort-unknown-{counters,stored-worker,wakes}.spec.ts` with readable output equal to JSON-stated facts (`costViews`). Scratch faults each failed their owning examples and were restored: null→0 figures (4 failed), peak status ignoring missing components (cost-peaks lower-bound example), wake gap qualifying peak (17 wakes examples), readable dropping a gap (5 readable-only failures). Nested facts mapped in `agentEffortSingleReportFacts.ts`.
 
 ### 4. A maintainer can compare groups while retaining their evidence boundaries
 Type: Behavior
@@ -215,6 +216,7 @@ removed/merged case's surviving witness before accepting the final contract.
 ## Learnings
 
 - Slice 1: the Cursor report union declares `selections?: never`, so CLI projections narrowing on `"selections" in report` must treat `selections` as optional.
+- Slice 3: Claude wake fixtures have incomplete input, so a "wake gap does not qualify the peak" witness must condition on input completeness; native `unownedResponses` is typed `unknown[]`, blocking an explicit projection until its owner exposes a shape.
 
 Otherwise none beyond the baseline and premises above. Execution records consequential
 new evidence here and retains migration evidence with this plan until wrap-up.
@@ -241,7 +243,12 @@ Reported: slice 1 — "The ownership and native-family specs were not moved into
 Story clause: "Organize examples by maintainer question: what one execution cost, how two groups compare, what stays unknown and why, and how selections resolve."
 Disposition: proved by slice 2: cost examples regrouped as agent-effort-cost-{report,ownership,peaks,settings,cursor}.spec.ts, native-family merged into agent-effort-selection.spec.ts; proof-migration.md rows; focused family 69 passed
 
-### G5. Nested figure, coverage and agent shapes still pass through owner objects
+### G5. Nested figure, coverage and agent shapes still pass through owner objects (slice 3 mapped all but `unownedResponses` and `requestedSettings`)
 Reported: slice 2 — "`totals`, `workflow`, `sources`, `observedSettings` and agent `peakInput`/`idleWakeRequests` are still passed through as their existing owner shapes, not re-mapped key by key."
 Story clause: "The CLI explicitly maps internal results to that contract."
-Disposition: receiving slice 3
+Disposition: receiving slice 4
+
+### G6. Cursor readable output lacks its own bytes-not-tokens observation
+Reported: slice 3 — "I added no Cursor readable assertion. The `costViews` readable reader is native-only, and the Cursor spec still has only its JSON assertions plus the Cursor readable lines from slice 2."
+Story clause: "Cursor bytes never become tokens."
+Disposition: receiving slice 4

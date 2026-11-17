@@ -68,6 +68,7 @@ export type CostReport = ReportedSelection & {
   guidanceVersion: { value: string | null; provenance: string };
   sources: { file: string }[];
   unownedResponses?: unknown[];
+  threads?: number | null;
   observedSettings?: ObservedSetting[];
   observedSettingsCoverage?: Record<string, unknown>;
   totals: CostTotals;
@@ -80,8 +81,10 @@ export type CostReport = ReportedSelection & {
 };
 
 /** Native single report in JSON through the actual CLI. */
-export const costReport = (home: string, args: string[]) =>
-  JSON.parse(succeeded(effortCli(home, [...args, "--json"]))) as CostReport;
+export const costReport = (home: string, args: string[], cwd?: string) =>
+  JSON.parse(
+    succeeded(effortCli(home, [...args, "--json"], cwd)),
+  ) as CostReport;
 /** Cursor single report in JSON for one retained family root. */
 export const cursorCost = (home: string, root: string, args: string[] = []) =>
   JSON.parse(
@@ -94,4 +97,48 @@ export function readableFact(stdout: string, label: string): unknown {
   const line = stdout.split("\n").find((row) => row.startsWith(`${label}: `));
   if (!line) throw new Error(`Readable output lacks ${label}`);
   return JSON.parse(line.slice(label.length + 2));
+}
+
+/** The figures, agents, idle wakes and gaps a readable report states. */
+export type ReadableCost = Pick<CostReport, "totals" | "idleWakeRequests"> & {
+  agents: Omit<CostAgent, "responseIds">[];
+  gaps: string[];
+};
+export function readableCost(stdout: string, idleWakeRule: string) {
+  const rows = stdout.split("\n");
+  const wakes = rows.find((row) => row.startsWith(`${idleWakeRule} `));
+  const gaps = rows.find((row) => row.startsWith("Gaps: "));
+  if (!wakes || gaps === undefined)
+    throw new Error("Readable output lacks idle wakes or gaps");
+  return {
+    totals: readableFact(stdout, "Combined known figures") as CostTotals,
+    agents: rows.flatMap((row) => {
+      const agent = /^(?:coordinator|worker) .+?: (\{.*\})$/.exec(row);
+      return agent?.[1] ? [JSON.parse(agent[1]) as CostAgent] : [];
+    }),
+    idleWakeRequests: JSON.parse(wakes.slice(idleWakeRule.length + 1)),
+    gaps: gaps.slice("Gaps: ".length).split(", ").filter(Boolean),
+  } satisfies ReadableCost;
+}
+/** The same native report as JSON and as its readable facts. */
+export function costViews(home: string, args: string[], cwd?: string) {
+  const json = costReport(home, args, cwd);
+  const readable = readableCost(
+    succeeded(effortCli(home, args, cwd)),
+    json.idleWakeRule,
+  );
+  const stated: ReadableCost = {
+    totals: json.totals,
+    agents: json.agents.map((agent) => {
+      const stated: Omit<CostAgent, "responseIds"> & {
+        responseIds?: string[];
+      } = { ...agent };
+      delete stated.responseIds;
+      return stated;
+    }),
+    idleWakeRequests: json.idleWakeRequests,
+    gaps: json.gaps,
+  };
+  /** Readable output must state exactly the JSON facts, qualifications included. */
+  return { json, readable, stated };
 }

@@ -1,5 +1,9 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
+import {
+  costViews,
+  costReport,
+} from "../../tests/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
@@ -7,7 +11,6 @@ import {
   launch,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { report } from "../../tests/usage-history/agentEffortHarness.ts";
 import {
   writeClaudeSession,
   writeCodexSession,
@@ -76,10 +79,15 @@ test("Codex maxima use inclusive input per agent and aggregate observed settings
       )
       .please(),
   );
-  const actual = report(home, root, [
+  const {
+    json: actual,
+    readable,
+    stated,
+  } = costViews(home, [
     "--task",
     "SEED-358#reconstruct-codex-and-claude-code-usage-history",
   ]);
+  expect(readable).toEqual(stated);
   const coordinator = actual.agents.find(
     (agent) => agent.role === "coordinator",
   );
@@ -113,7 +121,6 @@ test("Codex maxima use inclusive input per agent and aggregate observed settings
 
 test("historical guidance stays unknown when an isolated current VERSION changes and optional guidance is labelled supplied", ({
   home,
-  root,
 }) => {
   writeClaudeSession(
     path.join(home, "claude"),
@@ -127,17 +134,17 @@ test("historical guidance stays unknown when an isolated current VERSION changes
       .please(),
   );
   writeFileSync(path.join(home, "VERSION"), "1.2.3\n");
-  expect(report(home, root, familyFlags, home).guidanceVersion).toMatchObject({
+  expect(costReport(home, familyFlags, home).guidanceVersion).toMatchObject({
     value: null,
     provenance: "unknown",
   });
   writeFileSync(path.join(home, "VERSION"), "9.8.7\n");
-  expect(report(home, root, familyFlags, home).guidanceVersion).toMatchObject({
+  expect(costReport(home, familyFlags, home).guidanceVersion).toMatchObject({
     value: null,
     provenance: "unknown",
   });
   expect(
-    report(home, root, [...familyFlags, "--guidance-version", "0.7.8"], home)
+    costReport(home, [...familyFlags, "--guidance-version", "0.7.8"], home)
       .guidanceVersion,
   ).toMatchObject({ value: "0.7.8", provenance: "supplied" });
 });

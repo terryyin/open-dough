@@ -39,7 +39,7 @@ export type ReportedSelection = {
 };
 
 /** Runs the actual CLI against native roots; failures stay observable. */
-export function effortCli(home: string, args: string[]) {
+export function effortCli(home: string, args: string[], cwd?: string) {
   const result = spawnSync(
     process.execPath,
     [
@@ -52,7 +52,7 @@ export function effortCli(home: string, args: string[]) {
       path.join(home, "claude"),
       ...args,
     ],
-    { encoding: "utf8", env: { ...process.env, HOME: home } },
+    { encoding: "utf8", cwd, env: { ...process.env, HOME: home } },
   );
   return {
     status: result.status,

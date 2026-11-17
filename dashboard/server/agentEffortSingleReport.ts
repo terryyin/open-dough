@@ -3,6 +3,16 @@
 // reach JSON and readable output only through these explicit mappings.
 import type { nativeEffortSummary } from "./agentEffortNativeSummary.ts";
 import type { cursorEffortReport } from "./agentEffortCursor.ts";
+import {
+  agentWorkflow,
+  idleWakes,
+  observedSettings,
+  peakInput,
+  reportWorkflow,
+  settingsCoverage,
+  sources,
+  totals,
+} from "./agentEffortSingleReportFacts.ts";
 
 type NativeReport = Awaited<ReturnType<typeof nativeEffortSummary>>;
 type CursorReport = Exclude<
@@ -42,25 +52,25 @@ const nativeAgent = (agent: NativeReport["agents"][number]) => ({
   agentId: agent.agentId,
   role: agent.role,
   provenance: agent.provenance,
-  totals: agent.totals,
-  observedSettings: agent.observedSettings,
-  sources: agent.sources,
+  totals: totals(agent.totals),
+  observedSettings: observedSettings(agent.observedSettings),
+  sources: sources(agent.sources),
   responseIds: agent.responseIds,
-  peakInput: agent.peakInput,
-  idleWakeRequests: agent.idleWakeRequests,
+  peakInput: peakInput(agent.peakInput),
+  idleWakeRequests: idleWakes(agent.idleWakeRequests),
 });
 const cursorAgent = (agent: CursorReport["agents"][number]) => ({
   id: agent.id,
   role: agent.role,
   provenance: agent.provenance,
-  sources: agent.sources,
-  workflow: agent.workflow,
-  totals: agent.totals,
+  sources: sources(agent.sources),
+  workflow: agentWorkflow(agent.workflow),
+  totals: totals(agent.totals),
   requestedSettings: agent.requestedSettings,
-  observedSettings: agent.observedSettings,
-  observedSettingsCoverage: agent.observedSettingsCoverage,
-  peakInput: agent.peakInput,
-  idleWakeRequests: agent.idleWakeRequests,
+  observedSettings: observedSettings(agent.observedSettings),
+  observedSettingsCoverage: settingsCoverage(agent.observedSettingsCoverage),
+  peakInput: peakInput(agent.peakInput),
+  idleWakeRequests: idleWakes(agent.idleWakeRequests),
 });
 const nativeOutput = (report: NativeReport) => ({
   format: report.format,
@@ -75,15 +85,15 @@ const nativeOutput = (report: NativeReport) => ({
     provenance: report.guidanceVersion.provenance,
     evidence: report.guidanceVersion.evidence,
   },
-  sources: report.sources,
+  sources: sources(report.sources),
   unownedResponses: report.unownedResponses,
-  totals: report.totals,
+  totals: totals(report.totals),
   threads: report.threads,
   agents: report.agents.map(nativeAgent),
   gaps: report.gaps,
   peakInput: report.peakInput,
   peakInputRule: report.peakInputRule,
-  idleWakeRequests: report.idleWakeRequests,
+  idleWakeRequests: idleWakes(report.idleWakeRequests),
   idleWakeRule: report.idleWakeRule,
 });
 const cursorOutput = (report: CursorReport) => ({
@@ -94,19 +104,19 @@ const cursorOutput = (report: CursorReport) => ({
   definition: report.definition,
   accounting: report.accounting,
   requestedSettings: report.requestedSettings,
-  observedSettings: report.observedSettings,
-  observedSettingsCoverage: report.observedSettingsCoverage,
+  observedSettings: observedSettings(report.observedSettings),
+  observedSettingsCoverage: settingsCoverage(report.observedSettingsCoverage),
   guidanceVersion: {
     value: report.guidanceVersion.value,
     provenance: report.guidanceVersion.provenance,
   },
-  sources: report.sources,
-  totals: report.totals,
+  sources: sources(report.sources),
+  totals: totals(report.totals),
   agents: report.agents.map(cursorAgent),
-  workflow: report.workflow,
+  workflow: reportWorkflow(report.workflow),
   peakInput: report.peakInput,
   peakInputRule: report.peakInputRule,
-  idleWakeRequests: report.idleWakeRequests,
+  idleWakeRequests: idleWakes(report.idleWakeRequests),
   idleWakeRule: report.idleWakeRule,
   gaps: report.gaps,
 });

@@ -7,7 +7,6 @@ import type { cursorEffortReport } from "../../server/agentEffortCursor.ts";
 import type { CursorTranscriptBuilder } from "../../../Distribution/tests/support/cursorTranscriptTestData.mjs";
 
 type EffortResult = Awaited<ReturnType<typeof agentEffortReport>>;
-type EffortCatalog = Extract<EffortResult, { selections: unknown }>;
 type EffortReport = Exclude<EffortResult, { selections: unknown }>;
 
 export const command = path.resolve("dashboard/server/compareAgentEffort.ts");
@@ -39,24 +38,7 @@ export function cursorReport(home: string, root: string, flags: string[] = []) {
     ),
   ) as Exclude<ReturnType<typeof cursorEffortReport>, { selections: unknown }>;
 }
-export function report(
-  home: string,
-  root: string,
-  flags: ["--list"],
-  cwd?: string,
-): EffortCatalog;
-export function report(
-  home: string,
-  root: string,
-  flags: string[],
-  cwd?: string,
-): EffortReport;
-export function report(
-  home: string,
-  root: string,
-  flags: string[],
-  cwd?: string,
-): EffortResult {
+export function report(home: string, root: string, flags: string[]) {
   return JSON.parse(
     execFileSync(
       process.execPath,
@@ -71,9 +53,9 @@ export function report(
         "--json",
         ...flags,
       ],
-      { encoding: "utf8", cwd, env: { ...process.env, HOME: home } },
+      { encoding: "utf8", env: { ...process.env, HOME: home } },
     ),
-  ) as EffortResult;
+  ) as EffortReport;
 }
 export const bytes = (home: string) =>
   Object.fromEntries(

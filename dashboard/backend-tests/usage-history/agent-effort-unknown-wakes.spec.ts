@@ -1,5 +1,6 @@
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
-import { bytes, report } from "../../tests/usage-history/agentEffortHarness.ts";
+import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
+import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
 import { writeWakeEvidence } from "../../tests/usage-history/agentEffortWakeFixtures.ts";
 
 const flags = (host: string) => [
@@ -171,7 +172,8 @@ for (const host of ["codex", "claude"])
       const claudeUseful =
         host === "claude" && scenario.name === "useful output";
       const before = bytes(home);
-      const actual = report(home, root, flags(host));
+      const { json: actual, readable, stated } = costViews(home, flags(host));
+      expect(readable).toEqual(stated);
       expect(actual.totals.requests.value).toBe(2);
       expect(actual.idleWakeRequests).toMatchObject({
         value: claudeUseful ? null : scenario.idle,
@@ -187,6 +189,13 @@ for (const host of ["codex", "claude"])
       expect(actual.agents[0]?.idleWakeRequests).toEqual(
         actual.idleWakeRequests,
       );
+      // Input completeness, never wake coverage, qualifies the known peak.
+      expect(actual.agents[0]?.peakInput).toMatchObject({
+        status:
+          actual.totals.totalInput.status === "complete"
+            ? "observed-maximum"
+            : "observed-lower-bound",
+      });
       expect(actual.idleWakeRule).toContain("not waste or savings");
       expect(JSON.stringify(actual)).not.toContain('"tool_result"');
       expect(bytes(home)).toEqual(before);
@@ -202,7 +211,8 @@ for (const host of ["codex", "claude"])
       name: "covered window",
       outputs: [""],
     });
-    const actual = report(home, root, flags(host));
+    const { json: actual, readable, stated } = costViews(home, flags(host));
+    expect(readable).toEqual(stated);
     expect(actual.totals.requests.value).toBe(1);
     expect(actual.idleWakeRequests).toMatchObject({
       value: 1,

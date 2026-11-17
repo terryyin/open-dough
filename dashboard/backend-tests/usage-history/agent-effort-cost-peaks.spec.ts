@@ -1,8 +1,8 @@
 import path from "node:path";
 import { appendFileSync } from "node:fs";
+import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
-import { report } from "../../tests/usage-history/agentEffortHarness.ts";
 import {
   nativeFile,
   writeClaudeSession,
@@ -21,7 +21,6 @@ const familyFlags = [
 
 test("Claude maxima sum disjoint input once and keep same-session worker identities and model changes visible", ({
   home,
-  root,
 }) => {
   const claude = path.join(home, "claude");
   const usage = {
@@ -71,7 +70,8 @@ test("Claude maxima sum disjoint input once and keep same-session worker identit
       })
       .please(),
   );
-  const actual = report(home, root, familyFlags);
+  const { json: actual, readable, stated } = costViews(home, familyFlags);
+  expect(readable).toEqual(stated);
   expect(actual.agents.find((agent) => agent.agentId === null)).toMatchObject({
     peakInput: { value: 42, status: "observed-maximum" },
     observedSettings: [
@@ -97,7 +97,6 @@ for (const missing of [
 ]) {
   test(`missing ${missing} qualifies the observed maximum as a lower bound`, ({
     home,
-    root,
   }) => {
     const file = writeClaudeSession(
       path.join(home, "claude"),
@@ -127,7 +126,8 @@ for (const missing of [
         .please(),
     );
     if (missing === "readable row") appendFileSync(file, "{broken\n");
-    const actual = report(home, root, familyFlags);
+    const { json: actual, readable, stated } = costViews(home, familyFlags);
+    expect(readable).toEqual(stated);
     expect(actual.agents[0]?.peakInput).toMatchObject({
       value:
         missing === "input components"
