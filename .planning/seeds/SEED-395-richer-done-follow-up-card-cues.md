@@ -16,7 +16,7 @@ scope: story
 **Identity:** SEED-395#richer-done-follow-up-card-cues
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred from SEED-390; needs refinement before planning"]}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred from SEED-390; needs refinement before planning"],"basis":{"document":"e99f6b64c333015a163ae0ae6a7a9788841765ef523f88ca730713a3003ba590"}}
 ```
 
 #### Goal
