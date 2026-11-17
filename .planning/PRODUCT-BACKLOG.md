@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Verification reaches affected consumers before completion is claimed](seeds/SEED-393-test-quality-learning-from-effort-replays.md#proof-reaches-unchanged-consumers-of-changed-output) — SEED-393#proof-reaches-unchanged-consumers-of-changed-output ([plan](slice-plans/674-verification-reaches-affected-consumers/PLAN.md))
 - [Repeat native guidance checks using focused examples](seeds/SEED-393-test-quality-learning-from-effort-replays.md#repeat-native-guidance-checks-on-real-story-examples) — SEED-393#repeat-native-guidance-checks-on-real-story-examples ([plan](slice-plans/674-repeat-native-guidance-checks/PLAN.md))
 - [Attach story notes to follow-ups and show which are waiting](seeds/SEED-348-collect-notes-for-story-follow-ups.md#attach-story-notes-to-follow-ups) — SEED-348#attach-story-notes-to-follow-ups ([plan](slice-plans/672-attach-story-notes-to-follow-ups/PLAN.md))
-- [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story ([plan](slice-plans/667-group-ad-hoc-follow-ups-with-their-done-story/PLAN.md))
 
 ## Backlog list
 
