@@ -157,36 +157,90 @@ shorter to write and its failure quicker to read.
 
 **Identity:** SEED-396#remove-redundant-evaluation-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/680-remove-redundant-evaluation-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2cd27a3b2fbef33d9aa1f8dd87bb6a0c3ad5578e141ed7d27f0b2a6f2047244b","plan":"5670462a2ef73240bdacf28dcbf5f7f7625e017d95a6061483fc45dca1e001ee"}}
 ```
 
 #### Goal
 
-A maintainer runs fewer evaluation checks with the same protection: each
-check that only restates data or configuration, enters below the family
-entry, or repeats another check's observation is removed or moved up.
+A maintainer runs fewer redundant evaluation assertions with the same
+behavioral protection. Checks that restate shipped data or repeat another
+observation disappear; meaningful checks below a family entry move up only
+when the replacement still catches their covered faults.
 
 #### Scope
 
-Candidates, none verified yet:
+Required behavior:
 
-- Checks that restate data or configuration, such as the shipped case names
-  in `native-guidance-check.sh`. Classify the catalog, case-selection,
-  routing, entry-dispatch and identity-input checks against the guideline's
-  data rule.
-- Checks that source private helpers: `native-journey-state.sh`, the
-  comparison checks that source `native-comparison-verdict.sh` and
-  `native-comparison-basis.sh`, and `native-run-watchdog-cleanup.sh` and
-  `native-run-workspace-isolation.sh`, which call
-  `native-run-supervise.sh` functions.
-- Overlaps: `native-stream-replay.sh` with the JavaScript stream test, and
-  the launch-command-tests case split across four files.
-- The four admission and three one-shot `exec` wrappers exist to spread one
-  suite across parallel jobs. Folding them changes job balance, not
-  coverage; decide it with CI timings.
+- The catalog check exercises the real guidance-check command against its
+  own small catalog. It proves listing, case-insensitive trait filtering,
+  conjunction of filters and the no-match result without listing shipped
+  case names or copying their traits into expected answers.
+- Case-selection, routing, entry-dispatch and identity-input checks are
+  judged by what they observe. Remove inventories and copied descriptions;
+  preserve selection refusals, quiet/read-only listing, unreviewed evidence,
+  dispatch effects, retained artifacts and identity invalidation.
+- Remove an identical repeated assessor scenario and stream assertions
+  already owned by corpus replay. Keep distinct reader outputs, rejected
+  cases, probe restoration and fixture/E2E observations.
+- A check is removed only if it restates data or configuration, repeats the
+  same scenario, or has a named retained/replacement entry-level check that
+  fails on a break of its covered behavior. If that protection is unique or
+  equivalence has not been established, keep the check. An assessor applied
+  to observations is a layer contract; its location under `src/` alone does
+  not make its rejected cases private-helper tests.
 
-A check is removed only when it restates data, or when a named entry-level
-check fails on a break of the behavior it covered. The estimate is on the
-order of ten of the 61 files.
-[Plan 677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md)
-names `native-comparison-refresh.sh` as its proof; leave that file to it.
+The candidate audit is in the executable plan. In particular, retain the
+watchdog race and incomplete-output-parent regression until equivalent
+entry-level protection exists; do not delete them just to satisfy an entry
+rule. Retain the comparison and journey assessors' distinct rejected cases,
+identity-input invalidation, corpus replay and the four launch-command test
+boundaries. The identical `cursor-target` journey-state scenario has no
+changed input and can go.
+
+Scope limits:
+
+- No production runtime, case catalog/content, historical evidence or paid
+  native behavior changes. No new framework or language migration.
+- Leave `native-comparison-refresh.sh` to
+  [plan 677](../slice-plans/677-recovery-proof-covers-historical-case-paths/PLAN.md).
+- The four admission and three one-shot wrappers remain. Discovery schedules
+  their groups once and excludes the aggregates; they partition work, not
+  protection. The prior three successful CI shares were 201–204 s, comparable
+  to the other shares. No rebalance or runtime gain is promised here.
+- The earlier estimate of about ten removed files was an unverified
+  hypothesis, not a quota. Fewer assertions is the supported outcome; do not
+  merge independently useful checks to reduce the file or job count.
+- The sibling's expectation vocabulary and guideline remain its work. Keep
+  its compatible rewrites and all distinct assertions when executing this
+  story.
+
+#### Key examples
+
+- **Selection without a copied catalog.** Two local cases share a host but
+  have different workflows → the command lists both, and combined mixed-case
+  host/workflow filters return only the matching case. A filter matching
+  neither returns a failure. Changing shipped case names requires no update
+  to these expectations.
+- **Data removal keeps behavior.** The listing's shipped descriptions and
+  host/case counts are no longer asserted → listing still starts no host,
+  creates no scratch, works with read-only results and marks a planted
+  passing record unreviewed. Invalid selections still fail before launch.
+- **One scenario, one observation.** `cursor-target.txt` is made by the same
+  `write_obs` as `expected.txt`, with no changed field → its repeated pass is
+  removed while failed-update and preservation counterexamples remain.
+- **Replay owns its existing observations.** A weekly-limit stream is
+  misclassified or gains an invented command → corpus replay fails, naming
+  that entry, after the repeated shell assertions are removed. Distinct
+  command-output pairing and tool/read observations stay in JavaScript.
+- **A lower entry is not sufficient reason to lose protection.** A watchdog
+  regression forces the just-forked handler race → retain that check when
+  ordinary command completion does not establish the same race coverage.
+
+#### Evaluation
+
+Compare the changed checks with their pre-change forms: redundant inventory
+and repeated scenario/assertion code is gone, and every distinct observation
+has a retained owner. Observe the relevant retained checks failing under the
+named faults and passing with them restored. Record removed assertions or
+scenarios separately from scheduled jobs; unchanged job count is acceptable.
+Make no speed or native-host qualification claim from this controlled work.
