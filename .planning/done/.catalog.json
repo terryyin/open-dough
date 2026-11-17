@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-396_replace-evaluation-shell-checks.json",
+      "identity": "SEED-396#replace-evaluation-shell-checks",
+      "completedAt": "2026-11-17T13:27:58.692Z",
+      "blob": "4986d37e4f5c8e7ae3ce0245a4ea1200ac26cb25"
+    },
+    {
       "fileName": "SEED-393_recovery-proof-covers-historical-case-paths.json",
       "identity": "SEED-393#recovery-proof-covers-historical-case-paths",
       "completedAt": "2026-11-17T13:25:42.834Z",

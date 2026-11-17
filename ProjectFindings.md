@@ -380,6 +380,8 @@ DD-378's plan-exclusion response and `SEED-229` retirement evidence are
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [SEED-287 completed](.planning/done/SEED-287_fit-dashboard-journeys-in-default-timeout.json). The observations above still include settings cases outside its scope and loaded runs without a comparable post-response result.
 
+The supplier-watch readiness facet was repaired at `30962c927ab1e74dd69340a81aeb3178251151ce`: the external driver now waits on the model-ready FIFO after preparation and turn 1, instead of charging them to a 10-second poll. The same controlled readiness-clock fault failed before and passed after; the focused check and all 75 evaluation jobs passed under the maintained AC sleep guard. Later phase waits and native/job deadlines are unchanged. This response does not settle the broader loaded-run and Settings observations above.
+
 ## `start-origin-isolation` successive preparations exceeded the 30 s default under external load (outcome pending)
 
 <a id="dd-479"></a>

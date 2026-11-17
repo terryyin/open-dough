@@ -11,15 +11,16 @@ source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
 # shellcheck source=Distribution/evaluation/src/product-backlog-native-evidence.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/src/product-backlog-native-evidence.sh"
+# shellcheck source=Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh"
 context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 fail_fixture="${source_dir}/Distribution/evaluation/tests/native-harness/support/native-agent-fail.sh"
 
-work_dir=$(mktemp -d)
-finish() {
-  chmod -R u+w "${work_dir}" 2> /dev/null || true
-  rm -rf -- "${work_dir}"
-}
-trap finish EXIT
+work_dir=''
+native_check_status=0
+missing_attempt='' fail_attempt='' denied_attempt=''
+native_check_workspace work_dir
 
 sentinel_bin="${work_dir}/bin"
 safe_bin="${work_dir}/safe-bin"
@@ -48,21 +49,11 @@ done
 missing_path="${safe_bin}:/usr/bin:/bin:/usr/sbin:/sbin"
 
 assert_watched_empty() {
-  local leftover
-  leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
-  if [[ -n ${leftover} ]]; then
-    echo 'FAIL: scratch remained after the wrapper returned.' >&2
-    printf '%s\n' "${leftover}" >&2
-    return 1
-  fi
+  native_check_expect_value 'wrapper scratch removed' '' "$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)"
 }
 
 assert_prior_identical() {
-  if ! diff -rq "${prior}" "${prior_copy}" > /dev/null; then
-    echo 'FAIL: previously completed attempt was not byte-identical.' >&2
-    diff -rq "${prior}" "${prior_copy}" >&2
-    return 1
-  fi
+  diff -rq "${prior}" "${prior_copy}" > /dev/null
 }
 
 assert_failed_attempt() {
@@ -73,122 +64,76 @@ assert_failed_attempt() {
   [[ ${attempt} != "${prior}" ]]
   [[ -f ${attempt}/record ]]
   [[ -f ${attempt}/stderr.log ]]
-  grep -Fq 'execution-status: failed' "${attempt}/record"
-  grep -Fq "execution-reason: ${reason}" "${attempt}/record"
-  grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
-  if grep -Fq 'execution-status: completed' "${attempt}/record"; then
-    echo 'FAIL: failure was recorded as completed.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
-    echo 'FAIL: failure was recorded as a wording pass.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
+  native_check_expect_field 'failed execution retained' "${attempt}/record" execution-status failed
+  native_check_expect_field 'failure reason retained' "${attempt}/record" execution-reason "${reason}"
+  native_check_expect_field 'failure not assessed' "${attempt}/record" assessment-status not-run
+  native_check_expect_field 'assessment reason retained' "${attempt}/record" assessment-reason 'behavior not assessed'
   native_result_assert_no_discovery_fields "${attempt}/record"
-  [[ ! -e ${attempt}/adopter ]]
-  [[ ! -e ${attempt}/candidate ]]
-  [[ ! -e ${attempt}/codex-state ]]
+  native_check_expect_absent 'adopter scratch not retained' "${attempt}/adopter"
+  native_check_expect_absent 'candidate scratch not retained' "${attempt}/candidate"
+  native_check_expect_absent 'codex-state scratch not retained' "${attempt}/codex-state"
 }
 
 run_failure() {
-  local expected_status=$1
-  shift
-  local status attempt
+  local result_variable=$1 expected_status=$2
+  shift 2
+  local attempt
 
   : > "${run_log}"
   : > "${stdout_file}"
   : > "${stderr_file}"
-  set +e
-  env TMPDIR="${watched_dir}" NATIVE_AGENT_SENTINEL_LOG="${run_log}" "$@" \
+  native_check_run "${sentinel_bin}" "${stdout_file}" "${stderr_file}" \
+    env TMPDIR="${watched_dir}" NATIVE_AGENT_SENTINEL_LOG="${run_log}" "$@" \
     "$(command -v bash)" "${context_wrapper}" --native "${host}" clear \
-    --results-dir "${results_dir}" > "${stdout_file}" 2> "${stderr_file}"
-  status=$?
-  set -e
-  if [[ ${status} -eq 0 ]]; then
-    echo "FAIL: selected ${host} launch failure returned passing." >&2
-    cat "${stdout_file}" >&2
-    cat "${stderr_file}" >&2
-    return 1
-  fi
-  if [[ ${status} -ne ${expected_status} ]]; then
-    echo "FAIL: selected ${host} exited ${status}, expected ${expected_status}." >&2
-    cat "${stdout_file}" >&2
-    cat "${stderr_file}" >&2
-    cat "${run_log}" >&2
-    return 1
-  fi
+    --results-dir "${results_dir}"
+  native_check_expect_status "selected ${host} fails with its status" "${expected_status}" "${native_check_status}" "${stdout_file}" "${stderr_file}" "${run_log}"
   assert_watched_empty
   attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if (path=="") exit 1; print path }' \
     "${stdout_file}")
-  printf '%s\n' "${attempt}"
+  printf -v "${result_variable}" '%s' "${attempt}"
 }
 
-if env PATH="${missing_path}" command -v codex > /dev/null 2>&1 \
-  || env PATH="${missing_path}" command -v cursor > /dev/null 2>&1 \
-  || env PATH="${missing_path}" command -v claude > /dev/null 2>&1; then
-  echo 'FAIL: could not hide native host executables for the missing case.' >&2
-  env PATH="${missing_path}" command -v codex cursor claude >&2 || true
-  exit 1
-fi
+for host_command in codex cursor claude; do
+  host_path=$(PATH="${missing_path}" command -v "${host_command}" || true)
+  native_check_expect_value "${host_command} hidden for missing case" '' "${host_path}"
+done
 
 host=codex
-missing_attempt=$(run_failure 127 PATH="${missing_path}")
+run_failure missing_attempt 127 PATH="${missing_path}"
 assert_failed_attempt "${missing_attempt}" 'missing executable'
-grep -Fq 'error: missing executable: codex' "${missing_attempt}/stderr.log"
-grep -Fq 'native-version: unknown' "${missing_attempt}/record"
-grep -Fq 'native-executable: unknown' "${missing_attempt}/record"
-if [[ -s ${run_log} ]]; then
-  echo 'FAIL: missing executable invoked a native command.' >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
+native_check_expect_line 'missing executable stderr retained' "${missing_attempt}/stderr.log" 'error: missing executable: codex'
+native_check_expect_field 'missing host version unknown' "${missing_attempt}/record" native-version unknown
+native_check_expect_field 'missing host executable unknown' "${missing_attempt}/record" native-executable unknown
+native_check_expect_value 'missing executable invokes no host' 0 "$(wc -c < "${run_log}" | tr -d '[:space:]')" "${run_log}"
 assert_prior_identical
 
 host=cursor
-fail_attempt=$(run_failure 1 \
+run_failure fail_attempt 1 \
   PATH="${sentinel_bin}:${PATH}" \
   NATIVE_AGENT_FAIL_CODE=1 \
   NATIVE_AGENT_FAIL_MESSAGE='native agent failed' \
-  NATIVE_AGENT_FAIL_VERSION=1)
+  NATIVE_AGENT_FAIL_VERSION=1
 assert_failed_attempt "${fail_attempt}" 'native command exited 1'
-grep -Fq 'native agent failed' "${fail_attempt}/stderr.log"
-grep -Fq 'native-version: unknown' "${fail_attempt}/record"
-if grep -Fq 'cursor-editor' "${fail_attempt}/record"; then
-  echo 'FAIL: Cursor runtime was inferred from the editor version.' >&2
-  cat "${fail_attempt}/record" >&2
-  exit 1
-fi
-if grep -Exq 'cursor --version' "${run_log}"; then
-  echo 'FAIL: Cursor runtime used editor cursor --version.' >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
+native_check_expect_line 'nonzero host stderr retained' "${fail_attempt}/stderr.log" 'native agent failed'
+native_check_expect_field 'failed version probe is unknown' "${fail_attempt}/record" native-version unknown
+editor_version=$(grep -F 'cursor-editor' "${fail_attempt}/record" || true)
+native_check_expect_value 'Cursor editor version not inferred' '' "${editor_version}" "${fail_attempt}/record"
+editor_probe=$(grep -Ex 'cursor --version' "${run_log}" || true)
+native_check_expect_value 'Cursor editor not probed' '' "${editor_probe}" "${run_log}"
 launches=$(grep -v -- '--version' "${run_log}" | grep -c . || true)
-if [[ ${launches} -ne 1 ]]; then
-  echo "FAIL: nonzero launch log shows ${launches} launches; expected one and no retry." >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
+native_check_expect_value 'nonzero host launches once without retry' 1 "${launches}" "${run_log}"
 assert_prior_identical
 
 host=claude
-denied_attempt=$(run_failure 126 \
+run_failure denied_attempt 126 \
   PATH="${sentinel_bin}:${PATH}" \
   NATIVE_AGENT_FAIL_CODE=126 \
-  NATIVE_AGENT_FAIL_MESSAGE='Permission denied: native operation not permitted')
+  NATIVE_AGENT_FAIL_MESSAGE='Permission denied: native operation not permitted'
 assert_failed_attempt "${denied_attempt}" 'permission denied'
-grep -Fq 'Permission denied: native operation not permitted' \
-  "${denied_attempt}/stderr.log"
-grep -Fq 'native-version: claude fail-1' "${denied_attempt}/record"
+native_check_expect_line 'permission stderr retained' "${denied_attempt}/stderr.log" 'Permission denied: native operation not permitted'
+native_check_expect_field 'denied host version retained' "${denied_attempt}/record" native-version 'claude fail-1'
 launches=$(grep -v -- '--version' "${run_log}" | grep -c . || true)
-if [[ ${launches} -ne 1 ]]; then
-  echo "FAIL: denied launch log shows ${launches} launches; expected one and no retry." >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
+native_check_expect_value 'denied host launches once without retry' 1 "${launches}" "${run_log}"
 assert_prior_identical
 [[ -d ${missing_attempt} && -d ${fail_attempt} && -d ${denied_attempt} ]]
 
@@ -200,13 +145,11 @@ mkdir -p -- "${cleanup_ok}" "${cleanup_failed}"
 printf '%s\n' 'case evidence' > "${cleanup_failed}/native-x-output.md"
 product_backlog_native_cleanup 0 'Fixture case' 'native-x-*' "${cleanup_ok}" \
   2> "${stderr_file}"
-if [[ -e ${cleanup_ok} || -s ${stderr_file} ]]; then
-  echo 'FAIL: successful case cleanup kept the directory or printed output.' >&2
-  exit 1
-fi
+native_check_expect_absent 'successful case evidence removed' "${cleanup_ok}"
+native_check_expect_value 'successful cleanup is silent' 0 "$(wc -c < "${stderr_file}" | tr -d '[:space:]')" "${stderr_file}"
 product_backlog_native_cleanup 3 'Fixture case' 'native-x-*' "${cleanup_failed}" \
   2> "${stderr_file}"
-grep -Fq 'FAIL: preserving native Fixture case evidence after status 3.' "${stderr_file}"
-grep -Fq 'case evidence' "${stderr_file}"
+native_check_expect_line 'failed cleanup reports status' "${stderr_file}" 'FAIL: preserving native Fixture case evidence after status 3.'
+native_check_expect_line 'failed cleanup prints evidence' "${stderr_file}" 'case evidence'
 grep -Fxq "PRESERVED: ${cleanup_failed}" "${stderr_file}"
 [[ -f ${cleanup_failed}/native-x-output.md ]]

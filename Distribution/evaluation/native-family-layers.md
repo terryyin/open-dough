@@ -21,7 +21,67 @@ prompt, install, launch and retention together in
   `native_assessor_counterexamples`; they never build fixtures.
 - shared helpers hold what several families need and no family journey.
 
-Reuse these `src/` owners before writing a copy:
+## Automated check entries
+
+When adding or changing an evaluation check:
+
+- Enter at the family command with a substitute host first on `PATH`, or at
+  the named assess-layer contract: apply the assessor to `observations.txt`
+  through `native_assessor_counterexamples` (see [rejected cases](#rejected-cases)).
+- Do not source a private `src/` helper to call its functions or read its
+  globals. A new supervision check runs the context command with a substitute
+  host; it does not source `native-run-supervise.sh`.
+- Keep a catalog entry, case list, routing table or input list in its owning
+  script, without restating that data or configuration in checks. Prove the
+  consuming rule with controlled data: a two-case local catalog can prove that
+  `--where` filters by trait without listing shipped case names.
+- State each expected fact in one line through the shared expectation
+  vocabulary. An existing one-line test may stay when its line provides enough
+  failure evidence.
+- Keep distinct behaviors as distinct cases; put data-only variants of one
+  behavior in a row table.
+
+Controlled checks prove the command or named layer's behavior on controlled
+inputs and retained streams. They leave native agent behavior and host
+qualification to explicit native acceptance (ADR 0005).
+
+### Expectation vocabulary
+
+Source [the test-only helper](tests/native-harness/support/native-check-expectations.sh)
+from a check using `set -euo pipefail`. Call scenario helpers and expectations
+directly so a failed fact stops the check; do not put assertion execution inside
+command or process substitution.
+
+| Word | Arguments and result |
+| --- | --- |
+| `native_check_workspace` | `VARIABLE`: assigns a fresh scratch path and removes it at exit, including read-only contents. Call directly so cleanup belongs to this check. |
+| `native_check_own_process` | `PID`: registers a process started by the check for termination and reaping at exit. |
+| `native_check_run` | `HOSTS_BIN STDOUT STDERR COMMAND...`: puts substitute hosts first on `PATH`, saves both streams to the named files and captures the entry's status in `native_check_status`. |
+| `native_check_expect_status` | `FACT EXPECTED ACTUAL [EVIDENCE...]`: compares an entry's captured status. |
+| `native_check_expect_field` | `FACT RECORD FIELD EXPECTED`: reads the record field and prints the record on failure. |
+| `native_check_expect_line` | `FACT FILE TEXT`: expects literal text in the file. |
+| `native_check_expect_absent` | `FACT PATH`: expects no path, including no dangling symlink. |
+| `native_check_expect_value` | `FACT EXPECTED ACTUAL [EVIDENCE...]`: compares a measured value. |
+| `native_check_expect_process` | `FACT PID STATE [EVIDENCE...]`: observes process liveness; `STATE` is `running` or `exited`. |
+
+Expectations print nothing on success. Failure returns nonzero, names the fact,
+shows expected and actual values, and prints the evidence read. For example, a
+record with `execution-status: completed` checked against `timeout` prints the
+field, both values and the record.
+
+[The timeout check](tests/native-harness/native-run-timeout.sh) is the worked
+example: the context command with a hung substitute host returns `124`, and
+`native_check_expect_status`, `native_check_expect_field` and
+`native_check_expect_absent` state the status, `execution-status: timeout` and
+absent `adopter` directory in one line each.
+Other families adopt these words when next changed. Existing watchdog race and
+incomplete decode checks retain their lower-level calls until equivalent
+entry-level protection exists; new checks follow the entries above.
+
+## Family implementation reuse
+
+Family code reuses these `src/` owners before writing a copy. This list is for
+fixture, run, observe and assess implementation, not check entry points:
 
 - `native-observation.sh`: `native_observation_field FILE KEY` reads a field
   value's first word and `native_observation_value FILE KEY` its whole value;

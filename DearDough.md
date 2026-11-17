@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 564. Removed numbers are never reused.
+- Highest allocated local number: 565. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -213,6 +213,15 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: guarded delivery withheld slice 6 for no-param-reassign after independent refactor, then slice 7 for three non-null assertions; briefs reserved hook-owned lint for the coordinator. Retained proof at `ab1acbbac33f0a82de40321121f1c086336ec301:.planning/slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/slice-6-proof.md` and `slice-7-proof.md` records mechanical fixes and focused renewal.
   - Observed effect: two failed preparation attempts and coordinator repairs after refactor completion, with no failed commit/publication.
   - Inference: matches ODF-329; carrying strict project rules or permitted read-only checking into authoring may avoid this rework. Net saving is unmeasured; no guidance changed here.
+
+- Execution: SEED-396#replace-evaluation-shell-checks (plan 679; first implementation `251af1f66bb8830227df0b59fbc2306a33df4c40`)
+  - Timestamp: unknown (2026-11-17; slice 1 and 3 delivery)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.104 (checkout-bound installation unchanged from claim `0ada9a1e3`)
+  - Evidence: implementation and refactor briefs reserved formatter/hook-owned lint for the coordinator. Both refactor returns were clean; guarded fresh then refused slice 1 on SC2154/SC2016/SC2034 and slice 3 on SC1007/SC2094. Explicit initialization and narrow directives resolved the findings before publication (`251af1f66`, `1da6ffa75`).
+  - Observed effect: two preparation refusals and coordinator mechanical repairs; no failed candidate was committed or published.
+  - Inference: matches ODF-329. Earlier authored-file checking or carrying the strict shell rules may avoid this rework; effort saving is unmeasured.
 
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 
@@ -653,3 +662,18 @@ passes on such slices made no edits.
   - Evidence: subagent usage reports. Slice 4 (3-line deletion): implementer 47.7k tokens, refactor 49.3k tokens with no edits. Slice 3 (6-line change): implementer 73.1k, refactor 58.5k with no edits. Slice 5 refactor 60.5k with no edits.
   - Observed effect: about 290k subagent tokens across these passes; no defect found by the no-edit refactor passes.
   - Inference: delivery step 1 allows skipping the refactor spawn only for records-only changes or edits within an accepted refactor return. A pure test-line deletion with a clean consumer trace may deserve a similar disposition. Slice 2's refactor pass did find a real gap, so the saving is not unconditional.
+
+## DD-565 — Proof waiting defers read-only CI diagnosis through suite admission <a id="dd-565"></a>
+
+A CI failure arrived when a local full gate launched. The proof-wait rule forbade other checks until the command finished or its expected window was exceeded; the first overdue inspection showed that almost the whole window had been suite-admission waiting. A bounded CI classification could be separate from checkout mutation while retaining the proof owner.
+
+### Occurrences
+
+- Execution: SEED-396#replace-evaluation-shell-checks (plan 679; first implementation `251af1f66bb8830227df0b59fbc2306a33df4c40`)
+  - Timestamp: unknown (2026-11-17; first full evaluation and CI diagnosis)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.104 (checkout-bound installation unchanged from claim `0ada9a1e3`)
+  - Evidence: live coordinator tool history and `004d9915bbc222a4404e69531fcf62e005720014:.planning/slice-plans/679-evaluation-checks-state-facts-plainly/diagnosis-ci-share1-deadline.md`. CI run 44077311815/1 reported share 1 failure at local-gate launch. At the first bounded overdue check, the local command had existed for 16m17s while its test children had run for about 13s. Read-only CI logs then established the absolute share cutoff; a workflow-only repair preserved unfiltered evaluation selection while that proof continued.
+  - Observed effect: CI classification was deferred roughly one admission window. The original local command stayed owned through its terminal result.
+  - Inference: permit bounded read-only failure classification during a proof wait, with checkout mutations still held until safe. This is a triage-latency observation; no total wall-time or token saving is established.
