@@ -5,6 +5,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
   expectFocusedAndIndicated,
+  expectTabOrder,
   narrowWindow,
   twiceZoomedWindow,
 } from "./accessibleReading.ts";
@@ -19,6 +20,7 @@ import {
   detailToggle,
   inspectionGroup,
   launchGroup,
+  storyNotesControl,
 } from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
 import { plannedBlocked, plannedReady } from "./storyReadinessFixture.ts";
@@ -63,6 +65,7 @@ export async function expectScanToDetailAt420AndTwiceZoom(
       inspectionGroup(blockedCard).getByRole("button", {
         name: detailToggle,
       }),
+      storyNotesControl(blockedCard),
     ]);
     // Secondary facts wait in the detail.
     await expect(readyCard).not.toContainText(plannedReady.identity);
@@ -81,11 +84,11 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     });
     await expect(detail).toContainText(plannedReady.identity);
     const canonical = canonicalRecord(detail);
-    await page.keyboard.press("Tab");
+    const notes = storyNotesControl(readyCard);
+    await expectTabOrder(page, [notes, canonical]);
     await expect(canonical).toBeInViewport({ ratio: 1 });
-    await expectFocusedAndIndicated(page, canonical);
     await expectNoSidewaysScrollAndWholeText(page);
-    await page.keyboard.press("Shift+Tab");
+    await expectTabOrder(page, [notes, hide], "Shift+Tab");
     await page.keyboard.press("Enter");
     await expect(detail).toHaveCount(0);
     await expectFocusedAndIndicated(page, readyCard);

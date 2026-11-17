@@ -41,6 +41,18 @@ export async function expectFocusedAndIndicated(page: Page, stop: Locator) {
   expect(indication.width).toBeGreaterThanOrEqual(2);
 }
 
+// Each expected stop is reached by one Tab, with visible keyboard focus.
+export async function expectTabOrder(
+  page: Page,
+  stops: Locator[],
+  key: "Tab" | "Shift+Tab" = "Tab",
+) {
+  for (const stop of stops) {
+    await page.keyboard.press(key);
+    await expectFocusedAndIndicated(page, stop);
+  }
+}
+
 // Moves the keyboard forward by Tab alone until `target` holds it.
 export async function tabTo(page: Page, target: Locator) {
   for (let step = 0; step < 40; step += 1) {

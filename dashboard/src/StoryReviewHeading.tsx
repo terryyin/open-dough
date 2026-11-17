@@ -3,6 +3,7 @@
 // label and session id.
 
 import { SidePanelTitle } from "./SidePanelTitle.tsx";
+import { StoryNotes } from "./StoryNotesControl.tsx";
 import {
   isReviewedSessionSubject,
   type ReviewedWorkSubject,
@@ -26,11 +27,22 @@ export function StoryReviewHeading({
     ? subject.session
     : subject.identity;
   return (
-    <div className="side-panel-names">
-      <SidePanelTitle title={title} id={headingId} />
-      <p className="quiet">
-        {kind} <code>{code}</code>
-      </p>
-    </div>
+    <>
+      <div className="side-panel-names">
+        <SidePanelTitle title={title} id={headingId} />
+        <p className="quiet">
+          {kind} <code>{code}</code>
+        </p>
+      </div>
+      {!isReviewedSessionSubject(subject) && (
+        <div className="side-panel-actions">
+          <StoryNotes
+            sourceId={subject.source}
+            identity={subject.identity}
+            title={title}
+          />
+        </div>
+      )}
+    </>
   );
 }

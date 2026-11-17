@@ -1,0 +1,69 @@
+# Story notes
+
+Every Backlog, Taken and Recently done story card offers **Notes**. It opens
+**Story notes** over the page, leaving its terminal and review in place.
+The count is shown when the story has notes.
+
+The same **Notes** control appears in a story’s Review changes heading and
+beside the selected story in Intent. Story notes opens over the current
+activity. Closing it keeps the comparison, selected file, revealed context
+and reading position, and returns the keyboard to **Notes**.
+
+Choose **Add note**, type an observation, then **Save note**. A general note
+belongs to the story alone: its identity and title are shown above the text
+and with each saved entry. **Cancel** discards the draft. Blank text is not
+saved. Saved entries are listed newest first, and saving is announced once.
+A note records an observation; it has no fixed or resolved state.
+
+**Dictate** records a note using the same microphone and OpenAI setup as a
+session instruction. Choose **Stop recording**, then correct the transcript
+in the note text before **Save note**. Saving waits while permission,
+recording, transcription or transcript review is in progress. A transcript
+that exceeds the 4,000-character note limit opens for shortening or discarding
+and keeps the typed note. **Cancel** or closing Story notes stops recording
+and abandons transcription. Opening OpenAI settings keeps the draft for return.
+
+Notes are kept by project and story identity on the machine serving the
+dashboard, outside the project's repository. They survive dashboard restarts
+and are available to every page served by that machine, including a phone.
+Other open pages read changes at the shared 15-second check interval.
+
+If the machine cannot write its records or the dashboard cannot be reached,
+**Save note** keeps the composer open with its text and says “The note could
+not be saved.” Try **Save note** again once saving works; the note is saved
+and the composer and problem clear.
+
+If the notes file cannot be read, cards say “The notes could not be read.”
+in place of a count. Story notes says the same; it does not present the
+unreadable file as an empty collection. The machine keeps that file in place
+for recovery, and refuses to save over it.
+
+Each saved entry offers **Edit** and **Delete**. **Edit** opens **Edit note**
+with the saved text and context; **Save note** changes the text while keeping
+its original context and saved time. Diff context includes the view, current
+and previous file paths, comparison and endpoints, and a line's number, side
+and original text. **Delete** asks in place. **Cancel** keeps the entry;
+confirming removes it and updates the card's count. Updates and deletions are
+announced once, with the keyboard returned to an available control.
+
+A refused edit keeps the composer and typed text with “The note could not be
+saved.” A refused delete keeps the saved entry and says “The note could not
+be deleted.” Try the action again once the dashboard can keep changes.
+
+A Done story’s Published completion or Landed run offers **Add note** beside
+the file path and beside **Follow up** in each line-number menu, in Review
+changes and Intent → Changed tests. The composer opens alone over the diff
+and closes after saving. Its context shows the view, file path (including
+the previous path of a rename), comparison name and endpoints; a line note
+also keeps its number, side and the text as it read, including revealed
+context lines. The saved entry shows the same facts away from the diff.
+
+Captured context is developer-authored evidence of what the page showed when
+the note was made. It stays readable after the workspace or compared Git
+trees are gone.
+
+A Taken story’s workspace comparisons also offer **Add note** at the file and
+line. Its line menu holds **Add note** alone; **Follow up** retains its Done
+comparison eligibility. Notes keep the Comparison switch’s words and the
+actual endpoints. They stay with the story through new launches, completion
+and workspace removal. A session without a story offers no notes actions.

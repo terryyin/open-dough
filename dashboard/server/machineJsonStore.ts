@@ -194,7 +194,7 @@ export async function replaceMachineJson<T>(
     if (read.kind === "unreadable") {
       if (store.unreadable === "preserve")
         throw new Error(
-          `Machine evidence is unreadable; automatic CI follow-up is blocked: ${file}`,
+          `Machine evidence is unreadable; writing is blocked: ${file}`,
         );
       await rename(file, await unreadableCopy(file));
     } else {

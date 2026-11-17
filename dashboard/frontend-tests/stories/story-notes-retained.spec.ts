@@ -1,0 +1,119 @@
+// One notes collection follows identity across launches and published phases.
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
+import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
+import {
+  frontendFileDiff,
+  frontendReviewIds,
+} from "../../tests/support/frontendStoryReview.ts";
+import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+import {
+  putFrontendDoneRecords,
+  frontendStoryLaunch,
+} from "../../tests/support/frontendServiceState.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
+import { parts } from "../../tests/dashboardParts.ts";
+import { showColumn } from "../../tests/boardPage.ts";
+import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
+
+test("a Taken note survives a new launch and appears on Done without workspace or launch records", async ({
+  page,
+  frontendServices,
+}) => {
+  const service = await installFrontendStoryNotes(page);
+  const { review } = await openFrontendStoryReview(
+    page,
+    frontendServices,
+    undefined,
+    (answers) => {
+      answers.answerFile(
+        frontendFileDiff("story.txt", ["+Kept line"]),
+        "story.txt",
+      );
+    },
+  );
+  const card = parts(page).taken.getByRole("article", {
+    name: takenStory,
+    exact: true,
+  });
+  const notes = storyNotesPage(page);
+  await notes.fromLine(fileDiff(review, "Added story.txt"), "new", 1, [
+    "Add note",
+  ]);
+  await notes.type("Keep this observation through completion");
+  await notes.save();
+  await notes.expectDiffSaved();
+  await closeSidePanel(review);
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer
+      .observingOpen(
+        frontendStoryLaunch("executing", takenStory)
+          .inClaudeSession({
+            sessionId: "second-story-launch",
+            shortId: "second",
+          })
+          .please(),
+      )
+      .please(),
+  );
+  await page.reload();
+  await showColumn(page, "Taken");
+  await notes.open(card);
+  await notes.expectNotes(["Keep this observation through completion"]);
+  await notes.close();
+  Object.assign(frontendServices, {
+    backlog: describedBacklog(
+      makeMe.aRepository
+        .withRevision("story-completed", { backlog: { queued: [] } })
+        .please(),
+    ),
+  });
+  putFrontendDoneRecords(frontendServices, "open-dough", [
+    makeMe.aDoneRecord
+      .with({
+        identity: takenIdentity,
+        title: takenStory,
+        completedAt: new Date().toISOString(),
+      })
+      .please(),
+  ]);
+  frontendServices.answerMachine(makeMe.aMachineAnswer.please());
+  await page.reload();
+  await showColumn(page, "Recently done");
+  const done = parts(page).recentlyDone.getByRole("article", {
+    name: takenStory,
+    exact: true,
+  });
+  await notes.expectCount(done, 1);
+  await notes.open(done);
+  await notes.expectNotes(["Keep this observation through completion"]);
+  for (const context of [
+    `${takenStory} · ${takenIdentity}`,
+    "Review changes",
+    "story.txt",
+    `All changes ${frontendReviewIds.baseline} → ${frontendReviewIds.tree}`,
+    "Line 1 · new",
+    "Kept line",
+  ])
+    await notes.expectEntryContext(0, context);
+  expect(service.changes()).toEqual([
+    {
+      action: "add",
+      identity: takenIdentity,
+      text: "Keep this observation through completion",
+      context: {
+        view: "Review changes",
+        path: "story.txt",
+        comparison: {
+          name: "All changes",
+          baseline: frontendReviewIds.baseline,
+          tree: frontendReviewIds.tree,
+        },
+        line: { number: 1, side: "new", text: "Kept line" },
+      },
+    },
+  ]);
+});

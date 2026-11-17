@@ -100,7 +100,9 @@ test.describe("diff context expansion", () => {
       expect(texts).toHaveLength(40);
       await contextExpansion(betweenGap, /Show 20 following/).click();
       await contextExpansion(betweenGap, /Show 6 following/).click();
-      await expect(betweenGap.getByRole("button")).toHaveCount(0);
+      await expect(
+        contextExpansion(betweenGap, /preceding|following/),
+      ).toHaveCount(0);
       const closed = await diffLines(betweenGap).allTextContents();
       expect(closed).toHaveLength(66);
       expect(closed).toEqual([...new Set(closed)]);
@@ -117,7 +119,9 @@ test.describe("diff context expansion", () => {
         1,
       );
       await contextExpansion(afterGap, /Show 10 following/).click();
-      await expect(afterGap.getByRole("button")).toHaveCount(0);
+      await expect(
+        contextExpansion(afterGap, /preceding|following/),
+      ).toHaveCount(0);
       const trailing = await diffLines(afterGap).allTextContents();
       expect(trailing.at(-1)).toBe(" line 160");
       expect(trailing).toHaveLength(30);

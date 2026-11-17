@@ -59,6 +59,7 @@ export function DiffLines({
   contextReading,
   onRetryText,
   onLineFollowUp,
+  onLineAddNote,
 }: {
   readonly printed: string;
   readonly sides: FileLineSides | undefined;
@@ -71,6 +72,11 @@ export function DiffLines({
   // When set, each line number opens a menu that offers Follow up for that
   // line and side.
   readonly onLineFollowUp?: (side: DiffLineSide, line: number) => void;
+  readonly onLineAddNote?: (
+    side: DiffLineSide,
+    line: number,
+    text: string,
+  ) => void;
 }) {
   const { binary, hunks } = parsedUnifiedDiff(printed);
   const [reveals, setReveals] = useState<Record<number, GapReveal>>({});
@@ -90,7 +96,7 @@ export function DiffLines({
   }, []);
 
   const lineMenu =
-    onLineFollowUp === undefined
+    onLineFollowUp === undefined && onLineAddNote === undefined
       ? undefined
       : {
           open: openMenu,
@@ -98,7 +104,10 @@ export function DiffLines({
             setOpenMenu({ side, line });
           },
           onClose: closeMenu,
-          onFollowUp: onLineFollowUp,
+          ...(onLineFollowUp === undefined
+            ? {}
+            : { onFollowUp: onLineFollowUp }),
+          ...(onLineAddNote === undefined ? {} : { onAddNote: onLineAddNote }),
         };
 
   useLayoutEffect(() => {

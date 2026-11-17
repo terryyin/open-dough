@@ -13,6 +13,7 @@ import { useInstructionRecording } from "./useInstructionRecording.ts";
 export function useLaunchInstruction(
   field: RefObject<HTMLTextAreaElement | null>,
   dialog: RefObject<HTMLDialogElement | null>,
+  { before = "Start", subject = "instruction", recordLabel = "Record" } = {},
 ) {
   const openSettings = useContext(SettingsNavigation);
   const suspended = useRef(false);
@@ -74,7 +75,7 @@ export function useLaunchInstruction(
             void recording.record();
           }}
         >
-          Record
+          {recordLabel}
         </button>{" "}
         <button
           type="button"
@@ -87,10 +88,14 @@ export function useLaunchInstruction(
         <p role="status">
           {recording.status ??
             (reviewing
-              ? "Review or discard the transcript before Start."
-              : "Dictate, then review or edit the text before Start.")}
+              ? `Review or discard the transcript before ${before}.`
+              : `Dictate, then review or edit the text before ${before}.`)}
         </p>
-        {recording.problem && <p role="alert">{recording.problem}</p>}
+        {recording.problem && (
+          <p role="alert">
+            {recording.problem.replaceAll("instruction", subject)}
+          </p>
+        )}
         {recording.setupRequired && openSettings && (
           <button
             type="button"
@@ -111,9 +116,7 @@ export function useLaunchInstruction(
         {reviewing && (
           <div>
             <p role="alert" id={`${id}-overflow-hint`}>
-              This transcript exceeds the instruction limit. Your instruction
-              was kept. Shorten the complete transcript, then add it or discard
-              it.
+              {`This transcript exceeds the ${subject} limit. Your ${subject} was kept. Shorten the complete transcript, then add it or discard it.`}
             </p>
             <label htmlFor={`${id}-transcript`}>Transcript to shorten</label>
             <textarea

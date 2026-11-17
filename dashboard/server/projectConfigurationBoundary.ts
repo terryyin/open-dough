@@ -2,6 +2,8 @@ import { ciFollowUpEndpoint } from "../src/ciFollowUp.ts";
 import { answerCiFollowUp } from "./ciFollowUpBoundary.ts";
 import { storyReviewStateEndpoint } from "../src/storyReviewState.ts";
 import { answerStoryReviewStates } from "./storyReviewStates.ts";
+import { storyNotesEndpoint } from "../src/storyNote.ts";
+import { answerStoryNotes } from "./storyNotes.ts";
 import type { IncomingMessage } from "node:http";
 import {
   projectAddEndpoint,
@@ -39,6 +41,7 @@ async function answer(
   if (pathname === ciFollowUpEndpoint) return answerCiFollowUp(req, signal);
   if (pathname === storyReviewStateEndpoint)
     return answerStoryReviewStates(req, signal);
+  if (pathname === storyNotesEndpoint) return answerStoryNotes(req, signal);
   if (
     pathname === projectListEndpoint ||
     pathname === projectSettingsEndpoint
@@ -85,6 +88,7 @@ export const installProjectConfigurationMiddleware = localJsonEndpoints(
     projectListEndpoint,
     ciFollowUpEndpoint,
     storyReviewStateEndpoint,
+    storyNotesEndpoint,
     projectSettingsEndpoint,
     projectAddEndpoint,
     projectRemoveEndpoint,

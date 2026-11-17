@@ -10,7 +10,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { localSettingRequest } from "./localSettingRequest.ts";
-import { checkIntervalMs } from "./revisionCheckSchedule.ts";
+import { localSettingState } from "./localSettingState.ts";
 import {
   storyReviewStateEndpoint,
   storyReviewStatesAnswerSchema,
@@ -43,47 +43,10 @@ async function request(project: string, change?: StoryReviewStateChange) {
   );
 }
 
-// One page/project owner. Subscribers share both periodic reads and save answers;
-// an older read cannot replace a newer successful save. An unanswered/failed
-// initial read stays unknown rather than becoming an empty reviewed set.
 function projectReviewStates(project: string) {
-  let reviewed: ReadonlySet<string> | undefined;
-  let issued = 0;
-  let shown = 0;
-  let generation = 0;
-  let interval: ReturnType<typeof setInterval> | undefined;
-  const listeners = new Set<() => void>();
-  const answered = async (asked: Promise<ReadonlySet<string>>) => {
-    const sequence = ++issued;
-    const from = generation;
-    const answer = await asked;
-    if (from !== generation || sequence <= shown) return;
-    shown = sequence;
-    reviewed = answer;
-    for (const listener of listeners) listener();
-  };
-  const read = () => {
-    void answered(request(project)).catch(() => undefined);
-  };
-  return {
-    snapshot: () => reviewed,
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      if (listeners.size === 1) {
-        read();
-        interval = setInterval(read, checkIntervalMs);
-      }
-      return () => {
-        listeners.delete(listener);
-        if (listeners.size !== 0) return;
-        clearInterval(interval);
-        generation += 1;
-        reviewed = undefined;
-      };
-    },
-    change: (change: StoryReviewStateChange) =>
-      answered(request(project, change)),
-  };
+  return localSettingState<ReadonlySet<string>, StoryReviewStateChange>(
+    (change) => request(project, change),
+  );
 }
 
 type ProjectReviewStates = ReturnType<typeof projectReviewStates>;

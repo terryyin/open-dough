@@ -80,11 +80,12 @@ export type FollowUpFileFacts = {
   readonly side?: "old" | "new";
 };
 
+export const fileComparisonName = (kind: FollowUpFileFacts["kind"]) =>
+  kind === "published" ? "Published completion" : "Landed run";
+
 export function fileContextItems(
   file: FollowUpFileFacts,
 ): readonly FollowUpItem[] {
-  const comparison =
-    file.kind === "published" ? "Published completion" : "Landed run";
   return [
     { label: "Path", value: file.path },
     ...(file.oldPath === undefined
@@ -92,7 +93,7 @@ export function fileContextItems(
       : [{ label: "Old path", value: file.oldPath }]),
     {
       label: "Comparison",
-      value: `${comparison} ${file.baseline} → ${file.tree}`,
+      value: `${fileComparisonName(file.kind)} ${file.baseline} → ${file.tree}`,
     },
     ...(file.line === undefined || file.side === undefined
       ? []

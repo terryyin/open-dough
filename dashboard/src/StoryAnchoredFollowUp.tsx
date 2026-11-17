@@ -12,6 +12,10 @@ import { usePageLaunches } from "./pageLaunches.ts";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
 import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
+import {
+  reviewedComparison,
+  reviewedFilePaths,
+} from "./reviewedFileContext.ts";
 
 // Request anchor and dialog facts for one reviewed file on a Published
 // completion or landed run; undefined on a workspace snapshot.
@@ -24,17 +28,9 @@ export function fileFollowUpParts(
 ):
   | { readonly anchor: FollowUpFile; readonly facts: FollowUpFileFacts }
   | undefined {
-  const comparison =
-    reviewed.completion !== undefined
-      ? ({ kind: "published", id: reviewed.completion } as const)
-      : reviewed.reference !== undefined
-        ? ({ kind: "landed", id: reviewed.reference } as const)
-        : undefined;
+  const comparison = reviewedComparison(reviewed);
   if (comparison === undefined) return undefined;
-  const paths = {
-    path: file.path,
-    ...(file.kind === "renamed" ? { oldPath: file.oldPath } : {}),
-  };
+  const paths = reviewedFilePaths(file);
   const range = { baseline: from, tree };
   const lineAnchor =
     line === undefined ? {} : { line: line.line, side: line.side };

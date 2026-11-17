@@ -9,6 +9,7 @@
 // DiffLines opens that line's menu and this file mounts the same Start
 // session dialog for the line.
 
+import { useDiffStoryNote } from "./StoryDiffNote.tsx";
 import { useState } from "react";
 import { textLines } from "./diffContextExpansion.ts";
 import { useDiffLineTokens } from "./diffLineTokens.ts";
@@ -34,6 +35,7 @@ import {
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
 import { useReviewRead } from "./useReviewRead.ts";
+import { reviewedFilePaths } from "./reviewedFileContext.ts";
 
 // The reviewed work whose file diff is open: a story or ad hoc session,
 // with the retained pair a historical comparison names.
@@ -59,8 +61,7 @@ function reviewFileQuery(
       : { completion: reviewed.completion }),
     baseline: from,
     tree,
-    path: file.path,
-    ...(file.kind === "renamed" ? { oldPath: file.oldPath } : {}),
+    ...reviewedFilePaths(file),
   };
 }
 
@@ -80,6 +81,7 @@ export function FileDiff({
   readonly tree: string;
   readonly file: ReviewedFile;
 }) {
+  const note = useDiffStoryNote(reviewed, from, tree, file);
   const query = reviewFileQuery(reviewed, from, tree, file);
   const { answer, problem, reading } = useReviewRead<ReviewedFileDiff>(
     storyReviewFileEndpoint,
@@ -136,6 +138,17 @@ export function FileDiff({
           onRetryText={() => {
             setTextRound((round) => round + 1);
           }}
+          {...(note.available
+            ? {
+                onLineAddNote: (
+                  side: DiffLineSide,
+                  number: number,
+                  text: string,
+                ) => {
+                  note.open({ side, number, text });
+                },
+              }
+            : {})}
           {...(canLineFollow
             ? {
                 onLineFollowUp: (side: DiffLineSide, line: number) => {
@@ -145,6 +158,7 @@ export function FileDiff({
             : {})}
         />
       )}
+      {note.content}
       {lineFollow !== undefined && (
         <StoryLineFollowUp
           reviewed={reviewed}

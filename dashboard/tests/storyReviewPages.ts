@@ -102,6 +102,14 @@ export class StoryReview extends PageObject {
     );
   }
 
+  expectNoNoteActions() {
+    return this.cueHere("Session review: offers no Add note", () =>
+      expect(
+        this.#review.getByRole("button", { name: "Add note", exact: true }),
+      ).toHaveCount(0),
+    );
+  }
+
   // What the review's fixed top says, such as that it is reading.
   expectFeedback(text: string) {
     return this.cueHere(`Story review: says "${text}"`, () =>

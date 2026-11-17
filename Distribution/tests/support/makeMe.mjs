@@ -25,6 +25,7 @@ import { launchMakeMeProperties } from "./launchMakeMe.mjs";
 import { usageMakeMeProperties } from "./usageMakeMe.mjs";
 import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
+import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -71,12 +72,19 @@ import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
  * @property {PlanSliceBuilder} aPlanSlice
  * @property {SlicePlanBuilder} aSlicePlan
  * @property {HostHookSettingsBuilder} hostHookSettings
+ * @property {StoryNoteBuilder} aStoryNote
  */
 
 /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe} */
 export const makeMe = Object.defineProperties(
   /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe} */ ({}),
   {
+    aStoryNote: {
+      enumerable: true,
+      get() {
+        return new StoryNoteBuilder();
+      },
+    },
     hostHookSettings: {
       enumerable: true,
       get() {

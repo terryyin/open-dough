@@ -218,6 +218,11 @@ export function useInstructionRecording(append: (text: string) => void) {
     setupRequired,
     record,
     stop,
-    cancel,
+    cancel: () => {
+      cancel();
+      setPhase("ready");
+      setProblem(undefined);
+      setSetupRequired(false);
+    },
   };
 }

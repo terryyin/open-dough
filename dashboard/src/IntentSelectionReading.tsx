@@ -9,6 +9,7 @@
 // Activating Project Intent's CI status tab returns home
 // (`./IntentPage.tsx`).
 
+import { StoryNoteView } from "./StoryDiffNote.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import {
@@ -94,20 +95,22 @@ export function IntentSelectionReading({
           onOpen={onOpen}
         />
       ) : scope === "file" ? (
-        <IntentFileReading
-          key={readingKey}
-          place={fileReading}
-          path={selection.path}
-          revision={fileRevision}
-          treeRevision={revision}
-          failedRevision={failedRevision}
-          read={read}
-          syntaxHint={selectedSyntaxHint}
-          caseTarget={selection.caseTarget}
-          treeFile={selectedFile}
-          story={story}
-          onFileRetry={onFileRetry}
-        />
+        <StoryNoteView.Provider value="Intent → Changed tests">
+          <IntentFileReading
+            key={readingKey}
+            place={fileReading}
+            path={selection.path}
+            revision={fileRevision}
+            treeRevision={revision}
+            failedRevision={failedRevision}
+            read={read}
+            syntaxHint={selectedSyntaxHint}
+            caseTarget={selection.caseTarget}
+            treeFile={selectedFile}
+            story={story}
+            onFileRetry={onFileRetry}
+          />
+        </StoryNoteView.Provider>
       ) : null}
     </>
   );

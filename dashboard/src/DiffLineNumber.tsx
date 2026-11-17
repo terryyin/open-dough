@@ -17,13 +17,15 @@ export function DiffLineNumber({
   onOpen,
   onClose,
   onFollowUp,
+  onAddNote,
 }: {
   readonly side: DiffLineSide;
   readonly line: number;
   readonly open: boolean;
   readonly onOpen: () => void;
   readonly onClose: () => void;
-  readonly onFollowUp: () => void;
+  readonly onFollowUp?: () => void;
+  readonly onAddNote?: () => void;
 }) {
   const label = lineNumberLabel(side, line);
   const menuId = useId();
@@ -32,7 +34,26 @@ export function DiffLineNumber({
   const menu = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (open) menu.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    if (!open) return;
+    const shown = menu.current;
+    const line = root.current;
+    const pane = line?.closest(".story-review-code");
+    if (
+      shown !== null &&
+      line !== null &&
+      pane !== null &&
+      pane !== undefined &&
+      shown.getBoundingClientRect().bottom >
+        pane.getBoundingClientRect().bottom &&
+      shown.getBoundingClientRect().height <=
+        line.getBoundingClientRect().top - pane.getBoundingClientRect().top
+    ) {
+      shown.style.top = "auto";
+      shown.style.bottom = "100%";
+    }
+    shown
+      ?.querySelector<HTMLButtonElement>("button")
+      ?.focus({ preventScroll: true });
   }, [open]);
 
   useEffect(() => {
@@ -117,17 +138,32 @@ export function DiffLineNumber({
           }}
         >
           <p className="story-review-line-menu-label">{label}</p>
-          <button
-            type="button"
-            role="menuitem"
-            className="frame-button"
-            onClick={() => {
-              onClose();
-              onFollowUp();
-            }}
-          >
-            Follow up
-          </button>
+          {onFollowUp !== undefined && (
+            <button
+              type="button"
+              role="menuitem"
+              className="frame-button"
+              onClick={() => {
+                onClose();
+                onFollowUp();
+              }}
+            >
+              Follow up
+            </button>
+          )}
+          {onAddNote !== undefined && (
+            <button
+              type="button"
+              role="menuitem"
+              className="frame-button"
+              onClick={() => {
+                onAddNote();
+                onClose();
+              }}
+            >
+              Add note
+            </button>
+          )}
         </div>
       )}
     </span>

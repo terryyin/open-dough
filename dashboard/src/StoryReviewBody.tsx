@@ -1,5 +1,7 @@
 // Workspace snapshots and fixed historical comparisons share one browser and
 // diff, over the comparison shown (`./storyComparisonShown.ts`).
+import { StoryNoteComparison } from "./StoryDiffNote.tsx";
+import { comparisonWords } from "./StoryReviewComparison.tsx";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import type {
   ReviewComparison,
@@ -48,7 +50,7 @@ export function ReviewBody({
     tree,
   });
   return (
-    <>
+    <StoryNoteComparison.Provider value={comparisonWords[shown]}>
       {snapshot === undefined && shownComparison !== undefined && (
         <SnapshotView
           key={
@@ -85,6 +87,6 @@ export function ReviewBody({
           browser={browser}
         />
       )}
-    </>
+    </StoryNoteComparison.Provider>
   );
 }

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-348_collect-notes-for-story-follow-ups.json",
+      "identity": "SEED-348#collect-notes-for-story-follow-ups",
+      "completedAt": "2026-11-17T04:35:43.210Z",
+      "blob": "f865ca0e9f281fe8a8a0f522f8d7381e21050b2b"
+    },
+    {
       "fileName": "SEED-392_separate-dashboard-terminal-dictation-from-quick-replies.json",
       "identity": "SEED-392#separate-dashboard-terminal-dictation-from-quick-replies",
       "completedAt": "2026-11-17T04:29:54.972Z",

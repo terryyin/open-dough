@@ -156,3 +156,5 @@ into client projects.
 ## License
 
 Open Dough is open source under the [MIT License](LICENSE).
+
+[Story notes](dashboard/STORY-NOTES.md) keep observations with their story in the dashboard.
