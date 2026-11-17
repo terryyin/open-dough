@@ -71,3 +71,5 @@ completion claims to observed proof. This story owns stopping review and
 acceptance once sufficient evidence settles the decision; it must preserve
 that consumer coverage. The related work does not replace this incident's
 stopping-rule investigation.
+
+The process occurrence is retained as [DD-555](../../../DearDough.md#dd-555).

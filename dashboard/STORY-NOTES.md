@@ -58,6 +58,10 @@ the previous path of a rename), comparison name and endpoints; a line note
 also keeps its number, side and the text as it read, including revealed
 context lines. The saved entry shows the same facts away from the diff.
 
+Captured context is developer-authored evidence of what the page showed when
+the note was made. It stays readable after the workspace or compared Git
+trees are gone.
+
 A Taken story’s workspace comparisons also offer **Add note** at the file and
 line. Its line menu holds **Add note** alone; **Follow up** retains its Done
 comparison eligibility. Notes keep the Comparison switch’s words and the

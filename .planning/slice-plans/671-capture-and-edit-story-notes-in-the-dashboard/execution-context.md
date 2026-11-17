@@ -153,3 +153,34 @@ intentCoverage:true plus rewritten existing context-expansion/status assertions
 selects one risk check there; complete process once after its report/dispositions.
 No process-log access or review performed at this handoff. Current receipt
 commit is records-only, with accepted product/refactor proof unchanged.
+
+## Wrap-up context
+
+Execution/review handoff `bddedd3dbaec4593424e2cbcdfe22e78d1dc1291` accepted;
+branch completion success via not_required_basis ab1acbb success, shutdown
+confirmed, unread0. Old observer ended; arm a fresh stream for closure as needed.
+Planned-completion check passed84 commitments, no pending lifecycle rows.
+Worktree creation ref names SEED-348#collect-notes-for-story-follow-ups;
+management context `/Users/terryyin/git/open-dough/.git`. Surviving reporting
+cwd `/Users/terryyin/git/open-dough`, original absolute completion and landing
+commands above retained outside this checkout. Identity/branch/targets unchanged.
+
+Coverage bddedd3: Caught, revealed old40 wrong text; baseline/fault/restored,
+same maintained check, scratch fully restored/removed. Verbatim report outside
+cleanup `/tmp/dough348-intent-coverage-report.txt`; combined report/disposition
+`/tmp/dough348-intent-coverage-combined.txt` goes to queue completion. No stronger
+proof/follow-up needed. Measured probe elapsed236127ms, individual tests22.1s;
+agent/human effort unavailable. Process review now complete: ODF264 and329
+occurrences enriched, newDD555 records the qualified acceptance overrun and
+existing user-authorized SEED345 response. DearDough ordinary452-line candidate,
+no retention removal. No new product advice or correction plan.
+
+Before-cleanup changes are records-only. Lasting notes behavior already lives
+in dashboard/STORY-NOTES.md and linked docs/code/tests; no new ADR/North Star
+or test-optimization candidate. Preserve the attachment sibling, recover supplier
+evidence from before-cleanup source+plan paths and visit current consumers only
+after accepted trunk integration. Final report must include SEED345 update.
+Knowledge assimilation adds the existing captured-context rule to the maintained
+STORY-NOTES document, within refactor_8's accepted path/trace (already traced,
+no new behavior/helper/dependency). Preserve shared mockup and retention rule
+with the still-active attachment story when removing the spent capture section.
