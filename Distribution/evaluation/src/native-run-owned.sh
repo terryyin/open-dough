@@ -53,8 +53,13 @@ native_run_owned() {
   return "${status}"
 }
 
+# Returns the status of whichever CHILD ends first, named in
+# native_run_finished. Bash's wait -n can miss a child that exits as it
+# starts waiting and then blocks on the other child alone, so observe each
+# exit and reap that child by pid; the watchdog still bounds the wait.
 native_run_wait_first() {
-  local child rc
+  local child
+  native_run_finished=
   while :; do
     for child in "$@"; do
       if ! kill -0 "${child}" 2> /dev/null; then
@@ -63,11 +68,7 @@ native_run_wait_first() {
         return $?
       fi
     done
-    rc=0
-    wait -n -p native_run_finished "$@" 2> /dev/null || rc=$?
-    # Bash's wait -n excludes already reaped jobs; explicit wait above keeps
-    # their cached status when they finish between the sample and wait -n.
-    [[ -z ${native_run_finished-} ]] || return "${rc}"
+    sleep 0.05
   done
 }
 

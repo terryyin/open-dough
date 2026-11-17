@@ -240,6 +240,10 @@ interim spec had no upstream count, so no Backend case was added. Scratch break
 (Retry at a wrong revision) failed T2; restored passed. Backend
 `ci-comparison-memory-` (7) and typecheck passed. Refactor follow-up for wrap-up:
 the authenticated-read request log is hand-written in 14 Frontend files.
+CI repair on `9f54296e` (run 44079796018): `native-guidance-check-inflight.sh`
+hung because `native_run_wait_first` relied on `wait -n`; see
+[diagnosis](diagnosis-native-guidance-inflight-hang.md). Native supervision input
+hashes change with it.
 
 ### 7. Open recorded candidates at their Purpose targets
 Type: Behavior
