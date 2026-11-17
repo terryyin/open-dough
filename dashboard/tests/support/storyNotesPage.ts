@@ -1,5 +1,10 @@
 // Focused Story notes dialog mechanics, shared by frontend and real journeys.
 import { expect, type Locator, type Page } from "@playwright/test";
+import {
+  storyNoteSentToFollowUp,
+  storyNoteWaitingForFollowUp,
+  storyNotesWaitingDescription,
+} from "../../src/storyNote.ts";
 import { box, expectOnOneLine } from "../partArrangement.ts";
 import { storyNotesControl } from "../storyCardControls.ts";
 const exactly = (text: string) =>
@@ -180,6 +185,36 @@ export function storyNotesPage(page: Page) {
     },
     expectNotes: async (texts: readonly string[]) => {
       await expect(entries.locator(".story-note-text")).toHaveText([...texts]);
+    },
+    expectNoteState: async (
+      index: number,
+      state:
+        typeof storyNoteWaitingForFollowUp | typeof storyNoteSentToFollowUp,
+    ) => {
+      await expect(
+        entries.nth(index).getByText(state, { exact: true }),
+      ).toBeVisible();
+    },
+    expectEntryActions: async (index: number) => {
+      await expect(
+        entries.nth(index).getByRole("button", { name: "Edit", exact: true }),
+      ).toBeVisible();
+      await expect(
+        entries.nth(index).getByRole("button", { name: "Delete", exact: true }),
+      ).toBeVisible();
+    },
+    expectWaiting: async (card: Locator, waiting: number) => {
+      if (waiting === 0) {
+        await expect(
+          card.getByRole("status").filter({ hasText: /note(?:s)? waiting/ }),
+        ).toHaveCount(0);
+        return;
+      }
+      await expect(
+        card
+          .getByRole("status")
+          .filter({ hasText: storyNotesWaitingDescription(waiting) }),
+      ).toBeVisible();
     },
     expectContext: async (title: string, identity: string) => {
       await expect(dialog.getByText(title, { exact: true })).toBeVisible();

@@ -4,9 +4,10 @@
 // optionally a file and line on that story's comparison, and, once the server
 // resolved it at admission, the context text it sends
 // (`../server/followUpAdmission.ts`). A page names only the source; one
-// carrying context text is refused. The source, never the text or the
-// revision a story was shown at, belongs to the launch's identity
-// (`./launchRequest.ts`).
+// carrying context text or attached note versions is refused. The source,
+// never the text or the revision a story was shown at, belongs to the
+// launch's identity (`./launchRequest.ts`). A story may ask to attach its
+// waiting notes (`notes: true`); admission reads them from the store.
 
 import { z } from "zod";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
@@ -52,23 +53,42 @@ const followUpStorySchema = z.strictObject({
   // The published revision whose done record the page showed.
   revision: z.string().regex(commitShaPattern),
   file: followUpFileSchema.optional(),
+  // Attach waiting notes from the machine store at admission.
+  notes: z.literal(true).optional(),
 });
 
 // The context resolved from the records at Start, kept so a retry, a
 // recovery or a rebuilt input resends it without reading again.
 const resolvedContext = z.string().min(1).optional();
 
+// Versions admission attached, kept so delivery can mark those versions sent.
+const attachedNotes = z
+  .array(
+    z.strictObject({
+      id: z.uuid(),
+      version: z.string().min(1),
+    }),
+  )
+  .optional();
+
 export const followUpSchema = z.union([
   // One retained session of the project.
   z.strictObject({ session: followUpSessionSchema, context: resolvedContext }),
   // One done story of the project, with the sessions its card holds.
-  z.strictObject({ story: followUpStorySchema, context: resolvedContext }),
+  z.strictObject({
+    story: followUpStorySchema,
+    context: resolvedContext,
+    notes: attachedNotes,
+  }),
 ]);
 
 export type FollowUp = z.infer<typeof followUpSchema>;
 export type FollowUpFile = NonNullable<
   z.infer<typeof followUpStorySchema>["file"]
 >;
+export type AttachedStoryNote = NonNullable<
+  Extract<FollowUp, { story: unknown }>["notes"]
+>[number];
 
 // The source a follow-up names, as the request carries it from the page.
 export type FollowUpSource =
@@ -92,7 +112,8 @@ function followUpFileKey(file: FollowUpFile): string {
 export function followUpSourceKey(followUp: FollowUpSource): string {
   if ("session" in followUp) return `session ${sessionKey(followUp.session)}`;
   const file = followUp.story.file;
-  return `story ${followUp.story.identity}${file === undefined ? "" : followUpFileKey(file)}`;
+  const notes = followUp.story.notes === true ? " notes" : "";
+  return `story ${followUp.story.identity}${file === undefined ? "" : followUpFileKey(file)}${notes}`;
 }
 
 // Whether two requests follow up the same source, or neither follows up.
@@ -102,4 +123,13 @@ export function sameFollowUpSource(
 ): boolean {
   if (a === undefined || b === undefined) return a === b;
   return followUpSourceKey(a) === followUpSourceKey(b);
+}
+
+// Names `notes: true` on a story source when the dialog asks to attach notes.
+export function followUpSourceAttachingNotes(
+  source: FollowUpSource | undefined,
+  attach: boolean,
+): FollowUpSource | undefined {
+  if (source === undefined || !attach || !("story" in source)) return source;
+  return { story: { ...source.story, notes: true } };
 }

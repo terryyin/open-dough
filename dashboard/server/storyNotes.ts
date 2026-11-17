@@ -3,9 +3,13 @@
 import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
+import type { AttachedStoryNote } from "../src/followUpRequest.ts";
 import {
   storyNoteChangeSchema,
+  storyNoteIsWaiting,
   storyNoteSchema,
+  storyNoteVersion,
+  type StoryNote,
   type StoryNoteChange,
   type StoryNotesAnswer,
 } from "../src/storyNote.ts";
@@ -14,6 +18,7 @@ import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import {
+  leaveMachineJson,
   readMachineJson,
   replaceMachineJson,
   type MachineJsonStore,
@@ -35,6 +40,50 @@ const answerOf = (stored: StoredNotes, project: string): StoryNotesAnswer => ({
   kind: "notes",
   notes: stored[project] ?? {},
 });
+
+// Waiting notes of one story for follow-up admission, or that the store
+// could not be read.
+export async function waitingStoryNotes(
+  project: string,
+  identity: string,
+): Promise<"unreadable" | StoryNote[]> {
+  const read = await readMachineJson(notesStore());
+  if (read.kind === "unreadable") return "unreadable";
+  return (read.document[project]?.[identity] ?? []).filter(storyNoteIsWaiting);
+}
+
+// Sets `delivered` on each note whose current version still equals the
+// attached one (`./storyNoteDelivery.ts`). A newer edit is left waiting.
+export async function deliverAttachedStoryNotes(
+  project: string,
+  identity: string,
+  attached: readonly AttachedStoryNote[],
+): Promise<void> {
+  if (attached.length === 0) return;
+  const versions = new Map(attached.map((note) => [note.id, note.version]));
+  await replaceMachineJson(notesStore(), (stored) => {
+    const projectNotes = stored[project];
+    const notes = projectNotes?.[identity];
+    if (projectNotes === undefined || notes === undefined)
+      return leaveMachineJson;
+    const next = notes.map((note) => {
+      const version = versions.get(note.id);
+      if (
+        version === undefined ||
+        storyNoteVersion(note) !== version ||
+        note.delivered === version
+      )
+        return note;
+      return { ...note, delivered: version };
+    });
+    if (next.every((note, index) => note === notes[index]))
+      return leaveMachineJson;
+    return {
+      ...stored,
+      [project]: { ...projectNotes, [identity]: next },
+    };
+  });
+}
 
 async function changeNotes(
   project: string,

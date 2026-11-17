@@ -4,6 +4,11 @@ import { NotebookPen } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { IconButton } from "./Icon.tsx";
 import { StoryNotesDialog } from "./StoryNotesDialog.tsx";
+import {
+  storyNoteIsWaiting,
+  storyNotesFor,
+  storyNotesWaitingDescription,
+} from "./storyNote.ts";
 import { storyNotesUnreadable, useStoryNotes } from "./storyNotes.ts";
 import "./launch-dialog.css";
 import "./story-notes.css";
@@ -19,10 +24,16 @@ export function StoryNotes({
 }) {
   const { answer, change } = useStoryNotes(sourceId);
   const problemId = useId();
+  const waitingId = useId();
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
-  const notes = answer?.kind === "notes" ? (answer.notes[identity] ?? []) : [];
-  const unreadable = answer?.kind === "unreadable";
+  const { notes, unreadable } = storyNotesFor(answer, identity);
+  const waiting = notes.filter(storyNoteIsWaiting).length;
+  const described = unreadable
+    ? problemId
+    : waiting > 0
+      ? waitingId
+      : undefined;
   return (
     <>
       <IconButton
@@ -30,7 +41,7 @@ export function StoryNotes({
         icon={NotebookPen}
         ref={opener}
         aria-haspopup="dialog"
-        aria-describedby={unreadable ? problemId : undefined}
+        aria-describedby={described}
         onClick={() => {
           setOpen(true);
         }}
@@ -44,6 +55,11 @@ export function StoryNotes({
       {unreadable && (
         <p id={problemId} className="story-notes-problem" role="status">
           {storyNotesUnreadable}
+        </p>
+      )}
+      {!unreadable && waiting > 0 && (
+        <p id={waitingId} role="status">
+          {storyNotesWaitingDescription(waiting)}
         </p>
       )}
       {open && (

@@ -127,11 +127,15 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
   const request = parsed.data;
-  // Maintenance marks and resolved follow-up context are server-owned.
+  // Maintenance marks, resolved follow-up context and attached note versions
+  // are server-owned.
   if (
     request.workflow === "ad-hoc" &&
     (request.maintenance !== undefined ||
-      request.followUp?.context !== undefined)
+      request.followUp?.context !== undefined ||
+      (request.followUp !== undefined &&
+        "notes" in request.followUp &&
+        request.followUp.notes !== undefined))
   ) {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }

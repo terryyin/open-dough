@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-348#attach-story-notes-to-follow-ups",
+  "title": "Attach story notes to follow-ups and show which are waiting",
+  "completedAt": "2026-11-17T08:48:56.206Z",
+  "developer": "Terry Yin",
+  "agent": "Yuma-chan",
+  "host": "cursor",
+  "model": "auto"
+}

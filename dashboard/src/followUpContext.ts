@@ -34,10 +34,12 @@ export type FollowUpSection = {
 };
 
 // What a follow-up supplies: the done story it follows up, if any, then each
-// retained session.
+// retained session, then waiting story notes when attached
+// (`./followUpStoryNotes.ts`).
 export type FollowUpContext = {
   readonly story?: FollowUpSection | undefined;
   readonly sessions: readonly FollowUpSection[];
+  readonly notes?: FollowUpSection | undefined;
 };
 
 // What the context reads of a done story's published record.
@@ -178,19 +180,26 @@ function itemText({ label, value }: FollowUpItem): string {
     : `- ${label}: ${value}`;
 }
 
+// Attached notes section as one first-input block (no "Done story"/"Session" kind).
+export function followUpNotesSectionText(notes: FollowUpSection): string {
+  return [`${notes.label}:`, ...notes.items.map(itemText)].join("\n");
+}
+
 // Every item of the context, one line each: the story's, then each
-// session's.
+// session's, then attached notes.
 export function followUpItems({
   story,
   sessions,
+  notes,
 }: FollowUpContext): readonly FollowUpItem[] {
-  return [story, ...sessions].flatMap((section) => section?.items ?? []);
+  return [story, ...sessions, notes].flatMap((section) => section?.items ?? []);
 }
 
 // The context as the session receives it, its own first input block.
 export function followUpContextText({
   story,
   sessions,
+  notes,
 }: FollowUpContext): string {
   const section = (kind: string) => (each: FollowUpSection) =>
     [`${kind} “${each.label}”:`, ...each.items.map(itemText)].join("\n");
@@ -198,5 +207,6 @@ export function followUpContextText({
     preamble,
     ...(story === undefined ? [] : [section("Done story")(story)]),
     ...sessions.map(section("Session")),
+    ...(notes === undefined ? [] : [followUpNotesSectionText(notes)]),
   ].join("\n");
 }

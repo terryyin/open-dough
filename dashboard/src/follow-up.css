@@ -15,3 +15,34 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Attach waiting notes, below the instruction and above Start. */
+.attach-story-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  font-weight: 400;
+}
+
+.attach-story-notes input {
+  margin-top: 0.2rem;
+}
+
+.attach-story-notes span {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.attach-story-notes small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.attach-story-notes:has(:disabled) {
+  color: var(--muted);
+  background: var(--surface);
+}

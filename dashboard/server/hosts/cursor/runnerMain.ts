@@ -11,6 +11,7 @@ import { cursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
 import { execCursor } from "./exec.ts";
 import { cursorSessionLabel } from "./idleScreen.ts";
 import { answerHangup, answerKeep } from "./runnerKeep.ts";
+import { installStoryNoteDelivery } from "../../storyNoteDelivery.ts";
 import { showsCursorWorkspaceTrust } from "./workspaceTrust.ts";
 import {
   cursorRunnerAddressFile,
@@ -24,6 +25,9 @@ import {
 } from "./runnerProtocol.ts";
 import { computeRunnerBuildId } from "./runnerBuild.ts";
 import { cursorRunnerPublishedSpawnHelper } from "./runnerSpawnHelper.ts";
+
+// Confirmed first inputs from /keep mark attached story-note versions.
+installStoryNoteDelivery();
 
 // The identity of the code this process is running, from the entry it was
 // actually started with (process.argv[1], not import.meta.url, which

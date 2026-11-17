@@ -31,6 +31,10 @@ import {
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
+import {
+  newlyDeliveredEntries,
+  notifyRecordsDelivered,
+} from "./launchRecordDelivery.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
@@ -100,12 +104,12 @@ function sessionEntries(stored: StoredRecords): LeavingRecord[] {
   return entries;
 }
 
+function sessionEntryKey({ project, record }: LeavingRecord): string {
+  return `${project}\0${sessionKey(record.session)}`;
+}
+
 function presentKeys(stored: StoredRecords): Set<string> {
-  return new Set(
-    sessionEntries(stored).map(
-      ({ project, record }) => `${project}\0${sessionKey(record.session)}`,
-    ),
-  );
+  return new Set(sessionEntries(stored).map(sessionEntryKey));
 }
 
 function withAgedOutRestored(
@@ -150,15 +154,18 @@ export async function replaceRecords(
 ): Promise<void> {
   const outcome: {
     dropped: LaunchRecord[];
+    delivered: LeavingRecord[];
     leftAsIs: boolean;
   } = {
     dropped: [],
+    delivered: [],
     leftAsIs: false,
   };
   await replaceMachineJson(launchStore(), async (stored) => {
     const now = Date.now();
     const leftAt = new Date(now).toISOString();
     outcome.dropped = [];
+    outcome.delivered = [];
     const kept: StoredRecords = {};
     const agedOut: LeavingRecord[] = [];
     for (const [id, records] of Object.entries(stored)) {
@@ -176,10 +183,14 @@ export async function replaceRecords(
     outcome.leftAsIs = next === leaveMachineJson;
     if (next === leaveMachineJson) return leaveMachineJson;
 
+    outcome.delivered = newlyDeliveredEntries(
+      sessionEntries(kept),
+      sessionEntries(next),
+    );
+
     const nextKeys = presentKeys(next);
     const removed = sessionEntries(kept).filter(
-      ({ project, record }) =>
-        !nextKeys.has(`${project}\0${sessionKey(record.session)}`),
+      (entry) => !nextKeys.has(sessionEntryKey(entry)),
     );
 
     const toHistory = [
@@ -205,4 +216,5 @@ export async function replaceRecords(
   if (!outcome.leftAsIs && outcome.dropped.length > 0) {
     await recordsDroppedByRetention?.(outcome.dropped);
   }
+  await notifyRecordsDelivered(outcome.leftAsIs, outcome.delivered);
 }
