@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-340_keep-one-time-test-preparation-out-of-case-budgets.json",
+      "identity": "SEED-340#keep-one-time-test-preparation-out-of-case-budgets",
+      "completedAt": "2026-11-17T23:34:11.662Z",
+      "blob": "240d926bbe4f71833d61a1c6399646dabe129f64"
+    },
+    {
       "fileName": "SEED-345_split-the-agent-effort-contract-guide.json",
       "identity": "SEED-345#split-the-agent-effort-contract-guide",
       "completedAt": "2026-11-17T15:29:10.332Z",

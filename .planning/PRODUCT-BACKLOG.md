@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence ([plan](slice-plans/683-recover-decisive-verification-evidence/PLAN.md))
 - [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines ([plan](slice-plans/663-emphasize-changed-words-in-diff-lines/PLAN.md))
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission ([plan](slice-plans/684-protect-host-suite-admission-from-container-diagnostics/PLAN.md))
-- [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
 
 ## Backlog list
 
