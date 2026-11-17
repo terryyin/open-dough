@@ -99,6 +99,11 @@ result, not a new reporting workflow.
   no all-clean claim unless the inspected result supports it.
 - **Simplicity:** replace or shorten the existing rule first; reject extra
   instructions or helpers that make the code harder to understand.
+- **Evidence from the verification story's Codex redo (2026-11-17):** it
+  narrowed rather than excluded: `expectNamedAdHocCall` delegated to a
+  single-launch check of name, instruction and cwd, and the ad hoc spec's
+  argv-length assertion became “no launch instruction”. Some of its exclusion
+  reasons still cited “no changed-helper call”, a code-proximity reason.
 - **Effort:** M, medium confidence, using SEED-345's shared-workflow band.
   **Depends on:** none. **Safe stop:** focused protective tests have value
   even if the verification story is not selected.
