@@ -58,9 +58,11 @@ export function useDiffStoryNote(
     },
     content: (
       <>
-        <p aria-live="polite" className="visually-hidden">
-          {announcement}
-        </p>
+        <div aria-live="polite">
+          {announcement && (
+            <span className="visually-hidden">{announcement}</span>
+          )}
+        </div>
         {context !== undefined && target !== undefined && (
           <StoryNotesDialog
             identity={target.story.identity}
