@@ -227,7 +227,7 @@ stop that path for a scope decision with the failed extraction evidence.
 
 ### 4. Qualify the focused case with one frozen native observation
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: after names, fixture and controls are committed, explicitly select
 one frozen Codex capture of the effort-derived case using the existing
@@ -245,6 +245,20 @@ case-specific evidence through existing retention; never claim archive-only
 reassessment proves the missing semantic judgment. A completed failing
 candidate can qualify the check if its evidence explains the actual failure;
 no guidance-improvement claim follows from one observation.
+
+Accepted 2026-11-17: frozen Codex baseline
+`launch-command-tests/comparisons/20261117-codex-baseline.json` (payload
+`88cef0957`, after slices 1–3 committed), 998 s at load 10–18, assessment
+pass; reassessed from the JSON alone with raw results moved away: pass, bytes
+unchanged. Final diff and report kept beside it because the compact JSON
+holds no code. Ordinary review in the case's "Native qualification": the
+decisive coupling (E2E argv length, whole-argv helper) was refactored and
+the `medium` owner stayed exact; residue: record-shape and time-label checks
+narrowed or dropped. The participant's own proof failed for environmental
+reasons (long socket path; process-list stdout undefined) and its report
+said so; next capture should shorten arm paths. Raw results at
+`$HOME/tmp/native-guidance-checks-results/…/20261117T082015-5463` are
+disposable at wrap-up.
 
 ### 5. Repeat the procedure with the available-supplier case
 Type: Behavior

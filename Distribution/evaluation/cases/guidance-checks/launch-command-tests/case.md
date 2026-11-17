@@ -10,12 +10,12 @@ consumer itself.
 
 - workflow: test refactoring after a product change (launch-command tests, Open Dough dashboard)
 - behavior: refactor the launch-command boundary specs and their E2E consumer without changing product behavior
-- hosts: codex (not yet qualified); claude, cursor: not qualified
-- qualification: none yet; its own baseline comes from one frozen native capture (plan 674, slice 4)
+- hosts: codex (qualified natively); claude, cursor: not qualified
+- qualification: one frozen Codex baseline on 2026-11-17 (assessment pass, with review residue); rejected outcomes covered by the reference qualification
 - environment: whole Open Dough checkout at a pinned revision with a tracked overlay; no external services
 - prerequisites: Bash 5, Git, Node 24, jq, npm registry or cache access, Playwright Chromium; a logged-in Codex CLI for explicit native capture
 - decisions and proof: notice the incidental command details the owning specs and the unchanged E2E consumer depend on, refactor them to the launch behavior they protect, and run that proof
-- duration: about 21 s preparation and 60 s observer proof at load 30 (2026-11-17); no native turn measured yet
+- duration: 37.7 s preparation, one 839 s turn, 998 s whole journey with observer proof and probes on 2026-11-17
 
 ## Source and extraction
 
@@ -140,6 +140,49 @@ The protective reference reads the name and absent instruction through
 version that left that helper's whole-argv check failed its own E2E (2/2).
 The mechanical reference writes `--effort medium` into both; the weakened one
 is the protective one with the default proof accepting any effort.
+
+## Native qualification
+
+2026-11-17, one explicitly selected frozen Codex capture, the case's own
+baseline (no comparison with the historical whole-story runs):
+
+```sh
+PATH=/opt/homebrew/bin:$PATH TMPDIR=$HOME/tmp/native-guidance-checks \
+  Distribution/evaluation/src/native-guidance-check.sh --native codex --case launch-command-tests \
+  --baseline 88cef09573909d2e33b68beb755ab2c999ba1338 --model gpt-6.1-sol --effort xhigh \
+  --save-baseline Distribution/evaluation/cases/guidance-checks/launch-command-tests/comparisons/20261117-codex-baseline.json \
+  --results-dir "$HOME/tmp/native-guidance-checks-results"
+```
+
+Codex CLI 0.169.0 `codex exec`, `gpt-6.1-sol` at `xhigh`, sandbox
+`danger-full-access`, approval `never`; 16-core Mac on AC power at load
+10–18, with two other sessions' `codex exec` running. Preparation 37.7 s,
+one turn of 839 s, whole journey 998 s. Assessment **pass**: backend 31/0,
+E2E consumer 4/0, perturbation green on both, all three faults red, probes
+restored (integrity `b6b708ec…`). Reassessed from the compact JSON alone in
+a separate checkout with the raw results moved away: pass, JSON unchanged.
+
+The compact JSON keeps no code, so the final diff and report are kept beside
+it (`20261117-codex-baseline-final.diff`, `-response.md`). Ordinary review
+of that code:
+
+- Protective: the E2E consumer and the `expectNamedAdHocCall` helper read
+  `name` and `instruction` through `claudeLaunchCommand` instead of argv
+  length, positions or the whole argv; the model boundary keeps an exact
+  `medium` default per story and ad hoc request as its dedicated owner.
+- Residue the probes do not see: the model boundary narrows "the record keeps
+  the request" (`toMatchObject(request)`, `toEqual(request)`) to the model or
+  effort field and drops its ad hoc time-label title check; the E2E blank
+  launch drops its time-label name witness. Mixed cases elsewhere are kept.
+- The report claims no clean result: it states that the participant's own
+  backend runs failed in teardown (`processGroup.ts:185`, process-list stdout
+  undefined) and its E2E run failed before launch (GitHub-owner socket path
+  too long), so "behavioral proof remains incomplete". The observer's runs
+  of the same specs passed. The participant could not execute its owning
+  proof in this environment; that is a case limit for the next capture
+  (shorter arm paths), not evidence about the guidance.
+
+One observation; no guidance-improvement or repeatability claim follows.
 
 ## Measurements
 

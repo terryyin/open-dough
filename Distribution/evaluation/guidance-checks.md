@@ -43,7 +43,7 @@ workflow, hosts, prerequisites, decisions-and-proof and duration. Each
 | `paused-supplier`           | hold a blocked slice through a diagnostic pass, an unchanged wake and an early publication, then continue once with proof | under 2 s; four turns of about 20 min per arm                                                       |
 | `unblocked-supplier`        | discover the already-completed supplier and finish the same partial execution once, with no event wakes                   | 1.7 s; one turn of 15 min                                                                           |
 | `doughnut-title-precedence` | calibrate a real project's maintained proof against a plausible fault                                                     | about 1–1.6 min and 4.5 GB per arm, with Nix, network and an arm-owned MySQL; one turn of 10–15 min |
-| `launch-command-tests`      | refactor launch-command tests after a real product change, including an unchanged E2E consumer                            | 21 s and 60 s of observer proof (2026-11-17); no native turn yet                                    |
+| `launch-command-tests`      | refactor launch-command tests after a real product change, including an unchanged E2E consumer                            | 38 s; one turn of 14 min, 17 min with observer proof and probes                                     |
 
 These are single observations at host load about 3–16, not cost estimates.
 

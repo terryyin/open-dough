@@ -1,0 +1,357 @@
+diff --git a/dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts b/dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts
+index 2ce03e6..d1bf245 100644
+--- a/dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts
+@@ -38,14 +38,16 @@ test.describe(`agent launch boundary, ad hoc`, () => {
+     await server.close();
+   });
+ 
+-  // Launches and returns the answered record and the `--bg` call's argv.
++  // Launches and returns the answered record and the observed launch command.
+   async function launched(instruction?: string) {
+     server.claudeScenario("launched");
+-    const callsBefore = server.claudeCalls().length;
+-    const response = await launch(server, {
+-      ...adHocRequest,
+-      ...(instruction === undefined ? {} : { instruction }),
+-    });
++    const callsBefore = server.claudeLaunchCalls().length;
++    const response = await launch(
++      server,
++      makeMe.aLaunchRequest
++        .adHoc(instruction === undefined ? {} : { instruction })
++        .please(),
++    );
+     expect(response.status).toBe(200);
+     const answer = JSON.parse(response.body) as {
+       kind: string;
+@@ -55,17 +57,19 @@ test.describe(`agent launch boundary, ad hoc`, () => {
+       };
+     };
+     expect(answer.kind).toBe("launched");
+-    const call = server.claudeCalls()[callsBefore];
++    const calls = server.claudeLaunchCalls();
++    expect(calls).toHaveLength(callsBefore + 1);
++    const call = calls[callsBefore];
+     expect(call?.cwd).toBe(openDoughFolder(server));
+-    return { record: answer.record, argv: call?.argv };
++    return { record: answer.record, command: claudeLaunchCommand(call?.argv) };
+   }
+ 
+   test("starts a session named for the text, keeps the label, and lists it", async () => {
+     const text = "why is the CI slow on main?";
+-    const { record, argv } = await launched(text);
++    const { record, command } = await launched(text);
+     const label = text;
+ 
+-    expect(claudeLaunchCommand(argv)).toMatchObject({
++    expect(command).toMatchObject({
+       name: `Open Dough · Ad hoc · ${label}`,
+       instruction: text,
+     });
+@@ -85,9 +89,9 @@ test.describe(`agent launch boundary, ad hoc`, () => {
+     ["only spaces", "   "],
+   ] as const) {
+     test(`starts a session with no prompt for ${blank}, named for the launch time`, async () => {
+-      const { record, argv } = await launched(instruction);
++      const { record, command } = await launched(instruction);
+ 
+-      expect(claudeLaunchCommand(argv)).toMatchObject({
++      expect(command).toMatchObject({
+         name: `Open Dough · Ad hoc · ${String(record.request["title"])}`,
+         instruction: undefined,
+       });
+@@ -98,12 +102,12 @@ test.describe(`agent launch boundary, ad hoc`, () => {
+   test("cuts a long multi-line text to 40 characters and sends it as typed", async () => {
+     const text =
+       "Investigate the\n\tslow\t\tbuild step and why\r\nit regressed lately";
+-    const { record, argv } = await launched(text);
++    const { record, command } = await launched(text);
+ 
+     expect(record.request["title"]).toBe(
+       "Investigate the slow build step and why …",
+     );
+-    expect(claudeLaunchCommand(argv)).toMatchObject({
++    expect(command).toMatchObject({
+       name: `Open Dough · Ad hoc · ${String(record.request["title"])}`,
+       instruction: text,
+     });
+@@ -111,10 +115,13 @@ test.describe(`agent launch boundary, ad hoc`, () => {
+ 
+   test("names the session for the launch time when the text holds a control character", async () => {
+     const text = "beep\u0007 please";
+-    const { record, argv } = await launched(text);
++    const { record, command } = await launched(text);
+ 
+     expect(record.request["title"]).toMatch(timeLabel);
+-    expect(claudeLaunchCommand(argv).instruction).toBe(text);
++    expect(command).toMatchObject({
++      name: `Open Dough · Ad hoc · ${String(record.request["title"])}`,
++      instruction: text,
++    });
+   });
+ 
+   for (const refused of [
+diff --git a/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts b/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts
+index d9a3039..2c847e6 100644
+--- a/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts
+@@ -1,12 +1,9 @@
+ // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
+-// at the boundary server, for a launch that asks for a model: a story's or an ad
+-// hoc session's `--model <alias>` goes before its instruction, a request
+-// without a model passes medium effort, the record keeps both choices, and a
+-// model outside the table is refused before any `claude` runs. Effort goes
+-// as `--effort <level>` after the model, and one outside Claude
+-// Code's levels is refused the same way. A refused launch names the model
+-// asked for. The synthetic `claude`
+-// (../../tests/fixtures/fake-claude) records every call.
++// at the boundary server: story and ad hoc launches pass their chosen model
++// and effort and keep those choices. Omitted choices leave Claude Code's
++// model setting in use and default effort to medium. Invalid choices are
++// refused before any `claude` runs; a refused launch names the requested model.
++// The synthetic `claude` (../../tests/fixtures/fake-claude) records every call.
+ 
+ import { expect, test } from "../../tests/support/pageTest.ts";
+ import { claudeLaunchCommand } from "../../tests/claudeLaunchCommand.ts";
+@@ -26,7 +23,6 @@ import {
+ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+ 
+ const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
+-const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
+ 
+ test.describe(`agent launch boundary, chosen model`, () => {
+   test.describe.configure({ mode: "serial" });
+@@ -61,101 +57,92 @@ test.describe(`agent launch boundary, chosen model`, () => {
+     expect(calls).toHaveLength(callsBefore + 1);
+     const call = calls[callsBefore];
+     expect(call?.cwd).toBe(openDoughFolder(server));
+-    return { record: answer.record, argv: call?.argv };
++    return { record: answer.record, command: claudeLaunchCommand(call?.argv) };
+   }
+ 
+-  test("starts a story session on the chosen model before its instruction and keeps the alias", async () => {
++  test("starts a story session on the chosen model with its instruction and keeps the alias", async () => {
+     const request = makeMe.aLaunchRequest
+       .executing({ identity, title })
+       .requestingModel("opus")
+       .withInstruction("go")
+       .please();
+-    const { record, argv } = await launched(request);
++    const { record, command } = await launched(request);
+ 
+-    expect(claudeLaunchCommand(argv)).toMatchObject({
++    expect(command).toMatchObject({
+       model: "opus",
+       instruction: `/dough-execute-plan ${identity}\n\ngo`,
+     });
+-    expect(record.request).toMatchObject(request);
++    expect(record.request["model"]).toBe("opus");
+     expect(await machineSessions(server)).toContainEqual(
+       expect.objectContaining({ request: record.request }),
+     );
+   });
+ 
+-  test("starts an ad hoc session with no text on the chosen model and no prompt", async () => {
++  test("starts an ad hoc session on the chosen model with no prompt and keeps the alias", async () => {
+     const request = makeMe.aLaunchRequest
+       .adHoc()
+       .requestingModel("sonnet")
+       .please();
+-    const { record, argv } = await launched(request);
++    const { record, command } = await launched(request);
+ 
+-    expect(claudeLaunchCommand(argv)).toMatchObject({
++    expect(command).toMatchObject({
+       model: "sonnet",
+       instruction: undefined,
+     });
+-    expect(record.request["title"]).toMatch(timeLabel);
+-    expect(record.request).toMatchObject({
+-      ...request,
+-      title: record.request["title"],
+-    });
++    expect(record.request["model"]).toBe("sonnet");
+     expect(await machineSessions(server)).toContainEqual(
+       expect.objectContaining({ request: record.request }),
+     );
+   });
+ 
+-  test("starts an ad hoc session on the chosen model before its text", async () => {
+-    const { argv } = await launched(
++  test("starts an ad hoc session on the chosen model with its text", async () => {
++    const { command } = await launched(
+       makeMe.aLaunchRequest
+         .adHoc({ instruction: "look at the build" })
+         .requestingModel("fable")
+         .please(),
+     );
+ 
+-    expect(claudeLaunchCommand(argv)).toMatchObject({
++    expect(command).toMatchObject({
+       model: "fable",
+       instruction: "look at the build",
+     });
+   });
+ 
+-  test("starts a story session at the chosen effort after its model and keeps it", async () => {
++  test("passes the chosen effort alongside the chosen model and keeps the effort", async () => {
+     const request = makeMe.aLaunchRequest
+       .executing({ identity, title })
+       .requestingModel("opus")
+       .withEffort("max")
+       .withInstruction("go")
+       .please();
+-    const { record, argv } = await launched(request);
+-
+-    expect(argv).toEqual([
+-      "--bg",
+-      "--name",
+-      `Open Dough · Execution · ${title}`,
+-      "--model",
+-      "opus",
+-      "--effort",
+-      "max",
+-      `/dough-execute-plan ${identity}\n\ngo`,
+-    ]);
+-    expect(record.request).toEqual(request);
++    const { record, command } = await launched(request);
++
++    expect(command).toMatchObject({
++      model: "opus",
++      effort: "max",
++    });
++    expect(record.request["effort"]).toBe("max");
+   });
+ 
+-  test("passes Open Dough’s default effort when none is chosen and keeps it", async () => {
+-    const story = await launched(launchRequest);
+-    expect(claudeLaunchCommand(story.argv)).toMatchObject({
+-      model: undefined,
+-      effort: "medium",
++  for (const [kind, body] of [
++    ["story", launchRequest],
++    ["ad hoc", adHocRequest],
++  ] as const) {
++    test(`leaves Claude Code’s model setting in use for a ${kind} request without a model`, async () => {
++      const { record, command } = await launched(body);
++
++      expect(command.model).toBeUndefined();
++      expect(record.request).not.toHaveProperty("model");
+     });
+-    expect(story.record.request).not.toHaveProperty("model");
+-    expect(story.record.request["effort"]).toBe("medium");
+ 
+-    const adHoc = await launched(adHocRequest);
+-    expect(claudeLaunchCommand(adHoc.argv)).toMatchObject({
+-      model: undefined,
+-      effort: "medium",
++    test(`passes medium effort for a ${kind} request without an effort choice and keeps it`, async () => {
++      const { record, command } = await launched(body);
++
++      expect(command.effort).toBe("medium");
++      expect(record.request["effort"]).toBe("medium");
+     });
+-    expect(adHoc.record.request).not.toHaveProperty("model");
+-    expect(adHoc.record.request["effort"]).toBe("medium");
+-  });
++  }
+ 
+   test("refuses a Claude Code effort outside its levels before starting claude, naming them", async () => {
+     server.claudeScenario("launched");
+diff --git a/dashboard/tests/support/unattachedLaunchAssertions.ts b/dashboard/tests/support/unattachedLaunchAssertions.ts
+index 5bd0785..9d643fb 100644
+--- a/dashboard/tests/support/unattachedLaunchAssertions.ts
++++ b/dashboard/tests/support/unattachedLaunchAssertions.ts
+@@ -7,6 +7,7 @@ import { expect } from "@playwright/test";
+ import type { LaunchRecord } from "../../src/launchRecord.ts";
+ import type { EstablishedSession } from "../../src/unattachedSession.ts";
+ import { recordsOf } from "../agentLaunchBoundary.ts";
++import { claudeLaunchCommand } from "../claudeLaunchCommand.ts";
+ import type { DashboardServer } from "./dashboardServer.ts";
+ import { expectReportingBlock } from "./reportingInputAssertions.ts";
+ import {
+@@ -22,17 +23,16 @@ export function expectNamedAdHocCall(
+   project: string,
+   instruction: string,
+ ) {
+-  expect(dashboard.claudeLaunchCalls()).toEqual([
+-    {
+-      argv: [
+-        "--bg",
+-        "--name",
+-        `${project} · Ad hoc · ${instruction}`,
+-        instruction,
+-      ],
+-      cwd: realpathSync(path.join(dashboard.home, "git", source)),
+-    },
+-  ]);
++  const calls = dashboard.claudeLaunchCalls();
++  expect(calls).toHaveLength(1);
++  const [call] = calls;
++  expect(call?.cwd).toBe(
++    realpathSync(path.join(dashboard.home, "git", source)),
++  );
++  expect(claudeLaunchCommand(call?.argv)).toMatchObject({
++    name: `${project} · Ad hoc · ${instruction}`,
++    instruction,
++  });
+ }
+ 
+ export async function expectNoSessionEstablishment(dashboard: DashboardServer) {
+diff --git a/e2e/launches/agent-launch-ad-hoc.spec.ts b/e2e/launches/agent-launch-ad-hoc.spec.ts
+index 306ed3e..fb60979 100644
+--- a/e2e/launches/agent-launch-ad-hoc.spec.ts
++++ b/e2e/launches/agent-launch-ad-hoc.spec.ts
+@@ -7,7 +7,9 @@
+ 
+ import type { Page } from "@playwright/test";
+ import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
++import { claudeLaunchCommand } from "../../dashboard/tests/claudeLaunchCommand.ts";
+ import {
++  launchDialogControls,
+   openTakenBacklog,
+   startSession,
+   startSessionDialog,
+@@ -60,7 +62,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
+   const before = Date.now();
+   await startSession(page, "Open Dough").click();
+   await startSessionField(dialog).fill(`  ${text}  `);
+-  await dialog.getByRole("button", { name: "Start" }).click();
++  await launchDialogControls(dialog).start();
+ 
+   const entry = sessionEntriesIn(parts(page).taken);
+   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
+@@ -113,17 +115,17 @@ for (const blank of ["", "   "]) {
+ 
+     await startSession(page, "Open Dough").click();
+     await startSessionField(dialog).fill(blank);
+-    await dialog.getByRole("button", { name: "Start" }).click();
++    await launchDialogControls(dialog).start();
+ 
+     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
+-    const [call] = dashboard.claudeLaunchCalls();
+-    expect(call?.argv).toHaveLength(3);
++    const calls = dashboard.claudeLaunchCalls();
++    expect(calls).toHaveLength(1);
++    const [call] = calls;
++    const command = claudeLaunchCommand(call?.argv);
++    expect(command.instruction).toBeUndefined();
+     const record = await expectNoSessionEstablishment(dashboard);
+     for (const absent of ["instruction", "reporting"])
+       expect(record?.request).not.toHaveProperty(absent);
+-    expect(call?.argv[2]).toMatch(
+-      /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
+-    );
+   });
+ }
+ 
+@@ -140,7 +142,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
+ 
+   await startSession(page, "Pygardon").click();
+   await startSessionField(dialog).fill("what changed last week?");
+-  await dialog.getByRole("button", { name: "Start" }).click();
++  await launchDialogControls(dialog).start();
+ 
+   // Pygardon publishes no work here, so the sidebar is where it is listed.
+   const { button, entries } = sessionsSidebarParts(page);
