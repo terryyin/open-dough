@@ -37,6 +37,38 @@ or observe both arms fresh. An extracted case never treats the whole-story
 runs it came from as its baseline. An interrupted journey stays incomplete;
 the entry never retries it.
 
+## Redo the source phase for an uncovered finding
+
+When no case exercises the moment a retained finding concerns, one short
+native redo of the phase where it occurred gives a first decision on a
+proposed guidance change before a case is extracted or the change is adopted:
+
+1. State the criteria before running: the intended gain, two to four concrete
+   criteria, what would count as a wrong outcome, and the moment the session
+   must reach.
+2. Name the baseline: the source execution's recorded commits and returns, or
+   an applicable [saved baseline](baselines.md), unchanged. List each mismatch
+   in host, model, effort, release and task.
+3. Pin the inputs: a scratch clone outside this repository at the source
+   revision, with a local bare repository as its only remote. Commit the
+   candidate guidance into the installed skill copies that revision's host
+   reads, re-expressed for that revision's paths.
+4. Run one fresh native session with the source phase's own instruction under
+   a stated deadline. Give it no prior outcome, finding text or comparison
+   purpose, and send it nothing afterwards.
+5. Read first whether the session reached the moment, then inspect the
+   produced files and proof against the criteria.
+6. Return keep, revise or drop for the change, or inconclusive with the
+   missing evidence; separately say whether extracting a case is worthwhile.
+7. Record the result as the finding's follow-up note, and remove the scratch
+   clone and raw session.
+
+One run supports revise or drop when the wrong outcome appears under the
+candidate, and inconclusive when the moment is not reached or a mismatch
+decides the reading. Keep is a predicted benefit within the observed context
+under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md),
+not an observed improvement.
+
 ## Select a case
 
 ```sh

@@ -1,6 +1,7 @@
 # Try an unfamiliar improvement by redoing its source story
 
 **Identity:** SEED-393#try-guidance-improvements-by-redoing-the-source-story
+**Source review:** [source-review.md](source-review.md)
 **Source:** [Try an unfamiliar improvement by redoing its source story](../../seeds/SEED-393-test-quality-learning-from-effort-replays.md#try-guidance-improvements-by-redoing-the-source-story)
 
 ## Goal and scope
@@ -55,6 +56,41 @@ applies.
 | The redo document's long lines are readable against a baseline | Slice 3 reading | `7466db352^` version already has 27 lines over 80 characters (tables and links) | Settled: the reading compares added or changed lines only, not the whole file |
 | Codex starts in a scratch clone with a local bare remote | Slice 2 launch | Retained: plan 668 slice 1, 2026-11-16, Codex CLI 0.169.0 at 0.3.102 skills started and delegated; `codex --version` today → 0.169.0 | Proxy: 0.3.81 skills and a `$dough-post-change-refactor` start are unobserved; only the paid launch settles it, so slice 2 is the probe |
 
+## Basis
+
+Stated for [ODF-361](../../../docs/maintainer/findings/ODF-361.md) before the
+session starts, following the
+[recipe](../../../Distribution/evaluation/guidance-checks.md#redo-the-source-phase-for-an-uncovered-finding).
+
+- **Intended gain:** a file over the line limit is shortened by content, with
+  normal wrapping kept.
+- **Criteria:**
+  1. The final document is at most 250 lines.
+  2. No added or changed prose line exceeds 80 characters.
+  3. The new paragraph's words are reduced or moved, not only reflowed.
+  4. The return does not call a reflow a shortening.
+- **Wrong outcome:** lines joined to meet the count.
+- **Moment:** the session checks file size with the document at 253 lines.
+- **Baseline:** ODF-361's two recorded occurrences, unchanged: plan 360 at
+  Claude Code, release 0.3.72, and plan 451 at Codex, release 0.3.81.
+- **Known mismatches:**
+  - Host settings: the redo runs Codex with today's default model and effort;
+    the plan 451 Codex run's model and effort at 0.3.81 are unrecorded. This
+    limits any reading attributed to the candidate wording rather than the
+    model or effort.
+  - Task: the redo starts `$dough-post-change-refactor` directly; the
+    original delegated `/root/proof_refactor` brief is not recoverable. This
+    limits criterion 4 and the moment reading, since the brief may have
+    framed the size check differently.
+  - Release: the scratch pins plan 451's installed 0.3.81 copies, so release
+    matches that occurrence only.
+  - Plan 360 occurrence: host (Claude Code), model (`claude-opus-5-5`),
+    release (0.3.72) and task (a behavior slice bringing two skill files to
+    250 lines) all differ. It shows the wrong outcome exists across hosts;
+    it is not compared with this redo's readings.
+  - Single run: one session, no second arm; this limits every reading to a
+    predicted benefit or a single counterexample.
+
 ## Slices
 
 Each slice targets 15 active minutes; the session's own run time is command
@@ -62,7 +98,7 @@ time.
 
 ### 1. The recipe and this redo's basis exist before any session
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a maintainer with a finding no case covers opens Native guidance
 checks → a short section after Procedure gives the seven recipe steps the
