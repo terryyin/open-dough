@@ -8,21 +8,17 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 # shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
+# shellcheck source=Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-check-expectations.sh"
 context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 deadline=1
 grace=1
 bystander=
 
-work_dir=$(mktemp -d)
-finish() {
-  chmod -R u+w "${work_dir}" 2> /dev/null || true
-  if [[ -n ${bystander} ]]; then
-    kill "${bystander}" 2> /dev/null || true
-    wait "${bystander}" 2> /dev/null || true
-  fi
-  rm -rf -- "${work_dir}"
-}
-trap finish EXIT
+work_dir=
+native_check_status=0
+native_check_workspace work_dir
 
 sentinel_bin="${work_dir}/bin"
 watched_dir="${work_dir}/watched"
@@ -45,102 +41,41 @@ cp -R -- "${prior}" "${prior_copy}"
 : > "${run_log}"
 sleep 120 &
 bystander=$!
+native_check_own_process "${bystander}"
 disown "${bystander}" 2> /dev/null || true
 
-set +e
-env TMPDIR="${watched_dir}" PATH="${sentinel_bin}:${PATH}" \
+native_check_run "${sentinel_bin}" "${stdout_file}" "${stderr_file}" \
+  env TMPDIR="${watched_dir}" \
   NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
   NATIVE_AGENT_HANG_STATE="${hang_state}" \
   bash "${context_wrapper}" --native codex clear \
   --results-dir "${results_dir}" \
-  --deadline "${deadline}" --grace "${grace}" \
-  > "${stdout_file}" 2> "${stderr_file}"
-status=$?
-set -e
+  --deadline "${deadline}" --grace "${grace}"
 now=$(date +%s)
 
-if [[ ${status} -eq 0 ]]; then
-  echo 'FAIL: hung selected context returned passing.' >&2
-  cat "${stdout_file}" >&2
-  cat "${stderr_file}" >&2
-  exit 1
-fi
-if [[ ${status} -ne 124 ]]; then
-  echo "FAIL: hung selected context exited ${status}, expected 124." >&2
-  cat "${stdout_file}" >&2
-  cat "${stderr_file}" >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
-
+native_check_expect_status 'hung selected context times out' 124 "${native_check_status}" "${stdout_file}" "${stderr_file}" "${run_log}"
 leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
-if [[ -n ${leftover} ]]; then
-  echo 'FAIL: scratch remained after the timeout return.' >&2
-  printf '%s\n' "${leftover}" >&2
-  exit 1
-fi
-
-if [[ ! -f ${hang_state} ]]; then
-  echo 'FAIL: hang fixture did not record owned pids.' >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
+native_check_expect_value 'timeout scratch removed' '' "${leftover}"
+[[ -f ${hang_state} ]]
 hang_pid=
 hang_child=
 hang_pgid=
 hang_started=
 # shellcheck source=/dev/null
 source "${hang_state}"
-if [[ -z ${hang_pid:-} || -z ${hang_child:-} || -z ${hang_pgid:-} ||
-  -z ${hang_started:-} ]]; then
-  echo 'FAIL: hang fixture state omitted owned pid, child, pgid, or start time.' >&2
-  cat "${hang_state}" >&2
-  exit 1
-fi
-if kill -0 "${hang_pid}" 2> /dev/null; then
-  echo "FAIL: owned hang pid ${hang_pid} remains alive." >&2
-  exit 1
-fi
-if kill -0 "${hang_child}" 2> /dev/null; then
-  echo "FAIL: owned child pid ${hang_child} remains alive." >&2
-  exit 1
-fi
-if ! kill -0 "${bystander}" 2> /dev/null; then
-  echo 'FAIL: an unrelated process was killed; proof is only for owned pids.' >&2
-  exit 1
-fi
+[[ -n ${hang_pid:-} && -n ${hang_child:-} && -n ${hang_pgid:-} && -n ${hang_started:-} ]]
+native_check_expect_process 'owned hang process stopped' "${hang_pid}" exited "${hang_state}"
+native_check_expect_process 'owned child stopped' "${hang_child}" exited "${hang_state}"
+native_check_expect_process 'unrelated bystander survives' "${bystander}" running
 test_pgid=$(ps -o pgid= -p $$ | tr -d '[:space:]')
-if [[ ${hang_pgid} == "${test_pgid}" ]]; then
-  echo 'FAIL: hang fixture stayed in the caller process group.' >&2
-  exit 1
-fi
-
+[[ ${hang_pgid} != "${test_pgid}" ]]
 elapsed=$((now - hang_started))
 limit=$((deadline + grace + 15))
-if ((elapsed > limit)); then
-  echo "FAIL: wrapper returned ${elapsed}s after hang start; limit ${limit}s." >&2
-  exit 1
-fi
-
+((elapsed <= limit))
 launches=$(grep -v -- '--version' "${run_log}" | grep -c . || true)
-if [[ ${launches} -ne 1 ]]; then
-  echo "FAIL: invocation log shows ${launches} launches; expected one and no retry." >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
-if grep -Fq -- '--version' "${run_log}"; then
-  :
-else
-  echo 'FAIL: invocation log omitted the version probe.' >&2
-  cat "${run_log}" >&2
-  exit 1
-fi
-
-if ! diff -rq "${prior}" "${prior_copy}" > /dev/null; then
-  echo 'FAIL: previously completed attempt was not byte-identical.' >&2
-  diff -rq "${prior}" "${prior_copy}" >&2
-  exit 1
-fi
+native_check_expect_value 'one launch and no retry' 1 "${launches}" "${run_log}"
+native_check_expect_line 'host version probed' "${run_log}" '--version'
+diff -rq "${prior}" "${prior_copy}" > /dev/null
 
 attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if (path=="") exit 1; print path }' \
   "${stdout_file}")
@@ -148,18 +83,13 @@ attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if 
 [[ ${attempt} != "${prior}" ]]
 [[ -f ${attempt}/record ]]
 [[ -f ${attempt}/events.jsonl ]]
-grep -Fq 'execution-status: timeout' "${attempt}/record"
-grep -Fq 'execution-reason: deadline expired' "${attempt}/record"
-grep -Fq 'assessment-status: not-run' "${attempt}/record"
-grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
-if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
-  echo 'FAIL: timeout was recorded as a wording pass.' >&2
-  cat "${attempt}/record" >&2
-  exit 1
-fi
+native_check_expect_field 'timeout retained' "${attempt}/record" execution-status timeout
+native_check_expect_field 'deadline reason retained' "${attempt}/record" execution-reason 'deadline expired'
+native_check_expect_field 'behavior not assessed' "${attempt}/record" assessment-status not-run
+native_check_expect_field 'assessment reason retained' "${attempt}/record" assessment-reason 'behavior not assessed'
 native_result_assert_no_discovery_fields "${attempt}/record"
-grep -Fq '{"type":"item","partial":true}' "${attempt}/events.jsonl"
-grep -Fq 'partial hang output' "${attempt}/response.md"
-[[ ! -e ${attempt}/adopter ]]
-[[ ! -e ${attempt}/candidate ]]
-[[ ! -e ${attempt}/codex-state ]]
+native_check_expect_line 'partial events retained' "${attempt}/events.jsonl" '{"type":"item","partial":true}'
+native_check_expect_line 'partial response retained' "${attempt}/response.md" 'partial hang output'
+native_check_expect_absent 'adopter scratch not retained' "${attempt}/adopter"
+native_check_expect_absent 'candidate scratch not retained' "${attempt}/candidate"
+native_check_expect_absent 'codex-state scratch not retained' "${attempt}/codex-state"

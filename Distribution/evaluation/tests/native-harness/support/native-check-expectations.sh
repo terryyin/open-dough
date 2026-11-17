@@ -3,9 +3,14 @@
 # shellcheck disable=SC2312,SC2034 # Captured status is consumed by the sourcing check.
 
 native_check_workspaces=()
+native_check_processes=()
 
 native_check_cleanup() {
-  local status=$? directory
+  local status=$? directory process
+  for process in "${native_check_processes[@]}"; do
+    kill "${process}" 2> /dev/null || true
+    wait "${process}" 2> /dev/null || true
+  done
   for directory in "${native_check_workspaces[@]}"; do
     chmod -R u+w "${directory}" 2> /dev/null || true
     rm -rf -- "${directory}"
@@ -19,6 +24,12 @@ native_check_workspace() {
   directory=$(mktemp -d)
   native_check_workspaces+=("${directory}")
   printf -v "$1" '%s' "${directory}"
+  trap native_check_cleanup EXIT
+}
+
+# A check retains responsibility for processes it starts, including failures.
+native_check_own_process() {
+  native_check_processes+=("$1")
   trap native_check_cleanup EXIT
 }
 
@@ -51,10 +62,14 @@ native_check_fail() {
   return 1
 }
 
-native_check_expect_status() {
+native_check_expect_value() {
   local fact=$1 expected=$2 actual=$3
   shift 3
   [[ ${actual} == "${expected}" ]] || native_check_fail "${fact}" "${expected}" "${actual}" "$@"
+}
+
+native_check_expect_status() {
+  native_check_expect_value "$@"
 }
 
 native_check_expect_field() {
@@ -73,4 +88,14 @@ native_check_expect_line() {
 native_check_expect_absent() {
   local fact=$1 path=$2
   [[ ! -e ${path} && ! -L ${path} ]] || native_check_fail "${fact}" '<absent>' '<present>' "${path}"
+}
+
+# Process liveness is observed rather than a negated command, so errexit applies.
+native_check_expect_process() {
+  local fact=$1 process=$2 expected=$3 actual=exited
+  shift 3
+  if kill -0 "${process}" 2> /dev/null; then
+    actual=running
+  fi
+  native_check_expect_value "${fact} (pid ${process})" "${expected}" "${actual}" "$@"
 }

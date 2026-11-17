@@ -64,7 +64,7 @@ output. Run it through `bash scripts/test.sh`.
 
 ### 2. The timeout check states its facts through the vocabulary
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: `native-run-timeout.sh` keeps every fact it asserts today, each as
 one vocabulary line or an existing one-line test, with no `FAIL:` block and
@@ -190,3 +190,11 @@ entry (status 0/9, both streams), silent passing words and failed child checks
 that stop before trailing output, including completed-versus-timeout evidence.
 Consumer trace: only the new own check currently sources the helper; unrelated
 `prep_native_check_support_dir` match excluded. No production behavior changes.
+
+### Slice 2
+
+Timeout retains every fact (nonzero follows 124; no assessment pass follows exact not-run).
+`slice-clock.mjs run --log /tmp/seed396-s2-<label>.log --exit-file /tmp/seed396-s2-<label>.exit -- env PATH=/opt/homebrew/bin:$PATH python3 /tmp/seed396-s2-retry-fault.py`
+with `before-fault` and `final-fault` rejects the same extra native_run_owned after timeout (two launches). Exact production bytes restored.
+Final proof: `slice-clock.mjs run --log /tmp/seed396-s2-final-restored.log --exit-file /tmp/seed396-s2-final-restored.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-harness/native-run-timeout.sh Distribution/evaluation/tests/native-harness/native-check-expectations.sh Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` exit 0.
+Shared value/process words and owned-process cleanup are observed by self-check and timeout, their only runtime consumers. Consumer dispositions: `/tmp/seed396-s2-consumer-trace.md`.

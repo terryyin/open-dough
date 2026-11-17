@@ -16,11 +16,13 @@ native_check_workspace work_dir
 # read-only contents, and preserves the child's original exit status.
 for child_status in 0 7; do
   status=0
-  bash -c 'set -euo pipefail; source "$1"; native_check_workspace scratch; printf "%s\n" "$scratch"; touch "$scratch/readonly"; chmod a-w "$scratch/readonly"; exit "$2"' \
+  bash -c 'set -euo pipefail; source "$1"; native_check_workspace scratch; printf "%s\n" "$scratch"; sleep 120 & native_check_own_process "$!"; printf "%s\n" "$!"; touch "$scratch/readonly"; chmod a-w "$scratch/readonly"; exit "$2"' \
     bash "${expectations}" "${child_status}" > "${work_dir}/scratch-path" || status=$?
   [[ ${status} == "${child_status}" ]]
-  scratch=$(cat "${work_dir}/scratch-path")
+  scratch=$(sed -n '1p' "${work_dir}/scratch-path")
+  process=$(sed -n '2p' "${work_dir}/scratch-path")
   [[ ! -e ${scratch} ]]
+  native_check_expect_process 'owned child cleanup' "${process}" exited
 done
 
 # A real entry resolves the substitute host first and preserves both streams
@@ -46,6 +48,8 @@ done
 printf '%s\n' 'execution-status: completed' 'payload: retained evidence' > "${work_dir}/record"
 touch "${work_dir}/present"
 (
+  native_check_expect_process 'check running' "$$" running
+  native_check_expect_value 'launch count' 1 1
   native_check_expect_status 'entry status' 0 0 "${work_dir}/stdout"
   native_check_expect_field 'execution outcome' "${work_dir}/record" execution-status completed
   native_check_expect_line 'retained payload' "${work_dir}/record" 'payload: retained evidence'
@@ -77,3 +81,8 @@ assert_failure 'retained payload' 'payload: missing' '<line absent>' 'payload: r
   native_check_expect_line 'retained payload' "${work_dir}/record" 'payload: missing'
 assert_failure 'scratch gone' '<absent>' '<present>' "${work_dir}/present" \
   native_check_expect_absent 'scratch gone' "${work_dir}/present"
+
+assert_failure 'launch count' 1 2 'substitute stderr' \
+  native_check_expect_value 'launch count' 1 2 "${work_dir}/stderr"
+assert_failure "check stopped (pid $$)" exited running 'substitute stderr' \
+  native_check_expect_process 'check stopped' "$$" exited "${work_dir}/stderr"
