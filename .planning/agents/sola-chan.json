@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Sola-chan",
-  "email": "sola-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
