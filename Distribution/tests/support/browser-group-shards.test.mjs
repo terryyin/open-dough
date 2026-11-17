@@ -175,15 +175,23 @@ test("overlapping E2E patterns fail every shard and the unsplit run before any t
 });
 
 test("an integrated pattern matching no spec fails the configuration naming it", () => {
-  withScratchGroup("dashboard-integrated", {}, ({ testDir, selection }) => {
-    // Every spec moved out of the folder shard 1 names, its pattern left behind.
-    rmSync(new URL("tests/intent/", testDir), { recursive: true });
-    for (const split of [undefined, "1/4", "4/4"])
-      assert.throws(
-        () => dashboardTestMatch(testDir, split, selection),
-        new Error(
-          `FAIL: ${workflowFile}: pattern dashboard/tests/intent/** of share 1 matches no check.`,
-        ),
-      );
-  });
+  // Every spec moved out of a folder shard 1 names, its pattern left behind.
+  const edit = (text) =>
+    text.replace(
+      "1: dashboard/tests/navigation/board-*",
+      "1: dashboard/tests/retired/** dashboard/tests/navigation/board-*",
+    );
+  withScratchGroup(
+    "dashboard-integrated",
+    { edit },
+    ({ testDir, selection }) => {
+      for (const split of [undefined, "1/3", "3/3"])
+        assert.throws(
+          () => dashboardTestMatch(testDir, split, selection),
+          new Error(
+            `FAIL: ${workflowFile}: pattern dashboard/tests/retired/** of share 1 matches no check.`,
+          ),
+        );
+    },
+  );
 });

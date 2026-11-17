@@ -197,12 +197,11 @@ jobs:
       command: test:dashboard:integrated
       settings: OPEN_DOUGH_DASHBOARD_INTEGRATED
       root: dashboard/tests
-      shards: "[1, 2, 3, 4]"
+      shards: "[1, 2, 3]"
       # `navigation` outweighs an even shard, so it divides by file-name prefix.
       specs: |
-        1: dashboard/tests/intent/**
-        2: dashboard/tests/navigation/board-* dashboard/tests/navigation/source-*
-        3: dashboard/tests/navigation/story-* dashboard/tests/navigation/side-* dashboard/tests/navigation/notification-*
+        1: dashboard/tests/navigation/board-* dashboard/tests/navigation/source-*
+        2: dashboard/tests/navigation/story-* dashboard/tests/navigation/side-* dashboard/tests/navigation/notification-*
   dashboard-frontend:
     uses: ./.github/workflows/browser-test-group.yml
     with:

@@ -22,11 +22,12 @@ rule count alone does not measure the developer's feedback path.
 | Landed recovery connections | Backend `intent-ci-comparison-pending-proof.spec.ts` keeps three real-server connections: an equivalent landing's malformed listing bytes through the default parsers to the public pending gap, the measured point and final reuse; and, for each provenance, a provider-directed wait under the request owner's controlled clock and one owner process. `intent-ci-comparison-receipt.spec.ts` and `landed-ci-history-comparison-run.spec.ts` retain the persisted receipt lifetime and public history. A later landing's proof wait past the revision walk has no real-server case; see the [later pending-proof coverage map](#later-pending-proof-coverage-map). Browser `intent-ci-comparison-missing-run.spec.ts`, `-pending-proof.spec.ts` and `-trunk-finality.spec.ts` retain actual controls, timing/source cues and Trunk NoBuild despite an available later build. |
 | Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `e2e/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
 
-Backend filenames above are under `dashboard/backend-tests/intent/`;
-presentation filenames under `dashboard/frontend-tests/intent/`; other browser
-filenames are under `dashboard/tests/intent/`. The rendering and in-process
-cases replace rule variants formerly repeated through whole-app setup. The
-retained journeys own connections those boundaries cannot establish.
+Backend filenames above are under `dashboard/backend-tests/intent/`,
+presentation and other Frontend filenames under
+`dashboard/frontend-tests/intent/`, and E2E filenames under `e2e/intent/`. The
+rendering and in-process cases replace rule variants formerly repeated through
+whole-app setup. The retained journeys own connections those boundaries cannot
+establish.
 
 ## Arrangement and isolation
 
@@ -89,9 +90,6 @@ npm run test:dashboard:backend -- \
   backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
   backend-tests/intent/landed-ci-history-comparison-run.spec.ts \
   backend-tests/intent/landed-ci-history-no-proof-recovery.spec.ts
-npm run test:dashboard:integrated -- \
-  tests/intent/intent-ci-comparison \
-  tests/intent/intent-summary-story-comparison
 npm run test:e2e -- \
   intent/intent-ci-comparison \
   intent/intent-summary-story-comparison \

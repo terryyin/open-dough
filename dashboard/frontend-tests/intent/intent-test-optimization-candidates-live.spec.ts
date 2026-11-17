@@ -1,65 +1,74 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { prepareCandidateProjects } from "../../tests/support/frontendIntentCandidates.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent reads a project's live Test Optimization Candidates record
 // (../../src/IntentCandidatesRecord.tsx) on its Optimization Candidates tab:
 // each live candidate under Live candidates with its five facts, its affected
 // test opening in Purpose, and a live record holding `None.` as having no
 // live candidates.
 
-import { expect, test } from "../dashboardTest.ts";
-import { chooseProject, parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { chooseProject, parts } from "../../tests/dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-} from "../intentModePage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/intentModePage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import {
+  openDoughSources,
   openDoughSpecPaths,
-  publishOpenDoughWithCandidates,
   testOptimizationCandidatesPath,
-} from "../intentCandidatesFixtures.ts";
+} from "../../tests/intentCandidatesFixtures.ts";
 import {
   openDough,
-  publishIntentProject,
+  openDoughSettings,
   pygardon,
   pygardonSettings,
   pythonTest,
-} from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent shows each live candidate with its five facts, and a live record without candidates as having none", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishOpenDoughWithCandidates(
-    page,
-    makeMe.aTestOptimizationCandidatesRecord
-      .live()
-      .candidate(
-        "production-watcher-failure-chains",
-        `\`${openDoughSpecPaths.watcherFailures}\``,
-        {
-          observedCost: "115.3s for 10 cases in CI run 42550972063, 12 shards",
-          uniqueProtection:
-            "a failed production update reaches the watcher's report",
-          alternativesTried:
-            "boundary proof of each failure kind; the chain stays integrated",
-          decisionOrEvidenceNeeded:
-            "whether one dashboard per file keeps the isolation each case relies on",
-        },
-      )
-      .candidate(
-        "second-server-preview",
-        `\`${openDoughSpecPaths.polesSecond}\``,
-      )
-      .please(),
-  );
-  await publishIntentProject(page, pygardon, pygardonSettings, {
-    [testOptimizationCandidatesPath]: makeMe.aTestOptimizationCandidatesRecord
-      .live()
-      .please(),
-    "tests/test_example.py": pythonTest,
-  });
+  const openDoughRecord = makeMe.aTestOptimizationCandidatesRecord
+    .live()
+    .candidate(
+      "production-watcher-failure-chains",
+      `\`${openDoughSpecPaths.watcherFailures}\``,
+      {
+        observedCost: "115.3s for 10 cases in CI run 42550972063, 12 shards",
+        uniqueProtection:
+          "a failed production update reaches the watcher's report",
+        alternativesTried:
+          "boundary proof of each failure kind; the chain stays integrated",
+        decisionOrEvidenceNeeded:
+          "whether one dashboard per file keeps the isolation each case relies on",
+      },
+    )
+    .candidate("second-server-preview", `\`${openDoughSpecPaths.polesSecond}\``)
+    .please();
+  await prepareCandidateProjects(page, frontendServices, [
+    {
+      project: openDough,
+      settings: openDoughSettings,
+      files: {
+        ...openDoughSources,
+        [testOptimizationCandidatesPath]: openDoughRecord,
+      },
+    },
+    {
+      project: pygardon,
+      settings: pygardonSettings,
+      files: {
+        [testOptimizationCandidatesPath]:
+          makeMe.aTestOptimizationCandidatesRecord.live().please(),
+        "tests/test_example.py": pythonTest,
+      },
+    },
+  ]);
 
   await openUntilRead(page, "/?project=open-dough");
   const { intent, intentChoice } = parts(page);

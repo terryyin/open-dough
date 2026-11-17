@@ -270,7 +270,7 @@ typecheck passed.
 
 ### 8. Keep candidate records current without accepting stale answers
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-test-optimization-candidates-{live,revision,states}.spec.ts` → Frontend.
 Behavior: switch project/revision or recover a candidate read → live facts and None,
 absent/unreadable/mismatched/empty explanations, no partial guess, retry/no unwanted
@@ -284,6 +284,15 @@ Finish all 20-spec assertion dispositions; list the interim command again: none 
 these CI specs remains, and independently surviving navigation stays runnable.
 `groupRunnerExamples.ts` already uses `navigation/board-paging.spec.ts`; change it
 only if independent work removed its actual title, with runner-ownership proof.
+Accepted: the three specs moved to Frontend; revision publications carry
+optional immutable candidates answers and `prepareCandidateProjects` publishes
+multi-project candidates. A held old-revision answer cannot replace Show latest
+(scratch break letting the late answer win failed it). Interim `--list`: 107
+tests/41 files, exactly the 74ad74110 navigation files; `intent/` lists 0.
+Emptying the intent share broke the shard check, so `ci.yml` drops that share
+(`[1, 2, 3]`, navigation split unchanged) and the shard test injects an empty
+pattern instead. Full Frontend `intent/` (221), Backend/E2E candidates, shard
+node tests and typecheck passed.
 
 ## Decisive premises and observations
 

@@ -7,7 +7,7 @@
 // Overall counts: ./intent-ci-comparison-overall-counts.test.mjs. Compared
 // rows per unit: ./intent-scope-comparison-units.test.mjs. Signed timing:
 // ./intent-scope-comparison-timing.test.mjs. Browser journeys:
-// ../../../dashboard/tests/intent/intent-ci-comparison*.spec.ts and
+// ../../../dashboard/frontend-tests/intent/intent-ci-comparison*.spec.ts and
 // intent-summary-story-comparison*.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
