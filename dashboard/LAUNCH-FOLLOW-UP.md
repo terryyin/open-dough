@@ -89,14 +89,31 @@ matches are marked **Sent to follow-up**
 ([Story notes](STORY-NOTES.md)); uncertain or awaiting first input leaves
 them waiting, and a notes-store write failure does too. The launch is an
 ordinary ad hoc one, labelled by its request or launch time and listed in
-Taken without naming or grouping with its source; its identity and its
-attempt on the page include the source (a story's by identity, by its file,
-line and side when anchored, and by whether notes are attached, not the
-revision shown), apart from the project row's Start session. A follow-up from
-another file, line or side of the same story is another launch; so is the
-opposite attach choice; repeating the same anchor and attach choice with the
-same instruction resumes the kept start. The source session or story stays
-Done, in place, with its actions, record and published done record unchanged.
+Taken while open; its identity and its attempt on the page include the source
+(a story's by identity, by its file, line and side when anchored, and by
+whether notes are attached, not the revision shown), apart from the project
+row's Start session. While open in Taken, a story follow-up names its source
+by the catalogued title when that record is read, or by the recorded identity
+while the title is unread or unavailable, and activating that reference
+reveals the source's Recently done card — extending the shown range through
+an older batch, or including a catalogued record beyond the default 30-day
+window on demand — without changing the selected story or closing the Side
+panel. Show latest 10 and a reload restore the default range; the reference
+can reveal the source again. A missing or unreadable published record keeps
+the Taken entry accessible with the recorded identity and the existing
+reading or unavailable feedback; it never fabricates a card. Marked Done, a
+story follow-up leaves Taken and is held by that story's Recently done card
+when the card is listed, keeping its own label, status, host and actions; the
+card's own sessions (which decide Follow up's offer and context) stay a
+separate collection from those held follow-ups. A follow-up is not evidence
+that the session executed or completed the story. Reopened, it returns to
+Taken. A Done follow-up whose source card is not listed stays a standalone
+Recently done entry. Ordinary ad hoc launches and session-sourced follow-ups
+keep their existing placement. A follow-up from another file, line or side of
+the same story is another launch; so is the opposite attach choice; repeating
+the same anchor and attach choice with the same instruction resumes the kept
+start. The source session or story stays Done, in place, with its actions,
+record and published done record unchanged.
 
 Owned by [Launch start](LAUNCH-START.md#start-session): the launch identity
 that includes the source is the ad hoc one there, and the entry's place in

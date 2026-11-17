@@ -1,8 +1,8 @@
 // One entry Recently done lists (`./RecentlyDone.tsx`): a session outside
 // any done story, or a done story's card (`./DoneStoryCard.tsx`) with what the
-// card holds beside its record's facts -- its sessions, its CI follow-up, its
-// Follow up, and its review state -- or, until its record is read, what it
-// says instead.
+// card holds beside its record's facts -- its own sessions, closed story
+// follow-ups, its CI follow-up, its Follow up, and its review state -- or,
+// until its record is read, what it says instead.
 
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import type { MachineSessions } from "./agentLaunches.ts";
@@ -81,7 +81,7 @@ export function ListedEntry({
       />
     );
   }
-  const { record, sessions } = each;
+  const { record, sessions, followUps } = each;
   const detail = detailOf(record);
   return (
     <DoneStoryCard
@@ -90,6 +90,7 @@ export function ListedEntry({
       story={detail.status === "read" ? detail.story : undefined}
       said={unreadWords(detail, record.fileName)}
       sessions={sessions}
+      followUps={followUps}
       sourceId={sourceId}
       launchRecords={launches.records}
       selected={selectedIdentity === record.identity}

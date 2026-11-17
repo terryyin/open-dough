@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 560. Removed numbers are never reused.
+- Highest allocated local number: 561. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -570,3 +570,23 @@ words were not listed and kept the old rule until coordinator acceptance.
   - Evidence: 2026-11-17, slice 1 before `7875763cc`; implementer trace `--term 'suite covering the changed surface'` (and other removed phrases) reported no other guidance reader; coordinator `git grep "changed surface"` found execute-plan `delegation.md:95` and `wrap-up.md:77` ("the changed surface's suite"), both then aligned in `7875763cc`.
   - Observed effect: the return claimed no remaining consumer; two restatements of the changed rule would have shipped contradicting it.
   - Inference: literal-phrase terms find quotations, not restatements; a term for the rule's concept (here "changed surface") reached them.
+## DD-561 — First return drops required narrow keyboard proof when Side panel hides the Board <a id="dd-561"></a>
+
+Plan and delegation required beyond-ten source reveal by keyboard on a narrow
+reduced-motion viewport, keeping selection and Side panel. A covering Side panel
+at narrow width makes the Board `aria-hidden`, so destination focus cannot be
+observed with that panel open. The first return kept keyboard and panel at
+1280×844 and left the narrow keyboard observation unobserved; acceptance
+returned the uncommitted slice to split the cases. Matching to ODF-314 is
+uncertain: the return disclosed unfinished work and the constraint, and the
+correction found no product defect.
+
+### Occurrences
+
+- Execution: SEED-390#group-ad-hoc-follow-ups-with-their-done-story (plan 667; first implementation `7f17a6f0a4a3203918bd6c6139d45e5d65593b62`)
+  - Timestamp: 2026-11-17T16:48:00+08:00 (acceptance return)
+  - Tool: Cursor
+  - Open Dough release: 0.3.104 (Take `e701ff22adecf4600641622ce561926486d5abed` after guidance update `a7a26b4ef`)
+  - Evidence: plan 667 slice 2 Proof (“keyboard on a narrow reduced-motion viewport with a selected story and open Side panel kept”); implementer `4940154d-d8f9-4f75-8c74-da8d09fd06de` first return (5 frontend cases at 1280 only; P3 “Met with gap”); coordinator acceptance resume naming missing narrow keyboard; corrected return added 390×844 keyboard case without covering panel and kept 1280 panel case (6 passed). Slice 2 delivered at `1b59dccfe86cef48963b6441ccd4ebadbc80d418`; learning retained in plan Learnings.
+  - Observed effect: one acceptance return on the same uncommitted slice before delivery; active time remained about 14 of 15 minutes after correction; no product-behavior change beyond adding the missing narrow observation.
+  - Inference: possible kinship to ODF-314 (plan-owned observation missing until acceptance returned it), qualified because the return already named unfinished/gap status and the aria-hidden constraint. Split narrow keyboard from covering-panel preservation on first return when co-observation is impossible.

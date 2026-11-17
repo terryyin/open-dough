@@ -20,6 +20,9 @@
 // Recently done does not hold it. Only the newest destination is answered; an
 // earlier one is superseded, as is any destination when the developer asks
 // for the latest ten, so no answer read later extends the list again.
+// An explicit Taken follow-up source reveal may also carry one catalogued
+// older identity through this disposable range; Show latest 10 and a reload
+// discard it. Ordinary semantic references do not.
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
@@ -52,6 +55,8 @@ type Range = {
   readonly requested: number;
   readonly destination?: Destination | undefined;
   readonly held?: HeldEntry | undefined;
+  // One catalogued Done identity an explicit older-source reveal included.
+  readonly includeIdentity?: string | undefined;
 };
 
 // Where a demanded destination stands: still being read, its entry shown,
@@ -131,10 +136,23 @@ export function useRecentlyDoneRange(shownSource: string | undefined) {
           : last,
       );
     },
-    // Asks for the latest ten entries again, superseding any destination.
+    // Asks for the latest ten entries again, superseding any destination
+    // and discarding an older-source inclusion.
     collapse: (sourceId: string) => {
       setRange(latestOf(sourceId));
     },
+    // Carries one catalogued identity beyond the default recent window for
+    // an explicit follow-up source reveal, until Show latest 10 or a reload.
+    includeOlderStory: (sourceId: string, identity: string) => {
+      setRange((last) =>
+        last.sourceId === sourceId && last.includeIdentity === identity
+          ? last
+          : { ...last, sourceId, includeIdentity: identity },
+      );
+    },
+    // The older identity this project's disposable range still includes.
+    includedStory: (sourceId: string) =>
+      range.sourceId === sourceId ? range.includeIdentity : undefined,
     // Asks the list for the entry of `record`'s session in its project;
     // answers the demand, by which its answer is found (`answerOf`).
     demand: (record: LaunchRecord): number => {

@@ -217,14 +217,19 @@ card, extending the shown range exactly
 through it when needed, without requiring or opening a session. The same list
 keeps its ordering, retained longer range, and ordinary detail reads; an
 identified card with unreadable detail keeps its read-gap explanation and
-existing retry. Navigation uses the recorded story
-identity, so sibling stories in one seed remain distinct. It starts no agent
-work and opens no terminal. A pending reference says which project and story it
-is reading; a failed read stays distinct from an unavailable block. A later
-choice or move cancels a pending jump, including returning Recently done to its
-latest ten. A reference whose block is unavailable, expired or unlisted says so
-in the dashboard, with ordinary navigation and retry still available; it
-neither creates a historical card nor reads Git history. Source links
+existing retry. An open Taken story follow-up's source reference uses the same
+reveal, focus and destination cue, and may include one catalogued Done record
+beyond the default 30-day window on demand through the page's disposable
+Recently done range; ordinary dependency references keep the age-filtered
+unavailable policy. Show latest 10 and a reload discard that inclusion; the
+follow-up can reveal the source again afterward. Navigation uses the recorded
+story identity, so sibling stories in one seed remain distinct. It starts no
+agent work and opens no terminal. A pending reference says which project and
+story it is reading; a failed read stays distinct from an unavailable block. A
+later choice or move cancels a pending jump, including returning Recently done
+to its latest ten. A reference whose block is unavailable, expired or unlisted
+says so in the dashboard, with ordinary navigation and retry still available;
+it neither creates a historical card nor reads Git history. Source links
 in a story's inspection, associated plans, and dependency revision evidence
 keep ordinary source navigation; repository files retain their pinned revisions.
 

@@ -26,19 +26,26 @@ published membership; successfully reopening it restores its active-card home.
 Every other confirmed open session appears once as a local session entry in
 Taken, after published Taken stories, newest launch first. This includes ad hoc
 sessions and sessions whose saved story is in neither active list, even when a
-matching done-story card is visible. The saved story reference, host-qualified
-identity, attribution, reports and native terminal owner remain intact. A story
-returning to an active list takes its open sessions back inside its card.
+matching done-story card is visible. An open story follow-up names its source
+and can reveal that card on demand ([Follow up](LAUNCH-FOLLOW-UP.md)). The
+saved story reference, host-qualified identity, attribution, reports and native
+terminal owner remain intact. A story returning to an active list takes its
+open sessions back inside its card.
 Adding, closing or reopening a local entry creates no published Take or completion.
 
 [Session entries](AGENT-LAUNCH-SESSION-ENTRIES.md) describes the shared compact
 scan, disclosures, attention and original attribution.
 
 Recently done combines published done stories by completion time and saved Done
-sessions by launch time. A done-story card holds only its marked-done sessions,
-newest first, with the same state and actions; later launches do not move the
+sessions by launch time. A done-story card holds its marked-done sessions and
+the project's closed ad hoc follow-ups whose retained request names that
+story's full identity, newest first, each with its own label, status, host and
+actions; the story's own sessions remain a separate collection from those
+follow-ups for Follow up's offer and context. Later launches do not move the
 card. Closed sessions without a shown done card remain standalone, including
-those whose story is active. A launch closed as
+those whose story is active and Done follow-ups whose source card is not
+listed. Ordinary ad hoc sessions and session-sourced follow-ups keep their
+existing placement. A launch closed as
 [returned to the backlog](AGENT-LAUNCH-COMPLETION.md) follows the same rules,
 reading Returned to backlog where Done would read, in the same tone and with
 the same note while its native session works; a later launch of its story has

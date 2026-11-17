@@ -137,13 +137,15 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
   });
 
   const text = "Paste drops the last line on iPad";
-  await test.step("Start sends the context with the request; the session reads in Taken by its request", async () => {
+  await test.step("Start sends the context with the request; the session reads in Taken by its request and names the source story", async () => {
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    const taken = parts(page).taken.getByRole("article", {
+      name: standaloneSessionName("Ad hoc", text),
+    });
+    await expect(taken).toBeVisible();
     await expect(
-      parts(page).taken.getByRole("article", {
-        name: standaloneSessionName("Ad hoc", text),
-      }),
+      taken.getByRole("link", { name: recoverStory.title, exact: true }),
     ).toBeVisible();
     await expect(dialog).toBeHidden();
     const [started, ...others] = dashboard.claudeLaunches();

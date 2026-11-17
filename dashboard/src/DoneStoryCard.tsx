@@ -6,11 +6,11 @@
 // none. Until its record is read, the card holds its place in the list under
 // the identity and completion time the done catalog names, saying the record
 // is being read, or why it was not. It is a story fact, published for every
-// machine. Inside it, read or not, are the
-// marked-done sessions this machine keeps for the story, newest
-// first, each the entry Recently done shows (`./SessionEntry.tsx`); a machine
-// that keeps none shows none. The card holds the keyboard when the last of
-// them is deleted (`deletedEntryHome`).
+// machine. Inside it, read or not, are the marked-done sessions this machine
+// keeps for the story and its closed story follow-ups, newest first, each the
+// entry Recently done shows (`./SessionEntry.tsx`); a machine that keeps none
+// shows none. The card holds the keyboard when the last of them is deleted
+// (`deletedEntryHome`).
 // Review changes is always offered, independently of nested sessions, launch
 // records and whether done details or native state are readable. Published Git
 // history supplies the fallback when no usable local comparison remains.
@@ -54,6 +54,7 @@ export function DoneStoryCard({
   story,
   said,
   sessions,
+  followUps,
   sourceId,
   launchRecords,
   selected,
@@ -69,8 +70,10 @@ export function DoneStoryCard({
   readonly story: DoneStory | undefined;
   // Why the record's facts are not shown yet, until they are.
   readonly said: { readonly words: string; readonly gap: boolean } | undefined;
-  // This machine's sessions for the story, oldest first.
+  // This machine's own sessions for the story, oldest first.
   readonly sessions: readonly LaunchWithState[];
+  // Closed ad hoc follow-ups of this story, oldest first.
+  readonly followUps: readonly LaunchWithState[];
   // Full retained launches, independently of which sessions are marked done.
   readonly launchRecords: readonly LaunchRecord[] | undefined;
   readonly sourceId: string;
@@ -96,6 +99,10 @@ export function DoneStoryCard({
       ? []
       : [{ key: "host", fact: <RecordedHost host={host} /> }]),
   ];
+  // Own sessions and closed story follow-ups, oldest first for StorySessions.
+  const nested = [...sessions, ...followUps].toSorted(
+    (one, other) => Date.parse(one.launchedAt) - Date.parse(other.launchedAt),
+  );
   return (
     <article
       className={["done-story", selected && "story-card-selected"]
@@ -130,7 +137,7 @@ export function DoneStoryCard({
       )}
       {ciFollowUp}
       <StorySessions
-        sessions={sessions}
+        sessions={nested}
         className="done-story-sessions"
         onStoryCard={false}
       />
