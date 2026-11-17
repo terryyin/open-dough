@@ -569,3 +569,10 @@ outcome. This review found no remaining slice-specific concern.
   which slice 3 dropped, so its scratch edit did nothing. It now prefixes the
   integrated group's shard 1 line whatever it names and fails if the edit does
   not apply; `node --test` on it and its two sibling shard tests passed 20/20.
+- Slice 7 (`373ff581`, run 44126356645/1, Distribution Tests 3/3):
+  `ci-proof-declaration` and `ci-proof-actions` refused the ci-proof job's
+  `expect:` still declaring `dashboard/tests=3:case` after the matrix shrank to
+  two shards; it now declares `2:case`. `node --test` on the support `ci-*`,
+  `browser-group-shards` and `dashboard-declared-shards` tests passed 91/91.
+  Refactor disposition: within slice 7's accepted refactor return (`ci.yml`),
+  adding no representation.
