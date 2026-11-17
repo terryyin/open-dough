@@ -1,6 +1,7 @@
 # Recover decisive verification evidence after large or cleaned-up output
 
 **Source:** [story](../../seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence)
+**Source review:** [independent commitments](source-review.md)
 **Identity:** SEED-345#recover-decisive-verification-evidence
 
 ## Goal and scope
@@ -40,6 +41,12 @@ which the implementer applies before editing any skill file.
 - **Run record:** `<log>.run.json`, written by `run`. `--log` and
   `--exit-file` stay as they are; the guidance tells callers to place them in
   the evidence location.
+- **Payload reachability:** `src/install/open-dough-execution-payload.sh`
+  explicitly lists references. Slice 2 adds `proof-evidence.md`; slice 3 adds
+  `return-report.md`. Each runs the existing
+  `Distribution/tests/installation/payload-declaration-links.sh` check so
+  installed guidance cannot point to an omitted new reference. This is
+  declaration maintenance, not an installation or release operation.
 
 **Planned reorganization.** `delegation.md` is 248 lines and
 `executable-proof.md` 250, at the
@@ -99,9 +106,12 @@ Failures follow the
 
 ### 1. A proof run leaves a record from launch
 Type: Behavior
-Status: planned
-Proof: new cases in `Distribution/tests/skills/dough-execute-plan/slice-clock.test.mjs`
-through its existing fixture; `read-budget.test.mjs` unaffected.
+Status: done
+Proof: new run-evidence cases in `Distribution/tests/skills/dough-execute-plan/slice-clock-run.test.mjs`
+through the existing clock fixture, plus `slice-clock.test.mjs` for timing and
+lifecycle regression. The existing file is 208 lines; keeping run evidence in
+its own test module preserves that cohesive seam below 250 lines.
+`read-budget.test.mjs` is unaffected.
 
 Behavior: a slice is running in a checkout → `slice-clock.mjs run --log L
 --exit-file E -- <command>` → `L.run.json` exists before the command ends,
@@ -155,3 +165,65 @@ moves. Completion markers stay verbatim.
 - Refinement was not needed: three Behavior slices, each with one outcome and
   its own proof.
 - Remaining slice-specific concerns: none identified in this review.
+
+## Execution resume
+
+- Mode: story-branch; publisher `dashboard-territory.local-open-dough`;
+  agent Yuma-chan. Established owned workspace:
+  `/Users/terryyin/git/open-dough/.worktrees/recover-decisive-verification-evidence-after-lar`,
+  branch `codex/recover-decisive-verification-evidence-after-lar`.
+- Starting revision `29400e56267c2b7fd8387c57e5978eb70662d5d3`;
+  accepted Take `ace536b5eae3e657eb676afb40bb4f2af0b0461d` on `origin/main`
+  and the execution branch. Ordinary increments target only
+  `origin/refs/heads/codex/recover-decisive-verification-evidence-after-lar`.
+- Replanning: preserve the existing planned authority. No scope amendment.
+- Setup: `npm ci` succeeded with the current lockfile and Node v24.21.0;
+  baseline `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/slice-clock.test.mjs`
+  passed. The system Bash 3.2 is unsupported; use Homebrew Bash 5 on PATH.
+  Selective formatter: `npm run --silent format`. Check-only `.githooks/pre-commit`
+  owns staged lint and dashboard typecheck when script files are staged.
+- CI: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (CI), push-triggered;
+  story-branch stream coordinator `yuma-683`, directory
+  `/tmp/dough-ci-501/watch-zXkLEv`, PID 2984, session 45766, yielded cell `g800:13`.
+  This coordinator's stream covers ordinary delivery; Take on trunk remains
+  `pendingCi: unobserved`.
+- Applicable authoring constraints: ADR 0003 (source edits remain Proposed until
+  release), ADR 0006 (one shared rule owner and execution-project perspective).
+
+## Accepted execution evidence
+
+### Slice 1
+
+- Clock paused at 6.1 active minutes, no overrun. Freshness unchanged at
+  `5e13c6e73068d0794e74fb6372cf6f9b0cf5b72f`; incoming changes do not affect
+  the named sibling responsibilities or this slice's behavior.
+- Inspected `slice-clock-run.test.mjs` and `executionWorktree` setup: actual
+  CLI/child handshake observes the launch record; large failing output,
+  dirty launch followed by a commit, signal and spawn failure observe retained
+  identity and terminal status. `runThroughClock` writes completion before the
+  exit file. P01–P10 match their original trigger and result.
+- Passing proof, with empty log and exit 0, from the execution checkout:
+  `node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /Users/terryyin/git/open-dough/.git/worktrees/recover-decisive-verification-evidence-after-lar/open-dough/evidence/slice-1-clock-surface.log --exit-file /Users/terryyin/git/open-dough/.git/worktrees/recover-decisive-verification-evidence-after-lar/open-dough/evidence/slice-1-clock-surface.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`.
+- The strengthened launch-snapshot case passed through the same command with
+  `slice-1-snapshot.log`, `slice-1-snapshot.exit` and the sole selection
+  `Distribution/tests/skills/dough-execute-plan/slice-clock-run.test.mjs`.
+- Consumer discovery remains in the checkout's Git evidence directory as
+  `slice-1-consumer-trace.md`; G1's corrected record gives every consumer a
+  disposition. Inspected the real CLI, exit-file recovery and fixture uses;
+  current clock-surface proof covers those purposes. Other matches are
+  planning metadata, different review-run concepts or release-owned installed
+  copies. No product behavior gap was found.
+- Independent refactor `/root/refactor_1` returned `## REFACTOR COMPLETE`:
+  timing/report comparison now observes its own fields; actual log and exit
+  assertions remain. Only that file's proof was invalidated and rerun, passing
+  via the same clock form selecting `slice-clock.test.mjs`, with
+  `slice-1-refactor-timing.log` and `.exit` (0). Its annotated
+  `slice-1-refactor-consumer-trace.md` supersedes the old timing-shape account;
+  production and P01–P10 locations remain unchanged. No follow-ups.
+
+## Story obligations
+
+### G1. Consumer trace needs dispositions
+Reported: slice 1 — "Acceptance inspected slice-1-consumer-trace.md and found every located consumer's Disposition blank."
+Story clause: "The full report holds what the return requires today, including proof detail and the consumer-trace record."
+Disposition: proved by slice 1: corrected slice-1-consumer-trace.md in the checkout's Git evidence directory; real CLI, exit-file recovery and fixture consumers use the passing clock-surface observations, unrelated metadata and installed copies are explicitly excluded.
