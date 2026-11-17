@@ -134,6 +134,15 @@ retries automatically.
 
 - Reply list in `TerminalPrompts`; Common prompts doc list.
 
+## Execution complete
+
+Product advice: no change — delivery fulfills the story contract under ADR 0008
+without opening a new product gap; direction and backlog show no dependent next
+story from this outcome beyond completing this Taken item. Scope limits already
+park custom replies and story-note replies elsewhere. Process review is deferred
+into wrap-up pending Intent Coverage. Applicable CI remains pending on the tip
+revision.
+
 ## Local gates and execution discipline
 
 Apply the linked
