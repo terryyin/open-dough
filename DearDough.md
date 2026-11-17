@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 566. Removed numbers are never reused.
+- Highest allocated local number: 567. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -721,3 +721,21 @@ departed read show "could not be read at this revision" after Show latest.
   - Evidence: slice 8 Accepted note at `309dacb4` PLAN.md; Intent Coverage verdict "Assertion gap" at `309dacb4`; queued SEED-334#observe-no-stale-candidate-failure-after-show-latest.
   - Observed effect: an assertion gap shipped behind a passing scratch break; one queued test-strengthening story.
   - Inference: a scratch break that changes several mechanisms shows only that some of them matter; a single-mechanism break per promised guard would have exposed the gap at slice acceptance.
+
+## DD-567 — Guidance structure-test regexes that pin soft-wrap points break under file-size reflow <a id="dd-567"></a>
+
+A new guidance-structure test asserted phrases with `\s+` across the soft-wrap
+breaks that existed at write time. The post-change file-size reflow of
+`executable-proof.md` to 250 lines rearranged those wraps, so the refactor pass
+had to re-align wrap points (or would have needed a test update) before the
+subject test stayed green.
+
+### Occurrences
+
+- Execution: SEED-345#reach-a-proof-decision-from-retained-evidence (plan 681; first implementation `9ecfd26602618771a60d89acca3ad1016b6e4d15`)
+  - Timestamp: unknown (2026-11-17; refactor pass after slice-1 acceptance, before increment `9ecfd2660`)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `cc96c5515`; Distribution sources published at `9ecfd2660`)
+  - Evidence: plan 681 Learnings (“Structure-test regexes that pin wrap points are brittle under file-size reflow”); refactor agent `8afc6ef3-96e3-4595-b23b-40b4171e0f52` (“Fixing wrap breaks so the structure-test regexes still match”; file 253→250 lines); subject test re-run exit 0 after reflow.
+  - Observed effect: extra refactor edits and a subject-test rerun to keep wrap-sensitive assertions matching; no product wording change beyond layout.
+  - Inference: structure tests that pin soft-wrap boundaries couple proof to physical line breaks the file-size check is allowed to change; contiguous asserted phrases (or updating the test with the reflow) avoids that churn. Total token/time cost unmeasured.
