@@ -106,7 +106,7 @@ styled as today. Immediate next Behavior: both readers follow it.
 
 ### 2. Intent and story-review diffs follow the shared Off/Default choice
 Type: Behavior
-Status: planned
+Status: done
 Proof: new frontend spec(s) under `dashboard/frontend-tests/` that: with
 Default, Intent and a story-review diff of styled code show tokens as today;
 choose Off in System settings → both go plain without navigation; choose
@@ -151,3 +151,8 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 - `project-configuration.css` is already at the 250-line ceiling; shared
   System settings choice-row chrome needs its own small CSS module
   (`settings-choice.css`), shared by Terminal theme and Syntax styling.
+- Slice 2: board stays mounted (`hidden`) under Intent, so one settings change
+  restyles both open readers without navigation; assert diff tokens by count
+  when the board is hidden.
+- Intent docs at the 250-line ceiling: keep Off/Default detail in
+  `dashboard/STORY-REVIEW-FILES.md` and a short cross-link in Intent.

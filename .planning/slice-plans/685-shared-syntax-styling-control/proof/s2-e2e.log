@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › e2e/configuration/system-settings-syntax-styling.spec.ts:22:1 › syntax styling Off is chosen in System settings, saved on choosing, and kept across reload (4.5s)
+
+  1 passed (6.1s)

@@ -1,13 +1,14 @@
 // Syntax styling settings against controlled settings answers: General shows
 // Off and Default, and keeps the saved choice after a refused save the way
-// terminal theme does. Persistence across servers is deferred with the
-// Behavior slice that wires readers.
+// terminal theme does. Persistence across reload is
+// ../../../e2e/configuration/system-settings-syntax-styling.spec.ts.
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
 } from "../../tests/support/frontendSettingsSubstitutes.ts";
 import {
+  chooseSyntaxStyling,
   expectSyntaxStylingShown,
   syntaxStylingChoice,
   syntaxStylingSection,
@@ -37,9 +38,7 @@ test("System settings General shows Off and Default for syntax styling and keeps
     "Default",
   ]);
   await expectSyntaxStylingShown(page, "Default");
-  await syntaxStylingChoice(page).selectOption({ label: "Off" });
-  await expect(syntaxStylingChoice(page)).toBeEnabled();
-  await expectSyntaxStylingShown(page, "Off");
+  await chooseSyntaxStyling(page, "Off");
   answers.refuseNext(
     syntaxStylingSaveEndpoint,
     503,

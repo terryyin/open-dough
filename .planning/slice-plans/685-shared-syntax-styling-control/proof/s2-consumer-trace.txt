@@ -1,0 +1,56 @@
+# Consumer trace (slice 2)
+
+## Effect terms searched
+
+| Term | Origin |
+| --- | --- |
+| `dashboard/src/savedSyntaxStyling.ts` | changed path |
+| `savedSyntaxStyling.ts` | basename of `dashboard/src/savedSyntaxStyling.ts` |
+| `dashboard/src/useSourceHighlight.ts` | changed path |
+| `useSourceHighlight.ts` | basename of `dashboard/src/useSourceHighlight.ts` |
+| `useSourceHighlight\|useSavedSyntaxStyling\|stylingOff` | supplied |
+
+## Scope
+
+Whole checkout at `0e5cd3be0671`, including uncommitted and untracked files: 7161 tracked and untracked non-ignored files searched with fixed-string, case-insensitive matching.
+
+Changed files not searched: `dashboard/src/savedSyntaxStyling.ts`, `dashboard/src/useSourceHighlight.ts`.
+
+## Located consumers
+
+Kinds are path hints for inspection; each file appears once. Fill every Disposition with `run`, `reused` or `excluded: <reason the effect does not reach its boundary>`.
+
+### Production
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/consumer-trace.txt` | `dashboard/src/savedSyntaxStyling.ts`, `savedSyntaxStyling.ts` | 19: `` \| `dashboard/src/savedSyntaxStyling.ts` \| changed path \| `` | excluded: prior slice-1 planning evidence |
+| `dashboard/src/App.tsx` | `savedSyntaxStyling.ts` | 11: `import { SavedSyntaxStylingProvider } from "./savedSyntaxStyling.ts";` | reused: provider mount from slice 1; Off gate reached via journey that opens App |
+| `dashboard/src/diffLineTokens.ts` | `useSourceHighlight.ts` | 5: `` // tokenized once through the shared lifecycle (`./useSourceHighlight.ts`), so `` | run: story-review-syntax-styling-off.spec.ts |
+| `dashboard/src/sourceHighlight.ts` | `useSourceHighlight.ts` | 3: `` // through `./useSourceHighlight.ts`: Shiki's core and JavaScript engine, with `` | excluded: tokenizer only; Off gate is upstream in useSourceHighlight |
+| `dashboard/src/SourceLines.tsx` | `useSourceHighlight.ts` | 4: `` // grammar load leaves the lines plain with no error (`./useSourceHighlight.ts`). `` | run: story-review-syntax-styling-off.spec.ts |
+| `dashboard/src/SyntaxStylingSettings.tsx` | `savedSyntaxStyling.ts` | 3: `import { useSavedSyntaxStyling } from "./savedSyntaxStyling.ts";` | run: journey + e2e choose Off/Default |
+
+### Test
+
+none found (journey specs observe tokens/plain without naming hook symbols)
+
+### Test support or stand-in
+
+none found
+
+### Journey or feature
+
+none found by term; proved by:
+- `dashboard/frontend-tests/review/story-review-syntax-styling-off.spec.ts` — run
+- `e2e/configuration/system-settings-syntax-styling.spec.ts` — run (persistence)
+- Default consumers `story-review-diff-syntax-appearance` + `intent-code-browse-java` — reused under Default
+
+### Guidance reader
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/seeds/SEED-387-deferred-syntax-styling-follow-ups.md` | `dashboard/src/useSourceHighlight.ts`, `useSourceHighlight.ts` | 240: `` (`dashboard/src/sourceHighlight.ts`, `dashboard/src/useSourceHighlight.ts`). `` | excluded: story source |
+| `.planning/slice-plans/685-shared-syntax-styling-control/PLAN.md` | `dashboard/src/useSourceHighlight.ts`, `useSourceHighlight.ts` | 16: `` `dashboard/src/useSourceHighlight.ts`, so Off gates there; Default keeps today's `` | excluded: plan |
+| `.planning/slice-plans/685-shared-syntax-styling-control/source-review.md` | `dashboard/src/useSourceHighlight.ts`, `useSourceHighlight.ts` | 32: `` `dashboard/src/sourceHighlight.ts`, `dashboard/src/useSourceHighlight.ts`; `` | excluded: source review |
+| `dashboard/STORY-REVIEW-FILES.md` | `savedSyntaxStyling.ts`, `useSourceHighlight.ts` | 40: `` (`src/useSourceHighlight.ts`, `src/savedSyntaxStyling.ts`): the file's path `` | run: maintained words updated |

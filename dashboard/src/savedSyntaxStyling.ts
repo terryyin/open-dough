@@ -1,8 +1,8 @@
 // The syntax-styling choice saved on this machine, as the page knows it. The
 // page reads it once (`SavedSyntaxStylingProvider`) and shares that reading
-// with System settings (`useSavedSyntaxStyling`). `saved` changes only when a
-// read answers or a save succeeds, so anything that follows it never shows an
-// unsaved choice. Intent and diffs do not consume it yet.
+// with System settings and the shared highlighter (`useSavedSyntaxStyling`,
+// `./useSourceHighlight.ts`). `saved` changes only when a read answers or a
+// save succeeds, so anything that follows it never shows an unsaved choice.
 import {
   createContext,
   createElement,

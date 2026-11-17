@@ -16,3 +16,13 @@ export async function expectSyntaxStylingShown(
     label,
   );
 }
+
+// Chooses Off or Default and waits until the save settles on that label.
+export async function chooseSyntaxStyling(
+  page: Page,
+  label: "Off" | "Default",
+) {
+  await syntaxStylingChoice(page).selectOption({ label });
+  await expect(syntaxStylingChoice(page)).toBeEnabled();
+  await expectSyntaxStylingShown(page, label);
+}

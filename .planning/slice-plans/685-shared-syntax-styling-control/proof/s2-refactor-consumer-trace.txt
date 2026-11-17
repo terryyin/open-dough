@@ -1,0 +1,72 @@
+# Consumer trace (slice 2 refactor)
+
+## Effect terms searched
+
+| Term | Origin |
+| --- | --- |
+| `dashboard/frontend-tests/configuration/system-settings-syntax-styling.spec.ts` | refactor path |
+| `system-settings-syntax-styling.spec.ts` | basename |
+| `docs/dashboard-development-intent.md` | refactor path |
+| `dashboard-development-intent.md` | basename |
+| `e2e/configuration/system-settings-syntax-styling.spec.ts` | refactor path |
+| `chooseSyntaxStyling` | supplied (choose-and-settle helper adoption) |
+| `shared Off/Default syntax styling` | supplied (Intent maintained words tightening) |
+
+## Scope
+
+Whole checkout at `0e5cd3be0671`, including uncommitted and untracked files: 7161 tracked and untracked non-ignored files searched with fixed-string, case-insensitive matching.
+
+Changed files not searched: `dashboard/frontend-tests/configuration/system-settings-syntax-styling.spec.ts`, `docs/dashboard-development-intent.md`, `e2e/configuration/system-settings-syntax-styling.spec.ts`.
+
+## Located consumers
+
+Kinds are path hints for inspection; each file appears once. Fill every Disposition with `run`, `reused` or `excluded: <reason the effect does not reach its boundary>`.
+
+### Production
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/consumer-trace.txt` | `dashboard/frontend-tests/configuration/system-settings-syntax-styling.spec.ts`, `system-settings-syntax-styling.spec.ts` | 48 | excluded: prior slice planning evidence |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/frontend-settings.log` | `dashboard/frontend-tests/configuration/system-settings-syntax-styling.spec.ts`, `system-settings-syntax-styling.spec.ts` | 4 | excluded: prior slice-1 log |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/refactor-consumer-trace.txt` | `system-settings-syntax-styling.spec.ts` | 62 | excluded: prior slice-1 refactor record |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/s2-consumer-trace.txt` | `system-settings-syntax-styling.spec.ts`, `e2e/configuration/system-settings-syntax-styling.spec.ts` | 46 | excluded: slice-2 implementation trace |
+
+### Test
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `dashboard/frontend-tests/review/story-review-syntax-styling-off.spec.ts` | `system-settings-syntax-styling.spec.ts`, `e2e/...`, `chooseSyntaxStyling` | 6 | reused: already calls chooseSyntaxStyling; Off-reader boundary unchanged by helper-adoption edits |
+
+### Test support or stand-in
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `dashboard/tests/support/syntaxStylingSettingsPage.ts` | `chooseSyntaxStyling` | 21 | reused: definition of choose helper; callers re-run below |
+
+### Journey or feature
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/slice-plans/685-shared-syntax-styling-control/proof/s2-e2e.log` | e2e + basename | 4 | excluded: prior proof log; e2e re-run after refactor |
+
+Refactor-edited specs (not listed as consumers of themselves):
+- `dashboard/frontend-tests/configuration/system-settings-syntax-styling.spec.ts` — run: chooseSyntaxStyling for successful Off; refuse path still inline
+- `e2e/configuration/system-settings-syntax-styling.spec.ts` — run: chooseSyntaxStyling for Off save/reload
+
+### Guidance reader
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/slice-plans/685-shared-syntax-styling-control/PLAN.md` | docs intent path | 67 | excluded: plan |
+| `.planning/slice-plans/685-shared-syntax-styling-control/source-review.md` | system-settings-syntax-styling.spec.ts | 13 | excluded: source review |
+| `dashboard/LAUNCH-BASE-CI.md` | docs intent | 24 | excluded: link to Intent section; wording edit does not change that anchor |
+| `dashboard/README.md` | docs intent | 69 | excluded: same |
+| `docs/dashboard-development-intent-candidates.md` | basename | 3 | excluded: sibling part-of link |
+| `docs/dashboard-development-intent-ci-comparison.md` | basename | 3 | excluded: sibling part-of link |
+| `docs/dashboard-development-intent-ci-status.md` | basename | 3 | excluded: sibling part-of link |
+| `docs/dashboard-development-intent-story.md` | basename | 3 | excluded: sibling part-of link |
+| `docs/dashboard-navigation.md` | basename | 239 | excluded: section link only |
+| `docs/dashboard-ux-ui-north-star.md` | basename | 47 | excluded: section link only |
+| `docs/project-visibility-requirements.md` | basename | 207 | excluded: section link only |
+
+Maintained-words purpose for Intent doc: static guidance; no automated observation beyond plan obligation (STORY-REVIEW-FILES already names Off/Default detail).

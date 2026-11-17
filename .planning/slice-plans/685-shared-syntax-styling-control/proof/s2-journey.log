@@ -1,0 +1,7 @@
+
+Running 2 tests using 2 workers
+
+  ✓  2 [chromium] › dashboard/frontend-tests/review/story-review-syntax-styling-off.spec.ts:145:1 › with Off already saved, newly opened Intent and review stay plain (4.8s)
+  ✓  1 [chromium] › dashboard/frontend-tests/review/story-review-syntax-styling-off.spec.ts:156:1 › Default keeps Intent and review tokens; Off makes both plain without navigation; Default restores; appearance under Default restyles; .txt stays plain (7.5s)
+
+  2 passed (10.7s)

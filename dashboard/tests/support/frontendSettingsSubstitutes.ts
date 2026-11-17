@@ -58,6 +58,8 @@ export type FrontendSettingsMachine = {
   readonly adding?: PublishedSource;
   // Whether an OpenAI API key is saved; none unless stated.
   readonly openAIConfigured?: boolean;
+  // Syntax styling already saved on this machine; Default when omitted.
+  readonly syntaxStyling?: SyntaxStylingId;
 };
 
 export type SettingsChange = {
@@ -118,7 +120,7 @@ export async function installFrontendSettingsSubstitutes(
   let configured = [...machine.projects];
   let openAIConfigured = machine.openAIConfigured ?? false;
   let terminalTheme: TerminalThemeId = "default";
-  let syntaxStyling: SyntaxStylingId = "default";
+  let syntaxStyling: SyntaxStylingId = machine.syntaxStyling ?? "default";
   const feedbackMaintenance: FeedbackMaintenanceSetting = { enabled: false };
   const changes: SettingsChange[] = [];
   const refusals = new Map<string, Answer>();

@@ -1,0 +1,7 @@
+
+> lint
+> node scripts/lint.mjs
+
+Checking lint and formatting (warnings fail)...
+Checking formatting...
+All matched files use Prettier code style!
