@@ -149,3 +149,7 @@ in slice 1; `npm run typecheck:dashboard`; `npm run lint`.
 ## Learnings
 
 - Frontend `intent=locations` substitute answers must match the **requested** revision body; snapshot proof pins `locations.revision` to comparison `tree`, published to `completion`.
+
+## Execution complete
+
+Product advice: no change. The delivered path-first Intent-hint fallback meets the story; SEED-387 siblings (word emphasis; shared styling control) stay deferred. No backlog reorder or new story from this review. Process: no supported findings; Intent Coverage automatic check is not expected (tests added, none removed/relocated/rewritten). CI for the accepted execution-branch revision was still pending at review.
