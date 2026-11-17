@@ -1,5 +1,7 @@
 // Starts the actual GitHub request owner with a fixture-controlled Date
 // before the read boundary connects. Node's process timers still run normally.
+// For a cooldown, step this clock and check the upstream call count on each
+// side of the advance.
 import { mkdtempSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -96,6 +98,8 @@ async function startOwner(
   const gh = installFakeGh(folder);
   lifetime.defer(() => endFakeGh(gh));
   const env = { ...process.env, ...fakeGhEnv(gh, github.url) };
+  // The production owner starts without NODE_OPTIONS; its preload is the
+  // explicit --import below.
   delete env["NODE_OPTIONS"];
   const directory = await new EndpointBinding(env).directory();
   const clock = ownerClock(folder);

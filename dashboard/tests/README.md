@@ -6,11 +6,14 @@ settings, outputs and CI producer: `npm run test:e2e` (**E2E Test**,
 (**Dashboard Integrated UI Test**, the specs here), `npm run
 test:dashboard:frontend` ([**Dashboard Frontend Test**](../frontend-tests/README.md))
 and `npm run test:dashboard:backend` ([**Dashboard Backend Test**](../backend-tests/README.md)).
-See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
-GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
-hosts; the per-run [proof record](proof-record.md), the caller-owned
-transcript CI's proof fragments are written from; and
-[CI shards](shards.md) for shard membership, recorded times and deadlines.
+Waits, clocks, commands and fake GitHub answers are named by the helpers that
+perform them (`pageRequestNotes.ts`, `autoRefreshJourney.ts`,
+`sessionStatePace.ts`, `support/serverTimeControls.ts`,
+`support/productionWatcher.ts`, `support/fakeGh.ts`). See
+[native-host fixtures](native-host-fixtures.md) for synthetic hosts, the
+per-run [proof record](proof-record.md), the caller-owned transcript CI's
+proof fragments are written from, and [CI shards](shards.md) for shard
+membership, recorded times and deadlines.
 
 See [local resource use](../../Distribution/tests/local-test-resources.md) for admission
 across worktrees, worker settings, cleanup and machine sleep on macOS.
@@ -98,9 +101,9 @@ Put a check where it is cheapest to prove, and prove it once:
   crosses the shared width and ≤480 px height branches.
 
 - **Siblings share read-only preconditions and assert deltas.** Publish inputs
-  no test writes once per worker (`launchJourney`'s origin); use one fixture per
-  serial file for state tests step through (`production-watcher*.spec.ts`'s watcher).
-  [Journey writing](writing-journeys.md) explains both. Assert the common shape
+  no test writes once per worker (`launchJourney` in `support/pageTest.ts`); use one fixture per
+  serial file for state tests step through (`support/productionWatcher.ts`,
+  `../../e2e/runtime/production-watcher.spec.ts`). Assert the common shape
   once (`../frontend-tests/launches/agent-launch-story-card.spec.ts`, "every Backlog card offers Start
   execution ..."); siblings assert differences so a regression fails one named
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
@@ -126,8 +129,9 @@ stepped under a paused page clock or proved at the boundary. The action that
 starts asynchronous work owns the wait for its answer. A dashboard failure
 on unchanged code, including under load, is a defect of the test or the
 product to find and fix, never a reason to rerun until green; the suite
-keeps `retries: 0`. [Writing a journey](writing-journeys.md) names the
-helpers and the event each one waits for.
+keeps `retries: 0`. The helpers name the event they wait for
+(`pageRequestNotes.ts`, `support/markDone.ts`, `autoRefreshJourney.ts`,
+`sessionStatePace.ts`).
 
 ## What is real and what is replaced
 
@@ -245,4 +249,4 @@ when every run passed.
 
 Retain a strict JSON selection with the group's `<prefix>_PROOF_RECORD`; see
 [proof record](proof-record.md). Pass no `--reporter`. Worker and run process
-ownership is in [process cleanup](writing-journeys.md#process-cleanup).
+ownership is in `support/runProcesses.ts`.

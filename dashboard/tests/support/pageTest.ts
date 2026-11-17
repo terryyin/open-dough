@@ -202,7 +202,9 @@ const workerTest = base.extend<
   // The launch journeys' origin (../launchJourney.ts says what it publishes),
   // published once per worker and read, never written, by every journey the
   // worker runs from it (../launchStoryCardPage.ts serves it as GitHub would).
-  // Only a worker that takes the fixture loads the publishing code.
+  // `fullyParallel` runs a `beforeAll` once per worker per file, so this
+  // shared read-only origin is a worker fixture. Only a worker that takes
+  // the fixture loads the publishing code.
   launchJourney: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {

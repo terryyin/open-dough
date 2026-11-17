@@ -1,6 +1,8 @@
 // Installs this test's private fake GitHub wiring. Ordinary API calls answer
 // inside its real request owner using the existing fake HTTP framing; explicit
 // transport: "cli" keeps ../fixtures/fake-gh for native PID/signal observations.
+// Those observations are the PIDs, signals, replacement and orphan cleanup;
+// a counter does not stand in for them.
 // Owner startup and login stay native. Every installation owns a private owner
 // endpoint, so tests never share another's turns, rate-limit wait or real gh.
 

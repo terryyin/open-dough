@@ -1,5 +1,9 @@
 // Controls only the authenticated-read stream's pace while the real HTTP
 // server, request owner and synthetic GitHub keep using their normal timers.
+// Observe the held GitHub call before advancing its deadline. For a stream,
+// observe the server disconnect or the clean response end, then step the
+// cadence and check that the canceled timer fires no callback and GitHub
+// receives no call. Keep process startup and teardown on real timers.
 import { EventEmitter, once } from "node:events";
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import { controlRequestTimers } from "../../tests/support/controlledRequestTimers.ts";

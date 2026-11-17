@@ -131,9 +131,13 @@ export async function untilDoneMarkAnswered(page: Page): Promise<void> {
   await untilNotedAnswered(page, "doneMarksUnanswered");
 }
 
-// Opens the page at `address`, or opens it again by a reload, and waits
-// there: for a journey whose next step looks at what the page read and is
-// none of those checks. One holding the published-work read opens it itself.
+// Opens the page at `address` and waits until the project list and the
+// published-work read are answered. `reloadUntilRead` does the same after a
+// reload. `expectMembership`, `expectSettledPage`,
+// `expectProblemAndNoSnapshot`, and `expectNoSidewaysScrollAndWholeText`
+// wait that way themselves, so a journey whose first check is one of them
+// opens with `page.goto`. A journey holding the published-work read opens
+// plainly and waits on what it holds.
 export async function openUntilRead(page: Page, address = "/"): Promise<void> {
   await page.goto(address);
   await untilPublishedWorkRead(page);

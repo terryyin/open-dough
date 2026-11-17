@@ -4,6 +4,11 @@
 // it; or hold its first read unanswered (`holdSessionReads`), or a read the
 // server has already answered (`holdSessionAnswers`).
 // Each spec pauses the page clock (`pausePageClockAt`) before the page opens.
+// Pass whole paces with `passOnePace`: a partial step moves the next read
+// off its pace. Under a paused clock the terminal draws only as page time
+// passes, so a journey reading terminal text lets whole paces pass. Give
+// each scenario its own revisions: the boundary answers a repeated pinned
+// revision from memory without calling `gh`.
 // What an entry shows of its session is `expectSessionShown`: its state's
 // words and whether its solid edge says the developer is needed there.
 

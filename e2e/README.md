@@ -45,9 +45,10 @@ variant, failure or test-runtime contract at a stable boundary belongs in
 (`npm run test:dashboard:integrated`): detailed UI checks, or mixed specs,
 awaiting that conversion. Workflows reuse the dashboard's fixtures, page objects and
 [MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
-`../dashboard/tests/` and `../Distribution/tests/support/`; follow
-[journey writing](../dashboard/tests/writing-journeys.md) for waits, clocks
-and fake GitHub answers.
+`../dashboard/tests/` and `../Distribution/tests/support/`. Waits, clocks and
+fake GitHub answers are the helpers a workflow imports; the
+[dashboard test guide](../dashboard/tests/README.md#synchronization) states
+the synchronization rule.
 
 ## Running
 

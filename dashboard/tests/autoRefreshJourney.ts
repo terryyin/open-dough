@@ -177,7 +177,9 @@ export async function passTimeUntilCheckedWhileReadsOutstanding(
 
 // Lets `ms` of page time pass in the same small steps, then waits, with page
 // time standing still, until every request the page sent meanwhile is
-// answered, and says how many revision checks it asked for.
+// answered, and says how many revision checks it asked for. Assert that no
+// `gh` call was made only after this, or after `expect.poll`: the assertion
+// follows the real network turns.
 export async function checksAskedWhilePassing(
   page: Page,
   ms: number,

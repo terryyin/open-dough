@@ -28,8 +28,10 @@ decisions, and findings with an ongoing owner.
   [`dough-makeme`](.agents/skills/dough-makeme/SKILL.md) and, for browser
   tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md)
   selection. [Test data architecture](Distribution/tests/README.md#test-data-architecture)
-  and [journey writing](dashboard/tests/writing-journeys.md#page-objects) give
-  this project's builders, harness boundaries and pilot context.
+  and the [dashboard test guide](dashboard/tests/README.md) give this project's
+  builders and harness boundaries. The
+  [fluent side-panel pilot](dashboard/tests/fluent-side-panel-pilot.md) holds
+  the pilot context for those three journeys.
 - Never use `test.slow()`.
 - Keep the default test timeout. Override it only when essential, inside the
   individual test. Suite, file, group, and hook overrides are forbidden.

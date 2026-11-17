@@ -1,9 +1,9 @@
 # Fluent Side panel pilot
 
 How three Side panel content journeys use fluent page objects, and what that
-pilot measured. [Journey writing](writing-journeys.md#page-objects) routes a
-selected spec to the shared page-object convention; the phase-and-cue
-machinery here is this project's pilot for these three journeys.
+pilot measured. The installed page-object skill selects a spec for the shared
+convention; the phase-and-cue machinery here is this project's pilot for
+these three journeys.
 [SEED-300](../../.planning/seeds/SEED-300-dashboard-test-page-objects.md)
 owns wider dashboard page-object refactoring.
 

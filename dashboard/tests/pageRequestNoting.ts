@@ -143,7 +143,10 @@ export async function noteRequestsInOpenPage(page: Page): Promise<void> {
 }
 
 // Every page of `context` notes its requests from before its own scripts
-// run, so a journey can wait for reads it sent on opening.
+// run, so a journey can wait for reads it sent on opening. A page opened
+// with `browser.newPage()` or its own context notes nothing until this is
+// installed, and the waits then return at once. The test fixture installs
+// it on the context it provides.
 export async function noteRequestsInEveryPage(
   context: BrowserContext,
 ): Promise<void> {
