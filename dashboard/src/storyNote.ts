@@ -48,10 +48,23 @@ export const storyNotesAnswerSchema = z.discriminatedUnion("kind", [
 ]);
 export type StoryNotesAnswer = z.infer<typeof storyNotesAnswerSchema>;
 
-export const storyNoteChangeSchema = z.strictObject({
-  identity: workIdentitySchema,
-  action: z.literal("add"),
-  text: storyNoteTextSchema,
-  context: storyNoteContextSchema.optional(),
-});
+export const storyNoteChangeSchema = z.discriminatedUnion("action", [
+  z.strictObject({
+    identity: workIdentitySchema,
+    action: z.literal("add"),
+    text: storyNoteTextSchema,
+    context: storyNoteContextSchema.optional(),
+  }),
+  z.strictObject({
+    identity: workIdentitySchema,
+    action: z.literal("edit"),
+    id: z.uuid(),
+    text: storyNoteTextSchema,
+  }),
+  z.strictObject({
+    identity: workIdentitySchema,
+    action: z.literal("delete"),
+    id: z.uuid(),
+  }),
+]);
 export type StoryNoteChange = z.infer<typeof storyNoteChangeSchema>;

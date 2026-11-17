@@ -24,3 +24,15 @@ If the notes file cannot be read, cards say “The notes could not be read.”
 in place of a count. Story notes says the same; it does not present the
 unreadable file as an empty collection. The machine keeps that file in place
 for recovery, and refuses to save over it.
+
+Each saved entry offers **Edit** and **Delete**. **Edit** opens **Edit note**
+with the saved text and context; **Save note** changes the text while keeping
+its original context and saved time. Diff context includes the view, current
+and previous file paths, comparison and endpoints, and a line's number, side
+and original text. **Delete** asks in place. **Cancel** keeps the entry;
+confirming removes it and updates the card's count. Updates and deletions are
+announced once, with the keyboard returned to an available control.
+
+A refused edit keeps the composer and typed text with “The note could not be
+saved.” A refused delete keeps the saved entry and says “The note could not
+be deleted.” Try the action again once the dashboard can keep changes.

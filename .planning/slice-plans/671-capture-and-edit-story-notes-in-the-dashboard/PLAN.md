@@ -109,7 +109,7 @@ Accepted proof: [slice 3](slice-3-proof.md).
 
 ### 4. A saved note can be edited and deleted
 Type: Behavior
-Status: planned
+Status: done
 Proof: edit and delete cases in `story-notes.spec.ts` and
 `story-notes-admission.spec.ts`; typecheck and lint.
 
@@ -119,6 +119,8 @@ in place, cancel keeps the note, confirm removes it from the list and the
 card's count. Each is announced once, returns the keyboard to a control that
 still exists, and a change that could not be kept leaves the note as it was
 and says so.
+
+Accepted proof: [slice 4](slice-4-proof.md).
 
 ### 5. A Done story's diff adds file and line notes with their context
 Type: Behavior

@@ -73,3 +73,10 @@ Up's final operation appends `--outcome completed` without message when nothing
 needs attention, waits for matching receipt, then only normal minimal native
 response. Reporting failure uses exact printed reporting-only retry command.
 Reporting never declares story complete or stops session by itself.
+
+- Slice3: `6eb0561760df59742f35d6fedb539db02d8e910d`, accepted on same story
+  branch; suffix base `2735be520d13ffd7e12adae543a14a5cb9904b0d`, same observer
+  reused/registered. Formatter stopped before commit for unsafe JSON member
+  access in a test; mechanical typed full-shape assertion and focused proof
+  passed before guarded retry. Current source pin7ce6ee91536ba1c445bd30cac9913910a9169e03,
+  only unrelated preparation arrived on trunk; no named-sibling hold.

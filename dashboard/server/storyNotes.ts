@@ -42,21 +42,36 @@ async function changeNotes(
 ): Promise<StoryNotesAnswer> {
   let answer: StoryNotesAnswer = { kind: "notes", notes: {} };
   await replaceMachineJson(notesStore(), (stored) => {
-    const note = {
-      id: randomUUID(),
-      text: change.text,
-      savedAt: new Date().toISOString(),
-      ...(change.context === undefined ? {} : { context: change.context }),
-    };
+    const notes = stored[project]?.[change.identity] ?? [];
+    if (change.action !== "add" && !notes.some(({ id }) => id === change.id))
+      throw new RefusedRequest(404, "The note no longer exists.");
+    const changed =
+      change.action === "add"
+        ? [
+            {
+              id: randomUUID(),
+              text: change.text,
+              savedAt: new Date().toISOString(),
+              ...(change.context === undefined
+                ? {}
+                : { context: change.context }),
+            },
+            ...notes,
+          ]
+        : change.action === "edit"
+          ? notes.map((note) =>
+              note.id === change.id
+                ? {
+                    ...note,
+                    text: change.text,
+                    editedAt: new Date().toISOString(),
+                  }
+                : note,
+            )
+          : notes.filter(({ id }) => id !== change.id);
     const next = {
       ...stored,
-      [project]: {
-        ...stored[project],
-        [change.identity]: [
-          note,
-          ...(stored[project]?.[change.identity] ?? []),
-        ],
-      },
+      [project]: { ...stored[project], [change.identity]: changed },
     };
     answer = answerOf(next, project);
     return next;

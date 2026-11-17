@@ -38,7 +38,7 @@ last removing it after delivery and verification.
 | 6 | Notes survive the story moving from Taken to Done. | slice 6 |  |
 | 7 | Notes survive workspace removal; the example reads the same note from the Recently done card. | slice 6 |  |
 | 8 | Every story card offers Notes. | slice 2 | observed: story-notes.spec.ts desktop/phone Backlog, Taken and Recently done Notes assertions; StoryCard and DoneStoryCard mount the same control. |
-| 9 | A card shows the current note count when notes exist; examples require one after adding the first note and an updated count after deletion. | slice 4 |  |
+| 9 | A card shows the current note count when notes exist; examples require one after adding the first note and an updated count after deletion. | slice 4 | observed: Real story-notes-persistence E2E first-save count1 remains green; story-notes-edit desktop/phone asserts count1 after cancel and Notes without count after confirmed delete. |
 | 10 | A card’s Notes opens Story notes for that story. | slice 2 | observed: story-notes.spec.ts opens selected card and expectContext verifies its title/identity; other-story empty list assertion. |
 | 11 | Review changes offers the same story Notes. | slice 7 |  |
 | 12 | Intent → Changed tests offers the same story Notes. | slice 7 |  |
@@ -74,19 +74,19 @@ last removing it after delivery and verification.
 | 42 | Dictation follows session-instruction setup states. | slice 8 |  |
 | 43 | The transcript lands in the note text and can be corrected before saving; the Taken line-note example dictates, corrects, then saves. | slice 8 |  |
 | 44 | A note with no text cannot be saved. | slice 2 | observed: story-notes.spec.ts whitespace composer stays open and independently captured POST list stays empty. |
-| 45 | Each saved note offers Edit. | slice 4 |  |
-| 46 | Editing and saving changes the note text; the example edits a line note and saves. | slice 4 |  |
-| 47 | Editing preserves the note’s context; the text changes and its context does not. | slice 4 |  |
-| 48 | Each saved note offers Delete. Amendment: a saved note offers Delete. | slice 4 |  |
-| 49 | Delete asks for confirmation first. | slice 4 |  |
-| 50 | Cancelling deletion leaves the note. | slice 4 |  |
-| 51 | Confirming deletion removes the note from the list. The card-count effect is retained in promise 9. | slice 4 |  |
+| 45 | Each saved note offers Edit. | slice 4 | observed: StoryNoteEntry renders Edit for every mapped note; story-notes-edit desktop/phone opens it by keyboard and observes populated Edit note composer. |
+| 46 | Editing and saving changes the note text; the example edits a line note and saves. | slice 4 | observed: story-notes-edit captures text/id-only edit POST and observes Updated observation; real story-notes-changes HTTP case observes trimmed revised text. |
+| 47 | Editing preserves the note’s context; the text changes and its context does not. | slice 4 | observed: Frontend composer/list retain view, renamed path, comparison endpoints, line number/side/text; backend compares entire original saved object except text and server editedAt. |
+| 48 | Each saved note offers Delete. Amendment: a saved note offers Delete. | slice 4 | observed: StoryNoteEntry maps a Delete control per note; desktop/phone and refused-delete tests exercise it. |
+| 49 | Delete asks for confirmation first. | slice 4 | observed: story-notes-edit opens inline question and captured changes remain length1 until confirm; AskInPlace prompt requires explicit Delete. |
+| 50 | Cancelling deletion leaves the note. | slice 4 | observed: story-notes-edit Cancel keeps saved text/count1 and returns Delete focus. |
+| 51 | Confirming deletion removes the note from the list. The card-count effect is retained in promise 9. | slice 4 | observed: story-notes-edit confirmed Delete empties list, returns Add note focus, card no count; real HTTP/GET/disk deletion retains other note. |
 | 52 | A failed save leaves the composer open with its text; the unwritable-records example says the composer stays open with the text. | slice 3 | observed: e2e/stories/story-notes-failed-save.spec.ts: actual read-only HOME directory and aborted POST each leave exact draft and stored bytes unchanged; writable/reachable retry saves and next composer is empty. |
 | 53 | A failed save reports that the note could not be saved. | slice 3 | observed: e2e/stories/story-notes-failed-save.spec.ts: storyNotesPage.expectProblem observes The note could not be saved. for both unwritable and unreachable triggers; successful retry clears the problem. |
-| 54 | A failed edit preserves the composer or note as it was, including text. | slice 4 |  |
-| 55 | A failed edit reports the failure. | slice 4 |  |
-| 56 | A failed delete preserves the note as it was, including text. | slice 4 |  |
-| 57 | A failed delete reports the failure. | slice 4 |  |
+| 54 | A failed edit preserves the composer or note as it was, including text. | slice 4 | observed: Refused edit case keeps Typed edit survives refusal in composer and Original text stays saved in list. |
+| 55 | A failed edit reports the failure. | slice 4 | observed: Refused edit case observes The note could not be saved. in dialog alert. |
+| 56 | A failed delete preserves the note as it was, including text. | slice 4 | observed: Refused delete case preserves original saved text/count1 and restores Delete focus. |
+| 57 | A failed delete reports the failure. | slice 4 | observed: Refused delete case observes The note could not be deleted. then successful retry removes note. |
 | 58 | Notes are kept on the machine serving the dashboard. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 59 | Every page of that dashboard, including a phone’s page, can show the notes. | slice 2 | observed: story-notes.spec.ts desktop/phone real frontend; e2e/stories/story-notes-persistence.spec.ts real phone save and desktop reread after server restart. |
 | 60 | A change made on one page appears on other pages at their next read; the phone-save example requires the desktop page to list it at its next read. | slice 2 | observed: story-notes.spec.ts controlled external change at next shared check interval updates open list/count; stale read after save cannot overwrite; E2E independently proves page/server store use. |
@@ -97,7 +97,7 @@ last removing it after delivery and verification.
 | 65 | A review keeps its reading position through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
 | 66 | Closing Story notes returns keyboard focus to the control that opened it. | slice 7 |  |
 | 67 | The add composer is headed Add note. | slice 2 | observed: storyNotesPage.add observes Add note heading in real composer. |
-| 68 | The edit composer is headed Edit note. | slice 4 |  |
+| 68 | The edit composer is headed Edit note. | slice 4 | observed: storyNotesPage.edit independently observes Edit note heading and current textarea text. |
 | 69 | Composer context appears above the text. | slice 7 |  |
 | 70 | The composer offers Dictate. | slice 8 |  |
 | 71 | The composer offers Cancel. | slice 2 | observed: story-notes.spec.ts blank composer Cancel then Add note opens clean draft; StoryNotesControl.tsx Cancel action. |

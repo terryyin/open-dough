@@ -16,6 +16,56 @@ export function storyNotesPage(page: Page) {
       } else await control.click();
       await expect(dialog).toBeVisible();
     },
+    edit: async (index: number, using: "mouse" | "keyboard" = "mouse") => {
+      const control = entries
+        .nth(index)
+        .getByRole("button", { name: "Edit", exact: true });
+      if (using === "keyboard") {
+        await control.focus();
+        await control.press("Enter");
+      } else await control.click();
+      await expect(
+        dialog.getByRole("heading", { name: "Edit note", exact: true }),
+      ).toBeVisible();
+      await expect(field).toBeFocused();
+    },
+    delete: async (index: number) => {
+      await entries
+        .nth(index)
+        .getByRole("button", { name: "Delete", exact: true })
+        .click();
+      await expect(
+        entries.nth(index).getByRole("group", { name: "Delete this note?" }),
+      ).toBeVisible();
+      await expect(
+        entries.nth(index).getByRole("button", { name: "Cancel", exact: true }),
+      ).toBeFocused();
+    },
+    answerDelete: async (index: number, answer: "Delete" | "Cancel") => {
+      await entries
+        .nth(index)
+        .getByRole("group", { name: "Delete this note?" })
+        .getByRole("button", { name: answer, exact: true })
+        .click();
+    },
+    expectActionFocused: async (
+      action: "Edit" | "Delete" | "Add note",
+      index = 0,
+    ) => {
+      const holder = action === "Add note" ? dialog : entries.nth(index);
+      await expect(
+        holder.getByRole("button", { name: action, exact: true }),
+      ).toBeFocused();
+    },
+    expectAnnouncement: async (message: string) => {
+      await expect(dialog.getByRole("status")).toHaveText(message);
+      await expect(page.getByText(message, { exact: true })).toHaveCount(1);
+      await expect(field).toHaveCount(0);
+    },
+    expectComposerContext: async (texts: readonly string[]) => {
+      for (const text of texts)
+        await expect(dialog.locator("form")).toContainText(text);
+    },
     add: async () => {
       await dialog
         .getByRole("button", { name: "Add note", exact: true })

@@ -22,6 +22,7 @@ export async function installFrontendStoryNotes(page: Page) {
   const changes: StoryNoteChange[] = [];
   let nextHold: AnswerHold | undefined;
   let serial = 0;
+  let failNext = false;
   const notesOf = (project: string) => projects.get(project) ?? {};
   await page.route(
     (url) => url.pathname === storyNotesEndpoint,
@@ -45,20 +46,39 @@ export async function installFrontendStoryNotes(page: Page) {
           route.request().postDataJSON(),
         );
         changes.push(structuredClone(change));
-        serial += 1;
-        const note = makeMe.aStoryNote
-          .withText(change.text)
-          .identifiedAs(
-            `34810000-0000-4000-8000-${String(serial).padStart(12, "0")}`,
-          )
-          .savedAt(new Date(Date.UTC(2026, 10, 17, 1, 0, serial)).toISOString())
-          .please();
+        if (failNext) {
+          failNext = false;
+          await fulfillJson(route, { error: "Change refused." }, 503);
+          return;
+        }
+        const existing = notesOf(project)[change.identity] ?? [];
+        let changed: StoryNote[];
+        if (change.action === "add") {
+          serial += 1;
+          const builder = makeMe.aStoryNote
+            .withText(change.text)
+            .identifiedAs(
+              `34810000-0000-4000-8000-${String(serial).padStart(12, "0")}`,
+            )
+            .savedAt(
+              new Date(Date.UTC(2026, 10, 17, 1, 0, serial)).toISOString(),
+            );
+          if (change.context !== undefined) builder.withContext(change.context);
+          changed = [...existing, builder.please()];
+        } else if (change.action === "edit") {
+          changed = existing.map((note) =>
+            note.id === change.id
+              ? {
+                  ...note,
+                  text: change.text,
+                  editedAt: "2026-11-17T02:00:00.000Z",
+                }
+              : note,
+          );
+        } else changed = existing.filter(({ id }) => id !== change.id);
         projects.set(project, {
           ...notesOf(project),
-          [change.identity]: [
-            ...(notesOf(project)[change.identity] ?? []),
-            note,
-          ],
+          [change.identity]: changed,
         });
       }
       const body = structuredClone({ kind: "notes", notes: notesOf(project) });
@@ -68,6 +88,9 @@ export async function installFrontendStoryNotes(page: Page) {
     },
   );
   return {
+    failNextChange: () => {
+      failNext = true;
+    },
     asked: () => [...asked],
     changes: () => structuredClone(changes),
     answer: (project: string, notes: Record<string, StoryNote[]>) => {
