@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-387#emphasize-changed-words-in-diff-lines",
+  "title": "Emphasize the changed words within a changed line",
+  "completedAt": "2026-11-17T17:22:37.826Z",
+  "developer": "Terry Yin",
+  "agent": "Ai-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Intent coverage disposition (wrap-up)\n\nChecked revision: 4767680934f6c4ee3cb1d0beedc45ec9599a38bc\nVerdict: Caught\nFollow-up: none\n\nComposition role assertions in story-review-diff-word-emphasis-composition.spec.ts\ncatch styled emphasis losing insertion/deletion roles after the syntax\nariaSnapshot equality assertion was removed. No new or stronger proof required.\n"
+  }
+}

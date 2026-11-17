@@ -1,14 +1,13 @@
 // A review's file diff styles its code by the file's language: removed lines
 // as they read in the old file's whole text, every other line (revealed
 // context included) as in the new file's, while markers, numbers,
-// backgrounds, copied and accessible text stay those of the plain diff that a
-// file of another language shows.
+// backgrounds and copied text stay those of the plain diff that a file of
+// another language shows.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
 import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
 import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
-import { diffHunk } from "../../tests/support/reviewPanes.ts";
 import {
   greetDiff,
   greetText,
@@ -27,7 +26,6 @@ import {
 
 const styledPath = "greet.ts";
 const plainPath = "base.txt";
-const hunk = "@@ -27,7 +27,5 @@";
 
 test("a TypeScript diff styles each line by its side's whole text and keeps the plain diff's change facts", async ({
   page,
@@ -56,7 +54,6 @@ test("a TypeScript diff styles each line by its side's whole text and keeps the 
   await expect(newLine(plain, 31)).toHaveText(" export default greeting;");
   await expect(showPrecedingLines(plain)).toBeVisible();
   const plainFacts = await lineFacts(plain);
-  const plainAccessible = await diffHunk(plain, hunk).ariaSnapshot();
   const plainCopy = await selectedText(
     newLine(plain, 28),
     removedLine(plain, 30),
@@ -109,9 +106,8 @@ test("a TypeScript diff styles each line by its side's whole text and keeps the 
     );
   });
 
-  await test.step("markers, numbers, backgrounds, accessible and copied text equal the plain diff's", async () => {
+  await test.step("markers, numbers, backgrounds and copied text equal the plain diff's", async () => {
     expect(await lineFacts(diff)).toEqual(plainFacts);
-    expect(await diffHunk(diff, hunk).ariaSnapshot()).toBe(plainAccessible);
     expect(await selectedText(newLine(diff, 28), removedLine(diff, 30))).toBe(
       plainCopy,
     );

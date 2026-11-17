@@ -49,7 +49,12 @@ palettes. A path outside Intent or with an unfamiliar hint stays plain text. Rem
 as they read in the old file's whole text and every other line, revealed
 context included, as in the new file's. Markers and backgrounds keep telling
 the change kind, and copied and assistive-technology text stays the line's
-plain code.
+plain code. Within a removed-then-added block, words that changed are marked
+as deletions or insertions (`src/diffWordEmphasis.ts`, composed by
+`src/diffLineCode.tsx`): underlined in the line's change colour over its light
+tint, including when syntax tokens are present — token spans split at the same
+character ranges so colours stay on the emphasized words before and after
+styling arrives.
 Beside a file's
 name its row shows how many lines its diff adds and removes (`+2 −1`), and
 its control is described by them in words (`2 lines added, 1 line removed`).

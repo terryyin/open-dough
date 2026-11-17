@@ -1,6 +1,7 @@
-// A story review's file diff as its syntax styling is read: a line by its
-// side and number, its code's tokens and their computed appearance, the
-// facts that tell its change kind, and text selected across lines.
+// A story review's file diff as its lines are read: a line by its side and
+// number, emphasized words as deletions or insertions (and tokens inside those
+// marks), its code's tokens and their computed appearance, the facts that tell
+// its change kind, and text selected across lines.
 
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -15,6 +16,10 @@ export const newLine = (diff: Locator, number: number) =>
 export const removedLine = (diff: Locator, number: number) =>
   diff.locator(`li.story-review-removed[data-old="${String(number)}"]`);
 
+// Emphasized words on a line (or in a diff) as deletions or insertions.
+export const deletions = (scope: Locator) => scope.getByRole("deletion");
+export const insertions = (scope: Locator) => scope.getByRole("insertion");
+
 // The syntax tokens of a line's (or a whole diff's) code.
 export const codeTokens = (scope: Locator) =>
   scope.locator(".story-review-line-code span");
@@ -22,6 +27,10 @@ export const codeTokens = (scope: Locator) =>
 // The first token of the scope's code whose text matches `text`.
 export const codeToken = (scope: Locator, text: RegExp) =>
   codeTokens(scope).filter({ hasText: text }).first();
+
+// Syntax tokens inside an insertion or deletion (descendant `.source-token`
+// spans; the mark itself sits inside `.story-review-line-code`).
+export const tokensInMark = (mark: Locator) => mark.locator(".source-token");
 
 // The revealed context lines of the omitted range before the first change.
 export const revealedBefore = (diff: Locator) =>
