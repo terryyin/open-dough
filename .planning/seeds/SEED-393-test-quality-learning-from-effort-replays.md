@@ -91,30 +91,6 @@ result, not a new reporting workflow.
   it can use current tools without story 3. **Safe stop:** an honest first
   decision is useful even when no reusable case is extracted.
 
-<a id="guidance-check-participants-run-owning-proof"></a>
-
-### 5. Guidance-check participants can run their owning proof
-
-**Identity:** SEED-393#guidance-check-participants-run-owning-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"df24369a027e199684a41fd07ad43898fc55965bcb7dbcf4ab6e5dad80f25659","plan":"02c923c2c1f9caa825cd478c4e869affdb6b07c08544279312fe04bbebe845d0"}}
-```
-
-**Goal:** a maintainer repeating the `launch-command-tests` Native guidance
-check gives its participant an environment in which the owning backend and
-E2E proof can run, so environment failures no longer obscure whether the
-participant verifies its change.
-
-**Scope:** correct the case's fixture paths and inherited process environment,
-including startup and teardown, with credential-free proof through its real
-materialization and native sandbox wrapper. Preserve the task, frozen project
-and overlay, observer, probes, assessor, and committed baseline. This does not
-change how participant proof is assessed, repair the historical product or
-tests, qualify another host, or authorize a paid native session. The plan owns
-the correction findings, examples, decisions, and proof. Retrospective correction of
-the completed SEED-393#repeat-native-guidance-checks-on-real-story-examples. Plan:
-[676](../slice-plans/676-guidance-check-participants-run-owning-proof/PLAN.md).
-
 <a id="recovery-proof-covers-historical-case-paths"></a>
 
 ### 6. Recovery proof covers historical case paths

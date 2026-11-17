@@ -197,6 +197,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: implementation/refactor briefs reserved hook-owned lint for coordinator without a read-only authored-file check. Independent refactor returned `usageServer(...).refresh` as an unbound method; guarded fresh formatter refused on `@typescript-eslint/unbound-method` (`eb800c`). Coordinator retained the receiver in an arrow callback, reran all eight focused cases (7.3s), and retried successfully.
   - Observed effect: one preparation refusal and repair after refactor completion; no failing candidate was committed or published.
   - Inference: same concrete gap as ODF-329. The existing check prevented escape; extra agent effort was not measured.
+- Execution: SEED-393#guidance-check-participants-run-owning-proof (plan 676; first implementation `80ecc810a8de71bbdb448479ebae58e79b0880b2`)
+  - Timestamp: unknown (2026-11-17 +08:00; slice 1 delivery, before commit `80ecc810a` at 20:54:57)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `9f75575475522e081a48b74d558dfa04510bae33`)
+  - Evidence: implementation and refactor briefs reserved formatting and lint for the coordinator. The refactor pass ran shellcheck read-only, listed SC2015, SC2312, SC2034, SC2218 and SC2329 in its new files as "lint stays with you", and returned complete. Guarded fresh delivery's `npm run --silent format` refused on those findings; the coordinator restructured `case_environment_prepare`, added directives, reran two materializing checks and retried successfully.
+  - Observed effect: one preparation refusal and a coordinator repair that changed setup code after the refactor pass, so its proof had to be renewed; nothing failed was committed.
+  - Inference: same gap as ODF-329. Here the agent even saw the findings; the brief's "lint stays with the coordinator" was read as "leave findings unfixed". A few minutes of rework; not measured.
 
 - Execution: SEED-348#collect-notes-for-story-follow-ups (plan 671; first implementation `ab91ef3234f6c1a496bf309932ba327ad09ebb44`)
   - Timestamp: unknown (2026-11-17; execution and closure record)

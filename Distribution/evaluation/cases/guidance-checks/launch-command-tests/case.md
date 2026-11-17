@@ -62,6 +62,41 @@ state and the JSON reports of the backend specs and the E2E consumer under
 `case-evidence/`, and prints `turn-N-source`, `turn-N-changed-files`,
 `turn-N-backend[-tests]` and `turn-N-e2e[-tests]`.
 
+## Participant environment
+
+The 2026-11-17 native participant could not run its own proof (Native
+qualification): inside the native write sandbox the setuid `/bin/ps` is
+denied (`EPERM`), so `dashboard/tests/support/processGroup.ts:185` read
+undefined stdout in backend teardown, and the arm's temporary directory under
+`$HOME/tmp/native-guidance-checks/…` made the private GitHub owner's socket
+path too long, so E2E startup failed. The observer, outside the sandbox, was
+not affected.
+
+`case-environment.bash` corrects the environment only. After materialization
+`case_materialize` exports `PATH` starting with `ROOT/environment/bin`, which
+holds a non-setuid, ad hoc signed copy of the real `ps` on macOS, and
+`TMPDIR` as a short `/tmp/lct.XXXXXX/t` alias of `ROOT/environment/tmp`; the
+endpoint roots the tests create stay real directories inside the writable
+arm. The runner exports it before the session starts, so every turn, a
+resumed turn and the observer inherit it. `case_cleanup` restores both
+variables and removes the alias, tool and temporary files, printing no
+field; a failed setup step removes what it made. Project, overlay, task,
+observer, probes, assessor and baseline are unchanged; the case's identity
+changes with the new input, so later captures have a new basis and the
+2026-11-17 observation stands as recorded.
+
+`native-guidance-check-launch-command-tests-environment.sh` and its
+`-e2e.sh`, `-protective.sh` and `-protective-e2e.sh` siblings show the
+boundary credential-free through the real macOS wrapper (`native_codex_wrap`
+over a stand-in runtime layout, protected source enabled): backend 28/0 and
+E2E 0/4 at `Received length: 5` on the starting state, both 28/0 and 4/0 with
+the existing protective reference, all with teardown and no skip, flake or
+global error; the original `ps` stays denied and the pinned endpoint refuses
+the long arm path; a protected write is denied. Elsewhere it checks only the
+portable environment lifecycle. Whether a native participant chooses to run
+its proof and inherits this environment through Codex's own command
+execution remains unobserved until a separately authorized native capture.
+
 ## Assessment
 
 Basis, declared before any native run (plan 674 slices 3–4). The participant

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-393_guidance-check-participants-run-owning-proof.json",
+      "identity": "SEED-393#guidance-check-participants-run-owning-proof",
+      "completedAt": "2026-11-17T13:04:25.004Z",
+      "blob": "d02ec5daeeebb54986fb54777c937acfa4b754f6"
+    },
+    {
       "fileName": "SEED-393_tests-ignore-unrelated-launch-changes-without-losing-proof.json",
       "identity": "SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof",
       "completedAt": "2026-11-17T10:34:18.619Z",

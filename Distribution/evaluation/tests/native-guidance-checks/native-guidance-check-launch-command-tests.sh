@@ -30,6 +30,7 @@ fi
 # own test (native-guidance-check-launch-command-tests-e2e.sh).
 export NATIVE_GUIDANCE_CHECK_OPEN_DOUGH_SOURCE=${source_dir}
 source "${case_path}/case.bash"
+trap 'case_cleanup; rm -rf -- "${work}"' EXIT
 root="${work}/run"
 mkdir -p -- "${root}"
 case_materialize "${root}" "${source_dir}" codex
