@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-391_redo-the-effort-story-under-the-test-focus-guidance.json",
+      "identity": "SEED-391#redo-the-effort-story-under-the-test-focus-guidance",
+      "completedAt": "2026-11-17T03:40:49.227Z",
+      "blob": "c43e0f6f7920c132a40de563edee883ae9ef8eac"
+    },
+    {
       "fileName": "SEED-388_count-nested-claude-background-agent-work.json",
       "identity": "SEED-388#count-nested-claude-background-agent-work",
       "completedAt": "2026-11-16T12:04:19.661Z",
@@ -2400,36 +2406,6 @@
       "identity": "SEED-136#dashboard-test-bounds-and-placement",
       "completedAt": "2026-10-18T05:47:09.965Z",
       "blob": "f2ae59ddf9a75481b9827842ad29e8af36055403"
-    },
-    {
-      "fileName": "SEED-139_review-completed-stories.json",
-      "identity": "SEED-139#review-completed-stories",
-      "completedAt": "2026-10-18T01:08:28.028Z",
-      "blob": "2f19cf6295bb0049124bf0a5a94c982721e43582"
-    },
-    {
-      "fileName": "SEED-008_land-unfinished-stories-without-retirement.json",
-      "identity": "SEED-008#land-unfinished-stories-without-retirement",
-      "completedAt": "2026-10-17T23:56:19.885Z",
-      "blob": "4bea0eb5711dc3bad32461d77effac7f8f36b6c9"
-    },
-    {
-      "fileName": "SEED-138_correct-start-eligibility-gaps.json",
-      "identity": "SEED-138#correct-start-eligibility-gaps",
-      "completedAt": "2026-10-17T22:45:19.581Z",
-      "blob": "3e7be95e3d7515f2c02900781daf9079216f8f1e"
-    },
-    {
-      "fileName": "SEED-136_unify-and-streamline-dashboard-e2e.json",
-      "identity": "SEED-136#unify-and-streamline-dashboard-e2e",
-      "completedAt": "2026-10-17T22:21:43.448Z",
-      "blob": "5d46b3afa459745827ce6512ef4b57a513db968f"
-    },
-    {
-      "fileName": "SEED-138_compute-execution-readiness.json",
-      "identity": "SEED-138#compute-execution-readiness",
-      "completedAt": "2026-10-17T13:02:28.320Z",
-      "blob": "745d6440add96eae2f4cfc9b40b67d888aa4bd52"
     }
   ],
   "unreadable": []

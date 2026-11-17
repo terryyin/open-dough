@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
 - [Read Claude Code rows that contain Unicode line separators](seeds/SEED-388-measure-and-control-agent-launch-cost.md#read-claude-rows-with-unicode-line-separators) — SEED-388#read-claude-rows-with-unicode-line-separators ([plan](slice-plans/667-read-claude-rows-with-unicode-line-separators/PLAN.md))
-- [Redo the effort story under the test-focus guidance](seeds/SEED-391-check-test-focus-guidance-by-redoing-a-story.md#redo-the-effort-story-under-the-test-focus-guidance) — SEED-391#redo-the-effort-story-under-the-test-focus-guidance ([plan](slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/PLAN.md))
 
 ## Backlog list
 
