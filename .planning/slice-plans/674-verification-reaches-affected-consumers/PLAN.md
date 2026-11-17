@@ -177,6 +177,14 @@ or inconclusive with the missing evidence. One run isolates no guidance
 effect; disclose host, CLI and context differences and effort only as
 secondary evidence.
 
+## Execution complete
+
+Product advice: keep the slice-1 guidance edit; it reaches installed copies
+only through the next release. Carry the redo's code-proximity exclusion
+wording (“no changed-helper call”) into SEED-393 story 1's narrowing work as
+evidence, not a new rule. Process finding DD-555: trace terms for a removed
+phrase miss reworded restatements of the same rule.
+
 ## Result
 
 Assessed 2026-11-17 (slice 3), read-only, against redo `af2fcf278..4c82626a4`
