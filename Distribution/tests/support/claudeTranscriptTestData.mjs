@@ -190,21 +190,6 @@ export class ClaudeTranscriptBuilder {
   }
 
   /**
-   * Countable assistant row whose text embeds raw U+2028 and U+2029 inside
-   * one JSONL row. Supplies a message id when the case omits one.
-   * @param {ClaudeAssistantOptions} [options]
-   */
-  withAssistantHoldingLineSeparators(options = {}) {
-    const uuid = options.uuid ?? `assistant-${this.#rows.length + 1}`;
-    return this.withAssistant({
-      ...options,
-      uuid,
-      messageId: options.messageId ?? `msg-${uuid}`,
-      content: [{ type: "text", text: "first\u2028second\u2029third" }],
-    });
-  }
-
-  /**
    * Countable assistant response after earlier rows. Supplies a message id
    * when the case omits one.
    * @param {ClaudeAssistantOptions} [options]
@@ -215,6 +200,18 @@ export class ClaudeTranscriptBuilder {
       ...options,
       uuid,
       messageId: options.messageId ?? `msg-${uuid}`,
+    });
+  }
+
+  /**
+   * Countable assistant row whose text embeds raw U+2028 and U+2029 inside
+   * one JSONL row.
+   * @param {ClaudeAssistantOptions} [options]
+   */
+  withAssistantHoldingLineSeparators(options = {}) {
+    return this.withCountedAssistant({
+      ...options,
+      content: [{ type: "text", text: "first\u2028second\u2029third" }],
     });
   }
 
