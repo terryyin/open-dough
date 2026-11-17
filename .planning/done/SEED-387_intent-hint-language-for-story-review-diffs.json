@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-387#intent-hint-language-for-story-review-diffs",
+  "title": "Style story-review diffs by Intent syntax hint when the path has no grammar",
+  "completedAt": "2026-11-17T14:17:23.319Z",
+  "developer": "Terry Yin",
+  "agent": "Hibiki-chan",
+  "host": "cursor",
+  "model": "auto"
+}
