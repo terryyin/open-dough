@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Redo the effort story under the test-focus guidance](seeds/SEED-391-check-test-focus-guidance-by-redoing-a-story.md#redo-the-effort-story-under-the-test-focus-guidance) — SEED-391#redo-the-effort-story-under-the-test-focus-guidance ([plan](slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/PLAN.md))
-- [Capture and edit story notes in the dashboard](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) — SEED-348#collect-notes-for-story-follow-ups ([plan](slice-plans/671-capture-and-edit-story-notes-in-the-dashboard/PLAN.md))
 
 ## Backlog list
 

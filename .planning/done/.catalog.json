@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-348_collect-notes-for-story-follow-ups.json",
+      "identity": "SEED-348#collect-notes-for-story-follow-ups",
+      "completedAt": "2026-11-17T04:35:43.210Z",
+      "blob": "f865ca0e9f281fe8a8a0f522f8d7381e21050b2b"
+    },
+    {
       "fileName": "SEED-388_read-claude-rows-with-unicode-line-separators.json",
       "identity": "SEED-388#read-claude-rows-with-unicode-line-separators",
       "completedAt": "2026-11-16T13:09:32.791Z",
@@ -2412,30 +2418,6 @@
       "identity": "SEED-136#dashboard-test-bounds-and-placement",
       "completedAt": "2026-10-18T05:47:09.965Z",
       "blob": "f2ae59ddf9a75481b9827842ad29e8af36055403"
-    },
-    {
-      "fileName": "SEED-139_review-completed-stories.json",
-      "identity": "SEED-139#review-completed-stories",
-      "completedAt": "2026-10-18T01:08:28.028Z",
-      "blob": "2f19cf6295bb0049124bf0a5a94c982721e43582"
-    },
-    {
-      "fileName": "SEED-008_land-unfinished-stories-without-retirement.json",
-      "identity": "SEED-008#land-unfinished-stories-without-retirement",
-      "completedAt": "2026-10-17T23:56:19.885Z",
-      "blob": "4bea0eb5711dc3bad32461d77effac7f8f36b6c9"
-    },
-    {
-      "fileName": "SEED-138_correct-start-eligibility-gaps.json",
-      "identity": "SEED-138#correct-start-eligibility-gaps",
-      "completedAt": "2026-10-17T22:45:19.581Z",
-      "blob": "3e7be95e3d7515f2c02900781daf9079216f8f1e"
-    },
-    {
-      "fileName": "SEED-136_unify-and-streamline-dashboard-e2e.json",
-      "identity": "SEED-136#unify-and-streamline-dashboard-e2e",
-      "completedAt": "2026-10-17T22:21:43.448Z",
-      "blob": "5d46b3afa459745827ce6512ef4b57a513db968f"
     }
   ],
   "unreadable": []
