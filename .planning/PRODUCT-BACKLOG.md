@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks ([plan](slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md))
-
 ## Backlog list
 
 - [Guidance-check participants can run their owning proof](seeds/SEED-393-test-quality-learning-from-effort-replays.md#guidance-check-participants-run-owning-proof) — SEED-393#guidance-check-participants-run-owning-proof
