@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-387_emphasize-changed-words-in-diff-lines.json",
+      "identity": "SEED-387#emphasize-changed-words-in-diff-lines",
+      "completedAt": "2026-11-17T17:22:37.826Z",
+      "blob": "573fdfaa5765bde20aae2a9f5d1a099ed4cb99d9"
+    },
+    {
       "fileName": "SEED-345_split-the-agent-effort-contract-guide.json",
       "identity": "SEED-345#split-the-agent-effort-contract-guide",
       "completedAt": "2026-11-17T15:29:10.332Z",

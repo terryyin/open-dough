@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Move board, frame and project navigation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test ([plan](slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md))
 - [Recover decisive verification evidence after large or cleaned-up output](seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence) — SEED-345#recover-decisive-verification-evidence ([plan](slice-plans/683-recover-decisive-verification-evidence/PLAN.md))
-- [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines ([plan](slice-plans/663-emphasize-changed-words-in-diff-lines/PLAN.md))
 
 ## Backlog list
 
