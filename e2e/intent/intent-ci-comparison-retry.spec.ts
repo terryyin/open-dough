@@ -6,7 +6,8 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { expectSourceCue } from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";
-import { publishComparedStoryBranch } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
+import { publishComparedHistory } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
+import { startingFromKeptComparedStoryBranch } from "../../dashboard/tests/support/keptComparedStoryBranch.ts";
 import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
 import {
   checkAgainOf,
@@ -24,59 +25,66 @@ import {
 } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { push } from "../../dashboard/tests/support/storyReviewTrunkCommits.ts";
 
+// The completed history is the worker's; this case's origin is its copy.
+const historyTest = test.extend(startingFromKeptComparedStoryBranch);
+
 const unrecoverable =
   "Published execution history does not establish a complete claim and its attributed commits for this completion.";
 
-test("Check again recovers a done Story Branch Baseline that failed once, then asks GitHub nothing", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishComparedStoryBranch(page, origin);
-  let asked = 0;
-  let baselineListings = 0;
-  setup.interceptActions((argv) => {
-    asked += 1;
-    if (listedHeadSha(argv) !== setup.baseline) return undefined;
-    baselineListings += 1;
-    return baselineListings === 1 ? noConnection : undefined;
-  });
-  const reads = watchComparisonReads(page);
+historyTest(
+  "Check again recovers a done Story Branch Baseline that failed once, then asks GitHub nothing",
+  async ({ page, origin, keptComparedStoryBranch }) => {
+    const setup = await publishComparedHistory(
+      page,
+      origin,
+      keptComparedStoryBranch.history,
+    );
+    let asked = 0;
+    let baselineListings = 0;
+    setup.interceptActions((argv) => {
+      asked += 1;
+      if (listedHeadSha(argv) !== setup.baseline) return undefined;
+      baselineListings += 1;
+      return baselineListings === 1 ? noConnection : undefined;
+    });
+    const reads = watchComparisonReads(page);
 
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  const identity = comparisonReading(panel).identities;
-  await expect(identity.nth(0)).toContainText("GitHub is unreachable");
-  await expect(identity.nth(1)).toContainText(shortSha(setup.branchSide));
-  await expect(identity.nth(2)).toContainText(shortSha(setup.completion));
-  const checkAgain = checkAgainOf(panel);
+    const { panel } = await selectDoneStoryForCiComparison(page);
+    const identity = comparisonReading(panel).identities;
+    await expect(identity.nth(0)).toContainText("GitHub is unreachable");
+    await expect(identity.nth(1)).toContainText(shortSha(setup.branchSide));
+    await expect(identity.nth(2)).toContainText(shortSha(setup.completion));
+    const checkAgain = checkAgainOf(panel);
 
-  await checkComparisonAgain(page, panel);
-  await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
-  await expectSourceCue(identity.nth(0));
-  await expect(comparisonReading(panel).activeComparison).toHaveText(
-    "Baseline compared with Landed",
-  );
-  await expect(comparisonReading(panel).overallCounts).toHaveText(
-    "2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)",
-  );
-  await expect(checkAgain).toBeEnabled();
-  await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
+    await checkComparisonAgain(page, panel);
+    await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
+    await expectSourceCue(identity.nth(0));
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
+      "Baseline compared with Landed",
+    );
+    await expect(comparisonReading(panel).overallCounts).toHaveText(
+      "2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)",
+    );
+    await expect(checkAgain).toBeEnabled();
+    await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
 
-  // The final answer and its valid proof summaries are remembered: Check
-  // again, and selecting the story again, read them without GitHub.
-  const askedBefore = asked;
-  const comparisons = reads.finished.comparison;
-  const proofs = reads.finished.proof;
-  await checkAgain.click();
-  await expect.poll(() => reads.finished.comparison).toBe(comparisons + 1);
-  await expect.poll(() => reads.finished.proof).toBe(proofs + 3);
-  await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
-  const again = await selectDoneStoryForCiComparison(page);
-  await expect(comparisonReading(again.panel).identities.nth(0)).toContainText(
-    shortSha(setup.baseline),
-  );
-  await expect.poll(() => reads.finished.proof).toBe(proofs + 6);
-  expect(asked).toBe(askedBefore);
-});
+    // The final answer and its valid proof summaries are remembered: Check
+    // again, and selecting the story again, read them without GitHub.
+    const askedBefore = asked;
+    const comparisons = reads.finished.comparison;
+    const proofs = reads.finished.proof;
+    await checkAgain.click();
+    await expect.poll(() => reads.finished.comparison).toBe(comparisons + 1);
+    await expect.poll(() => reads.finished.proof).toBe(proofs + 3);
+    await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
+    const again = await selectDoneStoryForCiComparison(page);
+    await expect(
+      comparisonReading(again.panel).identities.nth(0),
+    ).toContainText(shortSha(setup.baseline));
+    await expect.poll(() => reads.finished.proof).toBe(proofs + 6);
+    expect(asked).toBe(askedBefore);
+  },
+);
 
 test("unrecoverable published history shows the published-review explanation without inventing builds, and Check again reads it again", async ({
   page,

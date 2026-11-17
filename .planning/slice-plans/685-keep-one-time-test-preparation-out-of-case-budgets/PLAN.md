@@ -219,6 +219,12 @@ shallow/unshallow recovery private and unchanged.
 Also run slice 1's fresh side-panel-content-replacement first case in the
 same natural 30–50 loaded acceptance.
 
+Implemented (2026-11-18): `keptComparedStoryBranch.ts` completes the real
+history once per worker (cold preparation lifetime) under its own
+`preparedHistory` description; the retry case copies it and publishes its own
+answers. At load 4–7 the fresh first cases took retry 3.7 s, side-panel
+4.0 s, Done-source 2.5 s. Loaded acceptance at natural 30–50 is G1.
+
 ## Verification and delivery gates
 
 - Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
@@ -272,3 +278,11 @@ no sizing exception or story resplit. The common ownership and direction are
 unchanged; decisive premises have observed results. This review identified no remaining slice-specific concern. Loaded
 acceptance and new discriminating assertions are execution obligations, not
 claims supplied by these lower-load preparation observations.
+
+## Story obligations
+
+### G1. Loaded first-case acceptance not yet observed at natural load 30–50
+Reported: slice 5 — "Natural load stayed at 4.8–6.6 the whole slice, so the 30–50 window never came."
+Story clause: "first cases keep a wide margin at a one-minute load of 30–50 with default timeouts"
+Disposition: return
+Commitment: 2, 11, 12

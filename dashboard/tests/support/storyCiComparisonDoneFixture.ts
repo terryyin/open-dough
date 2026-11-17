@@ -22,11 +22,22 @@ import {
 } from "./storyCiComparisonFixture.ts";
 import { defaultMixedProofs } from "./storyCiComparisonEntryProofs.ts";
 
-export async function publishComparedStoryBranch(
-  page: Page,
+// The real-CLI history a compared Story Branch publishes: planning-only
+// predecessors of the claim, the completed story, and later trunk.
+export type ComparedStoryHistory = Pick<
+  StoryCiComparisonSetup,
+  | "completion"
+  | "baseline"
+  | "branchSide"
+  | "laterWithoutBuild"
+  | "agent"
+  | "branch"
+>;
+
+export async function completeComparedStoryHistory(
   origin: StartOrigin,
   variant?: "own-conflict-extra" | "non-owning-story-file",
-): Promise<StoryCiComparisonSetup> {
+): Promise<ComparedStoryHistory> {
   const baseline = await precedeClaimWithPlanning(origin);
   const story = await completedPublishedStory(origin, "story-branch", variant);
   const { completion, agent, branch } = story;
@@ -41,7 +52,29 @@ export async function publishComparedStoryBranch(
   const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
 
   advanceCompletedTrunk(origin);
+  return { completion, baseline, branchSide, laterWithoutBuild, agent, branch };
+}
 
+export async function publishComparedStoryBranch(
+  page: Page,
+  origin: StartOrigin,
+  variant?: "own-conflict-extra" | "non-owning-story-file",
+): Promise<StoryCiComparisonSetup> {
+  return publishComparedHistory(
+    page,
+    origin,
+    await completeComparedStoryHistory(origin, variant),
+  );
+}
+
+// Publishes `origin`, which already holds `history`, with this case's own
+// GitHub Actions answers for its baseline, branch and landed endpoints.
+export async function publishComparedHistory(
+  page: Page,
+  origin: StartOrigin,
+  history: ComparedStoryHistory,
+): Promise<StoryCiComparisonSetup> {
+  const { baseline, branchSide, completion } = history;
   const published = git(origin.origin, "rev-parse", "main");
   const committed = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -66,14 +99,5 @@ export async function publishComparedStoryBranch(
     },
     defaultMixedProofs({ baseline, branchSide, completion }),
   );
-  return {
-    identity: queuedIdentity,
-    completion,
-    baseline,
-    branchSide,
-    laterWithoutBuild,
-    agent,
-    branch,
-    ...actions,
-  };
+  return { identity: queuedIdentity, ...history, ...actions };
 }

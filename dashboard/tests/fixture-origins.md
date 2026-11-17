@@ -19,8 +19,10 @@ uses is one more run-owned preparation, not one per case; it stays in the
 run's elapsed time (`../backend-tests/runtime/test-preparation-budget.spec.ts`).
 A worker may also keep the origin one start of a description left
 (`keepStartedOrigin`), as it does for the kept published story
-(`support/keptPublishedStory.ts`); later starts of that description in the
-worker are copies of it and push nothing.
+(`support/keptPublishedStory.ts`) and the real-CLI compared Story Branch
+history under its own description (`support/keptComparedStoryBranch.ts`);
+later starts of that description in the worker are copies of it and push
+nothing.
 Tests clone private copies with independent objects, refs, config, indexes and
 HOME. Nested configurations can inherit the outer runner's artifacts. Without
 an owner, a start prepares only its layout and removes that preparation after
