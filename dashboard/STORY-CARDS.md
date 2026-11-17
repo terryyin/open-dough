@@ -63,3 +63,5 @@ that page/project state: a confirmed link to an unreviewed completed story
 shows red **Needs review** words before selection. A successful card change
 updates every linked row on the page. Backlog and Taken cards, other session
 entries and Intent show no review state.
+
+Every card offers [Notes](STORY-NOTES.md), with a count when notes exist.

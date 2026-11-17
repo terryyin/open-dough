@@ -10,6 +10,18 @@ export class StoryNoteBuilder {
     savedAt: "2026-11-17T00:00:00.000Z",
   };
 
+  /** @param {string} id */
+  identifiedAs(id) {
+    this.#note.id = id;
+    return this;
+  }
+
+  /** @param {string} at */
+  savedAt(at) {
+    this.#note.savedAt = at;
+    return this;
+  }
+
   /** @param {string} text */
   withText(text) {
     this.#note.text = text;

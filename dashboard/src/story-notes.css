@@ -1,0 +1,22 @@
+.story-notes {
+  max-width: min(38rem, calc(100vw - 2rem));
+}
+.story-notes textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+.story-notes fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.story-notes ol {
+  padding-inline-start: 1.5rem;
+}
+.story-notes li {
+  overflow-wrap: anywhere;
+}
+.story-note-text {
+  white-space: pre-wrap;
+}

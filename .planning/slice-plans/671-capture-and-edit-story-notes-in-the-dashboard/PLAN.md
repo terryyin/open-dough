@@ -92,7 +92,7 @@ Accepted proof: [slice 1](slice-1-proof.md).
 
 ### 2. A story's card keeps general notes
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/frontend-tests/stories/story-notes.spec.ts` and
 `e2e/stories/story-notes-persistence.spec.ts` (rows for slice 2); typecheck
 and lint.
@@ -109,6 +109,8 @@ another page at its next read. Blank text is not saved.
 - Test support: a notes substitute beside `frontendStoryReviewState.ts` and a
   Story notes page object.
 - Write `dashboard/STORY-NOTES.md` and link it.
+
+Accepted proof: [slice 2](slice-2-proof.md).
 
 ### 3. Notes that cannot be saved or read are said, and none is lost
 Type: Behavior

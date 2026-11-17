@@ -36,6 +36,7 @@ import {
   dependencyStartReason,
   startEligibilityOf,
 } from "./startEligibility.ts";
+import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { storyCardSessionsOf } from "./agentLaunch.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
@@ -160,6 +161,11 @@ export function StoryCard({
             <Icon icon={ChevronRight} />
             {inspected ? "Hide detail" : "Inspect story"}
           </button>
+          <StoryNotes
+            sourceId={sourceId}
+            identity={entry.identity}
+            title={entry.title}
+          />
           <StoryReviewAction
             records={launches.records}
             workspaces={launches.workspaces}

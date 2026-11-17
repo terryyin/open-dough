@@ -33,6 +33,7 @@ import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { StorySessions } from "./SessionLists.tsx";
+import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";
@@ -144,6 +145,7 @@ export function DoneStoryCard({
           records={launchRecords}
           work={{ identity, title }}
         />
+        <StoryNotes sourceId={sourceId} identity={identity} title={title} />
         {reviewState}
         {followUp}
       </div>

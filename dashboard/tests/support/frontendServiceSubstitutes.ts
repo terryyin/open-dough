@@ -17,6 +17,8 @@ import {
   storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
 } from "../../src/storyReviewContract.ts";
+import { storyNotesEndpoint } from "../../src/storyNote.ts";
+import { installFrontendStoryNotes } from "./frontendStoryNotes.ts";
 import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
 import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
 import { installFrontendCompletedStoryAssociation } from "./frontendCompletedStoryAssociation.ts";
@@ -82,6 +84,7 @@ export async function installFrontendServiceSubstitutes(
   await installFrontendCompletedStoryAssociation(page);
   // Controllable story review states; default settle is every story unreviewed.
   await installFrontendStoryReviewState(page);
+  await installFrontendStoryNotes(page);
   // Controllable story-review snapshot/range/diff/text/mark; default settle is
   // a minimal unmarked snapshot (./frontendStoryReview.ts).
   await installFrontendStoryReview(page);
@@ -109,6 +112,7 @@ export async function installFrontendServiceSubstitutes(
     agentLaunchEndpoint,
     completedStoryAssociationEndpoint,
     storyReviewStateEndpoint,
+    storyNotesEndpoint,
     storyReviewEndpoint,
     storyReviewRangeEndpoint,
     storyReviewFileEndpoint,

@@ -30,25 +30,25 @@ last removing it after delivery and verification.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Notes are separate entries, each with its own context. | slice 2 |  |
+| 1 | Notes are separate entries, each with its own context. | slice 2 | observed: dashboard/frontend-tests/stories/story-notes.spec.ts desktop/phone saved entries and distinct text; StoryNotesControl.tsx renders separate li keyed by server note id with story context. |
 | 2 | Notes belong to the correct project and story identity. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 3 | The collection accumulates across reviews from Taken through Done. | slice 8 |  |
 | 4 | Notes survive new launches. | slice 6 |  |
 | 5 | Notes survive a dashboard restart; the example restarts the dashboard and reads the saved line note. | slice 8 |  |
 | 6 | Notes survive the story moving from Taken to Done. | slice 6 |  |
 | 7 | Notes survive workspace removal; the example reads the same note from the Recently done card. | slice 6 |  |
-| 8 | Every story card offers Notes. | slice 2 |  |
+| 8 | Every story card offers Notes. | slice 2 | observed: story-notes.spec.ts desktop/phone Backlog, Taken and Recently done Notes assertions; StoryCard and DoneStoryCard mount the same control. |
 | 9 | A card shows the current note count when notes exist; examples require one after adding the first note and an updated count after deletion. | slice 4 |  |
-| 10 | A card’s Notes opens Story notes for that story. | slice 2 |  |
+| 10 | A card’s Notes opens Story notes for that story. | slice 2 | observed: story-notes.spec.ts opens selected card and expectContext verifies its title/identity; other-story empty list assertion. |
 | 11 | Review changes offers the same story Notes. | slice 7 |  |
 | 12 | Intent → Changed tests offers the same story Notes. | slice 7 |  |
-| 13 | Story notes lists that story’s notes. | slice 2 |  |
-| 14 | Notes appear newest first. | slice 2 |  |
-| 15 | Each listed note shows its text. | slice 2 |  |
+| 13 | Story notes lists that story’s notes. | slice 2 | observed: story-notes.spec.ts two saved texts and other-story empty list assertions. |
+| 14 | Notes appear newest first. | slice 2 | observed: story-notes.spec.ts expectNotes Later observation before First observation; StoryNotesControl.tsx savedAt descending sort. |
+| 15 | Each listed note shows its text. | slice 2 | observed: story-notes.spec.ts caller-supplied expected saved text lists. |
 | 16 | Each saved note shows its context. | slice 7 |  |
-| 17 | Story notes offers Add note for a general note. | slice 2 |  |
-| 18 | A general note’s context contains the story alone, with no file or line. | slice 2 |  |
-| 19 | A story that has never been reviewed can receive a general note through its card. | slice 2 |  |
+| 17 | Story notes offers Add note for a general note. | slice 2 | observed: story-notes.spec.ts Add note opens Add note composer then saves typed general notes. |
+| 18 | A general note’s context contains the story alone, with no file or line. | slice 2 | observed: story-notes.spec.ts captured POST objects contain only action, identity and text; entry context contains story title/identity. |
+| 19 | A story that has never been reviewed can receive a general note through its card. | slice 2 | observed: story-notes.spec.ts Backlog readyStory with no prior review saves general notes through card. |
 | 20 | Every story file diff offers Add note beside the file path: Review changes and Intent → Changed tests, Taken workspace comparisons and Done Published completion or landed run alike. Amendment: Add note is offered in every story review, Taken or Done. | slice 7 |  |
 | 21 | Every story file diff offers Add note in each line-number menu, under those same views and comparison conditions, including Taken workspace comparisons and Done Published completion or landed runs. | slice 7 |  |
 | 22 | Workspace-review line numbers gain a menu containing Add note. | slice 6 |  |
@@ -67,13 +67,13 @@ last removing it after delivery and verification.
 | 35 | Line-note context preserves the line’s text as it read when noted. Amendment: a line note keeps text of its line. | slice 5 |  |
 | 36 | Saved context records what the page showed when the note was made; the later Done/workspace-removed example requires the same context. | slice 7 |  |
 | 37 | A note added from a file header has file and comparison context but no line. | slice 5 |  |
-| 38 | The developer can type note text. | slice 2 |  |
+| 38 | The developer can type note text. | slice 2 | observed: story-notes.spec.ts fills real Note text textarea and observes saved typed text. |
 | 39 | Dictation follows session-instruction permission states. | slice 8 |  |
 | 40 | Dictation follows session-instruction recording states. | slice 8 |  |
 | 41 | Dictation follows session-instruction transcription states. | slice 8 |  |
 | 42 | Dictation follows session-instruction setup states. | slice 8 |  |
 | 43 | The transcript lands in the note text and can be corrected before saving; the Taken line-note example dictates, corrects, then saves. | slice 8 |  |
-| 44 | A note with no text cannot be saved. | slice 2 |  |
+| 44 | A note with no text cannot be saved. | slice 2 | observed: story-notes.spec.ts whitespace composer stays open and independently captured POST list stays empty. |
 | 45 | Each saved note offers Edit. | slice 4 |  |
 | 46 | Editing and saving changes the note text; the example edits a line note and saves. | slice 4 |  |
 | 47 | Editing preserves the note’s context; the text changes and its context does not. | slice 4 |  |
@@ -88,23 +88,23 @@ last removing it after delivery and verification.
 | 56 | A failed delete preserves the note as it was, including text. | slice 4 |  |
 | 57 | A failed delete reports the failure. | slice 4 |  |
 | 58 | Notes are kept on the machine serving the dashboard. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
-| 59 | Every page of that dashboard, including a phone’s page, can show the notes. | slice 2 |  |
-| 60 | A change made on one page appears on other pages at their next read; the phone-save example requires the desktop page to list it at its next read. | slice 2 |  |
+| 59 | Every page of that dashboard, including a phone’s page, can show the notes. | slice 2 | observed: story-notes.spec.ts desktop/phone real frontend; e2e/stories/story-notes-persistence.spec.ts real phone save and desktop reread after server restart. |
+| 60 | A change made on one page appears on other pages at their next read; the phone-save example requires the desktop page to list it at its next read. | slice 2 | observed: story-notes.spec.ts controlled external change at next shared check interval updates open list/count; stale read after save cannot overwrite; E2E independently proves page/server store use. |
 | 61 | Story notes opens over the current activity without replacing it. | slice 7 |  |
-| 62 | An attached terminal stays attached while Story notes is used. | slice 7 |  |
+| 62 | An attached terminal stays attached while Story notes is used. | slice 2 | observed: story-notes.spec.ts Story notes leaves an attached terminal mounted and connected: original socket prints while open, original screen remains connected, attachment count1, output and Notes focus after close. |
 | 63 | A review keeps its comparison through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
 | 64 | A review keeps its selected file through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
 | 65 | A review keeps its reading position through opening and closing Story notes; closing it leaves the diff as it was shown. | slice 7 |  |
 | 66 | Closing Story notes returns keyboard focus to the control that opened it. | slice 7 |  |
-| 67 | The add composer is headed Add note. | slice 2 |  |
+| 67 | The add composer is headed Add note. | slice 2 | observed: storyNotesPage.add observes Add note heading in real composer. |
 | 68 | The edit composer is headed Edit note. | slice 4 |  |
 | 69 | Composer context appears above the text. | slice 7 |  |
 | 70 | The composer offers Dictate. | slice 8 |  |
-| 71 | The composer offers Cancel. | slice 2 |  |
-| 72 | The composer offers Save note. | slice 2 |  |
+| 71 | The composer offers Cancel. | slice 2 | observed: story-notes.spec.ts blank composer Cancel then Add note opens clean draft; StoryNotesControl.tsx Cancel action. |
+| 72 | The composer offers Save note. | slice 2 | observed: story-notes.spec.ts Save note submit produces observed POST/list/status. |
 | 73 | A composer opened from a diff opens alone. | slice 5 |  |
 | 74 | A composer opened from a diff closes on saving. | slice 5 |  |
-| 75 | Saving is announced exactly once. | slice 2 |  |
+| 75 | Saving is announced exactly once. | slice 2 | observed: storyNotesPage.expectSaved checks one matching status and one rendered save announcement after save. |
 | 76 | Notes are stored beside the story review states. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 77 | Notes are never a published story fact. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 78 | Notes are not published into the project repository. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
@@ -113,4 +113,4 @@ last removing it after delivery and verification.
 | 81 | An unreadable notes-store file remains recoverable. | slice 1 | observed: dashboard/backend-tests/review/story-notes-admission.spec.ts: POST/GET and HOME-file assertions in notes are assigned ids and times; restarted real boundary server returns same collection; storyNotes.ts notesStore uses only machineDashboardPath and preserve; unreadable cases assert exact original bytes and no moved copy. |
 | 82 | An unreadable notes store reports that notes could not be read. | slice 3 |  |
 | 83 | An unreadable notes store does not present the situation as having no notes. | slice 3 |  |
-| 84 | A note records no fix or resolution. | slice 2 |  |
+| 84 | A note records no fix or resolution. | slice 2 | observed: StoryNote strict schema and StoryNotesControl.tsx render observation text and context, no fix/resolution field or action. |

@@ -31,3 +31,12 @@
   Run named, focused checks with default workers under `caffeinate -s -i`
   when long; no full suite locally. Reconsider resource choice if load,
   competing owned proof, or observed runtimes change.
+
+## Accepted increments
+
+- Slice 1: `ab91ef3234f6c1a496bf309932ba327ad09ebb44`, accepted on the
+  story-branch target; suffix base `681002b3946be63b7f854c4a739dcf8517a26996`.
+  Managed delivery reused `/tmp/dough-ci-501/watch-7yhgQ7` and registered the
+  accepted revision. Default-checkout maintenance not applicable.
+  First preparation stopped before commit for record trailing blank lines;
+  corrected whitespace, unchanged freshness/proof, guarded retry accepted.

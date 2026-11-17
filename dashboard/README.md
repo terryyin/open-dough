@@ -64,7 +64,7 @@ its published story branch, or a **CI timing comparison** for a done story
 (baseline, branch and landed wall times against the pre-story build), and
 the story can visit Project Intent and return. Click an empty area of the card
 or open the story's content in the Side panel to select it
-([Story cards](STORY-CARDS.md)). Project changes, history, reload
+([Story cards](STORY-CARDS.md), [Story notes](STORY-NOTES.md)). Project changes, history, reload
 and System settings keep the perspective; choosing a
 session opens Development ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 

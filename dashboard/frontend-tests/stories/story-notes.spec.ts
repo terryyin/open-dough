@@ -1,0 +1,182 @@
+// Built frontend, explicit notes service substitute. Persistence crosses the
+// real boundary in e2e/stories/story-notes-persistence.spec.ts.
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  openFrontendBoardReview,
+  storyA,
+} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
+import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
+import { parts } from "../../tests/dashboardParts.ts";
+import { showColumn } from "../../tests/boardPage.ts";
+import {
+  readyIdentity,
+  readyStory,
+  takenStory,
+} from "../../tests/launchJourney.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { installAttachedTerminalSubstitute } from "../../tests/support/frontendTerminalSubstitute.ts";
+import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+import {
+  expectTerminalText,
+  terminalPanel,
+  terminalScreenParts,
+} from "../../tests/terminalScreenPage.ts";
+import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
+
+for (const phone of [false, true]) {
+  test(`all card kinds offer general notes, blank is unsaved, newest first (${phone ? "phone" : "desktop"})`, async ({
+    page,
+    frontendServices,
+  }) => {
+    if (phone) await page.setViewportSize({ width: 390, height: 844 });
+    const service = await installFrontendStoryNotes(page);
+    await openFrontendBoardReview(page, frontendServices);
+    const notes = storyNotesPage(page);
+    const done = parts(page).recentlyDone.getByRole("article", {
+      name: storyA.title,
+      exact: true,
+    });
+    await notes.expectCount(done, 0);
+    await notes.open(done);
+    await notes.expectContext(storyA.title, storyA.identity);
+    await notes.close();
+    await showColumn(page, "Taken");
+    await notes.expectCount(
+      parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
+      0,
+    );
+    await showColumn(page, "Backlog");
+    const card = parts(page).backlog.getByRole("article", {
+      name: readyStory,
+      exact: true,
+    });
+    await notes.open(card);
+    await notes.expectContext(readyStory, readyIdentity);
+    await notes.add();
+    await notes.type("   ");
+    await notes.save();
+    await notes.expectComposing("   ");
+    expect(service.asked().filter(({ method }) => method === "POST")).toEqual(
+      [],
+    );
+    await notes.cancel();
+    await notes.add();
+    await notes.type("First observation");
+    await notes.save();
+    await notes.expectSaved();
+    await notes.expectNotes(["First observation"]);
+    await notes.expectEntryContext(0, `${readyStory} · ${readyIdentity}`);
+    await notes.add();
+    await notes.type("Later observation");
+    await notes.save();
+    await notes.expectSaved();
+    await notes.expectNotes(["Later observation", "First observation"]);
+    expect(service.changes()).toEqual([
+      { action: "add", identity: readyIdentity, text: "First observation" },
+      { action: "add", identity: readyIdentity, text: "Later observation" },
+    ]);
+    await notes.close();
+    await notes.expectCount(card, 2);
+    await expect(
+      card.getByRole("button", { name: "Notes (2)", exact: true }),
+    ).toBeFocused();
+    expect(
+      service.asked().filter(({ method }) => method === "GET"),
+    ).toHaveLength(1);
+    await showColumn(page, "Recently done");
+    await notes.open(done);
+    await notes.expectNotes([]);
+    await notes.close();
+  });
+}
+
+test("next project read updates the count and open list; an older read cannot replace a save", async ({
+  page,
+  frontendServices,
+}) => {
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
+  const service = await installFrontendStoryNotes(page);
+  await openFrontendBoardReview(page, frontendServices);
+  const notes = storyNotesPage(page);
+  const card = parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
+  await notes.open(card);
+  await notes.expectNotes([]);
+  const remote = makeMe.aStoryNote.withText("Saved on another page").please();
+  service.answer("open-dough", { [storyA.identity]: [remote] });
+  await page.clock.runFor(checkIntervalMs);
+  await notes.expectNotes(["Saved on another page"]);
+  await notes.close();
+  await notes.expectCount(card, 1);
+  await notes.open(card);
+  const old = service.holdNext();
+  await page.clock.runFor(checkIntervalMs);
+  await old.received;
+  await notes.add();
+  await notes.type("Saved here afterwards");
+  await notes.save();
+  await notes.expectSaved();
+  old.release();
+  await old.delivered;
+  await notes.expectNotes(["Saved here afterwards", "Saved on another page"]);
+  await notes.close();
+  await notes.expectCount(card, 2);
+});
+
+test("Story notes leaves an attached terminal mounted and connected", async ({
+  page,
+  frontendServices,
+}) => {
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "Terminal kept during notes" })
+    .please();
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingOpen(record).please(),
+  );
+  let attachments = 0;
+  let print: (output: string) => void = () => {
+    throw new Error("No terminal attachment.");
+  };
+  await installAttachedTerminalSubstitute(page, {
+    application: {
+      opening: "Terminal before notes\r\n",
+      answer: (input) => input,
+      attached: (attachment) => {
+        attachments += 1;
+        print = (output) => {
+          attachment.print(output);
+        };
+      },
+    },
+  });
+  await openFrontendBoardReview(page, frontendServices);
+  const sidebar = sessionsSidebarParts(page);
+  await sidebar.button.click();
+  await sidebar.entry("Terminal kept during notes").click();
+  const panel = terminalPanel(page);
+  await expectTerminalText(panel, "Terminal before notes");
+  const originalScreen =
+    await terminalScreenParts(panel).screen.elementHandle();
+  const notes = storyNotesPage(page);
+  const card = parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
+  await notes.open(card, "keyboard");
+  await notes.expectContext(storyA.title, storyA.identity);
+  print("Terminal while notes open\r\n");
+  await notes.close();
+  await expectTerminalText(panel, "Terminal before notes");
+  await expectTerminalText(panel, "Terminal while notes open");
+  expect(await originalScreen.evaluate((element) => element.isConnected)).toBe(
+    true,
+  );
+  expect(attachments).toBe(1);
+  await expect(
+    card.getByRole("button", { name: "Notes", exact: true }),
+  ).toBeFocused();
+});
