@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hibiki-chan",
+  "email": "hibiki-chan@example.org",
+  "identity": "SEED-387#intent-hint-language-for-story-review-diffs",
+  "mode": "story-branch",
+  "branch": "cursor/style-story-review-diffs-by-intent-syntax-hint-w",
+  "host": "cursor",
+  "model": "auto"
+}

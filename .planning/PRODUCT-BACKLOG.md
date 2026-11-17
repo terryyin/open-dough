@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks ([plan](slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md))
 - [Evaluation shell checks state each fact in one line at the family entry](seeds/SEED-396-evaluation-javascript-tests.md#replace-evaluation-shell-checks) — SEED-396#replace-evaluation-shell-checks ([plan](slice-plans/679-evaluation-checks-state-facts-plainly/PLAN.md))
 - [Test agent effort through its output contract](seeds/SEED-345-session-token-efficiency.md#test-agent-effort-through-its-output-contract) — SEED-345#test-agent-effort-through-its-output-contract ([plan](slice-plans/678-test-agent-effort-through-its-output-contract/PLAN.md))
+- [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-387#intent-hint-language-for-story-review-diffs ([plan](slice-plans/663-intent-hint-language-for-story-review-diffs/PLAN.md))
 
 ## Backlog list
 
@@ -38,7 +39,6 @@ intent introduced or affected by a newly developed story.
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
-- [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-387#intent-hint-language-for-story-review-diffs
 - [Emphasize the changed words within a changed line](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#emphasize-changed-words-in-diff-lines) — SEED-387#emphasize-changed-words-in-diff-lines
 - [Share one control to turn syntax styling off or choose a palette](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#shared-syntax-styling-control) — SEED-387#shared-syntax-styling-control
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
