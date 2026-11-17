@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 562. Removed numbers are never reused.
+- Highest allocated local number: 564. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -616,3 +616,40 @@ not evidence that native evaluation is generally unnecessary.
   - Evidence: `56856821c:.planning/slice-plans/675-tests-protect-their-own-behavior/redo-launch.md` retains clone, dependency/browser setup and exact-input conflict; the slice clock paused preparation at 8.2 active minutes. The existing `fbfaa116b:.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-metrics.md` recorded 104.49 minutes for the frozen Claude redo. Terry asked to evaluate whether another run would benefit this change, then accepted skipping it.
   - Observed effect: scratch setup was built but no paid participant run occurred. The accepted proof became the six-example wording review and existing payload link check; improved agent behavior and effort savings remain unverified.
   - Inference: deciding the marginal learning and acceptable cost before rebuilding a historical replay could avoid unused setup. The executor followed the then-required plan; no total saving or guidance-effect estimate is established. Distinct from DD-559’s CI-deadline feasibility issue.
+
+## DD-563 — Removing a copied-data assertion also drops the behavior it bundled <a id="dd-563"></a>
+
+Assertion-removal slices were proved by a green focused run plus, where
+planned, one named fault. Three removals also took out a non-data observation
+bundled into the same assertion or loop, and a green run cannot show a lost
+observation. Two were caught only by the independent refactor pass or
+coordinator acceptance; the third surfaced only in wrap-up's Intent Coverage
+probe.
+
+### Occurrences
+
+- Execution: SEED-396#remove-redundant-evaluation-checks (plan 680; first implementation `f2226ca4b`)
+  - Timestamp: unknown (2026-11-17, about 19:36–20:50 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `1c7709ca7`)
+  - Evidence: slice 1's rewrite filtered out the catalog's indented trait lines (refactor pass restored a full-listing assertion; a suppressed-trait fault failed it). Slice 2 removed `assert_record`, which also asserted the record labels (coordinator acceptance had the refactor pass add `assert_records_show_layout`; a dropped `setup:` line fails it). Slice 3 removed the 12-case `native_case_known` loop with no planned fault; the wrap-up probe refused `delivery-evidence/selection` in the router and all retained checks stayed green, while the pre-slice test failed.
+  - Observed effect: two observations restored before delivery; one narrow per-case acceptance path left unprotected, accepted as restated registry data.
+  - Inference: a removal slice may need to list what each removed assertion observes beyond the copied data, with one fault per removed observation, before the green run is accepted.
+
+## DD-564 — Deletion-only slices still pay a full implementer and refactor-agent pair <a id="dd-564"></a>
+
+Slices whose whole change was deleting three to six test lines each used a
+fresh implementation agent and a fresh refactor agent. Two of the three refactor
+passes on such slices made no edits.
+
+### Occurrences
+
+- Execution: SEED-396#remove-redundant-evaluation-checks (plan 680; first implementation `f2226ca4b`)
+  - Timestamp: unknown (2026-11-17, slices 3–5, about 19:55–20:20 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `1c7709ca7`)
+  - Evidence: subagent usage reports. Slice 4 (3-line deletion): implementer 47.7k tokens, refactor 49.3k tokens with no edits. Slice 3 (6-line change): implementer 73.1k, refactor 58.5k with no edits. Slice 5 refactor 60.5k with no edits.
+  - Observed effect: about 290k subagent tokens across these passes; no defect found by the no-edit refactor passes.
+  - Inference: delivery step 1 allows skipping the refactor spawn only for records-only changes or edits within an accepted refactor return. A pure test-line deletion with a clean consumer trace may deserve a similar disposition. Slice 2's refactor pass did find a real gap, so the saving is not unconditional.

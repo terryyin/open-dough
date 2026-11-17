@@ -45,36 +45,9 @@ cursor_listing=$(assert_listing_quiet "${cursor_wrapper}" --list \
 claude_listing=$(assert_listing_quiet "${claude_wrapper}" \
   --results-dir "${results_dir}" --list)
 
-for host in codex cursor claude; do
-  assert_record "${context_listing}" "${host}" context/clear \
-    'fresh install' 'prior-evidence: none' 'dependencies: none'
-  assert_record "${context_listing}" "${host}" context/conflict \
-    'disagree' 'prior-evidence: none' 'dependencies: none'
-done
-[[ $(grep -c '^case: context/clear$' <<< "${context_listing}" || true) -eq 3 ]]
-[[ $(grep -c '^case: context/conflict$' <<< "${context_listing}" || true) -eq 3 ]]
-
-assert_record "${codex_listing}" codex delivery/updated-use \
-  'ordinary no-URL' 'recorded SOURCE' 'one attempt' 'dependencies: none'
-assert_record "${cursor_listing}" cursor delivery/updated-use \
-  'ordinary no-URL' 'recorded SOURCE' 'one attempt'
-assert_record "${claude_listing}" claude delivery/updated-use \
-  'ordinary no-URL' 'recorded SOURCE' 'one attempt' 'dependencies: none'
-
-for listing in "${codex_listing}" "${cursor_listing}" "${claude_listing}"; do
-  grep -Fq 'combined ordinary no-URL update then fresh use journey in one attempt' <<< "${listing}"
-done
-
-for host_listing in \
-  "codex:${codex_listing}" "cursor:${cursor_listing}" "claude:${claude_listing}"; do
-  host=${host_listing%%:*}
-  listing=${host_listing#*:}
-  updated_use_record=$(record_for "${listing}" "${host}" delivery/updated-use)
-  if grep -Fq 'attempt ID' <<< "${updated_use_record}"; then
-    echo "FAIL: ${host} delivery/updated-use listing still depends on an attempt ID." >&2
-    printf '%s\n' "${updated_use_record}" >&2
-    exit 1
-  fi
+for listing in "${context_listing}" "${codex_listing}" "${cursor_listing}" \
+  "${claude_listing}"; do
+  assert_records_show_layout "${listing}"
 done
 
 if grep -Eiq 'certified|prior-evidence: pass|reuse accepted' \
@@ -85,10 +58,8 @@ fi
 
 mkdir -p -- "${results_dir}/cursor/context/clear/attempt-1"
 printf 'status: pass\n' > "${results_dir}/cursor/context/clear/attempt-1/record"
-unreviewed_listing=$(run_wrapper "${context_wrapper}" --list \
+unreviewed_listing=$(assert_listing_quiet "${context_wrapper}" --list \
   --results-dir "${results_dir}")
-assert_no_sentinel_calls
-assert_watched_empty
 unreviewed_record=$(record_for "${unreviewed_listing}" cursor context/clear)
 grep -Fq 'prior-evidence: unreviewed' <<< "${unreviewed_record}"
 if grep -Eq 'prior-evidence: (pass|certified|accepted)' <<< "${unreviewed_record}"; then

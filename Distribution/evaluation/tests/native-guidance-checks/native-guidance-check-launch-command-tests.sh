@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Purpose: a maintainer selects the launch-command-tests case by its workflow;
-# its fixture gives the participant only the task and the overlaid project,
-# and its observer keeps the final change and the backend and E2E results it
-# executed itself. The E2E consumer, the probes and the assessor have their
-# own tests (native-guidance-check-launch-command-tests-e2e.sh, -probes.sh,
-# -assessor.sh); the whole journey with probes is the case's reference
-# qualification (case.md).
+# Purpose: the launch-command-tests fixture gives the participant only the
+# task and the overlaid project, and its observer keeps the final change and
+# the backend and E2E results it executed itself. The E2E consumer, the probes
+# and the assessor have their own tests
+# (native-guidance-check-launch-command-tests-e2e.sh, -probes.sh, -assessor.sh);
+# the whole journey with probes is the case's reference qualification
+# (case.md).
 # shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Sourced runner and case globals; observations print what each command gives.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
@@ -13,10 +13,6 @@ source "${source_dir}/Distribution/evaluation/src/native-guidance-check-run.sh"
 case_path="${source_dir}/Distribution/evaluation/cases/guidance-checks/launch-command-tests"
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
-
-PATH=/opt/homebrew/bin:${PATH} bash "${source_dir}/Distribution/evaluation/src/native-guidance-check.sh" \
-  --list --where 'workflow=test refactoring' > "${work}/catalog"
-[[ $(head -n 1 "${work}/catalog") == launch-command-tests ]]
 
 # The task names the files to refactor, never the expected answer.
 if grep -Eiq 'argv|length|medium|--effort|unchanged consumer|expected|fbfaa116|8b9005acc|comparison' \

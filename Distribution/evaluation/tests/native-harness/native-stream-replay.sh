@@ -22,15 +22,10 @@ trap 'rm -rf -- "${work_dir}"' EXIT
 # Every corpus entry replays as reviewed, and each host has entries.
 node "${replay}"
 
-# A weekly-limit stop is a complete stream in which no command started.
-for attempt in \
-  claude/publication/startup-story-branch/20260923T062305-679c \
-  claude/publication/startup-resume/20260923T044643-3342; do
-  stream="${corpus}/${attempt}/events.jsonl.gz"
-  [[ $(node "${reader}" claude "${stream}" status) == complete ]]
-  [[ -z $(node "${reader}" claude "${stream}" commands) ]]
-  grep -Fq 'weekly limit' <(node "${reader}" claude "${stream}" response)
-done
+# Replay compares only whether a response is present; Claude's response is
+# the text of its result event, here a weekly-limit stop.
+grep -Fq 'weekly limit' <(node "${reader}" claude \
+  "${corpus}/claude/publication/startup-resume/20260923T044643-3342/events.jsonl.gz" response)
 
 # A broken reader or stream-field function fails replay. Every failure it
 # causes matches the pattern (only the broken host's entries, or only the
