@@ -179,7 +179,7 @@ projection, leaving the separate collection and its proof.
 ### 2. Follow the source reference to its exact Done card
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: given a Taken follow-up, its entry names the source story by title,
 or by identity while the title is unread or unavailable. Activate it →
@@ -275,9 +275,21 @@ this review.
 - Split the subject frontend journeys into movement vs membership specs with
   a shared fixture module so each file stayed under the size check after
   refactor.
+- Covering Side panel on a narrow viewport hides the Board (`aria-hidden`), so
+  narrow keyboard reveal and open-panel preservation need separate observations.
+- Extract `useStoryReferenceJourney` kept `storyNavigation.tsx` under 250 after
+  `includeOlder`; keep shared launch-history wording as a short pointer when
+  `LAUNCH-FOLLOW-UP.md` already holds the full reveal/range contract.
 
 ## Accepted proof (slice 1)
 
 - `caffeinate -s -i npm run test:dashboard:frontend -- --workers=1 --reporter=line dashboard/frontend-tests/sessions/recently-done-follow-up-grouping.spec.ts dashboard/frontend-tests/sessions/recently-done-follow-up-membership.spec.ts` — 6 passed (Taken↔card movement, shared card/reload, reopen, cross-story/project, unlisted standalone, Follow up context sessions-only).
 - Broader consumers (pre-refactor): sessions/recently-done, stories/recently-done, agent-launch-ad-hoc-sessions — pass; behavior-preserving extract left them unchanged.
+- `npm run typecheck:dashboard` — pass.
+
+## Accepted proof (slice 2)
+
+- `caffeinate -s -i npm run test:dashboard:frontend -- --workers=1 dashboard/frontend-tests/sessions/follow-up-source-navigation.spec.ts` — 6 passed (title/identity; narrow 390 keyboard beyond-ten + selection; 1280 keyboard + Side panel; older + Show latest 10 + repeat; failed body; absent catalog).
+- `caffeinate -s -i npm run test:dashboard:integrated -- --workers=1 dashboard/tests/navigation/story-reference` — 19 passed (ordinary reference policy preserved).
+- `caffeinate -s -i npm run test:e2e -- --workers=1 e2e/stories/recently-done-follow-up.spec.ts` — 1 passed (Taken names source after real card launch).
 - `npm run typecheck:dashboard` — pass.

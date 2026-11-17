@@ -8,6 +8,7 @@ import {
   type OpenRoster,
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
+import { FollowUpSourceReference } from "./FollowUpSourceReference.tsx";
 import { revealStory } from "./pageEntries.ts";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { useStoryInspection } from "./pageStoryInspection.tsx";
@@ -121,7 +122,13 @@ function Column({
           ))}
           {localSessions?.map((record) => (
             <li key={sessionKey(record.session)}>
-              <SessionEntry record={record} onStoryCard={false} />
+              <SessionEntry
+                record={record}
+                onStoryCard={false}
+                followUp={
+                  <FollowUpSourceReference record={record} work={work} />
+                }
+              />
             </li>
           ))}
         </ol>

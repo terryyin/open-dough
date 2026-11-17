@@ -1,6 +1,16 @@
 /* A follow-up's source and context in the Start session dialog: read-only and
-   compact, one line per item. */
+   compact, one line per item. A Taken entry's source reference shares the
+   same compact naming tone beside its primary actions. */
 .follow-up-source strong {
+  font-weight: 600;
+}
+
+.follow-up-source-reference {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.follow-up-source-reference a {
   font-weight: 600;
 }
 

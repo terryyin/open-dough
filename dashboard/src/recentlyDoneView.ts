@@ -90,7 +90,8 @@ export function useRecentlyDone({
   noneKept,
   sessionsSettled,
   // A selected Done story this list must still place, even outside the
-  // Board's default recent window (retained ad hoc association).
+  // Board's default recent window (retained ad hoc association). An
+  // explicit follow-up source reveal may add another via the page range.
   includeIdentity,
 }: {
   readonly sourceId: string;
@@ -111,15 +112,22 @@ export function useRecentlyDone({
   const revision =
     done?.status === "catalogued" ? done.revision : work.revision;
   const recent = recentDoneRecords(done, new Date());
+  const extras = [
+    ...new Set(
+      [includeIdentity, range.includedStory(sourceId)].filter(
+        (identity): identity is string => identity !== undefined,
+      ),
+    ),
+  ];
   const included =
-    includeIdentity === undefined ||
-    done?.status !== "catalogued" ||
-    recent.some((record) => record.identity === includeIdentity)
+    extras.length === 0 || done?.status !== "catalogued"
       ? recent
       : [
           ...recent,
           ...done.records.filter(
-            (record) => record.identity === includeIdentity,
+            (record) =>
+              extras.includes(record.identity) &&
+              !recent.some((each) => each.identity === record.identity),
           ),
         ];
   const listed = newestFirst(included, records ?? [], sourceId);

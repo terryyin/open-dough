@@ -26,9 +26,11 @@ published membership; successfully reopening it restores its active-card home.
 Every other confirmed open session appears once as a local session entry in
 Taken, after published Taken stories, newest launch first. This includes ad hoc
 sessions and sessions whose saved story is in neither active list, even when a
-matching done-story card is visible. The saved story reference, host-qualified
-identity, attribution, reports and native terminal owner remain intact. A story
-returning to an active list takes its open sessions back inside its card.
+matching done-story card is visible. An open story follow-up names its source
+and can reveal that card on demand ([Follow up](LAUNCH-FOLLOW-UP.md)). The
+saved story reference, host-qualified identity, attribution, reports and native
+terminal owner remain intact. A story returning to an active list takes its
+open sessions back inside its card.
 Adding, closing or reopening a local entry creates no published Take or completion.
 
 [Session entries](AGENT-LAUNCH-SESSION-ENTRIES.md) describes the shared compact

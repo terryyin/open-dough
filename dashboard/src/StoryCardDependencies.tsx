@@ -7,8 +7,8 @@ import type { PublishedWork } from "./publishedWork.ts";
 import { useDoneDetails } from "./doneDetails.ts";
 import type { WorkDependencies } from "./storyDependencies.ts";
 import type { SourceLink } from "./sourceLink.ts";
+import { StoryReferenceLink } from "./StoryReferenceLink.tsx";
 import "./story-dependencies.css";
-import { useStoryNavigation } from "./storyNavigation.tsx";
 
 function DependencyLink({
   link,
@@ -23,31 +23,6 @@ function DependencyLink({
     </span>
   ) : (
     <a href={link.url}>{children}</a>
-  );
-}
-
-function StoryReference({
-  sourceId,
-  identity,
-  title,
-  link,
-}: {
-  sourceId: string;
-  identity: string;
-  title: string;
-  link: SourceLink;
-}) {
-  const { follow } = useStoryNavigation();
-  return (
-    <a
-      href={link.kind === "unusable" ? "#" : link.url}
-      onClick={(event) => {
-        event.preventDefault();
-        follow({ project: sourceId, identity });
-      }}
-    >
-      {title}
-    </a>
   );
 }
 
@@ -113,7 +88,7 @@ function DependencyExplanation({
         {dependencies.entries.map((dependency) => (
           <li key={dependency.supplier.identity}>
             <p>
-              <StoryReference
+              <StoryReferenceLink
                 sourceId={work.source.id}
                 identity={dependency.supplier.identity}
                 title={titleOf(dependency.supplier.identity)}
