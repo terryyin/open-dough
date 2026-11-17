@@ -50,7 +50,7 @@ test("a Refresh counts a Claude Code row whose text holds line separators and th
       .forSession(sessionId)
       .withLaunchInput({ reference, command: "report" })
       .withAssistantHoldingLineSeparators()
-      .withAssistant()
+      .withCountedAssistant()
       .please(),
   );
 

@@ -156,8 +156,9 @@ export class ClaudeTranscriptBuilder {
   }
 
   /**
-   * Assistant row with usage. Uuid and message id default when omitted;
-   * timestamp defaults in-window; parentUuid to the previous uuid.
+   * Assistant row with usage. Uuid defaults when omitted; timestamp defaults
+   * in-window; parentUuid to the previous uuid. Message id stays omitted
+   * unless stated — a missing id is the unsupported-identity case.
    * @param {ClaudeAssistantOptions} [options]
    */
   withAssistant(options = {}) {
@@ -166,7 +167,6 @@ export class ClaudeTranscriptBuilder {
     /** @type {Record<string, unknown>} */
     const message = { ...(options.message ?? {}) };
     if (options.messageId !== undefined) message.id = options.messageId;
-    else if (message.id === undefined) message.id = `msg-${uuid}`;
     if (options.model !== undefined) message.model = options.model;
     if (options.usage !== undefined) message.usage = options.usage;
     if (options.content !== undefined) message.content = options.content;
@@ -190,14 +190,31 @@ export class ClaudeTranscriptBuilder {
   }
 
   /**
-   * Assistant row whose text embeds raw U+2028 and U+2029 inside one JSONL
-   * row. Other assistant fields follow `withAssistant` defaults.
+   * Countable assistant row whose text embeds raw U+2028 and U+2029 inside
+   * one JSONL row. Supplies a message id when the case omits one.
    * @param {ClaudeAssistantOptions} [options]
    */
   withAssistantHoldingLineSeparators(options = {}) {
+    const uuid = options.uuid ?? `assistant-${this.#rows.length + 1}`;
     return this.withAssistant({
       ...options,
+      uuid,
+      messageId: options.messageId ?? `msg-${uuid}`,
       content: [{ type: "text", text: "first\u2028second\u2029third" }],
+    });
+  }
+
+  /**
+   * Countable assistant response after earlier rows. Supplies a message id
+   * when the case omits one.
+   * @param {ClaudeAssistantOptions} [options]
+   */
+  withCountedAssistant(options = {}) {
+    const uuid = options.uuid ?? `assistant-${this.#rows.length + 1}`;
+    return this.withAssistant({
+      ...options,
+      uuid,
+      messageId: options.messageId ?? `msg-${uuid}`,
     });
   }
 

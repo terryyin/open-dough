@@ -42,7 +42,7 @@ test("counts a Claude Code row whose text holds line separators and the rows cli
       .forSession(sessionId)
       .withLaunchInput({ reference, command: "report" })
       .withAssistantHoldingLineSeparators()
-      .withAssistant()
+      .withCountedAssistant()
       .please(),
   );
 
