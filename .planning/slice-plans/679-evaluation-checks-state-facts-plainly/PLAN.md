@@ -118,7 +118,7 @@ after, passes when reverted.
 
 ### 7. The evaluation guides state the entry, data and vocabulary rules
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a maintainer adding a check reads, in
 `Distribution/evaluation/README.md` and `native-family-layers.md`, the five

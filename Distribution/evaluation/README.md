@@ -43,6 +43,49 @@ condition](../tests/local-test-resources.md#machine-sleep-on-macos) and shared
 full-suite admission. The focused command has the same silence, failure,
 deadline, named-file and reporting contracts as the [shared runner](../tests/README.md#runner).
 
+## Write an evaluation check
+
+Apply these rules when adding or changing a controlled shell check:
+
+- Enter at the family command with a substitute host first on `PATH`, or at
+  the named layer contract: an assessor applied to `observations.txt` through
+  `native_assessor_counterexamples` (see [rejected cases](native-family-layers.md#rejected-cases)).
+- Do not source a private `src/` helper to call its functions or read its
+  globals. For a new supervision check, run the context command with a
+  substitute host rather than sourcing `native-run-supervise.sh`.
+- Keep data and configuration in the script that owns them: catalog entries,
+  case lists, routing tables and input lists have one home. Prove the consuming
+  rule with data the check controls. For example, give the catalog command two
+  local cases and prove `--where` filters by trait; do not list shipped case names.
+- State each expected fact in one line through the shared expectation
+  vocabulary below. An existing one-line test may stay when the line itself
+  gives sufficient failure evidence.
+- Keep distinct behaviors as distinct cases. Put data-only variants of one
+  behavior in a row table.
+
+Source [the test-only vocabulary](tests/native-harness/support/native-check-expectations.sh).
+`native_check_workspace` allocates scratch that cleans up at exit;
+`native_check_own_process` registers a process the check must clean up;
+`native_check_run` runs an entry with substitute hosts and captures
+`native_check_status`, stdout and stderr. Each expectation takes the fact name first:
+`native_check_expect_status`, `native_check_expect_field`,
+`native_check_expect_line`, `native_check_expect_absent`,
+`native_check_expect_value` and `native_check_expect_process`.
+See [argument forms and failure behavior](native-family-layers.md#expectation-vocabulary).
+
+[The timeout check](tests/native-harness/native-run-timeout.sh) is the worked
+example: it runs the context command with a hung substitute host, then states
+status `124`, `execution-status: timeout` and the absent `adopter` directory as
+one fact each. A failed expectation names its fact and prints expected/actual
+values and the evidence it read; passing expectations print nothing.
+
+These checks prove the command or named layer's behavior on controlled inputs.
+They leave native agent behavior and host qualification to explicit native
+acceptance; neither a passing check nor the worked example certifies a host.
+Other families adopt the vocabulary when next changed. Existing lower-level
+regression checks keep their coverage until an equivalent entry-level check
+exists; their helper calls are not a pattern for new checks.
+
 ## Maintainer guides
 
 | Guide | Purpose |
