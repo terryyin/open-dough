@@ -49,6 +49,7 @@ managed_files+=(
   dough-execute-plan/references/overdue-delegated-verification.md
   dough-execute-plan/references/oversized-slice.md
   dough-execute-plan/references/preserve-published-history.md
+  dough-execute-plan/references/proof-evidence.md
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/retire-owned-watches.md

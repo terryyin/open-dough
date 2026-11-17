@@ -79,8 +79,9 @@ Give the agent:
   [replanning permission](execution-decisions.md#choose-replanning-permission),
   the remaining time and literal `run` form of the
   [slice clock](oversized-slice.md#track-active-time), any proof deadline and
-  [how to wait for proof](wait-for-proof.md), workflow precedence, and literal
-  focused commands with the runtime wrapper, each run through that `run` form. Carry the
+  [how to wait for proof](wait-for-proof.md), workflow precedence, the
+  [proof evidence contract](proof-evidence.md), and literal focused commands
+  with the runtime wrapper, each run through that `run` form. Carry the
   [failure policy](failure-policy.md) and this project's additions by link or verbatim, not as a weaker paraphrase such as "fix or
   report"; pass a known failure's attribution as diagnosis evidence, separate
   from the repair responsibility that policy assigns. For a diagnosis in

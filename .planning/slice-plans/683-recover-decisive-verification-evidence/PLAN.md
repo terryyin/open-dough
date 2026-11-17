@@ -124,7 +124,7 @@ slice running, `run` still writes the record.
 
 ### 2. Guidance keeps proof evidence where cleanup cannot reach it
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `Distribution/tests/skills/dough-execute-plan/proof-evidence.test.mjs`
 (guidance structure) and `read-budget.test.mjs`.
 
@@ -189,37 +189,13 @@ moves. Completion markers stay verbatim.
   `pendingCi: unobserved`.
 - Applicable authoring constraints: ADR 0003 (source edits remain Proposed until
   release), ADR 0006 (one shared rule owner and execution-project perspective).
+- Slice 1 accepted on the execution branch at
+  `126391de866d4a3a40e0303c3098df318946ae33`, suffix base
+  `ace536b5eae3e657eb676afb40bb4f2af0b0461d`; observer reused and attached.
 
 ## Accepted execution evidence
 
-### Slice 1
-
-- Clock paused at 6.1 active minutes, no overrun. Freshness unchanged at
-  `5e13c6e73068d0794e74fb6372cf6f9b0cf5b72f`; incoming changes do not affect
-  the named sibling responsibilities or this slice's behavior.
-- Inspected `slice-clock-run.test.mjs` and `executionWorktree` setup: actual
-  CLI/child handshake observes the launch record; large failing output,
-  dirty launch followed by a commit, signal and spawn failure observe retained
-  identity and terminal status. `runThroughClock` writes completion before the
-  exit file. P01–P10 match their original trigger and result.
-- Passing proof, with empty log and exit 0, from the execution checkout:
-  `node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /Users/terryyin/git/open-dough/.git/worktrees/recover-decisive-verification-evidence-after-lar/open-dough/evidence/slice-1-clock-surface.log --exit-file /Users/terryyin/git/open-dough/.git/worktrees/recover-decisive-verification-evidence-after-lar/open-dough/evidence/slice-1-clock-surface.exit -- env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`.
-- The strengthened launch-snapshot case passed through the same command with
-  `slice-1-snapshot.log`, `slice-1-snapshot.exit` and the sole selection
-  `Distribution/tests/skills/dough-execute-plan/slice-clock-run.test.mjs`.
-- Consumer discovery remains in the checkout's Git evidence directory as
-  `slice-1-consumer-trace.md`; G1's corrected record gives every consumer a
-  disposition. Inspected the real CLI, exit-file recovery and fixture uses;
-  current clock-surface proof covers those purposes. Other matches are
-  planning metadata, different review-run concepts or release-owned installed
-  copies. No product behavior gap was found.
-- Independent refactor `/root/refactor_1` returned `## REFACTOR COMPLETE`:
-  timing/report comparison now observes its own fields; actual log and exit
-  assertions remain. Only that file's proof was invalidated and rerun, passing
-  via the same clock form selecting `slice-clock.test.mjs`, with
-  `slice-1-refactor-timing.log` and `.exit` (0). Its annotated
-  `slice-1-refactor-consumer-trace.md` supersedes the old timing-shape account;
-  production and P01–P10 locations remain unchanged. No follow-ups.
+See [accepted proof and refactor dispositions](execution-evidence.md).
 
 ## Story obligations
 
