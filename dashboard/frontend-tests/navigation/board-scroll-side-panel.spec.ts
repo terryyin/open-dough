@@ -9,16 +9,19 @@ import {
   maximizeSidePanel,
   restoreSidePanel,
 } from "../../tests/sidePanelFrame.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { reviewChanges } from "../../tests/storyCardControls.ts";
 import { reviewRegion } from "../../tests/support/reviewControls.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
-  frontendStoryLaunch,
+  expect,
+  takenStoryCard,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import {
   takenBacklogMarkdown,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
 import { installFrontendStoryReview } from "../../tests/support/frontendStoryReview.ts";
+import { keepTakenReviewLaunch } from "../../tests/support/frontendStoryReviewOpen.ts";
 import { largeBacklog } from "../../tests/accessibleBoard.ts";
 import { boardScroll, scrollYOf, showColumn } from "../../tests/boardPage.ts";
 import {
@@ -29,30 +32,12 @@ import {
 } from "../../tests/boardReading.ts";
 import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import { box, closeSidePanelToBoard } from "../../tests/pageLayout.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
 import { dashboardBrowserArgs } from "../../tests/support/browserArgs.ts";
 import {
   dragDivider,
   expectCoveringFillsWindow,
   panelDivider,
 } from "../../tests/sidePanelWidthPage.ts";
-
-// The Taken story's kept story-branch launch, which offers Review changes.
-function keepTakenLaunch(services: FrontendServiceState): void {
-  services.answerMachine(
-    makeMe.aMachineAnswer
-      .observingOpen(
-        frontendStoryLaunch("executing", takenStory)
-          .onStoryBranch({
-            workspace: "/tmp/board-scroll-fe",
-            branch: "claude/taken",
-          })
-          .inClaudeSession({ sessionId: "board-scroll-fe", shortId: "brdsc01" })
-          .please(),
-      )
-      .please(),
-  );
-}
 
 // Exercise the browser's actual scrollbar; Playwright normally hides it.
 test.use({
@@ -72,7 +57,7 @@ async function openLongBoard(
   viewport: typeof wideWindow,
 ) {
   await page.setViewportSize(viewport);
-  keepTakenLaunch(services);
+  keepTakenReviewLaunch(services);
   await installFrontendStoryReview(page);
   Object.assign(services, {
     backlog:
@@ -80,10 +65,7 @@ async function openLongBoard(
   });
   await page.goto("/");
   await expectSettledPage(page);
-  return parts(page).taken.getByRole("article", {
-    name: takenStory,
-    exact: true,
-  });
+  return takenStoryCard(page);
 }
 
 async function reviewStory(page: Page, card: Locator) {

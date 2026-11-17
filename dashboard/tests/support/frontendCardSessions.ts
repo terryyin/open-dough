@@ -5,8 +5,13 @@
 // card entry's Open terminal opens.
 
 import type { Page } from "@playwright/test";
-import { expect } from "./frontendApp.ts";
-import { frontendStoryLaunch } from "./frontendServiceState.ts";
+import { expect, takenStoryCard } from "./frontendApp.ts";
+import {
+  frontendStoryLaunch,
+  type FrontendServiceState,
+} from "./frontendServiceState.ts";
+import { installAttachedTerminalSubstitute } from "./frontendTerminalSubstitute.ts";
+import { takenStory } from "../launchJourney.ts";
 import { storyCardSessionOf } from "../dashboardPage.ts";
 import { backlogLaunchers } from "../launchStoryCardPage.ts";
 import type { Workflow } from "../storyColumnsPage.ts";
@@ -53,4 +58,34 @@ export async function openCardSessionTerminal(
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText("attached");
   return panel;
+}
+
+// The Taken story's working Execution session, attachable through the
+// attached-terminal substitute (its `sizes` and `attaches`). `openTerminal`
+// opens it from the Taken card and waits until it shows its attachment.
+export async function takenStoryWorkingSession(
+  page: Page,
+  services: FrontendServiceState,
+) {
+  services.answerMachine(
+    makeMe.aMachineAnswer
+      .observing(
+        cardSession(
+          "Execution",
+          takenStory,
+          makeMe.aSessionState.loaded("working").please(),
+        ),
+      )
+      .please(),
+  );
+  const terminal = await installAttachedTerminalSubstitute(page);
+  const panel = terminalPanel(page);
+  const openTerminal = async () => {
+    await openTerminalControl(
+      storyCardSessionOf(takenStoryCard(page), "Execution"),
+    ).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
+    return panel;
+  };
+  return { ...terminal, openTerminal };
 }

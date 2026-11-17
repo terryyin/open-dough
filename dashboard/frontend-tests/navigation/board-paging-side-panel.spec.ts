@@ -11,15 +11,8 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import { cardSession } from "../../tests/support/frontendCardSessions.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { parts, storyCardSessionOf } from "../../tests/dashboardPage.ts";
-import {
-  openTerminalControl,
-  terminalPanel,
-  terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
+import { takenStoryWorkingSession } from "../../tests/support/frontendCardSessions.ts";
+import { terminalPanel } from "../../tests/terminalScreenPage.ts";
 import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 import { box } from "../../tests/pageLayout.ts";
 import {
@@ -33,7 +26,6 @@ import {
   type ColumnName,
 } from "../../tests/boardPage.ts";
 import { scrollsOnItsOwn } from "../../tests/sidePanelWidthPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // A 108rem window, which the side panel leaves a 54rem Board.
 test.use({ viewport: { width: 108 * rem, height: 900 } });
@@ -42,25 +34,12 @@ test("beside the side panel a 54rem Board shows two columns and pages between th
   page,
   frontendServices,
 }) => {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        cardSession(
-          "Execution",
-          takenStory,
-          makeMe.aSessionState.loaded("working").please(),
-        ),
-      )
-      .please(),
+  const { openTerminal } = await takenStoryWorkingSession(
+    page,
+    frontendServices,
   );
-  await installAttachedTerminalSubstitute(page);
   await openFrontendTakenBacklog(page);
   const terminal = terminalPanel(page);
-  const takenCard = parts(page).taken.getByRole("article", {
-    name: takenStory,
-  });
-  const openTerminal = () =>
-    openTerminalControl(storyCardSessionOf(takenCard, "Execution")).click();
   // The view, beside a terminal whose screen scrolls on its own; the panel
   // header title truncates by design with disclosure (./SidePanelTitle.tsx).
   const expectShown = (
@@ -79,7 +58,6 @@ test("beside the side panel a 54rem Board shows two columns and pages between th
 
   await test.step("the side panel opens, leaving 54rem: Backlog and Taken fill the Board, and the right control names Recently done", async () => {
     await openTerminal();
-    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     expect((await box(page.locator(".page-column"))).width).toBeCloseTo(
       54 * rem,
       0,
@@ -102,7 +80,6 @@ test("beside the side panel a 54rem Board shows two columns and pages between th
 
   await test.step("the side panel reopens: Taken and Recently done show again", async () => {
     await openTerminal();
-    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
   });
 });

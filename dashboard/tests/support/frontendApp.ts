@@ -13,7 +13,8 @@ import {
 } from "./frontendServiceState.ts";
 import { installFrontendServiceSubstitutes } from "./frontendServiceSubstitutes.ts";
 import { endHeldAnswers } from "./frontendSubstituteAnswers.ts";
-import { expectSettledPage } from "../dashboardPage.ts";
+import { expectSettledPage, parts } from "../dashboardPage.ts";
+import { takenStory } from "../launchJourney.ts";
 import { takenBacklogStories } from "../launchStoryCardPage.ts";
 
 export { expect };
@@ -53,3 +54,7 @@ export async function openFrontendTakenBacklog(page: Page): Promise<void> {
   await page.goto("/");
   await expectSettledPage(page, takenBacklogStories);
 }
+
+// The substitute project's Taken story card.
+export const takenStoryCard = (page: Page) =>
+  parts(page).taken.getByRole("article", { name: takenStory, exact: true });

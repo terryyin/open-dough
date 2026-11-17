@@ -300,7 +300,7 @@ The cross-project Close reading is owned by
 
 ### 4. Preserve side-panel width
 Type: Behavior
-Status: planned
+Status: done
 Proof: `side-panel-width`, `side-panel-width-kept`, `side-panel-width-covering`
 (655 lines): divider-chosen width kept across reload within current room,
 imposed widths and Maximize never replacing it, half-room starts for refused or
@@ -309,6 +309,62 @@ Drop the emptied `side-*` pattern from shard 3 and list every shard.
 
 Behavior: a chosen panel width → reload, narrower room or Maximize → the
 recovered or imposed width as today, in Frontend cases.
+
+Assertion map (interim → Frontend, `dashboard/frontend-tests/navigation/`;
+the panel is the Taken story's review through the new
+`tests/support/frontendSidePanelWidth.ts`, or its Execution session's
+terminal through `installAttachedTerminalSubstitute`):
+- `side-panel-width.spec.ts` "mouse and keyboard choose one bounded width
+  that the terminal and a review share" → split by subject:
+  `side-panel-width.spec.ts` "mouse and keyboard choose one bounded width for
+  an attached terminal that fits it" (half-room start and divider attributes,
+  drag widening with more columns reported through the substitute's `sizes`
+  in place of the synthetic `claude`'s printed size, both bounds, cancelled
+  drag, keys, terminal-held keys, Maximize/Restore, close/reopen, covering
+  beside the sidebar at 900 px and recovery, read once the sidebar closes
+  since the kept 864 px exceeds the room beside it). The attach counts are
+  `expect(attaches()).toBe(1)` after attach, drag, bounds, keys and
+  Maximize/Restore, and `toBe(2)` after close/reopen and recovery, through
+  the substitute's new `attaches` connection count
+  (`tests/support/frontendTerminalSubstitute.ts`). The review half →
+  `side-panel-width-review.spec.ts` "a review resized and maximized keeps its
+  reads, and the open sidebar narrows the room without losing the chosen
+  width": a two-file snapshot (`takenStoryWithReview`'s `snapshot` option),
+  `Modified unstaged.txt` selected with diff `+more wide`, still
+  `aria-pressed="true"` with that diff while maximized and after Restore, and
+  no extra review read.
+- `side-panel-width-kept.spec.ts` → same file: "a chosen width is recovered
+  after a reload, and neither less room nor Maximize replaces it" (the
+  interim first and second cases merged: reload recovery; a fresh
+  `browser.newContext()` with its own substitutes keeps nothing and starts at
+  half; smaller window fits; narrow window covers; wide window and reload
+  while maximized recover); "an unusable kept width starts at half the room
+  …"; "where the browser refuses storage …" (own `addInitScript`).
+- `side-panel-width-covering.spec.ts` → same file and both names, the
+  narrow-window loop's review side there, and its terminal side in "at a
+  narrow window the terminal covers the page with no Maximize, still
+  attached, and a wide window recovers the chosen width".
+- All three interim files deleted; unused `storyAWithSession` and
+  `printedSize` removed from `tests/sidePanelWidthPage.ts`; shard `2:` in
+  `ci.yml` drops `side-*`; `tests/README.md` points at the Frontend homes.
+  Shards list 1/3: 3 tests, 2/3: 30, 3/3: 32, each exit 0;
+  `node --test Distribution/tests/support/ci-browser-groups.test.mjs` 2/2.
+
+Scratch break (Frontend boundary): `dashboard/src/sidePanelWidth.ts`
+`preferredWidthKey` made `` `open-dough.sidePanel.width.${Math.random()}` ``
+(no width kept under the read key) → `env -u NO_COLOR -u FORCE_COLOR -u
+GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -i npx playwright test --config
+frontend.playwright.config.ts
+frontend-tests/navigation/side-panel-width-kept.spec.ts --grep "chosen width
+is recovered" --reporter=list --workers=1` exit 1, failed at
+`expect(await keptWidth(page)).toBe(String(chosen))` (Expected "920",
+Received null); restored by editing back (`git diff dashboard/src` empty);
+`frontend-tests/navigation/` with the page object's Frontend consumers
+(`sessions/final-report-touch-divider`, `agent-terminal-touch-select`) then
+passed 50/50 with `--workers=2`; typecheck exit 0. After the gap closure,
+`frontend-tests/navigation/` with every Frontend consumer of
+`installAttachedTerminalSubstitute` and of `sidePanelWidthPage.ts` passed
+86/86 with `--workers=2`; typecheck exit 0.
 
 ### 5. Preserve the Development and Intent frame
 Type: Behavior
