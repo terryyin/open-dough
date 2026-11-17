@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 561. Removed numbers are never reused.
+- Highest allocated local number: 562. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -590,3 +590,21 @@ correction found no product defect.
   - Evidence: plan 667 slice 2 Proof (“keyboard on a narrow reduced-motion viewport with a selected story and open Side panel kept”); implementer `4940154d-d8f9-4f75-8c74-da8d09fd06de` first return (5 frontend cases at 1280 only; P3 “Met with gap”); coordinator acceptance resume naming missing narrow keyboard; corrected return added 390×844 keyboard case without covering panel and kept 1280 panel case (6 passed). Slice 2 delivered at `1b59dccfe86cef48963b6441ccd4ebadbc80d418`; learning retained in plan Learnings.
   - Observed effect: one acceptance return on the same uncommitted slice before delivery; active time remained about 14 of 15 minutes after correction; no product-behavior change beyond adding the missing narrow observation.
   - Inference: possible kinship to ODF-314 (plan-owned observation missing until acceptance returned it), qualified because the return already named unfinished/gap status and the aria-hidden constraint. Split narrow keyboard from covering-panel preservation on first return when co-observation is impossible.
+
+## DD-562 — Replay value is reconsidered only after reconstructing the paid-run setup
+
+A planned full historical redo was prepared before its marginal value for a
+two-sentence clarification was assessed. Terry then asked whether another long
+run would benefit this change and accepted keeping the reviewed clarification
+with agent behavior explicitly unverified. This is a proof-cost/value decision,
+not evidence that native evaluation is generally unnecessary.
+
+### Occurrences
+
+- Execution: SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof (first implementation `c9b39e4b8300ec00a9cff1b95b659d44d8a22209`)
+  - Timestamp: unknown (2026-11-17, after redo preparation and before closure)
+  - Tool: Codex
+  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `c35afa491`)
+  - Evidence: `56856821c:.planning/slice-plans/675-tests-protect-their-own-behavior/redo-launch.md` retains clone, dependency/browser setup and exact-input conflict; the slice clock paused preparation at 8.2 active minutes. The existing `fbfaa116b:.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-metrics.md` recorded 104.49 minutes for the frozen Claude redo. Terry asked to evaluate whether another run would benefit this change, then accepted skipping it.
+  - Observed effect: scratch setup was built but no paid participant run occurred. The accepted proof became the six-example wording review and existing payload link check; improved agent behavior and effort savings remain unverified.
+  - Inference: deciding the marginal learning and acceptable cost before rebuilding a historical replay could avoid unused setup. The executor followed the then-required plan; no total saving or guidance-effect estimate is established. Distinct from DD-559’s CI-deadline feasibility issue.

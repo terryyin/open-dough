@@ -278,8 +278,8 @@ maintainer's decision.
 
 **Scope limits.** No Usage behavior, dashboard UI, native-run, guidance, paid-run
 or savings-measurement changes. This is the code-side follow-up;
-[SEED-393's test-focus story](SEED-393-test-quality-learning-from-effort-replays.md#tests-ignore-unrelated-launch-changes-without-losing-proof)
-owns guidance. No dependency on that story. Medium effort, medium confidence;
+[shared test-focus guidance](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#write-observable-cases)
+covers the same pattern. No dependency on that guidance change. Medium effort, medium confidence;
 representative host differences and retained proof bound the migration.
 
 **Key examples.**
