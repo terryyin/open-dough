@@ -28,7 +28,9 @@ export function holdAuthenticatedReadsOf(
 
 // Holds the page's authenticated reads whose query matches `which`. `release`
 // lets the held reads be answered; `fail` ends them as an unreachable
-// boundary. Either way, later reads pass.
+// boundary. Either way, later reads pass. Free `releases` in `test.afterEach`
+// so a case failing while reads are held reports promptly instead of waiting
+// out the test timeout in teardown.
 export async function holdAuthenticatedReadsWhere(
   page: Page,
   which: (params: URLSearchParams) => boolean,
