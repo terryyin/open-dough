@@ -2,6 +2,7 @@
 
 **Identity:** SEED-396#remove-redundant-evaluation-checks
 **Source:** [Evaluation checks that restate data or enter below the family entry are removed](../../seeds/SEED-396-evaluation-javascript-tests.md#remove-redundant-evaluation-checks)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -88,7 +89,7 @@ with Bash 5 first on PATH. Scratch changes were reverted before record writes.
 
 ### 1. Catalog expectations belong to the check's own input
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: two owned case descriptions share a host and differ by workflow →
 the real command lists both, intersects mixed-case filters correctly and fails
@@ -102,6 +103,14 @@ ignored-filter fault against the new owned catalog check: red under the
 fault, green restored. Raw case.md bytes are the input under test, not copied shipped configuration.
 Keep the CLI's actual source-time dependencies in the isolated test root, as
 observed above.
+
+Accepted: owned alpha/beta root; `bash scripts/test.sh` on the catalog,
+launch-command and counterexample-guard checks exits 0. Ignored-filter fault
+fails the combined-filter assertion; a suppressed trait-line fault fails the
+restored full-listing assertion (the refactor pass re-added that layout check,
+which the first rewrite had dropped). Removed: four shipped-name greps, the
+trait-name regex, two shipped-trait selection answers, the shipped no-match
+literal, and the launch-command test's `workflow=test refactoring` selection.
 
 ### 2. Case listing tests behavior without repeating its inventory
 Type: Behavior
