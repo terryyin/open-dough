@@ -33,10 +33,10 @@ Coverage finding as proof strengthening only; the retry timeout diagnosis.
 | 9 | Development must not acquire a preview build through an inherited fixture default; a development-only custom server does not request an unused preview app (Scope 2; Example 6) | slice 3 | observed: fresh session-alerts dev-only run: 0 app and 0 bundle trace entries; fresh agent-terminal-codex boundary run: 0 app requests, bundle once |
 | 10 | Keep shared inputs immutable (Scope 3) | slice 5 | |
 | 10.1 | Keep each case's writable origin, checkout, HOME, server and vendor answers private (Scope 3) | slice 5 | |
-| 11 | `intent-done-source-selection` runs first at load 30–50 in `test:dashboard:frontend` → its app build is outside the case budget (Scope 4; Example 3; Scope trailing) | slice 4 | |
-| 11.1 | The Done-source case keeps its frontend service-answer proof boundary rather than restoring the old Git arrangement (Scope 4) | slice 4 | |
-| 11.2 | Switching between its two Done publications keeps held comparison/locations reads from displaying the previous story's source (Example 3) | slice 4 | |
-| 11.3 | Real CLI Done selection remains in `intent-done-default-answer-selection` (Example 3) | slice 4 | |
+| 11 | `intent-done-source-selection` runs first at load 30–50 in `test:dashboard:frontend` → its app build is outside the case budget (Scope 4; Example 3; Scope trailing) | slice 5 |  |
+| 11.1 | The Done-source case keeps its frontend service-answer proof boundary rather than restoring the old Git arrangement (Scope 4) | slice 4 | observed: dashboard/backend-tests/runtime/test-preparation-frontend.spec.ts: fresh frontendGlobalSetup run traces only the app key (no server-bundle, no origin); frontend Done-source spec unchanged |
+| 11.2 | Switching between its two Done publications keeps held comparison/locations reads from displaying the previous story's source (Example 3) | slice 4 | observed: dashboard/frontend-tests/intent/intent-done-source-selection.spec.ts unedited, passes (2952 ms case, app built in worker dashboardAppReady) |
+| 11.3 | Real CLI Done selection remains in `intent-done-default-answer-selection` (Example 3) | slice 4 | observed: e2e/intent/intent-done-default-answer-selection.spec.ts unedited, passes |
 | 12 | `intent-ci-comparison-retry` (`e2e/intent/intent-ci-comparison-retry.spec.ts:30`) runs first at load 30–50 → complete failed-Baseline → Check again recovery → remembered answer on another check and reselection journey passes with wide margin at default timeout (Scope 4; Example 4; Current repair ¶3) | slice 5 | |
 | 12.1 | Its arrangement is reduced without dropping the behavior it proves; real completion, planning-only predecessor chain and later trunk remain valid proof inputs (Scope 4; Example 4) | slice 5 | |
 | 13 | Any other first case whose own arrangement still nears the budget once preparation is out gets its arrangement reduced without dropping the behavior it proves (Scope 4) | slice 5 | |

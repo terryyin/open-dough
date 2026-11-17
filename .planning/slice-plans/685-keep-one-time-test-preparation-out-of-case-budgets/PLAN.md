@@ -181,7 +181,7 @@ guards these spec-local profiles.
 
 ### 4. Frontend Done-source selection starts after its app is built
 Type: Behavior
-Status: planned
+Status: done
 Proof: app-only gate and the complete named held-read selection scenario.
 
 Behavior: frontendApp's first case starts → its app build is complete before
@@ -192,6 +192,12 @@ private and the frontend run requests neither a bundle nor an installed origin.
 Share the app acquisition with the existing preparation owner and declare its
 worker fixture in the common pool. Preserve the current frontend boundary,
 its independent assertions, and the real-CLI E2E selection owner.
+
+Accepted (2026-11-18, load 10–12): worker `dashboardAppReady` (app only)
+backs frontendApp; `runtime/test-preparation-frontend.spec.ts` asserts an
+app-only trace prepared before the first frontendApp step and went red without
+the dependency. Done-source case 2952 ms (was 4518 ms). Commitment 11's
+loaded first-case run moves to slice 5's loaded acceptance.
 
 ### 5. The complete CI comparison retry journey has private prepared history
 Type: Behavior

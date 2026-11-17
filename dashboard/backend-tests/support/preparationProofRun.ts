@@ -75,6 +75,14 @@ export function startPreparationProofRun(options: {
   });
   const trace = () => appendedFileRecords<Trace>(file("artifacts.jsonl"));
   const steps = () => appendedFileRecords<Step>(file("steps.jsonl"));
+  const completedAt = (key: string) =>
+    trace().find((entry) => entry.event === "complete" && entry.key === key)
+      ?.at;
+  const fixtureSteps = (name: string) =>
+    steps().filter(
+      (step): step is FixtureStep =>
+        step.event === "fixture" && step.title === `Fixture "${name}"`,
+    );
   return {
     result: run.result,
     stop: run.stop,
@@ -86,16 +94,19 @@ export function startPreparationProofRun(options: {
     },
     trace,
     // When the run artifact `key` completed preparing.
-    completedAt: (key: string) =>
-      trace().find((entry) => entry.event === "complete" && entry.key === key)
-        ?.at,
+    completedAt,
     steps,
     // Every case's `Fixture "<name>"` steps, in recorded order.
-    fixtureSteps: (name: string) =>
-      steps().filter(
-        (step): step is FixtureStep =>
-          step.event === "fixture" && step.title === `Fixture "${name}"`,
-      ),
+    fixtureSteps,
+    // The run artifact `key` completed before the first case's
+    // `Fixture "<name>"` step started, so that case waited for none of it.
+    expectPreparedBefore: (key: string, fixture: string) => {
+      const prepared = completedAt(key);
+      expect(prepared).toBeDefined();
+      expect(fixtureSteps(fixture)[0]?.start).toBeGreaterThanOrEqual(
+        prepared ?? Infinity,
+      );
+    },
     cases: () => appendedFileRecords<ReportedCase>(file("cases.jsonl")),
   };
 }
