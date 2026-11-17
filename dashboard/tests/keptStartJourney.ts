@@ -46,7 +46,8 @@ export const test = base.extend<StartOriginFixtures>({
     await use(origin);
     origin.cleanup();
   },
-  dashboard: async ({ github, origin }, use) => {
+  dashboard: async ({ dashboardServerInputsReady, github, origin }, use) => {
+    await Promise.resolve(dashboardServerInputsReady);
     serveOriginBaseCi(github, origin);
     const server = await startDashboardServer({
       mode: "preview",
