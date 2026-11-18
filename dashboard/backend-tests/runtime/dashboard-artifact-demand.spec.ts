@@ -24,7 +24,7 @@ const fixtures = path.join(
 );
 const setupOf = (file: string) =>
   path.join(repoRoot, "dashboard/tests/support", file);
-const setup = setupOf("integratedGlobalSetup.ts");
+const setup = setupOf("backendGlobalSetup.ts");
 
 type Trace = { event: string; key: string; directory?: string };
 type Consumer = { pid: number; directory?: string; error?: string };
@@ -50,7 +50,7 @@ function proveArtifact(
     readonly spec: string;
     readonly partial: string;
     readonly error: RegExp;
-    // The run's global setup; Dashboard Integrated UI Test's unless named.
+    // The run's global setup; Dashboard Backend Test's unless named.
     readonly setup?: string;
   },
   outcomes: readonly Outcome[],

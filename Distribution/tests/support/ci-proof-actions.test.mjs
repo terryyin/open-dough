@@ -96,12 +96,9 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       failed,
       declaredPart("distribution-tests", 2, failed).inputs,
     ),
-    // Each group's first shard records only its own selection.
+    // A reported browser shard records only its own selection.
     keepGroupPart(run, jobForRoot("e2e"), 1, [
       [`${cwd}/e2e/workflow.spec.ts`, "expected", [40]],
-    ]),
-    keepGroupPart(run, jobForRoot("dashboard/tests"), 1, [
-      [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [35]],
     ]),
     keepGroupPart(run, jobForRoot("dashboard/frontend-tests"), 1, [
       [`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20]],
@@ -123,18 +120,27 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       [0, "", ""],
       [0, "", ""],
       [0, "", ""],
-      [0, "", ""],
     ],
   );
   const summary = run.summary(stepInputs(summaryStep).expect);
   assert.deepEqual([summary.status, summary.stderr], [0, ""]);
+  const reportedBrowserCases = {
+    e2e: "1 passed, 0 failed, 0 other",
+    "dashboard/frontend-tests": "1 passed, 0 failed, 0 other",
+    "dashboard/backend-tests": "1 passed, 1 failed, 0 other",
+  };
+  const browserLines = Object.keys(declaredParts)
+    .filter((entry) => entry !== "Distribution")
+    .map((entry) => {
+      const reported = reportedBrowserCases[entry];
+      return reported
+        ? `${entry}: ${reported} test cases${missingTail(entry)}`
+        : `${entry}: 0 passed, 0 failed, 0 other test cases; ${missingFrom(1, declaredParts[entry])}`;
+    });
   assert.equal(
     summary.stdout,
     [
-      `e2e: 1 passed, 0 failed, 0 other test cases${missingTail("e2e")}`,
-      `dashboard/tests: 1 passed, 0 failed, 0 other test cases${missingTail("dashboard/tests")}`,
-      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases${missingTail("dashboard/frontend-tests")}`,
-      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases${missingTail("dashboard/backend-tests")}`,
+      ...browserLines,
       `Distribution: 0 passed, 0 failed, 0 other test cases; ${missingFrom(1, declaredParts.Distribution)}`,
       `Distribution: 2 passed, 1 failed, 0 other test files${missingTail("Distribution")}`,
       "",
@@ -158,7 +164,6 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
     ),
     [
       "e2e 40 ms: e2e/workflow.spec.ts 1 passed 0 failed",
-      "dashboard/tests 35 ms: dashboard/tests/browser.spec.ts 1 passed 0 failed",
       "dashboard/frontend-tests 20 ms: dashboard/frontend-tests/dom.spec.ts 1 passed 0 failed",
       "dashboard/backend-tests 65 ms: dashboard/backend-tests/problem.spec.ts 0 passed 1 failed",
       "dashboard/backend-tests 65 ms: dashboard/backend-tests/server.spec.ts 1 passed 0 failed",

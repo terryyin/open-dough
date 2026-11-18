@@ -85,14 +85,14 @@ source conditions.
 | 40 | `scripts/ci-container.sh` drops the integrated-group step. | slice 5 |  |
 | 41 | `groupRunnerExamples.ts` drops the integrated-group entry. | slice 5 |  |
 | 42 | `sourceNavigationJourney.ts` is removed. | slice 5 |  |
-| 43 | `ci-proof-actions` runs or loads a remaining group. | slice 4 |  |
-| 44 | `ci-proof-frontend-report` runs or loads a remaining group. | slice 4 |  |
+| 43 | `ci-proof-actions` runs or loads a remaining group. | slice 4 | observed: Distribution/tests/support/ci-proof-actions.test.mjs replays actual CI action fragments from E2E, Frontend, Backend, and Distribution and observes exact counts, timing and missing parts |
+| 44 | `ci-proof-frontend-report` runs or loads a remaining group. | slice 4 | observed: Distribution/tests/support/ci-proof-frontend-report.test.mjs runs actual summary and report shell blocks with E2E, Frontend, Backend; exact Markdown, excluding E2E/Backend files, and combined summary |
 | 45 | The `local-test-suite` checkout uses a remaining group. | slice 5 |  |
 | 46 | The applicable `local-test-suite` fixtures use a remaining group. | slice 5 |  |
 | 47 | The `local-test-suite` focused-runner tests use a remaining group. | slice 5 |  |
 | 48 | Backend `runner-ownership` uses a remaining group. | slice 5 |  |
-| 49 | Backend `start-origin-demand` uses a remaining group. | slice 4 |  |
-| 50 | Backend `dashboard-artifact-demand` uses a remaining group. | slice 4 |  |
+| 49 | Backend `start-origin-demand` uses a remaining group. | slice 4 | observed: dashboard/backend-tests/launches/start-origin-demand.spec.ts partial Codex layout: Backend setup, distinct launches, only Claude completes, both isolated layouts are cleaned |
+| 50 | Backend `dashboard-artifact-demand` uses a remaining group. | slice 4 | observed: dashboard/backend-tests/runtime/dashboard-artifact-demand.spec.ts Backend default setup: real app and server requests queue, one build, complete/fail/interrupt observations and teardown; focused run passes |
 | 51 | Backend `run-processes` uses a remaining group. | slice 5 |  |
 | 52 | `scripts/dashboard-repeat.sh` drops the group. | slice 6 |  |
 | 53 | Its test drops the live group reference. | slice 6 |  |

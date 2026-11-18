@@ -140,14 +140,14 @@ export function repository(t, project, observation, env = {}, args = []) {
 }
 
 // `config` is a group runner's controlled `controlled-<runner>.config.mts`,
-// Dashboard Integrated UI Test's unless named.
+// Dashboard Backend Test's unless named.
 export function dashboard(
   t,
   project,
   observation,
   args = [],
   env = {},
-  config = "controlled-integrated.config.mts",
+  config = "controlled-backend.config.mts",
 ) {
   return launch(
     t,

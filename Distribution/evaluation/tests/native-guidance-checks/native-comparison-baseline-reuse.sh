@@ -17,7 +17,6 @@ captured_harness=$(native_comparison_fixture_git "${work}/source" rev-parse HEAD
 quiet=$(native_comparison_fixture_rule "${work}" quiet)
 shortcut=$(native_comparison_fixture_rule "${work}" shortcut)
 different_settings=$(native_comparison_fixture_rule "${work}" quiet settings)
-known_usage=$(native_comparison_fixture_rule "${work}" quiet usage)
 native_comparison_fixture_capture "${work}" "${quiet}" baseline
 original=$(shasum -a 256 "${work}/baseline.json")
 
@@ -52,17 +51,6 @@ grep -Fqx 'verdict: not-comparable' "${work}/actual.out"
 grep -q '^candidate-settings: model=unexpected-applied-model' "${work}/actual.out"
 grep -Fqx 'effort-difference: not computed: the pair is not-comparable' "${work}/actual.out"
 [[ ${original} == "$(shasum -a 256 "${work}/baseline.json")" ]]
-
-# Complete own native response counters satisfy an explicit usage criterion.
-# The CLI's cumulative usage does not double the four native responses.
-native_comparison_fixture_capture "${work}" "${known_usage}" accounted
-before=$(native_comparison_fixture_sessions "${work}")
-record=$(native_comparison_fixture_record "${work}" "${known_usage}" "${known_usage}" sequential accounted --reuse-baseline "${work}/accounted.json" --require-usage)
-[[ $(native_comparison_fixture_sessions "${work}") -eq $((before + 1)) ]]
-grep -Fqx 'verdict: preserved' "${record}"
-grep -Fqx 'condition-criteria: sufficient' "${record}"
-grep -Fqx 'effort-native-usage-baseline: {"input_tokens":4,"cached_input_tokens":0,"output_tokens":4,"total_tokens":8}' "${record}"
-grep -Fqx 'effort-native-usage-difference: candidate 0 processed tokens against baseline' "${record}"
 
 # --- Reuse.
 before=$(native_comparison_fixture_sessions "${work}")

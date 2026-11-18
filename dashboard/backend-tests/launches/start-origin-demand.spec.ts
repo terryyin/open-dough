@@ -44,7 +44,7 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
       testDir: path.join(repoRoot, "dashboard/tests/fixtures/artifact-demand"),
       globalSetup: path.join(
         repoRoot,
-        "dashboard/tests/support/integratedGlobalSetup.ts",
+        "dashboard/tests/support/backendGlobalSetup.ts",
       ),
     },
     env: {
@@ -68,8 +68,6 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
       key: string;
       directory?: string;
     }>(readFileSync(trace, "utf8"));
-    // The run also prepares the story-columns history at its start; this case
-    // observes the installed origin layouts.
     const claude = startOriginArtifactKey("claude");
     const codex = startOriginArtifactKey("codex");
     const layouts = events.filter(({ key }) => key === claude || key === codex);

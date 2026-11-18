@@ -237,7 +237,7 @@ and consumer trace. Both consumers of the shared Frontend helper ran.
 
 ### 4. Stop group-neutral tests borrowing the interim group
 Type: Structure
-Status: planned
+Status: done
 Proof: the edited checks and the gate above stay green with the interim group
 still present; every group's `--list` is unchanged.
 
@@ -246,11 +246,47 @@ their default example take a remaining group instead.
 `backend-tests/runtime/dashboard-artifact-demand.spec.ts` (default setup) and
 `backend-tests/launches/start-origin-demand.spec.ts` load
 `backendGlobalSetup.ts`; `local-test-suite-fixtures.mjs` defaults to
-`controlled-backend.config.mts`; `ci-proof-actions.test.mjs` and
+`controlled-backend.config.mts`; `local-test-suite.test.mjs` uses the
+Backend split variable in its generic admission example;
+`ci-proof-actions.test.mjs` and
 `ci-proof-frontend-report.test.mjs` take their producer example and expected
 entries from a remaining root. Per-group rows stay until slice 5. If
 `dashboard-artifact-demand` cannot take the Backend setup without changing
 what it proves, stop and replan before slice 5.
+
+Focused implementation proof: the nested Backend global setup preserved the
+artifact demand, failure, interruption and teardown observations, as well as
+the partial-origin failure and surviving peer. Both Backend specs passed
+(nine cases). Five focused Distribution checks passed for the collector and
+report fragments, declaration, default controlled Backend admission and
+each explicit runner. Dashboard typecheck passed. The Git evidence
+directory's `slice-4-return.md` has the literal commands, observing
+assertions, terminal records and consumer trace. Comparing complete
+`--list --reporter=list` output to Take found exactly the three new
+Frontend cases and the one Backend case, with no removals, and the same
+three Integrated cases. `scripts/test-jobs.sh` selected the same 652 jobs.
+
+The first whole Distribution run completed 651 of 652 checks successfully.
+`native-comparison-baseline-reuse.sh` crossed its 180-second safety deadline
+after 182.2 seconds under the four-job scheduler. The focused run passed in
+74.0 seconds and a four-job trace showed steady progress across all 14 phases.
+The repair moved the exact usage-accounting assertions onto the existing
+fresh-payload → reuse check in `native-comparison-baseline-misses.sh`,
+eliminating two launches from the check that timed out. Both checks and
+their two neighboring checks passed in the repaired diagnostic batch.
+The 652-job selection, safety deadline and native comparison case basis
+were preserved. The Git evidence directory contains
+`slice-4-distribution-diagnosis.md` with exact commands and terminal results.
+
+Whole-suite gates passed with AC `caffeinate -s -i`, Homebrew Bash first,
+and default local scheduling. The one full Distribution repeat after the
+repair passed all 652 jobs; baseline-reuse passed in 155.8 seconds within
+the unchanged 180-second limit. The full `npm run test:dashboard:backend`
+selected 1,712 cases and ended with both runner and strict status passed.
+Run records: `slice-4-distribution-repaired-whole.log.run.json`,
+`slice-4-backend-whole.log.run.json` and `slice-4-backend-whole-proof.json`
+in the Git evidence directory. Independent refactor reviews preserved the
+fixture and diagnostic changes without edits.
 
 ### 5. Retire Dashboard Integrated UI Test
 Type: Behavior
@@ -341,4 +377,10 @@ carries its preparation.
 - Slice 2 was accepted and observed on the story branch at
   `1766009f3c366cdf132e97a1ebd2ac8938fa71b6`. Independent review required
   no refactor edits. Selective formatting, full lint and the commit hook passed.
+- Slice 3 was accepted and observed on the story branch at
+  `ffd18e9d6e41965bd7f295860ff5c48189a417a0`. Independent review required
+  no refactor edits. Selective formatting, full lint and the commit hook passed.
+  Branch CI run 44274438077 (slice 2) had no failed jobs and was cancelled
+  by the same-branch push for slice 3, which queued run 44275701148 before
+  the cancellation completed. The workflow cancels superseded pushes.
 - Reuse existing planning authority. No separate overrun replan was selected.

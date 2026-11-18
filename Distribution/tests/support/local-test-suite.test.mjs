@@ -212,7 +212,7 @@ test("independent repositories and copied non-Git runner fixtures remain usable"
 });
 
 test("only an unfiltered dashboard run takes admission, including explicit worker and reporter settings", () => {
-  const split = "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT";
+  const split = "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT";
   for (const args of [
     [],
     ["test"],
