@@ -6,7 +6,9 @@
 // the case answers it, and nothing is ever launched. An acceptance's answer
 // may be lost on the way to the page; the page's waits for an accepted
 // attempt's change stay waiting until the case tells them it changed, and one
-// begun after the case told it is answered at once. A host's
+// begun after the case told it is answered at once, as is one for an attempt
+// the machine's read (./frontendServiceSubstitutes.ts) observes settled or
+// changed since the wait's `seen`, as the boundary answers. A host's
 // choices answer what is arranged for the project and host when the read is
 // answered, or no choices as the default substitutes do; a held read waits
 // until released, and an unreadable one answers as the boundary does.
@@ -31,6 +33,7 @@ import {
   type AnswerHold,
   type HeldAnswer,
 } from "./frontendSubstituteAnswers.ts";
+import { frontendServicesOf } from "./frontendServiceSubstitutes.ts";
 
 // What a host's model choices read answers: its choices, or that they could
 // not be read.
@@ -129,7 +132,7 @@ export async function installFrontendLaunchBoundary(
   await page.route(
     (url) => url.pathname === agentChangedEndpoint,
     async (route) => {
-      if (!changedUntold) {
+      if (!changedUntold && !changedSinceSeen(page, route.request().url())) {
         changeWaits.push(route);
         return;
       }
@@ -190,4 +193,21 @@ export async function installFrontendLaunchBoundary(
       for (const wait of waits) await fulfillJson(wait, { changed: true });
     },
   };
+}
+
+// Whether the machine's read now observes the waited attempt settled, or
+// changed since the observation counting the wait's `seen` changes; an
+// attempt it does not observe is left to the case.
+function changedSinceSeen(page: Page, wait: string): boolean {
+  const named = new URL(wait).searchParams;
+  const observed = frontendServicesOf(page)?.machine?.attempts.find(
+    (attempt) => attempt.id === named.get("attempt"),
+  );
+  if (observed === undefined) return false;
+  const seen = named.get("seen");
+  return (
+    !observed.running ||
+    observed.outcome !== undefined ||
+    (seen !== null && Number(seen) !== observed.changes)
+  );
 }
