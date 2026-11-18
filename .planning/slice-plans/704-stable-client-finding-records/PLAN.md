@@ -34,11 +34,13 @@ During shared collection, follow the existing reconciliation and adoption steps.
 ### 2. A recreated client log remembers its earlier allocations
 
 Type: Behavior
-Status: planned
+Status: done
 
 When an enabled retrospective has a supported write and the canonical log is missing, use relevant project history, including known former paths and retained high-water metadata, to establish whether this is first use or recreation. Match against the recovered findings by concrete evidence. For a new finding, mint the next DD number above the greatest reservation in current or recovered DD and adopted ODF headings, former local allocations and retained high-water metadata. Preserve the recovered floor across later writes even when the first returning finding has a lower number. An identity or allocation gap that prevents a safe write leaves the log absent and identifies the missing evidence.
 
 **Proof.** Walk [process-finding recording](../../../Distribution/src/skills/dough-execution-retrospective/references/process-finding-recording.md) from an eligible write in disposable Git histories. In first-use history observe DD-001. Use the moved-and-deleted fixture above for two independent starts. A different finding gets DD-008. A verified recurrence of ODF-003 keeps its identity and DD-002 alias, then a different finding still gets DD-008. Inspect the resulting file and high-water information after each write. In the depth-one deleted state with no other recovery evidence, observe the specific gap and the still-absent file. Reopen the three Terry Talks revision-qualified references to distinguish the historical collisions. An ordinary existing-log reread still adds no row for an unchanged execution.
+
+**Accepted proof.** A fresh walker given only the changed recording guidance produced `DD-001` for first use. In the recreated fixture it produced `DD-008` with high-water 8. A recurrence of ODF-003 kept the `DD-002` alias, and the next new finding still got `DD-008`. The shallow clone gave no allocation, left the file absent and named the missing history. The existing-log reread left the file unchanged. The three Terry Talks `DD-001` entries are distinguishable at their revisions. Named follow-up from the walk and refactor: how a recreated log represents recovered content. Open questions are whether recovered headings are restored, where the revision citation sits, how to treat a recovered log's own `Recovery:` line, whether to add the partial-history note, and where `## Retention` goes.
 
 ## Current decisions and gates
 
