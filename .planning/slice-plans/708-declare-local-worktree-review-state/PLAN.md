@@ -201,6 +201,18 @@ topology, Trunk Mode authorship, completed-story, launch/session, Intent/CI
 comparison) stay with their stories. `addStoryWorktree` stays for
 `storyReviewTrunk.ts`/`storyReviewTrunkMode.ts`.
 
+## Execution complete
+
+Product advice: no change. The workspace and local-state facts
+(`withWorkspace` materialized as `.worktrees/<slug>`, `fetched: false`,
+`withLocalState`) are now the shared form remaining SEED-353 siblings can
+compose (retained landing and recovery, launch and session state) instead of
+adding helpers. Review found no correction: four specs and the guide sit at
+exactly 250 lines, so their next edit needs a cohesive split first; and
+`fetched: false` is honored only by start origins, as the guide states.
+Conclusions remain conditional on pending CI for 3e4d3bbd. Process review
+is deferred into wrap-up alongside the Intent Coverage check.
+
 ## Verification and execution gates
 
 Apply [AGENTS.md](../../../AGENTS.md#test-automation), installed MakeMe and
