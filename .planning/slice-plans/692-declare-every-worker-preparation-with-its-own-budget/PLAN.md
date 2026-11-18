@@ -138,12 +138,16 @@ Backend `runtime/test-preparation-boundary.spec.ts` custom-start case runs
 ### 5. Codex startup and resume read complete environment records
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Reuse `appendedFileRecords` in `codexEnvironments`. Preserve the
 command filter, record order, and absent-file and unterminated-tail behavior.
 Keep `daemonStarts`'s required-file behavior. Run the existing
 `agent-launch-codex-startup` and `agent-terminal-codex` specs that inspect
 the actual fake's app-server and resume environments.
+Accepted proof: `codexEnvironments` reads through `appendedFileRecords`;
+`daemonStarts` still requires its log. The startup and terminal Codex specs
+passed 8/8, including the saved-conversation reconnect and saved-context
+resume.
 
 ### 6. One cold origin run proves timing and isolation
 
