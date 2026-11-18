@@ -51,8 +51,8 @@ feature folder. Harness fixtures that several groups share stay in
 folder it had there and links the journey that still shows it on the page;
 a module that registers cases moves with them. Choose the feature whose
 behavior the test proves, irrespective of an older filename prefix. The
-browser suite's [feature groups](../tests/feature-groups.md) reuse the same
-domain vocabulary where it still names protected service behavior.
+browser suite's feature folders reuse the same domain vocabulary where it
+still names protected service behavior.
 
 | Folder | Responsibility |
 | --- | --- |

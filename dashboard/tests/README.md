@@ -23,7 +23,7 @@ across worktrees, worker settings, cleanup and machine sleep on macOS.
 
 A **browser journey** proves one representative, integrated user journey in
 the real page: an observable precondition, the user's trigger, and the state
-change it causes. Journeys live in [`../../e2e/`](../../e2e/README.md)'s [feature folders](feature-groups.md) and run under
+change it causes. Journeys live in [`../../e2e/`](../../e2e/README.md)'s feature folders and run under
 `dashboardTest.ts` or a fixture module built on it, each against its own
 built-preview server, which the `page` fixture opens. Specs left in this tree's
 feature folders are the interim **Dashboard Integrated UI Test** group
@@ -179,7 +179,7 @@ Use [MakeMe](../../Distribution/tests/README.md#test-data-architecture) for doma
 every browser test root. Keep dashboard harness fixtures in this tree.
 
 A **boundary test** goes in `../backend-tests/<feature>/<behavior>.spec.ts`
-under one [backend feature group](feature-groups.md#backend-feature-groups). It
+under one backend feature folder. It
 imports `test` from `../tests/dashboardTest.ts` with `test.use({ serverMode:
 "boundary" })`, or from `../tests/support/pageTest.ts` and starts
 `startDashboardServer({ mode: "boundary" })` (or `developmentBoundary`) itself;
@@ -189,7 +189,7 @@ asserts the answer, the file or command. Only
 no server still takes `test` from `pageTest.ts`, as lint requires.
 
 A **browser journey** goes in `../../e2e/<feature>/<journey>.spec.ts`, with exactly one
-[feature owner](feature-groups.md). It imports `test` from this tree's `dashboardTest.ts`
+feature owner. It imports `test` from this tree's `dashboardTest.ts`
 or its family fixture (`responsiveStart.ts`, `support/preparationPage.ts`,
 `support/voiceTest.ts`, `support/codexLaunch.ts`), takes `page`, `dashboard`
 and `github` (and `launchJourney` for the Taken backlog), opens with

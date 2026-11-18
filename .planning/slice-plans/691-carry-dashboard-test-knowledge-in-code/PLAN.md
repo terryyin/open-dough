@@ -194,7 +194,7 @@ dated decisions and run figures.
 
 ### 6. Remove the feature-group document
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in commands; `npm run lint`.
 
 Behavior: three guides link `feature-groups.md` → delete it → each sentence

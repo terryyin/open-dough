@@ -33,11 +33,10 @@ adds or replaces, such as a held answer, an injected fault or a second server.
 
 ## Placement
 
-A workflow goes in `<feature>/<workflow>.spec.ts` under the
-[feature folder](../dashboard/tests/feature-groups.md) whose behavior it
-proves; a module that registers its cases lives beside it. A check whose
-assertions are presentation, interaction or UI-recovery details that
-controlled answers can supply belongs in
+A workflow goes in `<feature>/<workflow>.spec.ts` under the feature folder
+whose behavior it proves; a module that registers its cases lives beside it.
+A check whose assertions are presentation, interaction or UI-recovery details
+that controlled answers can supply belongs in
 [Dashboard Frontend Test](../dashboard/frontend-tests/README.md); a server
 variant, failure or test-runtime contract at a stable boundary belongs in
 [Dashboard Backend Test](../dashboard/backend-tests/README.md). Specs still in
