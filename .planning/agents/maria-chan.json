@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maria-chan",
-  "email": "maria-chan@example.org",
-  "identity": "SEED-334#retire-integrated-ui-test-and-its-documents",
-  "mode": "story-branch",
-  "branch": "claude/move-story-destination-and-card-selection-checks",
-  "host": "claude"
-}

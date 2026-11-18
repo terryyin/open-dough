@@ -29,69 +29,28 @@ E2E comment its retrospective found; no product change, no other conversion.
 
 **Plan:** [Converted navigation proof correction](../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md).
 
-<a id="retire-integrated-ui-test-and-its-documents"></a>
+<a id="share-one-executing-agent-roster-arrangement"></a>
 
-### Move story destination and card selection checks out of Dashboard Integrated UI Test
+### Share one Frontend arrangement of an agent executing Open Dough's Taken story
 
-**Identity:** SEED-334#retire-integrated-ui-test-and-its-documents
+**Identity:** SEED-334#share-one-executing-agent-roster-arrangement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aa1b27646de4a5a7c766d4fc9764798ddfab4ee9b55b52538bbb2c5b422f3218","plan":"5961ee06ee103faea32c612b8f4e7a87c7129a3ca9c7ba0c46ffada07d5b32cf"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/694-share-one-executing-agent-roster-arrangement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"988812d5a796704445537efb7f1ff833788727cdd1cd77593445032e169bed83","plan":"1203256add27181caa88d95861d382066fb6d529f1153c0ca2adf639678445bd"}}
 ```
 
-**Goal:** A maintainer keeps the protection for arriving at a story from its
-URL and for selecting a story card in the **Dashboard Frontend Test** group,
-with controlled answers instead of a real dashboard server, so the interim
-group holds four fewer specs and only story-reference and source navigation
-remain before it can retire.
+**Goal:** A maintainer changes the Frontend arrangement of Open Dough with one
+agent executing its Taken story in one place, so the roster and story URL
+journeys cannot drift apart.
 
-**Scope:**
+**Scope:** Retrospective correction of
+SEED-334#retire-integrated-ui-test-and-its-documents (commit `c2f93725c`):
+`publishRosterStory` in `dashboard/tests/support/frontendStoryUrlDestination.ts`
+and `openRoster` in
+`dashboard/frontend-tests/stories/agent-roster-collection.spec.ts` publish the
+same revision through one shared arrangement, keeping each journey's agent
+name, optional settings file and every assertion. No product change.
 
-- Convert `notification-story-navigation`, `story-destination-repeat-cue`,
-  `story-card-selection` and `story-card-dependency-selection` (4 of the
-  remaining 11 navigation specs, 564 of 1,885 lines, 11 tests) with every
-  distinct assertion kept at its real boundary as
-  SEED-334#move-navigation-checks-and-retire-integrated-ui-test did: Frontend
-  homes under `dashboard/frontend-tests/navigation/`, a Backend or
-  representative E2E home only for a rule that needs the real server, and an
-  existing maintained case named where it already makes the same assertion.
-- The interim group stays runnable for its seven remaining specs, with its CI
-  shard declaration unchanged.
-
-Scope limits: the other seven specs, the group's retirement and the
-`dashboard/tests/` Markdown belong to the three stories below; no product
-behavior change, new group or tier, speed or shard target.
-
-**Key examples:**
-
-1. A cold `?project=doughnut&story=SEED-777#shared-story` URL arrives while
-   Doughnut's revision is held. The page does not scroll early or read Open
-   Dough; once answered, Doughnut's card holds the keyboard in view and the
-   route keeps the story. The Frontend case holds and releases that answer
-   itself.
-2. The story a URL names is absent, its project is unknown, or its read
-   fails. Each outcome reads differently, "Retry story destination" recovers
-   the failed one, and a project choice made meanwhile wins without a late
-   reveal.
-3. Asking again for the destination already selected, inspected and reviewed
-   (Back from Intent, Back from Settings) cues it again and keeps its
-   selection, detail and review heading.
-4. Clicking a card's empty area toggles its selection without opening detail;
-   Inspect, a disabled Start, a session entry and the Dependencies disclosure
-   with its explanation leave the selection alone.
-5. Where an interim assertion observed a synthetic host ("no launch, no
-   attach"), the Frontend case observes that the page sent no launch or
-   attach request.
-
-**Provenance:** First outcome of the resplit of this story's earlier scope
-("Move story navigation checks out and retire Dashboard Integrated UI Test
-with its documents", recoverable at
-`87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`), whose plan would have exceeded
-the slice limit. The rest continues in
-SEED-334#move-story-reference-checks,
-SEED-334#retire-emptied-integrated-ui-test-group and
-SEED-334#carry-dashboard-test-knowledge-in-code.
-
-**Plan:** [Story destination and card selection conversion](../slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md)
+**Plan:** [Shared executing-agent roster arrangement](../slice-plans/694-share-one-executing-agent-roster-arrangement/PLAN.md)
 
 <a id="move-story-reference-checks"></a>
 
@@ -117,8 +76,8 @@ SEED-334#carry-dashboard-test-knowledge-in-code.
   spec.
 - **Inputs.** Key example 1 of the earlier scope at
   `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`; the dependency arrangement
-  SEED-334#retire-integrated-ui-test-and-its-documents adds for
-  `story-card-dependency-selection`.
+  `putFrontendDependencies` (`dashboard/tests/support/frontendStoryDependencies.ts`),
+  which publishes dependency answers for Frontend cases.
 - **Boundary.** No product behavior change, retirement or Markdown removal.
 - **Safe stopping point.** Active references alone, or Done references alone,
   is complete on its own.

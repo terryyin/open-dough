@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 572. Removed numbers are never reused.
+- Highest allocated local number: 573. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -901,3 +901,20 @@ burner load instead.
   - Evidence: obligation G1 in plan 685 ("Natural load stayed at 4.8–6.6"); background natural-load wait; developer: "Please proceed without waiting. Figure out other ways to increase the load." 36 nice-5 burners then gave load 32–47 and all three first cases passed with 21–27 s left. Intent Coverage later caught the removed preparation dependency by timeout in the nested proof at load 5–8.
   - Observed effect: completion was held with all slices otherwise delivered; the decisive protection came from the load-independent nested proof, not the loaded timing.
   - Inference: a load-independent discriminating proof plus optional loaded timing may serve such stories without an uncontrollable gate.
+
+## DD-573 — A refactor pass removes support as dead after searching only the dashboard test folders <a id="dd-573"></a>
+
+A post-change refactor pass judged support unused from a search limited to
+`dashboard/tests` and `dashboard/frontend-tests`, removed it, then found
+callers under `e2e/` and `dashboard/backend-tests/` and restored the files.
+
+### Occurrences
+
+- Execution: SEED-334#retire-integrated-ui-test-and-its-documents (plan 688; first implementation `c2f93725c`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 3 refactor pass)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `0f5a7964c`)
+  - Evidence: slice 3 refactor return: it removed `storyWorktree` and un-exported `openStoryReview` after the deletion of `dashboard/tests/navigation/story-destination-repeat-cue.spec.ts`, then restored both with `git show HEAD:<path> > <path>` once e2e and Backend callers turned up; `git status` clean afterwards. Slice 4's brief then required a whole-checkout grep, and its return complied.
+  - Observed effect: no change reached a commit; one wasted edit-and-restore round inside the pass.
+  - Inference: the dead-code check names no search scope; a test-folder search looks sufficient for test support but is not. Overlaps DD-568 (agents replace the scripted trace with their own search). Cost not measured.
