@@ -1,6 +1,7 @@
 # Tell compared Usage tools apart and drop stale read errors
 
 **Source:** [correction story](../../seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-383#tell-compared-usage-tools-apart
 
 ## Provenance
@@ -89,7 +90,7 @@ Sizes at that revision: `system-settings-usage-compare.spec.ts` 216 lines,
 ### 1. Show only current read failures and isolate selections
 
 Type: Behavior
-Status: planned
+Status: done
 
 A failure alert belongs to the read that produced it: a later successful read
 of the same selection (returning to it, or a day round trip) shows no alert,
@@ -105,6 +106,13 @@ selection's points. The compare spec's failed-Refresh and new-selection error
 case stays green. Run all `system-settings-usage*` frontend cases.
 
 Sizing: 10 active minutes, high confidence.
+
+Delivered: `useUsageAnswers.ts` clears `problem` when each read starts; new
+`system-settings-usage-selection.spec.ts` covers tool and day round trips and a
+late old-selection answer. Proof: all 28 `system-settings-usage*` frontend cases
+pass. Learning: `page.waitForResponse` never resolves for a read the page
+aborted; wait on the shared `answerHeld` hold's `delivered` instead. The quiet
+reporter prints nothing on success; add `json` beside it to count cases.
 
 ### 2. Tell each tool's marks apart by shape
 
