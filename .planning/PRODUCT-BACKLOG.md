@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Run Dashboard Frontend Test at Doughnut's speed](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-dashboard-frontend-checks-at-doughnut-speed
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable
 - [Pilot which new retrospective findings to record](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings
