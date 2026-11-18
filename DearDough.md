@@ -800,6 +800,7 @@ subject test stayed green.
   - Evidence: plan 681 Learnings (“Structure-test regexes that pin wrap points are brittle under file-size reflow”); refactor agent `8afc6ef3-96e3-4595-b23b-40b4171e0f52` (“Fixing wrap breaks so the structure-test regexes still match”; file 253→250 lines); subject test re-run exit 0 after reflow.
   - Observed effect: extra refactor edits and a subject-test rerun to keep wrap-sensitive assertions matching; no product wording change beyond layout.
   - Inference: structure tests that pin soft-wrap boundaries couple proof to physical line breaks the file-size check is allowed to change; contiguous asserted phrases (or updating the test with the reflow) avoids that churn. Total token/time cost unmeasured.
+  - **Response:** Observable cases now refuse a test whose assertion is the guidance file's own wording. The inference's repair — contiguous phrases, or updating the regex after reflow — keeps that test and is withdrawn. This finding's harm ends when those guidance-structure tests are removed.
 
 ## ODF-443 — Refactor return reports an oversized module as within the 250-line limit <a id="odf-443"></a>
 
