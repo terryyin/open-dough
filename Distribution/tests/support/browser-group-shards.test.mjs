@@ -174,19 +174,21 @@ test("overlapping E2E patterns fail every shard and the unsplit run before any t
   );
 });
 
-test("an integrated pattern matching no spec fails the configuration naming it", () => {
+test("a frontend pattern matching no spec fails the configuration naming it", () => {
   // Every spec moved out of a folder shard 1 names, its pattern left behind.
   const edit = (text) => {
-    const start = text.indexOf("\n  dashboard-integrated:");
-    assert.ok(start >= 0, "the integrated group is not in the workflow");
+    const start = text.indexOf("\n  dashboard-frontend:");
+    assert.ok(start >= 0, "the frontend group is not in the workflow");
     const edited =
       text.slice(0, start) +
-      text.slice(start).replace(/^( +1: )/m, "$1dashboard/tests/retired/** ");
+      text
+        .slice(start)
+        .replace(/^( +1: )/m, "$1dashboard/frontend-tests/retired/** ");
     assert.notEqual(edited, text, "the scratch edit did not apply");
     return edited;
   };
   withScratchGroup(
-    "dashboard-integrated",
+    "dashboard-frontend",
     { edit },
     ({ testDir, selection, shards }) => {
       // The share naming the pattern, the last share, and the whole group.
@@ -194,7 +196,7 @@ test("an integrated pattern matching no spec fails the configuration naming it",
         assert.throws(
           () => dashboardTestMatch(testDir, split, selection),
           new Error(
-            `FAIL: ${workflowFile}: pattern dashboard/tests/retired/** of share 1 matches no check.`,
+            `FAIL: ${workflowFile}: pattern dashboard/frontend-tests/retired/** of share 1 matches no check.`,
           ),
         );
     },

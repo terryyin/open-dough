@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Declare every worker preparation with its own budget](seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget) — SEED-340#declare-every-worker-preparation-with-its-own-budget ([plan](slice-plans/692-declare-every-worker-preparation-with-its-own-budget/PLAN.md))
-- [Run the Dashboard Integrated group as one CI job](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#run-the-integrated-group-as-one-ci-job) — SEED-382#run-the-integrated-group-as-one-ci-job
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart ([plan](slice-plans/662-tell-compared-usage-tools-apart/PLAN.md))
 
 ## Backlog list
