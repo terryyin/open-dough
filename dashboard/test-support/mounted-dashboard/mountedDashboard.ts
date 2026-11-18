@@ -1,7 +1,7 @@
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { onTestFinished, vi } from "vitest";
-import { commands } from "vitest/browser";
+import { commands, page } from "vitest/browser";
 import { App } from "../../src/App.tsx";
 import "../../src/dashboardStyles.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
@@ -11,6 +11,17 @@ import {
   endHeldAnswers,
 } from "./mountedServices.ts";
 
+async function showViewport({
+  width,
+  height,
+}: {
+  width: number;
+  height: number;
+}) {
+  if (window.innerWidth !== width || window.innerHeight !== height)
+    await page.viewport(width, height);
+}
+
 export async function mountAnsweredDashboard(options: {
   answers: MountedServiceAnswers;
   boardPositionKey: string;
@@ -18,10 +29,14 @@ export async function mountAnsweredDashboard(options: {
   arrange?: () => void;
   restore?: () => Promise<void> | void;
   style?: string;
+  // The viewport the case mounts at; the original returns at cleanup.
+  viewport?: { width: number; height: number };
 }) {
   const earlier = answersStillHeld();
   if (earlier.length > 0)
     throw new Error(`Answers held by an earlier case: ${earlier.join(", ")}`);
+  const original = { width: window.innerWidth, height: window.innerHeight };
+  if (options.viewport) await showViewport(options.viewport);
   const storage = Object.entries<string>(localStorage);
   localStorage.clear();
   localStorage.setItem(options.boardPositionKey, "0");
@@ -55,6 +70,7 @@ export async function mountAnsweredDashboard(options: {
       for (const [key, value] of storage) localStorage.setItem(key, value);
       history.replaceState(historyState, "", url);
       await options.restore?.();
+      await showViewport(original);
     }
     if (services.unanswered.length > 0)
       throw new Error(
@@ -69,6 +85,7 @@ export async function mountAnsweredDashboard(options: {
   return {
     container,
     launchAcceptances: services.launchAcceptances,
+    notes: services.notes,
     answersStillHeld,
     boardRows: () => container.querySelectorAll(".board-row").length,
   };

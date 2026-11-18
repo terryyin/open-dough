@@ -8,28 +8,27 @@ import {
 import { box, expectOnOneLine } from "../partArrangement.ts";
 import { diffNoteActions } from "./storyNotesDiffActions.ts";
 import { storyNotesControl } from "../storyCardControls.ts";
-const exactly = (text: string) =>
-  new RegExp(`^${text.replace(/[.*+?^$|()[\]{}\\]/g, "\\$&")}$`);
+import { storyNotesNames as n } from "../storyNotesNames.ts";
 export function storyNotesPage(page: Page) {
-  const dialog = page.getByRole("dialog", { name: "Story notes", exact: true });
-  const field = dialog.getByRole("textbox", { name: "Note text", exact: true });
+  const dialog = page.getByRole("dialog", { name: n.dialog, exact: true });
+  const field = dialog.getByRole("textbox", { name: n.field, exact: true });
   const announcement = dialog.locator(".launch-dialog-body > [role='status']");
   const entries = dialog
-    .getByRole("list", { name: "Saved notes" })
+    .getByRole("list", { name: n.savedNotes })
     .getByRole("listitem");
   // A saved entry by its note text, wherever the list places it.
   const entry = (text: string) =>
     entries.filter({
-      has: page.locator(".story-note-text", { hasText: exactly(text) }),
+      has: page.locator(".story-note-text", { hasText: n.exactly(text) }),
     });
   const saveButton = dialog.getByRole("button", {
-    name: "Save note",
+    name: n.save,
     exact: true,
   });
   const add = async () => {
-    await dialog.getByRole("button", { name: "Add note", exact: true }).click();
+    await dialog.getByRole("button", { name: n.add, exact: true }).click();
     await expect(
-      dialog.getByRole("heading", { name: "Add note", exact: true }),
+      dialog.getByRole("heading", { name: n.add, exact: true }),
     ).toBeVisible();
   };
   return {
@@ -37,19 +36,15 @@ export function storyNotesPage(page: Page) {
     expectComposerAlone: async () => {
       await expect(field).toBeVisible();
       await expect(
-        dialog.getByRole("list", { name: "Saved notes" }),
+        dialog.getByRole("list", { name: n.savedNotes }),
       ).toHaveCount(0);
     },
     expectDiffSaved: async () => {
       await expect(dialog).toHaveCount(0);
       await expect(
-        page
-          .locator('[aria-live="polite"]')
-          .filter({ hasText: "Note saved to this story." }),
+        page.locator('[aria-live="polite"]').filter({ hasText: n.saved }),
       ).toHaveCount(1);
-      await expect(
-        page.getByText("Note saved to this story.", { exact: true }),
-      ).toHaveCount(1);
+      await expect(page.getByText(n.saved, { exact: true })).toHaveCount(1);
     },
     expectNoteWithoutLine: async (text: string) => {
       await expect(entry(text)).not.toContainText(/Line [0-9]+/);
@@ -80,13 +75,13 @@ export function storyNotesPage(page: Page) {
     edit: async (index: number, using: "mouse" | "keyboard" = "mouse") => {
       const control = entries
         .nth(index)
-        .getByRole("button", { name: "Edit", exact: true });
+        .getByRole("button", { name: n.edit, exact: true });
       if (using === "keyboard") {
         await control.focus();
         await control.press("Enter");
       } else await control.click();
       await expect(
-        dialog.getByRole("heading", { name: "Edit note", exact: true }),
+        dialog.getByRole("heading", { name: n.editHeading, exact: true }),
       ).toBeVisible();
     },
     expectComposerFocused: async () => {
@@ -95,21 +90,21 @@ export function storyNotesPage(page: Page) {
     delete: async (index: number) => {
       await entries
         .nth(index)
-        .getByRole("button", { name: "Delete", exact: true })
+        .getByRole("button", { name: n.delete, exact: true })
         .click();
       await expect(
-        entries.nth(index).getByRole("group", { name: "Delete this note?" }),
+        entries.nth(index).getByRole("group", { name: n.deleteQuestion }),
       ).toBeVisible();
     },
     expectDeleteCancelFocused: async (index: number) => {
       await expect(
-        entries.nth(index).getByRole("button", { name: "Cancel", exact: true }),
+        entries.nth(index).getByRole("button", { name: n.cancel, exact: true }),
       ).toBeFocused();
     },
     answerDelete: async (index: number, answer: "Delete" | "Cancel") => {
       await entries
         .nth(index)
-        .getByRole("group", { name: "Delete this note?" })
+        .getByRole("group", { name: n.deleteQuestion })
         .getByRole("button", { name: answer, exact: true })
         .click();
     },
@@ -152,10 +147,10 @@ export function storyNotesPage(page: Page) {
       await saveButton.click();
     },
     cancel: async () => {
-      await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+      await dialog.getByRole("button", { name: n.cancel, exact: true }).click();
     },
     close: async () => {
-      await dialog.getByRole("button", { name: "Close", exact: true }).click();
+      await dialog.getByRole("button", { name: n.close, exact: true }).click();
       await expect(dialog).toHaveCount(0);
     },
     expectNotes: async (texts: readonly string[]) => {
@@ -172,10 +167,10 @@ export function storyNotesPage(page: Page) {
     },
     expectEntryActions: async (index: number) => {
       await expect(
-        entries.nth(index).getByRole("button", { name: "Edit", exact: true }),
+        entries.nth(index).getByRole("button", { name: n.edit, exact: true }),
       ).toBeVisible();
       await expect(
-        entries.nth(index).getByRole("button", { name: "Delete", exact: true }),
+        entries.nth(index).getByRole("button", { name: n.delete, exact: true }),
       ).toBeVisible();
     },
     expectWaiting: async (card: Locator, waiting: number) => {
@@ -196,10 +191,8 @@ export function storyNotesPage(page: Page) {
       await expect(dialog.getByText(identity, { exact: true })).toBeVisible();
     },
     expectSaved: async () => {
-      await expect(announcement).toHaveText("Note saved to this story.");
-      await expect(
-        page.getByText("Note saved to this story.", { exact: true }),
-      ).toHaveCount(1);
+      await expect(announcement).toHaveText(n.saved);
+      await expect(page.getByText(n.saved, { exact: true })).toHaveCount(1);
       await expect(field).toHaveCount(0);
       await expect(dialog.getByRole("alert")).toHaveCount(0);
     },
@@ -212,7 +205,7 @@ export function storyNotesPage(page: Page) {
       await expect(
         card.getByRole("status").filter({ hasText: message }),
       ).toBeVisible();
-      await expect(card.getByRole("button", { name: /^Notes \(/ })).toHaveCount(
+      await expect(card.getByRole("button", { name: n.counted })).toHaveCount(
         0,
       );
     },
@@ -226,7 +219,7 @@ export function storyNotesPage(page: Page) {
     expectCount: async (card: Locator, count: number) => {
       await expect(
         card.getByRole("button", {
-          name: count ? `Notes (${count})` : "Notes",
+          name: n.count(count),
           exact: true,
         }),
       ).toBeVisible();

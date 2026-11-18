@@ -13,6 +13,10 @@ import { storyNotesEndpoint } from "../../src/storyNote.ts";
 import { terminalThemeEndpoint } from "../../src/terminalThemeSetting.ts";
 import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
 import { answerAuthenticatedRead } from "../support/frontendAuthenticatedReadSubstitute.ts";
+import {
+  numberedNewStoryNotes,
+  StoryNotesRule,
+} from "../support/frontendStoryNotesRule.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
 
 function reply(body: unknown, status = 200) {
@@ -51,6 +55,9 @@ export function answerMountedServices(
   const launchAcceptances: unknown[] = [];
   const unanswered: string[] = [];
   const browserFetch = window.fetch.bind(window);
+  const notes = new StoryNotesRule<never>(numberedNewStoryNotes());
+  for (const [project, byStory] of Object.entries(state.notes ?? {}))
+    notes.setNotes(project, byStory);
   const answers = new Map<string, unknown>([
     [projectListEndpoint, state.projects],
     [agentLaunchEndpoint, state.machine],
@@ -58,7 +65,6 @@ export function answerMountedServices(
     [ciFollowUpEndpoint, { cards: [] }],
     [completedStoryAssociationEndpoint, { kind: "unassociated" }],
     [launchHostOptionsEndpoint, { models: [] }],
-    [storyNotesEndpoint, { kind: "notes", notes: {} }],
     [storyReviewStateEndpoint, { reviewed: [] }],
     [terminalThemeEndpoint, { theme: "default" }],
   ]);
@@ -76,13 +82,25 @@ export function answerMountedServices(
         );
         return reply(body, status);
       }
+      if (held.includes(url.pathname)) return holdAnswer(url.pathname);
+      const requestBody = (): unknown =>
+        typeof options?.body === "string"
+          ? JSON.parse(options.body)
+          : undefined;
+      if (url.pathname === storyNotesEndpoint) {
+        const answer = notes.answer({
+          project: url.searchParams.get("id") ?? "",
+          method: options?.method ?? "GET",
+          body: requestBody(),
+        });
+        if (answer.kind === "unreachable")
+          throw new TypeError("Failed to fetch");
+        return reply(answer.body, answer.status);
+      }
       if (url.pathname === agentAcceptEndpoint) {
-        launchAcceptances.push(
-          typeof options?.body === "string" ? JSON.parse(options.body) : input,
-        );
+        launchAcceptances.push(requestBody() ?? input);
         return reply({ error: "No launch expected" }, 405);
       }
-      if (held.includes(url.pathname)) return holdAnswer(url.pathname);
       if (answers.has(url.pathname)) return reply(answers.get(url.pathname));
       if (
         url.pathname.startsWith("/__") &&
@@ -94,5 +112,5 @@ export function answerMountedServices(
       return browserFetch(input, options);
     },
   );
-  return { launchAcceptances, unanswered };
+  return { launchAcceptances, unanswered, notes };
 }

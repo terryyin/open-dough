@@ -44,13 +44,6 @@ export async function mountPhoneBoard(
     reducedMotion?: "reduce";
   } = {},
 ) {
-  const original = viewport();
-  if (
-    original.width !== portrait.width ||
-    original.height !== portrait.height
-  ) {
-    await page.viewport(portrait.width, portrait.height);
-  }
   const publication = await commands.phoneBoardPublication(
     options.backlog === "long",
   );
@@ -59,6 +52,7 @@ export async function mountPhoneBoard(
   const dashboard = await mountAnsweredDashboard({
     answers: publication.answers,
     boardPositionKey: publication.boardPositionKey,
+    viewport: portrait,
     style: "#root .board-row { transition-duration: 0s !important; }",
     arrange: () => {
       const browserMedia = window.matchMedia.bind(window);
@@ -72,15 +66,7 @@ export async function mountPhoneBoard(
       });
       measure = controlResize();
     },
-    restore: async () => {
-      media?.mockRestore();
-      if (
-        viewport().width !== original.width ||
-        viewport().height !== original.height
-      ) {
-        await page.viewport(original.width, original.height);
-      }
-    },
+    restore: () => media?.mockRestore(),
   });
   if (dashboard.boardRows() === 0)
     throw new Error(

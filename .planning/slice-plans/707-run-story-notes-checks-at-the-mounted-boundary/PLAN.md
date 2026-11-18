@@ -72,7 +72,7 @@ Proof: the built-app notes consumers pass unchanged: `npm run test:dashboard:fro
 ### 3. Read unreadable notes on the mounted board
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: notes are unreadable for a project → the board opens and a later project read arrives → every card kind says notes are unreadable in place of a count, and Story notes says so.
 
@@ -147,6 +147,8 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 
 **Slice 1:** the board already sent `/__project-configuration/ci-follow-up` unanswered on the mounted board; the old stub threw and the app swallowed it. The mounted support now fails any unanswered `/__` request by name, so later mounted families must answer every service their board reads.
 
-**Slice 2:** the notes rule is the class `StoryNotesRule` in `dashboard/test-support/support/frontendStoryNotesRule.ts`, because a function over passed-in state failed `no-param-reassign`. Slice 3's mounted answers construct one with their own new-note identity callback and call `answer`, `setNotes` and `markUnreadable`; the server and app already use `answerStoryNotes` and `StoryNotesAnswer`.
+**Slice 2:** the notes rule is the class `StoryNotesRule` in `dashboard/test-support/support/frontendStoryNotesRule.ts`, because a function over passed-in state failed `no-param-reassign`. Both substitutes construct it with the shared `numberedNewStoryNotes()` identity factory and call `answer`, `setNotes` and `markUnreadable`; the server and app already use `answerStoryNotes` and `StoryNotesAnswer`.
+
+**Slice 3:** the mounted notes board is `mountStoryNotesBoard()` in `dashboard/test-support/mounted-dashboard/mountedStoryNotesPage.ts`; it returns the arranged cards and project, the notes service rule, the mounted Story notes page and `runFor`. `commands.storyNotesBoard()` builds the arrangement in Node. Control names live once in `dashboard/test-support/storyNotesNames.ts`. The Vitest viewport is a 390×844 phone, so the notes board mounts at 1280×720 through the mount's `viewport` option and needs no `showColumn`. A held answer is checked before any service answers. `locator.fill` typed a draft under the fake timers.
 
 ## Story obligations

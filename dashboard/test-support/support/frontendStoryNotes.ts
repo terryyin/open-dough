@@ -9,17 +9,13 @@ import {
   holdAnswer,
   type AnswerHold,
 } from "./frontendSubstituteAnswers.ts";
-import { StoryNotesRule } from "./frontendStoryNotesRule.ts";
+import {
+  numberedNewStoryNotes,
+  StoryNotesRule,
+} from "./frontendStoryNotesRule.ts";
 
 export async function installFrontendStoryNotes(page: Page) {
-  let serial = 0;
-  const rule = new StoryNotesRule<AnswerHold>(() => {
-    serial += 1;
-    return {
-      id: `34810000-0000-4000-8000-${String(serial).padStart(12, "0")}`,
-      savedAt: new Date(Date.UTC(2026, 10, 17, 1, 0, serial)).toISOString(),
-    };
-  });
+  const rule = new StoryNotesRule<AnswerHold>(numberedNewStoryNotes());
   await page.route(
     (url) => url.pathname === storyNotesEndpoint,
     async (route) => {

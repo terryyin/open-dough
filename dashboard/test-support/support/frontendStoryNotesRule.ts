@@ -12,6 +12,18 @@ import {
 // A new note's identity and save time, assigned by the caller.
 export type NewStoryNote = () => Pick<StoryNote, "id" | "savedAt">;
 
+// Numbered identities, saved one second apart, for the substitutes' new notes.
+export function numberedNewStoryNotes(): NewStoryNote {
+  let serial = 0;
+  return () => {
+    serial += 1;
+    return {
+      id: `34810000-0000-4000-8000-${String(serial).padStart(12, "0")}`,
+      savedAt: new Date(Date.UTC(2026, 10, 17, 1, 0, serial)).toISOString(),
+    };
+  };
+}
+
 export type StoryNotesRuleAnswer<Hold> =
   | { kind: "unreachable" }
   | { kind: "answer"; status: number; body: unknown; hold?: Hold | undefined };
