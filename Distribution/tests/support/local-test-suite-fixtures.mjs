@@ -54,7 +54,6 @@ export function launch(t, cwd, args, extra = {}, command = process.execPath) {
     "TEST_WORKER_INDEX",
     "FORCE_COLOR",
     "NO_COLOR",
-    "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT",
     "OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT",
     "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT",
     "OPEN_DOUGH_E2E_SPLIT",

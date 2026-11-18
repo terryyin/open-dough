@@ -1,5 +1,4 @@
 // Each runner owning one group owns its selection, settings and output:
-// Dashboard Integrated UI Test (../../integrated.playwright.config.ts),
 // Dashboard Frontend Test (../../frontend.playwright.config.ts), Dashboard
 // Backend Test (../../backend.playwright.config.ts) and E2E Test
 // (../../../e2e/playwright.config.ts), started through npm or as a direct

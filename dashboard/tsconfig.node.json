@@ -10,7 +10,6 @@
   "exclude": ["tests/comparison-mount"],
   "include": [
     "vite.config.mts",
-    "integrated.playwright.config.ts",
     "frontend.playwright.config.ts",
     "backend.playwright.config.ts",
     "server",

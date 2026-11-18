@@ -20,8 +20,8 @@ const framework = pathToFileURL(
 
 // The runner tooling a controlled suite runs, copied from this repository:
 // what `copy_runner` copies, the wait and reporter helpers, the dashboard
-// suite selection and run preparation, and the Dashboard Integrated UI Test,
-// Dashboard Frontend Test, Dashboard Backend Test and E2E Test Playwright
+// suite selection and run preparation, and the Dashboard Frontend Test,
+// Dashboard Backend Test and E2E Test Playwright
 // configurations importing this repository's framework. Read once per process.
 let runnerLayer;
 export function suiteRunnerLayer() {
@@ -67,9 +67,6 @@ export function suiteRunnerLayer() {
       files: {
         ...runner.files,
         ...helpers.files,
-        "dashboard/integrated.playwright.config.mts": withFramework(
-          "dashboard/integrated.playwright.config.ts",
-        ),
         "dashboard/frontend.playwright.config.mts": withFramework(
           "dashboard/frontend.playwright.config.ts",
         ),
@@ -117,18 +114,14 @@ exit "\${PROBE_EXIT:-0}"
         ...files,
         ".github/workflows/ci.yml": [
           "jobs:\n  distribution-tests:\n    strategy:\n      matrix:\n        share: [1]\n",
-          ...[
-            "dashboard-integrated",
-            "dashboard-frontend",
-            "dashboard-backend",
-            "e2e",
-          ].map((job) => `  ${job}:\n    with:\n      shards: "[1]"\n`),
+          ...["dashboard-frontend", "dashboard-backend", "e2e"].map(
+            (job) => `  ${job}:\n    with:\n      shards: "[1]"\n`,
+          ),
         ].join(""),
         "nested/pass.sh":
           '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
         ...Object.fromEntries(
           [
-            ["integrated", "./integrated.playwright.config.mts"],
             ["frontend", "./frontend.playwright.config.mts"],
             ["backend", "./backend.playwright.config.mts"],
             ["e2e", "../e2e/playwright.config.mts"],

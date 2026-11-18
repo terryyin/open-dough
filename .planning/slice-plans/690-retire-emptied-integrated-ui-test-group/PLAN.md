@@ -294,8 +294,13 @@ Status: planned
 Proof: Key examples 3 and 4.
 `find dashboard/tests -name '*.spec.ts'` prints nothing;
 `npm run test:dashboard:integrated` reports a missing script; each remaining
-group's `npx playwright test --config <config> --list` equals its listing
-before slice 1 plus the new source-navigation cases; the gate above; branch
+group's `npx playwright test --config <config> --list --reporter=list`
+preserves the same registrations plus the new source-navigation cases.
+Backend also loses exactly the two registrations whose input is the retired
+runner: its independent runner-ownership and teardown-sweep rows. Compare
+configured project, spec path and title, since removal can shift line
+numbers. Distribution job names remain identical; its focused-runner
+matrix loses the two cases for the retired config. Run the gate above; branch
 CI green with `ci-proof` naming `e2e`, `dashboard/frontend-tests`,
 `dashboard/backend-tests` and `Distribution`.
 
@@ -315,6 +320,27 @@ entry; `integratedGlobalSetup.ts`; the `dashboard-integrated` job, its
 `local-test-suite-checkout.mjs` and `local-test-suite-fixtures.mjs` (its
 controlled `ci.yml` and environment list included); the group's case in
 `local-test-suite-focused-runners.test.mjs`.
+
+The destructive-outcome check is compatible: slice 6 exercises tools'
+rejection of the retired runner and updates live guidance, so its outcomes
+require the runner to be absent. The previous two Backend registrations for
+the Integrated runner are not maintained runner behavior. Keeping either
+would still load the removed setup or config. Proof compares their exact
+removal and confirms the equivalent three maintained runner cases stay.
+
+Focused proof passed in the intended checkout: 10 Backend, 11 Frontend
+and 21 scoped Distribution jobs, plus dashboard typecheck. The retired
+spec root is empty, npm rejects the command, and the declaration probe
+sees the four exact current Intent paths and four CI producers. The
+historical settings blob still names Dashboard Integrated UI Test; the
+maintained historical-location, no-dead-link, removed-comparison and
+non-numeric-history cases all passed. Git evidence `slice-5-return.md`
+links the exact commands, assertions, terminal results and consumer trace.
+The complete before/after listing shows E2E 797 unchanged, Frontend 692
+plus three, Backend 1,711 plus one and minus the two retired wrappers, and
+the Distribution's 652 scheduled files unchanged. The branch can publish
+with the slice still planned to acquire the hosted observation. Mark it
+done after the four local whole-suite gates and the hosted collector result.
 
 ### 6. Name three browser groups in tooling and guidance
 Type: Behavior
@@ -383,4 +409,7 @@ carries its preparation.
   Branch CI run 44274438077 (slice 2) had no failed jobs and was cancelled
   by the same-branch push for slice 3, which queued run 44275701148 before
   the cancellation completed. The workflow cancels superseded pushes.
+- Slice 4 was accepted and observed on the story branch at
+  `070510e565baab6e30070eca79cc77d79dd9ce8e`. Selective formatting, full
+  lint and the commit hook passed.
 - Reuse existing planning authority. No separate overrun replan was selected.

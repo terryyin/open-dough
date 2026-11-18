@@ -73,27 +73,27 @@ source conditions.
 | 28 | The agent read keeps its existing Dashboard Backend Test owner. | slice 1 | observed: authenticated-read-listed-records.spec.ts a later revision with unchanged profiles asks GitHub for no profile content, profile bytes and changed requests |
 | 29 | The done directory read keeps its existing Dashboard Backend Test owner. | slice 1 | observed: authenticated-read-listed-records.spec.ts several done records are read from GitHub at once and a later revision asks GitHub only for the record whose blob changed, catalog, exact calls and records |
 | 30 | The settings read keeps its existing Dashboard Backend Test owner. | slice 1 | observed: authenticated-read-listed-records.spec.ts a later revision with unchanged profiles asks GitHub for no profile content, settings bytes at the revision |
-| 31 | `dashboard/tests/` contains no `*.spec.ts`, including the original `dashboard/tests/navigation/source-navigation.spec.ts`. | slice 5 |  |
-| 32 | `npm run test:dashboard:integrated` reports an unknown script. | slice 5 |  |
-| 33 | Open Dough’s current Intent omits the `dashboard/tests` location and lists E2E Test, Dashboard Frontend Test, Dashboard Backend Test and Distribution Tests. | slice 5 |  |
-| 34 | `dashboard/integrated.playwright.config.ts` is removed. | slice 5 |  |
-| 35 | Its `tsconfig.node.json` entry is removed. | slice 5 |  |
-| 36 | `integratedGlobalSetup.ts` is removed. | slice 5 |  |
-| 37 | `ci.yml` contains no `dashboard-integrated` job. | slice 5 |  |
-| 38 | `ci-proof` has no `dashboard-integrated` need. | slice 5 |  |
-| 39 | `ci-proof` has no integrated-group expect token. | slice 5 |  |
-| 40 | `scripts/ci-container.sh` drops the integrated-group step. | slice 5 |  |
-| 41 | `groupRunnerExamples.ts` drops the integrated-group entry. | slice 5 |  |
-| 42 | `sourceNavigationJourney.ts` is removed. | slice 5 |  |
+| 31 | `dashboard/tests/` contains no `*.spec.ts`, including the original `dashboard/tests/navigation/source-navigation.spec.ts`. | slice 5 | observed: slice-5-retirement-verified.log: find dashboard/tests -name '*.spec.ts' printed nothing; original path absent |
+| 32 | `npm run test:dashboard:integrated` reports an unknown script. | slice 5 | observed: slice-5-retirement-verified.log: npm issued Missing script for test:dashboard:integrated |
+| 33 | Open Dough’s current Intent omits the `dashboard/tests` location and lists E2E Test, Dashboard Frontend Test, Dashboard Backend Test and Distribution Tests. | slice 5 | observed: slice-5-declarations.log: actual Intent lists the exact E2E, Frontend, Backend and Distribution path and label pairs |
+| 34 | `dashboard/integrated.playwright.config.ts` is removed. | slice 5 | observed: slice-5-retirement-verified.log: dashboard/integrated.playwright.config.ts absent |
+| 35 | Its `tsconfig.node.json` entry is removed. | slice 5 | observed: slice-5-declarations.log: dashboard/tsconfig.node.json omits the Integrated config entry |
+| 36 | `integratedGlobalSetup.ts` is removed. | slice 5 | observed: slice-5-retirement-verified.log: dashboard/tests/support/integratedGlobalSetup.ts absent |
+| 37 | `ci.yml` contains no `dashboard-integrated` job. | slice 5 | observed: slice-5-declarations.log and ci-proof-declaration.test.mjs: actual CI workflow omits Integrated producer |
+| 38 | `ci-proof` has no `dashboard-integrated` need. | slice 5 | observed: slice-5-declarations.log: actual collector needs exactly the four maintained producers |
+| 39 | `ci-proof` has no integrated-group expect token. | slice 5 | observed: slice-5-declarations.log and ci-proof-declaration.test.mjs: actual collector expect tokens no Integrated root |
+| 40 | `scripts/ci-container.sh` drops the integrated-group step. | slice 5 | observed: scripts/ci-container.sh and ci-container-workflow.sh: exact retained typecheck and three runner commands, each matching CI |
+| 41 | `groupRunnerExamples.ts` drops the integrated-group entry. | slice 5 | observed: groupRunnerExamples.ts and Backend runner-ownership focused proof: exclusive Frontend, Backend and E2E cases passed |
+| 42 | `sourceNavigationJourney.ts` is removed. | slice 5 | observed: slice-5-retirement-verified.log: dashboard/tests/sourceNavigationJourney.ts absent; three Frontend replacement cases passed |
 | 43 | `ci-proof-actions` runs or loads a remaining group. | slice 4 | observed: Distribution/tests/support/ci-proof-actions.test.mjs replays actual CI action fragments from E2E, Frontend, Backend, and Distribution and observes exact counts, timing and missing parts |
 | 44 | `ci-proof-frontend-report` runs or loads a remaining group. | slice 4 | observed: Distribution/tests/support/ci-proof-frontend-report.test.mjs runs actual summary and report shell blocks with E2E, Frontend, Backend; exact Markdown, excluding E2E/Backend files, and combined summary |
-| 45 | The `local-test-suite` checkout uses a remaining group. | slice 5 |  |
-| 46 | The applicable `local-test-suite` fixtures use a remaining group. | slice 5 |  |
-| 47 | The `local-test-suite` focused-runner tests use a remaining group. | slice 5 |  |
-| 48 | Backend `runner-ownership` uses a remaining group. | slice 5 |  |
+| 45 | The `local-test-suite` checkout uses a remaining group. | slice 5 | observed: local-test-suite-checkout.mjs copies three configs and no Integrated layer; local-test-suite.test.mjs uses default controlled Backend and proves admission |
+| 46 | The applicable `local-test-suite` fixtures use a remaining group. | slice 5 | observed: local-test-suite-fixtures.mjs uses default Backend and scrubs three maintained split variables; focused default, lifecycle, cutoff and container tests pass |
+| 47 | The `local-test-suite` focused-runner tests use a remaining group. | slice 5 | observed: local-test-suite-focused-runners.test.mjs exercises own split and full/focused/listing admission for each of three retained runner configs |
+| 48 | Backend `runner-ownership` uses a remaining group. | slice 5 | observed: runner-ownership.spec.ts focused Backend proof observes each Frontend, Backend and E2E npm/direct launch's own settings, proof and cleaned run dirs |
 | 49 | Backend `start-origin-demand` uses a remaining group. | slice 4 | observed: dashboard/backend-tests/launches/start-origin-demand.spec.ts partial Codex layout: Backend setup, distinct launches, only Claude completes, both isolated layouts are cleaned |
 | 50 | Backend `dashboard-artifact-demand` uses a remaining group. | slice 4 | observed: dashboard/backend-tests/runtime/dashboard-artifact-demand.spec.ts Backend default setup: real app and server requests queue, one build, complete/fail/interrupt observations and teardown; focused run passes |
-| 51 | Backend `run-processes` uses a remaining group. | slice 5 |  |
+| 51 | Backend `run-processes` uses a remaining group. | slice 5 | observed: run-processes.spec.ts focused Backend proof observes teardown naming and ending each maintained runner's orphan and general cleanup |
 | 52 | `scripts/dashboard-repeat.sh` drops the group. | slice 6 |  |
 | 53 | Its test drops the live group reference. | slice 6 |  |
 | 54 | `scripts/ci-shard-balance.mjs` drops the group. | slice 6 |  |
@@ -105,16 +105,16 @@ source conditions.
 | 60 | `local-test-resources.md` drops the group. | slice 6 |  |
 | 61 | `Distribution/evaluation/native-setup.md` drops the group. | slice 6 |  |
 | 62 | Applicable code comments drop the group. | slice 6 |  |
-| 63 | E2E Test retains its existing `--list` entries. | slice 5 |  |
-| 64 | Dashboard Frontend Test retains its existing `--list` entries, with only the added source-navigation cases. | slice 5 |  |
-| 65 | Dashboard Backend Test retains its existing `--list` entries, with only the added source-navigation coverage. | slice 5 |  |
-| 66 | Distribution Tests retains its existing listed tests under the example’s “each remaining group” condition. | slice 5 |  |
+| 63 | E2E Test retains its existing `--list` entries. | slice 5 | observed: slice-5-list-playwright.config.ts.txt normalized against Take: all 797 E2E registrations equal |
+| 64 | Dashboard Frontend Test retains its existing `--list` entries, with only the added source-navigation cases. | slice 5 | observed: slice-5-list-frontend.playwright.config.ts.txt normalized against Take: all 692 original registrations plus three source navigation cases |
+| 65 | Dashboard Backend Test retains its existing `--list` entries, with only the added source-navigation coverage. | slice 5 | observed: slice-5-list-backend.playwright.config.ts.txt normalized against Take: one encoded path case added; exactly two retired-runner-only rows removed per plan removal map; all maintained registrations equal |
+| 66 | Distribution Tests retains its existing listed tests under the example’s “each remaining group” condition. | slice 5 | observed: slice-5-distribution.tsv0 byte-identical to baseline-distribution.tsv0, 652 runner jobs; retired config only removed from matrix inside existing job |
 | 67 | Trunk CI is green after the delivery. | target CI |  |
 | 68 | `ci-proof` collects four entries after the delivery. | slice 5 |  |
-| 69 | Opening a story marked Done before retirement shows the locations from that story’s own revision, including Dashboard Integrated UI Test. | slice 5 |  |
-| 70 | An entry outside the shown revision’s locations is named without a link. | slice 5 |  |
-| 71 | Comparing a current story against a baseline that still has `dashboard/tests` marks that entry removed and shows no after value. | slice 5 |  |
-| 72 | Scope history shows a gap for a build without the scope. | slice 5 |  |
+| 69 | Opening a story marked Done before retirement shows the locations from that story’s own revision, including Dashboard Integrated UI Test. | slice 5 | observed: intent-done-source-selection.spec.ts observes a Done story reads its own historical location at completion revision; known historical open-dough.json blob contains Dashboard Integrated UI Test label |
+| 70 | An entry outside the shown revision’s locations is named without a link. | slice 5 | observed: intent-ci-proof.spec.ts historical-only entries have no dead link; obsolete entry name remains displayed with counts |
+| 71 | Comparing a current story against a baseline that still has `dashboard/tests` marks that entry removed and shows no after value. | slice 5 | observed: dashboard-ci-comparison-entries.test.mjs removed entry baseline time retained with both after cells removed and no invented value; Frontend comparison survives held/retried historical location read |
+| 72 | Scope history shows a gap for a build without the scope. | slice 5 | observed: intent-ci-scope-history-gaps.test.mjs real history yields No matching scope gap and no numeric ms; intent-scope-timing-history-absent.spec.ts observes no chart or invented numeric value |
 | 73 | Findings retain recorded integrated-group names. | slice 6 |  |
 | 74 | Done records retain recorded integrated-group names. | slice 6 |  |
 | 75 | `CHANGELOG.md` retains recorded integrated-group names. | slice 6 |  |

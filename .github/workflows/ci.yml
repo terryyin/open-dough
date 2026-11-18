@@ -190,14 +190,6 @@ jobs:
         3: e2e/intent/** e2e/runtime/**
         4: e2e/observation/** e2e/terminals/**
         5: e2e/review/** e2e/launches/responsive-*
-  dashboard-integrated:
-    uses: ./.github/workflows/browser-test-group.yml
-    with:
-      group: dashboard-integrated
-      command: test:dashboard:integrated
-      settings: OPEN_DOUGH_DASHBOARD_INTEGRATED
-      root: dashboard/tests
-      shards: "[1]"
   dashboard-frontend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -226,7 +218,6 @@ jobs:
     needs:
       - distribution-tests
       - e2e
-      - dashboard-integrated
       - dashboard-frontend
       - dashboard-backend
     if: ${{ !cancelled() }}
@@ -243,5 +234,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=6:case dashboard/tests=1:case dashboard/frontend-tests=2:case dashboard/backend-tests=3:case Distribution=3:case Distribution=3:file
+          expect: e2e=6:case dashboard/frontend-tests=2:case dashboard/backend-tests=3:case Distribution=3:case Distribution=3:file
           frontend-entry: dashboard/frontend-tests

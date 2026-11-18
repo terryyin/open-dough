@@ -113,7 +113,6 @@ test("a run that times out while a production process runs leaves none of its pr
 
 // Each group runner's setup shares this sweep.
 for (const [runner, globalSetup] of [
-  ["Dashboard Integrated UI Test: ", "integratedGlobalSetup.ts"],
   ["Dashboard Frontend Test: ", "frontendGlobalSetup.ts"],
   ["Dashboard Backend Test: ", "backendGlobalSetup.ts"],
   ["E2E Test: ", "e2eGlobalSetup.ts"],

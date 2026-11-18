@@ -3,17 +3,6 @@
 // relative to the repository; `job` is its CI job in .github/workflows/ci.yml.
 export const groupRunnerExamples = [
   {
-    name: "Dashboard Integrated UI Test",
-    script: "test:dashboard:integrated",
-    config: "dashboard/integrated.playwright.config.ts",
-    prefix: "OPEN_DOUGH_DASHBOARD_INTEGRATED",
-    directory: "dashboard",
-    root: "dashboard/tests",
-    job: "dashboard-integrated",
-    spec: "navigation/source-navigation.spec.ts",
-    grep: "source navigation keeps an external reference apart from files in this snapshot",
-  },
-  {
     name: "Dashboard Frontend Test",
     script: "test:dashboard:frontend",
     config: "dashboard/frontend.playwright.config.ts",
