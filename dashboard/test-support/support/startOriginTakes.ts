@@ -40,6 +40,9 @@ export type TakenStart = {
   readonly branch: string;
 };
 
+// A declared Take also names the claim commit it published.
+export type DeclaredTakenStart = TakenStart & { readonly claim: string };
+
 async function git(cwd: string, ...args: string[]): Promise<string> {
   return (await exec("git", args, { cwd })).stdout;
 }
@@ -122,9 +125,9 @@ export function anotherAgentTakes({
       queued,
       publisher = "another-publisher",
       ...placement
-    }: DeclaredTake): Promise<TakenStart> {
+    }: DeclaredTake): Promise<DeclaredTakenStart> {
       const { workspace, branch } = placed(placement);
-      await publishRevision(
+      const claim = await publishRevision(
         takeRevision({
           story,
           queued,
@@ -146,7 +149,7 @@ export function anotherAgentTakes({
         "author.email",
         author.email,
       );
-      return { agent: author.agent, workspace, branch };
+      return { agent: author.agent, workspace, branch, claim };
     },
   };
 }

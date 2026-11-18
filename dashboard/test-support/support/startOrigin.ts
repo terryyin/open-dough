@@ -27,6 +27,7 @@ import { initializeStartOrigin } from "./startOriginInitialization.ts";
 import {
   anotherAgentTakes,
   type DeclaredTake,
+  type DeclaredTakenStart,
   type TakenStart,
 } from "./startOriginTakes.ts";
 import {
@@ -65,8 +66,8 @@ export type StartOrigin = {
   // checkout, as that agent's start publishes it (`takeRevision`: authored
   // by the agent, committed by the developer), then checks the claim out in
   // the agent's linked worktree with its author config, where a start leaves
-  // it (./startOriginTakes.ts).
-  publishTake(take: DeclaredTake): Promise<TakenStart>;
+  // it (./startOriginTakes.ts). Answers the claim commit it published.
+  publishTake(take: DeclaredTake): Promise<DeclaredTakenStart>;
   // Holds every push to origin on its `pre-receive` hook until released;
   // cleanup refuses a push still held.
   holdPushes(): PushHold;

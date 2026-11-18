@@ -2,6 +2,7 @@
 
 **Identity:** SEED-353#declare-intent-comparison-histories
 **Source:** [Declare Intent comparison histories through MakeMe](../../seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal, scope and evaluation
 
@@ -143,7 +144,7 @@ The table maps promises; filename matches alone do not prove coverage.
 
 ### 1. Read provisional comparison history from named facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Provisional and isolation rows above; A/B establish the consuming route.
 
 Behavior: Given a declared built baseline, planning chain, claim and branch/trunk
@@ -153,6 +154,17 @@ facts/results, preserving actual post-observation head publication and requests.
 Carry results through prepared/private/worker-kept paths if needed; prove peer
 isolation. Interim: completed comparison publishers still use their current setup.
 One provisional comparison loop; 15 active minutes, running commands excluded.
+
+Delivered: `storyCiComparisonBaseline.ts` declares the built baseline and
+`withPlanningBeforeClaim` (also composed by `declaredSummaryComparisonHistory`);
+`publishTake` answers its claim; Taken fixtures commit declared agent work and
+drop the unused endpoint search. Accepted proof: 19 intent E2E files (22 cases),
+7 backend files (14 cases), historical-workflow fault failed at
+`intent-ci-comparison.spec.ts` +17 s and the Taken without-waits row, restored
+and passed. Learnings for slices 2–3: completed publishers still find the claim
+and `laterWithoutBuild` by Git search and call `commitComparisonCiWorkflow`;
+`publishTake` now returns `claim` for them to reuse. `commitDeclaredRevision`
+ignores worktree author config, so agent-authored work names the author.
 
 ### 2. Read the owning landing independently of completion
 Type: Behavior

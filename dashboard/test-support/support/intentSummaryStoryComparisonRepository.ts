@@ -13,7 +13,10 @@ import {
   storyB,
   takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { planningBeforeClaim, revList } from "./storyCiComparisonFixture.ts";
+import {
+  revList,
+  withPlanningBeforeClaim,
+} from "./storyCiComparisonFixture.ts";
 import {
   comparisonWorkflow,
   comparisonWorkflowPath,
@@ -62,19 +65,17 @@ export function declaredSummaryComparisonHistory() {
         .please(),
     ],
   };
-  return queuedReadyRepository()
-    .withCheckoutIdentity(dashboardDeveloper)
-    .withRevision("locations", summaryComparisonTrunkRevision)
-    .withRevision("baseline", {
-      files: {
-        "src/built.ts": "built before story\n",
-        [comparisonWorkflowPath]: comparisonWorkflow,
-      },
-    })
-    .withRevision("plan one", planningBeforeClaim[0])
-    .withRevision("plan two", planningBeforeClaim[1])
-    .withRevision("plan three", planningBeforeClaim[2])
-    .withRevision("plan four", planningBeforeClaim[3])
+  return withPlanningBeforeClaim(
+    queuedReadyRepository()
+      .withCheckoutIdentity(dashboardDeveloper)
+      .withRevision("locations", summaryComparisonTrunkRevision)
+      .withRevision("baseline", {
+        files: {
+          "src/built.ts": "built before story\n",
+          [comparisonWorkflowPath]: comparisonWorkflow,
+        },
+      }),
+  )
     .withRevision("shared", { files: { "shared.txt": lines("line") } })
     .withRevision(
       "claim",
