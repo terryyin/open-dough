@@ -21,12 +21,7 @@ import {
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import {
-  commitAll,
-  git,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 // The completed history is the worker's; this case's origin is its copy.
 const historyTest = test.extend(startingFromKeptComparedStoryBranch);
@@ -93,9 +88,10 @@ test("unrecoverable published history shows the published-review explanation wit
   page,
   origin,
 }) => {
-  writeAt(origin.project, "src/built.ts", "built\n");
-  commitAll(origin.project, "ship a built revision");
-  push(origin.project);
+  await origin.publishRevision({
+    message: "ship a built revision",
+    files: { "src/built.ts": "built\n" },
+  });
   await completedPublishedStory(origin, "story-branch");
   // Shallow project checkout: claim history cannot be recovered.
   git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");

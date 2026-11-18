@@ -31,7 +31,7 @@ test("a collected selected landing without its proof summary keeps the prior ave
   const setup = await serveSummaryComparisonStory(
     page,
     origin,
-    declaredSummaryComparisonEndpointsIn(origin.project),
+    declaredSummaryComparisonEndpointsIn(origin),
   );
   await keepLandedCiHistory(
     dashboard.home,

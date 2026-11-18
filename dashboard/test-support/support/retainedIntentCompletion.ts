@@ -38,16 +38,18 @@ export async function retainedIntentCompletion(
     { retainWorkspace: true, interleaved: false },
   );
   keepLaunchRecord(dashboard, story.workspace);
-  advanceCompletedTrunk(origin);
+  let published = advanceCompletedTrunk(origin);
   if (facts.later !== undefined) {
     writeRevisionFiles(origin.project, facts.later);
-    commitAll(origin.project, "later trunk changes after completion");
+    published = commitAll(
+      origin.project,
+      "later trunk changes after completion",
+    );
     push(origin.project);
   }
   writeRevisionFiles(story.workspace, facts.local);
   if (facts.shallow === true)
     git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
-  const published = git(origin.origin, "rev-parse", "main");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: published,

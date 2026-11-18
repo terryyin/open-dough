@@ -1,12 +1,10 @@
 // Shared CI comparison fixture helpers for Intent's timing comparison
 // (../../../e2e/intent/intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
 // commits before a claim, and the done Story Branch publisher. SEED-236
-// lives in ./storyCiComparisonEarlierLanding.ts; SEED-248 fast-forward tip
-// in ./storyCiComparisonFastForward.ts and later first-parent rewrite in
-// ./storyCiComparisonLaterFastForward.ts; Taken shapes in
+// lives in ./storyCiComparisonEarlierLanding.ts; Taken shapes in
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
-// ./storyCiComparisonEntryProofs.ts; history readers in
-// ./storyCiComparisonHistory.ts and workflow files in
+// ./storyCiComparisonEntryProofs.ts; the declared pre-claim baseline in
+// ./storyCiComparisonBaseline.ts and workflow files in
 // ./storyCiComparisonWorkflows.ts, re-exported here; the GitHub requests a
 // comparison read asked in ./storyCiComparisonRequests.ts.
 
@@ -23,28 +21,21 @@ import {
   actionsWorkflowAnswer,
   type CiRunAnswer,
 } from "./baseCiActions.ts";
-import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import type { StartOrigin } from "./startOrigin.ts";
-import { dashboardDeveloper } from "./startOriginPreparation.ts";
-import { push } from "./storyReviewTrunkCommits.ts";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import {
   answerComparisonProofRoute,
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
 import type { ActionsAnswerer, CommittedOrigin } from "../committedOrigin.ts";
-import {
-  commitComparisonCiWorkflow,
-  comparisonWorkflow,
-  comparisonWorkflowPath,
-} from "./storyCiComparisonWorkflows.ts";
+import { comparisonWorkflowPath } from "./storyCiComparisonWorkflows.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
-export { claimOf, revList } from "./storyCiComparisonHistory.ts";
+export {
+  laterWithoutBuildBeforeClaim,
+  precedeClaimWithPlanning,
+  withPlanningBeforeClaim,
+} from "./storyCiComparisonBaseline.ts";
 export {
   comparisonCiWorkflow,
-  commitComparisonCiWorkflow,
   comparisonWorkflow,
   comparisonWorkflowPath,
 } from "./storyCiComparisonWorkflows.ts";
@@ -192,45 +183,4 @@ export function serveActionsFor(
       intercept = answerer;
     },
   };
-}
-
-// Planning-only revisions between a built trunk revision and the claim, so
-// the baseline is a measured ancestor four first-parent commits back.
-export const planningBeforeClaim: readonly RevisionFacts[] = [
-  "plan one",
-  "plan two",
-  "plan three",
-  "plan four",
-].map((name, index) => ({
-  message: `planning: ${name}`,
-  files: { [`.planning/notes-${String(index)}.md`]: `${name}\n` },
-}));
-
-// The built baseline, then `planningBeforeClaim` published on trunk.
-export async function precedeClaimWithPlanning(
-  origin: StartOrigin,
-  options?: {
-    readonly withCiWorkflow?: boolean;
-    // Include shared.txt in the built baseline so a later completed story can
-    // skip its initial shared commit and leave a planning-only claim parent.
-    readonly sharedInBaseline?: boolean;
-  },
-): Promise<string> {
-  if (options?.withCiWorkflow === true) {
-    commitComparisonCiWorkflow(origin.project);
-  }
-  writeAt(origin.project, "src/built.ts", "built before story\n");
-  writeAt(origin.project, comparisonWorkflowPath, comparisonWorkflow);
-  if (options?.sharedInBaseline === true) {
-    writeAt(origin.project, "shared.txt", lines("line"));
-  }
-  commitAll(origin.project, "ship a built revision");
-  const baseline = git(origin.project, "rev-parse", "HEAD");
-  // No reader observes these intermediate publications. Keep their complete
-  // first-parent history, but transport the baseline and planning chain once.
-  for (const revision of planningBeforeClaim) {
-    await commitDeclaredRevision(origin.project, revision, dashboardDeveloper);
-  }
-  push(origin.project);
-  return baseline;
 }

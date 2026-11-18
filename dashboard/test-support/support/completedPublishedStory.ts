@@ -22,7 +22,7 @@ import {
 } from "./completedStoryInput.ts";
 import {
   installedBacklogScript,
-  publishCompletedStory,
+  publishCompletedStoryLanding,
   resolveStoryConflict,
 } from "./completedStoryPublication.ts";
 import {
@@ -76,7 +76,7 @@ export async function completedPublishedStory(
     push(origin.project);
   }
   const claimant = "Yui";
-  const claim = agentIdentity(claimant);
+  const claimantIdentity = agentIdentity(claimant);
   const start = await origin.publishTake({
     agent: claimant,
     story: storyA,
@@ -85,7 +85,7 @@ export async function completedPublishedStory(
       ? { mode, slug: "completed-a" }
       : { mode: "story-branch" as const }),
   });
-  const { workspace, branch } = start;
+  const { workspace, branch, agent, claim } = start;
   writeCompletedStoryImplementation(workspace);
   change?.(workspace);
   if (ownConflict) moveAgentsFolder(workspace);
@@ -135,7 +135,7 @@ export async function completedPublishedStory(
     if (variant === "takeover" || variant === "returned-takeover") {
       const name = "Akiho";
       const next = agentIdentity(name);
-      rmSync(path.join(workspace, ".planning", claim.path));
+      rmSync(path.join(workspace, ".planning", claimantIdentity.path));
       writeAt(
         workspace,
         `.planning/${next.path}`,
@@ -197,7 +197,7 @@ export async function completedPublishedStory(
     }
   }
   options?.beforeComplete?.(workspace);
-  const completion = publishCompletedStory(origin, {
+  const { completion, branchSide } = publishCompletedStoryLanding(origin, {
     workspace,
     branch,
     mode,
@@ -207,15 +207,16 @@ export async function completedPublishedStory(
     retainWorkspace: options?.retainWorkspace,
     skillsDirectory: options?.skillsDirectory,
   });
-  return { completion, agent: start.agent, workspace, branch };
+  return { completion, branchSide, agent, claim, workspace, branch };
 }
 
 export function advanceCompletedTrunk(origin: StartOrigin) {
   pull(origin.project);
   writeAt(origin.project, "later.txt", "later trunk\n");
   writeAt(origin.project, "[literal]*.txt", "later rewrite\n");
-  commitAll(origin.project, "advance after completion");
+  const advanced = commitAll(origin.project, "advance after completion");
   push(origin.project);
+  return advanced;
 }
 
 // A retained comparison whose original common repository has gone away is

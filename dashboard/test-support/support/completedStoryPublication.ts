@@ -21,6 +21,39 @@ export function installedBacklogScript(
   );
 }
 
+// Completes the story through the installed backlog CLI.
+export function completeBacklogStory(
+  workspace: string,
+  {
+    identity = queuedIdentity,
+    skillsDirectory,
+    completionArgs = [],
+  }: {
+    identity?: string;
+    skillsDirectory?: string | undefined;
+    completionArgs?: readonly string[];
+  } = {},
+) {
+  execFileSync(
+    process.execPath,
+    [
+      installedBacklogScript(workspace, skillsDirectory),
+      "complete",
+      "--identity",
+      identity,
+      ...completionArgs,
+    ],
+    { cwd: workspace, stdio: "pipe" },
+  );
+}
+
+// Completes a launch workspace's story and commits that completion, answering
+// its commit.
+export function commitBacklogCompletion(workspace: string, message: string) {
+  completeBacklogStory(workspace, { skillsDirectory: ".agents/skills" });
+  return commitAll(workspace, message);
+}
+
 export function resolveStoryConflict(
   workspace: string,
   mergeArguments: readonly string[],
@@ -42,6 +75,14 @@ export function resolveStoryConflict(
 }
 
 export function publishCompletedStory(
+  ...publication: Parameters<typeof publishCompletedStoryLanding>
+) {
+  return publishCompletedStoryLanding(...publication).completion;
+}
+
+// The completion and, for a Story Branch, the branch side its owning landing
+// merge integrated (the completed workspace tip).
+export function publishCompletedStoryLanding(
   origin: StartOrigin,
   {
     workspace,
@@ -78,19 +119,11 @@ export function publishCompletedStory(
       );
     }
   }
-  execFileSync(
-    process.execPath,
-    [
-      installedBacklogScript(workspace, skillsDirectory),
-      "complete",
-      "--file",
-      ".planning/PRODUCT-BACKLOG.md",
-      "--identity",
-      identity,
-      ...coverageArgs,
-    ],
-    { cwd: workspace },
-  );
+  completeBacklogStory(workspace, {
+    identity,
+    skillsDirectory,
+    completionArgs: coverageArgs,
+  });
   if (missingAgent) {
     const record = `.planning/done/${doneRecordFileName(identity)}`;
     const facts = JSON.parse(
@@ -101,8 +134,8 @@ export function publishCompletedStory(
     delete facts["model"];
     writeAt(workspace, record, JSON.stringify(facts));
   }
-  commitAll(workspace, "complete the story through CLI");
-  let completion = git(workspace, "rev-parse", "HEAD");
+  const branchSide = commitAll(workspace, "complete the story through CLI");
+  let completion = branchSide;
   if (mode === "trunk") push(workspace);
   else {
     // Agent-authored trunk-first landing so claim history recovers it as an
@@ -158,5 +191,5 @@ export function publishCompletedStory(
     git(origin.project, "worktree", "remove", "--force", workspace);
     git(origin.project, "branch", "--delete", "--force", branch);
   }
-  return completion;
+  return { completion, branchSide };
 }

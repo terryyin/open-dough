@@ -4,8 +4,8 @@ Load when assessing a response or shortening a source. This is the shared-feedba
 cycle's cleanup policy; it does not authorize cancelling live product work.
 
 Retain consequential one-offs, uncertain relationships, unknown execution releases,
-and unresolved reports. Remove only exact duplicate narrative after preserving
-all distinct evidence at its authoritative owner. A confirmed low-value candidate
+and unresolved reports. Shorten exact duplicate narrative only by
+[linking a verified shared account](#link-a-verified-shared-account). A confirmed low-value candidate
 has negligible observed harm and no worthwhile response: successful practices
 misfiled as problems or obsolete administrative noise can qualify. Frequency alone
 never justifies removal. Keep a concise pruning reason in the maintenance commit
@@ -67,3 +67,29 @@ response. Follow reconciliation's continuity/correction rules, preserving unknow
 a genuine correction followed by reintroduction can need a new linked identity.
 A later corrective release begins its own watch upon verified use, inheriting no
 age from a failed response. Repeated reports of the same execution add no failure.
+
+## Link a verified shared account
+
+Shorten a client occurrence only after its account is retained at the shared
+owner, and only by linking it:
+
+1. Resolve the proposed target at a full commit SHA and path. For a published
+   source, use the catalog commit readers receive: the one accepted on the Open
+   Dough target. When integration replaced the catalog commit, resolve the
+   accepted commit before publishing the source.
+2. Read the occurrence there and compare it with the source entry: project,
+   execution identity, observation, provenance (timestamp, release or modified
+   revision, tool) and every qualification or unknown. Each execution is its own
+   occurrence; the same symptom from another execution matches nothing here.
+3. When all of them match, replace only that duplicate narrative with one pinned
+   locator to the target, such as
+   `Account and evidence remain [at ODF-153](https://github.com/<owner>/<repo>/blob/<sha>/<path>).`
+   followed by ``Source recovery: `<source-sha>:<path>`.``, naming the source
+   revision that still holds the full text. Keep the local heading
+   and ID, each `Former local code: DD-NNN.` alias, the execution identity, the
+   project decision, project-only effects and local links that resolve.
+4. When the target is missing or unreadable, or holds another occurrence or only
+   part of this one, keep the affected text intact and report the gap.
+
+On a reread whose entry already carries a pin resolving to the matching
+occurrence, keep the entry byte-identical.

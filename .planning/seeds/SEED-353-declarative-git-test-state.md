@@ -11,7 +11,7 @@ scope: eight stories
 
 ## Parent goal and retained scope
 
-Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. All original scope is allocated below; the landed-file admission example and its named start-origin revisions, launch reporting and file follow-up builders are delivered and documented in the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md).
+Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. All original scope is allocated below; the landed-file admission example and its named start-origin revisions, launch reporting and file follow-up builders, and the Intent comparison, source selection, build provenance and timing-history arrangement are delivered and documented in the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md).
 
 Shared scope and correctness requirements:
 
@@ -28,7 +28,6 @@ Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), co
 
 | Order | Receiving story | Original promises and scenario ownership |
 | --- | --- | --- |
-| 1 | [Declare Intent comparison histories through MakeMe](#declare-intent-comparison-histories) | Intent/CI comparison, source selection, build provenance and timing-history arrangement. |
 | 2 | [Declare local worktree review state through MakeMe](#declare-local-worktree-review-state) | Worktree content, staged/unstaged/untracked/ignored state, modes, renames, binary and context fixtures. |
 | 3 | [Declare merged review histories through MakeMe](#declare-merged-review-histories) | Story-branch commit/range comparisons, parent order, trunk integrations and conflict resolutions. |
 | 4 | [Declare trunk review authorship through MakeMe](#declare-trunk-review-authorship) | Trunk-mode own/foreign history, rewritten histories and attribution. |
@@ -46,63 +45,6 @@ Each story resumes through story refinement; no mapped original slices require p
 Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/test-support/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
 
 The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed. Neither establishes a full migration or speedup.
-
-<a id="declare-intent-comparison-histories"></a>
-
-### Declare Intent comparison histories through MakeMe
-
-**Identity:** SEED-353#declare-intent-comparison-histories
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-declare-intent-comparison-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1aa1274ec23e575a0778bd1b861bc8aca9cfc76ee8b351a7736410f3d348c081","plan":"80abe97f794ac87b7a1c65b1672d146d281af7423f0ee63de4107100c03da1b6"}}
-```
-
-**Goal.** A developer reads the repository facts explaining Intent's compared
-revisions, selected source and build provenance directly, without reconstructing
-routine Git setup. This makes Purpose and CI proof easier to maintain together.
-
-**Scope.** Migrate direct and indirect Intent/CI comparison, completed/retained
-Intent, Summary comparison and timing-history arrangement across backend, E2E
-and Frontend-group tests. Include `storyCiComparison*`,
-`intentCompletedStory`, retained-Intent, summary and scope-history callers and
-their incidental identity wiring. Use the shared MakeMe repository facts and
-existing completed-history owners for files, configuration/workflow bytes,
-authorship, ordered parents, named endpoints and starting workspace state.
-Extend those owners for demonstrated gaps; preserve deferred preparation,
-prepared-prefix/worker reuse, private mutable copies and independent assertions.
-
-Keep publication after an observation, actual completion/capture under proof,
-ref movement, shallow-history recovery, corruption and cleanup as visible
-actions. Preserve meaningful IDs and real returned reporting contexts. Update
-the test-data architecture guide and compare representative construction before
-and after under ADR 0010. This changes test construction, with no production
-behavior change or speedup promise. General review, completion, launch and
-recovery migrations remain with their receiving siblings; shared consumers keep
-their current proof and gain no completion claim from this story.
-
-**Key examples.**
-
-- Given a named built baseline, planning-only ancestors, claim and provisional
-  branch/trunk tip, opening Taken Intent shows the same baseline, provisional
-  identity and CI rows. Publishing a new branch head after that observation
-  remains a scenario action and triggers the same fresh read.
-- Given an owning landing merge, later completion and later trunk build, Done
-  Intent selects the original landing/branch endpoints. Each build uses its own
-  workflow bytes even when the local tip's workflow differs. Planning-only,
-  code, cancelled and proofless cases retain their distinct exact, ancestor,
-  equivalent, later-build and unavailable results.
-- Given completion-time locations and file bytes plus conflicting later trunk
-  and retained-workspace edits, Done Intent reads the immutable completion;
-  ordinary Review can still read the local edits. Missing history remains
-  unavailable until the explicit recovery action.
-- Given changed, added, removed and renamed files in nested test locations,
-  Summary and collected/retained scope history keep the same independent
-  counts, timing rows, represented landing and selected build provenance. A
-  measured file absent from the current tree still contributes to history;
-  uncollected endpoints and gaps stay visible.
-
-**Safe stopping point.** Intent construction is readable with unchanged
-CI/source/proof assertions and isolated fixtures; other review/launch families
-need not migrate first. No open human decision or blocking dependency.
 
 <a id="declare-local-worktree-review-state"></a>
 
@@ -176,18 +118,84 @@ their value. No open human decision or blocking dependency.
 ### Declare merged review histories through MakeMe
 
 **Identity:** SEED-353#declare-merged-review-histories
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-353#declare-merged-review-histories","dependencies":[{"supplier":{"identity":"SEED-353#declare-local-worktree-review-state","href":"seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state"},"implementation":"Start origins materialize the shared repository description's workspace as Story A's linked worktree on claude/story-a, with its declared uncommitted state applied after the workspace's revisions.","rationale":"Both slices declare Story A's story-branch revisions and merges on that workspace, and the newest plain edit must be a workspace revision ahead of the uncommitted state; building them here would add a second worktree materializer, which the seed's shared requirements forbid, and reconciliation cannot avoid it.","condition":"The local-worktree story's start-origin workspace materialization and declared local state are published on main.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/709-declare-merged-review-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bc25b70b09b54a9f20a5c9cbc95bdc0645ce5b662c5647fb32fdb73e36a69dec","plan":"cbd95b67096308e2e882f3c51c93f60a6f385c307c7ab4ad594d4b30b56e6a53"}}
 ```
 
-**For / why.** A developer reads story-branch commit/range comparisons from named
-parents and file changes rather than setup scripts. Include `storyReviewTrunk.ts`,
-commit/range/mark/admission helpers and their backend/E2E/integrated consumers.
-**Evaluation.** Clean integration, conflicted resolution, destination-baseline
-resolution and renamed-path histories preserve exact shown edits, ancestry and
-trunk flags; actions that change a previously observed comparison stay visible.
+**Goal.** A developer reads a story branch's commits, its trunk integrations
+and their conflict resolutions from named revisions with ordered parents and
+file changes, rather than from the Git commands that once produced them. The
+Commits range and merge cases then explain which edits are the story's own and
+which carry trunk's changes, and stay easy to change with the review behavior
+they prove.
+
+**Scope.** Migrate Story A's committed story-branch topology in
+`dashboard/test-support/support/storyReviewTrunk.ts` (`worktreeWithStoryCommits`,
+`integrateTrunk`, `sixth`) and its consumers
+`e2e/review/story-review-commit-trunk.spec.ts` and
+`e2e/review/story-review-commit-renames.spec.ts`, including the spec-local
+history there (the separate-line story edit, the renames either side of a
+conflicted integration). Also migrate the starting commits that commit-range
+cases add before opening the review: the newest plain story edit and the empty
+story commit in `story-review-commits.spec.ts`, and the first story commit in
+`story-review-commit-refresh.spec.ts`. Declare trunk files, the landed slice
+trunk takes, the story's commits, trunk's changing commit and each integration
+merge with its first parent the story and its second parent trunk, its
+resolved file bytes and its author, through the shared MakeMe repository
+description and the start-origin workspace that the local-worktree sibling
+gives Story A. Extend those owners for demonstrated needs; preserve deferred,
+prepared-prefix reuse and each test's private mutable worktree. Named revision
+results replace incidental `rev-parse`.
+
+A conflicted integration stays a real conflict: the test confirms
+independently, without the description's renderer, that its declared parents
+conflict on the resolved file, and that a clean integration's parents merge
+without conflict. Commits made, a push to trunk and a Refresh after the review
+opened stay visible scenario actions. Update the test-data architecture guide
+and compare representative construction before and after under ADR 0010. No
+production behavior change or speedup promise.
+
+Excluded: Story A's local worktree and its uncommitted state, the commit
+admission request and admission worktree (local-worktree sibling); Trunk Mode
+authorship, completed-story merges including `storyReviewMergeDriver.ts`
+(which keeps importing `sixth`) and `laterStoryMergesTrunk.ts`, which its Intent
+sibling owns; ad-hoc session commit runs and kept-commit records, which remain
+session actions for the launch and session sibling. The shared `git`,
+`commitAll` and `writeAt` helpers stay while other families import them.
+
+**Key examples.**
+
+- Given Story A's declared branch — trunk's files, a landed slice trunk later
+  takes, the story's change to `src/c.ts`, and a merge of trunk's change to
+  `README.md` — Commits lists two story commits, says trunk was integrated
+  within the range, the merge alone changed nothing, and the whole range shows
+  only `src/c.ts`'s `-c 5`/`+c story`, without `landed.txt`, `README.md` or
+  `src/a.ts`.
+- Given the same branch where trunk also changes `src/c.ts`'s sixth line and
+  the declared merge settles it as `c story and trunk`, the merge alone shows
+  `-c story`/`+c story and trunk` flagged “includes trunk's changes”, and the
+  range shows `-c 5`/`+c story and trunk`; an independent merge of the two
+  declared parents still conflicts on `src/c.ts`.
+- Given a merge that settles `src/c.ts` back to `c 5`, the range stays flagged
+  and shows `-c trunk`/`+c 5` from the destination baseline; given a story edit
+  to a separate line of `src/a.ts` merged cleanly with trunk's sixth-line edit,
+  the range shows only `-a 0`/`+a story` with no flag.
+- Given `src/c.ts` renamed to `d.ts` before a conflicted integration with
+  trunk's edit and to `e.ts` after it, the four story commits keep their order
+  and the range shows `src/c.ts → src/e.ts` flagged with `-c 5`/`+c story and
+  trunk`.
+- Given a declared newest plain edit on Story A, or an empty story commit, the
+  chosen commit's trees and the empty range's “changed nothing” stay as today;
+  given one declared story commit, commits added and pushed to trunk after
+  opening still move the anchored range only on Refresh.
+
 **Safe stopping point.** Story-branch topology setup has one shared declarative
-owner while unrelated trunk-mode and completed scenarios remain unchanged.
+owner while unrelated trunk-mode and completed scenarios remain unchanged. No
+open human decision. It starts after the local-worktree story's start-origin
+workspace and local state land, which its declared merges compose.
 
 <a id="declare-trunk-review-authorship"></a>
 

@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-353_declare-intent-comparison-histories.json",
+      "identity": "SEED-353#declare-intent-comparison-histories",
+      "completedAt": "2026-11-18T17:35:15.999Z",
+      "blob": "d20ef8343a9af1cd87f14f5afa0bfbce6c728ee6"
+    },
+    {
+      "fileName": "SEED-401_pilot-new-retrospective-findings.json",
+      "identity": "SEED-401#pilot-new-retrospective-findings",
+      "completedAt": "2026-11-18T15:40:38.159Z",
+      "blob": "5371078c2d2d4ca63eafc28b2753c13b15e1fdaf"
+    },
+    {
+      "fileName": "SEED-402_keep-client-finding-evidence-and-ids-stable.json",
+      "identity": "SEED-402#keep-client-finding-evidence-and-ids-stable",
+      "completedAt": "2026-11-18T15:18:13.423Z",
+      "blob": "0e3437746f40fd5deb7abb3092dffa6439c42f3d"
+    },
+    {
       "fileName": "SEED-379_bound-capture-to-done.json",
       "identity": "SEED-379#bound-capture-to-done",
       "completedAt": "2026-11-18T15:14:59.624Z",

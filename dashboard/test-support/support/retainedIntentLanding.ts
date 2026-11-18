@@ -1,18 +1,16 @@
 // A real completed Story Branch execution whose first captured publication is
 // its completion. Callers keep their implementation/later/local facts visible.
-import { execFileSync } from "node:child_process";
-import path from "node:path";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { publishIntentTrunk } from "./intentStoryWorktree.ts";
 import { expect } from "./pageTest.ts";
-import { capturedPublicationSchema, scripts } from "./launchLanding.ts";
+import { commitBacklogCompletion } from "./completedStoryPublication.ts";
+import { capturedPublicationSchema } from "./launchLanding.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { queuedIdentity } from "./startOrigin.ts";
 import { claimedLaunchWithStoryCommit } from "./storyBranchIntegration.ts";
-import { commitAll, git } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 
 export async function retainedIntentLanding(
   dashboard: DashboardServer,
@@ -31,20 +29,10 @@ export async function retainedIntentLanding(
       host: "codex",
       storyWork(workspace) {
         writeRevisionFiles(workspace, implementation);
-        execFileSync(
-          process.execPath,
-          [
-            path.join(
-              scripts(workspace, "dough-product-backlog"),
-              "product-backlog.mjs",
-            ),
-            "complete",
-            "--identity",
-            queuedIdentity,
-          ],
-          { cwd: workspace, stdio: "pipe" },
+        commitBacklogCompletion(
+          workspace,
+          "complete the captured test execution",
         );
-        commitAll(workspace, "complete the captured test execution");
       },
     },
   );

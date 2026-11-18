@@ -60,7 +60,8 @@ The runner combines both check roots under this same Distribution Tests group;
 ## Test data architecture
 
 [MakeMe and shared test data](test-data-architecture.md) describes the canonical
-builders, repository descriptions, and the harness responsibilities around them.
+builders and the harness responsibilities around them;
+[repository test data](repository-test-data.md) covers repository descriptions.
 
 ## Check environment
 

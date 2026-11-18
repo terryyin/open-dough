@@ -1,13 +1,14 @@
-// Shared trunk setup and story file edits for Intent Summary CI timing
-// comparison publishers (./intentSummaryStoryComparisonFixture.ts,
-// ./intentSummaryStoryComparisonVariantPublishers.ts).
+// Shared trunk setup and story file edits for the Intent Summary CI timing
+// comparison publisher (./intentSummaryStoryComparisonFixture.ts) and its
+// declared history (./intentSummaryStoryComparisonRepository.ts).
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 import { intentSettings } from "./intentStoryWorktree.ts";
-import { commitAll, lines, writeAt } from "./storyReviewWorktree.ts";
-import { push } from "./storyReviewTrunkCommits.ts";
+import type { StartOrigin } from "./startOrigin.ts";
+import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
+import { lines, writeAt } from "./storyReviewWorktree.ts";
 
 export const summaryComparisonChanges = {
   modified: "Modified dashboard/tests/folder/a.spec.ts",
@@ -45,11 +46,16 @@ export const summaryComparisonChangeRevision = makeMe.aRepository
   })
   .please().revisions[0];
 
-// Trunk's files: Intent settings and the sources the summary compares.
-export function publishSummaryComparisonTrunk(project: string) {
-  writeRevisionFiles(project, summaryComparisonTrunkRevision);
-  commitAll(project, "intent locations for summary comparison");
-  push(project);
+// Publishes trunk's files: Intent settings and the sources the summary
+// compares.
+export async function publishSummaryComparisonTrunk(origin: StartOrigin) {
+  await publishDeclaredTrunk(
+    origin,
+    makeMe.aRepository.withRevision(
+      "locations",
+      summaryComparisonTrunkRevision,
+    ),
+  );
 }
 
 export function changeSummaryComparisonTests(workspace: string) {

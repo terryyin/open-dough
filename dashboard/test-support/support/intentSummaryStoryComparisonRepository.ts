@@ -13,7 +13,10 @@ import {
   storyB,
   takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { planningBeforeClaim, revList } from "./storyCiComparisonFixture.ts";
+import {
+  laterWithoutBuildBeforeClaim,
+  withPlanningBeforeClaim,
+} from "./storyCiComparisonFixture.ts";
 import {
   comparisonWorkflow,
   comparisonWorkflowPath,
@@ -22,8 +25,9 @@ import {
   summaryComparisonChangeRevision,
   summaryComparisonTrunkRevision,
 } from "./intentSummaryStoryComparisonShared.ts";
+import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
-import { git, lines } from "./storyReviewWorktree.ts";
+import { lines } from "./storyReviewWorktree.ts";
 
 const claimant = agentIdentity("Yui");
 const author = { name: claimant.agent, email: claimant.email };
@@ -62,19 +66,17 @@ export function declaredSummaryComparisonHistory() {
         .please(),
     ],
   };
-  return queuedReadyRepository()
-    .withCheckoutIdentity(dashboardDeveloper)
-    .withRevision("locations", summaryComparisonTrunkRevision)
-    .withRevision("baseline", {
-      files: {
-        "src/built.ts": "built before story\n",
-        [comparisonWorkflowPath]: comparisonWorkflow,
-      },
-    })
-    .withRevision("plan one", planningBeforeClaim[0])
-    .withRevision("plan two", planningBeforeClaim[1])
-    .withRevision("plan three", planningBeforeClaim[2])
-    .withRevision("plan four", planningBeforeClaim[3])
+  return withPlanningBeforeClaim(
+    queuedReadyRepository()
+      .withCheckoutIdentity(dashboardDeveloper)
+      .withRevision("locations", summaryComparisonTrunkRevision)
+      .withRevision("baseline", {
+        files: {
+          "src/built.ts": "built before story\n",
+          [comparisonWorkflowPath]: comparisonWorkflow,
+        },
+      }),
+  )
     .withRevision("shared", { files: { "shared.txt": lines("line") } })
     .withRevision(
       "claim",
@@ -129,28 +131,16 @@ export function declaredSummaryComparisonHistory() {
     .please();
 }
 
-// The comparison's endpoints in `checkout`, a checkout started from the
-// history, where each named revision is the commit whose message is its name.
-export function declaredSummaryComparisonEndpointsIn(checkout: string) {
-  const named = new Map(
-    git(checkout, "log", "--format=%s%x00%H", "main")
-      .split("\n")
-      .map((line) => line.split("\0") as [string, string]),
-  );
-  const revision = (name: string) => {
-    const commit = named.get(name);
-    if (commit === undefined)
-      throw new Error(`No revision named ${name} on main in ${checkout}`);
-    return commit;
-  };
-  const baseline = revision("baseline");
+// The comparison's endpoints in an origin started from the history, answered
+// by the origin's named revisions.
+export function declaredSummaryComparisonEndpointsIn(
+  origin: Pick<StartOrigin, "revision">,
+) {
   return {
-    baseline,
-    completion: revision("completion"),
-    branchSide: revision("branch completion"),
-    laterWithoutBuild: revList(checkout, revision("shared"), 20).indexOf(
-      baseline,
-    ),
+    baseline: origin.revision("baseline"),
+    completion: origin.revision("completion"),
+    branchSide: origin.revision("branch completion"),
+    laterWithoutBuild: laterWithoutBuildBeforeClaim,
     agent: claimant.agent,
     branch,
   };
