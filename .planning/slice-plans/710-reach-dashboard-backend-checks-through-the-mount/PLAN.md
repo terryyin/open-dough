@@ -102,7 +102,7 @@ that independent hook and HTTP lifetime.
 ### 2. A boundary-mode start can mount in the test process
 
 Type: Behavior
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 On request, `startDashboardServer` in boundary mode mounts the boundaries in
@@ -124,6 +124,22 @@ the boundary server and the runner address names the stand-in, then is
 absent after close, and that a second mount is refused. Scratch fault: leave
 the environment unrestored; the next live start in that worker reads the
 earlier `HOME` and its case fails.
+
+The focused backend run passed 98 cases across 25 specs and dashboard
+typecheck passed. It preserved the Java, project list, and Claude launch
+assertions on the opt-in mount. Runtime proof covered the stand-in, HTTP and
+terminal upgrade, omitted incident lifecycle, process-only access, failed
+bind recovery, overlap refusal, and the held launch control. The restoration
+fault let an ordinary child command inherit the old mount's HOME. That is the
+decisive observation because a live dashboard launch supplies its own HOME.
+Proof records and the consumer trace are under `slice-2-` in the worktree's
+Git evidence directory.
+
+Both start paths reuse the fixture's port allocator so tests can restart on
+the same leased port. The mounted runner claims its address exclusively.
+The private-home probe verified a second claim preserves the first address
+and its live listener. After refactoring, 37 affected backend cases across
+eight specs and dashboard typecheck passed.
 
 ### 3. Cursor cases ask for the live server
 
@@ -266,6 +282,8 @@ spec alone before reading it as a defect of the change.
 - Story branch CI uses GitHub Actions `ci.yml` (workflow 351271804).
   Codex coordinator `Maria-403`, mailbox `/tmp/dough-ci-501/watch-PslrGt`,
   PID 27345, stream session 7526, cell `g149:11`.
+- Slice 1 was accepted on the story branch at
+  `b4f3b5a2d20430fb328e2fa7fb0d9e2a14f8b8bf` and registered with this observer.
 - Checkout preparation passed the locked npm install, Chromium prerequisite
   check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
 

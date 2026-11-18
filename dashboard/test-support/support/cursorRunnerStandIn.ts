@@ -73,18 +73,38 @@ export async function standInCursorRunner(
       resolve();
     });
   });
+  const closeListener = () => {
+    for (const req of open) req.destroy();
+    return new Promise<void>((resolve) => {
+      server.close(() => {
+        resolve();
+      });
+    });
+  };
   const address = server.address();
   if (address === null || typeof address === "string") {
-    server.close();
+    await closeListener();
     throw new Error("The Cursor runner stand-in did not bind a port.");
   }
-  mkdirSync(path.dirname(cursorRunnerAddressFile(home)), { recursive: true });
-  // Live pid of this test worker so ensureCursorRunner sees an accepting
-  // address. Cleanup must never treat this pid as a native runner.
-  writeFileSync(
-    cursorRunnerAddressFile(home),
-    JSON.stringify({ port: address.port, pid: process.pid }),
-  );
+  const file = cursorRunnerAddressFile(home);
+  try {
+    mkdirSync(path.dirname(file), { recursive: true });
+    // An existing address may belong to a retained runner. Never replace it.
+    // Our address uses this worker's PID so ensureCursorRunner sees it live.
+    writeFileSync(
+      file,
+      JSON.stringify({ port: address.port, pid: process.pid }),
+      {
+        flag: "wx",
+      },
+    );
+  } catch (error) {
+    await closeListener();
+    throw new Error(
+      "The Cursor runner stand-in could not own this machine's address. Use liveServer for a retained runner.",
+      { cause: error },
+    );
+  }
   const withdrawAddress = () => {
     const standing = readCursorRunnerAddress(home);
     if (standing?.port === address.port && standing.pid === process.pid) {
@@ -105,12 +125,7 @@ export async function standInCursorRunner(
     withdrawAddress,
     release: () => {
       withdrawAddress();
-      for (const req of open) req.destroy();
-      return new Promise((resolve) => {
-        server.close(() => {
-          resolve();
-        });
-      });
+      return closeListener();
     },
   };
 }

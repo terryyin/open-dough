@@ -1,25 +1,6 @@
-// Launches one isolated dashboard server process -- a Vite dev or preview
-// server, or in boundary mode the local boundaries alone on a plain HTTP
-// server (../../server/boundaryServer.ts), without Vite or a build, in the
-// project environment the test names (production unless it asks for
-// development) -- with the synthetic `gh` (../fixtures/fake-gh, via ./fakeGh.ts) first on that
-// process's PATH, answering from a fake GitHub (./fakeGitHub.ts), and the
-// synthetic `claude` (../fixtures/fake-claude, via ./fakeClaude.ts) before
-// it, in a temporary HOME holding only the project folders a test chooses.
-// A test that restarts a server on the same machine state passes a `machine`
-// directory it owns, which holds HOME and the fake `claude`'s state and
-// outlives each server, and, to keep an open page's address, the `port` the
-// closed server had, which no other listener takes meanwhile
-// (./testServerPort.ts). The Cursor runner listens from that HOME and is not in
-// this server's process group, so closing the server leaves it. When this
-// helper owns the machine directory, close stops that runner before the
-// directory is removed; a test that owns the directory stops the runner
-// itself. A runner still running when the test process exits, because a
-// teardown past its timeout never reached close, is stopped then, as is the
-// server's own group (./processGroup.ts). A closed server leaves no such stop.
-// Every page journey gets its own server this way (../dashboardTest.ts), and the
-// boundary specs (../../backend-tests/) start their own, so PATH/env mutation and each
-// fake GitHub's answers never leak between tests.
+// Dashboard fixtures get a private HOME, fake GitHub, and synthetic hosts.
+// Boundary mode can mount in the worker. Live servers run the boundary
+// program or Vite. A caller can keep a machine directory across starts.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import { mkdtempSync, readFileSync } from "node:fs";
@@ -37,6 +18,10 @@ import {
 import { defaultBaseCiRevision } from "./baseCiActions.ts";
 import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
+import {
+  launchMountedDashboard,
+  withMountedDashboard,
+} from "./mountedDashboardServer.ts";
 import { standInCursorRunner } from "./cursorRunnerStandIn.ts";
 import { testServerPort } from "./testServerPort.ts";
 import {
@@ -75,12 +60,7 @@ export const developmentBoundary = {
 export type DashboardServer = {
   readonly baseURL: string;
   readonly origin: string;
-  // The server process. Its process group is the one `close` ends.
   readonly pid: number;
-  // The directory this preview-mode server serves, so a test can inspect the
-  // actual static assets -- for example, to confirm no credential-like
-  // marker was ever written into them. `undefined` in dev mode, which serves
-  // source on the fly and writes no build, and in boundary mode, no assets.
   readonly outDir: string | undefined;
   readonly serverBundle: string | undefined;
   readonly github: FakeGitHub;
@@ -93,23 +73,35 @@ export type DashboardServer = {
 } & ServerTimeControls &
   FakeClaudeControls;
 
-export async function startDashboardServer(
+export function startDashboardServer(
   options: DashboardServerOptions,
+): Promise<DashboardServer> {
+  return options.mode === "boundary" &&
+    options.mountBoundary &&
+    options.liveServer === undefined
+    ? withMountedDashboard(() => start(options, true))
+    : start(options, false);
+}
+
+async function start(
+  options: DashboardServerOptions,
+  mounted: boolean,
 ): Promise<DashboardServer> {
   const previewBuild =
     options.mode === "preview" ? options.prebuilt : undefined;
   const prebuilt =
     typeof previewBuild === "function" ? await previewBuild() : previewBuild;
   const serverBundle =
-    options.mode === "dev" ? undefined : await sharedServerBundle();
-  const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
+    mounted || options.mode === "dev" ? undefined : await sharedServerBundle();
   const ownsMachine = options.machine === undefined;
   const cursorRunner = options.cursorRunner ?? "real";
-  if (cursorRunner === "stand-in" && !ownsMachine) {
+  if (!mounted && cursorRunner === "stand-in" && !ownsMachine) {
     throw new Error(
       "A Cursor runner stand-in needs a harness-owned machine; caller-owned restart machines keep the real runner.",
     );
   }
+  const port = options.port ?? (await testServerPort());
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   if (ownsGitHub) {
@@ -155,18 +147,11 @@ export async function startDashboardServer(
   env["DOUGH_REVISION_CHECK_REUSE_MS"] = String(
     options.revisionCheckReuseMs ?? 0,
   );
-  // Timed listing and stream steps in `output()`, for a failed test's record.
-  env["DOUGH_REVISION_OBSERVATION_TRACE"] = "1";
+  env["DOUGH_REVISION_OBSERVATION_TRACE"] = mounted ? "0" : "1";
   const time = installServerTimeControls(tempRoot, options);
   Object.assign(env, time.env);
 
-  // Install before listening so ensureCursorRunner accepts the stand-in.
-  const standIn =
-    cursorRunner === "stand-in"
-      ? await standInCursorRunner(claude.controls.home)
-      : undefined;
-
-  const closeOwned = dashboardFixtureLifetime({
+  const resources = {
     tempRoot,
     home: claude.controls.home,
     ownsMachine,
@@ -174,11 +159,24 @@ export async function startDashboardServer(
     codex: options.codexProtocol === undefined ? codex : undefined,
     gh,
     github: ownsGitHub ? github : undefined,
-    standIn,
-  });
+  };
+  // Install before listening so ensureCursorRunner accepts the stand-in.
+  const standIn =
+    mounted || cursorRunner === "stand-in"
+      ? await standInCursorRunner(resources.home).catch(
+          async (error: unknown) => {
+            await dashboardFixtureLifetime({
+              ...resources,
+              ownsMachine: false,
+              standIn: undefined,
+            })();
+            throw error;
+          },
+        )
+      : undefined;
+  const closeOwned = dashboardFixtureLifetime({ ...resources, standIn });
 
-  const launch = async () => {
-    const port = options.port ?? (await testServerPort());
+  const launchLive = async () => {
     const { spawn, outDir } = await serverLaunch(
       {
         mode: options.mode,
@@ -191,29 +189,36 @@ export async function startDashboardServer(
       },
       env,
     );
+    const { launched: server, url: baseURL } = await startOnOwnAddress(
+      port,
+      spawn,
+      `The ${options.mode} server this test started could not start`,
+    );
     return {
-      ...(await startOnOwnAddress(
-        port,
-        spawn,
-        `The ${options.mode} server this test started could not start`,
-      )),
+      baseURL,
       outDir,
+      pid: () => server.child.pid ?? 0,
+      output: () => server.output(),
+      async close() {
+        await server.stop();
+        await closeOwned();
+      },
     };
   };
-  const {
-    launched: server,
-    url: baseURL,
-    outDir,
-  } = await launch().catch(async (error: unknown) => {
-    await closeOwned();
-    throw error;
-  });
+  const server = mounted
+    ? await launchMountedDashboard({ environment, env, port }, closeOwned)
+    : await launchLive().catch(async (error: unknown) => {
+        await closeOwned();
+        throw error;
+      });
 
-  return {
-    baseURL,
-    origin: baseURL,
-    pid: server.child.pid ?? 0,
-    outDir,
+  const dashboard: DashboardServer = {
+    baseURL: server.baseURL,
+    origin: server.baseURL,
+    get pid() {
+      return server.pid();
+    },
+    outDir: server.outDir,
     serverBundle,
     github,
     codex,
@@ -233,9 +238,9 @@ export async function startDashboardServer(
     },
     ...time.controls,
     ...claude.controls,
-    async close() {
-      await server.stop();
-      await closeOwned();
-    },
+    close: () => server.close(),
   };
+  // Mounted callers can copy the ordinary controls without reading a PID.
+  if (mounted) Object.defineProperty(dashboard, "pid", { enumerable: false });
+  return dashboard;
 }

@@ -1,66 +1,83 @@
-// Mount one localBoundaryPlugin on a plain http.Server owned by this process
-// so closeServer can run while the process and fake GitHub keep observing.
-// Out-of-process boundaryServer exit would hide that shutdown path.
+// Mount local boundary plugins on a plain HTTP server owned by this worker.
+// Tests of Vite's close hooks can still end a boundary while HTTP remains open.
 
 import { once } from "node:events";
 import http from "node:http";
 import type { AddressInfo } from "node:net";
-import type { LocalBoundary } from "../../server/localBoundary.ts";
+import {
+  boundaryMiddlewareChain,
+  type LocalBoundary,
+} from "../../server/localBoundary.ts";
 import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
 import {
   mountProjectConfiguration,
   type ProjectEnvironment,
 } from "../../server/projectConfiguration.ts";
 
-type StoredHandler = (
-  req: http.IncomingMessage,
-  res: http.ServerResponse,
-  next: () => void,
-) => void;
+type HookServer = {
+  readonly middlewares: ReturnType<typeof boundaryMiddlewareChain>;
+  readonly httpServer: http.Server;
+};
 
 export type InProcessBoundaryHttp = {
   readonly origin: string;
-  readonly closeBoundary: () => void | Promise<void>;
+  readonly closeBoundary: () => Promise<void>;
   readonly closeHttp: () => Promise<void>;
 };
 
 export async function startInProcessBoundaryHttp(
-  boundary: LocalBoundary,
+  boundaries: LocalBoundary | readonly LocalBoundary[],
   environment: ProjectEnvironment = "development",
+  port = 0,
 ): Promise<InProcessBoundaryHttp> {
-  let storedHandler: StoredHandler | undefined;
-  const connectStub = {
-    use(fn: StoredHandler) {
-      storedHandler = fn;
-    },
-  };
-
-  const plugin = localBoundaryPlugin(boundary);
+  const plugins = ("install" in boundaries ? [boundaries] : boundaries).map(
+    localBoundaryPlugin,
+  );
   const development = environment === "development";
-  const configureServer = (development
-    ? plugin.configureServer
-    : plugin.configurePreviewServer) as unknown as (server: {
-    middlewares: typeof connectStub;
-  }) => void | Promise<void>;
-  const closeServer = (development
-    ? plugin.closeServer
-    : plugin.closePreviewServer) as unknown as () => void | Promise<void>;
-
+  const middlewares = boundaryMiddlewareChain();
   const rawServer = http.createServer((req, res) => {
-    storedHandler?.(req, res, () => {
-      res.writeHead(404);
-      res.end();
-    });
+    middlewares.handle(req, res);
   });
   const releaseConfiguration = mountProjectConfiguration(environment);
+  const closeBoundary = async () => {
+    const errors: unknown[] = [];
+    for (const plugin of plugins) {
+      const close = (
+        development ? plugin.closeServer : plugin.closePreviewServer
+      ) as () => void | Promise<void>;
+      try {
+        await close();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1)
+      throw new AggregateError(
+        errors,
+        "Could not close the in-process boundaries",
+      );
+  };
+
   try {
-    await configureServer({ middlewares: connectStub });
+    await Promise.all(
+      plugins.map((plugin) => {
+        const configure = (development
+          ? plugin.configureServer
+          : plugin.configurePreviewServer) as unknown as (
+          server: HookServer,
+        ) => void | Promise<void>;
+        return Promise.resolve(
+          configure({ middlewares, httpServer: rawServer }),
+        );
+      }),
+    );
     const listening = once(rawServer, "listening");
-    rawServer.listen(0, "127.0.0.1");
+    rawServer.listen(port, "127.0.0.1");
     await listening;
   } catch (error) {
     try {
-      await closeServer();
+      await closeBoundary();
     } catch (cleanupError) {
       throw new AggregateError(
         [error, cleanupError],
@@ -72,18 +89,19 @@ export async function startInProcessBoundaryHttp(
     }
     throw error;
   }
-  const { port } = rawServer.address() as AddressInfo;
+  const address = rawServer.address() as AddressInfo;
 
   return {
-    origin: `http://127.0.0.1:${String(port)}`,
-    closeBoundary: () => closeServer(),
+    origin: `http://127.0.0.1:${String(address.port)}`,
+    closeBoundary,
     async closeHttp() {
-      rawServer.closeAllConnections();
-      await new Promise<void>((resolve) => {
+      const closing = new Promise<void>((resolve) => {
         rawServer.close(() => {
           resolve();
         });
       });
+      rawServer.closeAllConnections();
+      await closing;
       releaseConfiguration();
     },
   };

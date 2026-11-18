@@ -36,6 +36,7 @@ test.describe(`agent launch boundary`, () => {
   test.beforeAll(async () => {
     server = await startDashboardServer({
       mode: "boundary",
+      mountBoundary: true,
       projectFolders: ["open-dough", "pygardon"],
       launchTimeoutMs: launchWaitMs,
       doneRenameWaitMs: 100,

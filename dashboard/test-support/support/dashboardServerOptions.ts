@@ -12,6 +12,10 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // for a spec that never opens a page (../../backend-tests/); `dev` and `preview`
   // start Vite.
   readonly mode: DashboardServerMode;
+  // Boundary only: mount in this worker with the Cursor runner stand-in.
+  readonly mountBoundary?: boolean;
+  // Ask for a live server by naming the proof that needs it.
+  readonly liveServer?: string;
   // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).
   readonly restartable?: boolean;
   // Boundary only: the project environment the server keeps its project
@@ -47,12 +51,9 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // Preview only: serve this directory or resolve a shared build instead
   // of building a private copy.
   readonly prebuilt?: string | (() => Promise<string>) | undefined;
-  // Extra environment for the spawned server process only, merged over the
-  // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
-  // credential-shaped value somewhere the production code's own subprocess
-  // invocation (`../../server/ghRead.ts`, which forwards its whole
-  // environment to `gh`) would see it, without touching this process's own
-  // real environment.
+  // Extra server environment over the harness's PATH and fake host wiring.
+  // Live servers receive it in their child environment. A mounted server
+  // applies it to the worker for the lifetime of its boundary.
   readonly extraEnv?: Readonly<Record<string, string>>;
   // Directories placed ahead of the harness binaries on PATH.
   readonly pathPrefix?: readonly string[];
