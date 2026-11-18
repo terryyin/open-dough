@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-400#keep-freshness-with-a-valid-take",
+  "title": "Keep source-freshness checks usable after a contributor merge",
+  "completedAt": "2026-11-18T07:57:26.091Z",
+  "developer": "Terry Yin",
+  "agent": "Tsukasa-chan",
+  "host": "claude",
+  "model": "fable"
+}

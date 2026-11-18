@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-400_keep-freshness-with-a-valid-take.json",
+      "identity": "SEED-400#keep-freshness-with-a-valid-take",
+      "completedAt": "2026-11-18T07:57:26.091Z",
+      "blob": "242bc6c6720c143e97563c6931ab65c798d0f003"
+    },
+    {
       "fileName": "SEED-334_move-story-reference-checks.json",
       "identity": "SEED-334#move-story-reference-checks",
       "completedAt": "2026-11-18T06:35:15.275Z",
