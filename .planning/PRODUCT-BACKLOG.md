@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Declare every worker preparation with its own budget](seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget) — SEED-340#declare-every-worker-preparation-with-its-own-budget ([plan](slice-plans/692-declare-every-worker-preparation-with-its-own-budget/PLAN.md))
 - [Run the Dashboard Integrated group as one CI job](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#run-the-integrated-group-as-one-ci-job) — SEED-382#run-the-integrated-group-as-one-ci-job
+- [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart ([plan](slice-plans/662-tell-compared-usage-tools-apart/PLAN.md))
 
 ## Backlog list
 
-- [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
 - [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
 - [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use
