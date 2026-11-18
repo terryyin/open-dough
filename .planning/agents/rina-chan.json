@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rina-chan",
-  "email": "rina-chan@example.org",
-  "identity": "SEED-334#move-story-reference-checks",
-  "mode": "story-branch",
-  "branch": "claude/move-story-reference-checks-out-of-dashboard-int",
-  "host": "claude"
-}
