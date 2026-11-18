@@ -1,15 +1,8 @@
 // Preference migration observed through the real Sessions sidebar and resize control.
 // Registered by ./cursor-sessions-sidebar-size-kept.spec.ts.
 import {
-  expectCollapsed,
-  expectCursorHeight,
-  expectDividerSays,
-  heightKey,
-  keepInBrowser,
-  keptHeight,
-  keyDivider,
   keyStep,
-  roomOf,
+  runningCursorSplit,
 } from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import { runningCursorParts } from "../../dashboard/tests/runningCursorList.ts";
@@ -24,30 +17,31 @@ test("a height saved under the former Sessions sidebar key is recovered once and
 }) => {
   await showPage(page, origin);
   const shown = runningCursorParts(page);
+  const split = runningCursorSplit(page, shown);
   await shown.button.click();
-  await keepInBrowser(page, formerHeightKey, "280");
+  await split.keepInBrowser(formerHeightKey, "280");
   await page.evaluate((key) => {
     localStorage.removeItem(key);
-  }, heightKey);
+  }, split.heightKey);
   await reloadUntilRead(page);
   await expect(shown.sidebar).toBeVisible();
-  await expectCollapsed(shown);
+  await split.expectCollapsed();
   await shown.header.click();
-  await expectCursorHeight(shown, await roomOf(shown), 280);
-  expect(await keptHeight(page)).toBe("280");
+  await split.expectCursorHeight(await split.roomOf(), 280);
+  expect(await split.keptHeight()).toBe("280");
 
   // A changed former value cannot override the adopted preference.
-  await keepInBrowser(page, formerHeightKey, "340");
+  await split.keepInBrowser(formerHeightKey, "340");
   await reloadUntilRead(page);
-  await expectCollapsed(shown);
+  await split.expectCollapsed();
   await shown.header.click();
-  await expectDividerSays(shown.divider, 280);
-  await keyDivider(shown.divider, "ArrowUp");
+  await split.expectDividerSays(280);
+  await split.keyDivider("ArrowUp");
   const chosen = 280 + keyStep;
-  await expectDividerSays(shown.divider, chosen);
-  expect(await keptHeight(page)).toBe(String(chosen));
+  await split.expectDividerSays(chosen);
+  expect(await split.keptHeight()).toBe(String(chosen));
   await reloadUntilRead(page);
-  await expectCollapsed(shown);
+  await split.expectCollapsed();
   await shown.header.click();
-  await expectCursorHeight(shown, await roomOf(shown), chosen);
+  await split.expectCursorHeight(await split.roomOf(), chosen);
 });

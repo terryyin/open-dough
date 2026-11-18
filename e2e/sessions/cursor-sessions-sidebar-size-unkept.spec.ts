@@ -6,15 +6,8 @@
 // preconditions; resizing asks the server and the cursor-agent nothing.
 import {
   expandCrowded,
-  expectCollapsed,
-  expectCursorHeight,
-  expectSplit,
-  heightKey,
-  keepInBrowser,
-  keptHeight,
-  keyDivider,
   keyStep,
-  roomOf,
+  runningCursorSplit,
 } from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
 import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
 import { crowd } from "../../dashboard/tests/runningCursorSessionsPage.ts";
@@ -35,28 +28,29 @@ test("an unusable kept height starts at an equal share, is not replaced by expan
     origin,
     cursor,
   );
-  const { sidebar, header, divider, entries } = shown;
-  const room = await roomOf(shown);
+  const split = runningCursorSplit(page, shown);
+  const { sidebar, header, entries } = shown;
+  const room = await split.roomOf();
   const half = Math.round(room / 2);
   for (const unusable of ["tall", "", "0", "-240", "Infinity", "NaN"]) {
     await test.step(`kept as ${JSON.stringify(unusable)}`, async () => {
-      await keepInBrowser(page, heightKey, unusable);
+      await split.keepInBrowser(split.heightKey, unusable);
       await page.reload();
       await expect(sidebar).toBeVisible();
-      await expectCollapsed(shown);
+      await split.expectCollapsed();
       await header.click();
-      await expectCursorHeight(shown, room, half);
-      expect(await keptHeight(page)).toBe(unusable);
+      await split.expectCursorHeight(room, half);
+      expect(await split.keptHeight()).toBe(unusable);
     });
   }
 
-  await keyDivider(divider, "ArrowDown", 2);
+  await split.keyDivider("ArrowDown", 2);
   const chosen = half - 2 * keyStep;
-  await expectSplit(shown, room, chosen);
-  expect(await keptHeight(page)).toBe(String(chosen));
+  await split.expectSplit(room, chosen);
+  expect(await split.keptHeight()).toBe(String(chosen));
   await page.reload();
   await header.click();
-  await expectCursorHeight(shown, room, chosen);
+  await split.expectCursorHeight(room, chosen);
   // Both lists are whole throughout.
   await expect(entries).toHaveCount(crowd + 1);
   await expect(heldRows).toHaveCount(crowd);
@@ -86,16 +80,17 @@ test("where the browser refuses storage, the lists start at an equal share and r
     origin,
     cursor,
   );
-  await expect(keptHeight(page)).rejects.toThrow("Storage is refused.");
-  const { sidebar, button, header, divider, entries } = shown;
-  const room = await roomOf(shown);
+  const split = runningCursorSplit(page, shown);
+  await expect(split.keptHeight()).rejects.toThrow("Storage is refused.");
+  const { sidebar, button, header, entries } = shown;
+  const room = await split.roomOf();
   const half = Math.round(room / 2);
-  await expectCursorHeight(shown, room, half);
+  await split.expectCursorHeight(room, half);
 
-  await keyDivider(divider, "ArrowUp", 3);
+  await split.keyDivider("ArrowUp", 3);
   const chosen = half + 3 * keyStep;
   const expectChosen = async () => {
-    await expectCursorHeight(shown, room, chosen);
+    await split.expectCursorHeight(room, chosen);
     await expect(entries).toHaveCount(crowd + 1);
     await expect(heldRows).toHaveCount(crowd);
   };
@@ -103,7 +98,7 @@ test("where the browser refuses storage, the lists start at an equal share and r
 
   await test.step("collapsing and closing the sidebar keep the choice for the page", async () => {
     await header.click();
-    await expectCollapsed(shown);
+    await split.expectCollapsed();
     await header.click();
     await expectChosen();
     await button.click();
@@ -116,9 +111,9 @@ test("where the browser refuses storage, the lists start at an equal share and r
     await page.reload();
     await expect(sidebar).toBeHidden();
     await button.click();
-    await expectCollapsed(shown);
+    await split.expectCollapsed();
     await header.click();
-    await expectCursorHeight(shown, room, half);
+    await split.expectCursorHeight(room, half);
     await expect(entries).toHaveCount(crowd + 1);
     await expect(heldRows).toHaveCount(crowd);
   });

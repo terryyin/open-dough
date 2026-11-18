@@ -3,6 +3,9 @@
 // (./runningCursorSessionsPage.ts) shown in the sidebar, the split and what
 // the divider says as shown, each list scrolling on its own, the mouse and
 // keys that move the divider, and the preferred height this browser keeps.
+// Specs name that divider through sidebarListDivider, and the Running Cursor
+// split and kept height through runningCursorSplit. Rooms, key steps, viewport
+// widths and kept values stay in the scenario.
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { box, expectInside } from "./pageLayout.ts";
@@ -145,6 +148,45 @@ export async function expectScrollsOnItsOwn(
       tops[index],
     );
 }
+
+// The divider a scenario moves, and the lists beside it. The scenario keeps
+// the distances, key steps and heights it is proving.
+export function sidebarListDivider(page: Page, divider: Locator) {
+  return {
+    dragDivider: (by: number) => dragDivider(page, divider, by),
+    grab: () => grab(page, divider),
+    keyDivider: (key: string, times = 1) => keyDivider(divider, key, times),
+    press: (key: string, times: number) => press(page, key, times),
+    valueOf: (name: string) => valueOf(divider, name),
+    heightOf: (area: Locator) => heightOf(area),
+    expectDividerSays: (height: number) => expectDividerSays(divider, height),
+    expectScrollsOnItsOwn: (
+      area: Locator,
+      last: Locator,
+      others: readonly Locator[],
+    ) => expectScrollsOnItsOwn(area, last, others),
+  };
+}
+
+// The Running Cursor sessions split: that divider, the room the two lists
+// share, and the height this browser keeps.
+export function runningCursorSplit(page: Page, shown: RunningCursorParts) {
+  return {
+    ...sidebarListDivider(page, shown.divider),
+    heightKey,
+    roomOf: () => roomOf(shown),
+    keptHeight: () => keptHeight(page),
+    keepInBrowser: (key: string, value: string) =>
+      keepInBrowser(page, key, value),
+    expectCollapsed: () => expectCollapsed(shown),
+    expectSplit: (room: number, height: number) =>
+      expectSplit(shown, room, height),
+    expectCursorHeight: (room: number, height: number) =>
+      expectCursorHeight(shown, room, height),
+  };
+}
+
+export type RunningCursorSplit = ReturnType<typeof runningCursorSplit>;
 
 // The held session and the crowded lists, with the sidebar open showing every
 // session and Running Cursor sessions still collapsed. A case keeping more

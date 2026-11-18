@@ -2,13 +2,8 @@
 // Cursor sessions against controlled machine and Cursor-runner answers:
 // expand, resize, independent scroll, short window, reload.
 import {
-  dragDivider,
-  expectDividerSays,
-  expectScrollsOnItsOwn,
-  heightOf,
-  keyDivider,
   keyStep,
-  valueOf,
+  sidebarListDivider,
   wide,
 } from "../../tests/cursorSessionsSidebarResizePage.ts";
 import {
@@ -36,19 +31,22 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     page,
     frontendServices,
   );
-  const { divider, header, list, body, running, openEntries, entries } = shown;
+  const resize = sidebarListDivider(page, shown.divider);
+  const { header, list, body, running, openEntries, entries } = shown;
   const room = await roomOfThree(shown);
   const start = Math.round(room / 3);
 
   await test.step("the three lists share the room and each keeps a usable floor", async () => {
-    expect(await heightOf(list)).toBeGreaterThanOrEqual(floor - 0.5);
-    expect(await heightOf(body)).toBeGreaterThanOrEqual(floor - 0.5);
-    expect(await heightOf(running.body)).toBeGreaterThanOrEqual(floor - 0.5);
+    expect(await resize.heightOf(list)).toBeGreaterThanOrEqual(floor - 0.5);
+    expect(await resize.heightOf(body)).toBeGreaterThanOrEqual(floor - 0.5);
+    expect(await resize.heightOf(running.body)).toBeGreaterThanOrEqual(
+      floor - 0.5,
+    );
     expect(
       Math.abs(
-        (await heightOf(list)) +
-          (await heightOf(body)) +
-          (await heightOf(running.body)) -
+        (await resize.heightOf(list)) +
+          (await resize.heightOf(body)) +
+          (await resize.heightOf(running.body)) -
           room,
       ),
     ).toBeLessThanOrEqual(2);
@@ -59,7 +57,10 @@ test("both optional sections share one room: expand, resize, scroll, short windo
       await area.evaluate((element) => {
         element.scrollTo(0, 0);
       });
-    await expectScrollsOnItsOwn(list, openEntries.last(), [body, running.body]);
+    await resize.expectScrollsOnItsOwn(list, openEntries.last(), [
+      body,
+      running.body,
+    ]);
     const listTop = await scrollTopOf(list);
     const runningTop = await scrollTopOf(running.body);
     await wheelToEnd(page, body);
@@ -71,15 +72,15 @@ test("both optional sections share one room: expand, resize, scroll, short windo
   });
 
   await test.step("dragging or keying the Recently done divider resizes within floors", async () => {
-    await expect(divider).toHaveAccessibleName(
+    await expect(shown.divider).toHaveAccessibleName(
       "Recently done sessions divider",
     );
-    const before = await valueOf(divider, "aria-valuenow");
-    await dragDivider(page, divider, 2000);
-    await expectDividerSays(divider, floor);
-    await keyDivider(divider, "ArrowUp", 3);
-    await expectDividerSays(divider, floor + 3 * keyStep);
-    expect(await heightOf(list)).toBeGreaterThanOrEqual(floor - 0.5);
+    const before = await resize.valueOf("aria-valuenow");
+    await resize.dragDivider(2000);
+    await resize.expectDividerSays(floor);
+    await resize.keyDivider("ArrowUp", 3);
+    await resize.expectDividerSays(floor + 3 * keyStep);
+    expect(await resize.heightOf(list)).toBeGreaterThanOrEqual(floor - 0.5);
     expect(before).toBeGreaterThan(0);
     expect(start).toBeGreaterThan(0);
   });
@@ -103,13 +104,13 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     await expect(header).toHaveAttribute("aria-expanded", "true");
     await expect(running.header).toHaveAttribute("aria-expanded", "true");
     const preferred = floor + 3 * keyStep;
-    await expectDividerSays(divider, preferred);
+    await resize.expectDividerSays(preferred);
     await page.reload();
     await expect(shown.sidebar).toBeVisible();
     await expect(header).toHaveAttribute("aria-expanded", "false");
     await header.click();
     await running.header.click();
-    await expectDividerSays(divider, preferred);
+    await resize.expectDividerSays(preferred);
     expectNothingChanged();
   });
 });

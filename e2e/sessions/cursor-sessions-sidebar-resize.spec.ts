@@ -9,17 +9,10 @@
 import type { Locator } from "@playwright/test";
 import { expectFocusedAndIndicated } from "../../dashboard/tests/accessibleReading.ts";
 import {
-  dragDivider,
   expandCrowded,
-  expectCursorHeight,
-  expectScrollsOnItsOwn,
-  expectSplit,
-  grab,
-  heightOf,
   keyStep,
-  press,
-  roomOf,
-  valueOf,
+  runningCursorSplit,
+  type RunningCursorSplit,
 } from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
 import { box, expectInside } from "../../dashboard/tests/pageLayout.ts";
 import type { RunningCursorParts } from "../../dashboard/tests/runningCursorList.ts";
@@ -34,7 +27,11 @@ test.use({ cursorScreen: "working" });
 // Each list's first and last entries are in reach by its own scrolling,
 // leaving the other list where it was, with the runner's status above the
 // held rows; the header and the divider stay in view.
-async function expectBothInReach(shown: RunningCursorParts, heldRows: Locator) {
+async function expectBothInReach(
+  split: RunningCursorSplit,
+  shown: RunningCursorParts,
+  heldRows: Locator,
+) {
   for (const area of [shown.list, shown.body])
     await area.evaluate((element) => {
       element.scrollTo(0, 0);
@@ -45,8 +42,10 @@ async function expectBothInReach(shown: RunningCursorParts, heldRows: Locator) {
     shown.body,
   );
   await expectInside(heldRows.first(), shown.body);
-  await expectScrollsOnItsOwn(shown.list, shown.entries.last(), [shown.body]);
-  await expectScrollsOnItsOwn(shown.body, heldRows.last(), [shown.list]);
+  await split.expectScrollsOnItsOwn(shown.list, shown.entries.last(), [
+    shown.body,
+  ]);
+  await split.expectScrollsOnItsOwn(shown.body, heldRows.last(), [shown.list]);
   await expect(shown.header).toBeInViewport({ ratio: 1 });
   await expect(shown.divider).toBeInViewport();
 }
@@ -63,10 +62,11 @@ test("dragging the divider or pressing Up and Down resizes both lists within the
     origin,
     cursor,
   );
+  const split = runningCursorSplit(page, shown);
   const { divider, header } = shown;
-  const room = await roomOf(shown);
+  const room = await split.roomOf();
   const start = Math.round(room / 2);
-  const maximum = await valueOf(divider, "aria-valuemax");
+  const maximum = await split.valueOf("aria-valuemax");
 
   await test.step("the divider between the lists is a horizontal separator that says the Cursor list's height and bounds", async () => {
     await expect(divider).toHaveAccessibleName(
@@ -75,7 +75,7 @@ test("dragging the divider or pressing Up and Down resizes both lists within the
     await expect(divider).toHaveAttribute("aria-orientation", "horizontal");
     await expect(divider).toHaveAttribute("aria-valuemin", String(floor));
     expect(maximum).toBe(Math.floor(room - floor));
-    await expectCursorHeight(shown, room, start);
+    await split.expectCursorHeight(room, start);
     const [list, line, section] = await Promise.all([
       box(shown.list),
       box(divider),
@@ -88,47 +88,49 @@ test("dragging the divider or pressing Up and Down resizes both lists within the
   });
 
   await test.step("dragging the divider up grows the Cursor list and shrinks the session list as the mouse moves", async () => {
-    const pointer = await grab(page, divider);
+    const pointer = await split.grab();
     await pointer.moveTo(0, -60);
     // Not yet released.
-    await expectSplit(shown, room, start + 60);
+    await split.expectSplit(room, start + 60);
     await pointer.moveTo(0, -100);
-    await expectCursorHeight(shown, room, start + 100);
+    await split.expectCursorHeight(room, start + 100);
     await pointer.moveTo(0, -40);
-    await expectSplit(shown, room, start + 40);
+    await split.expectSplit(room, start + 40);
     await pointer.release();
   });
 
   await test.step("released off the divider, the drag has ended: the mouse moves freely", async () => {
-    const pointer = await grab(page, divider);
+    const pointer = await split.grab();
     await pointer.moveTo(200, -80);
     await pointer.release();
-    await expectSplit(shown, room, start + 120);
+    await split.expectSplit(room, start + 120);
     await pointer.moveTo(200, 150);
     await pointer.moveTo(0, 200);
-    await expectCursorHeight(shown, room, start + 120);
+    await split.expectCursorHeight(room, start + 120);
   });
 
   await test.step("a cancelled drag ends", async () => {
-    const pointer = await grab(page, divider);
+    const pointer = await split.grab();
     await pointer.cancel();
     await pointer.moveTo(0, 150);
-    await expectSplit(shown, room, start + 120);
+    await split.expectSplit(room, start + 120);
     await pointer.release();
-    await expectSplit(shown, room, start + 120);
+    await split.expectSplit(room, start + 120);
   });
 
   await test.step("dragged past the top, the session list keeps its floor and both lists stay in reach", async () => {
-    await dragDivider(page, divider, -2000);
-    await expectCursorHeight(shown, room, maximum);
-    expect(await heightOf(shown.list)).toBeGreaterThanOrEqual(floor - 0.5);
-    await expectBothInReach(shown, heldRows);
+    await split.dragDivider(-2000);
+    await split.expectCursorHeight(room, maximum);
+    expect(await split.heightOf(shown.list)).toBeGreaterThanOrEqual(
+      floor - 0.5,
+    );
+    await expectBothInReach(split, shown, heldRows);
   });
 
   await test.step("dragged past the bottom, the Cursor list keeps its floor and both lists stay in reach", async () => {
-    await dragDivider(page, divider, 2000);
-    await expectCursorHeight(shown, room, floor);
-    await expectBothInReach(shown, heldRows);
+    await split.dragDivider(2000);
+    await split.expectCursorHeight(room, floor);
+    await expectBothInReach(split, shown, heldRows);
   });
 
   await test.step("with the keyboard on the divider, Up grows the Cursor list and Down shrinks it, within the same bounds", async () => {
@@ -138,13 +140,13 @@ test("dragging the divider or pressing Up and Down resizes both lists within the
     await expectFocusedAndIndicated(page, divider);
     const sidebarTop = await scrollTopOf(shown.sidebar);
     await page.keyboard.press("ArrowUp");
-    await expectCursorHeight(shown, room, floor + keyStep);
-    await press(page, "ArrowDown", 3);
-    await expectSplit(shown, room, floor);
-    await press(page, "ArrowUp", 40);
-    await expectCursorHeight(shown, room, maximum);
-    await press(page, "ArrowDown", 4);
-    await expectSplit(shown, room, maximum - 4 * keyStep);
+    await split.expectCursorHeight(room, floor + keyStep);
+    await split.press("ArrowDown", 3);
+    await split.expectSplit(room, floor);
+    await split.press("ArrowUp", 40);
+    await split.expectCursorHeight(room, maximum);
+    await split.press("ArrowDown", 4);
+    await split.expectSplit(room, maximum - 4 * keyStep);
     await expect(divider).toBeFocused();
     // The keys resize only: neither the sidebar nor a list scrolls.
     expect(await scrollTopOf(shown.sidebar)).toBe(sidebarTop);

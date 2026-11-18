@@ -9,17 +9,9 @@
 // storage; resizing asks the server and the cursor-agent nothing.
 import type { Page } from "@playwright/test";
 import {
-  dragDivider,
-  expectCollapsed,
-  expectCursorHeight,
-  expectSplit,
-  heightKey,
-  keepInBrowser,
-  keptHeight,
-  keyDivider,
   keyStep,
-  roomOf,
-  valueOf,
+  runningCursorSplit,
+  type RunningCursorSplit,
   wide,
 } from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
 import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
@@ -42,7 +34,7 @@ import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.t
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
 
 // Everything this browser keeps besides the preferred height.
-const otherPreferences = (page: Page) =>
+const otherPreferences = (page: Page, preferredHeightKey: string) =>
   page.evaluate(
     (key) =>
       Object.fromEntries(
@@ -50,15 +42,18 @@ const otherPreferences = (page: Page) =>
           ([name]) => name !== key,
         ),
       ),
-    heightKey,
+    preferredHeightKey,
   );
 
 // Expanded, the two lists share the room equally; returns that room.
-async function expandToEqualShare(shown: RunningCursorParts) {
+async function expandToEqualShare(
+  split: RunningCursorSplit,
+  shown: RunningCursorParts,
+) {
   await shown.header.click();
   await expect(shown.body).toBeVisible();
-  const room = await roomOf(shown);
-  await expectCursorHeight(shown, room, Math.round(room / 2));
+  const room = await split.roomOf();
+  await split.expectCursorHeight(room, Math.round(room / 2));
   return room;
 }
 
@@ -82,35 +77,36 @@ test.describe("with two projects", () => {
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = runningCursorParts(page);
-    const { sidebar, button, header, divider } = shown;
+    const split = runningCursorSplit(page, shown);
+    const { sidebar, button, header } = shown;
     const { backlog } = parts(page);
     await button.click();
     await expect(sidebar).toBeVisible();
-    await keepInBrowser(page, "open-dough.sidePanel.width", "500");
-    await keepInBrowser(page, "open-dough.board.position", "1");
-    const others = await otherPreferences(page);
+    await split.keepInBrowser("open-dough.sidePanel.width", "500");
+    await split.keepInBrowser("open-dough.board.position", "1");
+    const others = await otherPreferences(page, split.heightKey);
     expect(others).toEqual({
       [sessionsSidebarOpenKey]: "true",
       "open-dough.sidePanel.width": "500",
       "open-dough.board.position": "1",
     });
-    expect(await keptHeight(page)).toBeNull();
+    expect(await split.keptHeight()).toBeNull();
 
-    const room = await expandToEqualShare(shown);
+    const room = await expandToEqualShare(split, shown);
     // Expanding at the default is no choice: nothing is kept yet.
-    expect(await keptHeight(page)).toBeNull();
-    await keyDivider(divider, "ArrowUp", 3);
+    expect(await split.keptHeight()).toBeNull();
+    await split.keyDivider("ArrowUp", 3);
     const chosen = Math.round(room / 2) + 3 * keyStep;
     const expectChosen = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
-      await expectCursorHeight(shown, room, chosen);
-      expect(await keptHeight(page)).toBe(String(chosen));
+      await split.expectCursorHeight(room, chosen);
+      expect(await split.keptHeight()).toBe(String(chosen));
     };
     await expectChosen();
 
     await test.step("collapsing, the sidebar, another project and a view keep it", async () => {
       await header.click();
-      await expectCollapsed(shown);
+      await split.expectCollapsed();
       await header.click();
       await expectChosen();
       await button.click();
@@ -129,8 +125,8 @@ test.describe("with two projects", () => {
     await test.step("a reload starts collapsed, and expanding recovers the kept height", async () => {
       await page.reload();
       await expect(sidebar).toBeVisible();
-      await expectCollapsed(shown);
-      expect(await keptHeight(page)).toBe(String(chosen));
+      await split.expectCollapsed();
+      expect(await split.keptHeight()).toBe(String(chosen));
       await header.click();
       await expectChosen();
     });
@@ -144,10 +140,11 @@ test.describe("with two projects", () => {
         const other = await fresh.newPage();
         await other.goto("/");
         const there = runningCursorParts(other);
+        const otherSplit = runningCursorSplit(other, there);
         await there.button.click();
-        await expectCollapsed(there);
-        await expandToEqualShare(there);
-        expect(await keptHeight(other)).toBeNull();
+        await otherSplit.expectCollapsed();
+        await expandToEqualShare(otherSplit, there);
+        expect(await otherSplit.keptHeight()).toBeNull();
       } finally {
         await fresh.close();
       }
@@ -155,10 +152,10 @@ test.describe("with two projects", () => {
 
     await test.step("the first browser still recovers its height, its other preferences as they were", async () => {
       await page.reload();
-      await expectCollapsed(shown);
+      await split.expectCollapsed();
       await header.click();
       await expectChosen();
-      expect(await otherPreferences(page)).toEqual(others);
+      expect(await otherPreferences(page, split.heightKey)).toEqual(others);
     });
 
     expect(asked).toEqual([]);
@@ -173,17 +170,18 @@ test("less room fits the shown height, also after a reload, without replacing th
 }) => {
   await showPage(page, origin);
   const shown = runningCursorParts(page);
+  const split = runningCursorSplit(page, shown);
   const { button, header, divider } = shown;
   await button.click();
-  const room = await expandToEqualShare(shown);
+  const room = await expandToEqualShare(split, shown);
   // What the sidebar's heading, header and padding take from its height.
   const taken = wide.height - room;
-  await dragDivider(page, divider, -150);
-  const chosen = await valueOf(divider, "aria-valuenow");
+  await split.dragDivider(-150);
+  const chosen = await split.valueOf("aria-valuenow");
   expect(chosen).toBeGreaterThan(Math.round(room / 2) + 100);
-  await expectSplit(shown, room, chosen);
+  await split.expectSplit(room, chosen);
   const expectKept = async () => {
-    expect(await keptHeight(page)).toBe(String(chosen));
+    expect(await split.keptHeight()).toBe(String(chosen));
   };
   await expectKept();
   const less = Math.ceil(taken + 2 * floor + 40);
@@ -192,7 +190,7 @@ test("less room fits the shown height, also after a reload, without replacing th
 
   await test.step("less room fits the shown height and keeps the chosen one", async () => {
     await page.setViewportSize({ width: wide.width, height: less });
-    await expectCursorHeight(shown, less - taken, fitted);
+    await split.expectCursorHeight(less - taken, fitted);
     await expectKept();
   });
 
@@ -208,15 +206,15 @@ test("less room fits the shown height, also after a reload, without replacing th
   await test.step("reloaded in less room, expanding fits the room and keeps the chosen one", async () => {
     await page.setViewportSize({ width: wide.width, height: less });
     await page.reload();
-    await expectCollapsed(shown);
+    await split.expectCollapsed();
     await header.click();
-    await expectCursorHeight(shown, less - taken, fitted);
+    await split.expectCursorHeight(less - taken, fitted);
     await expectKept();
   });
 
   await test.step("more room recovers the chosen height", async () => {
     await page.setViewportSize(wide);
-    await expectCursorHeight(shown, room, chosen);
+    await split.expectCursorHeight(room, chosen);
     await expectKept();
   });
 });
