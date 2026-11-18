@@ -54,6 +54,36 @@ as one comparison.
 - A failed Refresh still keeps the last same-selection result and check time;
   a failed read for a new selection still shows only the tool-named error.
 
+## Current decisions
+
+- Claude Code's task mark is a triangle: filled for a measured task, hollow
+  with the caution stroke for a partial one. Codex keeps its filled circle and
+  hollow caution diamond. A triangle differs from circle and diamond at mark
+  size where a square reads as a diamond turned; the shape belongs to the
+  shared chart's second trace style, beside its dashed trend.
+- The selected mark stays the larger diamond with its "Selected task" label for
+  either tool; the open task detail names its tool.
+- The legend names, for each shown tool, its task mark, its partial mark and
+  its median line; a hidden tool has no entries. Each tool summary's heading
+  swatch is that tool's task mark.
+
+## Decisive premises
+
+Observed in this worktree at `ed64b76d9` on 2026-11-18 with scratch edits, since
+reverted, through `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u
+GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config
+dashboard/frontend.playwright.config.ts --reporter=list <spec> --workers=1`.
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| The stale alert exists (finding 1) | Slice 1's first case | Scratch frontend case: Claude Code fails, hide it, show it with a successful answer | Fails as claimed: one alert beside four points |
+| A held old-selection answer can be proved isolated (finding 3) | Slice 1's second case | Scratch case holding Claude Code's route, hiding the tool, releasing; rerun with the abort signal and aborted guard removed, then with the key guard removed too | Passes today; fails without the abort guards (0 points for 2) and without all guards (5 for 2) |
+| Only Usage draws a second trace, and only one test helper relies on its mark element | Slice 2's shape change | `traces:` is supplied only by `TokenIndexTrend.tsx`; scratch triangle for slot 1 in `HistoryChartPlot.tsx`, all `system-settings-usage*` frontend cases | 22 pass; the three compare cases fail in `usageChart.showsDistinctTraces` (`circle.history-chart-point` no longer matches Claude Code); E2E Usage specs use no mark-element helper |
+
+Sizes at that revision: `system-settings-usage-compare.spec.ts` 216 lines,
+`TokenIndexTrend.tsx` 202, `system-settings-usage.css` 231, against the
+250-line file-size check; none is over it today.
+
 ## Ordered slices
 
 ### 1. Show only current read failures and isolate selections
@@ -66,33 +96,77 @@ of the same selection (returning to it, or a day round trip) shows no alert,
 and a pending read shows "Loading usage…". Answers for an old selection never
 appear after the selection changes, even when they arrive late.
 
-Proof: two frontend cases in `dashboard/frontend-tests/system-settings-usage-compare.spec.ts`
-(or a new focused Usage spec if that file would exceed 250 lines): fail Claude
-Code, hide and show it with a now-successful answer, expect no alert and the
-chart; hold the first selection's route, change selection, release it, expect
-only the new selection's points. Run all `system-settings-usage*` frontend
-cases.
+Proof: two frontend cases in a new focused Usage spec beside
+`system-settings-usage-compare.spec.ts`, which has no room for them: fail
+Claude Code, hide and show it with a now-successful answer, expect "Loading
+usage…" while that read is held, then no alert and both tools' points; hold the
+first selection's route, change selection, release it, expect only the new
+selection's points. The compare spec's failed-Refresh and new-selection error
+case stays green. Run all `system-settings-usage*` frontend cases.
 
 Sizing: 10 active minutes, high confidence.
 
-### 2. Tell tools apart without colour and match the legend
+### 2. Tell each tool's marks apart by shape
 
 Type: Behavior
 Status: planned
 
-Claude Code's task marks use a distinct shape from Codex's (for example a
-square or triangle point, keeping the hollow-diamond meaning for partial via
-the caution stroke), and the legend lists each shown tool's task mark and
-median line (dashed for Claude Code) with the tool name. Correct the
-`USAGE-TOKEN-INDEX.md` and `usageTokenIndex.ts` text drift in finding 4.
+With both tools shown, Claude Code's measured and partial task marks are
+triangles and Codex's stay circle and diamond; a partial mark of either tool is
+hollow with the caution stroke. `history-chart.css` and
+`HistoryChartPlot.tsx` describe the second trace's shape.
 
-Proof: compare spec asserts each shown tool has a named legend entry matching
-its drawn mark and median style, Claude Code marks differ in shape from Codex
-marks, and Claude Code partial marks keep the caution stroke; light/dark
-contrast and narrow fit cases stay green. Run all `system-settings-usage*`
-frontend cases and the shared-chart consumer specs (`intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`, `intent-scope-timing-history-*`, `intent/intent-ci-wall-time-history*`).
+Proof: `usageChart.showsDistinctTraces` asserts that Claude Code's measured
+mark differs in shape from Codex's, its partial mark differs in shape from
+Codex's partial mark and has the caution stroke, and marks stay readable in
+light and dark; the compare spec's three cases, including phone and narrowest
+window fit, pass. Run all `system-settings-usage*` frontend cases and the
+shared-chart consumer specs (`intent-ci-history-chart-marks`,
+`intent-project-ci-history-chart-marks`, `intent-scope-timing-history-*`,
+`intent/intent-ci-wall-time-history*`), since the mark renderer is shared.
 
-Sizing: 15 active minutes, medium confidence.
+Interim: the legend still shows one "Task" swatch until slice 3, as today.
+
+Sizing: 12 active minutes, medium confidence.
+
+### 3. Match the legend to the shown tools and align the contract text
+
+Type: Behavior
+Status: planned
+
+The legend lists each shown tool's task mark, partial mark and median line
+(dashed for Claude Code) with the tool's name, and each tool summary's swatch
+is its task mark; with Claude Code alone, no Codex entry shows. The legend is
+its own component with its styles, keeping `TokenIndexTrend.tsx` and
+`system-settings-usage.css` within the file-size check. Correct finding 4's
+drift: the auxiliary-usage note's home in `usageTokenIndex.ts`, and in
+`USAGE-TOKEN-INDEX.md` the coincident-large-task placement under equal
+spacing, what clears a task selection, and how tool identity reads without
+colour.
+
+Proof: the compare spec asserts, through the Usage page objects, a named legend
+entry per shown tool whose mark shape and median dash match the drawn ones,
+and that hiding Codex leaves only Claude Code's entries; phone and narrowest
+window fit stay green. Run all `system-settings-usage*` frontend cases.
+
+Sizing: 12 active minutes, medium confidence.
+
+## Proof ownership
+
+| Promise | Slice |
+| --- | --- |
+| A read failure shows only while it describes the shown selection | 1 |
+| Answers for an old selection never join a new one | 1 |
+| Marks tell tools apart without colour | 2 |
+| The legend matches each shown tool's drawn marks | 3 |
+| Usage contract text matches delivered behaviour | 3 |
+
+## Concern evidence
+
+Slice-plan refinement was not needed: the one sizing concern, the former
+slice 2 holding the mark shape and the legend as two outcomes in 15 minutes,
+was settled here by splitting it. This review found no remaining
+slice-specific concern.
 
 ## Local gates
 
