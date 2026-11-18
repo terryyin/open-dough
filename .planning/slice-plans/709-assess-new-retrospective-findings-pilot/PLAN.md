@@ -50,6 +50,9 @@ Use the [shared comparison](../../seeds/SEED-401-retrospective-finding-pilots.md
   Each contains the canonical temporary `AGENTS.md` notice and a `CLAUDE.md`
   pointer. Earlier sessions and branches may miss the notice. Client story
   slice 2 removes its two additions when its enrollment ends.
+- Doughnut’s client rollout [CI attempt](https://github.com/nerds-odd-e/doughnut/actions/runs/44423649370)
+  reported five CLI test timeouts. Its Codex-owned client story tracks diagnosis,
+  repair and CI proof. The rollout and any CI repair are pilot administration.
 - The Codex heartbeat `complete-the-seed-401-first-report-pilot` resumes the
   work every six hours, checks for ordinary completions and closes the pilot
   at the cutoff. Stop the heartbeat after verified client cleanup and a landed
