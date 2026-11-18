@@ -5,7 +5,10 @@
 // share the same session prefix.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionCommits } from "../src/sessionCommits.ts";
-import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
+import type {
+  SessionBranchEntry,
+  SessionBranchResult,
+} from "../src/sessionBranchResult.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGitUntilClosed } from "./gitRunner.ts";
 import { pinPair, removeLandingPins, removePins } from "./launchLandingGit.ts";
@@ -23,6 +26,45 @@ const branchResultRefPrefix = (
 ) =>
   `${sessionBranchRefPrefix(session)}${result.doneAt.replace(/[.:]/g, "-")}/`;
 
+const branchEntryRefPrefix = (session: LaunchRecord["session"]) =>
+  `${sessionBranchRefPrefix(session)}entry/`;
+
+async function keepTipRef(
+  repository: string,
+  ref: string,
+  tip: string,
+): Promise<void> {
+  await runGitUntilClosed(["update-ref", ref, tip], {
+    cwd: repository,
+    maxBuffer: defaultGitOutputLimit,
+    signal: AbortSignal.timeout(30_000),
+  });
+}
+
+export async function keepBranchEntryRefs(
+  session: LaunchRecord["session"],
+  entry: SessionBranchEntry,
+): Promise<void> {
+  const prefix = branchEntryRefPrefix(session);
+  await pinPair(entry.repository, prefix, {
+    base: entry.committedTip,
+    revision: entry.tree,
+  });
+  if (entry.defaultTip !== undefined && entry.defaultTip !== entry.committedTip)
+    await keepTipRef(
+      entry.repository,
+      `${prefix}default-tip`,
+      entry.defaultTip,
+    );
+}
+
+export function releaseBranchEntryRefs(
+  session: LaunchRecord["session"],
+  entry: SessionBranchEntry,
+): Promise<void> {
+  return removePins(entry.repository, branchEntryRefPrefix(session));
+}
+
 export async function keepBranchResultRefs(
   session: LaunchRecord["session"],
   result: SessionBranchResult,
@@ -30,14 +72,7 @@ export async function keepBranchResultRefs(
   const prefix = branchResultRefPrefix(session, result);
   await pinPair(result.repository, prefix, result);
   if (result.committedTip !== result.revision)
-    await runGitUntilClosed(
-      ["update-ref", `${prefix}tip`, result.committedTip],
-      {
-        cwd: result.repository,
-        maxBuffer: defaultGitOutputLimit,
-        signal: AbortSignal.timeout(30_000),
-      },
-    );
+    await keepTipRef(result.repository, `${prefix}tip`, result.committedTip);
 }
 
 export async function releaseBranchResultRefs(
@@ -54,7 +89,7 @@ export async function releaseBranchResultRefs(
 export async function releaseSessionBranchRefs(
   record: LaunchRecord,
 ): Promise<void> {
-  const result = record.branchResult;
+  const result = record.branchEntry ?? record.branchResult;
   if (result !== undefined)
     await removePins(
       result.repository,

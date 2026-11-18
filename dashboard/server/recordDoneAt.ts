@@ -4,7 +4,10 @@ import { doneAutomatically } from "../src/completionReport.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { keptWithDoneCapture } from "./doneCapture.ts";
 import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
-import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
+import {
+  hasBranchReview,
+  withBranchResultAtDone,
+} from "./sessionBranchCapture.ts";
 
 // Sets one kept session's done time to `doneAt`, marking it done, or clears
 // it when `doneAt` is undefined, keeping the session like any unclosed one.
@@ -26,40 +29,46 @@ export async function setRecordDoneAt(
     doneAt !== undefined && !finishing
       ? await keptSession(sourceId, session)
       : undefined;
-  const marked = await withBranchResultAtDone(candidate, doneAt, (settle) =>
-    changeSessionRecord(sourceId, session, (record) => {
-      if (options.automatic && !doneAutomatically(record)) return record;
-      if (
-        options.expectedDoneAt !== undefined &&
-        record.doneAt !== options.expectedDoneAt
-      ) {
-        return record;
-      }
-      if (
-        candidate?.branchReviewRepository !== undefined &&
-        (record.doneAt !== candidate.doneAt ||
-          record.dispositionChangedAt !== candidate.dispositionChangedAt)
-      ) {
-        return record;
-      }
-      const next: LaunchRecord = {
-        ...record,
-        dispositionChangedAt: options.automatic
-          ? record.dispositionChangedAt
-          : new Date().toISOString(),
-      };
-      delete next.doneAt;
-      delete next.doneProblem;
-      return doneAt === undefined
-        ? next
-        : settle({
-            ...next,
-            doneAt,
-            ...(options.doneProblem === undefined
-              ? {}
-              : { doneProblem: options.doneProblem }),
-          });
-    }),
+  const marked = await withBranchResultAtDone(
+    candidate,
+    finishing ? undefined : doneAt,
+    (settle) =>
+      changeSessionRecord(sourceId, session, (record) => {
+        if (options.automatic && !doneAutomatically(record)) return record;
+        if (
+          options.expectedDoneAt !== undefined &&
+          record.doneAt !== options.expectedDoneAt
+        ) {
+          return record;
+        }
+        if (
+          candidate !== undefined &&
+          hasBranchReview(record) &&
+          (record.doneAt !== candidate.doneAt ||
+            record.dispositionChangedAt !== candidate.dispositionChangedAt ||
+            record.branchEntry?.committedTip !==
+              candidate.branchEntry?.committedTip)
+        ) {
+          return record;
+        }
+        const next: LaunchRecord = {
+          ...record,
+          dispositionChangedAt: options.automatic
+            ? record.dispositionChangedAt
+            : new Date().toISOString(),
+        };
+        delete next.doneAt;
+        delete next.doneProblem;
+        return doneAt === undefined
+          ? next
+          : settle({
+              ...next,
+              doneAt,
+              ...(options.doneProblem === undefined
+                ? {}
+                : { doneProblem: options.doneProblem }),
+            });
+      }),
   );
   if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
     return marked;

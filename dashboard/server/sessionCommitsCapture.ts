@@ -54,13 +54,16 @@ const moving =
 
 // The checkout's `HEAD` log, newest first: each entry's commit and parents,
 // its time, the action that wrote it, and the commit's author time and subject.
-async function headLog(checkout: string): Promise<readonly LogEntry[]> {
+async function headLog(
+  checkout: string,
+  ref: string,
+): Promise<readonly LogEntry[]> {
   const read = await git(checkout, [
     "log",
     "-g",
     "--date=unix",
     "--format=%H%x00%P%x00%gd%x00%gs%x00%at%x00%s",
-    "HEAD",
+    ref,
   ]);
   if (read === "") return [];
   return read.split("\n").map((line) => {
@@ -141,20 +144,37 @@ async function runsOf(
   return runs;
 }
 
-// Read the commits made in the session's Default main checkout since launch.
-// Throws when the checkout's log cannot be read or holds no entry.
+// Settle the bound tip before reading the reflog. A commit arriving while the
+// log read waits cannot enter this Done's comparison.
 export async function readSessionCommits(
-  record: Pick<LaunchRecord, "launchedAt">,
+  record: Pick<LaunchRecord, "launchedAt" | "defaultStart" | "branchEntry">,
   start: { readonly workspace: string },
 ): Promise<SessionCommits> {
   const checkout = resolvedCheckout(start.workspace);
   // The log keeps whole seconds; an entry in the launch's own second is not
   // the session's.
   const since = Date.parse(record.launchedAt) / 1000;
-  const log = await headLog(checkout);
+  const entry = record.branchEntry;
+  const startRef = record.defaultStart?.branch;
+  const branchEntryMissing =
+    entry === undefined &&
+    startRef !== undefined &&
+    (await git(checkout, ["symbolic-ref", "HEAD"]).catch(() => undefined)) !==
+      startRef;
+  const originalRef =
+    entry !== undefined || branchEntryMissing ? startRef : "HEAD";
+  if (originalRef === undefined)
+    throw new Error("The Default main branch was not recorded.");
+  const head =
+    entry === undefined
+      ? await git(checkout, ["rev-parse", "--verify", originalRef])
+      : entry.defaultTip;
+  if (head === undefined)
+    throw new Error("There is no saved Default main tip at branch entry.");
+  const log = await headLog(checkout, originalRef);
   // A log without any entry says nothing of what was made there.
-  const head = log[0]?.commit;
-  if (head === undefined) throw new Error("The checkout's log has no entries.");
+  if (log[0]?.commit === undefined)
+    throw new Error("The checkout's log has no entries.");
   const candidates = madeSince(log, since);
   const made: string[] = [];
   for (const commit of candidates)
@@ -167,5 +187,10 @@ export async function readSessionCommits(
     "--git-common-dir",
   ]);
   const runs = await runsOf(checkout, made);
-  return { repository, runs, readAt: new Date().toISOString() };
+  return {
+    repository,
+    runs,
+    readAt: new Date().toISOString(),
+    ...(branchEntryMissing ? { branchEntryMissing: true } : {}),
+  };
 }

@@ -2,7 +2,10 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
-import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
+import type {
+  SessionBranchEntry,
+  SessionBranchResult,
+} from "../src/sessionBranchResult.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import {
@@ -11,6 +14,7 @@ import {
 } from "./launchRecordPins.ts";
 import { resolvedCheckout } from "./sessionCommitsCapture.ts";
 import { writeWorkingTree } from "./workingTreeSnapshot.ts";
+import { RefusedRequest } from "./localOrigin.ts";
 
 const gitCall = (cwd: string) => ({
   cwd,
@@ -26,29 +30,32 @@ export async function isolatedBranchReviewRepository(
   return commonGitDirectory(gitCall(session.workspace)).catch(() => undefined);
 }
 
+export function hasBranchReview(record: LaunchRecord): boolean {
+  return (
+    record.branchEntry !== undefined ||
+    record.branchReviewRepository !== undefined
+  );
+}
+
 function branchCapturePending(record: LaunchRecord, doneAt: string): boolean {
   return (
     record.request.workflow === "ad-hoc" &&
-    record.branchReviewRepository !== undefined &&
+    hasBranchReview(record) &&
     record.branchResultFailedAt !== doneAt &&
     record.branchResult?.doneAt !== doneAt
   );
 }
 
-async function readBranchResult(
-  record: LaunchRecord,
-  doneAt: string,
-): Promise<SessionBranchResult> {
-  const start = record.establishedSession;
-  const repository = record.branchReviewRepository;
-  if (start === undefined || repository === undefined)
-    throw new Error("The launch has no recorded branch repository.");
-  const base = commitIdSchema.parse(start.startingRevision);
-  const checkout = resolvedCheckout(start.workspace);
+export async function readBranchWorkspace({
+  workspace,
+  repository,
+  branch,
+}: Pick<SessionBranchEntry, "workspace" | "repository" | "branch">) {
+  const checkout = resolvedCheckout(workspace);
   const call = gitCall(checkout);
   const git = async (args: readonly string[]) =>
     (await runGit(args, call)).stdout.trim();
-  const ref = `refs/heads/${start.branch}`;
+  const ref = `refs/heads/${branch}`;
   if (
     resolvedCheckout(await git(["rev-parse", "--show-toplevel"])) !==
       checkout ||
@@ -57,7 +64,7 @@ async function readBranchResult(
   )
     throw new Error("The checkout no longer holds the launch's branch.");
   const committedTip = commitIdSchema.parse(
-    await git(["rev-parse", "--verify", `${ref}^{commit}`]),
+    await git(["rev-parse", "--verify", "HEAD^{commit}"]),
   );
   const tree = commitIdSchema.parse(await writeWorkingTree(committedTip, call));
   const committedTree = await git(["rev-parse", `${committedTip}^{tree}`]);
@@ -66,8 +73,34 @@ async function readBranchResult(
     (await git(["rev-parse", "--verify", "HEAD"])) !== committedTip
   )
     throw new Error("The launch's branch changed during capture.");
-  await git(["merge-base", "--is-ancestor", base, committedTip]);
-  const revision = tree === committedTree ? committedTip : tree;
+  return {
+    committedTip,
+    tree,
+    revision: tree === committedTree ? committedTip : tree,
+  };
+}
+
+async function readBranchResult(
+  record: LaunchRecord,
+  doneAt: string,
+): Promise<SessionBranchResult> {
+  const entry = record.branchEntry;
+  const start = entry ?? record.establishedSession;
+  const repository = entry?.repository ?? record.branchReviewRepository;
+  if (start === undefined || repository === undefined)
+    throw new Error("The launch has no recorded branch repository.");
+  const baseTip = commitIdSchema.parse(
+    entry?.committedTip ?? record.establishedSession?.startingRevision,
+  );
+  const base = entry?.tree ?? baseTip;
+  const { committedTip, revision } = await readBranchWorkspace({
+    ...start,
+    repository,
+  });
+  await runGit(
+    ["merge-base", "--is-ancestor", baseTip, committedTip],
+    gitCall(start.workspace),
+  );
   return { repository, doneAt, base, revision, committedTip };
 }
 
@@ -86,7 +119,18 @@ export async function withBranchResultAtDone<T>(
     doneAt === undefined ||
     !branchCapturePending(candidate, doneAt)
   )
-    return write((marked) => Promise.resolve(marked));
+    return write((marked) => {
+      if (
+        doneAt !== undefined &&
+        marked.branchEntry !== undefined &&
+        candidate?.branchEntry === undefined
+      )
+        throw new RefusedRequest(
+          409,
+          "The session identified its branch while Done was in progress. Retry Done to capture it.",
+        );
+      return Promise.resolve(marked);
+    });
 
   const read = await readBranchResult(candidate, doneAt).catch(() => undefined);
   let previous: SessionBranchResult | undefined;
@@ -97,7 +141,8 @@ export async function withBranchResultAtDone<T>(
         marked.doneAt !== doneAt ||
         !branchCapturePending(marked, doneAt) ||
         sessionKey(marked.session) !== sessionKey(candidate.session) ||
-        marked.branchReviewRepository !== candidate.branchReviewRepository
+        marked.branchReviewRepository !== candidate.branchReviewRepository ||
+        marked.branchEntry?.committedTip !== candidate.branchEntry?.committedTip
       )
         return marked;
       if (read === undefined)

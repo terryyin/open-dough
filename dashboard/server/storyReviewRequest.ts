@@ -14,8 +14,8 @@ import { establishedPlace } from "../src/establishedPlace.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import {
-  keptNoSessionCommits,
   keptSessionRun,
+  unavailableSessionChanges,
   type KeptSessionRun,
 } from "./storyReviewSessionCommits.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
@@ -29,6 +29,7 @@ import {
 } from "./reviewedWorkSubjectAdmission.ts";
 import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { hasBranchReview } from "./sessionBranchCapture.ts";
 
 interface AdmittedWorkspaceReview {
   readonly kind: "story-review";
@@ -116,21 +117,18 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
       named === null ? branchResultAtDone(record) : undefined;
     if (branchResult !== undefined)
       return { kind: "story-review", branchResult, runs: [] };
-    if (record.branchReviewRepository !== undefined)
+    const sessionRun = keptSessionRun(record, named);
+    if (sessionRun !== undefined)
+      return { kind: "story-review", sessionRun, runs: [] };
+    if (hasBranchReview(record))
       return {
         kind: "story-review",
         explanation: "This session's branch changes at Done were not captured.",
         runs: [],
       };
-    const sessionRun = keptSessionRun(record, named);
-    if (sessionRun !== undefined)
-      return { kind: "story-review", sessionRun, runs: [] };
-    // A capture that found no commit says so; no capture claims nothing.
     return {
       kind: "story-review",
-      sessionCommitsUnavailable: keptNoSessionCommits(record)
-        ? "This session made no commits in the Default main checkout."
-        : "This session's changes were not captured.",
+      sessionCommitsUnavailable: unavailableSessionChanges(record),
       runs: [],
     };
   }

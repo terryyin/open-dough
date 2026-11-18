@@ -14,6 +14,7 @@ import { feedbackMaintenanceLabel } from "../src/feedbackMaintenanceSetting.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { Established } from "./startLaunch.ts";
 import type { UnattachedRequest } from "./unattachedStartScript.ts";
+import type { DefaultLaunchStart } from "../src/defaultLaunchStart.ts";
 
 // A host's bounded diagnostic safe to retain beside local operation intent.
 export class HostOperationFailure extends Error {
@@ -132,6 +133,7 @@ export function withStartPolicy(
 export type UnattachedEstablished = {
   readonly establishedSession: EstablishedSession;
   readonly branchReviewRepository?: string;
+  readonly defaultStart?: DefaultLaunchStart;
 };
 
 // What a launch's start established, a story's or an unattached session's,

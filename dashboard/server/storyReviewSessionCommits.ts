@@ -38,6 +38,15 @@ export function keptNoSessionCommits(record: LaunchRecord): boolean {
   return reviewableCapture(record)?.runs.length === 0;
 }
 
+export function unavailableSessionChanges(record: LaunchRecord): string {
+  const capture = reviewableCapture(record);
+  if (capture?.branchEntryMissing === true)
+    return "No branch was identified for this session, and no Default main commits were captured.";
+  return keptNoSessionCommits(record)
+    ? "This session made no commits in the Default main checkout."
+    : "This session's changes were not captured.";
+}
+
 // The kept run a done session's review answers: the one at the `named`
 // position, or the oldest; undefined when the record keeps none.
 export function keptSessionRun(

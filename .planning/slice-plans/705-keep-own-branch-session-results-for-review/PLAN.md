@@ -24,11 +24,11 @@ Observed in this preparation checkout at `67203bcb9` on 2026-11-18, with Node 24
 
 | Consuming operation | Result and design consequence |
 | --- | --- |
-| Isolated capture and historical file reads (1–2, 4) | In a linked worktree, stage the final files through a temporary index using `read-tree HEAD`, `add --all` and `write-tree`. The real index tree and HEAD stayed unchanged. Pin the two trees using `update-ref`, remove the worktree and branch, expire reflogs and run `gc --prune=now`. Calling the checkout's `changedFrom(base, tree, call)` then listed exactly `new` and `session`; both blobs retained their uncommitted text. Calling `retainedPairFiles` on the same saved repository and pair returned `missing: objects` because its contract expects commits. Allow tree endpoints for a branch snapshot while preserving landing commit validation. |
-| Branch entry and imported trunk (3–4) | With an earlier branch file, a later trunk-only file and a session file, diffing from entry included the trunk file. Diffing from incorporated trunk included the earlier branch file. Using `git merge-tree --write-tree --merge-base=<fork> <entry> <incorporated-trunk>` for the clean baseline and comparing it to the captured tree isolated the session's work. This observation covers clean composition. A conflicted composition needs actual attribution evidence before its files can be claimed. The checkout's `commonGitDirectory` returned the same canonical repository for both linked checkouts and a different one for a foreign repository. Git's worktree list reported paths, refs and tips without session identity. |
-| Exact manual delivery (7–8) | Against a real bare origin, `verifyLanding` refused an unpushed local merge, then accepted its parent/merge pair after a push, later trunk advance and worktree removal. Walking the authorized trunk's first-parent history found the merge with the retained branch tip as its other parent. Its first-parent diff showed only the manually resolved file. Verification also accepted the unrelated later parent/commit pair. Remote membership requires a separate session association. A single-parent commit with identical content lost the branch ancestry. Two real fast-forward pushes to identical final history delivered different file sets from different previous target tips. A guessed previous remote tip cannot prove a delivery range. |
-| Existing capture, file admission and cleanup (1, 3, 5–6) | `npm run test:dashboard:backend -- ad-hoc-review.spec.ts ad-hoc-review-file.spec.ts agent-launch-start-session-landing-admission.spec.ts agent-launch-start-session-landing-boundary.spec.ts kept-commits-release.spec.ts --workers=1` passed 15 cases. They reached retained file/text and rename admission, two records' separate ref cleanup, and the installed landing path. A plain launch had no landing context and its attempted unbound submission received 409. A scratch change comparing the base to itself made the worktree-removal HTTP example fail on the missing `delivered.txt`. After restoration the same example and both blank-launch cases passed. These are baselines. Each slice must establish its new fact through its real writer. |
-| Comparison selection and later observation (5, 8) | `npm run test:dashboard:frontend -- recently-done-ad-hoc-review.spec.ts recently-done-ad-hoc-session-runs.spec.ts --workers=1` passed three cases, including choosing a second pair and releasing a delayed response. These browser fixtures supply comparisons. `npm run test:dashboard:backend -- authenticated-read-revision-check.spec.ts authenticated-read-revision-stream.spec.ts agent-launch-start-session-landing-retained.spec.ts --workers=1` passed 12 cases. The HTTP revision boundary reported moved main and the retained launch accepted a landing after startup-attempt expiry. Slice 8 joins a real Git history to that observation and proves the resulting review. |
+| Isolated capture and historical file reads (1–2, 5) | In a linked worktree, stage the final files through a temporary index using `read-tree HEAD`, `add --all` and `write-tree`. The real index tree and HEAD stayed unchanged. Pin the two trees using `update-ref`, remove the worktree and branch, expire reflogs and run `gc --prune=now`. Calling the checkout's `changedFrom(base, tree, call)` then listed exactly `new` and `session`; both blobs retained their uncommitted text. Calling `retainedPairFiles` on the same saved repository and pair returned `missing: objects` because its contract expects commits. Allow tree endpoints for a branch snapshot while preserving landing commit validation. |
+| Branch entry and imported trunk (3, 5) | With an earlier branch file, a later trunk-only file and a session file, diffing from entry included the trunk file. Diffing from incorporated trunk included the earlier branch file. Using `git merge-tree --write-tree --merge-base=<fork> <entry> <incorporated-trunk>` for the clean baseline and comparing it to the captured tree isolated the session's work. This observation covers clean composition. A conflicted composition needs actual attribution evidence before its files can be claimed. The checkout's `commonGitDirectory` returned the same canonical repository for both linked checkouts and a different one for a foreign repository. Git's worktree list reported paths, refs and tips without session identity. |
+| Exact manual delivery (8–9) | Against a real bare origin, `verifyLanding` refused an unpushed local merge, then accepted its parent/merge pair after a push, later trunk advance and worktree removal. Walking the authorized trunk's first-parent history found the merge with the retained branch tip as its other parent. Its first-parent diff showed only the manually resolved file. Verification also accepted the unrelated later parent/commit pair. Remote membership requires a separate session association. A single-parent commit with identical content lost the branch ancestry. Two real fast-forward pushes to identical final history delivered different file sets from different previous target tips. A guessed previous remote tip cannot prove a delivery range. |
+| Existing capture, file admission and cleanup (1, 3–4, 6–7) | `npm run test:dashboard:backend -- ad-hoc-review.spec.ts ad-hoc-review-file.spec.ts agent-launch-start-session-landing-admission.spec.ts agent-launch-start-session-landing-boundary.spec.ts kept-commits-release.spec.ts --workers=1` passed 15 cases. They reached retained file/text and rename admission, two records' separate ref cleanup, and the installed landing path. A plain launch had no landing context and its attempted unbound submission received 409. A scratch change comparing the base to itself made the worktree-removal HTTP example fail on the missing `delivered.txt`. After restoration the same example and both blank-launch cases passed. These are baselines. Each slice must establish its new fact through its real writer. |
+| Comparison selection and later observation (6, 9) | `npm run test:dashboard:frontend -- recently-done-ad-hoc-review.spec.ts recently-done-ad-hoc-session-runs.spec.ts --workers=1` passed three cases, including choosing a second pair and releasing a delayed response. These browser fixtures supply comparisons. `npm run test:dashboard:backend -- authenticated-read-revision-check.spec.ts authenticated-read-revision-stream.spec.ts agent-launch-start-session-landing-retained.spec.ts --workers=1` passed 12 cases. The HTTP revision boundary reported moved main and the retained launch accepted a landing after startup-attempt expiry. Slice 9 joins a real Git history to that observation and proves the resulting review. |
 
 ## Ordered slices
 
@@ -65,13 +65,26 @@ The independent pass moved object-kind validation into the shared retained compa
 ### 3. Identify the branch a Default main session takes up
 
 Type: Behavior
-Status: planned
+Status: done
 
 At branch entry, the session explicitly identifies its own branch in the original checkout or a linked worktree. Resolve that branch through the project's registered worktrees, validate the canonical repository, and record its entry state on the named launch. Make the declaration available with the session's launch context or its confirmed host/session identity, including when the native session began blank. Preserve blank launch input. The capture must distinguish work already present at handoff from what the session adds.
 
 Proof: start on Default main, create an own branch with earlier work, identify it, edit and mark Done. Read the new file from the session review. Repeat with a linked worktree, leaving another plausible worktree untouched. Exercise repeated handoff, a foreign repository and a second launch. Check the session, pair and paths through the backend. Reopen an older or undeclared launch and observe its existing review. Keep normal Default main commit runs available alongside any new result.
 
-### 4. Exclude earlier branch work and imported trunk from the same comparison
+`dashboard/backend-tests/review/ad-hoc-session-branch-handoff.spec.ts` drives the actual emitted command after a Default main launch and the confirmed-session request after blank native input. It checks the fixed dirty entry and prior commit, exact changes after Done, separate worktree associations, refused mismatches, stable retry, missing-association explanation, and ordinary pin release. It also reads the original Default main run against the saved cutoff from handoff after another commit on that branch. The retained held-log case from the accepted sibling `e629e2349` confirms the Default main reader binds HEAD before traversal on the normal path. The 14-spec backend gate and dashboard typecheck passed. The scoped native replacement lifecycle remains owned by slice 4. See `slice-3-implementation.md` in the Git evidence directory.
+
+The independent pass consolidated the optional branch pin writes and test parsing of the emitted declaration command. Ten affected backend specs, dashboard typecheck, and whitespace checks passed. See `slice-3-refactor.md` in the Git evidence directory.
+
+### 4. Preserve branch evidence when a native session is replaced
+
+Type: Behavior
+Status: planned
+
+A Cursor session identifies its branch, then Recover replaces a native chat that cannot be loaded. The launch keeps the branch association and its pinned entry and any earlier branch result through the replacement. A later Done can still use the fixed entry. Deletion or expiry releases the same evidence under the retained launch, including when the native session ID changed.
+
+Exercise the real Dashboard branch-entry and Cursor cannot-load recovery boundaries with the existing native host fixture. Identify a branch and keep its prior evidence, replace the native session, confirm the same launch's entry in the new record and drive Done and review with the new session ID. Delete that record and inspect its original pin namespace and a separate launch's pins. Use the existing retention owner for the aged-out outcome and protect a branch entry made while binding or rekey waits. Reuse unaffected slice 3 evidence.
+
+### 5. Exclude earlier branch work and imported trunk from the same comparison
 
 Type: Behavior
 Status: planned
@@ -80,7 +93,7 @@ The branch carries work that predates session entry, later incorporates a change
 
 Proof: create all three histories in the real repository. Assert the exact list and per-file patch, including the session's edit to an imported line, through review after retirement. Diffing from entry alone must admit the trunk-only file. Diffing from trunk alone must admit the earlier branch file. Include a conflicting baseline where a clean composition cannot be assumed and assert the supported comparison or its explicit evidence gap.
 
-### 5. Switch between the saved branch result and a captured delivery
+### 6. Switch between the saved branch result and a captured delivery
 
 Type: Behavior
 Status: planned
@@ -89,7 +102,7 @@ An isolated session already has a branch result when Dough lands its committed w
 
 Proof: go through real Done and the established Dough capture, then read both pairs and file text. In the browser show a file with different text in each comparison, switch using the keyboard, release a delayed reply and refresh. Check selected text, counts, accessible names and return focus on Close. Check existing Default main runs, landing-only and linked story rows. A substituted pair or mismatched rename old path must fail admission.
 
-### 6. Review a Dough landing from the session-identified workspace
+### 7. Review a Dough landing from the session-identified workspace
 
 Type: Behavior
 Status: planned
@@ -98,7 +111,7 @@ Use the explicit association from slice 3 to establish the session's landing con
 
 Proof: extend the installed-publication journey in `agent-launch-start-session-landing-admission.spec.ts`. Launch on Default main, identify the later worktree, publish once to the fixture origin through the installed command, retire, and review. Check the accepted base/revision and the original session. Retry its recording after retirement. The same submission for an undeclared workspace or another launch retains nothing. Exercise the initially blank-session path when it acquires the handoff.
 
-### 7. Read a manual integration that reached trunk before Done
+### 8. Read a manual integration that reached trunk before Done
 
 Type: Behavior
 Status: planned
@@ -107,7 +120,7 @@ Use the identified branch's committed tip and the authorized target's history to
 
 Proof: merge with an actual conflict, resolve it by hand, and check an unpublished local merge, then a plain Git push and Done. Assert the exact trunk-parent/merge pair and resolution even after a further advance. Exercise a verified fast-forward and the ambiguous previous-tip case. A same-content squash with no association, an unrelated accepted pair, or local-only integration leaves delivery unverified and the captured branch inspectable.
 
-### 8. Discover a verified manual delivery after Done
+### 9. Discover a verified manual delivery after Done
 
 Type: Behavior
 Status: planned
@@ -122,7 +135,7 @@ Run changed cases and their reached consumers under the corresponding dashboard 
 
 Local gate on awake macOS uses `caffeinate -s -i` on AC power. On battery use the maintained open-lid `caffeinate -i` procedure and sleep-log check. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 
-Slice-plan refinement was unnecessary. The slices share one launch association and one comparison reader. Each adds an independently observable result, an attribution case, or a later capture trigger. Review found no remaining slice-specific concern.
+Execution refined the in-progress branch handoff slice at 14.7 active minutes. Its normal launch, Done, and explicit deletion checks passed. The replacement path in `dashboard/server/hosts/cursor/recoveryReplacement.ts` exposed a separate proof loop because a replacement retains the launch and changes the native ID used in the original pin namespace. Slice 4 owns that case and the record lifecycle before attribution and landing build on the same evidence. The selected story, completed proof, and order of subsequent outcomes are preserved. The in-progress split brings the plan to nine slices.
 
 ## Story obligations
 
@@ -136,10 +149,16 @@ Disposition: proved by slice 2: ad-hoc-branch-worktree-result.spec.ts holds vali
 
 Reported: slice 1 — "The comparison shows the committed branch at Done against its starting revision."
 Story clause: "Exclude earlier branch work and changes brought in from trunk."
-Disposition: receiving slice 4
+Disposition: receiving slice 5
 
 ### G3. Keep branch evidence selectable with a verified delivery
 
 Reported: slice 1 — "Landing still takes precedence when a saved landing exists; selection and refresh between two available results belong to slice 5."
 Story clause: "show what the branch held at Done and what reached trunk as distinct comparisons when both exist."
-Disposition: receiving slice 5
+Disposition: receiving slice 6
+
+### G4. Release branch evidence after native replacement
+
+Reported: slice 3 — "Its Git entry refs are keyed by its old native ID, but releaseSessionBranchRefs later keys cleanup by the new ID."
+Story clause: "The launch record's deletion or expiry releases its evidence."
+Disposition: receiving slice 4

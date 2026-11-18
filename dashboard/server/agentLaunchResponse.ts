@@ -29,6 +29,7 @@ import type {
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 
 import type { submitCompletion } from "./completionReporting.ts";
+import type { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 
 import type { LandingReceipt } from "../src/launchLanding.ts";
 import type { CompletedStoryAssociation } from "./completedStoryAssociation.ts";
@@ -37,6 +38,10 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: { readonly path: string } }
   | { readonly status: number; readonly body: { readonly drained: true } }
   | { readonly status: number; readonly body: LandingReceipt }
+  | {
+      readonly status: number;
+      readonly body: Awaited<ReturnType<typeof submitSessionBranchEntry>>;
+    }
   | {
       readonly status: number;
       readonly body: Awaited<ReturnType<typeof submitCompletion>>;

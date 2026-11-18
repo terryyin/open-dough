@@ -39,6 +39,7 @@ import {
 import { withinStartWait } from "./startWait.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
 import { isolatedBranchReviewRepository } from "./sessionBranchCapture.ts";
+import { defaultCheckoutStart } from "./defaultLaunchStart.ts";
 
 const formatterScript = "established-session.mjs";
 
@@ -160,6 +161,15 @@ export async function unattachedStarted(
       handoff: {
         established: {
           establishedSession: result,
+          ...(result.role === "default-checkout" &&
+          result.startingRevision !== undefined
+            ? {
+                defaultStart: await defaultCheckoutStart(
+                  result.workspace,
+                  result.startingRevision,
+                ),
+              }
+            : {}),
           ...(repository === undefined
             ? {}
             : { branchReviewRepository: repository }),

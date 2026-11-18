@@ -17,7 +17,7 @@ import {
 } from "./unattachedSession.ts";
 import { defaultLaunchStartSchema } from "./defaultLaunchStart.ts";
 import { sessionCommitsSchema } from "./sessionCommits.ts";
-import { sessionBranchResultSchema } from "./sessionBranchResult.ts";
+import { sessionBranchEvidenceSchema } from "./sessionBranchResult.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -157,9 +157,7 @@ export const launchRecordSchema = z.object({
   landingReporting: landingReportingSchema.optional(),
   sessionCommits: sessionCommitsSchema.optional(),
   sessionCommitsFailedAt: z.iso.datetime().optional(),
-  branchReviewRepository: z.string().min(1).optional(),
-  branchResult: sessionBranchResultSchema.optional(),
-  branchResultFailedAt: z.iso.datetime().optional(),
+  ...sessionBranchEvidenceSchema.shape,
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.
   reportRead: z.uuid().optional(),
