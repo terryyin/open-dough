@@ -127,57 +127,19 @@ manually.
   its own branch or worktree is covered here, including its landing through
   Dough from that worktree.
 
-<a id="state-only-what-the-checkout-log-shows"></a>
-
-### State only what the checkout's log shows in a session's review
-
-**Identity:** SEED-379#state-only-what-the-checkout-log-shows
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/700-state-only-what-the-checkout-log-shows/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6e288fa1975fd8eae61599e842be5eae4f530c26fee9666561acfafbaeeebed6","plan":"1c4d5344b99eb8af294fcbab433765f6cabba8d84a4d5d781a59ece3d0195296"}}
-```
-
-Correction of Keep Default main ad hoc session changes for review, recoverable at
-`6d9e4c3988b0ab41b5c07aa577976f29e6bca451:.planning/seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md` (section `keep-default-main-session-changes-for-review`),
-planned in [plan 700](../slice-plans/700-state-only-what-the-checkout-log-shows/PLAN.md).
-
-#### Goal
-
-A developer reading **Review changes** on a done Default main session can
-trust it: the review holds the session's commits up to the Done it names,
-leaves merged trunk work out, says the changes were not captured wherever the
-checkout's log does not settle what the session committed, and describes
-itself in session words. The maintainer of this review finds its references,
-tests and guides without residue from its first delivery.
-
-#### Scope
-
-- A later automatic Done keeps the commits made up to that Done.
-- A merge commit is never a session commit, amended or not.
-- A continued cherry-pick and a rebase's fixup or squash of session commits
-  are kept in their final form; a log entry that wrote a commit the capture
-  cannot place, or session commits that all left the checkout's `HEAD`, keep
-  the not-captured explanation.
-- A record's session-commit references are released whatever capture the
-  record still holds.
-- A session's unavailable review is described as a session's, and the two
-  guides state the delivered behavior.
-- The review's page objects, spec support and overlapping cases are
-  reorganized with the reviewed promises and their proof preserved.
-
-The reviewed story's promises, scope limits and deferred promises stay as
-they are.
-
 <a id="bound-capture-to-done"></a>
 
 ### Bound a session's kept commits to its Done
 
 **Identity:** SEED-379#bound-capture-to-done
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/703-bound-session-capture-to-done/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aa131fe4b056e49743a03aa67b24b5194805b3a88f08795d9806bae375be0e1e","plan":"fff6fa0ab818d6f50f884fdcd8c842f84091a98f49feddaa804bfe2b132ca751"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/703-bound-session-capture-to-done/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"daa2e142eb8382dbc69c0c289bc85a9525f486ea0728766f4965cb39960f4488","plan":"fff6fa0ab818d6f50f884fdcd8c842f84091a98f49feddaa804bfe2b132ca751"}}
 ```
 
-Correction of [State only what the checkout's log shows in a session's
-review](#state-only-what-the-checkout-log-shows), planned in
+Correction of State only what the checkout's log shows in a session's review.
+Its source is recoverable at
+`9585267d1731891222ba2bc881bf1806b4c5608c:.planning/seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md`
+(section `state-only-what-the-checkout-log-shows`). The correction is planned in
 [plan 703](../slice-plans/703-bound-session-capture-to-done/PLAN.md).
 
 #### Goal

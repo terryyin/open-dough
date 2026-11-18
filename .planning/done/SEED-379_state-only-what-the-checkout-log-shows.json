@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-379#state-only-what-the-checkout-log-shows",
+  "title": "State only what the checkout's log shows in a session's review",
+  "completedAt": "2026-11-18T13:13:21.481Z",
+  "developer": "Terry Yin",
+  "agent": "Hibiki-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
