@@ -90,6 +90,13 @@ Ruff repair (`d796c7ccf`) for a reproduced import-order failure in its
 packaged recovery measurement fixture. The checkout lint and the commit hook
 passed after the correction.
 
+Both client revisions passed their exact trunk CI. Doughnut
+[run 44343939214, attempt 2](https://github.com/nerds-odd-e/doughnut/actions/runs/44343939214/attempts/2)
+retried the single failed setup job after Microsoft’s Ubuntu package mirror
+returned HTTP 429 in attempt 1. Pygardon’s configured CI reported success
+for run `ffba4661-e3dc-4b65-bd03-728922e9b2ad`. Both client observers
+confirmed shutdown.
+
 The isolated readers receive the trial through `AGENTS.md` explicitly. The
 clients' `CLAUDE.md` files reference local guidance in other contexts. An
 ordinary Claude Code run needs evidence that its reviewer loaded the trial
@@ -124,10 +131,10 @@ available and ordinary Git or CI history for other eligible executions.
 Retain the selected identities before consulting findings and include quiet
 executions. The controlled walks and the pilot changes are outside that sample.
 
-On the first history check at 2026-11-18T16:14:55Z, neither client trunk had
-an execution beyond its trial revision. The ordinary sample begins at zero
-of five for each project. Resume this slice when both client trunks have
-five eligible executions. Terry owns the decision after their assessment.
+On the history check at 2026-11-18T16:23:12Z, both client trunks were still
+at their trial revisions. The ordinary sample has zero of five executions
+in each project. Resume this slice when both client trunks have five
+eligible executions. Terry owns the decision after their assessment.
 
 ### 5. The trial ends as decided
 
