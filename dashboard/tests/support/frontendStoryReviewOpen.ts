@@ -6,8 +6,14 @@
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { takenStory } from "../launchJourney.ts";
+import { showColumn } from "../boardPage.ts";
 import { reviewChanges } from "../storyCardControls.ts";
-import { openFrontendTakenBacklog, takenStoryCard } from "./frontendApp.ts";
+import { tapWhereShown } from "../pageLayout.ts";
+import {
+  expect,
+  openFrontendTakenBacklog,
+  takenStoryCard,
+} from "./frontendApp.ts";
 import {
   frontendStoryLaunch,
   type FrontendServiceState,
@@ -60,9 +66,31 @@ export async function openFrontendStoryReviewAsOpened(
   const answers = await installFrontendStoryReview(page, reviewAnswer);
   prepare(answers);
   await openFrontendTakenBacklog(page);
+  // A short landscape can show one Board column; Taken then stays
+  // height-clipped until paged into view (same gate as openReview in
+  // frontendSidePanelWidth).
+  await showColumn(page, "Taken");
   const card = takenStoryCard(page);
-  await reviewChanges(card).click();
-  return { card, review: reviewRegion(page), answers };
+  // A card still reading grows and moves Review changes (same gate as
+  // pressReviewChanges). The kept open session then lengthens the card
+  // above that action once host facts arrive.
+  await expect(card).not.toContainText(/Reading [^…]*…/);
+  await expect(
+    card.getByRole("button", { name: "Open terminal" }),
+  ).toBeVisible();
+  const action = reviewChanges(card);
+  await action.scrollIntoViewIfNeeded();
+  // Touch: tap the shown control once. Playwright's click waits for
+  // multi-frame stability while late card facts can still move it on a
+  // short landscape, which exhausts the default timeout with no panel.
+  if ((await page.evaluate(() => navigator.maxTouchPoints)) > 0) {
+    await tapWhereShown(action);
+  } else {
+    await action.click();
+  }
+  const review = reviewRegion(page);
+  await expect(review).toBeVisible();
+  return { card, review, answers };
 }
 
 // The same opening with the review's details readable.

@@ -109,7 +109,7 @@ export class StoryReview extends PageObject {
     );
   }
 
-  // What the review's fixed top says, such as that it is reading.
+  // What the review's status above the work area says, such as that it is reading.
   expectFeedback(text: string) {
     return this.cueHere(`Story review: says "${text}"`, () =>
       expect(reviewFeedback(this.#review)).toHaveText(text),
@@ -191,7 +191,7 @@ export class StoryReview extends PageObject {
     );
   }
 
-  // The review's body beneath its fixed top has the keyboard.
+  // The review's body beneath details and status has the keyboard.
   expectKeyboardInBody() {
     return this.cueHere("Story review: its body has the keyboard", () =>
       expect(reviewBody(this.#review)).toBeFocused(),

@@ -36,9 +36,9 @@ jobs:
         share: [1, 2, 3]
         include:
           - share: 1
-            tests: Distribution/tests/skills/dough-execute-plan/** Distribution/tests/installation/update-*
+            tests: Distribution/tests/skills/dough-execute-plan/** Distribution/evaluation/tests/delivery-evidence/**
           - share: 2
-            tests: Distribution/evaluation/**
+            tests: Distribution/evaluation/tests/adr-awareness/** Distribution/evaluation/tests/git-publication/** Distribution/evaluation/tests/makeme/** Distribution/evaluation/tests/native-guidance-checks/** Distribution/evaluation/tests/native-harness/** Distribution/evaluation/tests/page-objects/** Distribution/evaluation/tests/product-backlog/**
     steps:
       - uses: actions/checkout@v7
         with:

@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group ([plan](slice-plans/690-retire-emptied-integrated-ui-test-group/PLAN.md))
 - [Get faster feedback on the seven phone-board checks](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/701-faster-phone-board-checks/PLAN.md))
-- [Keep the Review changes toolbar truthful while it reads](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-toolbar-truthful-while-reading) — SEED-384#keep-review-toolbar-truthful-while-reading ([plan](slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md))
 
 ## Backlog list
 

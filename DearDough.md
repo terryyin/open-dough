@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 577. Removed numbers are never reused.
-- Recovery: `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551.
+- Highest allocated local number: 578. Removed numbers are never reused.
+- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -870,24 +870,6 @@ observation was lost until the retrospective read the assertion.
   - Observed effect: one lost observation delivered and queued for correction; three first returns needed a second implementer round (about 3–5 slice-clock minutes each).
   - Inference: related to DD-563. Requiring each "owned elsewhere" claim to cite the owner's asserting line, and checking that line at acceptance, would have caught it; the cost is one read per claim.
 
-## DD-570 — Implementer focused-proof logs stay under /tmp, so acceptance re-runs the same gates <a id="dd-570"></a>
-
-Slice implementers write focused proof under an ephemeral `/tmp` directory when the
-plan `proof/` path is not used. The return already reports green results, but the
-coordinator cannot recover durable logs beside the plan and re-runs the same
-commands into `.planning/.../proof/` before delivery.
-
-### Occurrences
-
-- Execution: SEED-387#shared-syntax-styling-control (first implementation `0e5cd3be0671d37c5470fe7f5b79bae06947a989`; Behavior tip `d2e7a1b45b84b64cb362391ed8321be37309c182`)
-  - Timestamp: unknown (2026-11-18 +08:00; between slice-2 return and publish `d2e7a1b45`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `423bfe2ba2da6533c91692001c53ee31864b1880`)
-  - Evidence: slice-2 implementer `4ad1b464-60a8-4d49-967a-6c5ad164926b` wrote logs under `/tmp/dough-slice-2-proof-59355` after a slice-clock path issue, then returned green journey/e2e/Default-consumer/typecheck/lint counts. Coordinator turn after return searched `/tmp` and plan `proof/`, then re-ran journey, e2e and Default consumers into `.planning/slice-plans/685-shared-syntax-styling-control/proof/s2-*.log` before refactor/delivery. Slice 1 had already used the plan `proof/` path successfully.
-  - Observed effect: one extra full focused-proof cycle on the same green gates solely to place durable acceptance logs; no disputed product result and no CI impact.
-  - Inference: naming the plan `proof/` directory (as slice 1 did) or copying `/tmp` logs into it on return would skip the re-run; elapsed/token saving is unmeasured.
-
 ## DD-571 — Local browser proof with the list reporter hides the strict reporter's output rule <a id="dd-571"></a>
 
 Implementers ran focused Playwright proof with `--reporter=list`, which
@@ -998,3 +980,20 @@ A test-conversion slice wrote, in its assertion map, that an interim "no call of
   - Evidence: interim `story-reference-done-recovery` asserted `githubFor(page).calls.slice(before)` equals `[]` after expired and unlisted references; the Frontend case counted only `done` reads. The same review found a refactor pass loosening `boundary-server.spec.ts`'s exact launch command.
   - Observed effect: one correction slice before the execution-complete record; no protection shipped lost.
   - Inference: related to DD-569 and DD-563. Requiring a reason for every narrowing in the map, checked at acceptance, would have caught it.
+
+## DD-578 — A short-touch open helper is repaired twice before matching its sibling Board gate <a id="dd-578"></a>
+
+A new frontend touch-height journey opened Taken review through a shared helper that
+first hung on click stability, then failed because Review changes stayed
+height-clipped on a one-column Board. The sibling open path already paged Taken
+into view; the second repair copied that gate after a second CI round.
+
+### Occurrences
+
+- Execution: SEED-384#keep-review-toolbar-truthful-while-reading (plan 702; first implementation `97fa4134b`)
+  - Timestamp: 2026-11-18T21:11:58+08:00 (open-helper settle/tap repair `7f42be69b`; clip/`showColumn` repair `d3e155dd9` at 21:26:25+08:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout VERSION 0.3.106 at Take `b34318530`; no guidance release inferred)
+  - Evidence: diagnoses `.planning/slice-plans/702-keep-review-toolbar-truthful-while-reading/diagnosis-dashboard-frontend-touch-height-44308065717.md` and `diagnosis-dashboard-frontend-touch-height-clipped-44311355288.md`; CI runs 44308065717 and 44311355288; coordinator transcript `26fe99b1-d319-4499-894f-3be1078e76f7` L67–86; sibling `frontendSidePanelWidth.openReview` already called `showColumn(page, "Taken")`; repairs `7f42be69b` and `d3e155dd9` in `dashboard/tests/support/frontendStoryReviewOpen.ts`.
+  - Observed effect: two diagnosis clocks (~6.9 and ~6.5 active minutes), stash/restore of slice 4, and two repair publications before the shared open helper matched the sibling Board gate.
+  - Inference: when a new short-landscape touch open path is added, copying the sibling helper's Taken column and settle gates before first CI would avoid the second round; local proof had passed without the one-column clip.

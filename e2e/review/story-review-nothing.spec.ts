@@ -9,7 +9,7 @@ import {
   showReviewDetails,
 } from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
-// fixed top and without the file browser or diff: a worktree straight off
+// status and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
 // the line staying in place while a short panel scrolls that explanation; a
 // worktree whose folder was removed with no landing captured explains that
@@ -103,8 +103,8 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
     comparisonChoice(review, "Landed runs", { exact: true }),
   ).toBeChecked();
   await expect(review.getByRole("radio")).toHaveCount(1);
-  // The explanation is the fixed top's; the body beneath it shows nothing,
-  // and there is no context line.
+  // The explanation is the status above the work area; the body beneath it
+  // shows nothing, and there is no context line.
   const body = reviewBody(review);
   await expect(body).toBeEmpty();
   expect((await body.boundingBox())?.y).toBeGreaterThanOrEqual(

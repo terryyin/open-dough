@@ -1,7 +1,6 @@
 // Review changes opens on the diff: the comparison choices, the context of
 // the comparison shown and the uncommitted check wait behind the toolbar's
 // eye, while reading progress, problems and Commits' own work stay in view.
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 import { reviewChanges } from "../../tests/storyCardControls.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
@@ -21,14 +20,12 @@ import { openFrontendStoryReviewAsOpened } from "../../tests/support/frontendSto
 import {
   contextLine,
   fileBrowser,
-  reviewFeedback,
 } from "../../tests/support/reviewContextLine.ts";
 import {
   comparisonChoice,
   expectShown,
   expectToggleLeadsToolbar,
   filesToggle,
-  reviewRefresh,
   reviewRegion,
   toolbarComparison,
   uncommittedCheck,
@@ -180,35 +177,6 @@ test("choosing Commits in the details renames the toolbar, and the range and com
   await expect(commits).toBeVisible();
   await expect(range).toBeVisible();
   await expect(toolbarComparison(review)).toHaveText("Commits");
-});
-
-test("reading progress and a problem explain themselves with the details collapsed", async ({
-  page,
-  frontendServices,
-}) => {
-  const { review, answers } = await openWorkspaceReview(page, frontendServices);
-  await expectDetailsCollapsed(review);
-  const held = answers.holdNextSnapshot();
-  try {
-    await reviewRefresh(review, { exact: true }).click();
-    await held.received;
-    await expect(reviewFeedback(review)).toContainText(
-      "Refreshing the review…",
-    );
-    await expectDetailsCollapsed(review);
-  } finally {
-    held.release();
-  }
-  await expect(reviewFeedback(review)).toContainText("Review refreshed");
-  await page.route(
-    (url) => url.pathname === storyReviewEndpoint,
-    (route) => route.fulfill({ status: 500, body: "unreadable" }),
-  );
-  await reviewRefresh(review, { exact: true }).click();
-  await expect(reviewFeedback(review)).toContainText(
-    "The review could not be read:",
-  );
-  await expectDetailsCollapsed(review);
 });
 
 test("another story's review opens collapsed with the files shown, whatever the last one left", async ({

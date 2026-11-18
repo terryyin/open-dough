@@ -84,8 +84,12 @@ export const comparisonLabel = (review: Locator, name: string) =>
   comparison(review).locator("label", { hasText: name });
 
 // The retained run chooser, whose keyboard protocol belongs to the scenario.
-export const landedRunChoice = (review: Locator) =>
-  review.getByRole("listbox", { name: "Landed run" });
+// includeHidden reaches a picker still mounted behind a collapsed details
+// section or cleared from the panel entirely.
+export const landedRunChoice = (
+  review: Locator,
+  { includeHidden = false }: { includeHidden?: boolean } = {},
+) => review.getByRole("listbox", { name: "Landed run", includeHidden });
 
 // The comparison switch says the one comparison shown.
 export async function expectShown(review: Locator, shown: string) {

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-384_keep-review-toolbar-truthful-while-reading.json",
+      "identity": "SEED-384#keep-review-toolbar-truthful-while-reading",
+      "completedAt": "2026-11-18T13:43:40.751Z",
+      "blob": "77c9c72a016c7a739ece4918917dd288b18133f8"
+    },
+    {
       "fileName": "SEED-379_state-only-what-the-checkout-log-shows.json",
       "identity": "SEED-379#state-only-what-the-checkout-log-shows",
       "completedAt": "2026-11-18T13:13:21.481Z",

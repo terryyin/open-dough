@@ -36,8 +36,19 @@ export async function expectDetailsCollapsed(review: Locator) {
   ).toHaveCount(0);
 }
 
+// No comparison name and no eye: before an answer or after a cleared failure.
+export async function expectNoToolbarComparisonOrDetails(review: Locator) {
+  await expect(toolbarComparison(review)).toHaveCount(0);
+  await expect(detailsToggle(review)).toHaveCount(0);
+  await expect(
+    review.getByRole("group", { name: "Review details" }),
+  ).toHaveCount(0);
+}
+
 // The details are revealed in one section between the toolbar and the work
-// area, and the eye says so. Answers that section.
+// area, and the eye says so. On touch that section may share a scrollable
+// height with the status above the body, so the section's layout box can be
+// taller than the visible gap. Answers that section.
 export async function expectDetailsRevealed(review: Locator) {
   const eye = detailsToggle(review);
   await expect(eye).toHaveAccessibleName("Hide review details");
@@ -50,7 +61,7 @@ export async function expectDetailsRevealed(review: Locator) {
     await box(reviewBody(review)),
   ];
   expect(sectionAt.y).toBeGreaterThanOrEqual(barAt.y + barAt.height - 1);
-  expect(bodyAt.y).toBeGreaterThanOrEqual(sectionAt.y + sectionAt.height - 1);
+  expect(sectionAt.y).toBeLessThan(bodyAt.y);
   return section;
 }
 

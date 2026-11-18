@@ -2,16 +2,15 @@
    input. The shared frame controls keep their own sizing; desktop density
    stays in the review's base styles. */
 @media (any-pointer: coarse) {
-  /* Context and comparison explanations scroll without taking the reading
-     panes' remaining height in a short landscape view. */
-  .story-review-top,
-  .story-review-details {
-    --story-review-top-height: max(
+  /* Revealed details and status share one height budget so a short
+     landscape view keeps room for the reading panes. */
+  .story-review-above {
+    --story-review-above-height: max(
       calc(var(--side-panel-height) * 0.3),
       calc(var(--control-size) + 1rem)
     );
 
-    max-height: var(--story-review-top-height);
+    max-height: var(--story-review-above-height);
     overflow-y: auto;
     scroll-padding-block: 0.5rem;
   }
@@ -38,7 +37,7 @@
   }
 
   .story-review-context-values[aria-expanded="true"] {
-    max-height: min(18dvh, calc(var(--story-review-top-height) - 1rem));
+    max-height: min(18dvh, calc(var(--story-review-above-height) - 1rem));
     overflow-y: auto;
   }
 

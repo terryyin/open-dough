@@ -198,12 +198,12 @@ panel.
 With touch input, the toolbar's two toggles, the context disclosure,
 comparison labels, file and folder rows, commit rows and uncommitted-changes
 label offer at least the shared 44px control height. The revealed details and
-the feedback each have a bounded share of the panel's height and scroll when
-context or explanations need more room; expanded context
-values also scroll within their disclosure (`src/story-review-touch.css`).
-This leaves room to read the diff at short landscape heights. Refresh,
-Maximize/Restore and Close stay
-in the header, so they remain reachable while reading or scrolling context.
+the feedback share one bounded height above the work area — the larger of 30%
+of the panel height and the control size plus 1 rem — and scroll together when
+context or explanations need more room; expanded context values also scroll
+within their disclosure (`src/story-review-touch.css`). This leaves room to
+read the diff at short landscape heights. Refresh, Maximize/Restore and Close
+stay in the header, so they remain reachable while reading or scrolling context.
 
 Beneath the toolbar, any revealed details and the feedback, the file browser
 and the selected file's diff share all the panel's remaining height, and the

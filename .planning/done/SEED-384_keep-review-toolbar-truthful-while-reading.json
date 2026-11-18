@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-384#keep-review-toolbar-truthful-while-reading",
+  "title": "Keep the Review changes toolbar truthful while it reads",
+  "completedAt": "2026-11-18T13:43:40.751Z",
+  "developer": "Terry Yin",
+  "agent": "Honoka-chan",
+  "host": "cursor",
+  "model": "auto"
+}
