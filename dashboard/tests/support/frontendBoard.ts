@@ -111,10 +111,18 @@ export class FrontendBoard {
     return this;
   }
 
+  // The Backlog story titled `title` lists `count` sessions. The count can
+  // match before the started Execution session takes the keyboard, which is
+  // what confirms the launch listed it and what can bring a hidden column
+  // into view, so this returns once that entry is focused and the row is
+  // no longer sliding.
   async showsBacklogCardSessions(title: string, count: number): Promise<this> {
-    await expect(
-      storyCardSessions(backlogLaunchers(this.page).card(title)),
-    ).toHaveCount(count);
+    const card = backlogLaunchers(this.page).card(title);
+    await expect(storyCardSessionOf(card, "Execution")).toBeFocused();
+    await expect(storyCardSessions(card)).toHaveCount(count);
+    await expect(this.page.locator(".board-row")).not.toHaveAttribute(
+      "data-sliding",
+    );
     return this;
   }
 }
