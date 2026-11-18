@@ -10,8 +10,6 @@ import {
   takenStoryWithReview,
 } from "../../tests/support/frontendSidePanelWidth.ts";
 
-const gap = 0.75 * rem;
-
 test("the Files divider resizes the file sidebar against the diff within both minimums", async ({
   page,
   frontendServices,
@@ -20,8 +18,7 @@ test("the Files divider resizes the file sidebar against the diff within both mi
   const files = filesDividerOf(await openReview(page));
   const start = await files.widths();
   expect(start.sideBySide).toBe(true);
-  const room = start.workarea - gap;
-  const maximum = Math.floor(room - 18 * rem);
+  const maximum = Math.floor(start.room - 18 * rem);
 
   await test.step("it says the sidebar's 16rem width and bounds and how to use it", async () => {
     await files.showsSidebarWidth(16 * rem);
@@ -58,7 +55,7 @@ test("the Files divider resizes the file sidebar against the diff within both mi
   await test.step("neither pane goes below its minimum", async () => {
     await files.drag(4000);
     await files.showsSidebarWidth(maximum);
-    expect((await files.widths()).diff).toBeCloseTo(room - maximum, 0);
+    expect((await files.widths()).diff).toBeCloseTo(start.room - maximum, 0);
     await files.press("ArrowRight");
     await files.showsSidebarWidth(maximum);
     await files.drag(-4000);

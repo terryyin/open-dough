@@ -171,7 +171,7 @@ the typecheck passed at load about 12 to 25.
 
 ### 3. The room's limit leaves the preferred width alone
 Type: Behavior
-Status: planned
+Status: done
 Proof: rows seven to nine and the docs row above; new focused specs for the
 Temporary limit, More room from the panel, Narrow panel and unusable or
 refused storage examples, plus `dashboard/frontend-tests/review`,
@@ -186,6 +186,21 @@ stack → no divider, files above the diff as today → widened → divider and
 preferred width return. A kept value that is not a usable width, or storage
 the browser refuses, gives 16rem and a divider that still resizes for the
 page's lifetime. The maintained docs describe the divider.
+
+Accepted proof (2026-11-18, on 67bfd6b with the change uncommitted, load
+about 22): no product change was needed; the shared calculation already gave
+the room limit, the stacked layout and the unusable or refused storage
+default. New `story-review-files-divider-room.spec.ts`, two tests added to
+`-kept.spec.ts`, page-object reads in `filesDividerPage.ts`, and the two
+maintained docs; the review and side-panel width frontend folders, the touch
+e2e spec and the typecheck passed. The width is observed after it settles,
+not before the next paint, which the shared `measuredRoom.ts` owns for the
+Side panel too.
+The refactor pass moved the room and kept-width writes into the page object
+and fixed a race in the room spec, which read the divider's upper bound once
+right after maximizing (374 against 1107 at load about 32); it now waits for
+the bound to grow. The three Files divider specs passed, the room spec five
+times in a row, with the typecheck, at load 19 to 32.
 
 ## Verification and delivery
 
