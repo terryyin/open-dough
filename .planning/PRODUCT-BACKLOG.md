@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Declare every worker preparation with its own budget](seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget) — SEED-340#declare-every-worker-preparation-with-its-own-budget ([plan](slice-plans/692-declare-every-worker-preparation-with-its-own-budget/PLAN.md))
 - [Run the Dashboard Integrated group as one CI job](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#run-the-integrated-group-as-one-ci-job) — SEED-382#run-the-integrated-group-as-one-ci-job
 
@@ -40,6 +39,7 @@ intent introduced or affected by a newly developed story.
 - [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review
+- [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
 - [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group

@@ -1,6 +1,7 @@
 # Evaluate recoverable proof evidence in the next real planned execution
 
 **Source:** [selected story](../../seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence)
+**Source review:** [source-only review](source-review.md)
 **Identity:** SEED-397#evaluate-recoverable-proof-evidence
 
 ## Goal and scope
@@ -62,6 +63,40 @@ what is missing, perform no later slice, and return the story to the queue for
 a later attempt through the human-decision stop in
 [execution decisions](../../../Distribution/src/skills/dough-execute-plan/references/execution-decisions.md#stop-for-human-judgment).
 
+Result, observed in the execution workspace at
+`36fa2883b86a9094cab77ea9b0c7214424be1fc8` on 2026-11-18 after
+`git fetch origin --tags`: no execution qualifies.
+
+| Observation | Command | Result |
+| --- | --- | --- |
+| Release containing the revision | `git tag --contains 45ff02fee774a270826cd7507fee2ce1c9d077cc` | No tag. The revision is on `origin/main` (`git merge-base --is-ancestor` succeeds) and unreleased. |
+| Latest release | `git tag --sort=-creatordate \| head -1`; `git log -1 --format='%H %ci' v0.3.104`; `VERSION` | `v0.3.104`, `d9266746caa3034b15ee4f9daca2254f43a115bc`, 2026-11-17 15:42:25 +0800; the revision is dated 2026-11-18 00:59:55 +0800. |
+| Installed release per project | `dough-update/VERSION` under each `~/git/*/.claude/skills` or `.agents/skills` | 0.3.104 in clipboard, doughnut, lizard, open-dough, pygardon and terry-talks; 0.3.60 in random. |
+| Installed guidance | `grep -rl "run record"` in each project's installed `dough-execute-plan` | No file in any of the seven projects; five references under `Distribution/src/skills/dough-execute-plan/references/`. |
+
+Second observation, 2026-11-18 09:06 +0800, after merging `origin/main` at
+`3f10a59abf343aae8301eec06885487439fba5e9` into the execution branch: the
+release condition is met and no execution has yet started under it.
+
+| Observation | Command | Result |
+| --- | --- | --- |
+| Release containing the revision | `git tag --contains 45ff02fee774a270826cd7507fee2ce1c9d077cc` | `v0.3.105`. |
+| Installed release per project | `dough-update/VERSION`; `git log -1 --format=%ci -- <that file>`; `grep -rl "run record"` in the installed `dough-execute-plan` | 0.3.105 with the run record in six files, installed 2026-11-18 between 08:48:59 and 08:53:30 +0800 in clipboard, doughnut, lizard, open-dough, pygardon and terry-talks; random stays at 0.3.60. No Cursor trace was modified since. |
+| Sessions since the installation | Claude Code `subagents` directories and Codex rollouts modified in the last hour, each with its first timestamp and working directory | Two Claude Code planned executions with workers are in progress, `SEED-340#declare-every-worker-preparation-with-its-own-budget` (started 08:44 +0800) and `SEED-334#retire-integrated-ui-test-and-its-documents` (started 07:34 +0800); both started before the installation and their worktrees hold 0.3.104. The one session started after it, a Codex rollout at 09:02 +0800 in the open-dough default checkout, is the scheduled `watch-opengsd-ideas` automation and follows no plan. |
+| Listed executions | `node dashboard/server/compareAgentEffort.ts --list --json` through the slice clock's `run`, started 08:56 +0800 | Exit 0 after more than ten minutes: 4,311 selections, 3,547 with a launch time. The latest launch is `2026-11-18T00:44:37.463Z`, the Claude Code task for `SEED-340#declare-every-worker-preparation-with-its-own-budget`; none is launched after the installation. |
+
+Missing condition: a planned execution that starts after the 0.3.105
+installation in its project, delegates a slice and reaches proof acceptance.
+Slices 2 and 3 are not performed. This slice stays `planned`: a later attempt
+repeats the candidate search with
+`node dashboard/server/compareAgentEffort.ts --list` for tasks launched after
+2026-11-18 08:53:30 +0800.
+
+Developer decision, 2026-11-18: the story returns to the Backlog list at
+position nine, so that planned executions under 0.3.105 exist when it is next
+taken. The execution workspace and branch are retired; a later Take starts
+from this record.
+
 ### 2. Hand-back sizes and total effort are recorded
 Type: Behavior
 Status: planned
@@ -112,8 +147,8 @@ trace. No Structure slice and no interim behavior.
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 - All failing or flaky checks follow the
   [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
-- The effort command's `--list` took over two minutes here; run it through
-  the slice clock's `run`.
+- The effort command's `--list` took over ten minutes at execution; run it
+  through the slice clock's `run`, in the background.
 - Slice-plan refinement was not needed: three sequential read-and-record
   outcomes, each with its own proof.
 - Remaining slice-specific concerns: none beyond the qualifying condition,
