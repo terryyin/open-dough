@@ -46,13 +46,10 @@ CI runs this group as its own producer, the `dashboard-backend` job's shards
 ## Placement
 
 Every backend `*.spec.ts` and case-definition module belongs to one service
-feature folder. Harness fixtures that several groups share stay in
-`../tests/`. A check moved from an integrated journey keeps the feature
-folder it had there and links the journey that still shows it on the page;
-a module that registers cases moves with them. Choose the feature whose
-behavior the test proves, irrespective of an older filename prefix. The
-browser suite's feature folders reuse the same domain vocabulary where it
-still names protected service behavior.
+feature folder. Choose the feature whose behavior the test proves,
+irrespective of an older filename prefix. Harness fixtures that several
+groups share stay in `../tests/`. The browser suite's feature folders reuse
+the same domain vocabulary where it still names protected service behavior.
 
 | Folder | Responsibility |
 | --- | --- |

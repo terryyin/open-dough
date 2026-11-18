@@ -1,8 +1,8 @@
 name: Browser test group
 
 # One Playwright test group's CI producer, called once per group by ci.yml:
-# E2E Test, Dashboard Integrated UI Test, Dashboard Frontend Test and
-# Dashboard Backend Test each run here under their own npm command, settings
+# E2E Test, Dashboard Frontend Test and Dashboard Backend Test each run
+# here under their own npm command, settings
 # prefix, shard matrix, outputs and CI proof entry, so changing one group's
 # shards or settings leaves the others' selection and settings unchanged.
 # Each group runs against controlled GitHub responses (no credentials, no live

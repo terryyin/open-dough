@@ -1,6 +1,6 @@
 ---
 name: rebalance-ci-shards
-description: Reports how evenly one CI test group's shards share recent main-run times and proposes one spec-pattern change to .github/workflows/ci.yml for the maintainer to accept or decline. Use when a maintainer asks to rebalance, even out or check the CI shards of e2e, dashboard-integrated, dashboard-frontend, dashboard-backend or distribution-tests; not for changing how many jobs a group has.
+description: Reports how evenly one CI test group's shards share recent main-run times and proposes one spec-pattern change to .github/workflows/ci.yml for the maintainer to accept or decline. Use when a maintainer asks to rebalance, even out or check the CI shards of e2e, dashboard-frontend, dashboard-backend or distribution-tests; not for changing how many jobs a group has.
 ---
 
 # Rebalance CI shards
@@ -28,9 +28,9 @@ This skill never changes a shard count or deadline.
 
 ## Inputs
 
-- The group: one of `distribution-tests`, `e2e`, `dashboard-integrated`,
-  `dashboard-frontend` or `dashboard-backend`. Ask when the request names
-  none; one invocation covers one group.
+- The group: one of `distribution-tests`, `e2e`, `dashboard-frontend` or
+  `dashboard-backend`. Ask when the request names none; one invocation covers
+  one group.
 - `gh` authenticated for this repository; the script reads recent successful
   `ci.yml` runs on `main` and their times artifacts.
 - For `distribution-tests` on macOS, Homebrew bash 5 first on `PATH`: the

@@ -378,7 +378,7 @@ part present and zero failures. Independent review made no changes.
 
 ### 6. Name three browser groups in tooling and guidance
 Type: Behavior
-Status: planned
+Status: done
 Proof: `Distribution/tests/test-runner/dashboard-repeat.sh` updated with the
 script and green;
 `grep -rIl -e dashboard-integrated -e 'test:dashboard:integrated' -e 'Dashboard Integrated UI' -e integratedGlobalSetup -e OPEN_DOUGH_DASHBOARD_INTEGRATED .`
@@ -398,6 +398,16 @@ Edits: `scripts/dashboard-repeat.sh`, `scripts/ci-shard-balance.mjs`, the
 "moved from an integrated" sentences, the remaining `dashboard/tests/`
 Markdown mentions, and the comments in `launchJourney.ts`,
 `runnerConfig.mjs`, `testFiles.mjs` and `run-processes.spec.ts`.
+
+Focused proof: the two CLIs returned exit 2 and exit 1 respectively for
+the retired group and named the three browser (and, for shard balance,
+Distribution) alternatives. Five Distribution checks passed for repeat,
+shard balance/proposal, historical CI retry, and real browser group
+declarations. Six Backend process cases and dashboard typecheck passed.
+The tracked retired-name scan found only historical findings and fixtures
+outside planning records. No diff touched the historical findings, done
+catalog, changelog or example-path data. Git evidence `slice-6-return.md`
+retains the literal commands, run records, observations and consumer trace.
 
 ### 7. Move shared test support to its own named directory
 Type: Structure

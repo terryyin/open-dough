@@ -4,9 +4,9 @@ Only one full repository suite or whole browser test group runs at a time
 across this repository's linked Git worktrees. `npm test` /
 `bash scripts/test.sh` with no paths against this checkout's own suite
 directory and unfiltered group runs share admission: `npm run test:e2e`,
-`npm run test:dashboard:integrated`, `npm run test:dashboard:frontend` and
-`npm run test:dashboard:backend`, and direct Playwright commands using
-`e2e/playwright.config.ts`, `dashboard/integrated.playwright.config.ts`,
+`npm run test:dashboard:frontend` and `npm run test:dashboard:backend`,
+and direct Playwright commands using
+`e2e/playwright.config.ts`,
 `dashboard/frontend.playwright.config.ts` or
 `dashboard/backend.playwright.config.ts`. The next full run waits before
 starting its jobs or dashboard build. Named checks, group path/grep/project/shard/

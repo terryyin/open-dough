@@ -2,14 +2,13 @@
 
 Prepare [native prerequisites](../evaluation/native-setup.md) once per lockfile version.
 
-Four browser test groups run with Playwright, each under its own command,
+Three browser test groups run with Playwright, each under its own command,
 configuration, setup, settings, outputs and CI producer; `npm test` does not
 discover their specs:
 
 | Group | Command | Sources |
 | --- | --- | --- |
 | **E2E Test** | `npm run test:e2e` | representative product [workflows](../../e2e/README.md) in `e2e/` |
-| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the feature folders of `dashboard/tests/` |
 | **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
 | **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
 

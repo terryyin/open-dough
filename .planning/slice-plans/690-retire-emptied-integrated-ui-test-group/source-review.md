@@ -99,17 +99,17 @@ source conditions.
 | 49 | Backend `start-origin-demand` uses a remaining group. | slice 4 | observed: dashboard/backend-tests/launches/start-origin-demand.spec.ts partial Codex layout: Backend setup, distinct launches, only Claude completes, both isolated layouts are cleaned |
 | 50 | Backend `dashboard-artifact-demand` uses a remaining group. | slice 4 | observed: dashboard/backend-tests/runtime/dashboard-artifact-demand.spec.ts Backend default setup: real app and server requests queue, one build, complete/fail/interrupt observations and teardown; focused run passes |
 | 51 | Backend `run-processes` uses a remaining group. | slice 5 | observed: run-processes.spec.ts focused Backend proof observes teardown naming and ending each maintained runner's orphan and general cleanup |
-| 52 | `scripts/dashboard-repeat.sh` drops the group. | slice 6 |  |
-| 53 | Its test drops the live group reference. | slice 6 |  |
-| 54 | `scripts/ci-shard-balance.mjs` drops the group. | slice 6 |  |
-| 55 | The `rebalance-ci-shards` skill drops the group. | slice 6 |  |
-| 56 | `browser-test-group.yml` drops the group. | slice 6 |  |
-| 57 | `dashboard/COMMANDS.md` drops the group. | slice 6 |  |
-| 58 | `e2e/README.md` drops the group. | slice 6 |  |
-| 59 | `Distribution/tests/README.md` drops the group. | slice 6 |  |
-| 60 | `local-test-resources.md` drops the group. | slice 6 |  |
-| 61 | `Distribution/evaluation/native-setup.md` drops the group. | slice 6 |  |
-| 62 | Applicable code comments drop the group. | slice 6 |  |
+| 52 | `scripts/dashboard-repeat.sh` drops the group. | slice 6 | observed: slice-6-retired-cli.log: dashboard-repeat rejected Integrated (exit 2) and lists exact npm commands for E2E, Frontend and Backend; named repeat suite covers supported inputs |
+| 53 | Its test drops the live group reference. | slice 6 | observed: Distribution/tests/test-runner/dashboard-repeat.sh first-fresh witness uses Frontend and still observes install, npm argv, first report and cleanup; complete check passes |
+| 54 | `scripts/ci-shard-balance.mjs` drops the group. | slice 6 | observed: slice-6-retired-cli.log: ci-shard-balance rejects dashboard-integrated (exit 1) and lists Distribution and three browser IDs; shard balance/proposal suites pass |
+| 55 | The `rebalance-ci-shards` skill drops the group. | slice 6 | observed: rebalance-ci-shards canonical maintainer skill and Claude metadata name same four groups; scripted E2E example produced report/shard totals/verdict without changing repository |
+| 56 | `browser-test-group.yml` drops the group. | slice 6 | observed: browser-test-group.yml names the three retained browser groups; actual ci-browser-groups declaration check passes |
+| 57 | `dashboard/COMMANDS.md` drops the group. | slice 6 | observed: dashboard/COMMANDS.md lists exactly three current browser suite commands |
+| 58 | `e2e/README.md` drops the group. | slice 6 | observed: e2e/README.md current placement guidance points to E2E, Frontend and Backend groups and shared support |
+| 59 | `Distribution/tests/README.md` drops the group. | slice 6 | observed: Distribution/tests/README.md names three Playwright groups and lists their three commands and roots |
+| 60 | `local-test-resources.md` drops the group. | slice 6 | observed: Distribution/tests/local-test-resources.md explains shared local admission with the three current commands and configs |
+| 61 | `Distribution/evaluation/native-setup.md` drops the group. | slice 6 | observed: Distribution/evaluation/native-setup.md repeated checks use three current browser commands |
+| 62 | Applicable code comments drop the group. | slice 6 | observed: retired-name audit confirms applicable launchJourney, runnerConfig, testFiles and run-processes comments use maintained configs and setup; all six process tests passed |
 | 63 | E2E Test retains its existing `--list` entries. | slice 5 | observed: slice-5-list-playwright.config.ts.txt normalized against Take: all 797 E2E registrations equal |
 | 64 | Dashboard Frontend Test retains its existing `--list` entries, with only the added source-navigation cases. | slice 5 | observed: slice-5-list-frontend.playwright.config.ts.txt normalized against Take: all 692 original registrations plus three source navigation cases |
 | 65 | Dashboard Backend Test retains its existing `--list` entries, with only the added source-navigation coverage. | slice 5 | observed: slice-5-list-backend.playwright.config.ts.txt normalized against Take: one encoded path case added; exactly two retired-runner-only rows removed per plan removal map; all maintained registrations equal |
@@ -120,11 +120,11 @@ source conditions.
 | 70 | An entry outside the shown revision’s locations is named without a link. | slice 5 | observed: intent-ci-proof.spec.ts historical-only entries have no dead link; obsolete entry name remains displayed with counts |
 | 71 | Comparing a current story against a baseline that still has `dashboard/tests` marks that entry removed and shows no after value. | slice 5 | observed: dashboard-ci-comparison-entries.test.mjs removed entry baseline time retained with both after cells removed and no invented value; Frontend comparison survives held/retried historical location read |
 | 72 | Scope history shows a gap for a build without the scope. | slice 5 | observed: intent-ci-scope-history-gaps.test.mjs real history yields No matching scope gap and no numeric ms; intent-scope-timing-history-absent.spec.ts observes no chart or invented numeric value |
-| 73 | Findings retain recorded integrated-group names. | slice 6 |  |
-| 74 | Done records retain recorded integrated-group names. | slice 6 |  |
-| 75 | `CHANGELOG.md` retains recorded integrated-group names. | slice 6 |  |
-| 76 | CI repeat fixtures retain their recorded integrated job names. | slice 6 |  |
-| 77 | Fixture data using `dashboard/tests` as an example path retains that path. | slice 6 |  |
+| 73 | Findings retain recorded integrated-group names. | slice 6 | observed: slice-6-history.log confirms no diff to DearDough or maintainer findings, with historical labels still present |
+| 74 | Done records retain recorded integrated-group names. | slice 6 | observed: slice-6-history.log confirms .planning/done unchanged |
+| 75 | `CHANGELOG.md` retains recorded integrated-group names. | slice 6 | observed: slice-6-history.log confirms CHANGELOG.md unchanged |
+| 76 | CI repeat fixtures retain their recorded integrated job names. | slice 6 | observed: slice-6-history.log confirms historical CI repeat job labels unchanged; ci-repeat.sh passed with those labels |
+| 77 | Fixture data using `dashboard/tests` as an example path retains that path. | slice 6 | observed: slice-6-history.log confirms synthetic old path assertions and historical Intent proof fixtures untouched |
 | R1 | The rename happens after both the source-navigation migration and Dashboard Integrated UI Test retirement are complete, and serves as the final step in this migration session. | slice 7 |  |
 | R2 | The shared support folder moves from `dashboard/tests/` to `dashboard/test-support/`. | slice 7 |  |
 | R3 | Maintained prose names the folder “Dashboard Test Support.” | slice 7 |  |

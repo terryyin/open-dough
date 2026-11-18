@@ -27,9 +27,9 @@ stories and machine reads through `frontendServiceState.ts`.
 
 Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
-A spec moved from an integrated feature folder keeps that folder name here
-(`intent/`, `configuration/`, `launches/`, `sessions/`), beside the specs extracted earlier at this root; a module that
-registers cases for a spec moves with it. Representative workflows live in
+Keep specs and the modules that register their cases in the feature folder
+whose behavior they prove, such as `intent/`, `configuration/`, `launches/`
+or `sessions/`. Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).
 
 `npm run test:dashboard:frontend` runs only this group from its own

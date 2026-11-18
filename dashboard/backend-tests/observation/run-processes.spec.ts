@@ -55,7 +55,7 @@ function innerConfig(workDir: string, spec: string) {
 
 // Preview substitutes open a page under this run's shared app and server
 // bundle. Prepare both here so the nested 5s budget is not spent waiting for
-// a cold first consumer (../../tests/support/integratedGlobalSetup.ts).
+// a cold first consumer (../../tests/support/backendGlobalSetup.ts).
 async function readyPreviewArtifacts(): Promise<void> {
   await Promise.all([sharedDashboardBuild(), sharedServerBundle()]);
 }

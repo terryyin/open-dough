@@ -39,10 +39,9 @@ A check whose assertions are presentation, interaction or UI-recovery details
 that controlled answers can supply belongs in
 [Dashboard Frontend Test](../dashboard/frontend-tests/README.md); a server
 variant, failure or test-runtime contract at a stable boundary belongs in
-[Dashboard Backend Test](../dashboard/backend-tests/README.md). Specs still in
-`../dashboard/tests/` are the interim **Dashboard Integrated UI Test** group
-(`npm run test:dashboard:integrated`): detailed UI checks, or mixed specs,
-awaiting that conversion. Workflows reuse the dashboard's fixtures, page objects and
+[Dashboard Backend Test](../dashboard/backend-tests/README.md).
+
+Workflows reuse the dashboard's fixtures, page objects and
 [MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
 `../dashboard/tests/` and `../Distribution/tests/support/`. Waits, clocks and
 fake GitHub answers are the helpers a workflow imports.

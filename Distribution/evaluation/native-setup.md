@@ -50,7 +50,6 @@ node scripts/setup-native.mjs check
 npm test -- Distribution/tests/test-runner/test-runner-selection.sh Distribution/tests/test-runner/test-runner-bash.sh Distribution/tests/test-runner/test-runner-failure-report.sh
 npm run typecheck:dashboard
 npm run test:e2e
-npm run test:dashboard:integrated
 npm run test:dashboard:frontend
 npm run test:dashboard:backend
 ```
