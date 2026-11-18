@@ -98,21 +98,30 @@ async function runChoice(
   };
 }
 
+export function unavailableSessionCommitsReview(
+  explanation: string,
+): StoryReview {
+  return {
+    kind: "landing-unavailable",
+    comparison: "session-commits",
+    explanation,
+  };
+}
+
 export async function sessionCommitsReview(
   { launchedAt, doneAt, shared, runs, position, ...pair }: KeptSessionRun,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const read = await retainedPairFiles(pair, signal);
   if ("missing" in read)
-    return {
-      kind: "landing-unavailable",
-      explanation: {
+    return unavailableSessionCommitsReview(
+      {
         repository:
           "The repository that kept this session's commits is missing or unreadable.",
         objects: "This session's kept commits are missing or unreadable.",
         changes: "This session's kept changes could not be read.",
       }[read.missing],
-    };
+    );
   return {
     kind: "session-commits",
     session: { launchedAt, doneAt, ...(shared && { shared }) },

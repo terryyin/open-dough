@@ -96,10 +96,10 @@ test("a held later Done refuses the previous review and its files", async ({
     await session.report({ message: "" });
     await expect.poll(checkoutLog.isHeld).toBe(true);
 
-    expect(await adHocReview(request, dashboard, sessionId)).toEqual(
+    expect(await adHocReview(request, dashboard, sessionId)).toMatchObject(
       notCaptured,
     );
-    expect(await adHocReview(request, dashboard, sessionId, 0)).toEqual(
+    expect(await adHocReview(request, dashboard, sessionId, 0)).toMatchObject(
       notCaptured,
     );
     const file = { baseline, tree: first, path: "first.txt" };
@@ -127,7 +127,7 @@ test("a held later Done cannot inherit the previous no-commit finding", async ({
   await session.report({ message: "" });
   await expect
     .poll(() => adHocReview(request, dashboard, sessionId))
-    .toEqual({
+    .toMatchObject({
       kind: "landing-unavailable",
       explanation: "This session made no commits in the Default main checkout.",
     });
@@ -142,7 +142,7 @@ test("a held later Done cannot inherit the previous no-commit finding", async ({
     await session.report({ message: "" });
     await expect.poll(checkoutLog.isHeld).toBe(true);
 
-    expect(await adHocReview(request, dashboard, sessionId)).toEqual(
+    expect(await adHocReview(request, dashboard, sessionId)).toMatchObject(
       notCaptured,
     );
   } finally {

@@ -55,8 +55,7 @@ A valid empty comparison says that this run's delivered comparison is empty;
 an ad hoc session's empty landing says this session's delivered comparison is
 empty. A landed run without capture explains its evidence gap: its delivered
 comparison was not captured and cannot be reconstructed from today's trunk. A
-session without a landing says its changes were not captured. A claimed launch
-listed because its workspace is gone says that the workspace is gone and no
+claimed launch listed because its workspace is gone says that the workspace is gone and no
 landing comparison was captured, since such a launch may never have landed.
 Missing or unreadable saved repository or objects explain why the comparison is
 unavailable.
@@ -65,14 +64,22 @@ the commits it made there instead, kept with its launch record at Done
 ([capture at Done](AGENT-LAUNCH-COMPLETION.md#session-commits-kept-at-done)):
 the review names them as session commits with the session's launch and Done
 times, and compares a run's first commit's first parent with its last commit.
-The toolbar names the comparison **Session commits**, and the details' context,
-headed the same, says the commits were made in the
-Default main checkout while the session was open, and names the two revisions;
-a capture from a shared checkout adds, in its own sentence, that another
-session was open in the same checkout during that time, so the comparison may
-include that session's work. A session with one kept run shows no Comparison
-switch. With several, the Comparison switch lists the runs as its choices,
-oldest first, and the review opens on the first; each is named by its commit
+The toolbar and panel description name the session's kept commits, including
+when the comparison is unavailable. When the commits are available, the
+**Session commits** details name the Default main checkout, the time the
+session was open, and the two revisions. A shared checkout adds a separate
+sentence saying the comparison may include another session's work.
+
+A capture that found no commits says
+“This session made no commits in the Default main checkout.” When the checkout
+log cannot establish the session's changes, the review says “This session's
+changes were not captured.” For a kept comparison it explains whether the
+saved repository or commits are missing or unreadable, or the kept changes
+could not be read.
+
+A session with one kept run shows no Comparison switch. With several, the
+Comparison switch lists the runs as its choices, oldest first, and the review
+opens on the first. Each is named by its commit
 count ("1 commit", "2 commits"), its last commit's subject and that commit's
 time, separated and formatted as the Landed run selector's entries are.
 Choosing a run asks for it by its position and shows its files and two

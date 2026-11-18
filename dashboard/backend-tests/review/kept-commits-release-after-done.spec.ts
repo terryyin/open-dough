@@ -97,7 +97,7 @@ test("a later Done with an unreadable log releases the earlier capture", async (
   rmSync(path.join(checkout, ".git", "logs"), { recursive: true });
   await markAdHocDone(dashboard, sessionId);
 
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+  expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "landing-unavailable",
     explanation: "This session's changes were not captured.",
   });
@@ -151,7 +151,7 @@ test("deleting a record from an older failed capture releases refs its earlier D
   );
   // An older reader left Done without a comparison and kept its Git refs.
   keepLaunchRecords(dashboard, [{ ...record, doneAt }]);
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+  expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "landing-unavailable",
     explanation: "This session's changes were not captured.",
   });

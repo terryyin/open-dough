@@ -1,6 +1,10 @@
 // Context follows the comparison actually shown, while each source of
 // evidence keeps its own description and completion facts.
-import { reviewsLanding, type StoryReview } from "./storyReviewContract.ts";
+import {
+  reviewsLanding,
+  reviewsSessionCommits,
+  type StoryReview,
+} from "./storyReviewContract.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import {
@@ -12,6 +16,8 @@ export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
   if (review?.kind === "session-commits") return sessionCommitsDescription;
+  if (reviewsSessionCommits(review))
+    return "Read-only: this session's kept commits.";
   return reviewsLanding(review)
     ? "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."
     : "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.";

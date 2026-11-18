@@ -81,7 +81,7 @@ export type AdmittedStoryReview =
   // including default launches that established no place.
   | {
       readonly kind: "story-review";
-      readonly landingUnavailable: string;
+      readonly sessionCommitsUnavailable: string;
       readonly runs: readonly ReviewLandedRun[];
     };
 
@@ -109,7 +109,7 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
     // A capture that found no commit says so; no capture claims nothing.
     return {
       kind: "story-review",
-      landingUnavailable: keptNoSessionCommits(record)
+      sessionCommitsUnavailable: keptNoSessionCommits(record)
         ? "This session made no commits in the Default main checkout."
         : "This session's changes were not captured.",
       runs: [],

@@ -16,17 +16,19 @@ for (const { title, answer, explanation } of [
     title: "Not captured",
     answer: {
       kind: "landing-unavailable",
+      comparison: "session-commits",
       explanation: "This session's changes were not captured.",
     },
     explanation: "This session's changes were not captured.",
   },
   {
-    title: "Unreadable repository",
+    title: "No commits",
     answer: {
       kind: "landing-unavailable",
-      explanation: "The captured landing repository is missing or unreadable.",
+      comparison: "session-commits",
+      explanation: "This session made no commits in the Default main checkout.",
     },
-    explanation: "The captured landing repository is missing or unreadable.",
+    explanation: "This session made no commits in the Default main checkout.",
   },
 ] satisfies { title: string; answer: StoryReview; explanation: string }[]) {
   test(`an ad hoc review explains ${title.toLowerCase()}`, async ({
@@ -51,6 +53,46 @@ for (const { title, answer, explanation } of [
     );
   });
 }
+
+test("an unavailable saved session landing keeps its landed description", async ({
+  page,
+  frontendServices,
+}) => {
+  const title = "Unreadable repository";
+  const explanation =
+    "The captured landing repository is missing or unreadable.";
+  const { baseline: base, tree: revision } = frontendReviewIds;
+  const session = makeMe.aLaunchRecord
+    .adHoc({ title })
+    .inIsolatedWorkspace({
+      workspace: "/tmp/retired-ad-hoc-review",
+      branch: "ad-hoc/landed",
+    })
+    .withLanding(makeMe.aLaunchLanding.comparing({ base, revision }).please())
+    .markedDone()
+    .please();
+  await installFrontendStoryReview(page, {
+    kind: "landing-unavailable",
+    explanation,
+  });
+  const { recent } = await openFrontendBoardReview(page, frontendServices, {
+    doneSessions: [session],
+  });
+
+  await sessionReviewChanges(recent, title).click();
+
+  await sidePanelPages(page).phase(
+    "the panel describes the saved landing",
+    (pages) => {
+      pages.storyReview.expectDescription(
+        "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision.",
+      );
+      pages.reviewToolbar.expectName("Landed runs");
+      pages.storyReview.expectFeedback(explanation);
+      pages.storyReview.expectNoChangedFiles(/changed file/);
+    },
+  );
+});
 
 test("an ad hoc review explains an empty comparison", async ({
   page,

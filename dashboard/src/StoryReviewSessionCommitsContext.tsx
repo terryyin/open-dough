@@ -7,7 +7,9 @@ export type SessionCommitsReview = Extract<
 >;
 
 export const sessionCommitsDescription =
-  "Read-only: this session's fixed commits made in the Default main checkout while the session was open, from the revision before them to their last commit.";
+  "Read-only: this session's kept commits made in the Default main checkout while the session was open, from the revision before them to their last commit.";
+
+export const sessionCommitsName = "Session commits";
 
 export function SessionCommitsContext({
   review: { session, baseline, tree },
@@ -16,7 +18,7 @@ export function SessionCommitsContext({
 }) {
   return (
     <div>
-      <h3>Session commits</h3>
+      <h3>{sessionCommitsName}</h3>
       <p>
         Commits made in the Default main checkout while the session was open,
         launched{" "}

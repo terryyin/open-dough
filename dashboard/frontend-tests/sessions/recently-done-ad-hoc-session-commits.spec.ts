@@ -1,5 +1,5 @@
-// A Default main session's kept commits open as its review, named as session
-// commits; a session that made none says so.
+// A Default main session's review describes its kept commits, including when
+// no comparison can be shown.
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { columnCountOf } from "../../tests/dashboardParts.ts";
 import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
@@ -113,7 +113,7 @@ for (const { checkout, shared } of [
   });
 }
 
-test("a session that made no commits says so as its review's explanation", async ({
+test("an unavailable Default main review describes the session's kept commits", async ({
   page,
   frontendServices,
 }) => {
@@ -125,6 +125,7 @@ test("a session that made no commits says so as its review's explanation", async
     .please();
   await installFrontendStoryReview(page, {
     kind: "landing-unavailable",
+    comparison: "session-commits",
     explanation,
   });
   const { recent } = await openFrontendBoardReview(page, frontendServices, {
@@ -134,11 +135,12 @@ test("a session that made no commits says so as its review's explanation", async
   await sessionReviewChanges(recent, title).click();
 
   await sidePanelPages(page).phase(
-    "the panel says the session made no commits",
+    "the panel describes the session's kept commits",
     (pages) => {
-      pages.storyReview.expectStory(title);
-      pages.storyReview.expectFeedback(explanation);
-      pages.storyReview.expectNoChangedFiles(/changed file/);
+      pages.storyReview.expectDescription(
+        "Read-only: this session's kept commits.",
+      );
+      pages.reviewToolbar.expectName("Session commits");
     },
   );
 });

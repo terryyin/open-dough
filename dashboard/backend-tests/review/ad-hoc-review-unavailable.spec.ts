@@ -20,6 +20,12 @@ import {
 
 test.use({ serverMode: "boundary" });
 
+const notCaptured = {
+  kind: "landing-unavailable",
+  comparison: "session-commits",
+  explanation: "This session's changes were not captured.",
+};
+
 test("a default launch without a landing says its changes were not captured", async ({
   request,
   dashboard,
@@ -33,10 +39,7 @@ test("a default launch without a landing says its changes were not captured", as
       .please(),
   ]);
 
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-    kind: "landing-unavailable",
-    explanation: "This session's changes were not captured.",
-  });
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual(notCaptured);
 });
 
 test("an ad hoc landing whose repository is gone explains the gap", async ({
@@ -130,6 +133,7 @@ test("a blank default launch that edited files and committed nothing says it mad
 
   expect(await adHocReview(request, dashboard, sessionId)).toEqual({
     kind: "landing-unavailable",
+    comparison: "session-commits",
     explanation: "This session made no commits in the Default main checkout.",
   });
 });
@@ -144,10 +148,7 @@ test("a session whose only commit stays on another branch says its changes were 
   await commitOnSideBranch(origin.project, "2099-01-02T12:00:00Z", "side.txt");
   await markAdHocDone(dashboard, sessionId);
 
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-    kind: "landing-unavailable",
-    explanation: "This session's changes were not captured.",
-  });
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual(notCaptured);
 });
 
 for (const { when, earlierFiles } of [
@@ -168,10 +169,9 @@ for (const { when, earlierFiles } of [
     rewordInCheckout(checkout, "2099-01-02T12:10:00Z", "Clarify session notes");
     await markAdHocDone(dashboard, sessionId);
 
-    expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-      kind: "landing-unavailable",
-      explanation: "This session's changes were not captured.",
-    });
+    expect(await adHocReview(request, dashboard, sessionId)).toEqual(
+      notCaptured,
+    );
   });
 }
 
@@ -194,10 +194,7 @@ test("a session whose checkout log cannot be read at Done is done and says its c
   expect(
     (await keptAdHocRecord(dashboard, sessionId))?.sessionCommits,
   ).toBeUndefined();
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-    kind: "landing-unavailable",
-    explanation: "This session's changes were not captured.",
-  });
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual(notCaptured);
 });
 
 test("a session whose checkout log holds no entry at Done is done and says its changes were not captured", async ({
@@ -216,10 +213,7 @@ test("a session whose checkout log holds no entry at Done is done and says its c
   expect(
     (await keptAdHocRecord(dashboard, sessionId))?.sessionCommits,
   ).toBeUndefined();
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-    kind: "landing-unavailable",
-    explanation: "This session's changes were not captured.",
-  });
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual(notCaptured);
 });
 
 test("a default launch in a checkout Git cannot read keeps no start, is done, and says its changes were not captured", async ({
@@ -238,8 +232,5 @@ test("a default launch in a checkout Git cannot read keeps no start, is done, an
 
   expect(await markAdHocDone(dashboard, sessionId)).toEqual(expect.any(String));
 
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-    kind: "landing-unavailable",
-    explanation: "This session's changes were not captured.",
-  });
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual(notCaptured);
 });

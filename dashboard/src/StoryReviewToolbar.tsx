@@ -12,6 +12,7 @@ import {
 } from "./FileBrowserToggle.tsx";
 import {
   reviewsLanding,
+  reviewsSessionCommits,
   type ReviewComparison,
   type StoryReview,
 } from "./storyReviewContract.ts";
@@ -19,6 +20,7 @@ import {
   comparisonName,
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
+import { sessionCommitsName } from "./StoryReviewSessionCommitsContext.tsx";
 import "./story-review-toolbar.css";
 
 // Whether the comparison actually shown lists files for the sidebar.
@@ -42,8 +44,8 @@ export const toolbarComparisonName = (
   review: StoryReview | undefined,
   shown: ComparisonChoice,
 ) =>
-  review?.kind === "session-commits"
-    ? "Session commits"
+  reviewsSessionCommits(review)
+    ? sessionCommitsName
     : comparisonName(reviewsLanding(review) ? "landed" : shown);
 
 // The review details as the review places them: the section's id, whether

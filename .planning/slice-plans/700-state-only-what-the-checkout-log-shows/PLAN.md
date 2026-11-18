@@ -338,7 +338,7 @@ real Git run proofs.
 
 ### 7. Describe a session's unavailable review as a session's
 Type: Behavior
-Status: planned
+Status: done
 Proof: the no-commit case of
 `frontend-tests/sessions/recently-done-ad-hoc-session-commits.spec.ts`,
 repurposed. Scratch break: describe every unavailable review as a landed
@@ -350,6 +350,21 @@ landed run, beside its explanation; a session with a kept run is described
 in the same words (“kept”). The explanation's display stays proved by
 `recently-done-ad-hoc-review-gaps.spec.ts`. `STORY-REVIEW-LANDED-RUNS.md`
 states the no-commit sentence and the kept-commits unavailable explanations.
+
+The toolbar landed during execution and consumes the same comparison family.
+Recently done intentionally projects private landing data out of the entry.
+The review answer therefore carries an optional `comparison: "session-commits"`
+on unavailable session commits. The accessible description and toolbar use
+that value. Saved landing gaps keep their existing response and wording.
+
+Proof: bypassing the unavailable-session family caused the selected
+description assertion to read as a landed run (exit 1). Restored proof
+passed six frontend specs, seven backend specs, two landed E2E specs and
+dashboard typecheck. The saved landing and both unavailable session
+producers have exact boundary observations. `slice-7-return.md` and
+`slice-7-consumers-settled.md` retain the commands and consumer trace.
+The independent test refactor kept the marker assertion at its producers.
+The four affected backend specs passed again.
 
 ### 8. Drive a session's work in the checkout through one support owner
 Type: Structure

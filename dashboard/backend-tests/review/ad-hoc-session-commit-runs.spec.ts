@@ -233,7 +233,7 @@ test("a commit made before the session and rebased during it is not kept", async
   await pullPublishedWork(origin, firstAt, "story.txt", { how: "rebase" });
   await markAdHocDone(dashboard, sessionId);
 
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+  expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "landing-unavailable",
     explanation: "This session made no commits in the Default main checkout.",
   });

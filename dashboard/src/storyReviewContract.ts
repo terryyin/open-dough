@@ -136,6 +136,7 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("landing-unavailable"),
+      comparison: z.literal("session-commits").optional(),
       reference: z.uuid().optional(),
       explanation: z.string().min(1),
     }),
@@ -193,9 +194,15 @@ export const storyReviewSchema = z
 export type StoryReview = z.infer<typeof storyReviewSchema>;
 // A review whose snapshot was taken.
 export type TakenStoryReview = Extract<StoryReview, { kind: "snapshot" }>;
+// A session's kept commits, including when the server could not show them.
+export const reviewsSessionCommits = (review: StoryReview | undefined) =>
+  review?.kind === "session-commits" ||
+  (review?.kind === "landing-unavailable" &&
+    review.comparison === "session-commits");
 // A landed run's review, whether its delivered change could be read or not.
 export const reviewsLanding = (review: StoryReview | undefined) =>
-  review?.kind === "landed" || review?.kind === "landing-unavailable";
+  review?.kind === "landed" ||
+  (review?.kind === "landing-unavailable" && !reviewsSessionCommits(review));
 
 // The revision a snapshot's baseline is named by wherever the review shows
 // it: the trunk revision the story's published commits were taken out of, or

@@ -13,7 +13,10 @@ import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import type { AdmittedStoryReview } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
-import { sessionCommitsReview } from "./storyReviewSessionCommits.ts";
+import {
+  sessionCommitsReview,
+  unavailableSessionCommitsReview,
+} from "./storyReviewSessionCommits.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
@@ -50,11 +53,10 @@ export async function storyReviewResponse(
         );
       if ("explanation" in request)
         return { kind: "unavailable", explanation: request.explanation };
-      if ("landingUnavailable" in request)
-        return {
-          kind: "landing-unavailable",
-          explanation: request.landingUnavailable,
-        };
+      if ("sessionCommitsUnavailable" in request)
+        return unavailableSessionCommitsReview(
+          request.sessionCommitsUnavailable,
+        );
       if ("sessionRun" in request)
         return sessionCommitsReview(request.sessionRun, signal);
       let local: StoryReview;

@@ -199,7 +199,7 @@ test("retrying the same quiet delivery resumes native Done without repeating its
     );
     expect(retry.ok).toBe(true);
     await expect.poll(() => receiver.claudeAttaches().length).toBe(2);
-    expect(await adHocReview(request, receiver, sessionId)).toEqual({
+    expect(await adHocReview(request, receiver, sessionId)).toMatchObject({
       kind: "landing-unavailable",
       explanation: "This session's changes were not captured.",
     });
