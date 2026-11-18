@@ -122,7 +122,14 @@ its record kept at launch; a session established in the default checkout from
 its own start. Each Done reads anew and replaces the earlier capture; a log
 that cannot be read keeps Done and leaves no capture; reopening a session
 leaves its capture until the next Done. An automatic Done whose native rename
-wait is abandoned keeps no capture until a later Done.
+wait is abandoned keeps no capture until a later Done. The references stay
+while the launch record is kept and are released with it: deleting the record,
+or its expiry 30 days after Done, removes that record's session-commit
+references and its landing references from the saved repository and leaves
+every other record's. Session-commit references in a repository that is gone
+or unreadable are left there and the record still goes; expiry lets landing
+references go the same way, while explicit deletion keeps its landing cleanup
+retry stated below.
 [Landed run review](STORY-REVIEW-LANDED-RUNS.md) shows the kept commits.
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;

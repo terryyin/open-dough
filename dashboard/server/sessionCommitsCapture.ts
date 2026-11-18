@@ -12,6 +12,7 @@ import type {
 } from "../src/sessionCommits.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { pinPair, removePins } from "./launchLandingGit.ts";
+import { sessionCommitsRefPrefix } from "./launchRecordPins.ts";
 
 const git = async (cwd: string, args: readonly string[]) =>
   (
@@ -36,9 +37,6 @@ export function defaultMainStart(
 // The checkout a folder path names, resolved. Throws when it is gone.
 export const resolvedCheckout = (workspace: string) =>
   realpathSync(path.resolve(workspace));
-
-const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
-  `refs/open-dough/session-commits/${session.host}/${session.sessionId}/`;
 
 interface LogEntry {
   readonly commit: string;

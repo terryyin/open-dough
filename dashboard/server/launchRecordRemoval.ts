@@ -6,6 +6,7 @@
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { onRecordsDroppedByRetention } from "./launchRecordDocument.ts";
+import { releaseExpiredRecordPins } from "./launchRecordPins.ts";
 
 // Runs the record's host's record-removal operation, if it has one.
 // Callers run this only after the record itself is actually gone.
@@ -16,7 +17,8 @@ export async function notifyRecordRemoved(record: LaunchRecord): Promise<void> {
 // Installs the retention path's dispatch: session records the record
 // store drops past their retention are surfaced by
 // `./launchRecordDocument.ts` once the dropping rewrite has landed, and
-// each is retired here exactly as an explicit deletion retires it.
+// each is retired here exactly as an explicit deletion retires it, after
+// what it kept in a saved repository is released (`./launchRecordPins.ts`).
 // Installed by the launch boundary (`./launchBoundary.ts`); a write in a
 // process that never installed it still drops the records, and their
 // host-local state then has no record left to retire through this
@@ -24,6 +26,7 @@ export async function notifyRecordRemoved(record: LaunchRecord): Promise<void> {
 export function installRecordRemovalDispatch(): void {
   onRecordsDroppedByRetention(async (records) => {
     for (const record of records) {
+      await releaseExpiredRecordPins(record);
       await notifyRecordRemoved(record);
     }
   });

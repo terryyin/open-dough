@@ -344,7 +344,7 @@ responsibility (context expectations apart from file browser and diff).
 
 ### 8. Release kept commits with the launch record
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases beside the existing record-deletion spec for deletion and for
 expiry. Scratch break: skip removal on expiry; the case fails on a remaining
 reference.
@@ -353,6 +353,17 @@ Behavior: a kept record's run references exist while the record is kept;
 deleting the record, or its expiry after retention, removes that record's
 references, session runs and landing alike, from the saved repository and
 leaves other records' references.
+
+Delivered: `releaseRecordPins` (`server/launchRecordPins.ts`) releases a
+record's session-run references, then its landing references; explicit
+deletion calls it where it removed landing pins, and the retention listener
+(`server/launchRecordRemoval.ts`) calls it for each expired record before
+the host's record-removal operation. A session-run release is best-effort on
+both paths and a landing release on expiry too; a failed landing release on
+explicit deletion keeps its earlier behaviour (it rejects and keeps the
+retry intent). Scratch break: with the expiry release removed the expiry
+case failed on the two remaining session-run references (`s8-break-expiry`,
+exit 1); restored, `s8-required-proof` and `s8-refactor-new-spec` exit 0.
 
 ## Concerns and refinement
 
@@ -421,3 +432,8 @@ Disposition: proved by slice 7: `dashboard/frontend-tests/sessions/recently-done
 Reported: slice 7 — "Session run keys are positions, so a Refresh that returns fewer or reordered runs keeps the position, not the run. Cases not written: choosing back to the first run, and a Refresh after which the chosen position no longer exists."
 Story clause: "otherwise the Comparison switch lists the runs, oldest first, and the review opens on the first."
 Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": a record's runs change only when a reopened session is marked done again (`keptWithSessionCommits` in `server/recordDoneAt.ts` replaces the capture at a set Done), and the review is offered on the Done entry in Recently done, so an open panel's runs stay as answered; a position past the end is refused by the server (`keptSessionRun`) and shown through the panel's existing failed-read feedback.
+
+### G13. Expiry outside the server's retention listener, or of a landing found only through its launch attempt, leaves references
+Reported: slice 8 — "A record that expires in a process without the listener installed keeps its refs (existing limitation of that listener). Expiry does not look up an older record's landing repository through its launch attempt, as deletion does; those landing refs stay."
+Story clause: "The comparisons stay readable as trunk advances and after the commits leave every branch, for as long as the launch record is kept, and are released with it."
+Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": a session's kept comparisons name their repository on the record itself (`sessionCommits.repository`), so `releaseRecordPins` (`server/launchRecordPins.ts`) releases them on both paths; the dashboard server installs the retention listener (`server/launchRecordRemoval.ts`) for every record write it makes, and a reference left behind by another process or an older landing keeps only unreachable commits in the saved repository, which no view reads once its record is gone.
