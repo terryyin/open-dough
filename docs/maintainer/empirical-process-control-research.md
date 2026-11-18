@@ -493,10 +493,9 @@ guidance is wrong. A local workaround alone does not answer it.
 `dashboard/test-results` inside a broader shared-host coordination finding.
 It moved that occurrence into the existing project collision group while
 retaining the general concern in `DearDough.md`, without another backlog story.
-The [project review history](project-findings-history.md) preserves the split.
 Classifying whole headings as exclusively local or shared would lose this
-distinction. The same history also records identical DD numbers referring to
-different problems: identity needs its project, provenance, and meaning.
+distinction. Identical DD numbers can refer to different problems: identity
+needs its project, provenance, and meaning.
 
 **Current source and applicable proof can overturn both an open finding and a
 completion claim.** On 14 September, reviews removed proposed work after finding
@@ -549,9 +548,9 @@ failure into an unlimited implementation mandate.
 
 ### Existing behavior to reuse and the selected first story
 
-The local [project finding rules](../../ProjectFindings.md) and
-[review history](project-findings-history.md) already demonstrate evidence
-preservation, mixed ownership, qualified resolution, and distinct recurrence.
+The local [project finding rules](../../ProjectFindings.md) already demonstrate
+evidence preservation, mixed ownership, qualified resolution, and distinct
+recurrence.
 The [maintainer runbook](retrospective-findings-runbook.md) has useful ranking
 and deduplication behavior, but it handles a different shared-guidance exchange
 and must not impose its three-project list or internal catalog on runtime users.

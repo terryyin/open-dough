@@ -131,8 +131,7 @@ observation. Open.
 DD-378 (planning treats pre-existing failures as exclusions from completion)
 was retired on 2026-11-07 after `SEED-229#reduce-remote-sessions-traffic`
 (`e49035d31:.planning/slice-plans/462-reduce-remote-sessions-traffic/PLAN.md`)
-satisfied its observation criterion; see
-[review history](project-findings-history.md#dd-378).
+satisfied its observation criterion.
 
 <a id="dd-442"></a>
 

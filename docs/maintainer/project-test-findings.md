@@ -96,8 +96,7 @@ that had asked for nothing.
 
 [Opt-in proof records](../../dashboard/tests/README.md) supplied the selection
 and strict verdict of one 24-test run without a counting rerun. Choosing and
-reading a fresh path remain manual. [The five historical executions and
-evaluation](project-findings-history.md#dd-216) are retained together.
+reading a fresh path remain manual.
 
 ## Shell observations can invert a result on Linux (open, unqueued)
 
@@ -219,7 +218,7 @@ unknown.
 delivered the instructions in
 [Machine sleep on macOS](../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 In `SEED-241#load-intent-without-disruption-or-bulk-source-transfer`
-(`plan 477-load-intent-without-disruption`, 2026-11-05, see [DD-432](project-findings-history.md#dd-432)),
+(`plan 477-load-intent-without-disruption`, 2026-11-05),
 the main-merge dashboard suite ran under `caffeinate -s -i` and reported
 2,044 passed, 1 skipped. Two settling observations remain
 open: whether `caffeinate -s` keeps a run going that starts inside the

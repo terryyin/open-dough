@@ -16,11 +16,9 @@ execution. A repaired individual race does not resolve every suite failure.
 ## Priority assessment
 
 **Maintenance assessment (2026-11-15):** SEED-375 was queued to protect a
-live host test-suite owner during container diagnostics
-([DD-432](docs/maintainer/project-findings-history.md#dd-432), since resolved). [DD-529](docs/maintainer/project-test-findings.md#dd-529)
-records the browser capacity finding.
-[Retirement decisions and recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
-include the verified runner and harness fixes. The load cases below retain the
+live host test-suite owner during container diagnostics.
+[DD-529](docs/maintainer/project-test-findings.md#dd-529)
+records the browser capacity finding. The load cases below retain the
 limits of the available post-response proof.
 
 **Maintenance assessment (2026-11-11):** The named node-job deadline and
@@ -37,7 +35,7 @@ dashboard load facet of [DD-476](#dd-476) remain covered by
 [DD-486](#dd-486) records two late TypeScript refusals caught by the project's
 commit hook. No new local response was selected.
 
-**Maintenance assessment (2026-11-08):** [DD-442](docs/maintainer/project-maintenance-findings.md#dd-442) belongs to this repository’s historical trial preflight. The corrected third checkout rejected a later object. [DD-445](docs/maintainer/project-test-findings.md#dd-445) records two repaired timeout regressions and remaining hosted variance, alongside the existing dashboard fixture-cost work. [DD-452](docs/maintainer/project-findings-history.md#dd-452) is a repaired mismatch between this repository’s shell CI job and its selected proof. No new local story was selected. The three source sections are recoverable at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
+**Maintenance assessment (2026-11-08):** [DD-442](docs/maintainer/project-maintenance-findings.md#dd-442) belongs to this repository’s historical trial preflight. The corrected third checkout rejected a later object. [DD-445](docs/maintainer/project-test-findings.md#dd-445) records two repaired timeout regressions and remaining hosted variance, alongside the existing dashboard fixture-cost work. DD-452 is a repaired mismatch between this repository’s shell CI job and its selected proof. No new local story was selected. The three source sections are recoverable at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
 
 1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
@@ -241,26 +239,6 @@ turn. The product still starts its pace per open.
 [DD-433](docs/maintainer/project-test-findings.md#dd-433) records two passing
 dashboard shards cancelled at the 6-minute job cap during slow artifact uploads.
 
-## Review and recovery
-
-[Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
-remain available in the history record, with the original evidence and dates.
-
-<a id="dd-496"></a> [DD-496 terminal-wait repair](docs/maintainer/project-findings-history.md#dd-496).
-
-<a id="dd-171"></a>
-
-DD-171's delivered commit-hook typecheck and red/green evidence are
-[retained in the review history](docs/maintainer/project-findings-history.md#dd-171).
-
-### Earlier reviews
-
-[Earlier classification and resolution reviews](docs/maintainer/project-findings-history.md#earlier-reviews).
-
-### Earlier moves
-
-[Earlier moves and their Git recovery references](docs/maintainer/project-findings-history.md#earlier-moves).
-
 ## Repository authoring and host observations
 
 - <a id="dd-363"></a> [Coordinator source-review hard-breaks fail fresh delivery](docs/maintainer/project-maintenance-findings.md#dd-363)
@@ -268,11 +246,6 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 - <a id="dd-370"></a> [New Markdown docs with trailing blank EOF fail staged whitespace](docs/maintainer/project-maintenance-findings.md#dd-370)
 - <a id="dd-371"></a> [Delivery typecheck first catches exactOptionalPropertyTypes after green proof](docs/maintainer/project-maintenance-findings.md#dd-371)
 - <a id="dd-374"></a> [Delegation brief softened the project's failing-test policy to "fix or report"](docs/maintainer/project-maintenance-findings.md#dd-374)
-
-<a id="dd-378"></a>
-
-DD-378's plan-exclusion response and `SEED-229` retirement evidence are
-[retained in the review history](docs/maintainer/project-findings-history.md#dd-378).
 
 ## Release finalization says "Do not push" while a release slice proves the remote tag (open, unqueued)
 
