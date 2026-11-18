@@ -43,29 +43,29 @@ source conditions.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A snapshot link opens the blob at the inspected revision and preserves its recorded hash. | slice 2 |  |
-| 2 | A bounded correction’s bare plan link is offered as a link. | slice 2 |  |
-| 3 | A recorded `..` path resolves to its target inside the repository. | slice 2 |  |
-| 4 | A recorded root path resolves to its target inside the repository. | slice 2 |  |
-| 5 | A snapshot file is labeled “File in this snapshot.” | slice 2 |  |
+| 1 | A snapshot link opens the blob at the inspected revision and preserves its recorded hash. | slice 2 | observed: frontend-tests/navigation/source-navigation.spec.ts seed and plan step: GitHub origin, pinned path, recorded hashes; follow step observed the popup request |
+| 2 | A bounded correction’s bare plan link is offered as a link. | slice 2 | observed: source-navigation.spec.ts bounded correction step: one accessible canonical link, pinned pathname and empty hash |
+| 3 | A recorded `..` path resolves to its target inside the repository. | slice 2 | observed: source-navigation.spec.ts dot and root path step: ADR pinned pathname and #decision from the dot path |
+| 4 | A recorded root path resolves to its target inside the repository. | slice 2 | observed: source-navigation.spec.ts dot and root path step: pinned root-relative docs/release%20notes/2026.md |
+| 5 | A snapshot file is labeled “File in this snapshot.” | slice 2 | observed: source-navigation.spec.ts seed and plan step: short inspected revision in the snapshot label |
 | 6 | An external reference is labeled “External reference.” | slice 3 |  |
-| 7 | Every card anchor has `target="_blank"`. | slice 2 |  |
-| 8 | Every card anchor has `rel="noopener noreferrer"`. | slice 2 |  |
-| 9 | Following a recorded link opens a new tab. | slice 2 |  |
-| 10 | Following that link leaves the dashboard in place in the original tab. | slice 2 |  |
+| 7 | Every card anchor has `target="_blank"`. | slice 2 | observed: source-navigation.spec.ts every card anchor step: exact _blank on every anchor, with a nonempty set |
+| 8 | Every card anchor has `rel="noopener noreferrer"`. | slice 2 | observed: source-navigation.spec.ts every card anchor step: exact noopener noreferrer on every anchor |
+| 9 | Following a recorded link opens a new tab. | slice 2 | observed: source-navigation.spec.ts follows snapshot link; frontendSourceNavigation.ts followLeavingDashboard observes popup and request before closing |
+| 10 | Following that link leaves the dashboard in place in the original tab. | slice 2 | observed: source-navigation.spec.ts follow step and frontendSourceNavigation.ts followLeavingDashboard, unchanged original URL/project and still-visible expanded detail |
 | 11 | A `javascript:` target is shown as text with its refusal reason and is unavailable as a link. Key example 1 locates this assertion in the maintained Frontend source-navigation spec. | slice 3 |  |
 | 12 | A `data:` target is shown as text with its refusal reason and is unavailable as a link. | slice 3 |  |
 | 13 | An invalid target is shown as text with its refusal reason and is unavailable as a link. | slice 3 |  |
 | 14 | Recorded markup is displayed as literal text. | slice 3 |  |
 | 15 | Displaying recorded markup executes none of it. | slice 3 |  |
-| 16 | The page asks its own server for the canonical SEED-021 seed file. | slice 2 |  |
-| 17 | The page asks its own server for the correction’s canonical plan file. | slice 2 |  |
-| 18 | The page asks its own server for the canonical ADR file. | slice 2 |  |
-| 19 | The page asks its own server for `docs/release notes/2026.md`. | slice 2 |  |
-| 20 | Showing the links causes no additional in-repository file path to be requested. | slice 2 |  |
-| 21 | An external reference causes no target read. | slice 2 |  |
-| 22 | A refused target causes no target read. | slice 2 |  |
-| 23 | Showing the links causes no request outside the dashboard’s origin. | slice 2 |  |
+| 16 | The page asks its own server for the canonical SEED-021 seed file. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes the SEED-021 seed |
+| 17 | The page asks its own server for the correction’s canonical plan file. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes plan 059 |
+| 18 | The page asks its own server for the canonical ADR file. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes the ADR |
+| 19 | The page asks its own server for `docs/release notes/2026.md`. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes docs/release notes/2026.md |
+| 20 | Showing the links causes no additional in-repository file path to be requested. | slice 2 | observed: source-navigation.spec.ts compares entire settled path array to exactly four files after inspecting all cards |
+| 21 | An external reference causes no target read. | slice 2 | observed: source-navigation.spec.ts exact path array and zero foreign origins after every card, including the external reference |
+| 22 | A refused target causes no target read. | slice 2 | observed: source-navigation.spec.ts exact path array and zero foreign origins after every card, including refused targets |
+| 23 | Showing the links causes no request outside the dashboard’s origin. | slice 2 | observed: source-navigation.spec.ts settled outsideDashboard() is empty before popup; frontendSourceNavigation.ts collects page requests from before navigation and compares after the origin is known |
 | 24 | When a real dashboard server reads `docs/release notes/2026.md` at the inspected revision, it asks GitHub for `contents/docs/release%20notes/2026.md?ref=<revision>`. This Backend case belongs in `authenticated-read-boundary` and covers a path with a space outside the planning directory. | slice 1 | observed: authenticated-read-boundary.spec.ts encodes the space in a canonical path, 200/pinned path and exact contents argv; scratch unencoded argv failed |
 | 25 | That file read makes exactly one GitHub request for the file. | slice 1 | observed: authenticated-read-boundary.spec.ts encodes the space in a canonical path, exact one-call ghCalls delta after membership read |
 | 26 | The ref read keeps its existing Dashboard Backend Test owner. | slice 1 | observed: authenticated-read-revision-backlog.spec.ts asks again which commit the ref names, exact ref calls per membership read |

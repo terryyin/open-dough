@@ -158,7 +158,7 @@ that config. The shared harness and the interim case are untouched.
 
 ### 2. Open canonical and plan records from the Frontend group
 Type: Behavior
-Status: planned
+Status: done
 Proof: interim test 1 in
 `dashboard/frontend-tests/navigation/source-navigation.spec.ts`, same test
 name, on `tests/support/frontendSourceNavigation.ts`. Scratch break:
@@ -183,6 +183,20 @@ Assertion map (interim step → same step in the new test):
 - Follow: new tab to `github.com` at the seed's pathname, dashboard URL and
   project choice unchanged, detail still open, `aria-expanded` true.
 - Every card's anchors: `_blank`, `noopener noreferrer`, at least one seen.
+
+Accepted implementation proof: the new Frontend case observed the pinned
+canonical and plan links, including their labels and fragments, inspected
+all 11 cards before checking the complete four-path request list and zero
+foreign origins, then observed the GitHub popup and the unchanged dashboard.
+The focused command
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts dashboard/frontend-tests/navigation/source-navigation.spec.ts --workers=2`
+passed in the execution checkout; dashboard typecheck passed. In a detached
+scratch checkout the same command failed at the exact canonical pathname
+comparison when `resolveSourceLink` built the blob URL from `source.ref`
+(expected the inspected commit, received `main`). The scratch was retired.
+The Git evidence directory retains `slice-2-return.md`, the selected listing
+and the terminal results. The Frontend spec is the only current consumer of
+the new support; the run exercised both its registration and helper calls.
 
 ### 3. Keep external and refused targets apart in the Frontend group
 Type: Behavior
@@ -310,4 +324,7 @@ carries its preparation.
   already part of the Take's base. There is no Markdown under `dashboard/tests/`.
   The browser-group roster story is undelivered. No incoming sibling change
   alters slice 1's boundary or proof.
+- Slice 1 was accepted and observed on the story branch at
+  `e11d06fe0cc02e66647236621ce25599110b6032`. Independent review required
+  no refactor edits. Selective formatting, full lint and the commit hook passed.
 - Reuse existing planning authority. No separate overrun replan was selected.
