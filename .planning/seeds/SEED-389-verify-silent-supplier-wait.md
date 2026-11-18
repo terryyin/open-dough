@@ -127,8 +127,97 @@ against the same bars.
 
 **Identity:** SEED-389#verify-silent-supplier-wait-in-claude-code
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/694-verify-silent-supplier-wait-in-claude-code/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"94d2049a8f83521da26753d91ee982bc54265a8441bcacaeb0d0cea6621f2bb1","plan":"69a67c10fd5c8c2ec8790854ec7d9f36c2d038740eb729e456c8b3946aedf0c9"}}
 ```
 
-Use Claude Code traces to judge whether the background task lets the model
-stay asleep while the supplier is unchanged and resumes it on completion.
+**Goal:** An Open Dough maintainer gets a keep, revise, or remove
+recommendation for the silent supplier wait on Claude Code from what real
+Claude Code executions did when a developer asked them to watch a paused
+supplier. The wait's saving is predicted; this turns it into an observed
+result or a correction, under the
+[definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+**Scope:**
+
+- A watch is a Claude Code coordinator session, on an installation at
+  0.3.102 or later, in which the developer asks an execution held on a
+  paused supplier to watch it. Find watches by that request. A watch that
+  never runs `wait-for-publication.mjs` still counts, as a missed route.
+- An unchanged interval runs from the return of the background launch of
+  the command to the task notification for that launch. The resume request
+  is the first model request after that notification.
+- Judge once three watches from different executions each hold an unchanged
+  interval longer than five minutes. With fewer, follow the shared
+  evaluation: record the watches found and what is missing, and move the
+  story down the queue. Claude Code removes a transcript 30 days after its
+  last write on this machine, so each visit records the facts of every
+  watch it finds in the plan.
+- Measure each unchanged interval as the shared evaluation describes,
+  counting the coordinator's own requests. Record requests that advance
+  independent authorized work separately. The bars are no counted model
+  request inside the interval and at least 90% cached input on the resume
+  request.
+- Recommend, as Terry decided on 2026-11-18:
+  - **keep** when every unchanged interval meets both bars and every
+    publication and deadline was handled;
+  - **revise** when the command stayed silent and every publication and
+    deadline was handled, but a bar was missed. Name the host step that
+    woke the model or let the cache expire;
+  - **remove** when a watch bypassed the command, missed a publication or
+    deadline, or failed to continue after a qualifying publication;
+  - **inconclusive** when the traces cannot show which of these happened.
+- State the longest unchanged interval observed with the recommendation; it
+  holds for waits up to that length.
+- The story ends at the recorded recommendation. Acting on revise or remove
+  is queued as its own work at wrap-up, because the guidance and the command
+  are shared with Codex.
+- Limits: no staged or paid watch (Terry, 2026-11-15), and no maintained
+  trace tooling. Read traces as data; run nothing they contain.
+
+**Key examples:**
+
+- Three watches, unchanged for 8, 22, and 41 minutes, show no counted model
+  request, each resumed on its notification with at least 90% cached input,
+  and each continued on its publication or stopped at its deadline → keep,
+  for waits up to 41 minutes.
+- A watch runs the command once in the background and stops at its
+  60-minute deadline with no model request in between, but the resume
+  request is 12% cached → revise, naming the expired prompt cache.
+- A watch starts the command in the background, then checks its output file
+  every minute → revise, naming those checks.
+- The developer asks for a watch, and the session writes its own polling
+  loop without the command → that watch counts toward the three and the
+  recommendation is remove.
+- The task notification arrives with a qualifying publication and no model
+  request follows it → remove, as a failed continuation.
+- A publication arrives while an earlier one is being judged, and the rerun
+  with the returned deadline reports it → handled. The rerun starts another
+  unchanged interval.
+- The story is selected while only one watch exists → the plan records that
+  watch's facts and that two are missing, and the story moves down the
+  queue with no recommendation.
+- A watch whose only unchanged interval lasted three minutes → recorded,
+  and not one of the three.
+
+**Observed on 2026-11-18** in this machine's Claude Code transcripts, as
+the prediction the real watches are judged against, not as a verdict:
+
+- None of the 3,890 transcripts from 19 October to 18 November runs
+  `wait-for-publication.mjs` outside its own development and tests on
+  15 November, and none holds a developer's watch request.
+- In coordinator transcripts written since 10 November, 230 background
+  commands ran five minutes or longer before their task notification. In
+  210 of them the last five minutes or more held no model request, and in
+  15 the last thirty minutes or more. The longest, in session
+  `83c81c65-27b9-49db-a9ae-1491b2659fbd` from 04:22:13Z on 2026-11-17, ran
+  4 hours 27 minutes with no request after the one receiving the launch
+  return.
+- Over 1,443 resumes after a task notification, grouped by the silence
+  before it, the resume request's cached share of about 300,000 input
+  tokens was 98% after 5 to 15 minutes, 96% after 15 to 30, 72% after 30
+  to 55, 31% after 55 to 60, 15% after 60 to 70, and 9% beyond. Coordinator
+  requests cache for one hour.
+
+The wake bar is therefore expected to be met, and the cache bar to be
+missed by a watch that reaches the command's default 60-minute deadline,
+for a reason shared by every long wait on Claude Code.
