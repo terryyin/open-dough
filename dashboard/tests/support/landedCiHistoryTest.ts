@@ -47,7 +47,10 @@ export const test = base.extend<{
   baseURL: async ({}, use) => {
     await use(undefined);
   },
-  startServer: async ({ origin, github }, use) => {
+  // A started server runs the worker's server bundle, prepared before the
+  // case (./serverInputWorkerFixtures.ts) so no start waits for it.
+  startServer: async ({ dashboardBoundaryReady, origin, github }, use) => {
+    await Promise.resolve(dashboardBoundaryReady);
     // Own startup before it awaits: a case may end with a start still pending.
     const started: Promise<DashboardServer>[] = [];
     await use(
@@ -75,17 +78,5 @@ export const test = base.extend<{
         result.status === "fulfilled" ? [result.value.close()] : [],
       ),
     );
-  },
-});
-
-// Cases whose worker prepares the queued Claude origin and the server bundle
-// before they start (./pageTest.ts), so none waits for them in its own time.
-export const queuedClaudeBoundaryTest = test.extend({
-  originRepository: async (
-    { queuedClaudeBoundaryReady, originRepository },
-    use,
-  ) => {
-    await Promise.resolve(queuedClaudeBoundaryReady);
-    await use(originRepository);
   },
 });

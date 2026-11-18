@@ -1,7 +1,7 @@
 // Saved predecessor preconditions and passive-protocol assertions, shared by Codex observation journeys.
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
-import { appendedRecords } from "./appendedRecords.ts";
+import { appendedFileRecords, appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
 import { codexEndpoint } from "./fakeCodex.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
@@ -146,12 +146,10 @@ export function codexEnvironments(
   native: FakeCodex,
   command: "app-server" | "resume",
 ): Readonly<Record<string, string>>[] {
-  const log = native.env["FAKE_CODEX_ENV_LOG"] ?? "";
-  if (!existsSync(log)) return [];
-  return appendedRecords<{
+  return appendedFileRecords<{
     args: string[];
     env: Readonly<Record<string, string>>;
-  }>(readFileSync(log, "utf8"))
+  }>(native.env["FAKE_CODEX_ENV_LOG"] ?? "")
     .filter(({ args }) => args[0] === command)
     .map(({ env }) => env);
 }

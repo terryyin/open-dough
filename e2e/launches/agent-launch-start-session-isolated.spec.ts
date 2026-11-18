@@ -37,10 +37,7 @@ import {
   sessionEntriesIn,
 } from "../../dashboard/tests/dashboardPage.ts";
 import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 import {

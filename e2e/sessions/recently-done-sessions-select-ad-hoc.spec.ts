@@ -6,10 +6,7 @@
 // ./recently-done-sessions-select-ad-hoc-development.spec.ts.
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import {
-  expect,
-  queuedCodexPreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { expectProjectChoice } from "../../dashboard/tests/projectChoice.ts";
 import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";

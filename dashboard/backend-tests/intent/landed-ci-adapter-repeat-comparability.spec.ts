@@ -1,8 +1,5 @@
 // Only the exact accepted full comparable attempt can provide a verdict.
-import {
-  expect,
-  queuedClaudeBoundaryTest as test,
-} from "../../tests/support/landedCiHistoryTest.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
 import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
 import {

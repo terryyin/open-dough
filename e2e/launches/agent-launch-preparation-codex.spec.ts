@@ -12,10 +12,7 @@ import { expectCodexRetryProgress } from "../../dashboard/tests/support/codexRet
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
 import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
-import {
-  expect,
-  queuedCodexPreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 import { showOptions } from "../../dashboard/tests/launchStoryCardPage.ts";

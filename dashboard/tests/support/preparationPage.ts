@@ -77,8 +77,3 @@ export const test = base.extend<
     await server.close();
   },
 });
-
-// Every preparation journey already takes its queued origin and serving
-// inputs as worker preparation; these names keep their readers' imports.
-export const queuedClaudePreviewTest = test;
-export const queuedCodexPreviewTest = test;

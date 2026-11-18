@@ -5,7 +5,7 @@
 # macOS write sandbox and fails only at its intended argv assertion
 # (`Received length: 5`), with no skip, flake or global error. Elsewhere no
 # sandbox exists to observe; the observer's own run is
-# native-guidance-check-launch-command-tests-e2e.sh.
+# native-guidance-check-launch-command-tests.sh.
 # shellcheck disable=SC1091,SC2154,SC2312 # Sourced support, runner and case globals; checks read what each command gives.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)

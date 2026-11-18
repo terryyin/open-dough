@@ -16,9 +16,7 @@ test("frontend preparation builds its app and requests no bundle or origin", asy
   try {
     await run.passed();
 
-    expect(
-      run.trace().filter(({ key }) => key !== dashboardAppArtifactKey),
-    ).toEqual([]);
+    expect(run.requestedArtifacts()).toEqual([dashboardAppArtifactKey]);
     run.expectPreparedBefore(dashboardAppArtifactKey, "frontendApp");
   } finally {
     await run.stop();

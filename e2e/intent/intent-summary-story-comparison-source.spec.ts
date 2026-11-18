@@ -5,10 +5,7 @@ import { expectFileComparisonRow } from "../../dashboard/tests/intentFileProofPa
 // Changed-file Purpose and Proof journeys live in
 // ../../dashboard/frontend-tests/intent/intent-summary-story-comparison-file.spec.ts.
 
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {

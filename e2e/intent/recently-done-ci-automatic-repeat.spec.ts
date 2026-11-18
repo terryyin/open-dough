@@ -2,10 +2,7 @@
 // Recently done, the card of a landing the machine keeps with an accepted
 // rerun request (../../dashboard/tests/support/ciFollowUpPageLanding.ts), as the page's
 // collecting dashboard saves what the provider's repeat becomes.
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { recheckingLandedCi } from "../../dashboard/tests/support/landedCiHistory.ts";
 import { keepRepeatLandingForPage } from "../../dashboard/tests/support/ciFollowUpPageLanding.ts";
 import { startingFromKeptStory } from "../../dashboard/tests/support/keptPublishedStory.ts";

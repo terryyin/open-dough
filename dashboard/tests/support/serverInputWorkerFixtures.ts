@@ -21,7 +21,6 @@ export type ServerInputWorkerFixtures = {
   queuedOriginsReady: undefined;
   queuedCodexOriginReady: undefined;
   queuedClaudePreviewReady: undefined;
-  queuedClaudeBoundaryReady: undefined;
   queuedCodexPreviewReady: undefined;
 };
 
@@ -88,16 +87,13 @@ export const serverInputWorkerFixtures: Fixtures<
     prepared(["claude"], "preview"),
     coldInputPreparation,
   ],
-  // Boundary servers on the queued Claude origin open no app.
-  queuedClaudeBoundaryReady: [
-    prepared(["claude"], "boundary"),
-    coldInputPreparation,
-  ],
   queuedCodexPreviewReady: [
     prepared(["codex"], "preview"),
     coldInputPreparation,
   ],
   // Requested only by native readers that need this installed queued input.
-  // Its setup has the worker's default budget, before a reading test starts.
-  queuedCodexOriginReady: [prepared(["codex"], undefined), { scope: "worker" }],
+  queuedCodexOriginReady: [
+    prepared(["codex"], undefined),
+    coldInputPreparation,
+  ],
 };

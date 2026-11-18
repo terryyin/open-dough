@@ -22,10 +22,7 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../dashboard/tests/support/dashboardServer.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { sidePanelContents } from "../../dashboard/tests/support/sidePanelContents.ts";
 import {
   emptyArea,

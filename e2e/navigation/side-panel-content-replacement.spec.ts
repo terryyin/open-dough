@@ -9,7 +9,7 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keyStep } from "../../dashboard/tests/sidePanelWidthPage.ts";
 import { sidePanelPages } from "../../dashboard/tests/sidePanelPages.ts";
 import { holdReviewOf } from "../../dashboard/tests/support/holdReviewResponse.ts";
-import { queuedCodexPreviewTest as base } from "../../dashboard/tests/support/preparationPage.ts";
+import { test as base } from "../../dashboard/tests/support/preparationPage.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import {
   otherQueuedIdentity,

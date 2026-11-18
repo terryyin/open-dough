@@ -29,12 +29,10 @@ for (const damage of [
   "missing-script",
 ] as const) {
   test(`Codex retained retry refuses lost ${damage} without replacing its preparation`, async ({
-    queuedCodexOriginReady,
     dashboard,
     origin,
     codexProtocol,
   }) => {
-    await Promise.resolve(queuedCodexOriginReady);
     if (codexProtocol === undefined) throw new Error("Native fixture missing.");
     const native = codexProtocol;
     const request = makeMe.aLaunchRequest

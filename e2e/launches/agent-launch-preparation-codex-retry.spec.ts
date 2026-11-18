@@ -9,10 +9,7 @@ import path from "node:path";
 import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import {
-  expect,
-  queuedCodexPreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
 import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
 import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";

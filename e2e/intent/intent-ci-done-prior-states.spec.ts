@@ -11,7 +11,7 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
-  queuedClaudePreviewTest,
+  test as base,
 } from "../../dashboard/tests/support/preparationPage.ts";
 import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/tests/support/intentSummaryStoryComparisonRepository.ts";
 import { serveSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonServing.ts";
@@ -20,9 +20,7 @@ import { doneWallReferenceHistory } from "../../dashboard/tests/support/doneWall
 import { keepLandedCiHistory } from "../../dashboard/tests/support/landedCiHistory.ts";
 import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
 
-const test = queuedClaudePreviewTest.extend(
-  startingFromKeptSummaryComparisonStory,
-);
+const test = base.extend(startingFromKeptSummaryComparisonStory);
 
 test("a collected selected landing without its proof summary keeps the prior average without a change beside the readable comparison, read without CI", async ({
   page,

@@ -18,10 +18,7 @@ import {
   storyA,
 } from "../../dashboard/tests/recentlyDoneReviewState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 
 const titles = doneStories.map(({ title }) => title);
 

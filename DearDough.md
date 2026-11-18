@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 575. Removed numbers are never reused.
+- Highest allocated local number: 576. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -257,6 +257,15 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: implementation and refactor briefs reserved formatter/hook-owned lint for the coordinator. Both refactor returns were clean; guarded fresh then refused slice 1 on SC2154/SC2016/SC2034 and slice 3 on SC1007/SC2094. Explicit initialization and narrow directives resolved the findings before publication (`251af1f66`, `1da6ffa75`).
   - Observed effect: two preparation refusals and coordinator mechanical repairs; no failed candidate was committed or published.
   - Inference: matches ODF-329. Earlier authored-file checking or carrying the strict shell rules may avoid this rework; effort saving is unmeasured.
+
+- Execution: SEED-340#declare-every-worker-preparation-with-its-own-budget (plan 692; first implementation `df9c246dcf1d9bf242d93f8517d01c70cf858587`)
+  - Timestamp: unknown (2026-11-18; slice 2 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.105 (checkout-bound installation at claim `b0763981528`)
+  - Evidence: slice 1 and 2 implementation and refactor briefs forbade hook-owned lint and named no strict rule. Guarded fresh delivery of slice 2 refused on `@typescript-eslint/require-await` (three nested proof cases) and `no-unnecessary-condition`; the coordinator repaired them, reran the Backend spec and retried (`6c7b0461f`). Briefs for slices 3–7 allowed a read-only `npx eslint` and named both rules; their deliveries formatted clean.
+  - Observed effect: one preparation refusal and a coordinator repair with one focused rerun; no failed candidate was committed or published.
+  - Inference: matches ODF-329; allowing the read-only check in the brief again removed it for the rest of the execution.
 
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 
@@ -971,3 +980,17 @@ split it into its own test and renewed its proof.
   - Evidence: plan 687 slice 2 Proof ("`board-paging-side-panel.spec.ts` gains its final step", `bc928d061:.planning/slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md`); slice 2 refactor return: new test in `board-paging-side-panel.spec.ts` at `251c507ae`, reruns `s2-refactor-specs` and `s2-refactor-break-b`.
   - Observed effect: one restructure and two renewed proof runs inside the refactor pass, which used its full 15 active minutes.
   - Inference: slice planning applied the interim journey's shape without the test-boundary check the refactor pass later applied. Cost beyond those reruns not measured.
+
+## DD-576 — Slice clock keeps running while the coordinator waits on a developer question <a id="dd-576"></a>
+The coordinator asked the developer a CI-repair question while a repair slice's clock was running and paused it only after the answer, so the wait counted as active time.
+
+### Occurrences
+- Execution: SEED-340#declare-every-worker-preparation-with-its-own-budget (plan 692; first implementation `df9c246dcf1d9bf242d93f8517d01c70cf858587`)
+  - Timestamp: unknown (2026-11-18; CI repair of Distribution Tests share 2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.105 (checkout-bound installation at claim `b0763981528`)
+  - Evidence: slice `repair-distribution-share2` started before the repair agent's 2.8-minute attempt; after the developer answered the follow-up question, `slice-clock.mjs status` reported 10.9 elapsed and 4.1 remaining. The coordinator then paused it and started `repair-share2-merges` fresh.
+  - Observed effect: about 8 minutes of waiting counted against the slice, and the remaining work moved to a new slice name rather than continuing the same one.
+  - Inference: the oversized-slice rule already says to pause when execution stops for a human; the coordinator missed it when the question followed a returned report. Cost was a renamed slice, not lost work.
+

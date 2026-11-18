@@ -26,3 +26,30 @@
 - **Decision or evidence needed:** a quieter-machine or CI-sum comparison of
   the coarse step (or of fewer `runFor` calls, e.g. one `runFor` to just
   before the check is due), showing every after-run below every before-run.
+
+### paused-supplier-starting-state
+
+- **Affected test or fixture:** `Distribution/evaluation/cases/guidance-checks/supplier-fixture.sh`,
+  the paused-supplier starting project built for each scripted session by the
+  `Distribution/evaluation/tests/native-guidance-checks/` checks (through
+  `support/native-comparison-pair-fixture.sh` and `case_materialize`).
+- **Observed cost and conditions:** native-guidance-checks summed 446 job-s of
+  Distribution Tests share 2 on CI run 44213987087 (2026-11-18). Locally each
+  scripted session took about 5 s, about 54% of it in `supplier-fixture.sh`
+  (75 Git calls), at load 4.7–7.7. Share 2 exhausted its 320 s run deadline on
+  slow runners (run 44214090643; main 44201614131); after merging duplicate
+  setup across the baseline and launch-command checks (local 266 s to 181 s),
+  share 2 passed in 3 min 45 s on the next run.
+- **Unique protection:** the native guidance checks' fresh-versus-reused
+  baseline acquisition, session counts and each input kind's comparison
+  observations, on the recorded paused-supplier case that paid native
+  comparisons use.
+- **Alternatives tried:** merging duplicate setup and captures (done); a
+  bounded pass over `Distribution/evaluation/tests/git-publication` found no
+  test-only redundancy above 30 job-s (about 15–18 CI job-s of small
+  candidates left: the story-closure observer's second fresh fixture, the
+  review and refinement `pushes` variants, admission-wrapper overhead).
+- **Decision or evidence needed:** whether to build a lighter paused-supplier
+  starting state, which changes the case basis so saved native baselines must
+  be recaptured, or to change the share's run budget or shard split; CI share-2
+  times on slow runners after the merges show how much margin remains.

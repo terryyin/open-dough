@@ -29,10 +29,7 @@ import {
   resultToLand,
 } from "../../dashboard/tests/support/landedCiHistory.ts";
 import { publishSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { openSummaryComparison } from "../../dashboard/tests/support/selectDoneStoryForSummaryComparison.ts";
 import { land } from "../../dashboard/tests/support/startSessionLandingContext.ts";
 import {

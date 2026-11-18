@@ -1,7 +1,7 @@
 // A nested run of one test-preparation-budget fixture spec under a group
 // runner's own global setup, with readers for what it records: the run
-// artifact trace, every case's fixture steps (fixtureSteps.mjs) and the
-// origins preparation.proof.ts cases report.
+// artifact trace, every case's fixture steps (fixtureSteps.mjs) and what each
+// case reports (reportCase.ts).
 import path from "node:path";
 import { appendedFileRecords } from "../../tests/support/appendedRecords.ts";
 import { expect } from "../../tests/support/pageTest.ts";
@@ -92,7 +92,8 @@ export function startPreparationProofRun(options: {
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       expect(readProof(recordPath).terminal?.strictStatus).toBe("passed");
     },
-    trace,
+    // Every run artifact key the run requested, once each, in request order.
+    requestedArtifacts: () => [...new Set(trace().map(({ key }) => key))],
     // When the run artifact `key` completed preparing.
     completedAt,
     steps,
@@ -107,6 +108,8 @@ export function startPreparationProofRun(options: {
         prepared ?? Infinity,
       );
     },
-    cases: () => appendedFileRecords<ReportedCase>(file("cases.jsonl")),
+    // What each case reported, in the shape its fixture spec writes.
+    cases: <Reported = ReportedCase>() =>
+      appendedFileRecords<Reported>(file("cases.jsonl")),
   };
 }
