@@ -1,3 +1,4 @@
+import { sessionComparisonKeySchema } from "./sessionReviewComparisons.ts";
 // Story review shows a launch workspace snapshot, a landed run's captured
 // comparison, or a completed story's published historical comparison.
 // The local launch boundary resolves the project,
@@ -194,6 +195,7 @@ export const storyReviewSchema = z
     z.object({
       runs: z.array(reviewRunChoiceSchema).optional(),
       selectedRun: z.string().min(1).optional(),
+      sessionComparisonKeys: z.array(sessionComparisonKeySchema).optional(),
     }),
   );
 export type StoryReview = z.infer<typeof storyReviewSchema>;

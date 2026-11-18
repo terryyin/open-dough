@@ -31,6 +31,16 @@ export class Board extends PageObject {
     );
   }
 
+  expectDoneSessionReviewFocused(title: string) {
+    return this.cueHere(
+      `Recently done: Review changes for ${title} has focus`,
+      () =>
+        expect(
+          sessionReviewChanges(parts(this.page).recentlyDone, title),
+        ).toBeFocused(),
+    );
+  }
+
   // A Story card on the Board, by its story's title.
   storyCard(title: string) {
     return new StoryCard(this.pages, title);

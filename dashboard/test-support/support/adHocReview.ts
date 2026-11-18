@@ -81,8 +81,7 @@ export async function adHocReview(
   request: APIRequestContext,
   dashboard: DashboardServer,
   session: string,
-  // A kept run's position among the session's runs, oldest first.
-  run?: number,
+  run?: string | number,
 ) {
   const response = await getReview(request, dashboard, storyReviewEndpoint, {
     ...sessionQuery(session),

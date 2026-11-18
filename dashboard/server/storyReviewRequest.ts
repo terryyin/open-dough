@@ -3,33 +3,22 @@
 // or an ad hoc session through one admission path.
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import {
-  branchResultAtDone,
-  type SessionBranchResult,
-} from "../src/sessionBranchResult.ts";
-import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
-import { establishedPlace } from "../src/establishedPlace.ts";
-import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
-import {
-  keptSessionRun,
-  unavailableSessionChanges,
-  type KeptSessionRun,
-} from "./storyReviewSessionCommits.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { reviewedWorkSubjectQuery } from "./reviewedWorkSubjectAdmission.ts";
+import { requireExactQuery } from "./sessionAdmission.ts";
 import {
-  queriedReviewedSessionSubject,
-  reviewedWorkSubjectQuery,
-} from "./reviewedWorkSubjectAdmission.ts";
-import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
+  sessionReviewRequest,
+  type AdmittedSessionReview,
+} from "./storyReviewSessionRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { hasBranchReview } from "./sessionBranchCapture.ts";
 
 interface AdmittedWorkspaceReview {
   readonly kind: "story-review";
@@ -76,74 +65,7 @@ export type AdmittedStoryReview =
         readonly identity: string;
       };
     }
-  // A Default main session's kept commits (`../src/sessionCommits.ts`).
-  | {
-      readonly kind: "story-review";
-      readonly sessionRun: KeptSessionRun;
-      readonly runs: readonly ReviewLandedRun[];
-    }
-  | {
-      readonly kind: "story-review";
-      readonly branchResult: SessionBranchResult;
-      readonly runs: readonly ReviewLandedRun[];
-    }
-  // An ad hoc session kept without a landing: explain before the landed reader,
-  // including default launches that established no place.
-  | {
-      readonly kind: "story-review";
-      readonly sessionCommitsUnavailable: string;
-      readonly runs: readonly ReviewLandedRun[];
-    };
-
-async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
-  const named = url.searchParams.get("run");
-  requireExactQuery(
-    url,
-    ["source", "host", "session", ...(named === null ? [] : ["run"])],
-    "review",
-  );
-  const { source, host, session } = queriedReviewedSessionSubject(url);
-  const record = await namedKeptSession(source, {
-    host,
-    sessionId: session,
-  });
-  if (launchSubject(record.request).identity !== undefined)
-    throw new RefusedRequest(
-      400,
-      "This session belongs to a story launch and is reviewed by its story.",
-    );
-  if (record.landing === undefined) {
-    const branchResult =
-      named === null ? branchResultAtDone(record) : undefined;
-    if (branchResult !== undefined)
-      return { kind: "story-review", branchResult, runs: [] };
-    const sessionRun = keptSessionRun(record, named);
-    if (sessionRun !== undefined)
-      return { kind: "story-review", sessionRun, runs: [] };
-    if (hasBranchReview(record))
-      return {
-        kind: "story-review",
-        explanation: "This session's branch changes at Done were not captured.",
-        runs: [],
-      };
-    return {
-      kind: "story-review",
-      sessionCommitsUnavailable: unavailableSessionChanges(record),
-      runs: [],
-    };
-  }
-  const established = establishedPlace(record);
-  if (established === undefined)
-    throw new RefusedRequest(
-      404,
-      "This session has no launch workspace to review.",
-    );
-  return {
-    kind: "story-review",
-    run: { record, established },
-    runs: [],
-  };
-}
+  | AdmittedSessionReview;
 
 async function identityReviewRequest(url: URL): Promise<AdmittedStoryReview> {
   requireExactQuery(

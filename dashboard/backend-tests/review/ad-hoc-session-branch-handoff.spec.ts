@@ -91,6 +91,8 @@ test("the launch command binds the original checkout's own branch and its entry 
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
     kind: "branch-result",
+    selectedRun: "branch-result",
+    sessionComparisonKeys: ["branch-result", "0"],
     baseline,
     tree: result,
     files: [{ kind: "added", path: "session.txt" }],
@@ -107,6 +109,8 @@ test("the launch command binds the original checkout's own branch and its entry 
   });
   expect(await adHocReview(request, dashboard, session, 0)).toMatchObject({
     kind: "session-commits",
+    selectedRun: "0",
+    sessionComparisonKeys: ["branch-result", "0"],
     tree: onMain,
     files: [{ kind: "added", path: "main-work.txt" }],
   });

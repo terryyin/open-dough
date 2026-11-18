@@ -32,6 +32,23 @@ export class SessionRunSwitch extends PageObject {
     });
   }
 
+  pressFrom(label: string, key: string) {
+    return this.cueHere(`Comparison: press ${key} from ${label}`, async () => {
+      const review = await showReviewDetails(this.#review);
+      await comparisonChoice(review, label, { exact: true }).press(key);
+    });
+  }
+
+  chooseDefaultMainRun(label: string) {
+    return this.cueHere(`Default main runs: choose ${label}`, async () => {
+      const review = await showReviewDetails(this.#review);
+      await review
+        .getByRole("radiogroup", { name: "Default main runs" })
+        .getByRole("radio", { name: label, exact: true })
+        .check();
+    });
+  }
+
   choose(label: string) {
     return this.cueHere(`Comparison: choose ${label}`, async () => {
       const review = await showReviewDetails(this.#review);

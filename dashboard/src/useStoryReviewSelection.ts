@@ -81,29 +81,28 @@ export function useStoryReviewSelection({
     });
   }
   const selectedRun = runs.find((run) => run.key === selection.run);
+  const readsSelectedRun =
+    selection.run !== undefined && answered !== selection.run;
   const runRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
     { ...reviewedWorkQuery(subject), run: selection.run ?? "" },
     storyReviewSchema,
     {
       round,
-      enabled:
-        enabled && selection.run !== undefined && answered !== selection.run,
+      enabled: enabled && readsSelectedRun,
     },
   );
-  const review =
-    selection.run === undefined
-      ? answer
-      : answeredRunKey(runRead.answer) === selection.run
-        ? runRead.answer
-        : answered === selection.run
-          ? answer
-          : undefined;
+  const review = !readsSelectedRun
+    ? answer
+    : answeredRunKey(runRead.answer) === selection.run
+      ? runRead.answer
+      : undefined;
   return {
     review,
     runs,
     selectedRun,
-    sessionRuns: sessionRunsOf(answer),
+    sessionRuns: sessionRunsOf(review ?? answer),
+    sessionComparisonKeys: answer?.sessionComparisonKeys,
     runKey: selection.run,
     // The run the workspace answer itself shows: its landed fallback.
     answerRun: answer?.selectedRun,
@@ -111,12 +110,11 @@ export function useStoryReviewSelection({
     published: answer?.kind === "published" ? answer : undefined,
     chosen: selection.workspace,
     reading: defaultRead.reading || runRead.reading,
-    problem:
-      selection.run === undefined
-        ? defaultRead.problem
-        : runRead.reading
-          ? undefined
-          : runRead.problem,
+    problem: !readsSelectedRun
+      ? defaultRead.problem
+      : runRead.reading
+        ? undefined
+        : runRead.problem,
     onWorkspace: (workspace: ShownComparison) => {
       setSelection({ of: answer, workspace });
     },

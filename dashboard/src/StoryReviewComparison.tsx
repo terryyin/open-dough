@@ -15,6 +15,7 @@ export function ComparisonChoices<Key extends string>({
   choices,
   shown,
   onChoose,
+  label = "Comparison",
 }: {
   readonly choices: readonly {
     readonly key: Key;
@@ -22,13 +23,14 @@ export function ComparisonChoices<Key extends string>({
   }[];
   readonly shown: Key | undefined;
   readonly onChoose: (key: Key) => void;
+  readonly label?: string;
 }) {
   const name = useId();
   return (
     <div
       className="story-review-comparison"
       role="radiogroup"
-      aria-label="Comparison"
+      aria-label={label}
     >
       {choices.map(({ key, label }) => (
         <label key={key}>

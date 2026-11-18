@@ -21,6 +21,8 @@ import {
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
 import { sessionCommitsName } from "./StoryReviewSessionCommitsContext.tsx";
+import { branchResultName } from "./sessionReviewComparisons.ts";
+import { sessionComparisonName } from "./StoryReviewSessionRuns.tsx";
 import "./story-review-toolbar.css";
 
 // Whether the comparison actually shown lists files for the sidebar.
@@ -45,12 +47,15 @@ export function reviewListsFiles(
 export const toolbarComparisonName = (
   review: StoryReview | undefined,
   shown: ComparisonChoice,
+  sessionComparison?: string,
 ) => {
+  const name = sessionComparisonName(sessionComparison);
+  if (name !== undefined) return name;
   // An opening request alone supplies no name; an unavailable read that
   // never answered likewise. A returned landing or session-commits gap
   // still names the comparison it describes.
   if (review === undefined || review.kind === "unavailable") return "";
-  if (review.kind === "branch-result") return "Branch at Done";
+  if (review.kind === "branch-result") return branchResultName;
   if (reviewsSessionCommits(review)) return sessionCommitsName;
   return comparisonName(reviewsLanding(review) ? "landed" : shown);
 };

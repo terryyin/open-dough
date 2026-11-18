@@ -74,6 +74,7 @@ export function StoryReview({
     runs,
     selectedRun,
     sessionRuns,
+    sessionComparisonKeys,
     runKey,
     snapshot: workspace,
     published: availablePublished,
@@ -113,6 +114,7 @@ export function StoryReview({
     runs,
     workspaceChoices: items.length > 0,
     sessionRuns,
+    sessionComparisonKeys,
     selectedRun,
   });
   useEffect(() => {
@@ -161,7 +163,11 @@ export function StoryReview({
         {reviewDescription(review)}
       </p>
       <ReviewToolbar
-        name={toolbarComparisonName(review, shownComparison)}
+        name={toolbarComparisonName(
+          review,
+          shownComparison,
+          sessionComparisonKeys === undefined ? undefined : runKey,
+        )}
         browser={reviewListsFiles(review, comparison) ? browser : undefined}
         onShowBrowser={setBrowserShown}
         details={holdsDetails ? details : undefined}
@@ -173,6 +179,7 @@ export function StoryReview({
           runs={runs}
           items={items}
           sessionRuns={sessionRuns}
+          sessionComparisonKeys={sessionComparisonKeys}
           selectedRun={selectedRun}
           runKey={runKey}
           shownComparison={shownComparison}

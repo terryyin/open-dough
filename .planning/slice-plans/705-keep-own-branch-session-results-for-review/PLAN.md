@@ -104,11 +104,15 @@ The independent pass consolidated real Done and fixture retirement setup. The th
 ### 6. Switch between the saved branch result and a captured delivery
 
 Type: Behavior
-Status: planned
+Status: done
 
 An isolated session already has a branch result when Dough lands its committed work. A fresh review opens the delivered change and offers the saved branch result. Each choice names what it shows. Refresh retains a still-available selection. Choosing a file resolves only that comparison's pair and literal changed path. Keep a single available result directly readable.
 
 Proof: go through real Done and the established Dough capture, then read both pairs and file text. In the browser show a file with different text in each comparison, switch using the keyboard, release a delayed reply and refresh. Check selected text, counts, accessible names and return focus on Close. Check existing Default main runs, landing-only and linked story rows. A substituted pair or mismatched rename old path must fail admission.
+
+`dashboard/backend-tests/review/ad-hoc-session-comparisons.spec.ts` binds an actual dirty Done and installed Dough landing to the same isolated launch. The retained file reads show both exact versions after retirement and pruning, and refuse a substituted pair and rename origin. The browser proof uses the actual Recently done action and native Comparison control to exercise keyboard selection, delayed reply, refresh, changed file counts and Close focus. The adjoining cases keep verified empty, landing-only, linked story and original Default main run behavior. The focused backend and frontend gates, linked story E2E, and dashboard typecheck passed. See `slice-6-implementation.md` in the Git evidence directory.
+
+The independent pass consolidated validation of numeric comparison keys at the standalone review boundary. Six focused backend specs, dashboard typecheck, and whitespace checks passed. See `slice-6-refactor.md` in the Git evidence directory.
 
 ### 7. Review a Dough landing from the session-identified workspace
 
@@ -163,7 +167,7 @@ Disposition: proved by slice 5: ad-hoc-branch-attribution.spec.ts verifies exact
 
 Reported: slice 1 — "Landing still takes precedence when a saved landing exists; selection and refresh between two available results belong to slice 5."
 Story clause: "show what the branch held at Done and what reached trunk as distinct comparisons when both exist."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: ad-hoc-session-comparisons.spec.ts reads both exact pairs after retirement; recently-done-ad-hoc-comparisons.spec.ts selects Branch at Done by keyboard, ignores the older reply, and keeps the chosen pair on refresh.
 
 ### G4. Release branch evidence after native replacement
 

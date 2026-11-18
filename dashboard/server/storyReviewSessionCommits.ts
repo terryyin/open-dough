@@ -26,43 +26,28 @@ export interface KeptSessionRun {
   readonly shared: boolean;
 }
 
-// A landing answers in place of the current Done's session commits.
-function reviewableCapture(record: LaunchRecord) {
-  return record.landing === undefined
-    ? sessionCommitsAtDone(record)
-    : undefined;
-}
-
-// Whether a done session's capture found that it made no commit.
-export function keptNoSessionCommits(record: LaunchRecord): boolean {
-  return reviewableCapture(record)?.runs.length === 0;
-}
-
 export function unavailableSessionChanges(record: LaunchRecord): string {
-  const capture = reviewableCapture(record);
+  const capture = sessionCommitsAtDone(record);
   if (capture?.branchEntryMissing === true)
     return "No branch was identified for this session, and no Default main commits were captured.";
-  return keptNoSessionCommits(record)
+  return capture?.runs.length === 0
     ? "This session made no commits in the Default main checkout."
     : "This session's changes were not captured.";
 }
 
-// The kept run a done session's review answers: the one at the `named`
-// position, or the oldest; undefined when the record keeps none.
+// Look up a run by position, defaulting to the oldest when one exists.
 export function keptSessionRun(
   record: LaunchRecord,
-  named: string | null = null,
+  namedPosition?: number,
 ): KeptSessionRun | undefined {
   const { launchedAt, doneAt } = record;
-  const capture = reviewableCapture(record);
-  if (named !== null && !/^\d+$/.test(named))
-    throw new RefusedRequest(400, "The review run is malformed.");
+  const capture = sessionCommitsAtDone(record);
   if (capture === undefined || doneAt === undefined) return undefined;
   const { runs, repository } = capture;
-  const position = Number(named ?? 0);
+  const position = namedPosition ?? 0;
   const run = runs[position];
   if (run === undefined) {
-    if (named === null) return undefined;
+    if (namedPosition === undefined) return undefined;
     throw new RefusedRequest(404, "This session kept no run at that position.");
   }
   const shared = capture.shared === true;
@@ -75,7 +60,7 @@ export function keptSessionPair(
   record: LaunchRecord,
   { baseline, tree }: { readonly baseline: string; readonly tree: string },
 ) {
-  const capture = reviewableCapture(record);
+  const capture = sessionCommitsAtDone(record);
   if (capture === undefined) return undefined;
   const run = capture.runs.find(
     ({ base, revision }) => base === baseline && revision === tree,
