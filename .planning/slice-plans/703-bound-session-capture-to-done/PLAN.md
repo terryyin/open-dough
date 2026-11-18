@@ -2,6 +2,7 @@
 
 **Identity:** SEED-379#bound-capture-to-done
 **Source:** [Bound a session's kept commits to its Done](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Correction input
 
@@ -43,13 +44,18 @@ was removed after the run.
   uncommitted review work is selected.
 - [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
   governs local evidence. No North Star topic applies.
+- Capture settles checkout `HEAD` with `git rev-parse HEAD` before the held
+  `git log -g` read and keeps only ancestors of that tip. Dated fixtures set
+  reflog times via committer date, so a Done-wall-clock upper bound on log
+  `at` would exclude them; tip-before-log fixes the held-log race without that
+  comparison. Launch lower bound still uses whole-second log times only.
 
-## Ordered slice
+## Ordered slices
 
 ### 1. Keep the review through the durable Done
 
 Type: Behavior
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 Use the actual Done evidence for the checkout capture. Keep the second

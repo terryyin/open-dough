@@ -141,8 +141,13 @@ async function runsOf(
   return runs;
 }
 
-// Read the commits made in the session's Default main checkout since launch.
-// Throws when the checkout's log cannot be read or holds no entry.
+// Read the commits made in the session's Default main checkout since launch
+// through the tip that was present when this Done's capture began. Settling
+// that tip before the log read means a commit made while the log waits is not
+// on this Done's tree; a later Done can capture it. Throws when the checkout's
+// log cannot be read or holds no entry. The log's whole-second times still
+// bound the launch lower window only; they are not compared to Done as exact
+// evidence of order within a second.
 export async function readSessionCommits(
   record: Pick<LaunchRecord, "launchedAt">,
   start: { readonly workspace: string },
@@ -151,10 +156,12 @@ export async function readSessionCommits(
   // The log keeps whole seconds; an entry in the launch's own second is not
   // the session's.
   const since = Date.parse(record.launchedAt) / 1000;
+  // Tip present for this Done before the log read can wait on another command.
+  const head = await git(checkout, ["rev-parse", "HEAD"]);
   const log = await headLog(checkout);
   // A log without any entry says nothing of what was made there.
-  const head = log[0]?.commit;
-  if (head === undefined) throw new Error("The checkout's log has no entries.");
+  if (log[0]?.commit === undefined)
+    throw new Error("The checkout's log has no entries.");
   const candidates = madeSince(log, since);
   const made: string[] = [];
   for (const commit of candidates)
