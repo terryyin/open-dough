@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 578. Removed numbers are never reused.
-- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551.
+- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -52,14 +52,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: focused CLI/Usage proof passed, but adding a fixture that writes native-shaped rows reached an unchanged global validator outside that proof selection. One CI repair cycle added the exact writer registration and a production-reader rejection counterexample.
   - Inference: matches missed indirect/global validation coverage. No time/token saving is measured; the final full CI gate remains required.
 
-- Execution: SEED-334#move-intent-ci-proof-comparison-and-candidate-checks (plan 651; first implementation `e7aac254bbe59f5dc277d473386359dddf56132d`)
-  - Timestamp: 2026-11-17T12:56:00Z (failed CI job, run 44090579516)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (checkout-bound installed guidance at Take `9aa696980`)
-  - Evidence: slice 8 (`87551c3b`) dropped the emptied `dashboard/tests/intent/**` share from `ci.yml` (`shards: "[1, 2, 3]"`) and ran only `browser-group-shards`, `ci-proof-frontend-report`, `ci-proof-scope` and `ci-proof-leads-table`. The `ci-proof` summary step's `expect` still declared `dashboard/tests=4:case`; `ci-proof-actions.test.mjs:71` and `ci-proof-declaration.test.mjs:97` failed in Distribution Tests 3/3. Repair `309dacb4` set 3; 1346 node tests reading `ci.yml` then passed.
-  - Observed effect: one CI failure and repair cycle on the story branch after the execution-complete record; no trunk impact.
-  - Inference: a matrix-length change reaches every declaration derived from that length in the same workflow; selecting tests by the shard concept missed the CI-proof declaration test that checks it.
+- Execution: SEED-379#keep-own-branch-session-results-for-review (first implementation `1155d7cb944f8f1c50b1209402f4cf97ab23b580`)
+  - Timestamp: unknown (2026-11-19 +08:00, story-branch run 44367653081, attempt 1)
+  - Tool: Codex
+  - Model: gpt-6.2-sol
+  - Open Dough release: unknown (checkout-bound guidance at Take `fc73813d6`)
+  - Evidence: slice 7 (`2b9d3cf1e`) proved successful declared branch landings and their retained references. The unchanged `ad-hoc-review-unavailable.spec.ts` asserted the whole response for a missing repository and missing comparison objects. [Backend shard 2/3](https://github.com/terryyin/open-dough/actions/runs/44367653081/job/135025622497) failed both cases because records without a launch reporting association gained the captured pair's reference. Repair `6ad31827a` reproduced the failures and passed proof for unavailable and successful replies.
+  - Observed effect: one branch CI repair cycle and a pause and restore of slice 8.
+  - Inference: when either path can return the same optional field, the unchanged assertions for the unavailable reply belong in the proof selection.
 
 - Execution: SEED-334#move-navigation-checks-and-retire-integrated-ui-test (plan 648; first implementation `54dfebff2`)
   - Timestamp: 2026-11-17T15:27:58Z (first failed CI job, run 44113467112); 2026-11-17T16:36:00Z (second, run 44126356645)
