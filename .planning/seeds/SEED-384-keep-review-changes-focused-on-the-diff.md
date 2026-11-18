@@ -224,3 +224,34 @@ Sessions sidebar already use. Two cases are new to it:
 
 The panes stack at the width they do today, wider than the two minimums need,
 so the divider always has a range where it is offered. No server state.
+
+<a id="one-owner-for-the-review-file-sidebar-sizing"></a>
+
+### Give the review file sidebar's sizing one owner
+
+**Identity:** SEED-384#one-owner-for-the-review-file-sidebar-sizing
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"655b255ffc66338e69c1d4107d42376fcca651e5534735306b70c10756593030","plan":"64c7fe0609475e59feb1f3d8941de63f84cb89008c66dd80192fcfc6b800a649"}}
+```
+
+Correction from the retrospective of
+[Resize and remember the Review changes file sidebar](#resize-and-remember-the-review-file-sidebar).
+
+#### Goal
+
+Dashboard maintainers change the review file sidebar's width, its default or
+its divider's grip in one place each, and its tests prove only what the review
+adds to the shared kept preference, with the review's behavior unchanged.
+
+#### Scope
+
+- The review file sidebar's side-by-side and stacked sizing, and its 16rem
+  default, each have one owner; the Panel divider and the Files divider share
+  one vertical grip.
+- The Files divider specs keep proof of the review's own rules and stop
+  repeating the shared kept-preference proof; reaching the divider's upper
+  bound is explicit.
+- No product behavior changes, and no new product promise. Intent's locations
+  column keeps its width.
+
+Plan: [699-one-owner-for-the-review-file-sidebar-sizing](../slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md)

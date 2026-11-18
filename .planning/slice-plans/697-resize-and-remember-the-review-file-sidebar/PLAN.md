@@ -202,6 +202,17 @@ right after maximizing (374 against 1107 at load about 32); it now waits for
 the bound to grow. The three Files divider specs passed, the room spec five
 times in a row, with the typecheck, at load 19 to 32.
 
+
+## Execution complete
+
+Product advice: no change to the queue beyond the correction. The review
+file sidebar now defaults to 16rem including its padding and border (256px,
+as the mockup) where reviewers saw 282px before; keep that unless reviewers
+find the default short, and word lasting docs as the border-box width.
+[Give the review file sidebar's sizing one owner](../699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md)
+corrects split sidebar sizing, a duplicated divider grip and Files divider
+specs that repeat the shared kept-preference proof.
+
 ## Verification and delivery
 
 - Follow [the failing/flaky-test policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
