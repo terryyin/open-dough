@@ -23,20 +23,8 @@ import {
 } from "../../tests/accessibleBoard.ts";
 import { expectBelowBanner } from "../../tests/bannerReading.ts";
 import { box } from "../../tests/pageLayout.ts";
-import {
-  columns,
-  columnPagingControl,
-  pagingRoom,
-  expectStoryCardsKeepTheirShare,
-  expectEndsWithShown,
-  expectView,
-  recordSlides,
-  rem,
-  scrollYOf,
-  showColumn,
-  slidesOf,
-  wheelTo,
-} from "../../tests/boardPage.ts";
+import { pagingRoom, rem } from "../../tests/boardPage.ts";
+import { boardView } from "../../tests/boardView.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
@@ -56,34 +44,33 @@ test.describe("in a narrow window", () => {
   }) => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
     await openLargeBacklog(page, frontendServices);
+    const board = boardView(page);
     await expectMembership(page, {
       taken: ["Repair the installer's update report"],
       backlog: queuedTitles,
     });
 
     await test.step("Backlog fills the Board; the right control names Taken", async () => {
-      await expectView(page, ["Backlog"], ["Taken 1 entry"]);
-      await expectStoryCardsKeepTheirShare(page, 1);
+      await board.shows(["Backlog"], ["Taken 1 entry"]);
+      await board.keepsStoryCardShare(1);
     });
 
     await test.step("one move shows Taken, with Backlog on the left and Recently done on the right", async () => {
-      await columnPagingControl(page, "Taken").click();
-      await expectView(
-        page,
+      await board.pageTo("Taken");
+      await board.shows(
         ["Taken"],
         [`Backlog ${queuedCount} entries`, "Recently done 0 entries"],
       );
     });
 
     await test.step("Recently done, the last column, leaves only the left control", async () => {
-      await columnPagingControl(page, "Recently done").click();
-      await expectView(page, ["Recently done"], ["Taken 1 entry"]);
+      await board.pageTo("Recently done");
+      await board.shows(["Recently done"], ["Taken 1 entry"]);
     });
 
     await test.step("a 54rem Board shows Taken and Recently done, never a blank place past them", async () => {
       await page.setViewportSize({ width: 54 * rem, height: 800 });
-      await expectView(
-        page,
+      await board.shows(
         ["Taken", "Recently done"],
         [`Backlog ${queuedCount} entries`],
       );
@@ -91,7 +78,7 @@ test.describe("in a narrow window", () => {
 
     await test.step("a 40rem Board again shows Recently done, the leftmost column chosen", async () => {
       await page.setViewportSize({ width: 40 * rem, height: 800 });
-      await expectView(page, ["Recently done"], ["Taken 1 entry"]);
+      await board.shows(["Recently done"], ["Taken 1 entry"]);
     });
   });
 
@@ -101,21 +88,21 @@ test.describe("in a narrow window", () => {
   }) => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
     await openLargeBacklog(page, frontendServices);
-    await expectView(page, ["Backlog"], ["Taken 1 entry"]);
+    const board = boardView(page);
+    await board.shows(["Backlog"], ["Taken 1 entry"]);
 
-    await columnPagingControl(page, "Taken").focus();
+    await board.pagingControl("Taken").focus();
     await page.keyboard.press("Enter");
-    await expectView(
-      page,
+    await board.shows(
       ["Taken"],
       [`Backlog ${queuedCount} entries`, "Recently done 0 entries"],
     );
     // The control pressed is still there and keeps the keyboard.
-    await expect(columnPagingControl(page, "Recently done")).toBeFocused();
+    await expect(board.pagingControl("Recently done")).toBeFocused();
 
     await page.keyboard.press("Enter");
-    await expectView(page, ["Recently done"], ["Taken 1 entry"]);
-    await expect(columnPagingControl(page, "Taken")).toBeFocused();
+    await board.shows(["Recently done"], ["Taken 1 entry"]);
+    await expect(board.pagingControl("Taken")).toBeFocused();
   });
 
   test("far down a long Backlog the column paging control stays in sight and moves the view, and the shown column heading stays stuck below the banner", async ({
@@ -124,6 +111,7 @@ test.describe("in a narrow window", () => {
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 700 });
     await openLargeBacklog(page, frontendServices);
+    const board = boardView(page);
     const { backlog, banner } = parts(page);
     await expect(
       backlog.getByRole("article", { name: queuedTitle(queuedCount) }),
@@ -134,21 +122,20 @@ test.describe("in a narrow window", () => {
     const heading = backlog.getByRole("heading", { level: 2 });
 
     await test.step("down the Backlog, its heading stays stuck below the banner and the right control stays in sight", async () => {
-      await wheelTo(page, 1000);
+      await board.wheelTo(1000);
       const stuck = (await box(heading)).y;
       const bannerBox = await box(banner);
       expect(stuck).toBeGreaterThanOrEqual(bannerBox.y + bannerBox.height);
       expect(stuck).toBeLessThan(bannerBox.y + bannerBox.height + rem);
-      await wheelTo(page, 1500);
+      await board.wheelTo(1500);
       expect((await box(heading)).y).toBe(stuck);
       await expectPagingControlInSight(page, "Recently done");
     });
 
     await test.step("the control moves the view where the developer reads, stopping at the shorter columns' bottom, and the left one moves it back", async () => {
       const stuck = (await box(heading)).y;
-      await showColumn(page, "Recently done");
-      await expectView(
-        page,
+      await board.showColumn("Recently done");
+      await board.shows(
         ["Taken", "Recently done"],
         [`Backlog ${queuedCount} entries`],
       );
@@ -165,10 +152,10 @@ test.describe("in a narrow window", () => {
 
       // Backlog shown again keeps that position, and its length is back:
       // far down it, its heading sticks where it did.
-      await showColumn(page, "Backlog");
-      expect(await scrollYOf(page)).toBe(clamped);
-      await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
-      await wheelTo(page, 1500);
+      await board.showColumn("Backlog");
+      expect(await board.scrollY()).toBe(clamped);
+      await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+      await board.wheelTo(1500);
       expect((await box(heading)).y).toBe(stuck);
       await expectPagingControlInSight(page, "Recently done");
     });
@@ -181,19 +168,19 @@ test.describe("in a narrow window", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 40 * rem, height: 800 });
     await openLargeBacklog(page, frontendServices);
+    const board = boardView(page);
     const { taken } = parts(page);
     await expect(taken.getByRole("article")).toHaveCount(1);
-    await recordSlides(page);
-    const pageColumn = await box(page.locator(".page-column"));
+    await board.countSlides();
+    const pageColumn = await box(board.pageColumn());
 
-    await columnPagingControl(page, "Taken").click();
+    await board.pageTo("Taken");
     // Taken is in place at once, the Board column's paging-control room from its side.
     const at = await box(taken);
     expect(at.x).toBeGreaterThanOrEqual(pageColumn.x);
     expect(at.x).toBeLessThanOrEqual(pageColumn.x + pagingRoom + 0.5);
-    expect(await slidesOf(page)).toBe(0);
-    await expectView(
-      page,
+    expect(await board.slides()).toBe(0);
+    await board.shows(
       ["Taken"],
       [`Backlog ${queuedCount} entries`, "Recently done 0 entries"],
     );
@@ -205,40 +192,34 @@ test.describe("in a narrow window", () => {
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 700 });
     await openLargeBacklog(page, frontendServices);
+    const board = boardView(page);
     const { backlog, taken } = parts(page);
     const lastCard = backlog.getByRole("article", {
       name: queuedTitle(queuedCount),
     });
     await expect(lastCard).toBeVisible();
-    await showColumn(page, "Recently done");
-    await expectView(
-      page,
+    await board.showColumn("Recently done");
+    await board.shows(
       ["Taken", "Recently done"],
       [`Backlog ${queuedCount} entries`],
     );
 
     // Hidden, Backlog keeps its place in the reading order.
-    const regions = page.getByRole("region", {
-      name: /^(Backlog|Taken|Recently done)$/,
-    });
-    await expect(regions).toHaveCount(columns.length);
-    for (const [index, column] of columns.entries()) {
-      await expect(regions.nth(index)).toHaveAccessibleName(column);
-    }
+    await board.keepsColumnReadingOrder();
 
     // The keyboard on Taken's first stop, then one stop backwards.
     await taken.getByRole("button").first().focus();
     await page.keyboard.press("Shift+Tab");
     const focused = page.locator(":focus");
     await expect(lastCard.locator(":focus")).toHaveCount(1);
-    await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
+    await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
     // The view moved without taking the keyboard from the card, which shows
     // whole below the banner.
     await expect(focused).toBeInViewport({ ratio: 1 });
     await expectBelowBanner(focused);
     // Backlog has its whole length again: read to the Board's end, its last
     // card ends the Board.
-    await expectEndsWithShown(page, ["Backlog", "Taken"]);
+    await board.endsWith(["Backlog", "Taken"]);
     await expect(lastCard).toBeInViewport({ ratio: 1 });
     await expect(lastCard.locator(":focus")).toHaveCount(1);
   });

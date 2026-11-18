@@ -17,57 +17,52 @@ import {
   expectInspected,
   tapCardEmptyArea,
 } from "../tests/storyCardSelection.ts";
-import {
-  boardScroll,
-  tapColumnIndicator,
-  expectView,
-  expectColumnReading,
-  recordSlides,
-  scrollYOf,
-  slidesOf,
-  swipeBoard,
-} from "../tests/boardPage.ts";
+import { boardView } from "../tests/boardView.ts";
 import { tapInspectStory } from "../tests/storyCardControls.ts";
-import { compactProjectSelectCut } from "../tests/pageLayout.ts";
 import { scrollByTouch } from "../tests/touchGestures.ts";
 
 test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
-
-const at = (
-  page: Parameters<typeof expectView>[0],
-  shown: "Backlog" | "Taken" | "Recently done",
-  controls: string[],
-) => expectColumnReading(page, shown, controls, compactProjectSelectCut);
 
 test("completed native swipes traverse one whole column and stop at both ends", async ({
   page,
 }) => {
   await openFrontendTakenBacklog(page);
-  await at(page, "Backlog", ["Taken 1 entry"]);
-  await swipeBoard(page, "right");
-  await at(page, "Backlog", ["Taken 1 entry"]);
-  await swipeBoard(page, "left");
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
-  await swipeBoard(page, "left");
-  await at(page, "Recently done", ["Taken 1 entry"]);
-  await swipeBoard(page, "left");
-  await at(page, "Recently done", ["Taken 1 entry"]);
-  await swipeBoard(page, "right");
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
-  await swipeBoard(page, "right");
-  await at(page, "Backlog", ["Taken 1 entry"]);
+  const board = boardView(page);
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  await board.swipe("right");
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  await board.swipe("left");
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
+  await board.swipe("left");
+  await board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
+  await board.swipe("left");
+  await board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
+  await board.swipe("right");
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
+  await board.swipe("right");
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
 });
 
 test("short and cancelled gestures leave the view alone, and the next swipe works", async ({
   page,
 }) => {
   await openFrontendTakenBacklog(page);
-  await swipeBoard(page, "left", { distance: 24 });
-  await at(page, "Backlog", ["Taken 1 entry"]);
-  await swipeBoard(page, "left", { cancel: true });
-  await at(page, "Backlog", ["Taken 1 entry"]);
-  await swipeBoard(page, "left");
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
+  const board = boardView(page);
+  await board.swipe("left", { distance: 24 });
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  await board.swipe("left", { cancel: true });
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  await board.swipe("left");
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
 });
 
 test("swiping from a card or action does not select, inspect or launch it; taps still work", async ({
@@ -75,22 +70,29 @@ test("swiping from a card or action does not select, inspect or launch it; taps 
 }) => {
   const boundary = await installFrontendLaunchBoundary(page);
   await openFrontendTakenBacklog(page);
+  const board = boardView(page);
   const { card, start } = backlogLaunchers(page);
   const story = card(readyStory);
-  await swipeBoard(page, "left", { from: emptyArea(story) });
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
+  await board.swipe("left", { from: emptyArea(story) });
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
   await expectSelected(story, false);
   await expectInspected(story, false);
-  await tapColumnIndicator(page, "Backlog");
-  await at(page, "Backlog", ["Taken 1 entry"]);
-  await swipeBoard(page, "left", { from: start(readyStory) });
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
+  await board.tapIndicator("Backlog");
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  await board.swipe("left", { from: start(readyStory) });
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
   await expectSelected(story, false);
   await expectInspected(story, false);
   await expectNoLaunchDialog(page);
   expect(boundary.acceptances).toEqual([]);
-  await tapColumnIndicator(page, "Backlog");
-  await at(page, "Backlog", ["Taken 1 entry"]);
+  await board.tapIndicator("Backlog");
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
   await tapInspectStory(story);
   await expectInspected(story, true);
   await tapCardEmptyArea(story);
@@ -107,17 +109,18 @@ test("native vertical reading scrolls without paging", async ({
     backlog: queuedTitles,
     taken: ["Repair the installer's update report"],
   });
-  const before = await scrollYOf(page);
+  const board = boardView(page);
+  const before = await board.scrollY();
   await scrollByTouch(
     page,
-    boardScroll(page),
+    board.scrollRegion(),
     -240,
     "vertical",
     undefined,
-    boardScroll(page),
+    board.scrollRegion(),
   );
-  expect(await scrollYOf(page)).toBeGreaterThan(before);
-  await at(page, "Backlog", ["Taken 1 entry"]);
+  expect(await board.scrollY()).toBeGreaterThan(before);
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
 });
 
 test("swipes share the controls' chosen column and preserve open detail through rotation with reduced motion", async ({
@@ -125,29 +128,31 @@ test("swipes share the controls' chosen column and preserve open detail through 
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openFrontendTakenBacklog(page);
+  const board = boardView(page);
   const story = backlogLaunchers(page).card(readyStory);
   await tapInspectStory(story);
   await tapCardEmptyArea(story);
   await expectSelected(story, true);
-  await recordSlides(page);
-  await swipeBoard(page, "left");
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
-  expect(await slidesOf(page)).toBe(0);
-  await tapColumnIndicator(page, "Backlog");
-  await at(page, "Backlog", ["Taken 1 entry"]);
+  await board.countSlides();
+  await board.swipe("left");
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
+  expect(await board.slides()).toBe(0);
+  await board.tapIndicator("Backlog");
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
   await expectInspected(story, true);
-  await swipeBoard(page, "left");
+  await board.swipe("left");
   await page.setViewportSize({ width: 844, height: 390 });
-  await expectView(
-    page,
-    ["Taken", "Recently done"],
-    ["Backlog 2 entries"],
-    compactProjectSelectCut,
-  );
+  await board.showsPhone(["Taken", "Recently done"], ["Backlog 2 entries"]);
   await page.setViewportSize({ width: 390, height: 844 });
-  await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
-  await tapColumnIndicator(page, "Backlog");
-  await at(page, "Backlog", ["Taken 1 entry"]);
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 2 entries",
+    "Recently done 0 entries",
+  ]);
+  await board.tapIndicator("Backlog");
+  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
   await expectInspected(story, true);
   await expectSelected(story, true);
 });

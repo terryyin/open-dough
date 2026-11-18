@@ -1,7 +1,8 @@
 // The Board's layout and scrolling: which columns fill its view, how cards
 // share that room, whether a move slid, and where the shown columns end.
-// Column selection and paging live in ./boardColumnNavigation.ts and remain
-// available here to the journeys that combine navigation with these checks.
+// Column selection and paging live in ./boardColumnNavigation.ts. A journey
+// that reads several of these together uses ./boardView.ts. A journey that
+// needs one helper, such as showColumn, imports that helper.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
