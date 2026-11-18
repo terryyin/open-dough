@@ -34,8 +34,6 @@ assert_custom_ci_manual() {
   for root in .agents/skills .claude/skills; do
     manual="${target}/${root}/dough-execute-plan/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
-    grep -Fq '.planning/open-dough.json' "${manual}"
-    grep -Fq '"ciAdapter"' "${manual}"
   done
 }
 

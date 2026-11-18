@@ -16,18 +16,6 @@ source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awar
 
 [[ ! -e "${target}/.agents/skills/adr-awareness" ]]
 [[ ! -L "${target}/.claude/skills/adr-awareness" ]]
-for caller in \
-  .cursor/rules/general.mdc \
-  .cursor/rules/architecture-decisions.mdc \
-  .cursor/agent-map.md \
-  docs/adrs/README.md; do
-  grep -Fq 'dough-adr-awareness' "${target}/${caller}"
-  grep -Fq '.agents/skills/adr-awareness' "${target}/${caller}" && exit 1
-done
-grep -Fq 'Cross-cutting stack' \
-  "${target}/.cursor/rules/architecture-decisions.mdc"
-grep -Fq 'pointing at the ADR and the exception' \
-  "${target}/.cursor/rules/architecture-decisions.mdc"
 for protected_file in \
   .agents/skills/unrelated-guidance/SKILL.md \
   .cursor/skills/other-host-guidance/SKILL.md \

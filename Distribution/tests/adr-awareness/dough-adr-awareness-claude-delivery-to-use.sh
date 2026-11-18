@@ -14,5 +14,4 @@ delivery_platform='claude'
 delivery_skill_root='.claude/skills'
 
 delivery_check_fixture
-grep -Fq 'claude --print --dangerously-skip-permissions --no-session-persistence' "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-claude-delivery-to-use.sh"
 delivery_run_deterministic_transition

@@ -7,9 +7,6 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
-if [[ $# == 0 ]]; then
-  exec bash "${source_dir}/Distribution/tests/adr-awareness/adr-awareness-codex-alternate-layout.sh"
-fi
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh"
 adr_awareness_alternate_layout_fixture

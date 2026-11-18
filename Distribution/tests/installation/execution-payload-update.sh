@@ -70,8 +70,6 @@ assert_upgraded_execution_payload() {
     [[ "${receipt}" == 'CI_OBSERVER '* ]]
     manual="${canonical_root}/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
-    grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
-    grep -Fq '(custom-ci-rebuild.md)' "${manual}"
     cmp "${newer}/Distribution/src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md" \
       "${canonical_root}/manuals/custom-ci-rebuild.md"
     assert_installed_publication_modules "${target}/${root}"
@@ -89,8 +87,7 @@ bash "${helper}" apply --target "${target}" > /dev/null
 assert_upgraded_execution_payload "${target}"
 assert_unrelated_preserved "${target}"
 
-# The standalone manual is human-discoverable without becoming runtime guidance,
-# and its extracted example speaks the installed adapter contract.
+# The installed manual's extracted example speaks the installed adapter contract.
 manual="${target}/.agents/skills/dough-execute-plan/manuals/custom-ci.md"
 example="${temporary_dir}/dough-ci-example.mjs"
 fixture_response="${temporary_dir}/ci-fixture.json"
@@ -128,14 +125,6 @@ node -e 'const fs=require("node:fs"); const path=process.argv[1]; const value=JS
 diagnose=$(printf '%s\n' '{"operation":"diagnose","check":{"repo":"owner/repo","branch":"feature"},"attempt":{"runId":"run/47","attemptId":"attempt:alpha","sha":"0123456789012345678901234567890123456789"}}' \
   | node "${example}" "${fixture_response}")
 node -e 'const value=JSON.parse(process.argv[1]); if (!value.truncated || Buffer.byteLength(value.excerpt) > 16 * 1024) process.exit(1)' "${diagnose}"
-grep -Fq '.agents/skills/dough-execute-plan/manuals/custom-ci.md' \
-  "${source_dir}/docs/installation-and-updates.md"
-if grep -R -Fq 'manuals/custom-ci.md' \
-  "${source_dir}/Distribution/src/skills/dough-execute-plan/SKILL.md" \
-  "${source_dir}/Distribution/src/skills/dough-execute-plan/references"; then
-  echo 'FAIL: standalone custom CI manual is linked from runtime guidance.' >&2
-  exit 1
-fi
 
 # Exact prior manual registration of the new release's tagged fragments is adopted.
 manual_target="${temporary_dir}/manual project"

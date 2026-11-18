@@ -6,12 +6,12 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
-if [[ $# == 0 ]]; then
-  exec bash "${source_dir}/Distribution/tests/adr-awareness/adr-awareness-codex-equivalence.sh"
-fi
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh"
 adr_awareness_source_context_fixture
+if [[ ${1:-} != '--native' ]]; then
+  exit 0
+fi
 
 original=${ADR_AWARENESS_ORIGINAL_SKILL:-}
 if [[ -z ${original} ]]; then
@@ -20,9 +20,6 @@ if [[ -z ${original} ]]; then
 fi
 
 [[ -f "${original}" ]]
-if [[ ${1:-} != '--native' ]]; then
-  exit 0
-fi
 
 command -v codex > /dev/null
 

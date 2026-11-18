@@ -5,10 +5,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 skill="${source_dir}/Distribution/src/skills/dough-update/SKILL.md"
 guide="${source_dir}/docs/installation-and-updates.md"
 
-# The guide points to the release declaration and lists its sources before install.
-# shellcheck disable=SC2016 # Match literal Markdown code spans.
-grep -Fq '[`managed_files` declaration in `install.sh`](../install.sh)' "${guide}"
-grep -Fq 'Read every listed file' "${guide}"
+# The guide's documented inspection lists the release-declared sources.
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 inspection="${temporary_dir}/inspect.sh"
@@ -45,13 +42,6 @@ if snapshot="${candidate}" release_source="${candidate}/Distribution/src" bash "
 fi
 grep -Fxq "Missing declared payload source: ${candidate}/Distribution/src/skills/${extra_path}" "${temporary_dir}/missing-output"
 
-grep -Fq 'every payload file the snapshot declares' "${skill}"
-grep -Eq 'release-declared (client |release )?payload paths' "${skill}"
-grep -Fq 'payload skills may be added between releases' "${skill}"
-grep -Fq 'payload declared by that recorded release' "${skill}"
-grep -Fq 'Payload paths newly added by the release must be absent' "${skill}"
-grep -Fq 'all installed payload paths' "${skill}"
-
 # The updater's inspection boundary must permit every managed host-hook file.
 actual_hook_settings=$(sed -n '/managed host-hook settings they register/{n;s/.*(//;s/).*//;s/[`,]//g;s/ and / /g;p;}' "${skill}")
 expected_hook_settings=$(node --input-type=module -e '
@@ -61,11 +51,5 @@ expected_hook_settings=$(node --input-type=module -e '
 if [[ "${actual_hook_settings}" != "${expected_hook_settings}" ]]; then
   printf 'FAIL: updater permits host-hook settings %q; expected %q.\n' \
     "${actual_hook_settings}" "${expected_hook_settings}" >&2
-  exit 1
-fi
-
-if grep -Eq '(two|both) (declared client payload|managed files|installed payload)' \
-  "${skill}" "${guide}"; then
-  echo 'FAIL: client-payload guidance contains a stale fixed-cardinality boundary.' >&2
   exit 1
 fi

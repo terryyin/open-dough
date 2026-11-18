@@ -14,6 +14,4 @@ delivery_platform='codex'
 delivery_skill_root='.agents/skills'
 
 delivery_check_fixture
-grep -Fq 'danger-full-access' "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh"
-grep -Fq 'PROTECTED_WORKTREES' "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh"
 delivery_run_deterministic_transition

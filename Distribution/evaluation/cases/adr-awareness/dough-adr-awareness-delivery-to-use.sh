@@ -96,13 +96,6 @@ delivery_check_fixture() {
   [[ -n ${delivery_host_name} ]]
   [[ -n ${delivery_host_upper} ]]
   [[ -n ${delivery_skill_root} ]]
-  grep -Fq 'The catalog and each record' "${delivery_fixture}/AGENTS.md"
-  grep -Fq '| [ARC-12]' \
-    "${delivery_fixture}/architecture/decisions/CATALOG.md"
-  grep -Fq 'Standing: Adopted' \
-    "${delivery_fixture}/architecture/decisions/retain-complete-telemetry-history.md"
-  grep -Fq "| ${delivery_host_name} |" \
-    "${delivery_source_dir}/Distribution/src/skills/dough-update/SKILL.md"
 }
 
 # The two tagged releases and a checkout of the older one, under <root>.

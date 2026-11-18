@@ -4,9 +4,6 @@
 set -Eeuo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
-if [[ $# == 0 ]]; then
-  exec bash "${source_dir}/Distribution/tests/installation/dough-update-local-guidance-rejection.sh"
-fi
 # shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
@@ -15,9 +12,9 @@ source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awar
 # shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 
-if [[ $# != 0 && ! ($# == 1 && $1 == '--native') &&
+if [[ ! ($# == 1 && $1 == '--native') &&
   ! ($# == 2 && $1 == '--native' && $2 =~ ^(codex|cursor|claude)$) ]]; then
-  echo 'usage: Distribution/evaluation/cases/installation/dough-update-local-guidance-rejection.sh [--native [codex|cursor|claude]]' >&2
+  echo 'usage: Distribution/evaluation/cases/installation/dough-update-local-guidance-rejection.sh --native [codex|cursor|claude]' >&2
   exit 2
 fi
 platform=${2:-codex}

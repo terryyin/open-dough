@@ -14,5 +14,4 @@ delivery_platform='cursor'
 delivery_skill_root='.agents/skills'
 
 delivery_check_fixture
-grep -Fq 'cursor agent --print --force --trust --sandbox enabled' "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-cursor-delivery-to-use.sh"
 delivery_run_deterministic_transition

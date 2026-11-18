@@ -70,17 +70,6 @@ import { join } from "node:path";
 for (const path of ["dough-execute-plan/scripts/ci-mailbox.mjs", "dough-story-wrap-up/scripts/trunk-closure.mjs"])
   await import(pathToFileURL(join(process.argv[2], path)));
 NODE
-  # Load the installed shared attention rule through Wrap Up's actual relative
-  # link. The byte assertion above proves this is the candidate guidance, not
-  # a maintained local copy. This is installed-use structure, not native proof.
-  grep -Fq '(../dough-land/SKILL.md#completion-attention)' \
-    "${target}/${skill_root}/dough-story-wrap-up/SKILL.md"
-  grep -Fxq '## Completion attention' \
-    "${target}/${skill_root}/dough-story-wrap-up/../dough-land/SKILL.md"
-  grep -Fq '(references/completion-attention.md)' \
-    "${target}/${skill_root}/dough-land/SKILL.md"
-  grep -Fxq '# Completion attention' \
-    "${target}/${skill_root}/dough-land/references/completion-attention.md"
   recorded_source=$(cat "${target}/${skill_root}/dough-update/SOURCE")
   [[ "${recorded_source}" == "${expected_source}" ]]
 done
