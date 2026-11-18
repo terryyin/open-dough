@@ -1,4 +1,5 @@
 // A landed run's review and its capture provenance.
+import { landingReportingReference } from "../src/launchLanding.ts";
 import {
   isEstablishedOneShot,
   type LaunchRecord,
@@ -21,8 +22,7 @@ export async function landedStoryReview(
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const { record } = run;
-  const reference =
-    record.landing?.reference ?? record.request.reporting?.reference;
+  const reference = landingReportingReference(record);
   const unavailable = (explanation: string): StoryReview => ({
     kind: "landing-unavailable",
     ...(reference === undefined ? {} : { reference }),

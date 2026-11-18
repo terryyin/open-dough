@@ -127,6 +127,8 @@ Proof: extend the installed-publication journey in `agent-launch-start-session-l
 
 The independent pass consolidated installed helper path resolution across readiness and retained reporting. Seven focused backend specs, dashboard typecheck, and whitespace checks passed. See `slice-7-refactor.md` in the Git evidence directory.
 
+Hosted run `44367653081` attempt 1 exposed two regressions in unavailable landing responses. The slice used a saved pair's capture reference for legacy records without a reporting association. The repair uses the launch's reporting reference for unavailable results and preserves the saved pair reference for successful comparisons. Both failures reproduced before the repair, and six affected backend specs, three one-shot E2E cases, the three-record reference contract, and dashboard typecheck passed after it. See `ci-44367653081-repair.md` and the settled diagnostic in the Git evidence directory.
+
 ### 8. Read a manual integration that reached trunk before Done
 
 Type: Behavior
