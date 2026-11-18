@@ -16,7 +16,7 @@ discover their specs ([dashboard tests](../../dashboard/tests/README.md)):
 Before delivering a change to a group's specs or shared browser support, run
 the affected group's command (named specs, then the group when shared support
 changed); CI runs each group as its own sharded producer
-([CI shards](../../dashboard/tests/shards.md)).
+(`.github/workflows/ci.yml`).
 
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
 the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:

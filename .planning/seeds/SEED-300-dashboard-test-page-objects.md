@@ -220,7 +220,7 @@ North Star direction needs no addition for this test-side change.
   and `e2e/` workflows import them, so a shared helper change reaches callers
   in every group; trace and run them per group
   ([groups](../../dashboard/tests/README.md),
-  [CI shards](../../dashboard/tests/shards.md)). The queued
+  `.github/workflows/ci.yml`). The queued
   SEED-334#finish-dissolving-integrated-ui-test (spent) emptied the interim
   session/terminal/review/story/observation folders; coordinate remaining
   page-object work with SEED-334's [CI proof/comparison/candidate](../done/SEED-334_move-intent-ci-proof-comparison-and-candidate-checks.json),

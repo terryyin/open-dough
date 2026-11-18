@@ -47,5 +47,5 @@ fixtures stay in this `tests/` tree.
 | `observation/` | Published-source consistency, freshness, refresh and read recovery. |
 | `runtime/` | Serving, production updates and test harness operation. |
 
-All three test roots retain the [shared run and CI schedule](shards.md); feature
+All three test roots retain the shared run and CI schedule (`.github/workflows/ci.yml`); feature
 folders do not create additional builds, workers, shards or test cases.

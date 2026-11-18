@@ -70,6 +70,6 @@ relative to this directory; proof records name
 them as `e2e/<path>`.
 
 CI runs this group as its own producer, the `e2e` job's shards
-([CI shards](../dashboard/tests/shards.md)), and publishes their cases under
+(`.github/workflows/ci.yml`), and publishes their cases under
 the **E2E Test** entry (`e2e`). Its shard count, settings and shard
 patterns change without touching the other groups'.

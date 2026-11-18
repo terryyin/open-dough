@@ -48,5 +48,4 @@ publishes its cases under the **Dashboard Frontend Test** entry and the frontend
 artifact.
 
 The [dashboard test guide](../tests/README.md) owns placement across the
-roots; the [shard guide](../tests/shards.md) owns each group's allocation and
-timing.
+roots; `.github/workflows/ci.yml` declares each group's shards.

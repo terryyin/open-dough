@@ -65,7 +65,9 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
       # Both deadlines count from the job's start, so a slow setup shortens
-      # the group's run rather than pushing it past the job bound.
+      # the group's run rather than pushing it past the job bound. A shard
+      # that reaches the deadline is made faster or rebalanced, not given
+      # more time.
       - name: Start prerequisite acquisition (180 seconds) and browser run (450 seconds) deadlines
         env:
           SETTINGS: ${{ inputs.settings }}

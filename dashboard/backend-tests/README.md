@@ -40,7 +40,7 @@ as with any group, for example
 behaves the same from any working directory.
 
 CI runs this group as its own producer, the `dashboard-backend` job's shards
-([CI shards](../tests/shards.md)), and publishes its cases under the
+(`.github/workflows/ci.yml`), and publishes its cases under the
 **Dashboard Backend Test** entry.
 
 ## Placement
@@ -66,5 +66,4 @@ domain vocabulary where it still names protected service behavior.
 | `runtime/` | Serving, production updates and test harness operation. |
 
 The [dashboard test guide](../tests/README.md) owns test placement, external
-boundaries, synchronization, prerequisites and failure handling. The
-[shard guide](../tests/shards.md) owns the shared allocation and timing history.
+boundaries, synchronization, prerequisites and failure handling.

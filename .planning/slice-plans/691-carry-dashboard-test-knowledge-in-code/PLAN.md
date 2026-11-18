@@ -168,7 +168,7 @@ and the 1,000 ms bound.
 
 ### 5. Move the job-count rule into its skill and remove the shard document
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in commands; `bash scripts/test.sh
 Distribution/tests/support/ci-browser-groups.test.mjs
 Distribution/tests/support/browser-group-shards.test.mjs`; the checks

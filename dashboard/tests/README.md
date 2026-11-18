@@ -12,7 +12,8 @@ perform them (`pageRequestNotes.ts`, `autoRefreshJourney.ts`,
 `support/productionWatcher.ts`, `support/fakeGh.ts`). See `support/fakeClaude.ts`,
 `fakeCodex.ts` and `fakeCursor.ts` for synthetic hosts, the
 per-run [proof record](support/proofRecordTypes.ts), the caller-owned transcript CI's
-proof fragments are written from, and [CI shards](shards.md) for shard
+proof fragments are written from, and `support/testFiles.mjs`,
+`support/specTimes.ts` and `support/suiteDeadline.mjs` for shard
 membership, recorded times and deadlines.
 
 See [local resource use](../../Distribution/tests/local-test-resources.md) for admission
@@ -206,7 +207,7 @@ its `test.extend`), not with a module-level `test.use`: a module is evaluated
 once per worker, so such a call applies only to the first spec file that
 loads it there.
 
-A new spec needs no registration ([CI shards](shards.md#the-split)).
+A new spec needs no registration (`support/testFiles.mjs`).
 
 ## Running the suite
 
@@ -220,7 +221,8 @@ default to two workers, CI runs every core.
 CI runs each group as its own shard jobs, each running the whole spec files
 `.github/workflows/ci.yml` declares for its `<prefix>_SPLIT=i/n`, keeping
 their seconds through `<prefix>_TIMES` as artifact `<group>-times-<shard>`,
-and running under `<prefix>_DEADLINE_MS`; [CI shards](shards.md) holds each
+and running under `<prefix>_DEADLINE_MS`; `support/testFiles.mjs`,
+`support/specTimes.ts` and `support/suiteDeadline.mjs` carry each
 group's split, the times file and the deadline. With the variables unset, a
 group's command runs its whole group, unbounded, and writes no times file.
 
