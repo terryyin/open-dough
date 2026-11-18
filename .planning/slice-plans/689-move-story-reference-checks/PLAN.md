@@ -137,6 +137,8 @@ cue fades restarts it and keeps selection and detail; the canonical record
 opens the GitHub blob at the published revision; a later revision keeps the
 keyboard on Story A's Inspect; a seed that cannot be read still opens with its
 read gap and an empty notice. The page sends no launch or attach request.
+CI repair: run 44233235497 Distribution share 3/3 hit its run deadline on a
+slow runner; `rebalance-ci-shards` moved `installation/update-*` to share 1.
 
 ### 2. Reveal a starting story without opening it
 Type: Behavior
