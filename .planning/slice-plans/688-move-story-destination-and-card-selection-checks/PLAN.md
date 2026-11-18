@@ -261,7 +261,7 @@ other importers).
 
 ### 4. Select a story card without opening it
 Type: Behavior
-Status: planned
+Status: done
 Proof: `story-card-selection` and `story-card-dependency-selection` in
 `dashboard/frontend-tests/navigation/story-card-selection.spec.ts` and
 `story-card-dependency-selection.spec.ts`, on `frontendRecentlyDoneSelection.ts`,
@@ -277,6 +277,79 @@ toggles and detail stays as it was; Inspect, a disabled Start, a session
 entry, the Dependencies disclosure and its explanation → selection unchanged;
 selection survives a visit to Intent.
 
+Assertion map (interim → new Frontend case, same test and step names unless
+named otherwise). `story-card-selection` arrangement: `openFrontendStoryCardSessions`
+(`frontendRecentlyDoneStoryCards.ts`, which publishes through
+`putFrontendDoneRecords`) gives the same queued workspace story (Start
+disabled, not ready) and Open Dough's done cards with nested sessions as the
+interim's `keepLaunchRecords` + `publishFiles`; `recordHostRequests` from page
+open. `story-card-dependency-selection` arrangement: new
+`frontendStoryDependencies.ts` `putFrontendDependencies` publishes
+`queuedReadyRepository()` + `twoDependencies({ assessment: "not-ready", … })`
+through `putFrontendPublished`; `storyDependencyFixture.ts` data unchanged.
+
+- Arrangement guards: `expectMembership` (Backlog = queued story, no Taken)
+  and `expectEntries(recent, [adHocEntry, executed, removedQueued])` →
+  `frontend-tests/sessions/recently-done-story-sessions.spec.ts` "a done
+  story's card holds this machine's sessions…" (`expectMembership` line 34,
+  `expectEntries` line 45) on the same `openFrontendStoryCardSessions`.
+- Empty-area click selects then clears the active card; detail stays closed
+  (`expectSelected` true/false, `expectInspected` false) (7a, 7b) →
+  `story-card-selection`, step "empty-area click selects and clears…".
+- Inspect opens detail without selecting; click inside detail does not
+  select; empty-area toggles keep detail open; Hide detail closes it without
+  selecting (7c) → step "Inspect story opens and closes only detail…".
+- Disabled Start: `toBeDisabled`, forced click keeps selection, no dialog
+  (7d) → step "disabled Start does not change selection or launch", plus
+  `expect(hostRequests()).toEqual([])` (8: no non-GET `/__agent-launch`, no
+  attach).
+- Showing the ad hoc "Open Dough session" (no story) shows Terminal/Final
+  report and clears the selection, Intent loses `data-selected-story` →
+  `frontend-tests/intent/intent-ci-status-side-panel.spec.ts` step "showing a
+  session attached to no story clears the selection, and CI status judges
+  main" (`terminalPanel` visible, `expectSelected(card, false)`, Intent
+  `not.toHaveAttribute("data-selected-story")`). The interim's
+  `expectInspected(active, false)` there was already settled by the preceding
+  step and is not a separate rule.
+- Recently done card takes the one selection (active cleared, active detail
+  closed, no done detail); its session entry click keeps it selected without
+  detail (7e) → step "a Recently done card takes the one selection…; its
+  session entry does not toggle or attach", plus `hostRequests()` empty (8).
+- Selection survives Intent (`data-selected-story` = done identity), no
+  "Selected story only" checkbox or text; back in Development still selected;
+  cleared → Intent has no `data-selected-story` and no toggle text → step
+  "selection survives Intent and clears with no Selected story only toggle".
+  Card selection carried into Intent is also asserted by
+  `frontend-tests/intent/intent-project-visit-selection.spec.ts` (heading
+  click `expectSelected(card, true)` then Intent `storySummary` visible), kept
+  here because the toggle's absence is asserted only here.
+- Dependencies disclosure opened and explanation clicked leave an unselected
+  card unselected, no detail, disclosure `open` (7f) →
+  `story-card-dependency-selection` step "opening the disclosure…".
+- Selected card: explanation click keeps it selected, disclosure stays open,
+  no detail; empty-area click clears (7f) → step "clicking the opened
+  explanation keeps a selected card selected…".
+- Interim `pausePageClock` and `openUntilRead` (real-server refresh guards)
+  have no Frontend counterpart: substitutes answer one fixed revision. Focus,
+  keyboard: the interim asserted none. No Backend/E2E owner needed.
+
+Scratch breaks (P5), each restored by copying the saved original
+(`git diff --stat dashboard/src` empty after each):
+(a) `dashboard/src/StoryCard.tsx` Inspect `onClick` also called
+`onSelect(entry.identity)`. `node .claude/skills/dough-execute-plan/scripts/slice-clock.mjs run --log …/s4-breakA.log --exit-file …/s4-breakA.exit -- env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-card-selection.spec.ts --reporter=list --workers=2`:
+exit 1 in step "Inspect story opens and closes only detail…" at spec line 55,
+`not.toHaveClass(/story-card-selected/)` received "story-card
+story-card-selected".
+(b) `dashboard/src/pageStorySelection.tsx` dropped `"details"` from
+`storyCardControlSelector`. Same command on
+`navigation/story-card-dependency-selection.spec.ts`: exit 1 in step "opening
+the disclosure…" at spec line 44, same received class.
+Restored: both specs 2 passed (4.9 s), exit 0. Interim specs deleted; no
+support left without a consumer (whole-checkout grep incl. `e2e/`:
+`sessionsOutsideDoneStories`, `doneRecordFacts`, `adHocEntry`,
+`removedQueued`, `storyDetail`, `storyDependencyFixture.ts` and the rest keep
+importers).
+
 ## Decisive premises and observations
 
 Observed in this workspace at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`,
@@ -289,7 +362,7 @@ Observed in this workspace at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`,
 | P2. The Frontend homes the slices extend run here (slices 1, 2, 4). | `npx playwright test --config dashboard/frontend.playwright.config.ts navigation/project-selection.spec.ts sessions/recently-done-sessions-select configuration/system-settings-project-management-touch.spec.ts --reporter=list --workers=2`: 15 passed (14.4 s). The shared-identity arrangement, held revision and dependency answers are new; slices 1 and 4 build them first, and a case they cannot express keeps a Backend or E2E home under the proof rule above. |
 | P3. Removing the four specs leaves both shards selecting specs and the shard checks green (every slice). | With the four specs moved aside: shard 1/2 lists 3 tests in 1 file, shard 2/2 lists 19 tests in 6 files; `bash scripts/test.sh Distribution/tests/support/browser-group-shards.test.mjs Distribution/tests/support/ci-browser-groups.test.mjs` exit 0. Specs restored. |
 | P4. Shared support survives the deletions (slices 2–4). | `grep` importers: `notificationStoryJourney.ts`, `storyDependencyFixture.ts` and `destinationCue.ts` are imported by E2E specs or the seven remaining interim specs; none becomes unused here. Execution's consumer trace rechecks after each deletion. |
-| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). Slice 2: the absent wording for a failed read fails "an absent story is distinct…" (exit 1, "is not listed" received); restored, 8/8 pass (record under slice 2). Slice 3: cueing only a changed identity in `revealStory` fails the repeat-cue case at the first ask-again (exit 1, no cue class); restored, 1/1 passes (record under slice 3). |
+| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). Slice 2: the absent wording for a failed read fails "an absent story is distinct…" (exit 1, "is not listed" received); restored, 8/8 pass (record under slice 2). Slice 3: cueing only a changed identity in `revealStory` fails the repeat-cue case at the first ask-again (exit 1, no cue class); restored, 1/1 passes (record under slice 3). Slice 4: Inspect also selecting fails `story-card-selection` (exit 1, still selected after Inspect); `details` treated as empty area fails `story-card-dependency-selection` (exit 1, selected after opening the disclosure); restored, 2/2 pass (record under slice 4). |
 
 Refinement: not needed; four slices with one proof loop each, no cumulative
 design beyond the two small arrangements named above.
