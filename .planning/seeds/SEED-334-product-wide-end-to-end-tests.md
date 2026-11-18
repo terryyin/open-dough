@@ -58,31 +58,77 @@ name, optional settings file and every assertion. No product change.
 
 **Identity:** SEED-334#move-story-reference-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/689-move-story-reference-checks/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 689."],"basis":{"document":"ee3fc9c8330b4d6983fdeec0f61ef21f987f1e4e1a902d32868a19602da0e199","plan":"0f96086affee62291875a8b9549691a64c6f7a4c63a700b69ef61388c1f39366"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/689-move-story-reference-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1ae32dfc3888added7254e0b95be56191423b42cb4d50d706ccd36256108029e","plan":"648d2bd6e0654c6a7270e01dd4f8f6c0a30ecbca9ea980a75f8fbcab9d3bdea3"}}
 ```
 
-- **For / why.** A maintainer keeps story-reference navigation protection
-  (active and Done references, their identity, cancellation and recovery) in
-  maintained homes, leaving source navigation as the interim group's last
-  spec.
-- **Evaluation.** `story-reference-navigation`, `-identity`, `-recovery`,
-  `-done`, `-done-cancellation` and `-done-recovery` (6 specs, 1,075 lines,
-  19 tests) keep every distinct assertion at its real boundary. A pending
-  Done-story reference superseded by a later move, a pointer down or Tab away
-  before its held detail arrives keeps its cancellation, recovery and focus
-  assertions in Frontend homes with controlled answers; the Backend keeps any
-  request-count or refusal rule. The interim group still runs with
-  `source-navigation` alone, its shard declaration reduced to what selects a
-  spec.
-- **Inputs.** Key example 1 of the earlier scope at
-  `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`; the dependency arrangement
-  `putFrontendDependencies` (`dashboard/tests/support/frontendStoryDependencies.ts`),
-  which publishes dependency answers for Frontend cases.
-- **Boundary.** No product behavior change, retirement or Markdown removal.
-- **Safe stopping point.** Active references alone, or Done references alone,
-  is complete on its own.
+**Goal:** A maintainer keeps the protection for following a story reference,
+to an active or a Done story, by its identity, with its cancellation and
+recovery, in the **Dashboard Frontend Test** group with controlled answers
+instead of a real dashboard server, so `source-navigation` is the interim
+group's last spec and the group can retire next.
 
-**Plan:** [Provisional story reference conversion](../slice-plans/689-move-story-reference-checks/PLAN.md)
+**Scope:**
+
+- Convert `story-reference-navigation`, `-identity`, `-recovery`, `-done`,
+  `-done-cancellation` and `-done-recovery` (6 of the remaining 7 navigation
+  specs, 1,075 of 1,321 lines, 19 tests) with every distinct assertion kept at
+  its real boundary as
+  SEED-334#retire-integrated-ui-test-and-its-documents did: Frontend homes
+  under `dashboard/frontend-tests/navigation/`, a Backend or representative
+  E2E home only for a rule that needs the real server, and an existing
+  maintained case named where it already makes the same assertion.
+- A read the interim case counted at GitHub becomes a count of the page's own
+  reads. A count only the server decides, such as what its cache spares,
+  keeps a Backend home.
+- The real Take behind a starting story stays with E2E
+  `launches/agent-launch-start-dependencies.spec.ts`; the Frontend case
+  observes the protected Inspect while the page's start is unanswered.
+- The interim group stays runnable with `source-navigation` alone, its CI
+  shard declaration reduced to what selects a spec.
+- Test support the deletions leave without a consumer is removed.
+
+Scope limits: `source-navigation`, the group's retirement and the
+`dashboard/tests/` Markdown belong to the two stories below; no product
+behavior change, new group or tier, speed or shard target.
+
+**Key examples:**
+
+1. Story A waits on Story B. Following the reference opens Story B's detail
+   at its reading top with the keyboard on the card and a cue that does not
+   select it. Following again while the cue fades restarts it and keeps the
+   selection and detail made meanwhile. The canonical record opens the GitHub
+   blob of the published revision, and a later revision leaves the keyboard
+   where the developer put it.
+2. Story B is starting and its start is unanswered. The reference moves the
+   keyboard to its card, leaves the protected detail closed, and the page
+   sends no further launch or attach request.
+3. Two stories share one seed, and Pygardon tells `SEED-B#b` in a seed of its
+   own. Each reference opens the story its identity names in the shown
+   project, by keyboard or tap, with a reduced-motion reveal at narrow width.
+4. `SEED-C#c` is not queued: the reference reads "unavailable". Retried while
+   the backlog read is held it reads "Reading…", failed it reads "Could not
+   read…", and once Story C is queued a retry reaches it. Choosing Pygardon
+   or another story's Inspect meanwhile wins, with no late focus or detail.
+5. A reference to the 27th Done story, with ten shown, grows the range to
+   "Showing 27 of 35 entries" and keeps it; the page asks only for the shown
+   records and the referenced suppliers. While that record is held the
+   destination reads "Reading done story…"; failed, it shows its identified
+   gap and "Retry done stories" recovers it.
+6. While that Done destination is pending, Inspect, "Show latest 10", a
+   pointer down or Tab away supersedes the jump: the record arrives and the
+   keyboard stays where the developer moved it.
+7. An expired or unlisted reference reads "unavailable" with no further read;
+   a loading or failed Done catalog reads differently from absence, and an
+   inspection chosen meanwhile stays when the catalog heals.
+
+Safe stopping point: the three active-reference specs alone, or the three
+Done-reference specs alone, is complete on its own.
+
+**Provenance:** Second outcome of the resplit of
+SEED-334#retire-integrated-ui-test-and-its-documents's earlier scope,
+recoverable at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`.
+
+**Plan:** [Story reference conversion](../slice-plans/689-move-story-reference-checks/PLAN.md)
 
 <a id="retire-emptied-integrated-ui-test-group"></a>
 
