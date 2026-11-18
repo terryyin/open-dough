@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-384#keep-review-toolbar-truthful-while-reading",
+  "host": "codex",
+  "model": "gpt-6.2-astra"
+}
