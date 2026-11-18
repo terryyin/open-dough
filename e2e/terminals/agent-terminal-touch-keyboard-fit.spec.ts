@@ -27,17 +27,11 @@ import {
 import {
   clearSoftKeyboardViewport,
   expectControlInVisualViewport,
-  expectFittedInput,
-  expectMinTouchTarget,
-  focusByTouch,
-  hideKeyboardControl,
-  insertDraftButton,
-  noteTerminalTraffic,
-  openTerminalComposer,
   simulateSoftKeyboardViewport,
-  terminalComposerDraft,
-  terminalKey,
-  terminalKeyToolbar,
+} from "../../dashboard/tests/touchTerminalSoftKeyboardPage.ts";
+import {
+  noteTerminalTraffic,
+  touchTerminal,
 } from "../../dashboard/tests/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -71,71 +65,67 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
     const { sizes } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
     const panel = terminalPanel(page);
+    const touch = touchTerminal(panel);
     const close = control(panel, "Close");
-    const hide = hideKeyboardControl(panel);
+    const hide = touch.hideKeyboard;
     await expectTerminalText(panel, `attached ${native.shortId}`);
-    await expect(terminalKeyToolbar(panel)).toBeVisible();
+    await expect(touch.toolbar).toBeVisible();
     await expect(hide).toHaveCount(0);
-    await expectFittedInput(panel, sizes);
+    await touch.expectFittedInput(sizes);
     expect(dashboard.claudeAttaches()).toHaveLength(1);
 
-    await openTerminalComposer(panel);
+    await touch.openComposer();
     await expect(hide).toBeVisible();
-    await expectMinTouchTarget(hide);
-    const draft = terminalComposerDraft(panel);
-    const insert = insertDraftButton(panel);
+    await touch.expectMinTouchTarget(hide);
+    const draft = touch.draft;
+    const insert = touch.insertDraftButton;
     const held = "unsent draft across keyboard fit";
     await draft.fill(held);
     await expect(draft).toHaveValue(held);
     await expect(insert).toBeVisible();
 
     await test.step("simulated soft keyboard fits the panel; controls stay reachable; draft and attachment survive", async () => {
-      await focusByTouch(panel);
+      await touch.focus();
       await expectTerminalInputFocused(panel);
       await simulateSoftKeyboardViewport(page, 320);
       await expectCovering(panel);
-      await expectFittedInput(panel, sizes);
+      await touch.expectFittedInput(sizes);
       for (const control of [
         hide,
         close,
-        terminalKey(panel, "Enter"),
-        terminalKey(panel, "Paste"),
+        touch.key("Enter"),
+        touch.key("Paste"),
         insert,
         draft,
       ]) {
         await expect(control).toBeVisible();
         await expectControlInVisualViewport(control);
       }
-      await expectMinTouchTarget(hide);
-      await expectMinTouchTarget(insert);
+      await touch.expectMinTouchTarget(hide);
+      await touch.expectMinTouchTarget(insert);
       await expect(draft).toHaveValue(held);
       expect(dashboard.claudeAttaches()).toHaveLength(1);
       expect(dashboard.claudeAttaches()[0]?.id).toBe(native.shortId);
     });
 
     await test.step("hide-keyboard blurs focused input without reconnect", async () => {
-      await focusByTouch(panel);
+      await touch.focus();
       await expectTerminalInputFocused(panel);
-      await tapWhereShown(hideKeyboardControl(panel));
+      await tapWhereShown(touch.hideKeyboard);
       await expectTerminalInputNotFocused(panel);
       await expect(draft).toHaveValue(held);
       expect(dashboard.claudeAttaches()).toHaveLength(1);
       await clearSoftKeyboardViewport(page);
-      await expectFittedInput(panel, sizes);
+      await touch.expectFittedInput(sizes);
       await expect(draft).toHaveValue(held);
     });
 
     await test.step("reduced height and orientation keep fit, draft, and reachable controls", async () => {
       await page.setViewportSize({ width: portrait.width, height: 400 });
       await expectCovering(panel);
-      await expectFittedInput(panel, sizes);
+      await touch.expectFittedInput(sizes);
       await expect(draft).toHaveValue(held);
-      for (const control of [
-        hideKeyboardControl(panel),
-        close,
-        insert,
-        draft,
-      ]) {
+      for (const control of [touch.hideKeyboard, close, insert, draft]) {
         await expect(control).toBeVisible();
         await expectControlInVisualViewport(control);
       }
@@ -149,26 +139,21 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
         .poll(async () => (await box(panel)).height)
         .toBeCloseTo(240, 0);
       await expect(draft).toHaveValue(held);
-      for (const control of [
-        hideKeyboardControl(panel),
-        close,
-        insert,
-        draft,
-      ]) {
+      for (const control of [touch.hideKeyboard, close, insert, draft]) {
         await expect(control).toBeVisible();
         await expectControlInVisualViewport(control);
       }
-      await tapWhereShown(hideKeyboardControl(panel));
+      await tapWhereShown(touch.hideKeyboard);
       await expect(draft).toHaveValue(held);
       expect(dashboard.claudeAttaches()).toHaveLength(1);
 
       for (const view of [landscape, portrait]) {
         await resizeUntilArranged(panel, view);
         if (view.width <= 800) await expectCovering(panel);
-        await expectFittedInput(panel, sizes);
+        await touch.expectFittedInput(sizes);
         await expect(draft).toHaveValue(held);
-        await expect(hideKeyboardControl(panel)).toBeVisible();
-        await expectControlInVisualViewport(hideKeyboardControl(panel));
+        await expect(touch.hideKeyboard).toBeVisible();
+        await expectControlInVisualViewport(touch.hideKeyboard);
         await expectControlInVisualViewport(close);
         await expectControlInVisualViewport(insert);
       }
@@ -198,9 +183,10 @@ test.describe("desktop terminal without soft-keyboard fit chrome", () => {
     await sidebar.button.click();
     await sidebar.entry("Desktop terminal without keyboard fit").click();
     const panel = terminalPanel(page);
+    const touch = touchTerminal(panel);
     await expectTerminalText(panel, `attached ${native.shortId}`);
-    await expect(terminalKeyToolbar(panel)).toBeHidden();
-    await expect(hideKeyboardControl(panel)).toBeHidden();
+    await expect(touch.toolbar).toBeHidden();
+    await expect(touch.hideKeyboard).toBeHidden();
     expect(
       await panel.evaluate((element) =>
         element.style.getPropertyValue("--side-panel-height"),

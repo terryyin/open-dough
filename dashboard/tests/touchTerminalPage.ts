@@ -8,6 +8,7 @@ import {
   terminalScreenParts,
 } from "./terminalScreenPage.ts";
 import { scrollByTouch } from "./touchGestures.ts";
+import { hideKeyboardControl } from "./touchTerminalSoftKeyboardPage.ts";
 export {
   scrollByTouch,
   readAfterTouchFrame,
@@ -131,6 +132,11 @@ export function terminalKey(panel: Locator, name: string) {
   return terminalKeyToolbar(panel).getByRole("button", { name, exact: true });
 }
 
+// Keys before Enter scroll in this lane; the toolbar itself scrolls the rest.
+function primaryKeyLane(toolbar: Locator) {
+  return toolbar.locator(".terminal-key-toolbar-primary");
+}
+
 // Where the phone is narrower than its keys, the keys before Enter scroll
 // sideways in a lane of their own and the toolbar scrolls sideways as a
 // whole. A finger stroke along whichever cuts `name`, as long as the cut and
@@ -139,7 +145,7 @@ export function terminalKey(panel: Locator, name: string) {
 export async function bringKeyIntoView(panel: Locator, name: string) {
   const key = terminalKey(panel, name);
   const toolbar = terminalKeyToolbar(panel);
-  const lane = toolbar.locator(".terminal-key-toolbar-primary");
+  const lane = primaryKeyLane(toolbar);
   const scroller = (await lane
     .getByRole("button", { name, exact: true })
     .count())
@@ -203,4 +209,26 @@ export async function openTerminalComposer(panel: Locator) {
   }
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
   await expect(terminalComposerDraft(panel)).toBeVisible();
+}
+
+// Touch chrome of an open Terminal panel. Callers keep traffic notes and
+// viewport geometry; screen text stays on terminalScreenPage and finger
+// scrolling on touchGestures.
+export function touchTerminal(panel: Locator) {
+  const toolbar = terminalKeyToolbar(panel);
+  return {
+    toolbar,
+    primaryKeys: primaryKeyLane(toolbar),
+    hideKeyboard: hideKeyboardControl(panel),
+    draft: terminalComposerDraft(panel),
+    insertDraftButton: insertDraftButton(panel),
+    composeToggle: composeToggle(panel),
+    key: (name: string) => terminalKey(panel, name),
+    focus: () => focusByTouch(panel),
+    tapKey: (name: string) => tapTerminalKey(panel, name),
+    bringKeyIntoView: (name: string) => bringKeyIntoView(panel, name),
+    openComposer: () => openTerminalComposer(panel),
+    expectFittedInput: (sizes: string[]) => expectFittedInput(panel, sizes),
+    expectMinTouchTarget: (control: Locator) => expectMinTouchTarget(control),
+  };
 }

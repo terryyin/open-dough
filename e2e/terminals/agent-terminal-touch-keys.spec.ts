@@ -23,19 +23,10 @@ import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.
 import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
 import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+import { scrollByTouch } from "../../dashboard/tests/touchGestures.ts";
 import {
-  bringKeyIntoView,
-  composeToggle,
-  expectMinTouchTarget,
-  focusByTouch,
-  hideKeyboardControl,
-  insertDraftButton,
   noteTerminalTraffic,
-  scrollByTouch,
-  tapTerminalKey,
-  terminalComposerDraft,
-  terminalKey,
-  terminalKeyToolbar,
+  touchTerminal,
 } from "../../dashboard/tests/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -69,12 +60,12 @@ test.describe("phone terminal key toolbar", () => {
     const { sent } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
     const panel = terminalPanel(page);
+    const touch = touchTerminal(panel);
     const { rows } = terminalScreenParts(panel);
-    const toolbar = terminalKeyToolbar(panel);
-    const primary = toolbar.locator(".terminal-key-toolbar-primary");
+    const primary = touch.primaryKeys;
     await expectTerminalText(panel, "Choose a color");
     await expectTerminalText(panel, "› Red");
-    await expect(toolbar).toBeVisible();
+    await expect(touch.toolbar).toBeVisible();
     for (const name of [
       "Esc",
       "Tab",
@@ -86,12 +77,12 @@ test.describe("phone terminal key toolbar", () => {
       "Paste",
       "More terminal keys",
     ]) {
-      await expect(terminalKey(panel, name)).toBeVisible();
-      await expectMinTouchTarget(terminalKey(panel, name));
+      await expect(touch.key(name)).toBeVisible();
+      await touch.expectMinTouchTarget(touch.key(name));
     }
-    await expect(composeToggle(panel)).toHaveCount(0);
-    await expect(terminalComposerDraft(panel)).toHaveCount(0);
-    await expect(terminalKey(panel, "Ctrl+C")).toHaveCount(0);
+    await expect(touch.composeToggle).toHaveCount(0);
+    await expect(touch.draft).toHaveCount(0);
+    await expect(touch.key("Ctrl+C")).toHaveCount(0);
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
       "Execution session",
@@ -100,14 +91,14 @@ test.describe("phone terminal key toolbar", () => {
     expect(dashboard.claudeAttaches()[0]?.id).toBe(native.shortId);
 
     await test.step("focus stays on the terminal textarea across toolbar taps", async () => {
-      await focusByTouch(panel);
-      await tapTerminalKey(panel, "Tab");
+      await touch.focus();
+      await touch.tapKey("Tab");
       await scrollByTouch(page, primary, -150, "horizontal");
       await expect
         .poll(() => primary.evaluate((lane) => lane.scrollLeft))
         .toBeGreaterThan(0);
-      await tapTerminalKey(panel, "Left");
-      await tapTerminalKey(panel, "Right");
+      await touch.tapKey("Left");
+      await touch.tapKey("Right");
       await expect.poll(() => sent.join("")).toBe("\t\u001b[D\u001b[C");
       await expectTerminalText(panel, "› Red");
     });
@@ -117,7 +108,7 @@ test.describe("phone terminal key toolbar", () => {
       await expect
         .poll(() => primary.evaluate((lane) => lane.scrollLeft))
         .toBe(0);
-      await tapTerminalKey(panel, "Esc");
+      await touch.tapKey("Esc");
       await expect.poll(() => sent.join("")).toBe("\t\u001b[D\u001b[C\u001b");
       await expectTerminalText(panel, "cancelled");
       await expectNoTerminalText(panel, "Choose a color");
@@ -137,12 +128,12 @@ test.describe("phone terminal key toolbar", () => {
     });
 
     await test.step("arrows change menu selection; swipe leaves sent and selection alone; Down twice then Enter confirms", async () => {
-      await focusByTouch(panel);
+      await touch.focus();
       const beforeArrows = [...sent];
       // Beside Enter, Paste, Select and More this phone's lane holds three
       // whole keys; a stroke brings Down in beside Up.
-      await bringKeyIntoView(panel, "Down");
-      await tapTerminalKey(panel, "Down");
+      await touch.bringKeyIntoView("Down");
+      await touch.tapKey("Down");
       await expectTerminalText(panel, "› Blue");
       await expectNoTerminalText(panel, "› Red");
       const afterDown = [...sent];
@@ -156,15 +147,15 @@ test.describe("phone terminal key toolbar", () => {
       await scrollByTouch(page, viewport, -400);
       await expectTerminalText(panel, "› Blue");
       expect(sent).toEqual(afterDown);
-      await tapTerminalKey(panel, "Up");
+      await touch.tapKey("Up");
       await expectTerminalText(panel, "› Red");
       await expect
         .poll(() => sent.join(""))
         .toBe(`${afterDown.join("")}\u001b[A`);
-      await tapTerminalKey(panel, "Down");
-      await tapTerminalKey(panel, "Down");
+      await touch.tapKey("Down");
+      await touch.tapKey("Down");
       await expectTerminalText(panel, "› Green");
-      await tapTerminalKey(panel, "Enter");
+      await touch.tapKey("Enter");
       await expectTerminalText(panel, "echo Green");
       await expect
         .poll(() => dashboard.claudeAttaches()[1]?.lines)
@@ -175,19 +166,19 @@ test.describe("phone terminal key toolbar", () => {
     });
 
     await test.step("expandable Ctrl+C and Compose, Close and session identity stay reachable", async () => {
-      await focusByTouch(panel);
-      await tapWhereShown(terminalKey(panel, "More terminal keys"));
-      await expect(terminalKey(panel, "More terminal keys")).toHaveAttribute(
+      await touch.focus();
+      await tapWhereShown(touch.key("More terminal keys"));
+      await expect(touch.key("More terminal keys")).toHaveAttribute(
         "aria-expanded",
         "true",
       );
-      await expect(terminalKey(panel, "Ctrl+C")).toBeVisible();
-      await expect(composeToggle(panel)).toBeVisible();
-      await expectMinTouchTarget(composeToggle(panel));
+      await expect(touch.key("Ctrl+C")).toBeVisible();
+      await expect(touch.composeToggle).toBeVisible();
+      await touch.expectMinTouchTarget(touch.composeToggle);
       const beforeInterrupt = sent.length;
       // The opened keys are wider than this phone; the toolbar scrolls.
-      await bringKeyIntoView(panel, "Ctrl+C");
-      await tapTerminalKey(panel, "Ctrl+C");
+      await touch.bringKeyIntoView("Ctrl+C");
+      await touch.tapKey("Ctrl+C");
       await expect
         .poll(() => sent.slice(beforeInterrupt).join(""))
         .toBe("\u0003");
@@ -223,13 +214,14 @@ test.describe("desktop terminal without phone key toolbar", () => {
     const { sent } = noteTerminalTraffic(page);
     await sidebar.entry("Desktop terminal without phone keys").click();
     const panel = terminalPanel(page);
+    const touch = touchTerminal(panel);
     await expectTerminalText(panel, `attached ${native.shortId}`);
-    await expect(terminalKeyToolbar(panel)).toBeHidden();
-    await expect(terminalKey(panel, "Paste")).toBeHidden();
-    await expect(composeToggle(panel)).toBeHidden();
-    await expect(terminalComposerDraft(panel)).toHaveCount(0);
-    await expect(insertDraftButton(panel)).toHaveCount(0);
-    await expect(hideKeyboardControl(panel)).toBeHidden();
+    await expect(touch.toolbar).toBeHidden();
+    await expect(touch.key("Paste")).toBeHidden();
+    await expect(touch.composeToggle).toBeHidden();
+    await expect(touch.draft).toHaveCount(0);
+    await expect(touch.insertDraftButton).toHaveCount(0);
+    await expect(touch.hideKeyboard).toBeHidden();
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
     const text = "Desktop paste";
     const input = terminalScreenParts(panel).input;

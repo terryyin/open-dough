@@ -28,14 +28,8 @@ import {
   type DashboardServer,
 } from "../../dashboard/tests/support/dashboardServer.ts";
 import {
-  composeToggle,
-  expectMinTouchTarget,
-  focusByTouch,
-  insertDraftButton,
   noteTerminalTraffic,
-  openTerminalComposer,
-  tapTerminalKey,
-  terminalComposerDraft,
+  touchTerminal,
 } from "../../dashboard/tests/touchTerminalPage.ts";
 
 const test = base.extend<{ machine: string }>({
@@ -92,15 +86,16 @@ test.describe("phone terminal composer Insert without submit", () => {
     const { sent } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(composerTitle));
     const panel = terminalPanel(page);
+    const touch = touchTerminal(panel);
     const draftText = "revise this longer phone instruction";
     await expectTerminalText(panel, `attached ${native.shortId}`);
-    await expect(composeToggle(panel)).toHaveCount(0);
-    await expect(terminalComposerDraft(panel)).toHaveCount(0);
-    await openTerminalComposer(panel);
-    const draft = terminalComposerDraft(panel);
-    const insert = insertDraftButton(panel);
+    await expect(touch.composeToggle).toHaveCount(0);
+    await expect(touch.draft).toHaveCount(0);
+    await touch.openComposer();
+    const draft = touch.draft;
+    const insert = touch.insertDraftButton;
     await expect(insert).toBeVisible();
-    await expectMinTouchTarget(insert);
+    await touch.expectMinTouchTarget(insert);
 
     await test.step("Insert reaches the PTY once without trailing Enter; direct typing stays available", async () => {
       await draft.fill(draftText);
@@ -109,14 +104,14 @@ test.describe("phone terminal composer Insert without submit", () => {
       await expect.poll(() => sent.join("")).toBe(draftText);
       expect(sent.join("").includes("\r")).toBe(false);
       expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
-      await focusByTouch(panel);
+      await touch.focus();
       // Soft-keyboard typing inserts without submitting; toolbar Enter alone submits.
       await insertTerminalText(page, " and typed");
       await expect.poll(() => sent.join("")).toBe(`${draftText} and typed`);
     });
 
     await test.step("deliberate toolbar Enter submits the line", async () => {
-      await tapTerminalKey(panel, "Enter");
+      await touch.tapKey("Enter");
       await expectTerminalText(panel, `echo ${draftText} and typed`);
       await expect
         .poll(() => dashboard.claudeAttaches()[0]?.lines)
