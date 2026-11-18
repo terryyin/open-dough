@@ -176,18 +176,84 @@ their value. No open human decision or blocking dependency.
 ### Declare merged review histories through MakeMe
 
 **Identity:** SEED-353#declare-merged-review-histories
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-353#declare-merged-review-histories","dependencies":[{"supplier":{"identity":"SEED-353#declare-local-worktree-review-state","href":"seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state"},"implementation":"Start origins materialize the shared repository description's workspace as Story A's linked worktree on claude/story-a, with its declared uncommitted state applied after the workspace's revisions.","rationale":"Both slices declare Story A's story-branch revisions and merges on that workspace, and the newest plain edit must be a workspace revision ahead of the uncommitted state; building them here would add a second worktree materializer, which the seed's shared requirements forbid, and reconciliation cannot avoid it.","condition":"The local-worktree story's start-origin workspace materialization and declared local state are published on main.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/709-declare-merged-review-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bc25b70b09b54a9f20a5c9cbc95bdc0645ce5b662c5647fb32fdb73e36a69dec","plan":"cbd95b67096308e2e882f3c51c93f60a6f385c307c7ab4ad594d4b30b56e6a53"}}
 ```
 
-**For / why.** A developer reads story-branch commit/range comparisons from named
-parents and file changes rather than setup scripts. Include `storyReviewTrunk.ts`,
-commit/range/mark/admission helpers and their backend/E2E/integrated consumers.
-**Evaluation.** Clean integration, conflicted resolution, destination-baseline
-resolution and renamed-path histories preserve exact shown edits, ancestry and
-trunk flags; actions that change a previously observed comparison stay visible.
+**Goal.** A developer reads a story branch's commits, its trunk integrations
+and their conflict resolutions from named revisions with ordered parents and
+file changes, rather than from the Git commands that once produced them. The
+Commits range and merge cases then explain which edits are the story's own and
+which carry trunk's changes, and stay easy to change with the review behavior
+they prove.
+
+**Scope.** Migrate Story A's committed story-branch topology in
+`dashboard/test-support/support/storyReviewTrunk.ts` (`worktreeWithStoryCommits`,
+`integrateTrunk`, `sixth`) and its consumers
+`e2e/review/story-review-commit-trunk.spec.ts` and
+`e2e/review/story-review-commit-renames.spec.ts`, including the spec-local
+history there (the separate-line story edit, the renames either side of a
+conflicted integration). Also migrate the starting commits that commit-range
+cases add before opening the review: the newest plain story edit and the empty
+story commit in `story-review-commits.spec.ts`, and the first story commit in
+`story-review-commit-refresh.spec.ts`. Declare trunk files, the landed slice
+trunk takes, the story's commits, trunk's changing commit and each integration
+merge with its first parent the story and its second parent trunk, its
+resolved file bytes and its author, through the shared MakeMe repository
+description and the start-origin workspace that the local-worktree sibling
+gives Story A. Extend those owners for demonstrated needs; preserve deferred,
+prepared-prefix reuse and each test's private mutable worktree. Named revision
+results replace incidental `rev-parse`.
+
+A conflicted integration stays a real conflict: the test confirms
+independently, without the description's renderer, that its declared parents
+conflict on the resolved file, and that a clean integration's parents merge
+without conflict. Commits made, a push to trunk and a Refresh after the review
+opened stay visible scenario actions. Update the test-data architecture guide
+and compare representative construction before and after under ADR 0010. No
+production behavior change or speedup promise.
+
+Excluded: Story A's local worktree and its uncommitted state, the commit
+admission request and admission worktree (local-worktree sibling); Trunk Mode
+authorship, completed-story merges including `storyReviewMergeDriver.ts`
+(which keeps importing `sixth`) and `laterStoryMergesTrunk.ts`, which its Intent
+sibling owns; ad-hoc session commit runs and kept-commit records, which remain
+session actions for the launch and session sibling. The shared `git`,
+`commitAll` and `writeAt` helpers stay while other families import them.
+
+**Key examples.**
+
+- Given Story A's declared branch — trunk's files, a landed slice trunk later
+  takes, the story's change to `src/c.ts`, and a merge of trunk's change to
+  `README.md` — Commits lists two story commits, says trunk was integrated
+  within the range, the merge alone changed nothing, and the whole range shows
+  only `src/c.ts`'s `-c 5`/`+c story`, without `landed.txt`, `README.md` or
+  `src/a.ts`.
+- Given the same branch where trunk also changes `src/c.ts`'s sixth line and
+  the declared merge settles it as `c story and trunk`, the merge alone shows
+  `-c story`/`+c story and trunk` flagged “includes trunk's changes”, and the
+  range shows `-c 5`/`+c story and trunk`; an independent merge of the two
+  declared parents still conflicts on `src/c.ts`.
+- Given a merge that settles `src/c.ts` back to `c 5`, the range stays flagged
+  and shows `-c trunk`/`+c 5` from the destination baseline; given a story edit
+  to a separate line of `src/a.ts` merged cleanly with trunk's sixth-line edit,
+  the range shows only `-a 0`/`+a story` with no flag.
+- Given `src/c.ts` renamed to `d.ts` before a conflicted integration with
+  trunk's edit and to `e.ts` after it, the four story commits keep their order
+  and the range shows `src/c.ts → src/e.ts` flagged with `-c 5`/`+c story and
+  trunk`.
+- Given a declared newest plain edit on Story A, or an empty story commit, the
+  chosen commit's trees and the empty range's “changed nothing” stay as today;
+  given one declared story commit, commits added and pushed to trunk after
+  opening still move the anchored range only on Refresh.
+
 **Safe stopping point.** Story-branch topology setup has one shared declarative
-owner while unrelated trunk-mode and completed scenarios remain unchanged.
+owner while unrelated trunk-mode and completed scenarios remain unchanged. No
+open human decision. It starts after the local-worktree story's start-origin
+workspace and local state land, which its declared merges compose.
 
 <a id="declare-trunk-review-authorship"></a>
 
