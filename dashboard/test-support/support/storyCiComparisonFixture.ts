@@ -1,9 +1,7 @@
 // Shared CI comparison fixture helpers for Intent's timing comparison
 // (../../../e2e/intent/intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
 // commits before a claim, and the done Story Branch publisher. SEED-236
-// lives in ./storyCiComparisonEarlierLanding.ts; SEED-248 fast-forward tip
-// in ./storyCiComparisonFastForward.ts and later first-parent rewrite in
-// ./storyCiComparisonLaterFastForward.ts; Taken shapes in
+// lives in ./storyCiComparisonEarlierLanding.ts; Taken shapes in
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
 // ./storyCiComparisonEntryProofs.ts; history readers in
 // ./storyCiComparisonHistory.ts, the declared pre-claim baseline in
@@ -34,6 +32,7 @@ import { comparisonWorkflowPath } from "./storyCiComparisonWorkflows.ts";
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
 export { claimOf, revList } from "./storyCiComparisonHistory.ts";
 export {
+  planningBeforeClaim,
   precedeClaimWithPlanning,
   withPlanningBeforeClaim,
 } from "./storyCiComparisonBaseline.ts";

@@ -168,7 +168,7 @@ ignores worktree author config, so agent-authored work names the author.
 
 ### 2. Read the owning landing independently of completion
 Type: Behavior
-Status: planned
+Status: done
 Proof: Owning-landing row, E/F, independent parent/endpoint and adapter assertions.
 
 Behavior: Given claim, implementation, ordered owning merge, later completion
@@ -179,6 +179,18 @@ observed. Existing fast-forward/rewrite backend graphs stay declarative; remove
 browser setup proven unused (including type-only references) without dropping
 their surviving behavioral proof. Interim: skipped-build variants migrate next.
 One original-landing selection loop; 15 active minutes, commands excluded.
+
+Delivered: `publishCompletedStoryLanding` names the owning `branchSide`;
+`commitAll` returns its commit; the Done publisher declares `laterWithoutBuild`
+as `planningBeforeClaim.length + 1` (no caller uses `sharedAlreadyReady`); the
+earlier-landing publisher reads endpoints from its commits. Refactor deleted the
+uncalled fast-forward/later-fast-forward browser publishers and collapsed the
+adapter spec's single merge-landing case. Accepted proof: 25 E2E files (30),
+45 backend files (134), `ci-comparison-endpoints` (3), 7 Frontend files (12),
+adapter spec rerun after refactor. Follow-ups for later slices: skipped/Summary
+fixtures still `commitAll` then `rev-parse` (slices 3, 5); the backlog
+`complete` invocation repeats across ~10 completion setups (slice 4);
+`intent-story-becomes-done.spec.ts:61` calls `claimOf` (slice 6 audit).
 
 ### 3. Read build eligibility from historical workflow facts
 Type: Behavior

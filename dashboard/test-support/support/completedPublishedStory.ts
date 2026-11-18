@@ -22,7 +22,7 @@ import {
 } from "./completedStoryInput.ts";
 import {
   installedBacklogScript,
-  publishCompletedStory,
+  publishCompletedStoryLanding,
   resolveStoryConflict,
 } from "./completedStoryPublication.ts";
 import {
@@ -197,7 +197,7 @@ export async function completedPublishedStory(
     }
   }
   options?.beforeComplete?.(workspace);
-  const completion = publishCompletedStory(origin, {
+  const { completion, branchSide } = publishCompletedStoryLanding(origin, {
     workspace,
     branch,
     mode,
@@ -207,7 +207,7 @@ export async function completedPublishedStory(
     retainWorkspace: options?.retainWorkspace,
     skillsDirectory: options?.skillsDirectory,
   });
-  return { completion, agent: start.agent, workspace, branch };
+  return { completion, branchSide, agent: start.agent, workspace, branch };
 }
 
 export function advanceCompletedTrunk(origin: StartOrigin) {

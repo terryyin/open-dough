@@ -13,9 +13,8 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 import {
-  claimOf,
+  planningBeforeClaim,
   precedeClaimWithPlanning,
-  revList,
   serveActionsFor,
   wall,
   type StoryCiComparisonSetup,
@@ -40,19 +39,18 @@ export async function completeComparedStoryHistory(
 ): Promise<ComparedStoryHistory> {
   const baseline = await precedeClaimWithPlanning(origin);
   const story = await completedPublishedStory(origin, "story-branch", variant);
-  const { completion, agent, branch } = story;
-  const claim = claimOf(origin.project, agent);
-  const storyStart = git(origin.project, "rev-parse", `${claim}^`);
-  const parents = git(origin.project, "rev-list", "--parents", "-1", completion)
-    .trim()
-    .split(" ");
-  const branchSide = parents[2] ?? completion;
-  const fromStart = revList(origin.project, storyStart, 20);
-  const baselineIndex = fromStart.indexOf(baseline);
-  const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
-
+  const { completion, branchSide, agent, branch } = story;
   advanceCompletedTrunk(origin);
-  return { completion, baseline, branchSide, laterWithoutBuild, agent, branch };
+  return {
+    completion,
+    baseline,
+    branchSide,
+    // The claim's parent is the story's initial shared commit after the
+    // planning revisions, none of which CI builds.
+    laterWithoutBuild: planningBeforeClaim.length + 1,
+    agent,
+    branch,
+  };
 }
 
 export async function publishComparedStoryBranch(

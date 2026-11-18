@@ -16,19 +16,26 @@ import {
 } from "./storyCiComparisonWorkflows.ts";
 
 // Planning-only revisions after a built trunk revision and before the claim,
-// so the baseline is a measured ancestor four first-parent commits back.
+// so the baseline is a measured ancestor this many first-parent commits back.
+export const planningBeforeClaim = [
+  "plan one",
+  "plan two",
+  "plan three",
+  "plan four",
+] as const;
+
 export function withPlanningBeforeClaim<Name extends string>(
   history: RepositoryBuilder<Name>,
 ) {
-  const planning = (name: string, index: number) => ({
-    message: `planning: ${name}`,
-    files: { [`.planning/notes-${String(index)}.md`]: `${name}\n` },
-  });
-  return history
-    .withRevision("plan one", planning("plan one", 0))
-    .withRevision("plan two", planning("plan two", 1))
-    .withRevision("plan three", planning("plan three", 2))
-    .withRevision("plan four", planning("plan four", 3));
+  type Planned = RepositoryBuilder<Name | (typeof planningBeforeClaim)[number]>;
+  return planningBeforeClaim.reduce<Planned>(
+    (planned, name, index) =>
+      planned.withRevision(name, {
+        message: `planning: ${name}`,
+        files: { [`.planning/notes-${String(index)}.md`]: `${name}\n` },
+      }),
+    history,
+  );
 }
 
 // The built baseline keeps the workflow as it ran for the observed builds.

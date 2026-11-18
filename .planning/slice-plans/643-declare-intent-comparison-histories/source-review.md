@@ -31,7 +31,7 @@ first; no open human decision; no speedup baseline.
 | 12 | Test purposes and independent CI/source/proof assertions unchanged | slice 6 | |
 | 13 | Given named built baseline, planning-only ancestors, claim and provisional branch/trunk tip, Taken Intent shows the same baseline, provisional identity and CI rows | slice 1 | observed: e2e/intent/intent-ci-comparison-taken.spec.ts:36-94 and intent-ci-comparison-adapter-taken.spec.ts over storyCiComparisonBaseline.ts declared history (slice 1 run s1-e2e-1, s1-restored-1) |
 | 14 | Publishing a new branch head after the Taken observation stays a scenario action and triggers the same fresh read | slice 1 | observed: e2e/intent/intent-ci-comparison-taken.spec.ts:100-140 real post-observation push and rerun request assertion :136 (s1-e2e-1) |
-| 15 | Given owning landing merge, later completion and later trunk build, Done Intent selects the original landing/branch endpoints | slice 2 | |
+| 15 | Given owning landing merge, later completion and later trunk build, Done Intent selects the original landing/branch endpoints | slice 2 | observed: e2e intent-ci-comparison-adapter merge landing row, intent-ci-done-prior-provenance, intent-ci-comparison (ancestor later-revision), backend ci-comparison-endpoints/published-endpoints/history-integration over named branchSide from completedStoryPublication.ts (slice 2 runs s2-e2e-proof, s2-backend-proof, s2-endpoints-proof) |
 | 16 | Each build uses its own workflow bytes even when the local tip's workflow differs | slice 3 | |
 | 17.1 | Planning-only, code, cancelled and proofless cases stay distinct | slice 3 | |
 | 17.2 | Exact, ancestor, equivalent, later-build and unavailable results stay distinct | slice 3 | |

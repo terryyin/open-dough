@@ -42,6 +42,14 @@ export function resolveStoryConflict(
 }
 
 export function publishCompletedStory(
+  ...publication: Parameters<typeof publishCompletedStoryLanding>
+) {
+  return publishCompletedStoryLanding(...publication).completion;
+}
+
+// The completion and, for a Story Branch, the branch side its owning landing
+// merge integrated (the completed workspace tip).
+export function publishCompletedStoryLanding(
   origin: StartOrigin,
   {
     workspace,
@@ -101,8 +109,8 @@ export function publishCompletedStory(
     delete facts["model"];
     writeAt(workspace, record, JSON.stringify(facts));
   }
-  commitAll(workspace, "complete the story through CLI");
-  let completion = git(workspace, "rev-parse", "HEAD");
+  const branchSide = commitAll(workspace, "complete the story through CLI");
+  let completion = branchSide;
   if (mode === "trunk") push(workspace);
   else {
     // Agent-authored trunk-first landing so claim history recovers it as an
@@ -158,5 +166,5 @@ export function publishCompletedStory(
     git(origin.project, "worktree", "remove", "--force", workspace);
     git(origin.project, "branch", "--delete", "--force", branch);
   }
-  return completion;
+  return { completion, branchSide };
 }
