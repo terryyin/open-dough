@@ -109,16 +109,6 @@ export function takeConsumer(origin: StartOrigin) {
   );
 }
 
-export function takeSupplier(origin: StartOrigin) {
-  call(
-    origin,
-    "take",
-    "--identity",
-    "SEED-B#b",
-    "--plan",
-    "slice-plans/B/PLAN.md",
-  );
-}
 export async function publishDependencies(origin: StartOrigin) {
   execFileSync("git", ["add", ".planning"], {
     cwd: origin.project,
@@ -134,6 +124,10 @@ export async function publishDependencies(origin: StartOrigin) {
   });
   return (await origin.originGit("rev-parse", "main")).trim();
 }
+// Story A's agreement that needs a decision about Story C.
+export const decisionOnC = () =>
+  agreement({ supplier: supplierC, state: "decision-needed", decision });
+
 // Story A waits on Story B and needs a decision about Story C, a rough story
 // whose seed this revision adds; with a review, Story A's readiness is
 // recorded again with that judgment after the agreements.
@@ -149,11 +143,7 @@ export function twoDependencies(
       ),
       ".planning/seeds/A.md": queuedSeedWithDependencies(consumer, [
         agreement({ supplier: supplierB, state: "waiting" }),
-        agreement({
-          supplier: supplierC,
-          state: "decision-needed",
-          decision,
-        }),
+        decisionOnC(),
       ]),
     },
     // The review judges Story A with its agreements in place.

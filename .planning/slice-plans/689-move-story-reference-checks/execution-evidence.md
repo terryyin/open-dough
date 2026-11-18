@@ -104,7 +104,7 @@ Assertion map (interim "a reference reveals a starting story…" → Frontend
 Held acceptance: not added. With the acceptance held, the Start dialog stays
 open (`expect(dialog).toBeHidden()` failed, run `s2-focused3`), so a held
 acceptance cannot reach the reference journey; the accepted, still-running
-attempt is the starting state. `frontendLaunchSubstitutes.ts` is unchanged.
+attempt is the starting state. slice 2 left `frontendLaunchSubstitutes.ts` unchanged.
 
 Support removal (consumer trace in `evidence/s2-consumer-trace.md`, base
 `2552c531`): nothing removed. `takeSupplier` keeps
@@ -142,3 +142,71 @@ EADDRINUSE); after the repair 60000 anonymous binds never reached it. Repair:
 below the ephemeral range (checked at runtime); named ports still never move.
 Proof: full dashboard-backend group, focused backend rerun 10/10, frontend and
 e2e restart users, lint and typecheck (evidence `fix-eaddrinuse-*`, `r3-*`).
+
+CI repair (2026-11-18): run 44238774522 attempt 1 at c3459b69, dashboard-frontend
+1/2, `board-paging-side-panel.spec.ts:102` timed out in
+`untilPageRequestsAnswered`: the page sent a change wait with `seen=1` for an
+attempt its machine read already showed changed, and the launch substitute held
+it until told, while the boundary (`OwnedAttempts.nextChange`) answers it at
+once. Reproduced deterministically and as 1 of 40 under load; the substitute now
+answers such a wait at once (120 of 120 under load, all 25 consumers of
+`installFrontendLaunchBoundary` pass). Published `e1d62059` (evidence `fix2-*`).
+
+## Slice 3. Tell references apart by identity and project
+
+Assertion map (interim `dashboard/tests/navigation/story-reference-identity.spec.ts`
+→ Frontend `dashboard/frontend-tests/navigation/story-reference-identity.spec.ts`,
+same test names; arrangements in `dashboard/tests/support/frontendStoryIdentities.ts`):
+
+- "distinct stories in one seed…": setup `suppliersInOneSeed` revision,
+  `recordDependency` (second story waiting), `takeSupplier`,
+  `publishDependencies`, `publishCommittedOrigin`, `openUntilRead` →
+  `putFrontendSuppliersInOneSeed` publishes the result directly (Story B Taken
+  with its plan, Story A's seed with agreements on Story B, Story C and the
+  second story). The real CLI write, Git publication and real-server reading
+  of the same data stay in E2E `e2e/stories/story-dependencies.spec.ts` "two
+  suppliers sharing one seed display their titles and open their own stories"
+  (verified: asserts both references' blob hrefs at the published revision,
+  `#b` and `#second`, and that following each focuses its own card).
+- 390×844, reduced motion, reveal recorder → same; the recorder is now the
+  shared `recordReveals`/`revealsOf` in `dashboard/tests/sessionNavigationJourney.ts`
+  (refactor r5 removed a duplicate in `storyReference.ts`).
+- Tap opens Dependencies; keyboard follows "Second story in seed B" → same (10c).
+- Second's detail visible, focused, in view (ratio 0.5) → same via
+  `storyDetail` (10a, 10d); Story B's detail count 0 → same.
+- Last reveal behavior `"auto"` → `revealsOf(page)` last `"auto"` (10d), now
+  also asserted after the tap.
+- Tap follows "Story B": detail visible, focused, in view → same (10a, 10c).
+- Second's detail stays open → same (10d).
+- `claudeLaunchCalls`/`claudeAttaches` empty → `hostRequests()` equals `[]`.
+- "each project's rendered pinned reference…": Open Dough
+  `publishCommittedOrigin` of the `twoDependencies` revision →
+  `putFrontendDependencies(twoDependencies())`; Pygardon `startOrigin` with its
+  own seed, `recordDependency`, `publishDependencies` → `answerPygardonTelling`
+  publishes Pygardon's telling of SEED-B#b through `answerOwnPublications` at
+  the catalog Pygardon revision.
+- Follow Story B on Open Dough, focused → same. Choose Pygardon, summary
+  visible, open Dependencies → same.
+- Reference href is Pygardon's blob URL at its revision → same (10b).
+- Click opens "Pygardon selected story": detail visible, focused, in view;
+  Story B absent; route `project=pygardon` → same (10b).
+- `claudeLaunchCalls`/`claudeAttaches` empty → `hostRequests()` equals `[]`.
+
+Support removal (consumer trace `evidence/s3-consumer-trace.md`, base
+`c3459b69`): removed `takeSupplier` from `dashboard/tests/storyDependencyFixture.ts`
+(no importer left in dashboard, e2e or Distribution/tests). Kept:
+`takeConsumer`, `recordDependency`, `publishDependencies` (E2E
+`start-eligibility.spec.ts`, `story-dependencies.spec.ts`);
+`suppliersInOneSeed`, `secondInSeedB` (E2E `story-dependencies.spec.ts`,
+`frontendStoryIdentities.ts`). Other interim imports keep many importers.
+
+Scratch break (2026-11-18): fault — `dashboard/src/dashboardDestination.ts`
+`activeStoryAt` matched `entry.identity.split("#")[0] === target.identity.split("#")[0]`
+(the seed, not the identity). Command
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-reference-identity.spec.ts --workers=2`
+→ exit 1 (`s3-break`): the first case failed at
+`expect(storyDetail(second)).toBeVisible()` (element not found; the reference
+opened Story B); the second passed. Restored from a copy kept in this
+directory and then deleted (`git diff -- dashboard/src` 0 bytes); same command
+with the interim spec deleted → exit 0 (`s3-focused2`, with
+`story-reference-navigation.spec.ts`).

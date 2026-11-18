@@ -147,7 +147,7 @@ launching the start enables Inspect. The real Take is E2E (G1).
 
 ### 3. Tell references apart by identity and project
 Type: Behavior
-Status: planned
+Status: done
 Proof: both `story-reference-identity` tests in
 `story-reference-identity.spec.ts`: two suppliers in one seed with Story B
 Taken (published data, no CLI), and Pygardon's own publication through
