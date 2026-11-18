@@ -6,14 +6,54 @@ failures at stable public boundaries: HTTP, WebSocket, stored-file, command
 and module boundaries, without a browser workflow. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 
-Their collaborators are real: the dashboard server or its bundled boundary
-server, real Git origins and the installed start. Only external boundaries
-are substituted, and each spec names its substitutes: GitHub through the
-synthetic `gh` and `FakeGitHub`, agent hosts through the synthetic `claude`,
-`codex` and `cursor`, and the notification sender through the synthetic
+Their product collaborators are the boundary under test, real Git origins,
+and the installed start. Only external boundaries are substituted, and each
+spec names its substitutes: GitHub through the synthetic `gh` and
+`FakeGitHub`, agent hosts through the synthetic `claude`, `codex` and
+`cursor`, and the notification sender through the synthetic
 `terminal-notifier`. A case that needs a browser to observe a product rule
 belongs to a representative workflow in [`../../e2e/`](../../e2e/README.md),
 and a presentation case in `../frontend-tests/`.
+
+## Which entry a case uses
+
+Prove the boundary the server mounts, in this process. Call that boundary's
+exported install, mounted on an HTTP server the test owns
+(`../tests/support/inProcessBoundaryHttp.ts`). The authenticated-read
+fixture (`../tests/support/inProcessAuthenticatedRead.ts`) is that mount
+with a private `HOME` and a synthetic `gh`. The request stays a loopback
+HTTP request, so origin refusal, status, body, and response headers are the
+boundary's. Give the process the private `HOME` and the synthetic hosts the
+case names. A case that needs a clean slate installs a new boundary. One
+install shared across cases is a choice, as one server shared across cases
+is today.
+
+Start the live server (`../tests/support/dashboardServer.ts`,
+`startDashboardServer`) when the proof is a property that install does not
+have:
+
+- a separate process: its environment, a preload, a pid, a signal, a
+  process group, or that a child did or did not start, including a restart
+  that must be a new process
+- a connection the handler does not own: a WebSocket upgrade, a stream held
+  open on the socket, or the server closing while that connection is up
+- the server program: that dev, preview, and the boundary server mount the
+  same boundaries, or how that process reports its address and closes
+
+A launch or terminal case uses the live server only for one of those
+proofs. Its request result, the files it writes, and whether a host ran are
+the boundary plus the machine directory.
+
+A lower function is the entry when its result is the whole fact the case
+adds, and a boundary case already covers the admission once. The function
+needs a stable domain result, such as whether a path matches a declared
+location. A case whose facts are a status, a body, or that a host was not
+asked stays on the boundary. Looking below the boundary is the usual result
+of making a suite cheaper. A faster call that drops the admission is a
+different case.
+
+Bringing existing live-server cases across to this entry is
+[Reach dashboard backend checks through the mounted boundary](../../.planning/seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary).
 
 The test runtime's own contracts are proved here too, in `runtime/`: the
 runners' reporter, selection, settings, output and cleanup, which run
