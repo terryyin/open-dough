@@ -134,56 +134,122 @@ recoverable at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`.
 
 **Identity:** SEED-334#carry-dashboard-test-knowledge-in-code
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 691."],"basis":{"document":"0215b0006e143bd4904208a442251596d4506e27083076f8324e48426169730c","plan":"d5b3ab5297baec05dd4d9723317d53f1312d4b5b3b237e31bb449aeac3c7a65f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3c9f6aab47754e22a4cec416ae1ab19187fdae0006c1fe8c2d6ed048b0f10b4","plan":"ed7fc2abce04393f8fb060e404ba187e4815fd6f82bdd1dd26faec6baf679ad4"}}
 ```
 
-- **For / why.** A maintainer reads what the dashboard tests arrange,
-  replace, place and record from the test code itself rather than from
-  Markdown beside it, so that knowledge cannot drift from the code that
-  embodies it.
-- **Evaluation.** Every Markdown file under `dashboard/tests/` is removed:
-  `README.md`, `feature-groups.md`, `shards.md`, `fixture-origins.md`,
-  `intent-ci-comparison-proof.md`, `native-host-fixtures.md`,
-  `proof-record.md`, `fluent-side-panel-pilot.md`,
-  `fixtures/preparation-assignment-v0.3.51.md` and the whole spent
-  `manual/2026-10-13-mobile-dashboard/` folder (report, `findings.json`,
-  images and DOM capture; both its discrepancies are closed). Each
-  still-current fact is represented in test code: names of specs, builders,
-  page objects, fixtures and helpers, their types and configuration
-  (`proofRecordTypes.ts`, `runnerConfig.mjs`, Playwright configs, `ci.yml`),
-  or an existing or added executable check where the fact is a rule. History,
-  measurements and interim-group notes are dropped; Git recovers them.
-  Maintainer procedure a skill consumes, such as the shard job-count
-  reasoning `rebalance-ci-shards` cites, moves into that skill. Every live
-  incoming link (`AGENTS.md`, `e2e/README.md`, `dashboard/README.md`,
-  `dashboard/frontend-tests/README.md`, `dashboard/backend-tests/README.md`,
-  `Distribution/tests/README.md` and its sibling guides, the
-  `rebalance-ci-shards` skill, CI workflow and code comments, findings and
-  active seeds) points to the code that now carries the fact, or is dropped.
-  Historical records and fixture bytes keep their recorded links.
-  `find dashboard/tests -name '*.md'` returns nothing, and no live link
-  points at a removed file.
-- **Examples.** A maintainer wondering which synthetic hosts stand in for
-  Claude, Codex and Cursor finds the answer in the fixture builders and their
-  names; one reading a proof record finds its fields in
-  `proofRecordTypes.ts`. A frontend-only spec that starts the real dashboard
-  server breaks a placement rule the README states today; the rule is carried
-  by an executable check or by the support module a frontend spec can import,
-  not by prose. AGENTS.md's test-automation entry points at code (the MakeMe
-  builders, the page-object entry and the fluent side-panel journeys).
-- **Inputs.** Scope item 2 and Key examples 3–5 of the earlier scope at
-  `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`; document removal was requested
-  in the refinement of
-  SEED-334#move-navigation-checks-and-retire-integrated-ui-test on
-  2026-11-17.
-- **Boundary.** Other test roots' Markdown stays, gaining only repointed
-  links; no product behavior change. Independent of the conversions: it can
-  run before or after the retirement, dropping whatever interim-group notes
-  remain.
-- **Safe stopping point.** Each removed document with its facts rehomed and
-  links repointed is complete on its own; `README.md`, the hub, goes last.
+#### Goal
 
-**Plan:** [Provisional document removal](../slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md)
+A maintainer or agent about to add, place or read a dashboard test learns what
+the tests arrange, replace, place and record from the code they are about to
+touch: its names, types and configuration, and checks that refuse a broken
+rule. That knowledge then cannot drift the way the Markdown beside the code
+has. This story's outcome is a `dashboard/tests/` tree with no Markdown and no
+fact a test author needs made unfindable; drift-free guidance in the other
+test roots is the wider ambition and stays outside it.
+
+#### Scope
+
+Remove every Markdown file under `dashboard/tests/`: `README.md`,
+`feature-groups.md`, `shards.md`, `fixture-origins.md`,
+`intent-ci-comparison-proof.md`, `native-host-fixtures.md`, `proof-record.md`,
+`fluent-side-panel-pilot.md`, `fixtures/preparation-assignment-v0.3.51.md`
+and the whole spent `manual/2026-10-13-mobile-dashboard/` folder (report,
+`findings.json`, images and DOM capture; both its discrepancies are closed).
+
+Each statement in them takes the first carrier that fits:
+
+1. **Already carried** by a name, type, configuration value, existing check
+   or module header, or by a guide that stays (`e2e/README.md`, the Frontend
+   and Backend READMEs, the `Distribution/tests/` guides, `AGENTS.md`, a
+   shared skill): it is deleted with its document.
+2. **A rule tooling can refuse:** an existing or added executable check. The
+   Frontend placement rule gets one: a Frontend spec cannot take the
+   server-starting `test` fixture, start the dashboard server or build a fake
+   GitHub or host, while the helpers Frontend specs import today from the same
+   modules stay importable.
+3. **A fact a name, type or configuration can state:** the name, type or
+   value states it, as `proofRecordTypes.ts`, `runnerConfig.mjs`, the
+   Playwright configurations and `ci.yml` already do for most.
+4. **A procedure a skill or script performs:** it moves to that consumer. The
+   job-count rule moves into `rebalance-ci-shards`, under
+   [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+   and the repository's skill-authoring guidance; a command's usage belongs to
+   the command.
+5. **A reason or usage rule for one helper or fixture that nothing above
+   carries:** a short statement in that module's own header, where its next
+   user reads it. It describes only that module and cites no other document.
+6. **Everything else is dropped:** history, measurements, dated decisions,
+   per-spec inventories, the pilot's evaluation and interim-group notes. Git
+   recovers them.
+
+Every live incoming link points to the carrier or is dropped with its
+sentence: `AGENTS.md`, `e2e/README.md`, `dashboard/README.md`, the Frontend
+and Backend READMEs, `Distribution/tests/README.md` and
+`test-environment.md`, the
+`rebalance-ci-shards` skill, `ci.yml` and `browser-test-group.yml` comments,
+active seeds, and the code comments that cite a removed document. A sentence in a staying guide
+that delegates to a removed document ("the dashboard test guide owns
+placement") goes with the link. Records of what was observed keep their
+recorded links: the findings logs (`ProjectFindings.md`, `DearDough.md`,
+`docs/maintainer/` findings and history), `.planning/evidence/`,
+`.planning/done/`, `CHANGELOG.md` and fixture bytes
+(`fixtures/observed-runs-ci.yml`). Another story's active plan adapts when
+that story is prepared or executed.
+
+Scope limits: no prose moves into another Markdown file except the skill in
+carrier 4; the other test roots' Markdown is otherwise unchanged, including
+drift of its own such as the Backend README's folder table; no spec is
+converted and no product behavior changes; feature-folder membership stays
+carried by the directory names, with no added check. Independent of the
+conversions and the retirement: it runs before or after them and drops
+whatever interim-group notes remain. The README wording correction in
+SEED-334#keep-one-browser-test-group-roster ends with the file when this
+story lands first.
+
+Boundary assumption: the repository's 250-line limit applies to every module
+that gains a carrier-5 statement, so a statement that does not fit is a sign
+it belongs to carriers 1–4 or 6.
+
+#### Key examples
+
+1. **A rule becomes a refusal.** Frontend specs take `test` only from
+   `support/frontendApp.ts`, `support/pageTest.ts` or
+   `support/comparisonMountPage.ts`, and 30 of them import helpers such as
+   `pausePageClockAt` from `dashboardTest.ts` → a scratch Frontend spec
+   imports `test` from `dashboardTest.ts` → `npm run lint` fails naming the
+   rule, and the 30 existing helper imports still pass.
+2. **A fact already has a carrier.** `native-host-fixtures.md` says which
+   synthetic hosts stand in for Claude, Codex and Cursor, and the
+   `support/fakeClaude.ts` header already says the same → the document is
+   removed → the header is unchanged, and `e2e/README.md` names the fixture
+   modules where it linked the document.
+3. **An inventory is dropped.** The same document lists some fifty spec
+   files and what each walks → the document is removed → no list appears in
+   any comment or guide; the spec names and titles are the inventory.
+4. **A usage rule sits on its helper.** The README's "touch journeys use one
+   device unless the other reaches an asserted branch" has no check and no
+   name → the README is removed → the rule is one short statement in the
+   header of the responsive fixture a touch journey imports, and nowhere else.
+5. **A stale citation is replaced by the statement.**
+   `support/dashboardServer.ts` cites `../README.md, "Two tiers"`, a section
+   that no longer exists → the README is removed → the comment says what
+   `developmentBoundary` is for in its own words and cites nothing.
+6. **A procedure moves to its skill.** `rebalance-ci-shards` links
+   `shards.md#the-job-count` → `shards.md` is removed → the skill states the
+   job-count rule itself; the dated job-count decisions are gone and `ci.yml`
+   holds the counts.
+7. **The entry point names code.** `AGENTS.md`'s test-automation entry links
+   the dashboard test guide and the pilot document → both are removed → the
+   entry names the MakeMe builders, the page-object entry and the fluent
+   side-panel journeys, `find dashboard/tests -name '*.md'` returns nothing,
+   and no link outside the records above points at a removed file.
+
+Provenance: scope item 2 and Key examples 3–5 of the earlier scope at
+`87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`; document removal was requested in
+the refinement of
+SEED-334#move-navigation-checks-and-retire-integrated-ui-test on 2026-11-17.
+
+**Plan:** [Document removal](../slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md)
 
 <a id="observe-tagged-install-and-read-e2e-proof"></a>
 

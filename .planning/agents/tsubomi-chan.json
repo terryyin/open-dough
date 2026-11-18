@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsubomi-chan",
-  "email": "tsubomi-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-334#carry-dashboard-test-knowledge-in-code",
-  "host": "claude",
-  "model": "fable"
-}
