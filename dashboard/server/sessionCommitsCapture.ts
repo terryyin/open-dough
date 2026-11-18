@@ -10,16 +10,15 @@ import type {
   SessionCommitRun,
   SessionCommits,
 } from "../src/sessionCommits.ts";
-import { defaultGitOutputLimit, gitExitedOne, runGit } from "./gitRunner.ts";
+import { checkAncestry, defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 
+const gitCall = (cwd: string) => ({
+  cwd,
+  maxBuffer: 16 * defaultGitOutputLimit,
+  signal: AbortSignal.timeout(30_000),
+});
 const git = async (cwd: string, args: readonly string[]) =>
-  (
-    await runGit(args, {
-      cwd,
-      maxBuffer: 16 * defaultGitOutputLimit,
-      signal: AbortSignal.timeout(30_000),
-    })
-  ).stdout.trim();
+  (await runGit(args, gitCall(cwd))).stdout.trim();
 
 // The Default main checkout a session started in: a default launch's kept
 // start, or the start of a session established in the default checkout.
@@ -117,16 +116,6 @@ function madeSince(log: readonly LogEntry[], since: number): string[] {
   return [...made];
 }
 
-async function ancestorOf(checkout: string, commit: string, head: string) {
-  try {
-    await git(checkout, ["merge-base", "--is-ancestor", commit, head]);
-    return true;
-  } catch (error) {
-    if (gitExitedOne(error)) return false;
-    throw error;
-  }
-}
-
 // A run grows while a session commit's first parent is the previous session
 // commit; its pair is the first commit's first parent and its last commit.
 async function runsOf(
@@ -178,7 +167,7 @@ export async function readSessionCommits(
   const candidates = madeSince(log, since);
   const made: string[] = [];
   for (const commit of candidates)
-    if (await ancestorOf(checkout, commit, head)) made.push(commit);
+    if (await checkAncestry(commit, head, gitCall(checkout))) made.push(commit);
   if (candidates.length > 0 && made.length === 0)
     throw new Error("None of the session's commits is in the checkout's HEAD.");
   const repository = await git(checkout, [

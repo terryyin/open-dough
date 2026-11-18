@@ -89,7 +89,17 @@ the choice. A run whose commits leave no difference says so in place of the
 file browser. It reads each fixed pair from the saved common Git
 repository as a landing's is read, so it stays readable after trunk advances
 and after the commits leave every branch, without fetching or writing to the
-checkout. A session that holds a landing keeps answering its landing.
+checkout.
+
+An own-branch review includes **Branch at Done** when those files are available.
+It opens on **Delivered to trunk** once the Dashboard has verified and retained
+that delivery. The Comparison switch also includes **Default main commits**
+when the same launch kept commits there. Branch at Done includes the working
+files as they stood at Done, including uncommitted edits. Delivered to trunk
+compares the exact accepted trunk commit with its first parent, including any
+conflict resolution. Refresh keeps the selected comparison. Each kept pair and
+its file details stay readable from the saved Git repository after trunk advances,
+the Dashboard restarts, or the linked worktree is removed.
 
 None of these states guesses a baseline or lists substitute files from today's
 trunk. Requests to the same review/file boundary name either a story (project

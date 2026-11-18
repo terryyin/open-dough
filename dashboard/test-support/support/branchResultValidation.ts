@@ -11,6 +11,8 @@ function holdValidation(machine: string) {
   const hold = path.join(bin, "hold");
   const held = path.join(bin, "held");
   const released = path.join(bin, "released");
+  const fail = path.join(bin, "fail");
+  const failed = path.join(bin, "failed");
   const actual = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
   mkdirSync(bin);
   writeFileSync(
@@ -19,6 +21,9 @@ function holdValidation(machine: string) {
 if [ "$1" = merge-base ] && [ "$2" = --is-ancestor ] && [ -f ${quote(hold)} ] && mkdir ${quote(path.join(bin, "claimed"))} 2>/dev/null; then
   touch ${quote(held)}
   while [ ! -e ${quote(released)} ] && [ -d ${quote(bin)} ]; do sleep 0.1; done
+fi
+if [ "$1" = merge-base ] && [ "$2" = --is-ancestor ] && [ -f ${quote(fail)} ] && [ "$3" = "$(cat ${quote(fail)})" ] && mkdir ${quote(failed)} 2>/dev/null; then
+  exit 128
 fi
 exec ${quote(actual)} "$@"
 `,
@@ -30,6 +35,10 @@ exec ${quote(actual)} "$@"
       writeFileSync(hold, "");
     },
     held: () => existsSync(held),
+    failOnceFor: (tip: string) => {
+      writeFileSync(fail, tip);
+    },
+    failed: () => existsSync(failed),
     release: () => {
       writeFileSync(released, "");
     },

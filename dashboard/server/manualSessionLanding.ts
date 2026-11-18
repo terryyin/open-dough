@@ -6,7 +6,7 @@ import {
 } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { BranchTrunk } from "../src/sessionBranchResult.ts";
-import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
+import { checkAncestry, runGit, type GitCall } from "./gitRunner.ts";
 import { pinLanding, removeLandingDeliveryPins } from "./launchLandingGit.ts";
 import { branchTrunk } from "./sessionBranchAttribution.ts";
 
@@ -36,45 +36,53 @@ export async function manualLandingComparison(
   targetHead: string | undefined,
   call: GitCall,
 ): Promise<ManualLanding | undefined> {
+  return inspectManualLanding(repository, tip, trunk, targetHead, call).catch(
+    () => undefined,
+  );
+}
+
+export async function inspectManualLanding(
+  repository: string,
+  tip: string,
+  trunk: BranchTrunk | undefined,
+  targetHead: string | undefined,
+  call: GitCall,
+): Promise<ManualLanding | undefined> {
   const prior = trunk?.revision;
   if (trunk === undefined || prior === undefined || targetHead === undefined)
     return undefined;
-  try {
-    if (prior === tip || !(await isAncestor(tip, targetHead, call))) return;
-    const { stdout } = await runGit(
-      [
-        "rev-list",
-        "--first-parent",
-        "--parents",
-        "--reverse",
-        `${prior}..${targetHead}`,
-      ],
-      call,
-    );
-    const history = stdout
-      .trim()
-      .split("\n")
-      .map((line) => line.split(" "));
-    // The witnessed trunk tip must still be on the target's first-parent line.
-    if (history[0]?.[1] !== prior) return;
-    const { remote, target } = trunk;
-    for (const [revision, base, ...sides] of history) {
-      if (revision === undefined || base === undefined) continue;
-      if (revision === tip) {
-        // More than one possible prior tip leaves the delivered range unknown.
-        return base === prior && sides.length === 0
-          ? { repository, remote, target, base, revision }
-          : undefined;
-      }
-      if (
-        sides.length === 1 &&
-        sides[0] === tip &&
-        !(await isAncestor(tip, base, call))
-      )
-        return { repository, remote, target, base, revision };
+  if (prior === tip || !(await checkAncestry(tip, targetHead, call))) return;
+  const { stdout } = await runGit(
+    [
+      "rev-list",
+      "--first-parent",
+      "--parents",
+      "--reverse",
+      `${prior}..${targetHead}`,
+    ],
+    call,
+  );
+  const history = stdout
+    .trim()
+    .split("\n")
+    .map((line) => line.split(" "));
+  // The witnessed trunk tip must still be on the target's first-parent line.
+  if (history[0]?.[1] !== prior) return;
+  const { remote, target } = trunk;
+  for (const [revision, base, ...sides] of history) {
+    if (revision === undefined || base === undefined) continue;
+    if (revision === tip) {
+      // More than one possible prior tip leaves the delivered range unknown.
+      return base === prior && sides.length === 0
+        ? { repository, remote, target, base, revision }
+        : undefined;
     }
-  } catch {
-    // Unreadable target history leaves the branch comparison usable.
+    if (
+      sides.length === 1 &&
+      sides[0] === tip &&
+      !(await checkAncestry(tip, base, call))
+    )
+      return { repository, remote, target, base, revision };
   }
   return undefined;
 }

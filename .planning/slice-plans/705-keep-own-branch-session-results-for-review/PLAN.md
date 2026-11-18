@@ -145,11 +145,17 @@ The independent pass consolidated exact delivery pin installation and rollback. 
 ### 9. Discover a verified manual delivery after Done
 
 Type: Behavior
-Status: planned
+Status: done
 
 A session left its branch for review and is already Done when a developer integrates it. The initial project read and later revision checks already learn the configured target revision (`performedRead.ts` and `performedRevisionCheck.ts`). Use that observation to trigger capture in the saved common repository, including on the first observation after restart. Historical review serves the retained result. Catch up across later trunk advances without a second Done, explicit reporting by the reviewer, or a live worktree.
 
 Proof: mark Done with uncommitted text, shut down the fixture dashboard, manually merge the committed tip with a distinct resolution, push another change and retire the worktree. Restart, drive the ordinary Board target read and open the session review. Assert both fixed diffs, exclusion of the unrelated advance, persistence on refresh and an offline historical reread. Repeated observations leave one delivery, and record deletion/expiry racing observation cannot recreate it. Update the maintained [review](../../../dashboard/STORY-REVIEW-LANDED-RUNS.md) and [capture](../../../dashboard/AGENT-LAUNCH-COMPLETION.md) contracts for the behavior delivered.
+
+The observation spec drives the ordinary Board read after the real post-Done merge, independent advance, worktree retirement, and Dashboard restart. It observes one exact delivery on the same Done, both literal file lists and patches, and offline access to both texts. The lifecycle spec checks ordinary revision checks and repeats, plus explicit deletion and retention expiry during held Git inspection and after attachment. Another launch survives either record's release. The 49-case backend gate and five-case renewal, dashboard typecheck, and whitespace checks passed. See `slice-9-implementation.md` in the Git evidence directory.
+
+Independent review found that a transient Git error could be cached as an ordinary negative observation. The renewed proof in `ad-hoc-manual-landing-observation-retry.spec.ts` injects one ancestry error. The Board answers, a second launch's pair settles, and another check at the unchanged revision recovers the first pair. Eighteen focused backend tests and dashboard typecheck passed after the correction.
+
+The final independent pass shared the strict ancestry operation with Default main and preserved the existing tolerant Git caller contract. All 52 selected backend cases and dashboard typecheck passed. See `slice-9-refactor.md` in the Git evidence directory.
 
 ## Verification and plan review
 

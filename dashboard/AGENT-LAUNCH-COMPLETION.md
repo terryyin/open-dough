@@ -209,3 +209,18 @@ publisher for this branch's first landing on the recorded trunk target. The
 accepted comparison stays with the original session, including a blank launch
 and a session marked Done after the worktree is removed. The exact retained
 report input and reporting-only retry work after removal.
+
+### Discover a manual delivery after Done
+
+Done on an identified own branch keeps its working files and exact committed
+tip with that launch. If the branch lands later, reading the Board or observing
+a target revision change can discover the delivery, including after a Dashboard
+restart. The Dashboard checks the launch's recorded remote target and first-parent
+history for the exact committed tip. A merge can contribute its own resolution
+to the delivered comparison. The original Branch at Done comparison and the Done
+time stay with the launch.
+
+Discovery uses the evidence kept by the Done check and requires an unambiguous
+delivery. An accepted installed publication keeps its exact saved comparison.
+Discovery reads the authorized target and retains the verified pair for review.
+Deleting the launch or letting its retention expire releases its review evidence.
