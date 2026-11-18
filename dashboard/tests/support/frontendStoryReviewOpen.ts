@@ -6,6 +6,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { takenStory } from "../launchJourney.ts";
+import { showColumn } from "../boardPage.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import {
@@ -65,6 +66,10 @@ export async function openFrontendStoryReviewAsOpened(
   const answers = await installFrontendStoryReview(page, reviewAnswer);
   prepare(answers);
   await openFrontendTakenBacklog(page);
+  // A short landscape can show one Board column; Taken then stays
+  // height-clipped until paged into view (same gate as openReview in
+  // frontendSidePanelWidth).
+  await showColumn(page, "Taken");
   const card = takenStoryCard(page);
   // A card still reading grows and moves Review changes (same gate as
   // pressReviewChanges). The kept open session then lengthens the card
