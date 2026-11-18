@@ -193,6 +193,14 @@ runtime preparation proofs passed 8/8. Learning: slice 2's guidance sentence
 grew the already oversize `dashboard/tests/README.md`; it moved into the
 `workerPreparationFixtures` comment instead.
 
+## Execution complete
+
+Product advice: no product change. Distribution Tests share 2 still has a
+thin margin on slow runners after the test-only merges; a further cut needs
+either a lighter paused-supplier case basis (recapturing saved native
+baselines) or a run-budget or shard decision, both for the maintainer to
+choose. Process review is deferred into wrap-up with Intent Coverage.
+
 ## Execution gates and readiness review
 
 For each slice, run the installed test-entry selection and consumer trace
