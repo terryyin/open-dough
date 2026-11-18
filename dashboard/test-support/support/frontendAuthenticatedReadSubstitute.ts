@@ -11,7 +11,16 @@ const emptyCatalog = JSON.stringify({
 });
 
 export function answerAuthenticatedRead(
-  state: FrontendServiceState,
+  state: Pick<
+    FrontendServiceState,
+    | "revision"
+    | "branchHeads"
+    | "locations"
+    | "candidates"
+    | "doneBySource"
+    | "files"
+    | "backlog"
+  >,
   params: URLSearchParams,
 ): { status: number; body: unknown; stream?: boolean } {
   const revision = params.get("revision") ?? state.revision;

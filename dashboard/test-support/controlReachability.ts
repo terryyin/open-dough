@@ -1,5 +1,5 @@
 // Browser observations for reachable controls; native scrolling and taps stay real.
-import { expect, type Locator } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { box } from "./partArrangement.ts";
 
 // How the page names what a touch point holds when it is the control itself,
@@ -18,17 +18,21 @@ const controls = "button, input, select, textarea, summary";
 // and that same point is touched; where the touch then lands is observed, so
 // a control that moves or is covered in between fails rather than being
 // silently missed.
-export async function tapWhereShown(control: Locator) {
-  await tapShownControl(control, 44);
+export async function tapWhereShown(control: Locator, page = control.page()) {
+  await tapShownControl(control, 44, page);
 }
 
 // The Board's explicitly narrow column indicators retain the same clipping,
 // hit-point and native-landing checks; other controls keep the 44px default.
-export async function tapNarrowControlWhereShown(control: Locator) {
-  await tapShownControl(control, 1);
+export async function tapNarrowControlWhereShown(control: Locator, page: Page) {
+  await tapShownControl(control, 1, page);
 }
 
-async function tapShownControl(control: Locator, minimumWidth: number) {
+async function tapShownControl(
+  control: Locator,
+  minimumWidth: number,
+  page: Page,
+) {
   expect(
     await control.evaluate(clipped, { within: "touch" } as const),
     "touch target is not clipped",
@@ -58,7 +62,17 @@ async function tapShownControl(control: Locator, minimumWidth: number) {
       addEventListener("pointerdown", landing.heard, true);
       Reflect.set(window, landingKey, landing);
     }
-    return { ...point, width, height, atPoint };
+    // A mounted control measures its hit point inside the Vitest frame.
+    // The native touchscreen takes coordinates in the containing page.
+    const frame =
+      element.ownerDocument.defaultView?.frameElement?.getBoundingClientRect();
+    return {
+      x: point.x + (frame?.left ?? 0),
+      y: point.y + (frame?.top ?? 0),
+      width,
+      height,
+      atPoint,
+    };
   }, touch);
   expect(shown.width, "touch target width").toBeGreaterThanOrEqual(
     minimumWidth,
@@ -67,9 +81,9 @@ async function tapShownControl(control: Locator, minimumWidth: number) {
   expect(shown.atPoint, "touch reaches the intended control").toBe(
     touch.intended,
   );
-  await control.page().touchscreen.tap(shown.x, shown.y);
+  await page.touchscreen.tap(shown.x, shown.y);
   expect(
-    await control.page().evaluate((key) => {
+    await page.evaluate((key) => {
       const landing = Reflect.get(window, key) as
         { on: string; heard: EventListener } | undefined;
       Reflect.deleteProperty(window, key);

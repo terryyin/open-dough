@@ -7,16 +7,27 @@
 // ./ci-proof-declaration.test.mjs; each group's declared shards:
 // ./browser-group-shards.test.mjs.
 import assert from "node:assert/strict";
-import { posix } from "node:path";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, posix } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { browserWorkflow, locations } from "./ci-proof-action-fixtures.mjs";
+import { finishFrontendGroup } from "../../../dashboard/test-support/support/frontendOutputs.mjs";
+import {
+  browserWorkflow,
+  locations,
+  root,
+} from "./ci-proof-action-fixtures.mjs";
 import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
+import { makeMe } from "./makeMe.mjs";
 
 test("each browser group's job names its own command, settings, root and shards", () => {
   for (const group of browserGroupConfigs) {
     const { inputs, directory, root, shards, prefix } = group;
     // Its times file labels specs relative to its configuration's directory.
-    assert.equal(group.timesRelativeToDirectory, true, group.config);
+    if (!group.frontend) {
+      assert.equal(group.timesRelativeToDirectory, true, group.config);
+    }
     // Its configuration selects the shards its own job declares.
     assert.equal(group.configuredJob, group.job, group.config);
     // Job settings agree with the configuration's prefix.
@@ -36,6 +47,53 @@ test("each browser group's job names its own command, settings, root and shards"
       browserGroupConfigs.length,
       `every group has its own ${name}`,
     );
+});
+
+test("the frontend times report records mounted durations under runner-relative spec labels", (t) => {
+  const frontend = browserGroupConfigs.find((group) => group.frontend);
+  assert.ok(frontend, "the frontend npm runner is configured");
+  const directory = fileURLToPath(new URL(`${frontend.directory}/`, root));
+  const specLabel = posix.join(frontend.root, "timed.mounted.spec.ts");
+  const temp = mkdtempSync(join(tmpdir(), "frontend-ci-times-"));
+  t.after(() => rmSync(temp, { recursive: true, force: true }));
+  const times = join(temp, "times.txt");
+  const { run } = makeMe.aDashboardProofRecord
+    .from(fileURLToPath(root))
+    .please();
+  const status = finishFrontendGroup({
+    run: {
+      ...run,
+      rootDir: directory,
+      outputDirs: [],
+      startedAt: new Date().toISOString(),
+    },
+    nativeTimes: join(temp, "retained-times.txt"),
+    times,
+    mounted: {
+      status: 0,
+      report: {
+        testResults: [
+          {
+            name: join(directory, specLabel),
+            status: "passed",
+            message: "",
+            assertionResults: [
+              {
+                ancestorTitles: [],
+                fullName: "reads the result",
+                title: "reads the result",
+                status: "passed",
+                duration: 1240,
+              },
+            ],
+          },
+        ],
+      },
+    },
+  });
+  assert.equal(status, 0);
+  const rows = readFileSync(times, "utf8").split("\n");
+  assert.ok(rows.includes(`1.2\t${specLabel}`), rows.join("\n"));
 });
 
 test("the browser test group workflow takes every group-specific value from its caller's inputs", () => {

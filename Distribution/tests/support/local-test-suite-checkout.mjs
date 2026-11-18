@@ -56,6 +56,7 @@ export function suiteRunnerLayer() {
       "dashboard/test-support/support/suiteDeadline.mjs",
       "dashboard/test-support/support/browserArgs.ts",
       "dashboard/test-support/support/fullSuiteSelection.mjs",
+      "dashboard/test-support/support/frontendSelection.mjs",
       "dashboard/test-support/support/runnerConfig.mjs",
     ]);
     const withFramework = (config) =>

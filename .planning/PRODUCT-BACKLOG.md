@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Get faster feedback on the seven phone-board checks](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/701-faster-phone-board-checks/PLAN.md))
 - [Bound a session's kept commits to its Done](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done) — SEED-379#bound-capture-to-done ([plan](slice-plans/703-bound-session-capture-to-done/PLAN.md))
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable ([plan](slice-plans/704-stable-client-finding-records/PLAN.md))
 

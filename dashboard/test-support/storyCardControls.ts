@@ -4,7 +4,7 @@
 // is open. Each card's detail opens on its own, and several can be open at
 // once.
 
-import { expect, type Locator } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { expectReadableContrast } from "./accessibleReading.ts";
 import { tooltipOf } from "./frameIconControl.ts";
 import { box } from "./partArrangement.ts";
@@ -34,8 +34,8 @@ export const inspectionToggle = (card: Locator) =>
 export const storyNotesControl = (card: Locator) =>
   card.getByRole("button", { name: /^Notes(?: \(\d+\))?$/ });
 
-export async function tapInspectStory(card: Locator) {
-  await tapWhereShown(inspectionToggle(card));
+export async function tapInspectStory(card: Locator, page?: Page) {
+  await tapWhereShown(inspectionToggle(card), page);
 }
 
 // The card's Review changes action; pressing and waiting stay with its caller.

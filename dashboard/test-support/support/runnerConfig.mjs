@@ -181,19 +181,23 @@ async function prepareGroupRun(variables, outputs) {
  * @param {URL} directory
  * @param {string} root
  * @param {string} job
+ * @param {(file: string) => boolean} [include]
  * @returns {Promise<{
  *   options: import("@playwright/test").PlaywrightTestConfig,
  *   testMatch: RegExp[],
  *   projects: { name: string, testMatch: RegExp[] }[],
  * }>}
  */
-export async function prepareFocusedRun(prefix, directory, root, job) {
+export async function prepareFocusedRun(prefix, directory, root, job, include) {
   const variables = runnerVariables(prefix);
   const run = await prepareGroupRun(
     variables,
     fileURLToPath(new URL(`${root}/`, directory)),
   );
-  const selection = ciGroupSelection(root, variables.split, job);
+  const selection = {
+    ...ciGroupSelection(root, variables.split, job),
+    include,
+  };
   return {
     options: run.options,
     testMatch: dashboardTestMatch(directory, run.split, selection),

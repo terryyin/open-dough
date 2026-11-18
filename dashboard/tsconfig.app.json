@@ -8,5 +8,10 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src", "test-support/comparison-mount"]
+  "include": [
+    "src",
+    "test-support/comparison-mount",
+    "test-support/phone-board-mount",
+    "frontend-tests/**/*.mounted.spec.ts"
+  ]
 }

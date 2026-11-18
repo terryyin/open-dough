@@ -16,6 +16,13 @@ explicit route/WebSocket service substitutes, without starting
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
+The two mounted phone-board specs render the production app with prepared
+service answers in the browser. They deliver touch events directly, control
+the transition and click-suppression clocks, and measure the real layout.
+[`e2e/navigation/phone-board.spec.ts`](../../e2e/navigation/phone-board.spec.ts)
+covers the published-project load, board gesture wiring, vertical reading and
+the thin indicator's real hit target through the built app.
+
 Each backend service family a built-app spec talks to has one substitute
 module beside `frontendServiceSubstitutes.ts` in `../test-support/support/`
 (settings, launches and attempts, transcription, session actions). It keeps
@@ -32,16 +39,22 @@ whose behavior they prove, such as `intent/`, `configuration/`, `launches/`
 or `sessions/`. Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).
 
-`npm run test:dashboard:frontend` runs only this group from its own
-configuration (`../frontend.playwright.config.ts`): its global setup prepares
-only the app and comparison mount builds (`../test-support/support/frontendGlobalSetup.ts`),
-it reads its own `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`,
-`_PROOF_RECORD` and `_DEADLINE_MS`, keeps a failed run in
-`test-results/<start time>/` here, and takes local full-suite admission only
-when unfiltered. Select files or tests as with any group, for example
-`npm run test:dashboard:frontend -- intent/ --grep 'wording'`; a direct
+`npm run test:dashboard:frontend` runs the full group. Specs named
+`*.mounted.spec.ts` use Vitest browser mode with Playwright Chromium.
+Retained specs use Playwright, whose setup prepares the app and comparison
+mount builds on demand. Both engines share the group's worker limit and
+`OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`, `_PROOF_RECORD` and
+`_DEADLINE_MS` settings. The unfiltered local run takes full-suite admission.
+Failed runs keep their output under `test-results/`.
+
+Select by file, `--grep`, or both, for example
+`npm run test:dashboard:frontend -- intent/ --grep 'wording'`. A mounted
+spec matches its physical filename and the filename without `.mounted`, so a
+file filter continues to work as its cases move. Use `--list --reporter=line`
+to see the selection. The direct command
 `npx playwright test --config <repository>/dashboard/frontend.playwright.config.ts`
-behaves the same from any working directory.
+runs retained specs from any working directory and accepts Playwright-specific
+options.
 
 CI runs this group as its own producer, the `dashboard-frontend` job, and
 publishes its cases under the **Dashboard Frontend Test** entry and the frontend test proof

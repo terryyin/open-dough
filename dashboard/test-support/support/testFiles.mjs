@@ -113,7 +113,7 @@ export function ciGroupSelection(root, splitVariable, job) {
 // that job's declared shard (declaredShardFiles). A selection naming no job,
 // as fixture runs use, gets every file.
 /** @returns {string[]} */
-function selectedFiles(testDir, split, selection) {
+export function selectedFiles(testDir, split, selection) {
   const { roots, job } = selection;
   const directory = fileURLToPath(testDir);
   const files = dashboardSpecFiles(directory, roots);
@@ -173,5 +173,6 @@ export function dashboardTestProjects(testDir, split, selection) {
 // `workflow` and `job` (selectedFiles).
 /** @returns {RegExp[]} */
 export function dashboardTestMatch(testDir, split, selection) {
-  return filePatterns(testDir, selectedFiles(testDir, split, selection));
+  const files = selectedFiles(testDir, split, selection);
+  return filePatterns(testDir, files.filter(selection.include ?? (() => true)));
 }
