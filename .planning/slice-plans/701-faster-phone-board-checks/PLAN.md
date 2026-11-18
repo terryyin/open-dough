@@ -100,7 +100,7 @@ Move the two story-card cases. A swipe beginning on card content or on Start exe
 ### 7. Make the seven phone-board cases complete without elapsed-time waits
 
 Type: Behavior
-Status: planned
+Status: done
 
 The native mounted and retained Playwright runs took about the same time.
 Single-worker profiling attributed 85–87% of the bodies to horizontal input
@@ -148,7 +148,15 @@ retained deep-link case. The unfiltered and sharded inventories match the
 697 original logical cases, accounting for three updated phone titles.
 The physical shard counts remain 360 and 337. The Git evidence directory
 `phone-board-event-optimization/` retains the commands, runner records,
-controls, consumer trace and report. Hosted results are still pending.
+controls, consumer trace and report.
+
+**Hosted proof.** [Run 44322871127, attempt 1](https://github.com/terryyin/open-dough/actions/runs/44322871127)
+succeeded at `40ccdc1506292858db1d24f0ff94a8ad9e8d566c`. The frontend
+artifact contains both shards and 697 passing results, with two indicator and
+five swipe cases reported once under their mounted paths. Their summed case
+time on the full hosted shard was 1,160.7 ms. The E2E proof records one
+passing published phone-board case. Artifacts are in
+`phone-board-event-optimization/hosted/` in Git evidence.
 
 ## Verification and review
 
