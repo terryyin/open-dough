@@ -6,10 +6,9 @@
 // assignment stays listed. Built frontend against controlled published files;
 // the shared rotation reader and the page decide everything shown.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
+import { publishExecutingRoster } from "../../tests/support/frontendExecutingRoster.ts";
 import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
 import { rosterParts } from "../../tests/dashboardPage.ts";
 import { avatarPng } from "../../tests/avatarAnswers.ts";
@@ -18,14 +17,9 @@ import {
   agentNames,
   nerdAgentNames,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  backlogApart,
-  describedRevision,
-} from "../../tests/describedRevisions.ts";
 import { credit } from "../../tests/agentCredit.ts";
+import { takenStory as story } from "../../tests/agentRosterRecords.ts";
 
-const story = "See who owns Taken work";
-const identity = "SEED-021#identify-taken-work-owner";
 const settingsPath = ".planning/open-dough.json";
 const agentsOf = (names: readonly string[]) =>
   names.map((name) => agentIdentity(name).agent);
@@ -35,42 +29,10 @@ async function openRoster(
   services: FrontendServiceState,
   settings?: string,
 ) {
-  putFrontendPublished(
+  publishExecutingRoster(
     services,
-    backlogApart(
-      describedRevision(
-        makeMe.aRepository
-          .withRevision("roster", {
-            backlog: {
-              taken: [
-                makeMe.aBacklogEntry
-                  .with({
-                    title: story,
-                    identity,
-                    href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
-                  })
-                  .please(),
-              ],
-            },
-            agentProfiles: [
-              makeMe.anAgentProfile
-                .executing({
-                  name: "Yui",
-                  identity,
-                  mode: "trunk",
-                  branch: "origin/main",
-                  host: "claude",
-                })
-                .please(),
-            ],
-            ...(settings === undefined
-              ? {}
-              : { files: { [settingsPath]: settings } }),
-          })
-          .please(),
-        "b3".repeat(20),
-      ),
-    ),
+    "Yui",
+    settings === undefined ? undefined : { [settingsPath]: settings },
   );
   await page.goto("/?project=open-dough&view=roster");
   return rosterParts(page);

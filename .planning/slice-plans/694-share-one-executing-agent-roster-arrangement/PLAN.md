@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#share-one-executing-agent-roster-arrangement
 **Source:** [Shared executing-agent roster arrangement](../../seeds/SEED-334-product-wide-end-to-end-tests.md#share-one-executing-agent-roster-arrangement)
+**Source review:** [source-review.md](source-review.md)
 
 ## Correction input
 
@@ -34,7 +35,7 @@
 
 ### 1. Publish the executing-agent roster from one arrangement
 Type: Structure
-Status: planned
+Status: done
 Proof: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts stories/agent-roster-collection.spec.ts navigation/story-url-destination.spec.ts --reporter=list --workers=2`,
 `npm run lint`, `npm run --silent typecheck:dashboard`; consumer trace of the
 moved arrangement. Behavior is unchanged, so no scratch break is needed.
@@ -42,6 +43,15 @@ moved arrangement. Behavior is unchanged, so no scratch break is needed.
 Change: move the shared arrangement into one owner (a MakeMe builder step or
 a Frontend support function, whichever the selected convention prefers) and
 have both callers use it; delete the duplicate.
+
+Accepted proof: `publishExecutingRoster(services, agent, files?)` in
+`dashboard/tests/support/frontendExecutingRoster.ts` (a Frontend support
+function, since the arrangement ends in the harness publish) serves both
+journeys; `publishRosterStory` deleted. The slice proof command, run with the
+group's strict proof record instead of `--reporter=list`, selected 8 cases,
+all expected; lint and typecheck passed. Consumer trace: no other consumer of
+the moved arrangement; `story-url-destination-unavailable.spec.ts` keeps the
+unchanged `answerSharedStoryProjects` (typecheck). Refactor pass: no change.
 
 ## Decisive premises and observations
 
