@@ -1,8 +1,9 @@
 // The Side panel's room limits the review's file sidebar without changing its
 // kept width: narrowed, the sidebar is as wide as the diff's 18rem allows;
 // widened or maximized, the kept width returns and the Files divider's upper
-// bound grows; too narrow, the panes stack with no divider. The divider's own
-// resizing is ./story-review-files-divider.spec.ts.
+// bound grows; too narrow, the panes stack with no divider. Reaching that
+// upper bound is an explicit page-object step. The divider's own resizing is
+// ./story-review-files-divider.spec.ts.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { filesDividerOf, rem } from "../../tests/filesDividerPage.ts";
@@ -23,9 +24,7 @@ test("the Side panel's room limits the file sidebar while its chosen width stays
   await takenStoryWithReview(page, frontendServices);
   const review = await openReview(page);
   const files = filesDividerOf(review);
-  // Within the window, so the drag ends on the page.
-  await files.drag(200);
-  const chosen = await files.upperBound();
+  const chosen = await files.dragToUpperBound();
   await files.showsSidebarWidth(chosen);
   expect(await files.keptWidth()).toBe(String(chosen));
 

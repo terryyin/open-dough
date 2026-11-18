@@ -91,6 +91,13 @@ export function filesDividerOf(review: Locator) {
       await page.mouse.up();
       return files;
     },
+    // Reads the upper bound and drags to it within the window; returns that bound.
+    async dragToUpperBound() {
+      const bound = await files.upperBound();
+      const current = Math.round((await box(sidebar)).width);
+      await files.drag(bound - current);
+      return bound;
+    },
     async press(key: "ArrowLeft" | "ArrowRight", count = 1) {
       await divider.focus();
       for (let press = 0; press < count; press += 1)

@@ -120,7 +120,7 @@ layout unchanged.
 
 ### 2. The Files divider specs prove only the review's own rules
 Type: Structure
-Status: planned
+Status: done
 Proof: the slice 2 rows above; `npm run --silent test:dashboard:frontend --
 dashboard/frontend-tests/review/story-review-files-divider.spec.ts
 dashboard/frontend-tests/review/story-review-files-divider-kept.spec.ts
@@ -179,3 +179,8 @@ P1–P21 observation kept.
   intent, side-panel-width, e2e panes/touch, and `typecheck:dashboard` all
   exitStatus 0 under `caffeinate -s -i`. Source-review P1–P4, P8, P9 observed.
   Post-change refactor: none — already clean.
+- Slice 2 accepted proof (evidence `slice2-20261118T170500`): three Files
+  divider specs green; room spec three times in a row; `typecheck:dashboard`
+  green. Source-review P5–P7 observed. `dragToUpperBound()` owns explicit bound
+  reach. Plan 697 source-review update skipped (file absent). Post-change
+  refactor: none — already clean.

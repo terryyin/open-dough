@@ -1,6 +1,7 @@
 // A review's Files divider resizes its file sidebar against the diff, within
 // both panes' minimums, by drag and by Left and Right; hiding the files removes
-// it. The kept width across reviews and reloads is
+// it. Its first step alone proves the 16rem default and that opening keeps
+// nothing. The kept width across reviews and reloads is
 // ./story-review-files-divider-kept.spec.ts.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
