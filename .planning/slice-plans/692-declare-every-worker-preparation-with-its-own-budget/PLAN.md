@@ -94,7 +94,7 @@ preparations; `comparisonRenderer` and `serverMode` keep plain worker scope.
 ### 3. Preparation-page readers use the ordinary test
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Remove both no-op preview aliases from `preparationPage.ts`. Migrate
 their importers, preserving local names and history overrides. Remove the
 duplicate native-origin wait in Backend's
@@ -104,6 +104,11 @@ Resolve imports by module. The identically named fixture from
 `responsiveStart.ts` supplies real readiness to its own origin, as do the
 independent Codex-start fixtures. Preserve those dependencies and the native
 readers that use `queuedCodexOriginReady` directly.
+Accepted proof: both aliases are gone; 21 E2E importers use `test` (two
+as `test as base`). `responsiveStart.ts`'s own `queuedClaudePreviewTest`
+stays with its two readers. Backend's damaged Codex retry passed 10/10
+without the in-body wait; E2E side panel, Codex retry, prior states, touch,
+sessions and stories readers passed 10/10; typecheck covers the rest.
 
 ### 4. Landed-CI boundary starts prepare their own bundle
 

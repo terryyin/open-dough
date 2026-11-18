@@ -42,10 +42,7 @@ import {
 } from "../../dashboard/tests/support/collectedScopeHistory.ts";
 import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 

@@ -25,10 +25,7 @@ import {
   collectingLandedCi,
   resultToLand,
 } from "../../dashboard/tests/support/landedCiHistory.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { observeRetainedScopeOrder } from "../../dashboard/tests/support/scopeHistoryCollectedOrder.ts";
 import { openCollectedHistoryStory } from "../../dashboard/tests/support/scopeHistoryCollectedPage.ts";
 import {

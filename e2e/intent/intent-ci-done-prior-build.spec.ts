@@ -11,10 +11,7 @@ import {
 // each history state's readout is the mounted one's
 // (../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts).
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
 import { defaultMixedProofs } from "../../dashboard/tests/support/storyCiComparisonEntryProofs.ts";
 import { wall } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";

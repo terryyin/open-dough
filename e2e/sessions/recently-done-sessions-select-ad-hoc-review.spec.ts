@@ -5,10 +5,7 @@
 // Intent review helpers (../../dashboard/tests/support/intentStoryPage.ts).
 import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import {
-  expect,
-  queuedCodexPreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
 import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";

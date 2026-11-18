@@ -26,10 +26,7 @@ import {
   dragDivider,
   expectWidth,
 } from "../../dashboard/tests/sidePanelWidthPage.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   contextLine,
   reviewBody,

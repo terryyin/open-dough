@@ -2,10 +2,7 @@
 // than the Board's default 30-day window (../../dashboard/src/recentlyDoneView.ts).
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import {
-  expect,
-  queuedCodexPreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { expectProjectChoice } from "../../dashboard/tests/projectChoice.ts";
 import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
