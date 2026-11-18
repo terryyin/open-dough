@@ -9,25 +9,10 @@ import {
   expectReadableContrast,
 } from "../../tests/accessibleReading.ts";
 import { setColorScheme } from "../../tests/systemAppearanceReading.ts";
-import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
-import {
-  limitDiff,
-  limitText,
-} from "../../tests/support/diffWordEmphasisFixtures.ts";
 import { openLimitTsWordEmphasisDiff } from "../../tests/support/diffWordEmphasisOpen.ts";
 import {
-  codeToken,
-  codeTokens,
-  deletions,
   fileReads,
-  insertions,
-  newLine,
-  placeOf,
-  removedLine,
   tokenAppearance,
-  tokensInMark,
 } from "../../tests/support/reviewDiffSyntax.ts";
 import { holdGrammar } from "../../tests/support/syntaxGrammar.ts";
 
@@ -36,30 +21,23 @@ test("styled changed words keep token colours inside insertions and deletions", 
   frontendServices,
 }) => {
   const diff = await openLimitTsWordEmphasisDiff(page, frontendServices);
-  const removed = removedLine(diff, 25);
-  const added = newLine(diff, 25);
+  const removed = diff.removedLine(25);
+  const added = diff.newLine(25);
 
-  await expect(codeToken(added, /^const$/)).toBeVisible();
-  await expect(deletions(removed)).toHaveText(["20"]);
-  await expect(insertions(added)).toHaveText(["25"]);
+  await expect(added.token(/^const$/)).toBeVisible();
+  await expect(removed.deletions()).toHaveText(["20"]);
+  await expect(added.insertions()).toHaveText(["25"]);
+  await expect(added.tokenInInsertion(/^25$/)).toHaveCount(1);
+  await expect(removed.tokenInDeletion(/^20$/)).toHaveCount(1);
 
-  const numberInInsertion = tokensInMark(insertions(added)).filter({
-    hasText: /^25$/,
-  });
-  const numberInDeletion = tokensInMark(deletions(removed)).filter({
-    hasText: /^20$/,
-  });
-  await expect(numberInInsertion).toHaveCount(1);
-  await expect(numberInDeletion).toHaveCount(1);
-
-  const numberLook = await tokenAppearance(numberInInsertion);
-  const keywordLook = await tokenAppearance(codeToken(added, /^const$/));
+  const numberLook = await tokenAppearance(added.token(/^25$/));
+  const keywordLook = await tokenAppearance(added.token(/^const$/));
   expect(numberLook.color).not.toBe(keywordLook.color);
 
-  await expect(added).toHaveClass(/story-review-added/);
-  await expect(removed).toHaveClass(/story-review-removed/);
-  await expect(added).toHaveText(/^\+const limit = 25;/);
-  await expect(removed).toHaveText(/^-const limit = 20;/);
+  await expect(added.line).toHaveClass(/story-review-added/);
+  await expect(removed.line).toHaveClass(/story-review-removed/);
+  await expect(added.line).toHaveText(/^\+const limit = 25;/);
+  await expect(removed.line).toHaveText(/^-const limit = 20;/);
 });
 
 test("emphasis is present before tokens arrive and stays on the same words after", async ({
@@ -67,38 +45,22 @@ test("emphasis is present before tokens arrive and stays on the same words after
   frontendServices,
 }) => {
   const grammar = await holdGrammar(page, "typescript");
-  const path = "limit.ts";
-  const { review } = await openFrontendStoryReview(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({
-      files: [
-        { kind: "modified" as const, path, lines: { added: 1, removed: 1 } },
-      ],
-    }),
-    (answers) => {
-      answers.answerFile(limitDiff(path), path);
-      answers.answerFileText(limitText, path);
-    },
-  );
-  await fileRow(review, `Modified ${path}`).click();
-  const diff = fileDiff(review, `Modified ${path}`);
+  const diff = await openLimitTsWordEmphasisDiff(page, frontendServices);
   await grammar.requested;
 
-  const added = newLine(diff, 25);
-  await expect(insertions(added)).toHaveText(["25"]);
-  await expect(deletions(removedLine(diff, 25))).toHaveText(["20"]);
-  await expect(codeTokens(diff)).toHaveCount(0);
-  const place = await placeOf(added);
+  const added = diff.newLine(25);
+  const removed = diff.removedLine(25);
+  await expect(added.insertions()).toHaveText(["25"]);
+  await expect(removed.deletions()).toHaveText(["20"]);
+  await expect(diff.codeTokens()).toHaveCount(0);
+  const place = await added.place();
 
   grammar.release();
-  await expect(codeToken(added, /^25$/)).toBeVisible();
-  await expect(insertions(added)).toHaveText(["25"]);
-  await expect(deletions(removedLine(diff, 25))).toHaveText(["20"]);
-  await expect(
-    tokensInMark(insertions(added)).filter({ hasText: /^25$/ }),
-  ).toHaveCount(1);
-  expect(await placeOf(added)).toBe(place);
+  await expect(added.token(/^25$/)).toBeVisible();
+  await expect(added.insertions()).toHaveText(["25"]);
+  await expect(removed.deletions()).toHaveText(["20"]);
+  await expect(added.tokenInInsertion(/^25$/)).toHaveCount(1);
+  expect(await added.place()).toBe(place);
 });
 
 test("emphasized tokens and underlines stay readable in light and dark", async ({
@@ -107,19 +69,15 @@ test("emphasized tokens and underlines stay readable in light and dark", async (
 }) => {
   await setColorScheme(page, "dark");
   const diff = await openLimitTsWordEmphasisDiff(page, frontendServices);
-  const added = newLine(diff, 25);
-  const removed = removedLine(diff, 25);
-  await expect(codeToken(added, /^25$/)).toBeVisible();
+  const added = diff.newLine(25);
+  const removed = diff.removedLine(25);
+  await expect(added.token(/^25$/)).toBeVisible();
   const reads = fileReads(page);
 
-  const numberInInsertion = tokensInMark(insertions(added)).filter({
-    hasText: /^25$/,
-  });
-  const numberInDeletion = tokensInMark(deletions(removed)).filter({
-    hasText: /^20$/,
-  });
-  const insertion = insertions(added);
-  const deletion = deletions(removed);
+  const numberInInsertion = added.tokenInInsertion(/^25$/);
+  const numberInDeletion = removed.tokenInDeletion(/^20$/);
+  const insertion = added.insertions();
+  const deletion = removed.deletions();
 
   const looks: Record<string, { token: string; underline: string }> = {};
   for (const scheme of ["dark", "light"] as const) {
@@ -129,8 +87,8 @@ test("emphasized tokens and underlines stay readable in light and dark", async (
       await expectReadableContrast(numberInDeletion);
 
       for (const [mark, line] of [
-        [insertion, added],
-        [deletion, removed],
+        [insertion, added.line],
+        [deletion, removed.line],
       ] as const) {
         const underline = await mark.evaluate(
           (node) => getComputedStyle(node).textDecorationColor,

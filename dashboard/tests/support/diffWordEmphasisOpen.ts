@@ -1,12 +1,12 @@
 // Opens a story-review file diff for word-emphasis journeys: a plain path
-// with no grammar tokens, or the shared `limit.ts` path for styled composition.
+// with no grammar tokens, or the shared `limit.ts` diff read through its lines.
 
 import { expect } from "./frontendApp.ts";
 import { frontendReviewSnapshot } from "./frontendStoryReview.ts";
 import { openFrontendStoryReview } from "./frontendStoryReviewOpen.ts";
 import { fileDiff, fileRow } from "./reviewTreeRows.ts";
 import { limitDiff, limitText } from "./diffWordEmphasisFixtures.ts";
-import { codeTokens } from "./reviewDiffSyntax.ts";
+import { storyReviewDiff } from "./reviewDiffSyntax.ts";
 
 type ReviewPage = Parameters<typeof openFrontendStoryReview>[0];
 type FrontendServices = Parameters<typeof openFrontendStoryReview>[1];
@@ -31,8 +31,8 @@ export async function openPlainWordEmphasisDiff(
     },
   );
   await fileRow(review, `Modified ${path}`).click();
-  const diffPane = fileDiff(review, `Modified ${path}`);
-  await expect(codeTokens(diffPane)).toHaveCount(0);
+  const diffPane = storyReviewDiff(fileDiff(review, `Modified ${path}`));
+  await expect(diffPane.codeTokens()).toHaveCount(0);
   return diffPane;
 }
 
@@ -55,5 +55,5 @@ export async function openLimitTsWordEmphasisDiff(
     },
   );
   await fileRow(review, `Modified ${path}`).click();
-  return fileDiff(review, `Modified ${path}`);
+  return storyReviewDiff(fileDiff(review, `Modified ${path}`));
 }

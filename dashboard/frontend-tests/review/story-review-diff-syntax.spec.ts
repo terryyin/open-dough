@@ -13,14 +13,7 @@ import {
   greetText,
 } from "../../tests/support/diffSyntaxFixtures.ts";
 import {
-  codeToken,
-  codeTokens,
-  lineFacts,
-  newLine,
-  removedLine,
-  revealedBefore,
-  selectedText,
-  showPrecedingLines,
+  storyReviewDiff,
   tokenAppearance,
 } from "../../tests/support/reviewDiffSyntax.ts";
 
@@ -50,22 +43,22 @@ test("a TypeScript diff styles each line by its side's whole text and keeps the 
   );
 
   await fileRow(review, `Modified ${plainPath}`).click();
-  const plain = fileDiff(review, `Modified ${plainPath}`);
-  await expect(newLine(plain, 31)).toHaveText(" export default greeting;");
-  await expect(showPrecedingLines(plain)).toBeVisible();
-  const plainFacts = await lineFacts(plain);
-  const plainCopy = await selectedText(
-    newLine(plain, 28),
-    removedLine(plain, 30),
+  const plain = storyReviewDiff(fileDiff(review, `Modified ${plainPath}`));
+  await expect(plain.newLine(31).line).toHaveText(" export default greeting;");
+  await expect(plain.showPrecedingLines()).toBeVisible();
+  const plainFacts = await plain.lineFacts();
+  const plainCopy = await plain.selectedText(
+    plain.newLine(28),
+    plain.removedLine(30),
   );
-  await expect(codeTokens(plain)).toHaveCount(0);
+  await expect(plain.codeTokens()).toHaveCount(0);
 
   await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = fileDiff(review, `Modified ${styledPath}`);
-  const unchanged = newLine(diff, 28);
-  const added = newLine(diff, 29);
-  const removed = removedLine(diff, 29);
-  await expect(codeToken(unchanged, /^const$/)).toBeVisible();
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
+  const unchanged = diff.newLine(28);
+  const added = diff.newLine(29);
+  const removed = diff.removedLine(29);
+  await expect(unchanged.token(/^const$/)).toBeVisible();
 
   await test.step("keywords and strings differ on unchanged, added and removed lines", async () => {
     for (const [line, string] of [
@@ -73,62 +66,57 @@ test("a TypeScript diff styles each line by its side's whole text and keeps the 
       [added, /later/],
       [removed, /bye/],
     ] as const) {
-      const keyword = await tokenAppearance(codeToken(line, /^const$/));
-      const quoted = await tokenAppearance(codeToken(line, string));
+      const keyword = await tokenAppearance(line.token(/^const$/));
+      const quoted = await tokenAppearance(line.token(string));
       expect(keyword.color).not.toBe(quoted.color);
     }
   });
 
   await test.step("a hunk inside a comment opened above it reads as comment", async () => {
-    const opening = newLine(diff, 27);
-    const added = await tokenAppearance(codeToken(newLine(diff, 29), /new/));
-    expect(await tokenAppearance(codeToken(opening, /and close here/))).toEqual(
+    const opening = diff.newLine(27);
+    const added = await tokenAppearance(diff.newLine(29).token(/new/));
+    expect(await tokenAppearance(opening.token(/and close here/))).toEqual(
       added,
     );
     expect(
-      (await tokenAppearance(codeToken(opening, /and close here/))).color,
-    ).not.toBe((await tokenAppearance(codeToken(unchanged, /greeting/))).color);
+      (await tokenAppearance(opening.token(/and close here/))).color,
+    ).not.toBe((await tokenAppearance(unchanged.token(/greeting/))).color);
   });
 
   await test.step("the removed line reads as the old file's string, the added one as code", async () => {
     const oldString = await tokenAppearance(
-      codeToken(removedLine(diff, 31), /status/),
+      diff.removedLine(31).token(/status/),
     );
-    const newCode = await tokenAppearance(
-      codeToken(newLine(diff, 30), /^const$/),
-    );
+    const newCode = await tokenAppearance(diff.newLine(30).token(/^const$/));
     expect(oldString.color).toBe(
-      (await tokenAppearance(codeToken(removed, /bye/))).color,
+      (await tokenAppearance(removed.token(/bye/))).color,
     );
     expect(newCode.color).not.toBe(oldString.color);
-    expect(newCode).toEqual(
-      await tokenAppearance(codeToken(unchanged, /^const$/)),
-    );
+    expect(newCode).toEqual(await tokenAppearance(unchanged.token(/^const$/)));
   });
 
   await test.step("markers, numbers, backgrounds and copied text equal the plain diff's", async () => {
-    expect(await lineFacts(diff)).toEqual(plainFacts);
-    expect(await selectedText(newLine(diff, 28), removedLine(diff, 30))).toBe(
-      plainCopy,
-    );
+    expect(await diff.lineFacts()).toEqual(plainFacts);
+    expect(
+      await diff.selectedText(diff.newLine(28), diff.removedLine(30)),
+    ).toBe(plainCopy);
     expect(plainCopy).toBe(
       ' const greeting = "hello";\n-const farewell = "bye"; // old\n-const banner = `\n',
     );
   });
 
   await test.step("20 revealed context lines arrive styled from the new side", async () => {
-    await showPrecedingLines(diff).click();
-    const revealed = revealedBefore(diff);
-    await expect(revealed).toHaveCount(20);
-    for (const line of await revealed.all())
-      await expect(codeToken(line, /./)).toBeVisible();
+    await diff.showPrecedingLines().click();
+    await expect(diff.revealedBefore()).toHaveCount(20);
+    for (const line of await diff.revealedLines())
+      await expect(line.token(/./)).toBeVisible();
     expect(
-      await tokenAppearance(codeToken(newLine(diff, 25), /greeting's notes/)),
-    ).toEqual(await tokenAppearance(codeToken(newLine(diff, 27), /close/)));
+      await tokenAppearance(diff.newLine(25).token(/greeting's notes/)),
+    ).toEqual(await tokenAppearance(diff.newLine(27).token(/close/)));
   });
 
   await fileRow(review, `Modified ${plainPath}`).click();
-  await showPrecedingLines(plain).click();
-  await expect(revealedBefore(plain)).toHaveCount(20);
-  await expect(codeTokens(plain)).toHaveCount(0);
+  await plain.showPrecedingLines().click();
+  await expect(plain.revealedBefore()).toHaveCount(20);
+  await expect(plain.codeTokens()).toHaveCount(0);
 });

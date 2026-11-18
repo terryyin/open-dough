@@ -24,10 +24,8 @@ import {
   greetText,
 } from "../../tests/support/diffSyntaxFixtures.ts";
 import {
-  codeToken,
   fileReads,
-  newLine,
-  removedLine,
+  storyReviewDiff,
   tokenAppearance,
 } from "../../tests/support/reviewDiffSyntax.ts";
 
@@ -83,24 +81,24 @@ test("diff tokens read at 4.5:1 in both appearances and match Intent's source re
     },
   );
   await fileRow(review, `Modified ${path}`).click();
-  const diff = fileDiff(review, `Modified ${path}`);
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${path}`));
   const lines = {
-    unchanged: newLine(diff, 28),
-    added: newLine(diff, 29),
-    removed: removedLine(diff, 29),
+    unchanged: diff.newLine(28),
+    added: diff.newLine(29),
+    removed: diff.removedLine(29),
   };
-  await expect(codeToken(lines.removed, comment)).toBeVisible();
+  await expect(lines.removed.token(comment)).toBeVisible();
   const reads = fileReads(page);
 
   for (const scheme of schemes) {
     await test.step(`${scheme}: keyword and comment tokens read at 4.5:1 on every line kind`, async () => {
       await setColorScheme(page, scheme);
       for (const line of Object.values(lines)) {
-        await expectReadableContrast(codeToken(line, keyword));
-        await expectReadableContrast(codeToken(line, quoted));
+        await expectReadableContrast(line.token(keyword));
+        await expectReadableContrast(line.token(quoted));
       }
-      for (const line of [lines.added, lines.removed, newLine(diff, 27)])
-        await expectReadableContrast(codeToken(line, comment));
+      for (const line of [lines.added, lines.removed, diff.newLine(27)])
+        await expectReadableContrast(line.token(comment));
     });
   }
   expect(reads()).toEqual([]);
@@ -108,14 +106,14 @@ test("diff tokens read at 4.5:1 in both appearances and match Intent's source re
   const diffTokens = {
     ...Object.fromEntries(
       Object.entries(lines).flatMap(([kind, line]) => [
-        [`${kind} keyword`, codeToken(line, keyword)],
-        [`${kind} identifier`, codeToken(line, identifier)],
-        [`${kind} string`, codeToken(line, quoted)],
+        [`${kind} keyword`, line.token(keyword)],
+        [`${kind} identifier`, line.token(identifier)],
+        [`${kind} string`, line.token(quoted)],
       ]),
     ),
-    "added comment": codeToken(lines.added, comment),
-    "removed comment": codeToken(lines.removed, comment),
-    "unchanged comment": codeToken(newLine(diff, 27), comment),
+    "added comment": lines.added.token(comment),
+    "removed comment": lines.removed.token(comment),
+    "unchanged comment": diff.newLine(27).token(comment),
   };
   const inDiff = await appearances(page, diffTokens);
 

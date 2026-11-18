@@ -11,11 +11,7 @@ import {
 import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
 import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
 import { codePane } from "../../tests/support/reviewPanes.ts";
-import {
-  codeToken,
-  codeTokens,
-  newLine,
-} from "../../tests/support/reviewDiffSyntax.ts";
+import { storyReviewDiff } from "../../tests/support/reviewDiffSyntax.ts";
 
 const typescript = { code: "const shown: number = 1;", keyword: "const" };
 const javascript = { code: 'const shown = require("x");', keyword: "const" };
@@ -85,11 +81,11 @@ test("each supported extension and a rename's new path style the diff; other fil
   );
   const shownFile = async (name: string) => {
     await fileRow(review, name).click();
-    const diff = fileDiff(review, name);
+    const diff = storyReviewDiff(fileDiff(review, name));
     // Both sides' text has been read, so styling has had what it needs.
-    await expect(codePane(diff)).toHaveAttribute("aria-busy", "false");
-    const line = newLine(diff, 1);
-    await expect(line).toBeVisible();
+    await expect(codePane(diff.locator)).toHaveAttribute("aria-busy", "false");
+    const line = diff.newLine(1);
+    await expect(line.line).toBeVisible();
     return line;
   };
 
@@ -98,17 +94,17 @@ test("each supported extension and a rename's new path style the diff; other fil
     const token = new RegExp(
       `^${keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
     );
-    await expect(codeToken(line, token), path).toHaveText(keyword);
-    await expect(line).toHaveText(`+${code}`);
+    await expect(line.token(token), path).toHaveText(keyword);
+    await expect(line.line).toHaveText(`+${code}`);
   }
   const renamedLine = await shownFile(
     `Renamed ${renamedStyled.oldPath} → ${renamedStyled.path}`,
   );
-  await expect(codeToken(renamedLine, /^const$/)).toBeVisible();
+  await expect(renamedLine.token(/^const$/)).toBeVisible();
   const renamedYamlLine = await shownFile(
     `Renamed ${renamedYaml.oldPath} → ${renamedYaml.path}`,
   );
-  await expect(codeToken(renamedYamlLine, /^shown$/)).toBeVisible();
+  await expect(renamedYamlLine.token(/^shown$/)).toBeVisible();
 
   for (const { name, code } of [
     ...plain.map(({ path, code }) => ({ name: `Added ${path}`, code })),
@@ -118,7 +114,7 @@ test("each supported extension and a rename's new path style the diff; other fil
     },
   ]) {
     const line = await shownFile(name);
-    await expect(line).toHaveText(`+${code}`);
-    await expect(codeTokens(line), name).toHaveCount(0);
+    await expect(line.line).toHaveText(`+${code}`);
+    await expect(line.codeTokens(), name).toHaveCount(0);
   }
 });

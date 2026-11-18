@@ -18,9 +18,7 @@ import {
   stylesheetText,
 } from "../../tests/support/diffSyntaxFixtures.ts";
 import {
-  codeToken,
-  newLine,
-  removedLine,
+  storyReviewDiff,
   tokenAppearance,
 } from "../../tests/support/reviewDiffSyntax.ts";
 
@@ -44,29 +42,29 @@ test("a modified README heading and fence take distinct token colours while mark
     },
   );
   await fileRow(review, `Modified ${path}`).click();
-  const diff = fileDiff(review, `Modified ${path}`);
-  const added = newLine(diff, 2);
-  const removed = removedLine(diff, 2);
-  const plain = newLine(diff, 1);
-  await expect(added).toHaveText("+# Shown");
-  await expect(removed).toHaveText("-```");
-  await expect(added).toHaveClass(/story-review-added/);
-  await expect(removed).toHaveClass(/story-review-removed/);
-  const heading = await tokenAppearance(codeToken(added, /^# Shown$/));
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${path}`));
+  const added = diff.newLine(2);
+  const removed = diff.removedLine(2);
+  const plain = diff.newLine(1);
+  await expect(added.line).toHaveText("+# Shown");
+  await expect(removed.line).toHaveText("-```");
+  await expect(added.line).toHaveClass(/story-review-added/);
+  await expect(removed.line).toHaveClass(/story-review-removed/);
+  const heading = await tokenAppearance(added.token(/^# Shown$/));
   // Fence markers are three backticks; avoid a `...` regex literal so
   // Playwright's locator serialization keeps the pattern intact.
   const fence = await tokenAppearance(
-    codeToken(removed, new RegExp("^\\u0060{3}$")),
+    removed.token(new RegExp("^\\u0060{3}$")),
   );
-  const paragraph = await tokenAppearance(
-    codeToken(plain, /^plain paragraph$/),
-  );
+  const paragraph = await tokenAppearance(plain.token(/^plain paragraph$/));
   expect(heading.color).not.toBe(fence.color);
   expect(heading.color).not.toBe(paragraph.color);
   expect(
-    await added.evaluate((line) => getComputedStyle(line).backgroundColor),
+    await added.line.evaluate((line) => getComputedStyle(line).backgroundColor),
   ).not.toBe(
-    await removed.evaluate((line) => getComputedStyle(line).backgroundColor),
+    await removed.line.evaluate(
+      (line) => getComputedStyle(line).backgroundColor,
+    ),
   );
 });
 
@@ -94,12 +92,14 @@ test("a JSON property name and string value take distinct colours from each othe
     },
   );
   await fileRow(review, `Added ${jsonPath}`).click();
-  const line = newLine(fileDiff(review, `Added ${jsonPath}`), 1);
-  await expect(line).toHaveText(`+${code}`);
-  await expect(line).toHaveClass(/story-review-added/);
-  const name = codeToken(line, /^"shown"$/);
-  const value = codeToken(line, /^"value"$/);
-  const punctuation = codeToken(line, /^: $/);
+  const line = storyReviewDiff(fileDiff(review, `Added ${jsonPath}`)).newLine(
+    1,
+  );
+  await expect(line.line).toHaveText(`+${code}`);
+  await expect(line.line).toHaveClass(/story-review-added/);
+  const name = line.token(/^"shown"$/);
+  const value = line.token(/^"value"$/);
+  const punctuation = line.token(/^: $/);
   await expect(name).toBeVisible();
   await expect(value).toBeVisible();
   const named = await tokenAppearance(name);
@@ -132,11 +132,13 @@ test("a removed CSS property and colour value differ and stay readable when appe
     },
   );
   await fileRow(review, `Modified ${path}`).click();
-  const line = removedLine(fileDiff(review, `Modified ${path}`), 2);
-  await expect(line).toHaveText("-  --accent: #ff0000;");
-  await expect(line).toHaveClass(/story-review-removed/);
-  const property = codeToken(line, /^--accent$/);
-  const value = codeToken(line, /^#ff0000$/);
+  const line = storyReviewDiff(
+    fileDiff(review, `Modified ${path}`),
+  ).removedLine(2);
+  await expect(line.line).toHaveText("-  --accent: #ff0000;");
+  await expect(line.line).toHaveClass(/story-review-removed/);
+  const property = line.token(/^--accent$/);
+  const value = line.token(/^#ff0000$/);
   await expect(property).toBeVisible();
   const darkProperty = await tokenAppearance(property);
   const darkValue = await tokenAppearance(value);

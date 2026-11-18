@@ -17,11 +17,7 @@ import {
 } from "../../tests/support/frontendStoryReviewOpen.ts";
 import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
 import { codePane } from "../../tests/support/reviewPanes.ts";
-import {
-  codeToken,
-  codeTokens,
-  newLine,
-} from "../../tests/support/reviewDiffSyntax.ts";
+import { storyReviewDiff } from "../../tests/support/reviewDiffSyntax.ts";
 import type { Locator } from "@playwright/test";
 
 const shellCode = "if true; then echo x; fi";
@@ -35,10 +31,10 @@ const plainUnfamiliarPath = "scripts/odd.check";
 
 async function shownFile(review: Locator, name: string) {
   await fileRow(review, name).click();
-  const diff = fileDiff(review, name);
-  await expect(codePane(diff)).toHaveAttribute("aria-busy", "false");
-  const line = newLine(diff, 1);
-  await expect(line).toBeVisible();
+  const diff = storyReviewDiff(fileDiff(review, name));
+  await expect(codePane(diff.locator)).toHaveAttribute("aria-busy", "false");
+  const line = diff.newLine(1);
+  await expect(line.line).toBeVisible();
   return line;
 }
 
@@ -107,26 +103,26 @@ test("Intent syntax hints style path-silent diffs; path grammar, outside Intent 
   );
 
   const shellLine = await shownFile(review, `Modified ${hintedPath}`);
-  await expect(codeToken(shellLine, /^if$/)).toHaveText("if");
-  await expect(shellLine).toHaveText(`+${shellCode}`);
+  await expect(shellLine.token(/^if$/)).toHaveText("if");
+  await expect(shellLine.line).toHaveText(`+${shellCode}`);
 
   const tsLine = await shownFile(review, `Modified ${pathWinsPath}`);
-  await expect(codeToken(tsLine, /^const$/)).toHaveText("const");
+  await expect(tsLine.token(/^const$/)).toHaveText("const");
 
   for (const { name, code } of [
     { name: `Modified ${plainOutsidePath}`, code: typescriptCode },
     { name: `Modified ${plainUnfamiliarPath}`, code: shellCode },
   ]) {
     const line = await shownFile(review, name);
-    await expect(line).toHaveText(`+${code}`);
-    await expect(codeTokens(line), name).toHaveCount(0);
+    await expect(line.line).toHaveText(`+${code}`);
+    await expect(line.codeTokens(), name).toHaveCount(0);
   }
 
   const renamedLine = await shownFile(
     review,
     `Renamed legacy/run → ${renamedPath}`,
   );
-  await expect(codeToken(renamedLine, /^if$/)).toHaveText("if");
+  await expect(renamedLine.token(/^if$/)).toHaveText("if");
 });
 
 test("a published Done review styles by completion Intent settings, not a later tip change", async ({
@@ -163,5 +159,5 @@ test("a published Done review styles by completion Intent settings, not a later 
     },
   );
   const line = await shownFile(review, `Modified ${hintedPath}`);
-  await expect(codeToken(line, /^if$/)).toHaveText("if");
+  await expect(line.token(/^if$/)).toHaveText("if");
 });

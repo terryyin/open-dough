@@ -24,17 +24,10 @@ import {
   greetText,
 } from "../../tests/support/diffSyntaxFixtures.ts";
 import {
-  codeToken,
-  codeTokens,
-  diffWords,
-  lineFacts,
-  newLine,
-  placeOf,
-  revealedBefore,
-  showPrecedingLines,
+  storyReviewDiff,
+  type StoryReviewDiff,
 } from "../../tests/support/reviewDiffSyntax.ts";
 import { failGrammar, holdGrammar } from "../../tests/support/syntaxGrammar.ts";
-import type { Locator } from "@playwright/test";
 import type { HeldAnswer } from "../../tests/support/frontendSubstituteAnswers.ts";
 
 const styledPath = "greet.ts";
@@ -58,10 +51,12 @@ const printedLines = [
   " export default greeting;",
 ];
 
-async function expectPlainAndComplete(diff: Locator) {
-  await expect(newLine(diff, 31)).toHaveText(" export default greeting;");
-  expect((await lineFacts(diff)).map(({ text }) => text)).toEqual(printedLines);
-  await expect(codeTokens(diff)).toHaveCount(0);
+async function expectPlainAndComplete(diff: StoryReviewDiff) {
+  await expect(diff.newLine(31).line).toHaveText(" export default greeting;");
+  expect((await diff.lineFacts()).map(({ text }) => text)).toEqual(
+    printedLines,
+  );
+  await expect(diff.codeTokens()).toHaveCount(0);
 }
 
 test("styling that arrives after the diff keeps the reading position, revealed context and an open line menu", async ({
@@ -81,28 +76,28 @@ test("styling that arrives after the diff keeps the reading position, revealed c
   await page.setViewportSize({ width: 1280, height: 480 });
 
   await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = fileDiff(review, `Modified ${styledPath}`);
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
   await grammar.requested;
   await expectPlainAndComplete(diff);
 
-  await showPrecedingLines(diff).click();
-  await expect(revealedBefore(diff)).toHaveCount(20);
-  const reading = newLine(diff, 20);
-  await reading.scrollIntoViewIfNeeded();
-  const place = await placeOf(reading);
+  await diff.showPrecedingLines().click();
+  await expect(diff.revealedBefore()).toHaveCount(20);
+  const reading = diff.newLine(20);
+  await reading.scrollIntoView();
+  const place = await reading.place();
   const menuLabel = "New line 20";
-  await openLineMenu(lineNumberControl(diff, "new", 20), "pointer");
+  await openLineMenu(lineNumberControl(diff.locator, "new", 20), "pointer");
   await expectLineMenuOpen(page, menuLabel);
-  await expect(codeTokens(diff)).toHaveCount(0);
+  await expect(diff.codeTokens()).toHaveCount(0);
 
   grammar.release();
-  await expect(codeToken(newLine(diff, 28), /^const$/)).toBeVisible();
+  await expect(diff.newLine(28).token(/^const$/)).toBeVisible();
   await test.step("revealed lines arrive styled where they were, under the open menu", async () => {
-    await expect(revealedBefore(diff)).toHaveCount(20);
-    for (const line of await revealedBefore(diff).all())
-      await expect(codeToken(line, /./)).toBeVisible();
+    await expect(diff.revealedBefore()).toHaveCount(20);
+    for (const line of await diff.revealedLines())
+      await expect(line.token(/./)).toBeVisible();
     await expectLineMenuOpen(page, menuLabel);
-    expect(await placeOf(reading)).toBe(place);
+    expect(await reading.place()).toBe(place);
   });
 });
 
@@ -125,13 +120,13 @@ test("a diff shown before its text is read stays plain and complete until the te
   if (text === undefined) throw new Error("the first text read is not held");
 
   await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = fileDiff(review, `Modified ${styledPath}`);
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
   await text.received;
   await expectPlainAndComplete(diff);
 
   text.release();
-  await expect(codeToken(newLine(diff, 28), /^const$/)).toBeVisible();
-  expect((await lineFacts(diff)).map(({ text: line }) => line)).toEqual(
+  await expect(diff.newLine(28).token(/^const$/)).toBeVisible();
+  expect((await diff.lineFacts()).map(({ text: line }) => line)).toEqual(
     printedLines,
   );
 });
@@ -159,19 +154,19 @@ test("text that cannot be read leaves plain lines with only the context problem 
   const problem = `Additional context could not be read: ${unavailable.explanation} Retry`;
 
   await fileRow(review, `Modified ${plainPath}`).click();
-  const plain = fileDiff(review, `Modified ${plainPath}`);
-  await expect(plain.getByRole("alert")).toHaveText(problem);
-  const plainWords = await diffWords(plain, plainPath);
+  const plain = storyReviewDiff(fileDiff(review, `Modified ${plainPath}`));
+  await expect(plain.locator.getByRole("alert")).toHaveText(problem);
+  const plainWords = await plain.words(plainPath);
 
   await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = fileDiff(review, `Modified ${styledPath}`);
-  await expect(diff.getByRole("alert")).toHaveText(problem);
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
+  await expect(diff.locator.getByRole("alert")).toHaveText(problem);
   await expectPlainAndComplete(diff);
-  expect(await diffWords(diff, styledPath)).toBe(plainWords);
+  expect(await diff.words(styledPath)).toBe(plainWords);
 
-  await diff.getByRole("button", { name: "Retry" }).click();
-  await expect(codeToken(newLine(diff, 28), /^const$/)).toBeVisible();
-  await expect(diff.getByRole("alert")).toHaveCount(0);
+  await diff.locator.getByRole("button", { name: "Retry" }).click();
+  await expect(diff.newLine(28).token(/^const$/)).toBeVisible();
+  await expect(diff.locator.getByRole("alert")).toHaveCount(0);
 });
 
 test("a grammar that fails to load leaves the code plain with nothing added", async ({
@@ -192,17 +187,17 @@ test("a grammar that fails to load leaves the code plain with nothing added", as
   );
 
   await fileRow(review, `Modified ${plainPath}`).click();
-  const plain = fileDiff(review, `Modified ${plainPath}`);
-  await showPrecedingLines(plain).click();
-  await expect(revealedBefore(plain)).toHaveCount(20);
-  const plainWords = await diffWords(plain, plainPath);
+  const plain = storyReviewDiff(fileDiff(review, `Modified ${plainPath}`));
+  await plain.showPrecedingLines().click();
+  await expect(plain.revealedBefore()).toHaveCount(20);
+  const plainWords = await plain.words(plainPath);
 
   await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = fileDiff(review, `Modified ${styledPath}`);
+  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
   await grammar.failed;
   await expectPlainAndComplete(diff);
-  await showPrecedingLines(diff).click();
-  await expect(revealedBefore(diff)).toHaveCount(20);
-  await expect(codeTokens(diff)).toHaveCount(0);
-  expect(await diffWords(diff, styledPath)).toBe(plainWords);
+  await diff.showPrecedingLines().click();
+  await expect(diff.revealedBefore()).toHaveCount(20);
+  await expect(diff.codeTokens()).toHaveCount(0);
+  expect(await diff.words(styledPath)).toBe(plainWords);
 });
