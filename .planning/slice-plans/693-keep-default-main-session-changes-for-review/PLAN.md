@@ -365,6 +365,22 @@ retry intent). Scratch break: with the expiry release removed the expiry
 case failed on the two remaining session-run references (`s8-break-expiry`,
 exit 1); restored, `s8-required-proof` and `s8-refactor-new-spec` exit 0.
 
+## Execution complete
+
+Product advice: keep the queue's order, and place the correction
+[State only what the checkout's log shows in a session's review](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#state-only-what-the-checkout-log-shows)
+(`SEED-379#state-only-what-the-checkout-log-shows`,
+[plan 700](../700-state-only-what-the-checkout-log-shows/PLAN.md)) ahead of
+the own-branch story of this seed: the review found that the delivered
+capture can show merged trunk work as a session's (an amended merge commit),
+say a session made no commits when its commit was a continued cherry-pick,
+an autosquash or left on another branch, and keep an earlier capture under a
+later reported Done. The own-branch story reuses this capture's review and
+would inherit those answers. Learning for that story: a rule that reads the
+log's entry kinds must answer not captured for any entry it cannot place,
+and its examples should come from a survey of the kinds Git writes, not from
+the journeys first thought of.
+
 ## Concerns and refinement
 
 Refinement was not needed: each slice holds one outcome and proof loop, and

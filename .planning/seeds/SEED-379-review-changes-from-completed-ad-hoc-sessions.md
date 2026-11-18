@@ -236,3 +236,42 @@ manually.
 - Whether a session that started in the Default main checkout and created
   its own branch or worktree is covered here, including its landing through
   Dough from that worktree.
+
+<a id="state-only-what-the-checkout-log-shows"></a>
+
+### State only what the checkout's log shows in a session's review
+
+**Identity:** SEED-379#state-only-what-the-checkout-log-shows
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/700-state-only-what-the-checkout-log-shows/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b9057558ba5cb59c3b7ffde28da01f8dbfee467163eceb872299cb7d61f50446","plan":"f63c37343fee214747dec667a21773a48561bc835b8ed8b5152ec1c9f46c53a8"}}
+```
+
+Correction of [Keep Default main ad hoc session changes for review](#keep-default-main-session-changes-for-review),
+planned in [plan 700](../slice-plans/700-state-only-what-the-checkout-log-shows/PLAN.md).
+
+#### Goal
+
+A developer reading **Review changes** on a done Default main session can
+trust it: the review holds the session's commits up to the Done it names,
+leaves merged trunk work out, says the changes were not captured wherever the
+checkout's log does not settle what the session committed, and describes
+itself in session words. The maintainer of this review finds its references,
+tests and guides without residue from its first delivery.
+
+#### Scope
+
+- A later automatic Done keeps the commits made up to that Done.
+- A merge commit is never a session commit, amended or not.
+- A continued cherry-pick and a rebase's fixup or squash of session commits
+  are kept in their final form; a log entry that wrote a commit the capture
+  cannot place, or session commits that all left the checkout's `HEAD`, keep
+  the not-captured explanation.
+- A record's session-commit references are released whatever capture the
+  record still holds.
+- A session's unavailable review is described as a session's, and the two
+  guides state the delivered behavior.
+- The review's page objects, spec support and overlapping cases are
+  reorganized with the reviewed promises and their proof preserved.
+
+The reviewed story's promises, scope limits and deferred promises stay as
+they are.
