@@ -20,8 +20,8 @@ What is substituted, and only at the product's external boundaries:
   (`../dashboard/tests/support/fakeGitHub.ts`), which also stands in for
   GitHub's avatar host;
 - the native agent hosts, through the synthetic `claude`, `codex` and
-  `cursor` protocol stand-ins
-  ([native-host fixtures](../dashboard/tests/native-host-fixtures.md)). They
+  `cursor` protocol stand-ins (`../dashboard/tests/support/fakeClaude.ts`,
+  `fakeCodex.ts` and `fakeCursor.ts`). They
   keep these workflows deterministic; they are not native skill-use
   acceptance, which remains with
   [ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md);

@@ -149,7 +149,7 @@ reporter's output check. Dropped: the shell walkthrough and measuring advice.
 
 ### 4. Remove the host-fixture and comparison-proof documents
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in commands; the diff adds no list of spec files; `npm run
 lint`.
 

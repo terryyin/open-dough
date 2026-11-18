@@ -9,18 +9,14 @@ and `npm run test:dashboard:backend` ([**Dashboard Backend Test**](../backend-te
 Waits, clocks, commands and fake GitHub answers are named by the helpers that
 perform them (`pageRequestNotes.ts`, `autoRefreshJourney.ts`,
 `sessionStatePace.ts`, `support/serverTimeControls.ts`,
-`support/productionWatcher.ts`, `support/fakeGh.ts`). See
-[native-host fixtures](native-host-fixtures.md) for synthetic hosts, the
+`support/productionWatcher.ts`, `support/fakeGh.ts`). See `support/fakeClaude.ts`,
+`fakeCodex.ts` and `fakeCursor.ts` for synthetic hosts, the
 per-run [proof record](support/proofRecordTypes.ts), the caller-owned transcript CI's
 proof fragments are written from, and [CI shards](shards.md) for shard
 membership, recorded times and deadlines.
 
 See [local resource use](../../Distribution/tests/local-test-resources.md) for admission
 across worktrees, worker settings, cleanup and machine sleep on macOS.
-
-[Intent CI comparison proof](intent-ci-comparison-proof.md) maps fast rule
-owners to retained acquisition, navigation and recovery journeys and describes
-their performance measurements.
 
 ## Roots: journeys, integrated UI checks, frontend-only and boundary tests
 
@@ -157,8 +153,8 @@ here ever calls the real `gh` CLI or contacts GitHub: every process a test
 starts that can run `gh` asks it through a GitHub request owner of that
 test's own, and a run in which a process asked without one fails at its end
 naming that. The machine-local Cursor runner stays real by default; the
-stand-in opt-in for proofs that omit Cursor operations is in
-[native-host fixtures](native-host-fixtures.md#cursor-runner-stand-in). Every
+stand-in opt-in for proofs that omit Cursor operations is `cursorRunner` in
+`support/dashboardServerOptions.ts`. Every
 server binds a port the operating system chooses, so the suite can run
 beside another checkout's suite on the same machine, and a server that
 cannot start fails its test with its own output

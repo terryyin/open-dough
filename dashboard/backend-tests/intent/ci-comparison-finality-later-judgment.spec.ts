@@ -1,6 +1,7 @@
 // The judgment landed history collection shares with Done comparison memory
 // (`landedSlotResolution`), asked directly over supplied history: no server,
-// Git repository or process starts.
+// Git repository or process starts. No real-server case builds history past
+// the revision walk, so this is where a later landing past it is judged.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { lookupResultBuild } from "../../server/baseCiRevisionLookup.ts";
