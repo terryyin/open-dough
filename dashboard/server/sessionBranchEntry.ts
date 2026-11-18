@@ -11,6 +11,7 @@ import {
   branchPinOwner,
   type SessionBranchEntry,
 } from "../src/sessionBranchResult.ts";
+import { branchLandingContext } from "./branchLandingContext.ts";
 import { isReportingRecord } from "./completionAdmission.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
@@ -217,5 +218,14 @@ export async function submitSessionBranchEntry(req: IncomingMessage) {
     `http://${req.headers.host}`,
   );
   const entry = await recordEntry(source, record, request);
-  return { session: record.session.sessionId, branchEntry: entry };
+  const landingContext = await branchLandingContext(
+    source.id,
+    record,
+    `http://${req.headers.host}`,
+  );
+  return {
+    session: record.session.sessionId,
+    branchEntry: entry,
+    ...(landingContext === undefined ? {} : { landingContext }),
+  };
 }

@@ -20,14 +20,16 @@ import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
-import { landedStoryReview } from "./storyReviewLanded.ts";
+import {
+  landedStoryReview,
+  type LandingReviewSource,
+} from "./storyReviewLanded.ts";
 import {
   retainedBranchPairFiles,
   retainedCommitPairFiles,
 } from "./retainedReviewPair.ts";
 import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import type { ReviewLandedRun } from "../src/storyReviewLandedRun.ts";
 
 export interface HistoricalReviewedFileFields {
   readonly baseline: string;
@@ -128,7 +130,7 @@ async function admitPublishedCompletion(
 async function landedRunForSubject(
   subject: HistoricalReviewedFileSubject,
   reference: string,
-): Promise<ReviewLandedRun> {
+): Promise<LandingReviewSource> {
   if (!("session" in subject)) {
     const { runs } = await reviewedLandedRuns(subject.source, subject.identity);
     return reviewedLandedRunByReference(runs, reference);
@@ -140,7 +142,7 @@ async function landedRunForSubject(
     sessionId: subject.session,
   });
   const established = establishedPlace(record);
-  if (established === undefined)
+  if (established === undefined && record.landing === undefined)
     throw new RefusedRequest(
       404,
       "This session has no launch workspace to review.",
@@ -159,7 +161,8 @@ async function admitLandedRun(
 ): Promise<AdmittedHistoricalReviewedFile> {
   const run = await landedRunForSubject(subject, reference);
   const review = await landedStoryReview(run, AbortSignal.timeout(30_000));
-  if (review.kind !== "landed")
+  const landing = run.record.landing;
+  if (review.kind !== "landed" || landing === undefined)
     throw new RefusedRequest(
       409,
       review.kind === "landing-unavailable"
@@ -173,7 +176,7 @@ async function admitLandedRun(
   )
     throw notOnCapturedRun();
   return {
-    repository: run.record.landing?.repository ?? run.established.workspace,
+    repository: landing.repository,
     ...file,
   };
 }

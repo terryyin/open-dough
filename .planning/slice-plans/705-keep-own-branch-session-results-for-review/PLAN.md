@@ -117,11 +117,15 @@ The independent pass consolidated validation of numeric comparison keys at the s
 ### 7. Review a Dough landing from the session-identified workspace
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the explicit association from slice 3 to establish the session's landing context for that workspace and target. Let the installed publisher retain the accepted pair under the original launch. This also works when Done follows publication and retirement.
 
 Proof: extend the installed-publication journey in `agent-launch-start-session-landing-admission.spec.ts`. Launch on Default main, identify the later worktree, publish once to the fixture origin through the installed command, retire, and review. Check the accepted base/revision and the original session. Retry its recording after retirement. The same submission for an undeclared workspace or another launch retains nothing. Exercise the initially blank-session path when it acquires the handoff.
+
+`dashboard/backend-tests/launches/agent-launch-session-branch-landing.spec.ts` proves both the launch-reference and initially blank native handoffs with real installed publication. The before-push callback sees the prepared pair on the original record and the older origin tip. After retirement and Done, the same record serves the captured pair and file, and the surviving script acknowledges exact retry. The proof refuses attempts for an undeclared worktree or another launch and verifies release of the blank launch's pins. The focused backend and existing landing E2E gates, dashboard typecheck, and whitespace checks passed. See `slice-7-implementation.md` in the Git evidence directory.
+
+The independent pass consolidated installed helper path resolution across readiness and retained reporting. Seven focused backend specs, dashboard typecheck, and whitespace checks passed. See `slice-7-refactor.md` in the Git evidence directory.
 
 ### 8. Read a manual integration that reached trunk before Done
 

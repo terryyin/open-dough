@@ -3,6 +3,7 @@
 // (`./launchLandingGit.ts`) and its session's kept commit runs
 // (`./sessionCommitsCapture.ts`). Done, explicit deletion and retention expiry
 // share the same session prefix.
+import { landingReportingReference } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionCommits } from "../src/sessionCommits.ts";
 import {
@@ -152,7 +153,7 @@ export function recordLanding(
   if (record === undefined) return undefined;
   if (record.landing !== undefined) return record.landing;
   const repository = record.landingReporting?.authority.repository;
-  const reference = record.request.reporting?.reference;
+  const reference = landingReportingReference(record);
   return repository === undefined || reference === undefined
     ? undefined
     : { repository, reference };

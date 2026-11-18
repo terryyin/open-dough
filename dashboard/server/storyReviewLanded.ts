@@ -1,5 +1,8 @@
 // A landed run's review and its capture provenance.
-import { isEstablishedOneShot } from "../src/launchRecord.ts";
+import {
+  isEstablishedOneShot,
+  type LaunchRecord,
+} from "../src/launchRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import {
   landedReviewContextSchema,
@@ -8,12 +11,18 @@ import {
 } from "../src/storyReviewLandedRun.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 
+export type LandingReviewSource = {
+  readonly record: LaunchRecord;
+  readonly established?: ReviewLandedRun["established"] | undefined;
+};
+
 export async function landedStoryReview(
-  run: ReviewLandedRun,
+  run: LandingReviewSource,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const { record } = run;
-  const reference = record.request.reporting?.reference;
+  const reference =
+    record.landing?.reference ?? record.request.reporting?.reference;
   const unavailable = (explanation: string): StoryReview => ({
     kind: "landing-unavailable",
     ...(reference === undefined ? {} : { reference }),
@@ -23,7 +32,7 @@ export async function landedStoryReview(
   if (landing === undefined)
     return unavailable(
       // A claimed launch is listed here once its workspace is gone, landed or not.
-      isEstablishedOneShot(run.established)
+      run.established !== undefined && isEstablishedOneShot(run.established)
         ? "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk."
         : "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     );

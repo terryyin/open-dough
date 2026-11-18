@@ -15,6 +15,41 @@ export const landingSubmissionSchema = launchLandingSchema
   .strict();
 export type LandingSubmission = z.infer<typeof landingSubmissionSchema>;
 
+// The bound record is authoritative for a branch handoff, even while
+// the original startup attempt is still kept.
+export async function declaredLandingRecord(
+  report: LandingSubmission,
+  origin: string,
+): Promise<LaunchRecord | undefined> {
+  const record = (await keptRecords(report.source)).find(
+    (entry) =>
+      entry.landingReporting?.branchContext?.reference === report.reference,
+  );
+  if (record === undefined) return undefined;
+  const retained = record.landingReporting;
+  const entry = record.branchEntry;
+  const authority = retained?.authority;
+  if (
+    record.request.workflow !== "ad-hoc" ||
+    record.request.host !== report.host ||
+    record.session.host !== report.host ||
+    retained?.origin !== origin ||
+    retained.deletedAt !== undefined ||
+    authority?.identity !== undefined ||
+    entry?.trunk === undefined ||
+    authority?.repository !== entry.repository ||
+    authority.workspace !== entry.workspace ||
+    authority.branch !== entry.branch ||
+    authority.remote !== entry.trunk.remote ||
+    authority.target !== entry.trunk.target
+  )
+    throw new RefusedRequest(
+      409,
+      "This is not the session's authorized branch landing.",
+    );
+  return record;
+}
+
 export async function expiredAttemptRecord(
   attempts: readonly LaunchAttemptRecord[] | undefined,
   report: LandingSubmission,

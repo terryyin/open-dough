@@ -1,5 +1,4 @@
 // Standalone session review selects one retained result by its run key.
-import { establishedPlace } from "../src/establishedPlace.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import {
   sessionBranchRun,
@@ -60,15 +59,8 @@ export async function sessionReviewRequest(
   const selected = named ?? choices[0];
 
   const read = async (signal: AbortSignal): Promise<StoryReview> => {
-    if (selected === sessionDeliveryRun && record.landing !== undefined) {
-      const established = establishedPlace(record);
-      if (established === undefined)
-        throw new RefusedRequest(
-          404,
-          "This session has no launch workspace to review.",
-        );
-      return landedStoryReview({ record, established }, signal);
-    }
+    if (selected === sessionDeliveryRun && record.landing !== undefined)
+      return landedStoryReview({ record }, signal);
     if (selected === sessionBranchRun && branch !== undefined)
       return branchResultReview(branch, signal);
     const run =

@@ -202,3 +202,10 @@ curl --fail-with-body --silent --show-error \
 The checkout must be registered in the repository the launch started in. The
 handoff keeps entry evidence on the launch record and leaves any Default main
 commit runs available.
+
+When the identified checkout supports landing capture, the handoff also returns
+a `landingContext` file. Supply its path as `--landing-context` to the installed
+publisher for this branch's first landing on the recorded trunk target. The
+accepted comparison stays with the original session, including a blank launch
+and a session marked Done after the worktree is removed. The exact retained
+report input and reporting-only retry work after removal.

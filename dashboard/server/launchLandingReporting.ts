@@ -6,6 +6,7 @@ import {
   type LandingReceipt,
 } from "../src/launchLanding.ts";
 import {
+  declaredLandingRecord,
   landingSubmissionSchema,
   expiredAttemptRecord,
 } from "./launchLandingAdmission.ts";
@@ -43,7 +44,9 @@ export async function submitLanding(
   const origin = `http://${req.headers.host}`;
   try {
     const retained = await withKeptAttempts(async (attempts) => {
-      const record = await expiredAttemptRecord(attempts, report, origin);
+      const record =
+        (await declaredLandingRecord(report, origin)) ??
+        (await expiredAttemptRecord(attempts, report, origin));
       return record === undefined
         ? undefined
         : submitRetainedLanding(record, report, prepare);
