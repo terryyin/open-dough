@@ -1,8 +1,9 @@
 // A story review's snapshot (`./storyReviewContract.ts`) as its panel's body shows
-// it, beneath the context line (`./StoryReviewContextLine.tsx`): the story's
+// it, beneath the review's toolbar, details and feedback: the story's
 // changed files in the comparison shown, with their change kinds, in a file
-// browser the developer can hide or show. The browser shows each file by
-// name under folders that collapse and expand (`./StoryReviewFileTree.tsx`).
+// browser the toolbar hides or shows (`./StoryReviewToolbar.tsx`). The
+// browser shows each file by name under folders that collapse and expand
+// (`./StoryReviewFileTree.tsx`).
 // The review opens on the first file in the browser's order. Selecting a file
 // reads its diff (`./StoryReviewFileDiff.tsx`) from the comparison's start,
 // with its kind and full path in the heading. The browser and diff scroll

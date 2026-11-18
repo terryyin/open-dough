@@ -1,6 +1,7 @@
-// A story review's fixed top as the developer meets it: the context line,
-// activated by its values and read by its name, and the review's feedback,
-// both kept in place while what is beneath them scrolls.
+// A story review's context and feedback as the developer meets them: the
+// context line in the review details, activated by its values and read by
+// its name, and the feedback in the review's fixed top, both kept in place
+// while what is beneath them scrolls.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 
@@ -9,7 +10,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 export const contextValues = (review: Locator) =>
   review.getByRole("button", { name: /^Branch / });
 
-// The whole context line, values and file browser control.
+// The whole context line.
 export const contextLine = (review: Locator) =>
   review.locator(".story-review-context-line");
 
@@ -18,9 +19,9 @@ export const contextLine = (review: Locator) =>
 export const reviewBody = (review: Locator) =>
   review.locator(".story-review-body");
 
-// The fixed context of the comparison currently displayed.
+// The context of the comparison currently displayed, in the review details.
 export const shownComparisonDescription = (review: Locator) =>
-  review.locator(".story-review-top > div").first();
+  review.locator(".story-review-details > div").first();
 
 // The review's feedback, announced from its fixed top: reading, refreshing,
 // refreshed, and problem messages. A file's diff has its own.

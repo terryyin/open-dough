@@ -4,6 +4,9 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
+  filesToggle,
+  toolbarComparison,
+  showReviewDetails,
 } from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
@@ -75,9 +78,8 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   );
   await expect(review.getByRole("list")).toHaveCount(0);
   await expect(review.getByRole("region")).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
-    0,
-  );
+  await expect(toolbarComparison(review)).toHaveText("All changes");
+  await expect(filesToggle(review)).toHaveCount(0);
   await expectFixedWhileScrolled(page, body, [contextLine(review)]);
 });
 
@@ -94,7 +96,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   expect(fetchedTrunk()).toBe(merged);
   const card = await openBacklog(page, origin);
   await reviewChanges(card).click();
-  const review = reviewRegion(page);
+  const review = await showReviewDetails(reviewRegion(page));
   const status = reviewFeedback(review);
   await expect(status).toHaveText(gapExplanation);
   await expect(
@@ -139,6 +141,7 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   const open = reviewChanges(card);
   const review = reviewRegion(page);
   const live = await reviewAfter(page, open);
+  await showReviewDetails(review);
   expect(live.kind).toBe("snapshot");
   expect(live.runs).toBeUndefined();
   await expect(review.getByRole("list")).not.toHaveCount(0);

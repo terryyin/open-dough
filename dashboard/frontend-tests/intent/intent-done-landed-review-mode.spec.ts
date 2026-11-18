@@ -7,6 +7,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
+  showReviewDetails,
 } from "../../tests/support/reviewControls.ts";
 import { reviewChanges } from "../../tests/storyCardControls.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -87,6 +88,7 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
   try {
     await ordinary.click();
     await held.received;
+    await showReviewDetails(review);
     const ordinaryQuery = new URL((await ordinaryRequest).url()).searchParams;
     expect(ordinaryQuery.get("historical")).not.toBe("true");
     expect(ordinaryQuery.has("run")).toBe(false);

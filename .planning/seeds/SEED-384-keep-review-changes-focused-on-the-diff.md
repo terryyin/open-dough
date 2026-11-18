@@ -9,115 +9,48 @@ scope: story
 
 # SEED-384 — Keep Review changes focused on the diff
 
-**Temporary design reference.** Keep the [interactive Review changes mockup](../mockups/review-changes.html)
-through both stories so reviewers can compare the compact and revealed layouts
-and try the sidebar interactions. It shows Landed runs and Published
-completion; the stories below say what the other comparisons do. Remove it
-during the wrap-up of whichever story is delivered last, after the delivered
-UI is verified.
+<a id="keep-review-toolbar-truthful-while-reading"></a>
 
-<a id="keep-review-changes-focused-on-the-diff"></a>
+### Keep the Review changes toolbar truthful while it reads
 
-### Keep Review changes focused on the diff
-
-**Identity:** SEED-384#keep-review-changes-focused-on-the-diff
-
+**Identity:** SEED-384#keep-review-toolbar-truthful-while-reading
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/695-keep-review-changes-focused-on-the-diff/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"877c4e6dbf88e5ff9e72fb2d64b165882f1420ec11d0d7aa50acd5121cb55bf5","plan":"766887795fee3031aac8f5d5a6f82ad2ac87923e2e81db27179a215b8f71ce73"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d690dae7ee982a9812db67420439347b4aceb385630d0f9f42d1d5d9086daa73","plan":"31fd6811b14b8fe1b7f478b89c992610e5e3dc67ac217af0d63850794cf3af7f"}}
 ```
+
+Correction from the execution retrospective of Keep Review changes focused
+on the diff (`a53f0d5dff97:.planning/seeds/SEED-384-keep-review-changes-focused-on-the-diff.md`);
+its [plan](../slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md)
+holds the findings, provenance and proof.
 
 #### Goal
 
-A developer opens **Review changes** and can start reading the diff right away:
-the panel opens with one slim toolbar above the files and the diff. They can
-reveal which changes they are reviewing and choose another comparison or landed
-run when they want to, and hide or show the file sidebar from the same place
-whatever is revealed.
+A developer opening **Review changes** for a completed story, a published
+completion or an ad hoc session's landing never sees the toolbar name a
+comparison that is not shown or an eye that reveals nothing, and on a short
+touch screen the revealed details and status leave the diff its room.
 
 #### Scope
 
-Required behavior, for every review the panel shows (a story's workspace, a
-landed run, a published completion, an ad hoc session's landing):
-
-- **One toolbar.** Under the panel header, the toolbar holds the file sidebar
-  toggle at the far left, then the name of the comparison shown (**All
-  changes**, **Commits**, **Landed runs**, **Published completion**) beside
-  the details toggle. The comparison name alone identifies the comparison; it
-  does not name the selected run.
-- **Details collapsed on every opening.** One inline section between the
-  toolbar and the work area holds what the panel shows above the work area
-  today: the Comparison choices, the **Landed run** picker when there is more
-  than one run, and the context of the comparison shown — the workspace context
-  line, the landed run's workflow, launch time, target and captured base and
-  delivered revision, or the published completion's facts — and **Include
-  uncommitted changes**. Each keeps today's words, facts and behavior. The
-  expanded state lasts while the panel stays open, across comparison and run
-  choices and Refresh, and is not remembered for the next opening.
-- **Details toggle.** An outlined eye icon button, named **Show review
-  details** or **Hide review details** in its accessible name and tooltip,
-  exposing its expanded state. Escape from inside the details collapses them
-  and returns focus to the toggle. Revealing or hiding keeps the comparison,
-  the selected file and the diff's scroll position, and choosing a comparison
-  or run updates the toolbar name, the details and the diff together.
-- **File sidebar toggle.** An outlined sidebar icon button, named **Hide
-  files** or **Show files** in its accessible name and tooltip, offered when
-  the comparison has files. It stays in the same place whether the sidebar is
-  shown or hidden and works with the details collapsed. Hiding gives the diff
-  the freed width; showing restores the sidebar with the current file
-  selected. The sidebar starts shown on every opening, as today.
-- **Always visible.** Reading progress, a problem, and an unavailable or empty
-  comparison's explanation stay outside the details, so they explain
-  themselves while the details are collapsed. In **Commits**, the chosen range
-  heading and the commit list stay visible: choosing commits is that
-  comparison's work.
-- Touch input keeps full-size activation surfaces for both toggles, and the
-  narrow layout keeps files above the diff.
-
-Scope limits:
-
-- Resizing the file sidebar and remembering its width, delivered separately.
-- Naming the selected landed run in the collapsed toolbar was considered and
-  deferred: the newest captured run opens by default, so the name can mislead
-  only after the reviewer chose another run in this opening.
-- Remembering the details' or the sidebar's shown state across openings.
-- Intent's locations toggle keeps its words and place.
+- Before the review's first answer, and when it cannot be read, the toolbar
+  names no comparison it cannot yet show, and the eye is offered only when the
+  details hold something.
+- On touch input, the revealed details and the review's status share the one
+  height budget the status had before the details existed.
+- The two-run landed opening is proved collapsed at the layer that owns it,
+  and the end-to-end runs journey keeps only what needs real launches.
 
 #### Key examples
 
-- **Landed run, compact.** A completed story has two captured landed runs →
-  the developer opens **Review changes** → the toolbar shows the sidebar
-  toggle, “Landed runs” and the eye named **Show review details**; no
-  Comparison choices, run picker or run facts are shown; the changed files and
-  the first file's diff are readable.
-- **Reveal and choose a run.** In that review, with the second file selected
-  and its diff scrolled → the developer activates the eye → the Comparison
-  choices, the **Landed run** picker and the selected run's workflow, launch
-  time, target and revisions appear above the work area, the eye is named
-  **Hide review details**, and the selected file and scroll position are
-  unchanged → they choose the older run → details and diff show that run, and
-  the details stay revealed.
-- **Escape.** Focus is on the run picker in the revealed details → Escape →
-  the details collapse and focus is on the eye.
-- **Workspace review.** An active story's workspace has committed and
-  uncommitted changes → open **Review changes** → the toolbar shows “All
-  changes”; the worktree and baseline context and **Include uncommitted
-  changes** are not shown until the eye reveals them. After choosing
-  **Commits** in the details, the toolbar shows “Commits” and the commit list
-  stays visible when the details are hidden again.
-- **Evidence gap while collapsed.** The only landed run has no captured
-  comparison → open **Review changes** → the explanation that its delivered
-  comparison was not captured is shown with the details collapsed, and no
-  sidebar toggle is offered.
-- **Sidebar toggle.** Details collapsed, third file selected → **Hide files**
-  → the diff takes the sidebar's width, and the toggle sits in the same place
-  named **Show files** → **Show files** → the sidebar returns with the third
-  file selected.
-- **Next opening.** The developer leaves the details revealed and the sidebar
-  hidden, closes the review, and opens another story's review → details
-  collapsed, sidebar shown.
-
-#### Architecture
-
-No new consequential concern. The panel keeps its one multi-purpose side-panel
-region and read-only review boundary; only where the existing controls sit
-changes.
+- A developer opens a Done story while its first read is pending. They see
+  the reading status, with no comparison name or details button. A published
+  answer brings **Published completion** and its eye. If the first read fails,
+  the problem stays visible and Refresh can try again. During a refresh that
+  still shows a previous answer, its name and details remain available.
+- A Done story opens on the newer of two captured runs. The developer can
+  read its diff before opening the details. Choosing the older run shows its
+  facts and diff, Refresh keeps that choice, and Escape from the picker
+  returns focus to the eye.
+- On a short landscape touch screen, the developer reveals workspace details
+  while a status is present. They can reach both within the existing height
+  budget and still read the selected file's diff.

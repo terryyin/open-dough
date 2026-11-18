@@ -15,7 +15,11 @@ import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
-import { comparison, reviewRegion } from "./support/reviewControls.ts";
+import {
+  comparison,
+  reviewRegion,
+  showReviewDetails,
+} from "./support/reviewControls.ts";
 
 export class StoryReview extends PageObject {
   get #review() {
@@ -59,6 +63,7 @@ export class StoryReview extends PageObject {
     readonly revision: string;
   }) {
     return this.cueHere("Story review: shows the landed context", async () => {
+      await showReviewDetails(this.#review);
       await expect(
         this.#review.getByRole("heading", { name: "Landed run", exact: true }),
       ).toBeVisible();
@@ -86,6 +91,7 @@ export class StoryReview extends PageObject {
     readonly revision: string;
   }) {
     return this.cueHere("Session review: shows session commits", async () => {
+      await showReviewDetails(this.#review);
       const context = this.#review
         .getByRole("heading", { name: "Session commits", exact: true })
         .locator("..");
@@ -110,13 +116,22 @@ export class StoryReview extends PageObject {
     );
     return this.cueHere(
       `Session review: ${shown ? "notes" : "does not note"} a shared checkout`,
-      () => (shown ? expect(note).toBeVisible() : expect(note).toHaveCount(0)),
+      async () => {
+        await showReviewDetails(this.#review);
+        await (shown
+          ? expect(note).toBeVisible()
+          : expect(note).toHaveCount(0));
+      },
     );
   }
 
   expectNoComparisonSwitch() {
-    return this.cueHere("Story review: shows no Comparison switch", () =>
-      expect(comparison(this.#review)).toHaveCount(0),
+    return this.cueHere(
+      "Story review: shows no Comparison switch",
+      async () => {
+        await showReviewDetails(this.#review);
+        await expect(comparison(this.#review)).toHaveCount(0);
+      },
     );
   }
 

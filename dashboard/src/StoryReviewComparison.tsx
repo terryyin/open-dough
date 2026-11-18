@@ -48,7 +48,16 @@ export function ComparisonChoices<Key extends string>({
   );
 }
 
-type SwitchChoice = ShownComparison | "landed" | "published";
+// A comparison the switch offers: of the workspace, or a fixed historical one.
+export type ComparisonChoice = ShownComparison | "landed" | "published";
+
+// A comparison's name, in the switch and in the review's toolbar.
+export const comparisonName = (shown: ComparisonChoice) =>
+  shown === "landed"
+    ? "Landed runs"
+    : shown === "published"
+      ? "Published completion"
+      : comparisonWords[shown];
 
 export function ComparisonSwitch({
   shown,
@@ -58,14 +67,14 @@ export function ComparisonSwitch({
   published = false,
   workspace = true,
 }: {
-  readonly shown: SwitchChoice;
-  readonly onSwitch: (shown: SwitchChoice) => void;
+  readonly shown: ComparisonChoice;
+  readonly onSwitch: (shown: ComparisonChoice) => void;
   readonly commits: boolean;
   readonly landed?: boolean;
   readonly published?: boolean;
   readonly workspace?: boolean;
 }) {
-  const offered: readonly SwitchChoice[] = [
+  const offered: readonly ComparisonChoice[] = [
     ...(workspace ? ["all" as const] : []),
     ...(commits ? ["commits" as const] : []),
     ...(published ? ["published" as const] : []),
@@ -75,12 +84,7 @@ export function ComparisonSwitch({
     <ComparisonChoices
       choices={offered.map((key) => ({
         key,
-        label:
-          key === "landed"
-            ? "Landed runs"
-            : key === "published"
-              ? "Published completion"
-              : comparisonWords[key],
+        label: comparisonName(key),
       }))}
       shown={shown}
       onChoose={onSwitch}

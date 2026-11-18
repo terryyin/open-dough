@@ -1,7 +1,7 @@
-// One control shows or hides a file browser: Review changes' browser for
-// whichever comparison is shown, and Intent's locations column, which leads
-// its words with a panel icon so a narrow view row can show the icon alone
-// (`./intent-page.css`).
+// One control shows or hides a file browser. Intent's locations column has
+// it in words, led by a panel icon so a narrow view row can show the icon
+// alone (`./intent-page.css`); Review changes' toolbar has it as an icon
+// (`./StoryReviewToolbar.tsx`). Both say and do the same.
 
 import { PanelLeft } from "lucide-react";
 import { Icon } from "./Icon.tsx";
@@ -12,6 +12,19 @@ export type FileBrowserPlace = {
   readonly id: string;
   readonly shown: boolean;
 };
+
+// What a control that shows or hides the file browser is named and does.
+export const fileBrowserToggle = (
+  browser: FileBrowserPlace,
+  onShowBrowser: (shown: boolean) => void,
+) => ({
+  label: browser.shown ? "Hide files" : "Show files",
+  "aria-controls": browser.id,
+  "aria-expanded": browser.shown,
+  onClick: () => {
+    onShowBrowser(!browser.shown);
+  },
+});
 
 export function FileBrowserToggle({
   browser,
@@ -24,20 +37,11 @@ export function FileBrowserToggle({
   readonly icon?: boolean;
 }) {
   if (browser === undefined) return null;
+  const { label, ...toggle } = fileBrowserToggle(browser, onShowBrowser);
   return (
-    <button
-      type="button"
-      className="start-launch-button"
-      aria-controls={browser.id}
-      aria-expanded={browser.shown}
-      onClick={() => {
-        onShowBrowser(!browser.shown);
-      }}
-    >
+    <button type="button" className="start-launch-button" {...toggle}>
       {icon && <Icon icon={PanelLeft} />}
-      <span className="file-browser-toggle-words">
-        {browser.shown ? "Hide files" : "Show files"}
-      </span>
+      <span className="file-browser-toggle-words">{label}</span>
     </button>
   );
 }

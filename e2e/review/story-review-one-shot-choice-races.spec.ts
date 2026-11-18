@@ -6,6 +6,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
+  filesToggle,
 } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import {
@@ -119,9 +120,9 @@ test("delayed run and file responses leave the later run selected through narrow
   await expect(select).toHaveValue(first.key);
   await expectCovering(review);
   const files = changedFilesList(review, "1 changed file", { exact: true });
-  await review.getByRole("button", { name: "Hide files" }).click();
+  await filesToggle(review).click();
   await expect(files).toBeHidden();
-  await review.getByRole("button", { name: "Show files" }).click();
+  await filesToggle(review, "Show files").click();
   await expect(files).toBeVisible();
   const browser = await fileBrowser(review).boundingBox();
   const diff = await review.locator(".story-review-diff").boundingBox();

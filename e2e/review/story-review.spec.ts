@@ -17,17 +17,22 @@ import {
   hunkLines,
   pageFits,
 } from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  expectToggleLeadsToolbar,
+  filesToggle,
+  reviewRegion,
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../../dashboard/tests/accessibleReading.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { box } from "../../dashboard/tests/pageLayout.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
-  reviewBody,
 } from "../../dashboard/tests/support/reviewContextLine.ts";
+import { expectOpenedWithKeyboard } from "../../dashboard/tests/support/reviewRead.ts";
 import { shownLineNumbers } from "../../dashboard/tests/support/reviewLineNumbers.ts";
 import {
   expectTreeRows,
@@ -65,7 +70,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
   await expect(review).toContainText(`Story review ${queuedIdentity}`);
-  await expect(reviewBody(review)).toBeFocused();
+  await expectOpenedWithKeyboard(review);
   const files = changedFilesList(review, "7 changed files");
   await expectTreeRows(files, [
     "fresh",
@@ -157,14 +162,18 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await test.step("hiding the file browser leaves the diff in place with more room", async () => {
     const diff = diffOf("Modified unstaged.txt");
     const narrow = (await diff.boundingBox())?.width ?? 0;
-    // Hide files is the context line's own control.
-    const hide = contextLine(review).getByRole("button", {
-      name: "Hide files",
-    });
+    // Hide files leads the toolbar, above the context line.
+    const hide = filesToggle(review);
     await expect(hide).toHaveAttribute("aria-expanded", "true");
+    const shownAt = await expectToggleLeadsToolbar(review, "All changes");
+    expect((await box(contextLine(review))).y).toBeGreaterThan(shownAt.y);
     await hide.press("Enter");
-    const show = review.getByRole("button", { name: "Show files" });
+    const show = filesToggle(review, "Show files");
     await expect(show).toBeFocused();
+    // The toggle keeps its place while the sidebar is hidden.
+    expect(await expectToggleLeadsToolbar(review, "All changes")).toEqual(
+      shownAt,
+    );
     await expect(show).toHaveAttribute("aria-expanded", "false");
     await expect(files).toBeHidden();
     await expect(hunkLines(diff, "@@ -3,10 +3,11 @@")).toHaveCount(12);
@@ -172,10 +181,14 @@ test("a story's review names its worktree, branch, and baseline and lists only t
       narrow + 200,
     );
     await show.press("Enter");
-    await expect(
-      review.getByRole("button", { name: "Hide files" }),
-    ).toBeFocused();
+    await expect(filesToggle(review)).toBeFocused();
+    expect(await box(filesToggle(review))).toEqual(shownAt);
+    // The sidebar returns with the file that was being read still selected.
     await expect(files).toBeVisible();
+    await expect(listedFile(files, "Modified unstaged.txt")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await expect(hunkLines(diff, "@@ -3,10 +3,11 @@")).toHaveCount(12);
   });
 

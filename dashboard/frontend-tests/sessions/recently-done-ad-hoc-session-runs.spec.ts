@@ -150,6 +150,8 @@ test("a run whose commits leave no difference says so", async ({
   await sessionReviewChanges(recent, title).click();
 
   await sidePanelPages(page).phase("the body names the commits", (pages) => {
+    pages.reviewToolbar.expectName("Session commits");
+    pages.reviewToolbar.expectFilesToggle(false);
     pages.storyReview.expectStory(title);
     pages.storyReview.expectBodyText(
       "No changes: these session commits leave no difference.",

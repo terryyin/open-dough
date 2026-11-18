@@ -15,6 +15,12 @@ import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
 import { SessionRunSwitch } from "./StoryReviewSessionRuns.tsx";
+import {
+  ReviewDetails,
+  ReviewToolbar,
+  reviewListsFiles,
+  toolbarComparisonName,
+} from "./StoryReviewToolbar.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
@@ -51,6 +57,17 @@ export function StoryReview({
   const [round, setRound] = useState(0);
   const [browserShown, setBrowserShown] = useState(true);
   const browser = { id: `${id}-files`, shown: browserShown };
+  const [detailsShown, setDetailsShown] = useState(false);
+  const eye = useRef<HTMLButtonElement>(null);
+  const details = {
+    id: `${id}-details`,
+    shown: detailsShown,
+    eye,
+    onShow: (show: boolean, focusEye = false) => {
+      setDetailsShown(show);
+      if (focusEye) eye.current?.focus();
+    },
+  };
   const {
     review,
     problem,
@@ -86,6 +103,12 @@ export function StoryReview({
     includeUncommitted,
     active: selectedRun === undefined,
   });
+  const shownComparison =
+    selectedRun !== undefined
+      ? "landed"
+      : published === undefined
+        ? shown
+        : "published";
   useEffect(() => {
     body.current?.focus();
   }, [request]);
@@ -131,16 +154,16 @@ export function StoryReview({
       <p id={descriptionId} hidden>
         {reviewDescription(review)}
       </p>
-      <div className="story-review-top">
+      <ReviewToolbar
+        name={toolbarComparisonName(review, shownComparison)}
+        browser={reviewListsFiles(review, comparison) ? browser : undefined}
+        onShowBrowser={setBrowserShown}
+        details={details}
+      />
+      <ReviewDetails details={details}>
         {(runs.length > 0 || items.length > 0) && (
           <ComparisonSwitch
-            shown={
-              selectedRun === undefined
-                ? published === undefined
-                  ? shown
-                  : "published"
-                : "landed"
-            }
+            shown={shownComparison}
             onSwitch={(choice) => {
               if (choice === "published") onWorkspace("all");
               else if (choice !== "landed") onWorkspace(choice);
@@ -168,13 +191,23 @@ export function StoryReview({
         {selectedRun !== undefined && (
           <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
         )}
-
-        <ReviewContext
-          review={review}
-          comparison={comparison}
-          browser={browser}
-          onShowBrowser={setBrowserShown}
-        />
+        <ReviewContext review={review} />
+        {review?.kind === "snapshot" && committed !== undefined && (
+          <div className="story-review-uncommitted">
+            <label>
+              <input
+                type="checkbox"
+                checked={includeUncommitted}
+                onChange={(event) => {
+                  setIncludeUncommitted(event.target.checked);
+                }}
+              />{" "}
+              Include uncommitted changes
+            </label>
+          </div>
+        )}
+      </ReviewDetails>
+      <div className="story-review-top">
         <ReviewFeedback
           review={review}
           reading={reading}
@@ -192,20 +225,6 @@ export function StoryReview({
               trunkIntegrated={trunkIntegrated}
             />
           )}
-        {review?.kind === "snapshot" && committed !== undefined && (
-          <div className="story-review-uncommitted">
-            <label>
-              <input
-                type="checkbox"
-                checked={includeUncommitted}
-                onChange={(event) => {
-                  setIncludeUncommitted(event.target.checked);
-                }}
-              />{" "}
-              Include uncommitted changes
-            </label>
-          </div>
-        )}
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
         <ReviewBody

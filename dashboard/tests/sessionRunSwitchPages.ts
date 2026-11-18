@@ -1,5 +1,5 @@
-// A session review's Comparison switch over its kept runs, and its Refresh,
-// as a fluent page object for the Side panel journeys (./sidePanelPages.ts)
+// A session review's Comparison switch over its kept runs, read in the
+// review details, and its Refresh, as a fluent page object for the Side panel journeys (./sidePanelPages.ts)
 // beside the Story review (./storyReviewPages.ts) it belongs to.
 import { PageObject } from "./fluentPageObject.ts";
 import { expect } from "./support/preparationPage.ts";
@@ -9,6 +9,7 @@ import {
   expectShown,
   reviewRefresh,
   reviewRegion,
+  showReviewDetails,
 } from "./support/reviewControls.ts";
 
 export class SessionRunSwitch extends PageObject {
@@ -18,22 +19,26 @@ export class SessionRunSwitch extends PageObject {
 
   // The runs the switch lists, in order, by their whole labels.
   expectRuns(labels: readonly string[]) {
-    return this.cueHere(`Comparison: lists ${labels.join("; ")}`, () =>
-      expect(comparison(this.#review).locator("label")).toHaveText([...labels]),
-    );
+    return this.cueHere(`Comparison: lists ${labels.join("; ")}`, async () => {
+      await showReviewDetails(this.#review);
+      await expect(comparison(this.#review).locator("label")).toHaveText([
+        ...labels,
+      ]);
+    });
   }
 
   // The one run the switch says is shown.
   expectShown(label: string) {
-    return this.cueHere(`Comparison: shows ${label}`, () =>
-      expectShown(this.#review, label),
-    );
+    return this.cueHere(`Comparison: shows ${label}`, async () => {
+      await expectShown(await showReviewDetails(this.#review), label);
+    });
   }
 
   choose(label: string) {
-    return this.cueHere(`Comparison: choose ${label}`, () =>
-      comparisonChoice(this.#review, label, { exact: true }).check(),
-    );
+    return this.cueHere(`Comparison: choose ${label}`, async () => {
+      const review = await showReviewDetails(this.#review);
+      await comparisonChoice(review, label, { exact: true }).check();
+    });
   }
 
   // The hidden description the review's region is described by.

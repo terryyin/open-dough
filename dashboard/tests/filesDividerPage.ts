@@ -4,6 +4,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { box } from "./pageLayout.ts";
 import { expect } from "./support/frontendApp.ts";
+import { filesToggle } from "./support/reviewControls.ts";
 
 // CSS px at the dashboard's 16px root size.
 export const rem = 16;
@@ -123,12 +124,7 @@ export function filesDividerOf(review: Locator) {
       return files;
     },
     async setFilesShown(shown: boolean) {
-      await review
-        .getByRole("button", {
-          name: shown ? "Show files" : "Hide files",
-          exact: true,
-        })
-        .click();
+      await filesToggle(review, shown ? "Show files" : "Hide files").click();
       return files;
     },
     keptWidth: () =>

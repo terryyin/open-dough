@@ -20,6 +20,8 @@ import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecor
 import {
   reviewRegion,
   comparisonChoice,
+  filesToggle,
+  toolbarComparison,
 } from "../../dashboard/tests/support/reviewControls.ts";
 import {
   git,
@@ -113,7 +115,8 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
   await expect(review.locator(".story-review-diff")).not.toContainText(
     "newest story",
   );
-  await review.getByRole("button", { name: "Hide files", exact: true }).click();
+  await expect(toolbarComparison(review)).toHaveText("Commits");
+  await filesToggle(review).click();
   await expect(files).toBeHidden();
   await expect(review.locator(".story-review-diff")).toBeVisible();
   expect(observed(workspace)).toEqual(before);
@@ -139,9 +142,7 @@ test("a clean merge selected alone changed nothing by itself", async ({
   await expect(rows.first()).toBeEnabled();
   await expect(review).toContainText("The chosen commits changed nothing.");
   await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
-    0,
-  );
+  await expect(filesToggle(review)).toHaveCount(0);
   await chooseCommit(review, rows.nth(3));
   await chooseCommit(review, rows.nth(3));
   await expect(
@@ -195,7 +196,5 @@ test("an empty plain commit names its range and lists no files", async ({
   ).toBeVisible();
   await expect(review).toContainText("The chosen commits changed nothing.");
   await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
-    0,
-  );
+  await expect(filesToggle(review)).toHaveCount(0);
 });

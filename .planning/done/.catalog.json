@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-384_keep-review-changes-focused-on-the-diff.json",
+      "identity": "SEED-384#keep-review-changes-focused-on-the-diff",
+      "completedAt": "2026-11-18T10:23:08.346Z",
+      "blob": "820306fd7b4f06bb7e3b4e4ebf9f9d23002c4f20"
+    },
+    {
       "fileName": "SEED-379_keep-default-main-session-changes-for-review.json",
       "identity": "SEED-379#keep-default-main-session-changes-for-review",
       "completedAt": "2026-11-18T09:58:45.081Z",
