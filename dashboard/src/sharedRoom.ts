@@ -1,6 +1,7 @@
 // How areas take their share of a room along one axis: the side panel beside
-// the page (`./sidePanelWidth.ts`) and the Sessions sidebar's visible lists
-// (`./sessionsSidebarHeights.ts`). Preferred-capable areas take each chosen size;
+// the page (`./sidePanelWidth.ts`), the Sessions sidebar's visible lists
+// (`./sessionsSidebarHeights.ts`) and a review's file sidebar beside its diff
+// (`./reviewFileSidebarWidth.ts`). Preferred-capable areas take each chosen size;
 // unpreferred areas share what remains. While none of those preferred-capable
 // areas has a usable chosen preference, every area — preferred-capable and
 // unpreferred — shares the room equally. When some preferences are chosen and
@@ -33,7 +34,7 @@ const clamp = (value: number, minimum: number, maximum: number) =>
   Math.min(Math.max(value, minimum), maximum);
 
 // The size nearest `size` that the bounds allow.
-export const sizeWithin = (size: number, minimum: number, maximum: number) =>
+const sizeWithin = (size: number, minimum: number, maximum: number) =>
   Math.round(clamp(size, minimum, maximum));
 
 function readPreferredSize(
@@ -61,6 +62,24 @@ export function usePreferredSize(
     [key],
   );
   return [preferred, prefer];
+}
+
+// How a divider's choice replaces the preference: with the size nearest it
+// that the room's current bounds allow. While the room offers no bounds, a
+// choice changes nothing.
+export function useChoiceWithin(
+  bounds: { readonly minimum: number; readonly maximum: number } | undefined,
+  prefer: (size: number) => void,
+): (size: number) => void {
+  const minimum = bounds?.minimum;
+  const maximum = bounds?.maximum;
+  return useCallback(
+    (size: number) => {
+      if (minimum === undefined || maximum === undefined) return;
+      prefer(sizeWithin(size, minimum, maximum));
+    },
+    [minimum, maximum, prefer],
+  );
 }
 
 const sum = (values: readonly number[]) =>

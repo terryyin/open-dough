@@ -6,7 +6,8 @@
 // The review opens on the first file in the browser's order. Selecting a file
 // reads its diff (`./StoryReviewFileDiff.tsx`) from the comparison's start,
 // with its kind and full path in the heading. The browser and diff scroll
-// independently. Empty comparisons describe what was compared. A refreshed
+// independently, and the reviewer resizes the browser against the diff
+// (`./StoryReviewWorkarea.tsx`). Empty comparisons describe what was compared. A refreshed
 // snapshot or a comparison switch keeps the collapsed folders and selected
 // file while the file is still listed; otherwise the first file is selected.
 import { useLayoutEffect, useRef, useState } from "react";
@@ -32,6 +33,7 @@ import {
 import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
 import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
+import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
 
 // What the review says in place of the browser when the comparison shown
 // lists no files.
@@ -155,59 +157,64 @@ export function SnapshotView({
       sessionSubject={isReviewedSessionSubject(reviewed.subject)}
     />
   ) : (
-    <div className="story-review-workarea">
-      <section
-        id={browserId}
-        ref={browserPane}
-        className="story-review-files"
-        aria-labelledby={`${browserId}-heading`}
-        hidden={!browser.shown}
-      >
-        <h3 id={`${browserId}-heading`}>{listName}</h3>
-        <FileTree
-          label={listName}
-          nodes={tree}
-          selectedPath={selected.path}
-          onSelect={setSelectedPath}
-          collapsed={collapsed}
-          onToggle={(folderPath) => {
-            setCollapsed((was) => {
-              const next = new Set(was);
-              if (!next.delete(folderPath)) next.add(folderPath);
-              return next;
-            });
-          }}
-          idPrefix={browserId}
-          renderFile={(row) => <FileRow {...row} />}
-          fileCountWords={changedFileWords}
-        />
-      </section>
-      <section className="story-review-diff" aria-labelledby={diffHeadingId}>
-        <ReviewedFileHeader
-          reviewed={reviewed}
-          from={from}
-          tree={comparedTree}
-          file={selected}
-          headingId={diffHeadingId}
-          moves={
-            <FileMoves
-              order={order}
-              selectedPath={selected.path}
-              onMove={moveTo}
-            />
-          }
-        />
-        <FileDiff
-          // A new comparison, snapshot, or file is a new read, never the
-          // last one's.
-          key={`${from}:${comparedTree}:${selected.path}`}
-          reviewed={reviewed}
-          from={from}
-          tree={comparedTree}
-          file={selected}
-          {...(syntaxHint === undefined ? {} : { syntaxHint })}
-        />
-      </section>
-    </div>
+    <StoryReviewWorkarea
+      sidebarShown={browser.shown}
+      sidebar={
+        <section
+          id={browserId}
+          ref={browserPane}
+          className="story-review-files"
+          aria-labelledby={`${browserId}-heading`}
+          hidden={!browser.shown}
+        >
+          <h3 id={`${browserId}-heading`}>{listName}</h3>
+          <FileTree
+            label={listName}
+            nodes={tree}
+            selectedPath={selected.path}
+            onSelect={setSelectedPath}
+            collapsed={collapsed}
+            onToggle={(folderPath) => {
+              setCollapsed((was) => {
+                const next = new Set(was);
+                if (!next.delete(folderPath)) next.add(folderPath);
+                return next;
+              });
+            }}
+            idPrefix={browserId}
+            renderFile={(row) => <FileRow {...row} />}
+            fileCountWords={changedFileWords}
+          />
+        </section>
+      }
+      diff={
+        <section className="story-review-diff" aria-labelledby={diffHeadingId}>
+          <ReviewedFileHeader
+            reviewed={reviewed}
+            from={from}
+            tree={comparedTree}
+            file={selected}
+            headingId={diffHeadingId}
+            moves={
+              <FileMoves
+                order={order}
+                selectedPath={selected.path}
+                onMove={moveTo}
+              />
+            }
+          />
+          <FileDiff
+            // A new comparison, snapshot, or file is a new read, never the
+            // last one's.
+            key={`${from}:${comparedTree}:${selected.path}`}
+            reviewed={reviewed}
+            from={from}
+            tree={comparedTree}
+            file={selected}
+            {...(syntaxHint === undefined ? {} : { syntaxHint })}
+          />
+        </section>
+      }
+    />
   );
 }

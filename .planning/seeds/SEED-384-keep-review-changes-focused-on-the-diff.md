@@ -75,8 +75,7 @@ landed run, a published completion, an ad hoc session's landing):
 
 Scope limits:
 
-- Resizing the file sidebar and remembering its width is
-  [Resize and remember the Review changes file sidebar](#resize-and-remember-the-review-file-sidebar).
+- Resizing the file sidebar and remembering its width, delivered separately.
 - Naming the selected landed run in the collapsed toolbar was considered and
   deferred: the newest captured run opens by default, so the name can mislead
   only after the reviewer chose another run in this opening.
@@ -123,104 +122,34 @@ No new consequential concern. The panel keeps its one multi-purpose side-panel
 region and read-only review boundary; only where the existing controls sit
 changes.
 
-<a id="resize-and-remember-the-review-file-sidebar"></a>
+<a id="one-owner-for-the-review-file-sidebar-sizing"></a>
 
-### Resize and remember the Review changes file sidebar
+### Give the review file sidebar's sizing one owner
 
-**Identity:** SEED-384#resize-and-remember-the-review-file-sidebar
+**Identity:** SEED-384#one-owner-for-the-review-file-sidebar-sizing
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/697-resize-and-remember-the-review-file-sidebar/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"19696e7b7e3dfabd802e0699a0a8d30553d15e653fca8e2efbdfb7ada01f6c48","plan":"5ed2c64eceee1ba911dc5303b217001965b554a300a4adcdb13bc96cd821947d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ccf7e73c3c03a4372e476f089ded6243526976181ef5168b8ac061d32e69185","plan":"849ba1b9d2b364735292deb88f7350a6cb19b180fd216f5f5f8763a6596c4716"}}
 ```
 
-Split from [Keep Review changes focused on the diff](#keep-review-changes-focused-on-the-diff)
-during refinement, to be delivered after it.
+Correction from the retrospective of
+Resize and remember the Review changes file sidebar
+(`88a7f2348:.planning/seeds/SEED-384-keep-review-changes-focused-on-the-diff.md`, section `resize-and-remember-the-review-file-sidebar`).
 
 #### Goal
 
-A developer reviewing changes gives the file sidebar enough room for the paths
-they need to read, once, and finds that width again in every later review in
-the same browser.
+Dashboard maintainers change the review file sidebar's width, its default or
+its divider's grip in one place each, and its tests prove only what the review
+adds to the shared kept preference, with the review's behavior unchanged.
 
 #### Scope
 
-Required behavior:
+- The review file sidebar's side-by-side and stacked sizing, and its 16rem
+  default, each have one owner; the Panel divider and the Files divider share
+  one vertical grip.
+- The Files divider specs keep proof of the review's own rules and stop
+  repeating the shared kept-preference proof; reaching the divider's upper
+  bound is explicit.
+- No product behavior changes, and no new product promise. Intent's locations
+  column keeps its width.
 
-- **Files divider.** A divider between the file sidebar and the diff, shown
-  while both sit side by side; none while the sidebar is hidden. Dragging it
-  changes their widths as the pointer moves. It takes keyboard focus, and Left
-  and Right move it one step in the arrow's direction, so Right widens the
-  sidebar. It is named **Files divider**, and says the sidebar's current width
-  and bounds and how to use it as the Panel divider does
-  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-  each control has one name; the Panel divider is the Side panel's).
-- **Both panes stay usable.** The sidebar is never narrower than 12rem, the
-  width that still shows a nested file name, and the diff never narrower than
-  18rem, the room it is given today, whatever is dragged or preferred. The
-  diff's minimum is the sidebar's only upper limit: more room for paths comes
-  from widening or maximizing the Side panel.
-- **One preferred width** serves every review, for any story or session,
-  across closing and reopening and a page reload, kept as a disposable
-  preference in this browser like the Side panel's width (ADR 0008: optional
-  browser storage is disposable). Until the reviewer chooses, or where the
-  browser keeps none or an unusable one, the sidebar takes today's default
-  width, 16rem.
-- **A limit the room sets never changes the preference:** a narrower panel
-  shows the sidebar as wide as the diff's minimum allows, and more room
-  recovers the preferred width. The panel stacks files above the diff at the
-  same width as today, and offers no width divider there.
-- Hiding and showing the sidebar restores it at the preferred width.
-
-Scope limits:
-
-- A height divider for the narrow, stacked layout.
-- Intent's locations column keeps its own width.
-- Sharing the preference across browsers or machines.
-- Fitting the sidebar to its content, automatically or by double-clicking the
-  divider, was considered and deferred: one review's fitted width would become
-  the preference for every other review, and an automatic width would move as
-  folders open and close.
-- Wrapping or shortening file names instead of giving them room.
-
-#### Key examples
-
-- **Drag.** Review open side by side at the default width, a long file name
-  running past the sidebar's edge → drag the divider right → the sidebar
-  widens and the diff narrows by the same amount → close the review, open
-  another story's review → the sidebar has the dragged width.
-- **Reload.** After that choice → reload the page and open **Review changes**
-  → the same width.
-- **Keyboard.** Focus the divider → Right → the sidebar is one step wider and
-  the divider says the new width; Left returns it.
-- **Bounds.** Drag far right → the sidebar stops where the diff reaches its
-  minimum; drag far left → the sidebar stops at its own minimum.
-- **More room from the panel.** The Side panel at half a laptop window, the
-  sidebar dragged as wide as the diff's minimum allows and still short of the
-  name → maximize the Side panel → the divider's upper bound has grown and
-  the sidebar can be dragged wider.
-- **Temporary limit.** A wide preferred width, then the Side panel is narrowed
-  until the room cannot give it → the sidebar is narrower, both panes usable →
-  the panel is widened again → the preferred width returns, without the
-  reviewer choosing again.
-- **Narrow panel.** The review body is too narrow for both panes → files sit
-  above the diff and there is no width divider → widened, the divider returns
-  with the preferred width.
-- **Hidden sidebar.** A chosen width → **Hide files** → the diff takes the
-  whole width and there is no divider → **Show files** → the sidebar and the
-  divider return at the chosen width.
-- **No choice yet.** A browser that keeps no preference → the sidebar has
-  today's default width.
-
-#### Architecture
-
-Reuse the dashboard's one resize mechanism: the shared resize divider, the
-shared room calculation, and kept browser preferences that the Side panel and
-Sessions sidebar already use. Two cases are new to it:
-
-- The divider resizes an area on its leading side, where Right grows the
-  area; today's dividers all grow their area with Left or Up.
-- Without a preference the shared calculation gives each area an equal share.
-  The review keeps today's default instead, so it asks for 16rem where no
-  preference is kept, and keeps nothing until the reviewer chooses.
-
-The panes stack at the width they do today, wider than the two minimums need,
-so the divider always has a range where it is offered. No server state.
+Plan: [699-one-owner-for-the-review-file-sidebar-sizing](../slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md)

@@ -13,15 +13,16 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
-  useLayoutEffect,
-  useState,
   useSyncExternalStore,
   type RefObject,
 } from "react";
-import { flushSync } from "react-dom";
-import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
+import { useMeasuredRoom } from "./measuredRoom.ts";
+import {
+  shareOfRoom,
+  useChoiceWithin,
+  usePreferredSize,
+} from "./sharedRoom.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
 // (`./sessions-sidebar.css`) and the panel covers the page column.
@@ -77,40 +78,16 @@ const watchNarrow = (changed: () => void) => {
 };
 
 // The room the page and the panel share in the frame: its width, less the
-// Sessions sidebar's column while the sidebar is open.
-type Room = { readonly width: number; readonly rem: number };
-
-// Measured as soon as the panel opens or the sidebar opens or closes, before
-// the change is painted, and again whenever either box changes size.
-function useRoom(
-  frame: RefObject<HTMLElement | null>,
-  shown: boolean,
-  sessionsSidebarOpen: boolean,
-) {
-  const [room, setRoom] = useState<Room | undefined>();
-  useLayoutEffect(() => {
-    const element = frame.current;
-    if (!shown || element === null) return;
-    const sidebar = element.querySelector<HTMLElement>(".sessions-sidebar");
-    const measure = () => {
-      setRoom({
-        width: element.clientWidth - (sidebar?.offsetWidth ?? 0),
-        rem: parseFloat(getComputedStyle(document.documentElement).fontSize),
-      });
-    };
-    measure();
-    // A window resize is laid out anew before it is painted, so the page is
-    // never shown squeezed beside a panel sized for more room.
-    const observer = new ResizeObserver(() => {
-      flushSync(measure);
-    });
-    observer.observe(element);
-    return () => {
-      observer.disconnect();
-    };
-  }, [frame, shown, sessionsSidebarOpen]);
-  return room;
-}
+// Sessions sidebar's column while the sidebar is open. Measured as soon as the
+// panel opens or the sidebar opens or closes, and whenever the frame changes
+// size, so the page is never shown squeezed beside a panel sized for more
+// room.
+const readRoom = (frame: HTMLElement, rem: number) => ({
+  width:
+    frame.clientWidth -
+    (frame.querySelector<HTMLElement>(".sessions-sidebar")?.offsetWidth ?? 0),
+  rem,
+});
 
 // The width controlled by the Panel divider, while it is offered.
 type PanelDividerState = Extract<SidePanelLayout, { arrangement: "split" }> & {
@@ -125,7 +102,9 @@ export function useSidePanelWidth(
 ): { covering: boolean; divider: PanelDividerState | undefined } {
   const [preferred, prefer] = usePreferredSize(preferredWidthKey);
   const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
-  const room = useRoom(frame, shown, sessionsSidebarOpen);
+  const room = useMeasuredRoom(frame, shown, readRoom, {
+    remeasure: sessionsSidebarOpen,
+  });
   const layout: SidePanelLayout | undefined =
     room === undefined
       ? narrow
@@ -133,16 +112,8 @@ export function useSidePanelWidth(
         : undefined
       : sidePanelLayout(room.width, preferred, room.rem, narrow);
   const split = layout?.arrangement === "split" ? layout : undefined;
-  const minimum = split?.minimum;
-  const maximum = split?.maximum;
   // The developer's choice, within the bounds the room sets now.
-  const choose = useCallback(
-    (width: number) => {
-      if (minimum === undefined || maximum === undefined) return;
-      prefer(sizeWithin(width, minimum, maximum));
-    },
-    [minimum, maximum, prefer],
-  );
+  const choose = useChoiceWithin(split, prefer);
   return {
     covering: layout?.arrangement === "covering",
     divider: split && { ...split, choose },

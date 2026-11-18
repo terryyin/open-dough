@@ -18,12 +18,12 @@
 // Recently done sessions and Running Cursor sessions join the same
 // `sharesOfRoom` call as preferred-capable areas; there is no second allocator.
 
-import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
-import { flushSync } from "react-dom";
+import type { RefObject } from "react";
 import type { DividerRange } from "./ResizeDivider.tsx";
+import { useMeasuredRoom } from "./measuredRoom.ts";
 import {
   sharesOfRoom,
-  sizeWithin,
+  useChoiceWithin,
   usePreferredSize,
   type Share,
 } from "./sharedRoom.ts";
@@ -70,55 +70,31 @@ const headerRowHeight = (rows: readonly number[]) =>
 // padding, less every header row. Measured as soon as a preferred section
 // expands or the sidebar opens, before that is painted, and again whenever
 // the sidebar, its title row or a section header changes size.
-function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
-  const [room, setRoom] = useState<Room | undefined>();
-  useLayoutEffect(() => {
-    const element = sidebar.current;
-    if (!measuring || element === null) return;
-    const measure = () => {
-      const style = getComputedStyle(element);
-      const rows = style.gridTemplateRows.split(" ").map(parseFloat);
-      const rem = parseFloat(
-        getComputedStyle(document.documentElement).fontSize,
-      );
-      setRoom({
-        height:
-          element.clientHeight -
-          parseFloat(style.paddingTop) -
-          parseFloat(style.paddingBottom) -
-          headerRowHeight(rows),
-        floor: parseFloat(style.getPropertyValue(areaFloor)) * rem,
-        rem,
-      });
-    };
-    measure();
-    const observer = new ResizeObserver(() => {
-      flushSync(measure);
-    });
-    for (const observed of [
-      element,
-      element.querySelector(".sessions-sidebar-title-row"),
-      ...element.querySelectorAll(".sessions-sidebar-section-header"),
-    ])
-      if (observed !== null) observer.observe(observed);
-    return () => {
-      observer.disconnect();
-    };
-  }, [sidebar, measuring]);
-  return measuring ? room : undefined;
-}
+const readRoom = (sidebar: HTMLElement, rem: number): Room => {
+  const style = getComputedStyle(sidebar);
+  const rows = style.gridTemplateRows.split(" ").map(parseFloat);
+  return {
+    height:
+      sidebar.clientHeight -
+      parseFloat(style.paddingTop) -
+      parseFloat(style.paddingBottom) -
+      headerRowHeight(rows),
+    floor: parseFloat(style.getPropertyValue(areaFloor)) * rem,
+    rem,
+  };
+};
+
+const resizingBoxes = (sidebar: HTMLElement) => [
+  sidebar,
+  sidebar.querySelector(".sessions-sidebar-title-row"),
+  ...sidebar.querySelectorAll(".sessions-sidebar-section-header"),
+];
 
 function useShareChoice(
   share: Share | undefined,
   prefer: (height: number) => void,
 ): SessionsSidebarSectionHeights["recentlyDone"] {
-  const choose = useCallback(
-    (height: number) => {
-      if (share === undefined) return;
-      prefer(sizeWithin(height, share.minimum, share.maximum));
-    },
-    [share, prefer],
-  );
+  const choose = useChoiceWithin(share, prefer);
   return share === undefined
     ? { height: undefined, range: undefined }
     : { height: share.size, range: { ...share, choose } };
@@ -142,7 +118,10 @@ export function useSessionsSidebarHeights(
     "open-dough.sessionSidebar.runningCursorHeight",
   );
   const measuring = sections.recentlyDone || sections.runningCursor;
-  const room = useRoom(sidebar, measuring);
+  const measured = useMeasuredRoom(sidebar, measuring, readRoom, {
+    observed: resizingBoxes,
+  });
+  const room = measuring ? measured : undefined;
   const preferredAreas = [
     ...(sections.recentlyDone ? [{ preferred: recentlyDonePreferred }] : []),
     ...(sections.runningCursor ? [{ preferred: runningCursorPreferred }] : []),

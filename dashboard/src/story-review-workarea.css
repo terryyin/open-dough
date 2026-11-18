@@ -1,0 +1,42 @@
+/* A review's file sidebar beside its diff (./StoryReviewWorkarea.tsx): the
+   sidebar takes the reviewer's width (./reviewFileSidebarWidth.ts), 16rem
+   until it is measured, and the Files divider (./resize-divider.css) covers
+   the gap between the panes, at the sidebar's trailing edge. Where the panes
+   stack (./story-review.css) the sidebar takes the whole width and there is
+   no divider. */
+.story-review-workarea {
+  position: relative;
+}
+
+/* The width includes the sidebar's border and padding, so the divider says
+   the width shown. */
+.story-review-workarea > .story-review-files {
+  flex: 0 0 var(--story-review-files-width, 16rem);
+  box-sizing: border-box;
+}
+
+.story-review-files-divider {
+  top: 0;
+  bottom: 0;
+  left: var(--story-review-files-width, 16rem);
+  width: 0.75rem;
+  cursor: col-resize;
+}
+
+.story-review-files-divider::after {
+  top: 50%;
+  left: calc(50% - 2px);
+  width: 4px;
+  height: 2.5rem;
+  transform: translateY(-50%);
+}
+
+@container story-review-body (width < 34.75rem) {
+  .story-review-workarea > .story-review-files {
+    flex: none;
+  }
+
+  .story-review-files-divider {
+    display: none;
+  }
+}

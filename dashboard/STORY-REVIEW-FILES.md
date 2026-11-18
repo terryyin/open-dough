@@ -62,3 +62,18 @@ each comparison use its starting tree, and a file that includes trunk's
 changes counts from its `includesTrunkFrom`, as its diff does. A file shows counts only when its
 diff adds or removes a line: a binary, mode-only, or empty file shows none. A
 collapsed folder's count stays the changed files it holds.
+
+Beside the diff, the browser is 16rem wide, border and padding included,
+until the reviewer chooses a width with the Files divider between the panes, by dragging it or with its
+Left and Right keys, one 1rem step each (`src/StoryReviewWorkarea.tsx`,
+`src/reviewFileSidebarWidth.ts`). Neither pane becomes narrower than its
+minimum: 12rem for the browser and 18rem for the diff. The chosen width is
+kept in this browser's storage (`open-dough.storyReview.filesWidth`) and
+serves every review opened afterwards, also after a reload; until one is
+chosen nothing is kept, and a kept value that is not a usable width, or a
+browser that refuses storage, gives 16rem while the divider still resizes for
+the page's lifetime. Where the Side panel leaves less room, the browser is as
+wide as the diff's minimum allows and the kept width stays unchanged, so
+widening or maximizing the panel brings it back and lets the divider go
+further. Where the panes stack, the divider is gone and returns with the kept
+width once they sit side by side again.

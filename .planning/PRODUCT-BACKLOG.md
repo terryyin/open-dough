@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review ([plan](slice-plans/693-keep-default-main-session-changes-for-review/PLAN.md))
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff ([plan](slice-plans/695-keep-review-changes-focused-on-the-diff/PLAN.md))
-- [Resize and remember the Review changes file sidebar](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar) — SEED-384#resize-and-remember-the-review-file-sidebar ([plan](slice-plans/697-resize-and-remember-the-review-file-sidebar/PLAN.md))
 
 ## Backlog list
 
+- [Give the review file sidebar's sizing one owner](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#one-owner-for-the-review-file-sidebar-sizing) — SEED-384#one-owner-for-the-review-file-sidebar-sizing
 - [Let a long Codex wait run without model requests](seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests) — SEED-399#let-a-long-codex-wait-run-without-model-requests
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))

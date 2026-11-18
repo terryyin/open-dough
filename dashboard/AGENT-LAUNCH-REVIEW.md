@@ -204,7 +204,8 @@ in the header, so they remain reachable while reading or scrolling context.
 
 Beneath the fixed top, the file browser and the selected file's diff share
 all the panel's remaining height, and the review's body does not scroll as a
-whole (`src/story-review.css`). The browser is a full-height sidebar that
+whole (`src/story-review.css`). The browser is a full-height sidebar,
+resized against the diff with the [Files divider](STORY-REVIEW-FILES.md), that
 scrolls down on its own and sideways for long names. The diff's heading, the
 file's kind and path, stays above its code, which scrolls down and sideways
 within the diff; the code region takes the keyboard, so it scrolls by
@@ -225,8 +226,8 @@ comparison, keeps the browser's place, its collapsed folders, and the
 selected file while the files shown list it, and otherwise selects the first
 file. Maximize/Restore and resizing keep both
 panes' places. Where the panel is too narrow for the browser beside the
-diff, the browser sits above the diff with at most two fifths of the height,
-each still scrolling on its own; Hide files gives the diff the whole work
+diff, the browser sits above the diff with at most two fifths of the height
+and no Files divider, each still scrolling on its own; Hide files gives the diff the whole work
 area. Close or Command+Shift+Escape returns the keyboard to Review changes,
 or to the story's card when that control is no longer shown. Opening a review
 selects its story, highlighting its card, and closing it clears the selected

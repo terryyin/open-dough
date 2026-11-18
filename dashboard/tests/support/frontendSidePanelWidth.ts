@@ -1,7 +1,9 @@
 // The Taken story's review in the side panel, served by the Frontend
 // substitutes (./frontendServiceState.ts, ./frontendStoryReview.ts), for the
-// side-panel width checks in ../../frontend-tests/navigation/side-panel-*.
-// Its divider and widths are read through ../sidePanelWidthPage.ts.
+// side-panel width checks in ../../frontend-tests/navigation/side-panel-* and
+// the file sidebar width checks in
+// ../../frontend-tests/review/story-review-files-divider*. Its divider and
+// widths are read through ../sidePanelWidthPage.ts and ../filesDividerPage.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { reviewChanges } from "../storyCardControls.ts";
@@ -11,7 +13,10 @@ import {
   openFrontendTakenBacklog,
   takenStoryCard,
 } from "./frontendApp.ts";
-import type { FrontendServiceState } from "./frontendServiceState.ts";
+import {
+  putFrontendDoneRecords,
+  type FrontendServiceState,
+} from "./frontendServiceState.ts";
 import { keepTakenReviewLaunch } from "./frontendStoryReviewOpen.ts";
 import {
   frontendReviewSnapshot,
@@ -20,6 +25,12 @@ import {
 import { expectSettledPage } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { panelDivider, split, wideWindow } from "../sidePanelWidthPage.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
+import {
+  boardReviewDoneRecords,
+  doneCard,
+  storyA,
+} from "../recentlyDoneReviewState.ts";
 
 export const widthKey = "open-dough.sidePanel.width";
 
@@ -47,6 +58,23 @@ export async function openReview(page: Page): Promise<Locator> {
   const review = reviewRegion(page, { exact: true });
   await expect(review.getByRole("heading", { level: 2 })).toBeVisible();
   return review;
+}
+
+// Another story, done elsewhere, also offers Review changes from Recently done.
+export function anotherStoryWithReview(services: FrontendServiceState) {
+  putFrontendDoneRecords(services, "open-dough", boardReviewDoneRecords());
+}
+
+// Closes the open review and opens the other story's.
+export async function openAnotherStoryReview(
+  page: Page,
+  review: Locator,
+): Promise<Locator> {
+  await closeSidePanel(review);
+  await expect(review).toBeHidden();
+  await showColumn(page, "Recently done");
+  await reviewChanges(doneCard(page, storyA.title)).click();
+  return reviewRegion(page);
 }
 
 export async function reloadAndOpenReview(page: Page): Promise<Locator> {
