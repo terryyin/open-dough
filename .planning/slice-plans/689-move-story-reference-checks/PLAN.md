@@ -74,8 +74,8 @@ product code change. No blocking dependency.
 ## Outside-in proof ownership and gates
 
 Before removing a spec, inspect its setup and assertions and record each
-distinct assertion's destination under its slice in
-[execution-evidence.md](execution-evidence.md): the exact new
+distinct assertion's destination under its slice in the [active](evidence-active-references.md)
+or [Done](evidence-done-references.md) reference evidence: the exact new
 spec and test, equivalent existing proof, or a Backend/E2E owner. Include
 negatives, focus, keyboard, tap, scroll reveals, reduced motion, read counts
 and held or failed recovery. Split mixed cases across their real boundaries
@@ -85,7 +85,7 @@ cannot express keeps a Backend or E2E home under this rule.
 For each slice, apply one scratch product break before deleting the interim
 case; prove the replacement catches that break and passes when restored, and
 record the fault, observation and literal commands and results in
-execution-evidence.md under its slice. Keep the
+that evidence under its slice. Keep the
 interim case until its mapped replacement passes.
 
 Each slice: rerun the installed test-entry selector for its paths (Frontend
@@ -179,7 +179,7 @@ while the retry is held wins: no late focus or detail.
 
 ### 5. Reveal a Done story from a reference
 Type: Behavior
-Status: planned
+Status: done
 Proof: `story-reference-done` tests "a Done reference without sessions…" and
 "a delayed Done detail…" in `story-reference-done.spec.ts`, on a new Frontend
 Done-reference arrangement holding the `storyReferenceDone.ts` data. Scratch

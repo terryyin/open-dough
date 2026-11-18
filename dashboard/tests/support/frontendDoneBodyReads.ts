@@ -1,6 +1,7 @@
 // Controllable done-record body answers for frontend-only Recently done
 // journeys: hold or fail the next authenticated `done=bodies` ask that names
-// a given file, while other files answer from `services.doneBySource`.
+// a given file, while other files answer from `services.doneBySource`; and
+// record which records the page asked for.
 
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -63,4 +64,21 @@ export async function installFrontendDoneBodyReads(
       fails.add(fileName);
     },
   };
+}
+
+// The Done records the page itself asked for in its `done=bodies` reads, as
+// `.planning/done/<file>` paths in asking order.
+export function recordDoneRecordsAsked(page: Page) {
+  const asked: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      url.pathname !== authenticatedReadEndpoint ||
+      url.searchParams.get("done") !== "bodies"
+    )
+      return;
+    for (const file of url.searchParams.getAll("file"))
+      asked.push(`.planning/done/${file}`);
+  });
+  return () => asked;
 }
