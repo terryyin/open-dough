@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed",
+  "host": "claude",
+  "model": "fable"
+}
