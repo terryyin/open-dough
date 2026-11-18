@@ -117,7 +117,7 @@ still matches the literal `"at"`.
 
 ### 2. Restore the paging step beside a newly started session and the stale link
 Type: Structure
-Status: planned
+Status: done
 Proof: `board-paging-side-panel.spec.ts` gains its final step: paged back to
 Backlog beside the open panel, Start execution on the ready Backlog card and
 the attempt launching its session (`frontendAttempt` keeping the Taken
@@ -131,6 +131,16 @@ correct this spec's header comment about where the session check lives.
 
 Behavior: a session started while the Board is paged beside the panel → the
 same view and counts.
+
+Accepted proof: the refactor gave the step its own test beside the paging
+test, sharing `takenStoryWorking()` from `frontendCardSessions.ts`; it and the
+side-panel-width consumers passed, and break (b), a session counted into
+Recently done, failed at "Recently done 1 entry". Learning on
+break (a): Backlog is the Board's first position, so a paging reset there is
+no change; a forward move in the same render as the session's arrival still
+left Backlog/Taken shown, and only a move timed after the page's requests
+settle escapes the step, as in the interim journey. No settled
+"session arrival processed" signal exists to assert after.
 
 ## Decisive premises and observations
 
