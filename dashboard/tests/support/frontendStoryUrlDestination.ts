@@ -3,13 +3,11 @@
 // why it cannot be shown (story-url-destination-unavailable.spec.ts): Doughnut
 // and Open Dough each tell the shared story identity
 // (../projectSelectionProjects.ts), Doughnut with twelve stories queued ahead
-// of it so its card starts out of view; and Open Dough alone with Akiho
-// executing its Taken story (../agentRosterRecords.ts).
+// of it so its card starts out of view.
 
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { backlogApart, describedRevision } from "../describedRevisions.ts";
-import { openDoughFacts, takenIdentity } from "../agentRosterRecords.ts";
+import { describedRevision } from "../describedRevisions.ts";
 import {
   doughnutPublication,
   doughnutSharedTitle,
@@ -17,10 +15,7 @@ import {
   sharedStoryIdentity,
 } from "../projectSelectionProjects.ts";
 import { answerOnlyPublications } from "./frontendCatalogProjects.ts";
-import {
-  putFrontendPublished,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
+import type { FrontendServiceState } from "./frontendServiceState.ts";
 
 const sharedStory = makeMe.aBacklogEntry
   .with({
@@ -67,32 +62,4 @@ export async function answerSharedStoryProjects(
     openDoughPublication,
     doughnutAhead(column),
   ]);
-}
-
-// Open Dough alone, with Akiho executing its one Taken story.
-export function publishRosterStory(services: FrontendServiceState) {
-  putFrontendPublished(
-    services,
-    backlogApart(
-      describedRevision(
-        makeMe.aRepository
-          .withRevision("roster", {
-            backlog: { taken: openDoughFacts.backlog.taken },
-            agentProfiles: [
-              makeMe.anAgentProfile
-                .executing({
-                  name: "Akiho",
-                  identity: takenIdentity,
-                  mode: "trunk",
-                  branch: "origin/main",
-                  host: "claude",
-                })
-                .please(),
-            ],
-          })
-          .please(),
-        "b3".repeat(20),
-      ),
-    ),
-  );
 }

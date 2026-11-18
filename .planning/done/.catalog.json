@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_share-one-executing-agent-roster-arrangement.json",
+      "identity": "SEED-334#share-one-executing-agent-roster-arrangement",
+      "completedAt": "2026-11-18T01:56:26.573Z",
+      "blob": "954b5a0e1ec9da14affaebf2c18a362eb16cbc71"
+    },
+    {
       "fileName": "SEED-334_retire-integrated-ui-test-and-its-documents.json",
       "identity": "SEED-334#retire-integrated-ui-test-and-its-documents",
       "completedAt": "2026-11-18T00:39:10.114Z",

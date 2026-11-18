@@ -10,10 +10,8 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { holdProjectReads } from "../../tests/holdAuthenticatedReads.ts";
 import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
-import {
-  answerSharedStoryProjects,
-  publishRosterStory,
-} from "../../tests/support/frontendStoryUrlDestination.ts";
+import { answerSharedStoryProjects } from "../../tests/support/frontendStoryUrlDestination.ts";
+import { publishExecutingRoster } from "../../tests/support/frontendExecutingRoster.ts";
 import {
   doughnutSharedTitle,
   openDoughSharedTitle,
@@ -161,7 +159,7 @@ test("opening the roster leaves a same-project story target and Back restores th
   page,
   frontendServices,
 }) => {
-  publishRosterStory(frontendServices);
+  publishExecutingRoster(frontendServices, "Akiho");
   const hostRequests = recordHostRequests(page);
   await page.goto(storyUrl("open-dough", takenIdentity));
   const card = page.getByRole("article", { name: takenStory, exact: true });

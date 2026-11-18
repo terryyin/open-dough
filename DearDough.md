@@ -883,6 +883,14 @@ output. A new runtime spec's `console.log` passed locally and failed hosted CI.
   - Evidence: run 44125679359 dashboard-backend shard 1/3 failed all three `test-preparation-budget.spec.ts` cases on the strict reporter; repair d7fbd57e1 moved the intervals to `test.info().attach`. The coordinator's own memory then still advised `--reporter=list` for single specs.
   - Observed effect: one stash/repair/publish cycle and one cancelled CI run; later briefs forbade `--reporter=list` and no recurrence followed.
   - Inference: local proof differing from CI's reporter is the cause; the saving of matching it is unmeasured.
+- Execution: SEED-334#share-one-executing-agent-roster-arrangement (plan 694; first implementation 66cf068dd)
+  - Timestamp: 2026-11-18T01:42:55Z (coordinator's counted rerun)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 02e33c018)
+  - Evidence: plan 694's slice 1 proof command named `--reporter=list`; the brief dropped it. The implementer then set `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`, not the Frontend group's `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` (dashboard/tests/README.md proof record), so its passing runs left no selection count.
+  - Observed effect: the coordinator ran the focused journeys once more with the group's proof record to see 8 selected, all expected.
+  - Inference: plans still copy the list-reporter form, and the strict form's group prefix is easy to miss; about one extra minute of proof.
 
 ## DD-572 — A natural-load acceptance gates completion on machine state no agent controls <a id="dd-572"></a>
 
