@@ -15,6 +15,7 @@ import {
   establishedSessionSchema,
   type EstablishedSession,
 } from "./unattachedSession.ts";
+import { defaultLaunchStartSchema } from "./defaultLaunchStart.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -147,6 +148,8 @@ export const launchRecordSchema = z.object({
   preparation: establishedPreparationSchema.optional(),
   // What an unattached launch's start established (`./unattachedSession.ts`).
   establishedSession: establishedSessionSchema.optional(),
+  // Where a default launch started (`./defaultLaunchStart.ts`).
+  defaultStart: defaultLaunchStartSchema.optional(),
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
   completion: completionSchema.optional(),

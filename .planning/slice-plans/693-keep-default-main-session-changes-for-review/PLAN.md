@@ -2,6 +2,7 @@
 
 **Identity:** SEED-379#keep-default-main-session-changes-for-review
 **Source:** [Keep Default main ad hoc session changes for review](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -135,7 +136,7 @@ Each slice has 15 active minutes excluding command time.
 
 ### 1. Keep where a default launch started
 Type: Structure
-Status: planned
+Status: done
 Proof: `backend-tests/launches/agent-launch-ad-hoc-sessions.spec.ts` gains
 the kept record's checkout and starting revision for a default launch with an
 instruction and for a blank one; existing launch and review specs stay green.
@@ -143,6 +144,20 @@ instruction and for a blank one; existing launch and review specs stay green.
 A default launch in the Default main checkout keeps that checkout's path and
 `HEAD` on its launch record, in a schema module of its own. No review or card
 changes. Enables slice 2's capture.
+
+Delivered: the record keeps `defaultStart: { workspace, startingRevision }`
+(`src/defaultLaunchStart.ts`, read by `server/defaultLaunchStart.ts`), named
+as `establishedSession` names its own. Learnings for later slices:
+`defaultStart.workspace` is the project folder's path as configured, so
+slices 2 and 5 resolve it before comparing checkouts; `recordedWorkspace` and
+`establishedPlace` leave it out; `EstablishedRecordFacts`
+(`server/launchRecord.ts`) now also carries a start that establishes nothing
+and is renamed in slice 2, where capture reads both starts;
+`src/launchRecord.ts` is at 247 lines. The named spec did not exist and was
+created at `backend-tests/launches/agent-launch-ad-hoc-sessions.spec.ts`.
+Proof: run records `s1-refactor-focused-1`, `s1-refactor-backend-readers-1`,
+`s1-refactor-typecheck-1`, `s1-frontend-readers-1`, `s1-e2e-consumers-1` in
+the checkout's evidence location.
 
 ### 2. Review the commit a Default main session made
 Type: Behavior
@@ -243,3 +258,10 @@ leaves other records' references.
 Refinement was not needed: each slice holds one outcome and proof loop, and
 the eight slices are at the limit without exceeding it. This review
 identified no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. A default launch in a checkout Git cannot read keeps no start
+Reported: slice 1 — "An unreadable checkout keeping no start has no test."
+Story clause: "a session whose checkout log cannot be read at Done, keep the not-captured explanation."
+Disposition: receiving slice 4

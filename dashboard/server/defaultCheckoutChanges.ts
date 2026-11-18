@@ -36,6 +36,11 @@ function statusPaths(status: string): string[] {
   return paths;
 }
 
+// The revision the checkout's `HEAD` names, as Git prints it.
+export function checkoutHead(checkout: ProjectFolder): Promise<string> {
+  return gitOutput(checkout.path, ["rev-parse", "--verify", "HEAD"]);
+}
+
 // What a path holds now, without its content.
 async function pathState(checkout: string, file: string): Promise<string> {
   try {
@@ -54,7 +59,7 @@ export async function existingChanges(
   let head: string;
   let status: string;
   try {
-    head = await gitOutput(checkout.path, ["rev-parse", "--verify", "HEAD"]);
+    head = await checkoutHead(checkout);
     status = await gitOutput(checkout.path, [
       "status",
       "--porcelain=v1",

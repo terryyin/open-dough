@@ -21,6 +21,7 @@ import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
 import { launchRecord } from "./launchRecord.ts";
+import { defaultLaunchStartFacts } from "./defaultLaunchStart.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
 import { settleSessionResult } from "./sessionStartSettlement.ts";
@@ -179,13 +180,11 @@ async function launchRun(
   if (host === undefined) {
     throw new Error("An admitted launch has no available host.");
   }
-  const evidence = launchRecording(
-    recording,
-    began,
-    pending ?? establishedLaunch(start)?.handoff.established ?? {},
-    pending,
-    doneMarks,
-  );
+  const facts =
+    pending ??
+    establishedLaunch(start)?.handoff.established ??
+    (await defaultLaunchStartFacts(recording, folder));
+  const evidence = launchRecording(recording, began, facts, pending, doneMarks);
   const launched =
     pending === undefined
       ? await host.launch(
@@ -214,12 +213,7 @@ async function launchRun(
   }
   const record =
     evidence.retained ??
-    launchRecord(
-      recording,
-      launched.session,
-      establishedLaunch(start)?.handoff.established ?? {},
-      new Date().toISOString(),
-    );
+    launchRecord(recording, launched.session, facts, new Date().toISOString());
   if (evidence.retained === undefined)
     await keepRecord(source.id, record, doneMarks);
   await removeLaunchedStart(source.id, record);
