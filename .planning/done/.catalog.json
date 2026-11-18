@@ -8,6 +8,12 @@
       "blob": "240d926bbe4f71833d61a1c6399646dabe129f64"
     },
     {
+      "fileName": "SEED-334_observe-no-stale-candidate-failure-after-show-latest.json",
+      "identity": "SEED-334#observe-no-stale-candidate-failure-after-show-latest",
+      "completedAt": "2026-11-17T23:33:40.235Z",
+      "blob": "b1cbcd1b6dcf0bdd25b6f096d86d2469ba72a2bc"
+    },
+    {
       "fileName": "SEED-345_recover-decisive-verification-evidence.json",
       "identity": "SEED-345#recover-decisive-verification-evidence",
       "completedAt": "2026-11-17T17:29:33.282Z",
