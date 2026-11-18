@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Honoka-chan",
+  "email": "honoka-chan@example.org",
+  "identity": "SEED-382#run-the-integrated-group-as-one-ci-job",
+  "mode": "story-branch",
+  "branch": "claude/run-the-integrated-group-as-one-ci-job",
+  "host": "claude",
+  "model": "claude-fable-5-2"
+}

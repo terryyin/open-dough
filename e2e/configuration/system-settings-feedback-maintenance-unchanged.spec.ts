@@ -11,7 +11,10 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/tests/dashboardTest.ts";
-import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  givePageItsTurns,
+  untilPageRequestsAnswered,
+} from "../../dashboard/tests/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -29,8 +32,11 @@ test("a second feedback-maintenance check on a quiet machine is answered unchang
   await pausePageClockAt(page, new Date());
   await page.goto("/?view=settings");
   await expect(maintenanceLine(page)).toBeVisible();
+  // The setting's answer leads to a full read of its own, so the page's
+  // start-up reads are over only once it has sent and seen answered every
+  // request it sends without page time passing.
+  await untilPageRequestsAnswered(page);
   const shown = await maintenanceLine(page).innerText();
-  await page.waitForLoadState("networkidle");
 
   const answers: {
     readonly held: boolean;
@@ -57,7 +63,7 @@ test("a second feedback-maintenance check on a quiet machine is answered unchang
     await page.clock.runFor(checkIntervalMs);
     await givePageItsTurns(page);
     await expect.poll(() => answers.length).toBeGreaterThan(0);
-    await page.waitForLoadState("networkidle");
+    await untilPageRequestsAnswered(page);
   } finally {
     page.off("response", noted);
   }

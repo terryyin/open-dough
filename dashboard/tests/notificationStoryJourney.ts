@@ -4,7 +4,6 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const notifiedIdentity = "SEED-777#shared-story";
@@ -14,10 +13,6 @@ export const targetRevision = "ba".repeat(20);
 
 export const storyUrl = (project = "doughnut", story = notifiedIdentity) =>
   `/?${new URLSearchParams({ project, story })}`;
-
-// The notified story's card, by Doughnut's title for it.
-export const notifiedCard = (page: Page) =>
-  page.getByRole("article", { name: notifiedTitle, exact: true });
 
 // What the page says of a story destination it cannot show yet or at all.
 export const storyDestination = (page: Page) =>
@@ -96,17 +91,4 @@ export async function notificationOrigins(page: Page, column?: "Taken") {
   const target = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   target.push(targetRevision, targetBacklog(column ?? "Backlog list"));
   return { other, target };
-}
-
-export function expectNoHostActions(dashboard: DashboardServer) {
-  expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  expect(dashboard.claudeAttaches()).toEqual([]);
-  expect(
-    dashboard.claudeCalls().filter(({ argv }) => argv.includes("resume")),
-  ).toEqual([]);
-  expect(
-    dashboard.codex.calls.filter(({ method }) =>
-      ["thread/start", "thread/resume", "turn/start"].includes(method),
-    ),
-  ).toEqual([]);
 }

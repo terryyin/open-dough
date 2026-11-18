@@ -3,7 +3,10 @@
 // holdAuthenticatedReads helpers; successful reads fall through to the owning
 // frontend service substitute.
 import type { Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import {
+  authenticatedReadEndpoint,
+  revisionStreamAtParameter,
+} from "../../src/authenticatedReadRules.ts";
 import { fulfillJson } from "./frontendSubstituteAnswers.ts";
 
 type Answer = "pass" | "unreachable" | { body: unknown; status: number };
@@ -52,3 +55,12 @@ export function countAuthenticatedReads(
 // How many reads of one project's published source the page has asked from now on.
 export const countProjectReads = (page: Page, source: string) =>
   countAuthenticatedReads(page, (params) => params.get("source") === source);
+
+// How many reads of one project's published work the page has asked from now
+// on, its time-paced revision check aside.
+export const countProjectWorkReads = (page: Page, source: string) =>
+  countAuthenticatedReads(
+    page,
+    (params) =>
+      params.get("source") === source && !params.has(revisionStreamAtParameter),
+  );

@@ -44,7 +44,10 @@ export const test = base.extend<
   cursorSubmitPaintMs: [undefined, { option: true }],
   cursorHoldPaint: [false, { option: true }],
   originRepository: queuedOriginRepository,
-  origin: async ({ originRepository }, use) => {
+  // The worker waits for the run's Codex/Cursor queued origin, so the first
+  // Cursor case copies it instead of preparing it in its own time.
+  origin: async ({ originRepository, queuedCodexOriginReady }, use) => {
+    await Promise.resolve(queuedCodexOriginReady);
     const origin = await startOrigin(originRepository, { host: "cursor" });
     await use(origin);
     origin.cleanup();

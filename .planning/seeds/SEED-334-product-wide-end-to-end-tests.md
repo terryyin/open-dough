@@ -9,121 +9,83 @@ scope: story
 # SEED-334 — Product-wide end-to-end tests
 
 
-<a id="keep-navigation-conversion-proof-whole"></a>
-
-### Keep the converted navigation proof whole and time-independent
-
-**Identity:** SEED-334#keep-navigation-conversion-proof-whole
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md"}
-```
-
-**Goal:** A maintainer relies on the Frontend navigation checks that
-SEED-334#move-navigation-checks-and-retire-integrated-ui-test converted: the
-header's non-eager read counts hold however long a journey takes, the paging
-view beside a newly arrived session keeps a home, and no live comment points
-at a deleted interim spec.
-
-**Scope:** Correct that execution's delivered Frontend specs and the one stale
-E2E comment its retrospective found; no product change, no other conversion.
-
-**Plan:** [Converted navigation proof correction](../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md).
-
-<a id="retire-integrated-ui-test-and-its-documents"></a>
-
-### Move story destination and card selection checks out of Dashboard Integrated UI Test
-
-**Identity:** SEED-334#retire-integrated-ui-test-and-its-documents
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aa1b27646de4a5a7c766d4fc9764798ddfab4ee9b55b52538bbb2c5b422f3218","plan":"5961ee06ee103faea32c612b8f4e7a87c7129a3ca9c7ba0c46ffada07d5b32cf"}}
-```
-
-**Goal:** A maintainer keeps the protection for arriving at a story from its
-URL and for selecting a story card in the **Dashboard Frontend Test** group,
-with controlled answers instead of a real dashboard server, so the interim
-group holds four fewer specs and only story-reference and source navigation
-remain before it can retire.
-
-**Scope:**
-
-- Convert `notification-story-navigation`, `story-destination-repeat-cue`,
-  `story-card-selection` and `story-card-dependency-selection` (4 of the
-  remaining 11 navigation specs, 564 of 1,885 lines, 11 tests) with every
-  distinct assertion kept at its real boundary as
-  SEED-334#move-navigation-checks-and-retire-integrated-ui-test did: Frontend
-  homes under `dashboard/frontend-tests/navigation/`, a Backend or
-  representative E2E home only for a rule that needs the real server, and an
-  existing maintained case named where it already makes the same assertion.
-- The interim group stays runnable for its seven remaining specs, with its CI
-  shard declaration unchanged.
-
-Scope limits: the other seven specs, the group's retirement and the
-`dashboard/tests/` Markdown belong to the three stories below; no product
-behavior change, new group or tier, speed or shard target.
-
-**Key examples:**
-
-1. A cold `?project=doughnut&story=SEED-777#shared-story` URL arrives while
-   Doughnut's revision is held. The page does not scroll early or read Open
-   Dough; once answered, Doughnut's card holds the keyboard in view and the
-   route keeps the story. The Frontend case holds and releases that answer
-   itself.
-2. The story a URL names is absent, its project is unknown, or its read
-   fails. Each outcome reads differently, "Retry story destination" recovers
-   the failed one, and a project choice made meanwhile wins without a late
-   reveal.
-3. Asking again for the destination already selected, inspected and reviewed
-   (Back from Intent, Back from Settings) cues it again and keeps its
-   selection, detail and review heading.
-4. Clicking a card's empty area toggles its selection without opening detail;
-   Inspect, a disabled Start, a session entry and the Dependencies disclosure
-   with its explanation leave the selection alone.
-5. Where an interim assertion observed a synthetic host ("no launch, no
-   attach"), the Frontend case observes that the page sent no launch or
-   attach request.
-
-**Provenance:** First outcome of the resplit of this story's earlier scope
-("Move story navigation checks out and retire Dashboard Integrated UI Test
-with its documents", recoverable at
-`87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`), whose plan would have exceeded
-the slice limit. The rest continues in
-SEED-334#move-story-reference-checks,
-SEED-334#retire-emptied-integrated-ui-test-group and
-SEED-334#carry-dashboard-test-knowledge-in-code.
-
-**Plan:** [Story destination and card selection conversion](../slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md)
-
 <a id="move-story-reference-checks"></a>
 
 ### Move story reference checks out of Dashboard Integrated UI Test
 
 **Identity:** SEED-334#move-story-reference-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/689-move-story-reference-checks/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 689."],"basis":{"document":"ee3fc9c8330b4d6983fdeec0f61ef21f987f1e4e1a902d32868a19602da0e199","plan":"0f96086affee62291875a8b9549691a64c6f7a4c63a700b69ef61388c1f39366"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/689-move-story-reference-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1ae32dfc3888added7254e0b95be56191423b42cb4d50d706ccd36256108029e","plan":"648d2bd6e0654c6a7270e01dd4f8f6c0a30ecbca9ea980a75f8fbcab9d3bdea3"}}
 ```
 
-- **For / why.** A maintainer keeps story-reference navigation protection
-  (active and Done references, their identity, cancellation and recovery) in
-  maintained homes, leaving source navigation as the interim group's last
-  spec.
-- **Evaluation.** `story-reference-navigation`, `-identity`, `-recovery`,
-  `-done`, `-done-cancellation` and `-done-recovery` (6 specs, 1,075 lines,
-  19 tests) keep every distinct assertion at its real boundary. A pending
-  Done-story reference superseded by a later move, a pointer down or Tab away
-  before its held detail arrives keeps its cancellation, recovery and focus
-  assertions in Frontend homes with controlled answers; the Backend keeps any
-  request-count or refusal rule. The interim group still runs with
-  `source-navigation` alone, its shard declaration reduced to what selects a
-  spec.
-- **Inputs.** Key example 1 of the earlier scope at
-  `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`; the dependency arrangement
-  SEED-334#retire-integrated-ui-test-and-its-documents adds for
-  `story-card-dependency-selection`.
-- **Boundary.** No product behavior change, retirement or Markdown removal.
-- **Safe stopping point.** Active references alone, or Done references alone,
-  is complete on its own.
+**Goal:** A maintainer keeps the protection for following a story reference,
+to an active or a Done story, by its identity, with its cancellation and
+recovery, in the **Dashboard Frontend Test** group with controlled answers
+instead of a real dashboard server, so `source-navigation` is the interim
+group's last spec and the group can retire next.
 
-**Plan:** [Provisional story reference conversion](../slice-plans/689-move-story-reference-checks/PLAN.md)
+**Scope:**
+
+- Convert `story-reference-navigation`, `-identity`, `-recovery`, `-done`,
+  `-done-cancellation` and `-done-recovery` (6 of the remaining 7 navigation
+  specs, 1,075 of 1,321 lines, 19 tests) with every distinct assertion kept at
+  its real boundary as
+  SEED-334#retire-integrated-ui-test-and-its-documents did: Frontend homes
+  under `dashboard/frontend-tests/navigation/`, a Backend or representative
+  E2E home only for a rule that needs the real server, and an existing
+  maintained case named where it already makes the same assertion.
+- A read the interim case counted at GitHub becomes a count of the page's own
+  reads. A count only the server decides, such as what its cache spares,
+  keeps a Backend home.
+- The real Take behind a starting story stays with E2E
+  `launches/agent-launch-start-dependencies.spec.ts`; the Frontend case
+  observes the protected Inspect while the page's start is unanswered.
+- The interim group stays runnable with `source-navigation` alone, its CI
+  shard declaration reduced to what selects a spec.
+- Test support the deletions leave without a consumer is removed.
+
+Scope limits: `source-navigation`, the group's retirement and the
+`dashboard/tests/` Markdown belong to the two stories below; no product
+behavior change, new group or tier, speed or shard target.
+
+**Key examples:**
+
+1. Story A waits on Story B. Following the reference opens Story B's detail
+   at its reading top with the keyboard on the card and a cue that does not
+   select it. Following again while the cue fades restarts it and keeps the
+   selection and detail made meanwhile. The canonical record opens the GitHub
+   blob of the published revision, and a later revision leaves the keyboard
+   where the developer put it.
+2. Story B is starting and its start is unanswered. The reference moves the
+   keyboard to its card, leaves the protected detail closed, and the page
+   sends no further launch or attach request.
+3. Two stories share one seed, and Pygardon tells `SEED-B#b` in a seed of its
+   own. Each reference opens the story its identity names in the shown
+   project, by keyboard or tap, with a reduced-motion reveal at narrow width.
+4. `SEED-C#c` is not queued: the reference reads "unavailable". Retried while
+   the backlog read is held it reads "Reading…", failed it reads "Could not
+   read…", and once Story C is queued a retry reaches it. Choosing Pygardon
+   or another story's Inspect meanwhile wins, with no late focus or detail.
+5. A reference to the 27th Done story, with ten shown, grows the range to
+   "Showing 27 of 35 entries" and keeps it; the page asks only for the shown
+   records and the referenced suppliers. While that record is held the
+   destination reads "Reading done story…"; failed, it shows its identified
+   gap and "Retry done stories" recovers it.
+6. While that Done destination is pending, Inspect, "Show latest 10", a
+   pointer down or Tab away supersedes the jump: the record arrives and the
+   keyboard stays where the developer moved it.
+7. An expired or unlisted reference reads "unavailable" with no further read;
+   a loading or failed Done catalog reads differently from absence, and an
+   inspection chosen meanwhile stays when the catalog heals.
+
+Safe stopping point: the three active-reference specs alone, or the three
+Done-reference specs alone, is complete on its own.
+
+**Provenance:** Second outcome of the resplit of
+SEED-334#retire-integrated-ui-test-and-its-documents's earlier scope,
+recoverable at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`.
+
+**Plan:** [Story reference conversion](../slice-plans/689-move-story-reference-checks/PLAN.md)
 
 <a id="retire-emptied-integrated-ui-test-group"></a>
 
@@ -131,7 +93,7 @@ SEED-334#carry-dashboard-test-knowledge-in-code.
 
 **Identity:** SEED-334#retire-emptied-integrated-ui-test-group
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-334#retire-emptied-integrated-ui-test-group","dependencies":[{"supplier":{"identity":"SEED-334#retire-integrated-ui-test-and-its-documents","href":"seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents"},"implementation":"Converts the story destination and card selection specs out of dashboard/tests/navigation.","rationale":"A CI shard pattern or group selecting no spec is refused, and a group still holding specs cannot retire; shared direction or reconciliation cannot remove that order.","condition":"The four story destination and card selection specs are gone from dashboard/tests/navigation on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-334#move-story-reference-checks","href":"seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks"},"implementation":"Converts the six story-reference specs out of dashboard/tests/navigation.","rationale":"A CI shard pattern or group selecting no spec is refused, and a group still holding specs cannot retire; shared direction or reconciliation cannot remove that order.","condition":"The six story-reference specs are gone from dashboard/tests/navigation on trunk, leaving source-navigation as the group's only spec.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-334#retire-emptied-integrated-ui-test-group","dependencies":[{"supplier":{"identity":"SEED-334#retire-integrated-ui-test-and-its-documents","href":"seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents"},"implementation":"Converts the story destination and card selection specs out of dashboard/tests/navigation.","rationale":"A CI shard pattern or group selecting no spec is refused, and a group still holding specs cannot retire; shared direction or reconciliation cannot remove that order.","condition":"The four story destination and card selection specs are gone from dashboard/tests/navigation on trunk.","state":"satisfied","resolution":{"revision":"7649aea947b870eb8d84da67f0fa63d0a9c6b9bb","path":".planning/seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents","summary":"At accepted trunk 5fa614519, dashboard/tests/navigation holds only source-navigation and the six story-reference specs; notification-story-navigation, story-destination-repeat-cue, story-card-selection and story-card-dependency-selection moved to dashboard/frontend-tests/navigation with all four plan 688 slices done.\nCondition satisfied: The four story destination and card selection specs are gone from dashboard/tests/navigation on trunk.\nAccepted integration: 5fa614519b253763f6153d596b0e35d1fa7472e1 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-334#move-story-reference-checks","href":"seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks"},"implementation":"Converts the six story-reference specs out of dashboard/tests/navigation.","rationale":"A CI shard pattern or group selecting no spec is refused, and a group still holding specs cannot retire; shared direction or reconciliation cannot remove that order.","condition":"The six story-reference specs are gone from dashboard/tests/navigation on trunk, leaving source-navigation as the group's only spec.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/690-retire-emptied-integrated-ui-test-group/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 690."],"basis":{"document":"a0e8b3a7d1ce364e70fa28b488b55af7566a2ec89be47e3c1b4fdf6aed79f25d","plan":"734f6b6985aa0d5b372590cd28d7c0d18b9873d080c8f7a14fb41284bc60aaac"}}

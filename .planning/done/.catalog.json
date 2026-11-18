@@ -8,6 +8,30 @@
       "blob": "d88a420179b470bd0a4441734fc63312f1961441"
     },
     {
+      "fileName": "SEED-334_keep-navigation-conversion-proof-whole.json",
+      "identity": "SEED-334#keep-navigation-conversion-proof-whole",
+      "completedAt": "2026-11-18T02:37:32.633Z",
+      "blob": "db015a2294c42bab32b334528dcfcd1f1112b0e8"
+    },
+    {
+      "fileName": "SEED-382_give-the-frontend-group-headroom-on-slow-runners.json",
+      "identity": "SEED-382#give-the-frontend-group-headroom-on-slow-runners",
+      "completedAt": "2026-11-18T02:10:16.365Z",
+      "blob": "314d3e810c5dced190b4fe4a2c2f7a06f2c8e2cc"
+    },
+    {
+      "fileName": "SEED-334_share-one-executing-agent-roster-arrangement.json",
+      "identity": "SEED-334#share-one-executing-agent-roster-arrangement",
+      "completedAt": "2026-11-18T01:56:26.573Z",
+      "blob": "954b5a0e1ec9da14affaebf2c18a362eb16cbc71"
+    },
+    {
+      "fileName": "SEED-334_retire-integrated-ui-test-and-its-documents.json",
+      "identity": "SEED-334#retire-integrated-ui-test-and-its-documents",
+      "completedAt": "2026-11-18T00:39:10.114Z",
+      "blob": "1143148fa99bac26dd16ff08e6316b5a899948db"
+    },
+    {
       "fileName": "SEED-340_keep-one-time-test-preparation-out-of-case-budgets.json",
       "identity": "SEED-340#keep-one-time-test-preparation-out-of-case-budgets",
       "completedAt": "2026-11-17T23:34:11.662Z",

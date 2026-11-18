@@ -1,67 +1,31 @@
 // Selection and inspection are separate on active and Recently done cards:
-// Empty-area clicks toggle the selected story's highlight without opening or
-// closing detail. Inspect story opens and
-// closes only its card's detail and leaves the selection alone; nested
-// controls do not select; showing an ad hoc session clears the selection;
-// selection survives Intent without a "Selected story only" toggle. Several
-// open details and dependency references: ../stories/story-card-inspection.spec.ts.
+// empty-area clicks toggle the selected story's highlight without opening or
+// closing detail. Inspect story opens and closes only its card's detail and
+// leaves the selection alone; a disabled Start and a session entry do not
+// select or launch; selection survives Intent without a "Selected story only"
+// toggle. Showing an ad hoc session clears the selection in
+// ../intent/intent-ci-status-side-panel.spec.ts; several open details and
+// dependency references in ../../../e2e/stories/story-card-inspection.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchRecords } from "../support/launchStore.ts";
-import {
-  at,
-  executed,
-  placed,
-  publishedFiles,
-  queuedTitle,
-  removedQueued,
-  repository,
-  revision,
-  doneRecordFacts,
-} from "../recentlyDoneRecords.ts";
-import {
-  adHocEntry,
-  expectEntries,
-  sessionsOutsideDoneStories,
-} from "../recentlyDoneColumn.ts";
-import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { executed, queuedTitle } from "../../tests/recentlyDoneRecords.ts";
+import { openFrontendStoryCardSessions } from "../../tests/support/frontendRecentlyDoneStoryCards.ts";
+import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
 import {
   emptyArea,
   expectInspected,
   expectSelected,
   storyDetail,
-} from "../storyCardSelection.ts";
-import { hideDetail, storyCard } from "../storyCardControls.ts";
+} from "../../tests/storyCardSelection.ts";
+import { hideDetail, storyCard } from "../../tests/storyCardControls.ts";
 
 test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const now = Date.now();
-  // Done ad-hoc + this card's session only, so backlog Start stays clickable.
-  keepLaunchRecords(dashboard, [
-    ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }).filter(
-      (record) => record.request.workflow === "ad-hoc",
-    ),
-    makeMe.aLaunchRecord
-      .executing(executed)
-      .inClaudeSession({
-        sessionId: "0e5c2d7a-done-session-of-card-shows-avatar",
-      })
-      .launchedAt(at(now, placed.executedDoneSessionLaunched))
-      .markedDoneAt(at(now, placed.executedDoneSessionMarked))
-      .please(),
-  ]);
-  await publishFiles(page, {
-    repository,
-    revision,
-    files: publishedFiles(doneRecordFacts(now)),
-  });
-  await page.goto("/");
-  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+  await openFrontendStoryCardSessions(page, frontendServices);
+  const hostRequests = recordHostRequests(page);
   const {
     backlog,
     recentlyDone: recent,
@@ -71,15 +35,6 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   } = parts(page);
   const active = storyCard(backlog, queuedTitle);
   const done = storyCard(recent, executed.title);
-  await expectEntries(recent, [
-    adHocEntry,
-    executed.title,
-    removedQueued.title,
-  ]);
-
-  const detail = active.getByRole("region", {
-    name: `Detail for ${queuedTitle}`,
-  });
   const activeEmptyArea = emptyArea(active);
 
   await test.step("empty-area click selects and clears an active card without opening detail", async () => {
@@ -95,7 +50,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     await active.getByRole("button", { name: "Inspect story" }).click();
     await expectInspected(active, true);
     await expectSelected(active, false);
-    await detail.click();
+    await storyDetail(active).click();
     await expectSelected(active, false);
     await activeEmptyArea.click();
     await expectSelected(active, true);
@@ -108,7 +63,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     await expectSelected(active, false);
   });
 
-  await test.step("disabled Start does not change selection", async () => {
+  await test.step("disabled Start does not change selection or launch", async () => {
     await activeEmptyArea.click();
     await expectSelected(active, true);
     // Disabled Start must not select via event fall-through.
@@ -117,23 +72,10 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     await start.click({ force: true });
     await expectSelected(active, true);
     await expect(page.getByRole("dialog")).toHaveCount(0);
+    expect(hostRequests()).toEqual([]);
   });
 
-  await test.step("showing a session attached to no story clears the selection", async () => {
-    const shown = await showRecentlyDone(page);
-    await shown.open("Open Dough session").click();
-    await expect(
-      page.getByRole("region", { name: /Terminal|Final report/ }),
-    ).toBeVisible();
-    await expectSelected(active, false);
-    await expectInspected(active, false);
-    await intentChoice.click();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await development.click();
-    await shown.button.click();
-  });
-
-  await test.step("a Recently done card takes the one selection without opening detail; its session entry does not toggle", async () => {
+  await test.step("a Recently done card takes the one selection without opening detail; its session entry does not toggle or attach", async () => {
     await emptyArea(done).click();
     await expectSelected(done, true);
     await expectSelected(active, false);
@@ -147,6 +89,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     await session.click();
     await expectSelected(done, true);
     await expect(storyDetail(done)).toHaveCount(0);
+    expect(hostRequests()).toEqual([]);
   });
 
   await test.step("selection survives Intent and clears with no Selected story only toggle", async () => {

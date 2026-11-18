@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 573. Removed numbers are never reused.
+- Highest allocated local number: 576. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -77,6 +77,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: CI run [44128960353/1](https://github.com/terryyin/open-dough/actions/runs/44128960353/job/134200426222) failed `native-stream-replay.sh`: new `native-agent-return-inputs.sh:13` emitted a raw host-event literal. Public-entry transport and eight selected consumer checks had passed. Repair `45ff02fee774a270826cd7507fee2ce1c9d077cc` uses the documented jq construction, adds completed-execution/neutral-response facts, and passes guard plus 20 public scenarios; exact branch CI run 44132082409/1 then succeeds.
   - Observed effect: an unchanged repository-wide stream validator was omitted from the selected consumer proof, causing one CI failure and repair cycle before integration.
   - Inference: matches the existing global-validator form of ODF-150. Earlier guard selection could expose the defect before CI; isolated time or token saving is unmeasured.
+
+- Execution: SEED-382#give-the-frontend-group-headroom-on-slow-runners (first implementation `389b28dfc8380a49cd134c7d67d1ad8861f4a157`)
+  - Timestamp: unknown (2026-11-18; the coordinator's spec run started 2026-11-18T01:48:53Z, after the refactor return)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `3d4487126`)
+  - Evidence: slice 1 changed the `dashboard-frontend` job's `shards` in `ci.yml`. The implementer's trace (terms `dashboard/frontend-tests=`, `dashboard-frontend`) selected the plan's six checks plus five more `ci.yml`-reading support checks, all passing, and did not name `splitExcluding` (`dashboard/tests/support/proofRecordRun.ts`), which reads that job's shards for `dashboard/backend-tests/runtime/runner-ownership.spec.ts`. The refactor pass named it; the coordinator ran the spec (5 tests, pass) before publication, and branch run 44218814549/1 passed.
+  - Observed effect: a browser-spec consumer of the changed declaration was missing from the implementation return and found one stage later, before publication; no failure or repair cycle.
+  - Inference: the same missed-consumer form, here through a TypeScript reader of the workflow file that neither search term names by path; the support-check selection the earlier rows recommend was applied and held. Cost was one extra local spec run.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -892,6 +901,14 @@ output. A new runtime spec's `console.log` passed locally and failed hosted CI.
   - Evidence: run 44125679359 dashboard-backend shard 1/3 failed all three `test-preparation-budget.spec.ts` cases on the strict reporter; repair d7fbd57e1 moved the intervals to `test.info().attach`. The coordinator's own memory then still advised `--reporter=list` for single specs.
   - Observed effect: one stash/repair/publish cycle and one cancelled CI run; later briefs forbade `--reporter=list` and no recurrence followed.
   - Inference: local proof differing from CI's reporter is the cause; the saving of matching it is unmeasured.
+- Execution: SEED-334#share-one-executing-agent-roster-arrangement (plan 694; first implementation 66cf068dd)
+  - Timestamp: 2026-11-18T01:42:55Z (coordinator's counted rerun)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 02e33c018)
+  - Evidence: plan 694's slice 1 proof command named `--reporter=list`; the brief dropped it. The implementer then set `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`, not the Frontend group's `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` (dashboard/tests/README.md proof record), so its passing runs left no selection count.
+  - Observed effect: the coordinator ran the focused journeys once more with the group's proof record to see 8 selected, all expected.
+  - Inference: plans still copy the list-reporter form, and the strict form's group prefix is easy to miss; about one extra minute of proof.
 
 ## DD-572 — A natural-load acceptance gates completion on machine state no agent controls <a id="dd-572"></a>
 
@@ -911,7 +928,60 @@ burner load instead.
   - Observed effect: completion was held with all slices otherwise delivered; the decisive protection came from the load-independent nested proof, not the loaded timing.
   - Inference: a load-independent discriminating proof plus optional loaded timing may serve such stories without an uncontrollable gate.
 
-## DD-573 — Slice clock keeps running while the coordinator waits on a developer question <a id="dd-573"></a>
+## DD-573 — A refactor pass removes support as dead after searching only the dashboard test folders <a id="dd-573"></a>
+
+A post-change refactor pass judged support unused from a search limited to
+`dashboard/tests` and `dashboard/frontend-tests`, removed it, then found
+callers under `e2e/` and `dashboard/backend-tests/` and restored the files.
+
+### Occurrences
+
+- Execution: SEED-334#retire-integrated-ui-test-and-its-documents (plan 688; first implementation `c2f93725c`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 3 refactor pass)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `0f5a7964c`)
+  - Evidence: slice 3 refactor return: it removed `storyWorktree` and un-exported `openStoryReview` after the deletion of `dashboard/tests/navigation/story-destination-repeat-cue.spec.ts`, then restored both with `git show HEAD:<path> > <path>` once e2e and Backend callers turned up; `git status` clean afterwards. Slice 4's brief then required a whole-checkout grep, and its return complied.
+  - Observed effect: no change reached a commit; one wasted edit-and-restore round inside the pass.
+  - Inference: the dead-code check names no search scope; a test-folder search looks sufficient for test support but is not. Overlaps DD-568 (agents replace the scripted trace with their own search). Cost not measured.
+
+## DD-574 — A planned scratch break cannot fail at the step's own position <a id="dd-574"></a>
+
+The plan named a scratch break, "a paging reset on session arrival", for a
+step that sits on Backlog, the Board's first position, where a reset changes
+nothing. Planning settled the step's premise but never checked that the break
+could fail there.
+
+### Occurrences
+
+- Execution: SEED-334#keep-navigation-conversion-proof-whole (plan 687; first implementation `41d93d114`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `46aa7f7c0`)
+  - Evidence: slice 2 report `s2-report.md` (story-branch evidence dir): runs `s2-break-a` to `s2-break-a10`; a–a3 crashed at startup, a5/a6 watched an attribute the cards lack, a4/a9 forward moves passed, a7 a 300 ms late move passed, only a10 with a fixed 1 s wait failed. Plan 687 slice 2 learning records the limit (`bc928d061:.planning/slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md`); P4 observed only the passing step.
+  - Observed effect: ten break runs to establish that the break could not bite; the slice accepted the step with a recorded limitation.
+  - Inference: checking a planned break's ability to fail, at the asserted state, while settling premises would have reworded or dropped it before execution. Run time sat outside the slice clock; slice active time was 5.8 min.
+
+## DD-575 — A plan prescribes a new promise as a step of another behaviour's test <a id="dd-575"></a>
+
+The plan said an existing paging test "gains its final step" for a separate
+promise. The implementer followed it and lengthened the test's title; the
+refactor checks forbid widening another behaviour's test, so the refactor pass
+split it into its own test and renewed its proof.
+
+### Occurrences
+
+- Execution: SEED-334#keep-navigation-conversion-proof-whole (plan 687; first implementation `41d93d114`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 2 refactor pass)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `46aa7f7c0`)
+  - Evidence: plan 687 slice 2 Proof ("`board-paging-side-panel.spec.ts` gains its final step", `bc928d061:.planning/slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md`); slice 2 refactor return: new test in `board-paging-side-panel.spec.ts` at `251c507ae`, reruns `s2-refactor-specs` and `s2-refactor-break-b`.
+  - Observed effect: one restructure and two renewed proof runs inside the refactor pass, which used its full 15 active minutes.
+  - Inference: slice planning applied the interim journey's shape without the test-boundary check the refactor pass later applied. Cost beyond those reruns not measured.
+
+## DD-576 — Slice clock keeps running while the coordinator waits on a developer question <a id="dd-576"></a>
 The coordinator asked the developer a CI-repair question while a repair slice's clock was running and paused it only after the answer, so the wait counted as active time.
 
 ### Occurrences

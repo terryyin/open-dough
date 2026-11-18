@@ -201,9 +201,9 @@ test.describe("project read isolation", () => {
     // Returning to Open Dough while Doughnut's read is still outstanding.
     // Its own backlog changed underneath it since the first read (the same
     // "returning to a project starts a fresh read" rule
-    // ../../dashboard/tests/navigation/project-selection.spec.ts proves for
-    // the sequential case), so a cached replay of the first snapshot would
-    // show the wrong title.
+    // ../../dashboard/frontend-tests/navigation/project-selection.spec.ts
+    // proves for the sequential case), so a cached replay of the first
+    // snapshot would show the wrong title.
     pushOpenDough(openDough, "third");
     await projectTab(page, "Open Dough").check();
 

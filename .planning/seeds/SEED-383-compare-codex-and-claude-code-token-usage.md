@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-383#tell-compared-usage-tools-apart
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/662-tell-compared-usage-tools-apart/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/662-tell-compared-usage-tools-apart/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7bbde2078ac0afd6838bc215db389e885fbc3fcfb668ada4989f9948bfe4c61f","plan":"5345a4a0043f5557d4990d9891fef1699b965a12be1a7d38eef8fa831c7f72b1"}}
 ```
 
 #### Goal

@@ -10,7 +10,7 @@
 // ./dashboard-header-compact.spec.ts's.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import { countProjectWorkReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 import {
   answerCatalogProjects,
@@ -18,7 +18,7 @@ import {
 } from "../../tests/support/frontendCatalogProjects.ts";
 import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
 import {
-  publishLargeBacklog,
+  publishLargeBacklogWithRecords,
   queuedCount,
   queuedTitle,
 } from "../../tests/accessibleBoard.ts";
@@ -67,15 +67,16 @@ for (const viewport of layouts) {
       width: viewport.width,
       height: viewport.height,
     });
-    // Open Dough's long Board, and three more projects choosable beside it.
-    publishLargeBacklog(frontendServices);
+    // Open Dough's long Board with its story records, and three more projects
+    // choosable beside it.
+    publishLargeBacklogWithRecords(frontendServices);
     const { doughnut, pygardon, terryTalks } = catalogPublications;
     await answerOwnPublications(page, frontendServices, [
       doughnut,
       pygardon,
       terryTalks,
     ]);
-    const openDoughReads = countProjectReads(page, "open-dough");
+    const openDoughReads = countProjectWorkReads(page, "open-dough");
     await page.goto("/");
     // A wider installed font reproduces the Linux first-row wrapping; the
     // same geometry, text and keyboard promises must still hold.
@@ -95,7 +96,7 @@ for (const viewport of layouts) {
     // Preparation facts reflow the cards; measure a settled page.
     await expectSettledPage(page);
     await untilPageReadsAnswered(page);
-    // The settled opening reads of Open Dough.
+    // The settled opening reads of Open Dough's work, every one answered.
     expect(openDoughReads()).toBe(20);
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
@@ -172,8 +173,8 @@ test("banner project selection reads the selected project's actual published wor
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await answerCatalogProjects(page, frontendServices);
-  const openDoughReads = countProjectReads(page, "open-dough");
-  const doughnutReads = countProjectReads(page, "doughnut");
+  const openDoughReads = countProjectWorkReads(page, "open-dough");
+  const doughnutReads = countProjectWorkReads(page, "doughnut");
   await page.goto("/");
   const { banner, project } = parts(page);
   const sessions = sessionsSidebarParts(page).button;
@@ -191,7 +192,7 @@ test("banner project selection reads the selected project's actual published wor
   await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
   await expectProjectChoice(page, "Doughnut");
   await untilPageReadsAnswered(page);
-  // Each project was read once, settled: switching re-reads neither.
-  expect(openDoughReads()).toBe(6);
-  expect(doughnutReads()).toBe(6);
+  // Each project's work was read once, settled: switching re-reads neither.
+  expect(openDoughReads()).toBe(5);
+  expect(doughnutReads()).toBe(5);
 });
