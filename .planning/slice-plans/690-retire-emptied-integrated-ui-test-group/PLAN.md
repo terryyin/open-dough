@@ -200,7 +200,7 @@ the new support; the run exercised both its registration and helper calls.
 
 ### 3. Keep external and refused targets apart in the Frontend group
 Type: Behavior
-Status: planned
+Status: done
 Proof: interim tests 2 and 3 in
 `dashboard/frontend-tests/navigation/source-navigation-refused.spec.ts`, same
 test names and arrangement. Scratch break: `resolveSourceLink` offers a
@@ -223,6 +223,17 @@ Assertion map:
 - Nothing runs: the heading and direction shown as text, no injected markup
   before and after reading every card, anchor schemes only `https:` and
   `http:`, no dialog, title and URL unchanged.
+
+Accepted implementation proof: all three Frontend source-navigation cases
+passed using
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts dashboard/frontend-tests/navigation/source-navigation.spec.ts dashboard/frontend-tests/navigation/source-navigation-refused.spec.ts --workers=2`.
+Dashboard typecheck passed. A detached scratch build offered the recorded
+script-scheme target as a clickable link with an inert web destination.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts dashboard/frontend-tests/navigation/source-navigation-refused.spec.ts --grep 'source navigation shows unsafe or invalid targets as text that cannot be followed' --workers=2`
+exited 1, observing the missing script refusal explanation and one link
+where zero was expected, before any click. The scratch was retired. The
+Git evidence directory's `slice-3-return.md` links the terminal records
+and consumer trace. Both consumers of the shared Frontend helper ran.
 
 ### 4. Stop group-neutral tests borrowing the interim group
 Type: Structure
@@ -326,5 +337,8 @@ carries its preparation.
   alters slice 1's boundary or proof.
 - Slice 1 was accepted and observed on the story branch at
   `e11d06fe0cc02e66647236621ce25599110b6032`. Independent review required
+  no refactor edits. Selective formatting, full lint and the commit hook passed.
+- Slice 2 was accepted and observed on the story branch at
+  `1766009f3c366cdf132e97a1ebd2ac8938fa71b6`. Independent review required
   no refactor edits. Selective formatting, full lint and the commit hook passed.
 - Reuse existing planning authority. No separate overrun replan was selected.

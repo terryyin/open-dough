@@ -137,6 +137,15 @@ export async function inspectedSources(story: Locator): Promise<Locator> {
   });
 }
 
+export async function clickRefusedTargets(
+  sources: Locator,
+  recordedTargets: readonly string[],
+) {
+  for (const target of recordedTargets) {
+    await sources.getByText(target).click();
+  }
+}
+
 // Each card's source links in turn, each read in its own detail, which is
 // closed again after reading.
 export async function forEachStoryCardsSources(

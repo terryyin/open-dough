@@ -48,16 +48,16 @@ source conditions.
 | 3 | A recorded `..` path resolves to its target inside the repository. | slice 2 | observed: source-navigation.spec.ts dot and root path step: ADR pinned pathname and #decision from the dot path |
 | 4 | A recorded root path resolves to its target inside the repository. | slice 2 | observed: source-navigation.spec.ts dot and root path step: pinned root-relative docs/release%20notes/2026.md |
 | 5 | A snapshot file is labeled “File in this snapshot.” | slice 2 | observed: source-navigation.spec.ts seed and plan step: short inspected revision in the snapshot label |
-| 6 | An external reference is labeled “External reference.” | slice 3 |  |
+| 6 | An external reference is labeled “External reference.” | slice 3 | observed: frontend-tests/navigation/source-navigation-refused.spec.ts external reference case: exact both hrefs, explanation twice, no snapshot label or short revision, actual popup request and dashboard stays |
 | 7 | Every card anchor has `target="_blank"`. | slice 2 | observed: source-navigation.spec.ts every card anchor step: exact _blank on every anchor, with a nonempty set |
 | 8 | Every card anchor has `rel="noopener noreferrer"`. | slice 2 | observed: source-navigation.spec.ts every card anchor step: exact noopener noreferrer on every anchor |
 | 9 | Following a recorded link opens a new tab. | slice 2 | observed: source-navigation.spec.ts follows snapshot link; frontendSourceNavigation.ts followLeavingDashboard observes popup and request before closing |
 | 10 | Following that link leaves the dashboard in place in the original tab. | slice 2 | observed: source-navigation.spec.ts follow step and frontendSourceNavigation.ts followLeavingDashboard, unchanged original URL/project and still-visible expanded detail |
-| 11 | A `javascript:` target is shown as text with its refusal reason and is unavailable as a link. Key example 1 locates this assertion in the maintained Frontend source-navigation spec. | slice 3 |  |
-| 12 | A `data:` target is shown as text with its refusal reason and is unavailable as a link. | slice 3 |  |
-| 13 | An invalid target is shown as text with its refusal reason and is unavailable as a link. | slice 3 |  |
-| 14 | Recorded markup is displayed as literal text. | slice 3 |  |
-| 15 | Displaying recorded markup executes none of it. | slice 3 |  |
+| 11 | A `javascript:` target is shown as text with its refusal reason and is unavailable as a link. Key example 1 locates this assertion in the maintained Frontend source-navigation spec. | slice 3 | observed: source-navigation-refused.spec.ts script and data step: literal script text, refusal reason and zero links; scratch with clickable output failed both rejection assertions before clicks |
+| 12 | A `data:` target is shown as text with its refusal reason and is unavailable as a link. | slice 3 | observed: source-navigation-refused.spec.ts script and data step: literal data text, refusal reason, zero links and click on text |
+| 13 | An invalid target is shown as text with its refusal reason and is unavailable as a link. | slice 3 | observed: source-navigation-refused.spec.ts no-file/no-address step: five recorded texts and their reasons, each card has zero links |
+| 14 | Recorded markup is displayed as literal text. | slice 3 | observed: source-navigation-refused.spec.ts recorded text step: heading and direction display the literal markup as text |
+| 15 | Displaying recorded markup executes none of it. | slice 3 | observed: source-navigation-refused.spec.ts recorded text step: no injected markup before or after each card inspection, only web schemes, no dialogs, unchanged title and URL after clicks |
 | 16 | The page asks its own server for the canonical SEED-021 seed file. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes the SEED-021 seed |
 | 17 | The page asks its own server for the correction’s canonical plan file. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes plan 059 |
 | 18 | The page asks its own server for the canonical ADR file. | slice 2 | observed: source-navigation.spec.ts settled exact path array after inspecting all cards includes the ADR |
