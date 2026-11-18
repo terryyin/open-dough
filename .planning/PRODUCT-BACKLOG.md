@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Bound a session's kept commits to its Done](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done) — SEED-379#bound-capture-to-done ([plan](slice-plans/703-bound-session-capture-to-done/PLAN.md))
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable ([plan](slice-plans/704-stable-client-finding-records/PLAN.md))
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review ([plan](slice-plans/705-keep-own-branch-session-results-for-review/PLAN.md))
+- [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories ([plan](slice-plans/643-declare-intent-comparison-histories/PLAN.md))
 
 ## Backlog list
 
@@ -40,7 +41,6 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
-- [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories
 - [Declare local worktree review state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state) — SEED-353#declare-local-worktree-review-state
 - [Declare merged review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-merged-review-histories) — SEED-353#declare-merged-review-histories
 - [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship

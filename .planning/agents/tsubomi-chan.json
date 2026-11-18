@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-353#declare-intent-comparison-histories",
+  "mode": "story-branch",
+  "branch": "claude/declare-intent-comparison-histories-through-make",
+  "host": "claude"
+}
