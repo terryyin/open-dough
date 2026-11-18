@@ -1,11 +1,10 @@
 // Machine-local settings answers for frontend-only System settings journeys:
 // the configured projects with their local facts, OpenAI status, terminal
-// theme, syntax styling and feedback maintenance, kept as state that the
-// page's accepted changes update the way the local dashboard server answers
-// them (../../server/projectConfigurationBoundary.ts,
-// ../../server/localJsonEndpoints.ts). A test refuses or holds one answer to
-// observe the page's recovery; every change the page posts stays inspectable
-// in `changes`.
+// theme and feedback maintenance, kept as state that the page's accepted
+// changes update the way the local dashboard server answers them
+// (../../server/projectConfigurationBoundary.ts, ../../server/localJsonEndpoints.ts).
+// A test refuses or holds one answer to observe the page's recovery; every
+// change the page posts stays inspectable in `changes`.
 
 import type { Page, Route } from "@playwright/test";
 import type { ConfiguredProject } from "../../server/projectConfiguration.ts";
@@ -27,11 +26,6 @@ import {
   terminalThemeSaveEndpoint,
 } from "../../src/terminalThemeSetting.ts";
 import type { TerminalThemeId } from "../../src/terminalThemes.ts";
-import {
-  syntaxStylingEndpoint,
-  syntaxStylingSaveEndpoint,
-} from "../../src/syntaxStylingSetting.ts";
-import type { SyntaxStylingId } from "../../src/syntaxStylingChoices.ts";
 import {
   feedbackMaintenanceEndpoint,
   type FeedbackMaintenanceSetting,
@@ -58,8 +52,6 @@ export type FrontendSettingsMachine = {
   readonly adding?: PublishedSource;
   // Whether an OpenAI API key is saved; none unless stated.
   readonly openAIConfigured?: boolean;
-  // Syntax styling already saved on this machine; Default when omitted.
-  readonly syntaxStyling?: SyntaxStylingId;
 };
 
 export type SettingsChange = {
@@ -94,8 +86,6 @@ const settingsEndpoints = [
   openAIRemoveEndpoint,
   terminalThemeEndpoint,
   terminalThemeSaveEndpoint,
-  syntaxStylingEndpoint,
-  syntaxStylingSaveEndpoint,
   feedbackMaintenanceEndpoint,
 ];
 
@@ -120,7 +110,6 @@ export async function installFrontendSettingsSubstitutes(
   let configured = [...machine.projects];
   let openAIConfigured = machine.openAIConfigured ?? false;
   let terminalTheme: TerminalThemeId = "default";
-  let syntaxStyling: SyntaxStylingId = machine.syntaxStyling ?? "default";
   const feedbackMaintenance: FeedbackMaintenanceSetting = { enabled: false };
   const changes: SettingsChange[] = [];
   const refusals = new Map<string, Answer>();
@@ -186,13 +175,6 @@ export async function installFrontendSettingsSubstitutes(
       endpoint === terminalThemeSaveEndpoint
     )
       return { status: 200, body: { theme: terminalTheme } };
-    if (endpoint === syntaxStylingSaveEndpoint)
-      syntaxStyling = body["styling"] as SyntaxStylingId;
-    if (
-      endpoint === syntaxStylingEndpoint ||
-      endpoint === syntaxStylingSaveEndpoint
-    )
-      return { status: 200, body: { styling: syntaxStyling } };
     return { status: 200, body: feedbackMaintenance };
   };
   const answer = async (route: Route, endpoint: string) => {

@@ -32,9 +32,9 @@ expansion shows only in the toggle. With a story comparison, file rows and
 location headers whose path is a compared entry show the same count-border
 and duration-tint cues, with Proof's words in their accessible names; folder
 rows do not. Selecting a file still reads its exact published text with line
-numbers and shared Off/Default syntax styling (System settings → General) at
-Intent's reading revision, including Java/JUnit source selected by `kind: "java"`
-(`.java` with optional `include` patterns). Java membership follows configuration, with no annotation discovery;
+numbers and its kind's syntax styling at Intent's reading revision, including
+Java/JUnit source selected by `kind: "java"` (`.java` with optional `include`
+patterns). Java membership follows configuration, with no annotation discovery;
 source availability supplies no CI result. A location
 may instead declare `sources` entries, each with `include` patterns and an
 optional `syntax` hint ([project configuration](../dashboard/PROJECT-CONFIGURATION.md)):

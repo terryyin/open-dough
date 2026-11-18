@@ -6,12 +6,10 @@ import { OpenAISettings } from "./OpenAISettings.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectsSettings } from "./ProjectsSettings.tsx";
 import { SystemSettingsUsage } from "./SystemSettingsUsage.tsx";
-import { SyntaxStylingSettings } from "./SyntaxStylingSettings.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import "./frame-controls.css";
 import "./project-configuration.css";
-import "./settings-choice.css";
 
 // System settings' separate views: the existing settings together as General,
 // and Usage.
@@ -68,7 +66,6 @@ export function SystemSettings({
           <ProjectsSettings selectedId={selectedId} onSelect={onSelect} />
           <OpenAISettings />
           <TerminalThemeSettings />
-          <SyntaxStylingSettings />
           <FeedbackMaintenanceSettings />
         </>
       ) : (

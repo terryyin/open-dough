@@ -86,7 +86,7 @@ export function TerminalThemeSettings() {
         Choose the colours embedded terminals use on this machine. A choice is
         saved as soon as it is made.
       </p>
-      <div className="settings-choice">
+      <div className="terminal-theme-settings-choice">
         <label htmlFor="terminal-theme">Terminal theme</label>
         <select
           id="terminal-theme"
