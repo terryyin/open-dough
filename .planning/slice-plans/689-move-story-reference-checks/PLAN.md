@@ -237,6 +237,9 @@ supersedes the jump: the record arrives, the keyboard stays where the
 developer moved it, the notice empties and the pointer's own click still
 opens detail. The interim group lists 3 tests in 1 file.
 
+## Execution complete
+
+Product advice: no change; `source-navigation` is now the interim group's last spec, which unblocks SEED-334#retire-emptied-integrated-ui-test-group as next.
 
 ## Story obligations
 
