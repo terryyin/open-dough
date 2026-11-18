@@ -62,3 +62,7 @@ unchanged `answerSharedStoryProjects` (typecheck). Refactor pass: no change.
 Refinement: not needed; one Structure slice in two files.
 
 Remaining slice-specific concerns: none identified in this review.
+
+## Execution complete
+
+Product advice: no change. The one owner, `publishExecutingRoster`, serves both journeys; no correction or queue change follows.
