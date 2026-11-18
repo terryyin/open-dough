@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart ([plan](slice-plans/662-tell-compared-usage-tools-apart/PLAN.md))
 - [Chain the Board paging beside the Side panel journey through fluent page objects](seeds/SEED-300-dashboard-test-page-objects.md#chain-board-paging-side-panel-page-objects) — SEED-300#chain-board-paging-side-panel-page-objects
+- [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks ([plan](slice-plans/689-move-story-reference-checks/PLAN.md))
 
 ## Backlog list
 
@@ -39,7 +40,6 @@ intent introduced or affected by a newly developed story.
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
-- [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group
 - [Carry dashboard test knowledge in test code and remove its Markdown](seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code) — SEED-334#carry-dashboard-test-knowledge-in-code
