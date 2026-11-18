@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets ([plan](slice-plans/685-keep-one-time-test-preparation-out-of-case-budgets/PLAN.md))
 - [Keep a departed candidate read from showing a failure after Show latest](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-no-stale-candidate-failure-after-show-latest) — SEED-334#observe-no-stale-candidate-failure-after-show-latest ([plan](slice-plans/686-observe-no-stale-candidate-failure-after-show-latest/PLAN.md))
-- [Move story destination and card selection checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents) — SEED-334#retire-integrated-ui-test-and-its-documents ([plan](slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md))
 
 ## Backlog list
 

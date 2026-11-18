@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_retire-integrated-ui-test-and-its-documents.json",
+      "identity": "SEED-334#retire-integrated-ui-test-and-its-documents",
+      "completedAt": "2026-11-18T00:39:10.114Z",
+      "blob": "1143148fa99bac26dd16ff08e6316b5a899948db"
+    },
+    {
       "fileName": "SEED-345_recover-decisive-verification-evidence.json",
       "identity": "SEED-345#recover-decisive-verification-evidence",
       "completedAt": "2026-11-17T17:29:33.282Z",
@@ -2550,12 +2556,6 @@
       "identity": "SEED-136#restore-ci-under-three-minutes",
       "completedAt": "2026-10-19T03:03:42.665Z",
       "blob": "92b76149fa0101e48b84bc529c2f51433e883dbe"
-    },
-    {
-      "fileName": "SEED-137_preserve-starts-during-dashboard-updates.json",
-      "identity": "SEED-137#preserve-starts-during-dashboard-updates",
-      "completedAt": "2026-10-19T00:17:57.198Z",
-      "blob": "65d06d8b019bf4fb5f7f5470b51fa369f1c25884"
     }
   ],
   "unreadable": []

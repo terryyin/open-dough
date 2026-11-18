@@ -12,7 +12,8 @@ SEED-334#retire-integrated-ui-test-and-its-documents at
 `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6` (provisional plan 648 slices 5 and
 7 at `4eb4f8e594ee003a2894c28c8ab2600e1c42b835`). Conversion conventions,
 proof rule and gates are those of
-[plan 688](../688-move-story-destination-and-card-selection-checks/PLAN.md).
+plan 688, recoverable at
+`7649aea947b870eb8d84da67f0fa63d0a9c6b9bb:.planning/slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md`.
 The last conversion and the retirement publish as one delivery.
 
 ## Provisional slices

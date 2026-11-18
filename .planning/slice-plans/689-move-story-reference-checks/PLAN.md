@@ -13,7 +13,8 @@ SEED-334#retire-integrated-ui-test-and-its-documents at
 `4eb4f8e594ee003a2894c28c8ab2600e1c42b835`). Six specs, 1,075 lines, 19 tests,
 keep every distinct assertion in Frontend, Backend or representative E2E
 homes. Conversion conventions, proof rule and gates are those of
-[plan 688](../688-move-story-destination-and-card-selection-checks/PLAN.md).
+plan 688, recoverable at
+`7649aea947b870eb8d84da67f0fa63d0a9c6b9bb:.planning/slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md`.
 
 ## Provisional slices
 
