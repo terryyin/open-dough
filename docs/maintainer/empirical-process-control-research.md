@@ -1673,3 +1673,82 @@ is merged or split incorrectly, or the maintainer must reconstruct what a
 full row would have said. A sample with no repeat leaves effectiveness open.
 An unverified execution release leaves the failed-fix judgment open. Terry
 decides on the recording choice after the comparison.
+
+### Exploratory historical replay
+
+Two fresh readers applied the current and trial wording to 13 case projections
+from five projects. The decision basis and packet were committed before the
+first read. Each projection used an earlier finding snapshot and the evidence
+available at the execution. Both readers received the same pre-execution
+allocation facts for A3–A5 after their first read and before recording.
+All three readings, including the Group A rerun after the wording change,
+displayed the whole assigned packet before judgment. Each output used its
+case's projection. Readers could see later cases in that packet. The answer
+note stayed outside all three reads. [Historical replay inputs](https://github.com/terryyin/open-dough/blob/98f22f24cb0eada160391d0c7b22f968169d9147/.planning/slice-plans/706-pilot-repeat-retrospective-findings/replay-inputs.md)
+
+| Case | Current | Original trial | Revised Group A | What the scratch logs retained |
+| --- | --- | --- | --- | --- |
+| A1 · Open Dough ODF-200 | Full | Full | Full | The Story Branch increment reached trunk before review or integration. |
+| A2 · Open Dough ODF-200 | Full | Full | Full | After the change to 0.3.57, the command refused the missing mode and accepted an explicit Story Branch retry. The run did not exercise the wrong-branch guard. |
+| A3 · Open Dough ODF-325 | Full | Full | Full | The first recorded empty delegation reported 36,526 subagent tokens and yielded no evidence. This execution preceded the Clipboard cases. |
+| A4 · Clipboard ODF-325 evidence | Full | Full | Full | The first report in its pinned snapshot retained the one-call cost. |
+| A5 · Clipboard ODF-325 evidence | Full | Full | Full | The separate execution retained the one-call cost. Its pinned snapshot had no matching report. |
+| A6 · Open Dough ODF-325 | Full | Line | Full | The original trial line kept the execution identity and release. It omitted the second high-cost launch. The revised trial retained about 38,700 subagent tokens, two extra notifications and a hand-back. |
+| B1 · Doughnut DD-202 | Full | Full | — | The adopted removal rule led to deletion of the assertion after it had been written. The promised proof disappeared from the delivered tests. |
+| B2 · Doughnut DD-202 | Full | Full | — | The test ran red and green before the removal rule led to deletion. The free-primary test continued to cover the replacement outcome. The Open Dough release is unknown. |
+| B3 · Pygardon DD-136 | Full | Full | — | The directory command ran 168 scenarios with three unrelated Docker failures. The corrected glob selected 23. The full row retained the adopted guidance and 0.3.86 provenance. The planner's consultation of the detailed guidance is unverified. |
+| C4 · Open Dough ODF-264 | Full | Line | — | The trial line retained the execution and 0.3.66 release. The case repeated startup truncation and rereads with no separately established change in effect or priority. |
+| C1 · Pygardon ODF-264 | Full | Line | — | The trial line retained the execution and marked its release unknown. The evidence establishes repeated retrieval. It leaves the response judgment open. |
+| C2 · Pygardon ODF-264 | Full | Full | — | The full row kept renewed truncation and rereads on verified 0.3.76 after the 0.3.69 response. Whether the reviewer followed the prescribed retrieval boundaries is unknown. |
+| C3 · Lizard DD-012 / DD-010 | Unchanged | Unchanged | — | The scratch logs kept the original OCaml occurrence under DD-012. The later move to DD-010 contributed zero new executions. |
+
+The current arm added 12 full rows, including nine matched-repeat narratives.
+The original trial added nine full rows, including six repeat narratives,
+plus three compact lines. Three recording decisions changed out of 13 cases.
+The A6 line was one consequential miss. Roughly the same high cost in a second
+execution changed what a maintainer could infer about recurrence. The one
+wording revision asks for a full row when a previously isolated high cost
+recurs. Group A's rerun restored that evidence and preserved the other five
+cases' full rows. Combining the rerun with the original decisions for the
+unaffected groups gives ten full rows, including seven repeat narratives, and
+two compact lines. Two recording decisions changed out of 13, with zero
+consequential misses observed against this answer note. These counts describe
+what a scratch record could bring to triage. Actual triage decisions and
+ordinary use remain unobserved.
+
+An independent reader applied the collector's project-plus-execution identity
+rule to the 13 assembled trial logs. Project provenance came from the pinned
+case inputs. Fourteen explicit row appearances represented 13 distinct
+executions.
+The B2 starting log repeats the execution written in B1. C3 preserves one
+existing execution and contributes zero new occurrences. After accounting
+for those rows, the candidate logs add 12 distinct executions. C1 and C4
+both count as compact lines. The older Pygardon Jobs run cited in B3 is
+individually locatable in prose and outside the row counts. A rereview of each
+arm kept all 13 original scratch logs byte-identical. The revised Group A
+reader also rereviewed all six logs with identical bytes. [Collector occurrence identity rule](../../.agents/skills/collect-client-feedback/SKILL.md#collect-reconcile-and-adopt)
+
+The ODF-325 launch reporting 36,526 tokens is an original report at its
+historical cutoff. The two later Clipboard reports were absent from each
+other's starting snapshots. The rerun therefore exercised a repeated high
+cost against an earlier high cost. The historical counts of 36 for ODF-200
+and 75 for ODF-264 come from later catalog views and were outside the replay.
+B3's reported 11.5 minutes covers the entire implementer task. The isolated
+cost of the wrong selection is unknown. [ODF-200 history](https://github.com/terryyin/open-dough/blob/f274a3d0c729504bf8ce00614bf3cd236b7e088b/docs/maintainer/near-term-watch-list.md#odf-200--undocumented-delivery-target-ref-form) · [ODF-325 history](https://github.com/terryyin/open-dough/blob/286c5e0dec58e72e9328b7dec4a1ab52e88710b1/docs/maintainer/findings/ODF-325.md)
+
+| Reader | Cases | Reported elapsed time | Active time | Turn input tokens | Cached input tokens | Turn output tokens |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| Current wording | 13 | 4m 43s | Unknown | 509,017 | 486,272 | 11,713 |
+| Original trial | 13 | 4m 10s | Unknown | 332,577 | 311,296 | 10,904 |
+| Revised Group A | 6 | 1m 36s | Unknown | 138,068 | 97,024 | 4,467 |
+
+Elapsed readings cover writing and rereview. The Codex usage records
+(`01a1ef57-d1ea-70a0-b6e3-973ae83b5117`,
+`01a1ef58-0255-7342-8b08-0ac98ee36389`, and
+`01a1ef5c-a80a-7863-b30a-130f5935b055`) count whole turns, including setup,
+context accumulation and reporting. The collector's trial-only count took
+approximately 1m 58s elapsed, including the clarification of project
+provenance. Active writing time and equivalent downstream review effort
+for the two arms are unknown. The scratch projections cannot establish
+historical whole-file size or retention under pressure. The comparison
+leaves total effort and ordinary effectiveness open.

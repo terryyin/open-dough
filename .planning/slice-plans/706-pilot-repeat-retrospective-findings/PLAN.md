@@ -10,7 +10,7 @@ Terry gets a keep or revise decision on one recording choice in Doughnut and Pyg
 
 ## Trial paragraph
 
-Slice 1 retained the prepared wording. A change after replay follows the safeguard rule in slice 2.
+Slice 1 retained the prepared wording. Slice 2 clarified when repeated high cost warrants a full row.
 
 ```markdown
 ### Trial: record what a repeat teaches
@@ -20,8 +20,10 @@ matches a finding from a new execution, ask what this occurrence teaches that
 could change the next action. Write the full occurrence row when it shows a
 material new effect, a cost that changes priority, a newly affected workflow, a
 corrected attribution, or, where the entry names an adopted response, that
-response working or failing in this execution. Otherwise add one line under the
-finding: `- Execution: <identity> · <timestamp> · <tool> · release <version>`.
+response working or failing in this execution. Write a full row when a
+previously isolated high cost recurs in another execution, even if each
+occurrence costs about the same. Otherwise add one line under the finding:
+`- Execution: <identity> · <timestamp> · <tool> · release <version>`.
 If you cannot tell, write the full row. The rest of the recording rule applies
 unchanged.
 ```
@@ -55,11 +57,15 @@ The [comparison basis](../../../docs/maintainer/empirical-process-control-resear
 ### 2. The same history shows what each wording records
 
 Type: Behavior
-Status: planned
+Status: done
 
 Two fresh readers each walk [process-finding recording](../../../Distribution/src/skills/dough-execution-retrospective/references/process-finding-recording.md) over the replay set in scratch logs, one with the current rule and one with the trial paragraph added. Neither sees the answer note. Compare the two logs against it: which occurrences received a full row or one line, whether each safeguard occurrence kept its consequence, whether the moved evidence added nothing, and each reader's reported tokens and elapsed time. A third fresh reader applies the collector's step 3 to the candidate log and counts distinct executions. Record the comparison in the evaluation section as exploratory. If the trial wording loses a safeguard, revise the paragraph once and rerun the affected group. A second loss stops for Terry with the comparison.
 
 **Proof.** The evaluation section shows both logs' outcomes per occurrence and the collector count, and a rerun of either reader on its own output leaves that log byte-identical.
+
+Both readers received the same [allocation facts from the pinned snapshots](replay-snapshot-allocation.md) after their initial read and before recording their final results.
+
+**Accepted proof.** The [exploratory replay](../../../docs/maintainer/empirical-process-control-research.md#exploratory-historical-replay) records each case's starting evidence and outcome. The first trial lost the second high-cost incident in A6. One wording revision recovered it in the Group A rerun. Both compact rows counted toward 13 distinct identities, including one previously recorded Lizard execution. Rereviews preserved log bytes. Readers worked from the same earlier projections without the answer note and saw multiple cases in a packet before deciding. The replay leaves ordinary effectiveness and total effort open. Records-only delivery.
 
 ### 3. Doughnut and Pygardon reviewers record repeats under the trial rule
 
