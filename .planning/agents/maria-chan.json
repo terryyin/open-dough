@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maria-chan",
+  "email": "maria-chan@example.org",
+  "identity": "SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary",
+  "mode": "story-branch",
+  "branch": "codex/reach-dashboard-backend-checks-through-the-mount",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
