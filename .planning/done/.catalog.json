@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-379_keep-own-branch-session-results-for-review.json",
+      "identity": "SEED-379#keep-own-branch-session-results-for-review",
+      "completedAt": "2026-11-18T19:34:40.654Z",
+      "blob": "3278357f577693dc079713d6b30e6400d88e65e2"
+    },
+    {
       "fileName": "SEED-404_run-dashboard-frontend-checks-at-doughnut-speed.json",
       "identity": "SEED-404#run-dashboard-frontend-checks-at-doughnut-speed",
       "completedAt": "2026-11-18T14:45:54.658Z",
