@@ -29,6 +29,7 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review ([plan](slice-plans/693-keep-default-main-session-changes-for-review/PLAN.md))
+- [Carry dashboard test knowledge in test code and remove its Markdown](seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code) — SEED-334#carry-dashboard-test-knowledge-in-code ([plan](slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md))
 
 ## Backlog list
 
@@ -41,7 +42,6 @@ intent introduced or affected by a newly developed story.
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group
-- [Carry dashboard test knowledge in test code and remove its Markdown](seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code) — SEED-334#carry-dashboard-test-knowledge-in-code
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories
 - [Declare local worktree review state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state) — SEED-353#declare-local-worktree-review-state
