@@ -191,7 +191,7 @@ North Star direction needs no addition for this test-side change.
   takes it from its caller; the first story to touch
   [frontendCardSessions.ts](../../dashboard/tests/support/frontendCardSessions.ts)
   settles its two `frontendBoard(page)` calls. The
-  [fluent pilot](../../dashboard/tests/fluent-side-panel-pilot.md#what-the-pilot-earned)
+  [fluent pilot](../../dashboard/tests/sidePanelPages.ts)
   supplies evidence for shared controls and recurring handoffs. Adopt its
   phase-and-cue runner where those benefits justify the extra code.
 - A shared control edit, such as the Story card's Review changes action or
@@ -219,8 +219,8 @@ North Star direction needs no addition for this test-side change.
   no longer exist. Page objects and fixtures stay under `dashboard/tests/`,
   and `e2e/` workflows import them, so a shared helper change reaches callers
   in every group; trace and run them per group
-  ([groups](../../dashboard/tests/README.md),
-  [CI shards](../../dashboard/tests/shards.md)). The queued
+  ([groups](../../dashboard/tests/support/runnerConfig.mjs),
+  `.github/workflows/ci.yml`). The queued
   SEED-334#finish-dissolving-integrated-ui-test (spent) emptied the interim
   session/terminal/review/story/observation folders; coordinate remaining
   page-object work with SEED-334's [CI proof/comparison/candidate](../done/SEED-334_move-intent-ci-proof-comparison-and-candidate-checks.json),

@@ -1,10 +1,10 @@
 // The test every dashboard spec runs under, directly or through a fixture
 // module built on it (../dashboardTest.ts and the modules extending that).
 //
-// A spec waits for the event it depends on and never waits out a deadline
-// (../README.md, "Synchronization"); when the state it needs leaves no trace
-// the test can see, it adds an observation of its own, such as a test-side
-// loader in the server, rather than a sleep.
+// A spec waits for the event it depends on and never waits out a deadline;
+// when the state it needs leaves no trace the test can see, it adds an
+// observation of its own, such as a test-side loader in the server, rather
+// than a sleep.
 //
 // One such event is shared by every page spec: the page's intercepted reads
 // finishing. A route handler may still be reading its fetched answer when the
@@ -30,6 +30,9 @@
 // worker-scoped option (`launchOptions`) has the same effect, with one
 // population per distinct value object; that value also replaces the
 // configured browser arguments, so it spreads them in (./browserArgs.ts).
+// A fixture module declares its option defaults on its fixtures, not with a
+// module-level `test.use`, which applies only to the first spec file that
+// loads the module in a worker.
 
 import { test as base, type Fixtures } from "@playwright/test";
 import type {

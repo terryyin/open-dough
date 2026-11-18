@@ -1,3 +1,6 @@
+// The devices touch journeys take. A touch journey uses one device unless
+// the other reaches an asserted CSS branch or arrangement the first does not.
+
 import type { Locator } from "@playwright/test";
 
 export const phoneLaunchTouchViewport = {

@@ -20,8 +20,8 @@ What is substituted, and only at the product's external boundaries:
   (`../dashboard/tests/support/fakeGitHub.ts`), which also stands in for
   GitHub's avatar host;
 - the native agent hosts, through the synthetic `claude`, `codex` and
-  `cursor` protocol stand-ins
-  ([native-host fixtures](../dashboard/tests/native-host-fixtures.md)). They
+  `cursor` protocol stand-ins (`../dashboard/tests/support/fakeClaude.ts`,
+  `fakeCodex.ts` and `fakeCursor.ts`). They
   keep these workflows deterministic; they are not native skill-use
   acceptance, which remains with
   [ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md);
@@ -33,11 +33,10 @@ adds or replaces, such as a held answer, an injected fault or a second server.
 
 ## Placement
 
-A workflow goes in `<feature>/<workflow>.spec.ts` under the
-[feature folder](../dashboard/tests/feature-groups.md) whose behavior it
-proves; a module that registers its cases lives beside it. A check whose
-assertions are presentation, interaction or UI-recovery details that
-controlled answers can supply belongs in
+A workflow goes in `<feature>/<workflow>.spec.ts` under the feature folder
+whose behavior it proves; a module that registers its cases lives beside it.
+A check whose assertions are presentation, interaction or UI-recovery details
+that controlled answers can supply belongs in
 [Dashboard Frontend Test](../dashboard/frontend-tests/README.md); a server
 variant, failure or test-runtime contract at a stable boundary belongs in
 [Dashboard Backend Test](../dashboard/backend-tests/README.md). Specs still in
@@ -46,9 +45,7 @@ variant, failure or test-runtime contract at a stable boundary belongs in
 awaiting that conversion. Workflows reuse the dashboard's fixtures, page objects and
 [MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
 `../dashboard/tests/` and `../Distribution/tests/support/`. Waits, clocks and
-fake GitHub answers are the helpers a workflow imports; the
-[dashboard test guide](../dashboard/tests/README.md#synchronization) states
-the synchronization rule.
+fake GitHub answers are the helpers a workflow imports.
 
 ## Running
 
@@ -70,6 +67,6 @@ relative to this directory; proof records name
 them as `e2e/<path>`.
 
 CI runs this group as its own producer, the `e2e` job's shards
-([CI shards](../dashboard/tests/shards.md)), and publishes their cases under
+(`.github/workflows/ci.yml`), and publishes their cases under
 the **E2E Test** entry (`e2e`). Its shard count, settings and shard
 patterns change without touching the other groups'.

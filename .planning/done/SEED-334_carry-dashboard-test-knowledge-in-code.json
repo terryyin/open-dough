@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-334#carry-dashboard-test-knowledge-in-code",
+  "title": "Carry dashboard test knowledge in test code and remove its Markdown",
+  "completedAt": "2026-11-18T08:17:46.499Z",
+  "developer": "Terry Yin",
+  "agent": "Julia-chan",
+  "host": "claude"
+}

@@ -28,6 +28,10 @@ const rules = {
 };
 const unusedVars = ["error", { args: "all", caughtErrors: "all" }];
 
+// The modules whose `test` runs a Frontend spec against substitutes.
+const frontendTestModules =
+  "dashboard/tests/support/frontendApp.ts, dashboard/tests/support/pageTest.ts or dashboard/tests/support/comparisonMountPage.ts";
+
 export default defineConfig(
   globalIgnores(ignores),
   {
@@ -87,6 +91,46 @@ export default defineConfig(
               importNames: ["test", "default"],
               message:
                 "Import `test` from dashboard/tests/support/pageTest.ts (or a fixture module built on it) so the page drains its intercepted reads.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // Frontend specs run the built app against substitutes, never the real
+    // dashboard server, fake GitHub or fake hosts. Names are refused, not
+    // modules: their helpers stay importable from dashboardTest.ts. This
+    // block replaces the shared one's options for these files, so it
+    // restates its restriction.
+    files: ["dashboard/frontend-tests/**/*.{ts,mts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@playwright/test",
+              importNames: ["test", "default"],
+              message: `Import \`test\` from ${frontendTestModules} so the page drains its intercepted reads.`,
+            },
+          ],
+          patterns: [
+            {
+              regex: "(^|/)dashboardTest\\.ts$",
+              importNames: ["test", "default"],
+              message: `Frontend specs take \`test\` from ${frontendTestModules}; dashboardTest.ts's \`test\` starts the real dashboard server.`,
+            },
+            {
+              regex: ".",
+              importNames: [
+                "startDashboardServer",
+                "startFakeGitHub",
+                "installFakeClaude",
+                "installFakeCodex",
+                "installFakeCursor",
+              ],
+              message: `Frontend specs do not start the dashboard server, fake GitHub or a fake host; take \`test\` from ${frontendTestModules} and substitute the services.`,
             },
           ],
         },

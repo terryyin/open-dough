@@ -4,7 +4,7 @@
 // scripts/ci-proof-summary.mjs), then `summarize` collects the fragments
 // against the declared parts. The summary's actual serialized text is kept,
 // so a journey serves those bytes, not a re-encoding of them. Playwright
-// reports are dashboard proof records (../proof-record.md) whose test
+// reports are dashboard proof records (proofRecordTypes.ts) whose test
 // locations are absolute paths under the record's run directory.
 
 import { spawnSync } from "node:child_process";

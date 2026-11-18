@@ -40,7 +40,7 @@ as with any group, for example
 behaves the same from any working directory.
 
 CI runs this group as its own producer, the `dashboard-backend` job's shards
-([CI shards](../tests/shards.md)), and publishes its cases under the
+(`.github/workflows/ci.yml`), and publishes its cases under the
 **Dashboard Backend Test** entry.
 
 ## Placement
@@ -51,8 +51,8 @@ feature folder. Harness fixtures that several groups share stay in
 folder it had there and links the journey that still shows it on the page;
 a module that registers cases moves with them. Choose the feature whose
 behavior the test proves, irrespective of an older filename prefix. The
-browser suite's [feature groups](../tests/feature-groups.md) reuse the same
-domain vocabulary where it still names protected service behavior.
+browser suite's feature folders reuse the same domain vocabulary where it
+still names protected service behavior.
 
 | Folder | Responsibility |
 | --- | --- |
@@ -64,7 +64,3 @@ domain vocabulary where it still names protected service behavior.
 | `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
 | `observation/` | Published-source consistency, freshness, refresh and read recovery. |
 | `runtime/` | Serving, production updates and test harness operation. |
-
-The [dashboard test guide](../tests/README.md) owns test placement, external
-boundaries, synchronization, prerequisites and failure handling. The
-[shard guide](../tests/shards.md) owns the shared allocation and timing history.

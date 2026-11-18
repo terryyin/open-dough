@@ -4,19 +4,19 @@ Prepare [native prerequisites](../evaluation/native-setup.md) once per lockfile 
 
 Four browser test groups run with Playwright, each under its own command,
 configuration, setup, settings, outputs and CI producer; `npm test` does not
-discover their specs ([dashboard tests](../../dashboard/tests/README.md)):
+discover their specs:
 
 | Group | Command | Sources |
 | --- | --- | --- |
 | **E2E Test** | `npm run test:e2e` | representative product [workflows](../../e2e/README.md) in `e2e/` |
-| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the [feature folders](../../dashboard/tests/feature-groups.md) of `dashboard/tests/` |
+| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the feature folders of `dashboard/tests/` |
 | **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
 | **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
 
 Before delivering a change to a group's specs or shared browser support, run
 the affected group's command (named specs, then the group when shared support
 changed); CI runs each group as its own sharded producer
-([CI shards](../../dashboard/tests/shards.md)).
+(`.github/workflows/ci.yml`).
 
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
 the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:
@@ -151,8 +151,7 @@ File timestamps that must differ are set explicitly, and the dashboard's timed
 journeys step a paused page clock. A dashboard journey waits in
 the page for the answer a check depends on before the check's own bound
 starts: it opens with `openUntilRead` or `reloadUntilRead`, or checks through
-`expectMembership` or `expectSettledPage`, and marks done with `markDone`
-([dashboard tests guide](../../dashboard/tests/README.md)).
+`expectMembership` or `expectSettledPage`, and marks done with `markDone`.
 
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a

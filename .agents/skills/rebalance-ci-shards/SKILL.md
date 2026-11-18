@@ -15,9 +15,15 @@ group's job durations spread apart. Drift shows in
 `bash scripts/ci-job-times.sh`, in the job durations of recent `main` runs,
 or in this skill's report.
 
-A question about how many jobs a group keeps is not a rebalance: answer it
-with `bash scripts/ci-job-times.sh` and the job-count rule in
-[CI shards of the browser test groups](../../../dashboard/tests/shards.md#the-job-count).
+A question about how many jobs a group keeps is not a rebalance. Each group
+keeps the smallest job count whose slowest job stays inside the deadline in
+recent `main` runs; `ci.yml` holds each group's count. Answer from
+`bash scripts/ci-job-times.sh`, which reads recent successful `ci.yml` runs on
+`main` and gives each group a `could drop one` or `keep` verdict. Remove a job
+when the report says `could drop one`; the following `main` runs check it. Add
+a job only after a job of that group was ended by the deadline on `main` and
+neither moving spec patterns between its shards nor a faster spec restored its
+headroom. Verdict time is never a reason: more jobs lengthen the runner wait.
 This skill never changes a shard count or deadline.
 
 ## Inputs
