@@ -1,5 +1,5 @@
 // Review requests the launch boundary does not admit, against Story A's
-// admission worktree and kept launch record (../../test-support/support/storyReviewWorktree.ts),
+// admission repository and kept launch record (../../test-support/support/storyReviewWorktree.ts),
 // are refused before any Git runs: trunk is not fetched, no file is written,
 // and the worktree's own index and status stay as they were.
 
@@ -13,21 +13,22 @@ import { getReview } from "../../test-support/support/completedReviewRequests.ts
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
-  admissionWorktree,
+  admissionRepository,
   git,
   observed,
+  storyWorktree,
 } from "../../test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+test.use({ serverMode: "boundary", originRepository: admissionRepository });
 
 test("review requests the boundary does not admit are refused and nothing runs", async ({
   request,
   dashboard,
   origin,
 }) => {
-  const { workspace, merged } = admissionWorktree(origin);
+  const { workspace, merged } = storyWorktree(origin);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   // Where Git would write a diff it was asked to write.
   const written = path.join(origin.machine, "written-diff");

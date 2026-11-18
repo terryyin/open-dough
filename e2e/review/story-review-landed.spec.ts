@@ -22,16 +22,19 @@ import {
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   branch,
-  landedWorktree,
+  landedRepository,
+  storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+
+test.use({ originRepository: landedRepository });
 
 test("a landed slice leaves the review and the unlanded changes remain", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const { workspace, landed } = landedWorktree(origin);
+  const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await reviewChanges(card).click();
@@ -41,7 +44,7 @@ test("a landed slice leaves the review and the unlanded changes remain", async (
   await expect(contextValues(review)).toHaveAccessibleName(
     contextWords({
       branch,
-      baseline: landed,
+      baseline: origin.revision("landed"),
       workspace: "~/git/open-dough/.worktrees/story-a",
     }),
   );

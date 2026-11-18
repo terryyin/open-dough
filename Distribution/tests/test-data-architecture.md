@@ -73,6 +73,18 @@ parent, and the revision states the resolved changes.
 [Builder](support/repositoryTestData.mjs) ·
 [Repository harness](support/repository-fixture.mjs)
 
+Declare a story's local worktree in the same description. A start origin
+checks `withWorkspace(branch, { from })` out as linked worktree
+`.worktrees/<slug>` on its branch, with its unpublished revisions committed
+there. A trunk revision with `fetched: false` is published, but a start
+origin leaves the checkout's trunk and tracking ref on the revision before it.
+`withLocalState(description, { staged, unstaged, untracked, ignored, modes })`
+states what is left uncommitted; start origins and `buildRepository` write it
+after the workspace's revisions. Read the worktree and its named revisions
+through `origin.revision(name)` or `storyWorktree(origin)`.
+[Local state](support/repository-local-state.mjs) ·
+[Story worktrees](../../dashboard/test-support/support/storyReviewWorktree.ts)
+
 Each caller gets its own mutable copy. To reuse a leading history across
 workers, prepare it with `prepareRepositorySnapshot` and register it with
 `registerPreparedPrefix`.

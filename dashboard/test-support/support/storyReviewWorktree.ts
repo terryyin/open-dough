@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
 
@@ -44,8 +45,8 @@ export function addStoryWorktree(project: string) {
 
 // Story A's worktree as the review finds it, from an origin started with a
 // declared Story A workspace, and the queued trunk's revision `base`; with
-// ./storyAReviewRepository.ts, also the trunk commit the story merged, the
-// review's baseline, and the later one.
+// ./storyAReviewRepository.ts or `admissionRepository`, also the trunk commit
+// the story merged, the review's baseline, and the later one.
 export function storyWorktree(origin: StartOrigin) {
   return {
     workspace: storyWorkspace(origin.project),
@@ -59,52 +60,6 @@ export function storyWorktree(origin: StartOrigin) {
       return origin.revision("later");
     },
   };
-}
-
-// Admission: one story commit, a merged baseline and an edit, with trunk later unfetched.
-export function admissionWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  const workspace = addStoryWorktree(project);
-  writeFileSync(path.join(workspace, "story.txt"), "story\n");
-  commitAll(workspace, "story file");
-  git(project, "commit", "--quiet", "--allow-empty", "-m", "another story");
-  git(project, "push", "--quiet", "origin", "main");
-  const merged = git(project, "rev-parse", "origin/main");
-  git(workspace, "merge", "--quiet", "--no-ff", "-m", "merge trunk", merged);
-  writeFileSync(path.join(workspace, "story.txt"), "story\nedited\n");
-  const later = git(
-    origin.origin,
-    "-c",
-    "user.name=Another Developer",
-    "-c",
-    "user.email=another@example.test",
-    "commit-tree",
-    "-p",
-    merged,
-    "-m",
-    "later trunk",
-    `${merged}^{tree}`,
-  );
-  git(origin.origin, "update-ref", "refs/heads/main", later, merged);
-  return { workspace, merged };
-}
-
-// The first story commit landed; trunk lacks its later commit and edit.
-export function landedWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  writeFileSync(path.join(project, "edited.txt"), lines("edited"));
-  commitAll(project, "trunk file");
-  git(project, "push", "--quiet", "origin", "main");
-
-  const workspace = addStoryWorktree(project);
-  writeFileSync(path.join(workspace, "landed.txt"), "landed slice\n");
-  commitAll(workspace, "landed slice");
-  git(workspace, "push", "--quiet", "origin", "HEAD:main");
-  const landed = git(workspace, "rev-parse", "HEAD");
-  writeFileSync(path.join(workspace, "later.txt"), "later slice\n");
-  commitAll(workspace, "later slice");
-  writeFileSync(path.join(workspace, "edited.txt"), `${lines("edited")}more\n`);
-  return { workspace, landed };
 }
 
 // Story A's worktree declared straight off the queued trunk's revision
@@ -121,6 +76,36 @@ const offTrunk = (files: Record<string, string>) =>
 
 // Story A's worktree straight off trunk, with nothing the story changed.
 export const unchangedRepository: StartRepository = storyFromBase().please();
+
+// Admission: one story commit merged with trunk revision `merged`, the
+// review's baseline, and an edit, while trunk's `later` stays unfetched.
+export const admissionRepository: StartRepository = withLocalState(
+  storyFromBase()
+    .withRevision("merged")
+    .withRevision("later", { fetched: false })
+    .withUnpublishedRevision("story file", {
+      files: { "story.txt": "story\n" },
+    })
+    .withUnpublishedRevision("merge trunk", {
+      parents: ["story file", "merged"],
+    })
+    .please(),
+  { unstaged: { "story.txt": "story\nedited\n" } },
+);
+
+// Revision `landed`, the story's first slice, is on trunk; the story's
+// later commit and edit are not.
+export const landedRepository: StartRepository = withLocalState(
+  queuedReadyRepository()
+    .withRevision("trunk file", { files: { "edited.txt": lines("edited") } })
+    .withRevision("landed", { files: { "landed.txt": "landed slice\n" } })
+    .withWorkspace(branch, { from: "landed" })
+    .withUnpublishedRevision("later slice", {
+      files: { "later.txt": "later slice\n" },
+    })
+    .please(),
+  { unstaged: { "edited.txt": `${lines("edited")}more\n` } },
+);
 
 // Nested changes include a cross-folder rename leaving a sibling unchanged.
 export const nestedRepository: StartRepository = offTrunk({

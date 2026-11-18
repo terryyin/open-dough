@@ -182,7 +182,7 @@ in scenarios. Frontend proof records use `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RE
 
 ### 4. Read admission and landed worktrees from declared revisions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Admission/landed and readability rows.
 
 Behavior: Given the admission worktree whose trunk later moved without a
@@ -192,6 +192,14 @@ superseded worktree plumbing, update the test-data architecture guide with
 the workspace and local-state facts, and finish this story's candidate audit,
 leaving siblings' candidates with them. One admission/landed loop; 15 active
 minutes, commands excluded.
+
+Accepted: `admissionRepository` and `landedRepository` declare the last two
+worktrees; the landed baseline is the named `landed` revision. The guide
+documents workspace, `fetched: false` and local-state facts. Audit: no
+in-scope starting setup remains; sibling candidates (`storyReviewTrunk`
+topology, Trunk Mode authorship, completed-story, launch/session, Intent/CI
+comparison) stay with their stories. `addStoryWorktree` stays for
+`storyReviewTrunk.ts`/`storyReviewTrunkMode.ts`.
 
 ## Verification and execution gates
 
