@@ -19,9 +19,9 @@ import {
   intentFile,
   openReviewFromIntent,
   reviewDiff,
-  selectTakenStoryInIntent,
   storyOnly,
 } from "../../dashboard/tests/support/intentStoryPage.ts";
+import { selectTakenStoryInIntent } from "../../dashboard/tests/support/selectTakenStoryInIntent.ts";
 import {
   kindStyles,
   nameStyle,

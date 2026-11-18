@@ -36,24 +36,9 @@ import {
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   background,
-  folderToggle,
-  folderItem,
-  folderRow,
-  intentDiff,
-  intentFile,
-  expectOutsideCount,
-  locationGroup,
-  openReviewFromIntent,
-  outsideCount,
-  reviewDiff,
-  selectTakenStoryInIntent,
-  storyHeaderDetail,
-  storyOnly,
-  storyTitle,
-  storyHeaderReading,
-  storyViews,
-  intentDiffReading,
+  intentStory,
 } from "../../dashboard/tests/support/intentStoryPage.ts";
+import { selectTakenStoryInIntent } from "../../dashboard/tests/support/selectTakenStoryInIntent.ts";
 import {
   kindStyles,
   nameStyle,
@@ -77,7 +62,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     page,
     origin,
   );
-  const header = storyHeaderReading(intent);
+  const story = intentStory(intent);
+  const header = story.header;
   const column = filesColumn(intent);
 
   await test.step("the story's view sits under the banner, one persistent header, led by the way to Project Intent, heading its views", async () => {
@@ -91,19 +77,19 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(
       intent.getByRole("region", { name: "Selected story" }),
     ).toHaveCount(1);
-    await expect(storyTitle(intent)).toHaveText("Story A");
+    await expect(story.title).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
-    await expect(storyViews(intent)).toHaveText(
+    await expect(story.views).toHaveText(
       "CI comparisonChanged testsIntent coverage",
     );
     await expect(
       column.locator(":scope > :not(.visually-hidden)").first(),
     ).toHaveClass("intent-story-scope");
-    await expect(storyOnly(column)).not.toBeChecked();
+    await expect(story.storyOnly(column)).not.toBeChecked();
   });
 
   await test.step("the header names the story and the revisions its comparison runs between, with nothing to collapse", async () => {
-    await storyHeaderDetail(intent);
+    await story.headerDetail();
     await expect(header.identity).toHaveText("SEED-A#a");
     const revisions = header.revisions;
     await expect(revisions).toContainText(
@@ -119,7 +105,7 @@ test("Intent highlights a selected Taken story's test changes over the published
   });
 
   await test.step("the changed files outside every location are counted once each, pointing to Review changes", async () => {
-    await expectOutsideCount(intent, 2);
+    await story.expectOutsideCount(2);
     await expect(intent.getByText("App.tsx")).toHaveCount(0);
     await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
   });
@@ -134,11 +120,9 @@ test("Intent highlights a selected Taken story's test changes over the published
       "false",
     );
     for (const name of ["arriving", "boundary", "out"])
-      await expect(folderToggle(intent, name, true)).toBeVisible();
-    await expect(folderToggle(intent, "other", false)).toBeVisible();
-    await expect(
-      intentFile(intent, "dashboard/tests/other/c.spec.ts"),
-    ).toBeHidden();
+      await expect(story.folderToggle(name, true)).toBeVisible();
+    await expect(story.folderToggle("other", false)).toBeVisible();
+    await expect(story.file("dashboard/tests/other/c.spec.ts")).toBeHidden();
   });
 
   await test.step("changed files are styled by kind, the added one inserted at its path", async () => {
@@ -151,7 +135,7 @@ test("Intent highlights a selected Taken story's test changes over the published
       [changed.outOf, style.renamed],
       ["dashboard/tests/boundary/kept.spec.ts", style.plain],
     ] as const) {
-      const file = intentFile(intent, name);
+      const file = story.file(name);
       await expect(file).toBeVisible();
       expect(await nameStyle(file)).toEqual(expected);
     }
@@ -159,21 +143,21 @@ test("Intent highlights a selected Taken story's test changes over the published
 
   let changedHeader: Awaited<ReturnType<typeof locationHeaderLookAt>>;
   await test.step("changed folders share the contains-changes background; a changed location keeps its own with a change mark, kept when selected", async () => {
-    const marked = await background(folderRow(intent, "boundary"));
+    const marked = await background(story.folderRow("boundary"));
     expect(marked).not.toBe("rgba(0, 0, 0, 0)");
     for (const name of ["arriving", "boundary", "out"]) {
-      await expect(folderItem(intent, name)).toHaveAttribute(
+      await expect(story.folderItem(name)).toHaveAttribute(
         "data-contains-changes",
         "true",
       );
-      expect(await background(folderRow(intent, name))).toBe(marked);
+      expect(await background(story.folderRow(name))).toBe(marked);
     }
-    await expect(folderItem(intent, "other")).not.toHaveAttribute(
+    await expect(story.folderItem("other")).not.toHaveAttribute(
       "data-contains-changes",
     );
-    expect(await background(folderRow(intent, "other"))).not.toBe(marked);
+    expect(await background(story.folderRow("other"))).not.toBe(marked);
     for (const location of ["dashboard/tests", "tests"]) {
-      await expect(locationGroup(intent, location)).toHaveAttribute(
+      await expect(story.locationGroup(location)).toHaveAttribute(
         "data-contains-changes",
         "true",
       );
@@ -203,22 +187,22 @@ test("Intent highlights a selected Taken story's test changes over the published
   });
 
   await test.step("a changed file's Purpose is Review changes' diff", async () => {
-    const inIntent = await intentDiff(intent, changed.modified);
+    const inIntent = await story.diff(changed.modified);
     expect(inIntent).toContain("more");
-    const review = await openReviewFromIntent(page, intent);
+    const review = await story.openReview();
     await expect(
       listedFile(review, "Modified dashboard/src/App.tsx", { exact: true }),
     ).toBeVisible();
-    expect(await reviewDiff(page, changed.modified)).toBe(inIntent);
-    expect(await intentDiff(intent, changed.added)).toBe(
-      await reviewDiff(page, changed.added),
+    expect(await story.reviewDiff(changed.modified)).toBe(inIntent);
+    expect(await story.diff(changed.added)).toBe(
+      await story.reviewDiff(changed.added),
     );
   });
 
   await test.step("an unchanged file shows its published source", async () => {
-    await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
+    await story.file("dashboard/tests/boundary/kept.spec.ts").click();
     await expect(purposeRegion(intent)).toContainText("kept 11");
-    await expect(intentDiffReading(intent).code).toHaveCount(0);
+    await expect(story.diffReading.code).toHaveCount(0);
   });
 
   await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
@@ -227,7 +211,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await closeSidePanel(review);
     await expect(review).toHaveCount(0);
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyTitle(intent)).toHaveText("Story A");
+    await expect(story.title).toHaveText("Story A");
     await development.click();
     await expectSelected(card, true);
     await emptyArea(card).click();
@@ -235,7 +219,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(header.region).toHaveCount(0);
-    await expect(outsideCount(intent)).toHaveCount(0);
+    await expect(story.outsideCount).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
     const unchanged = await locationHeaderLookAt(intent, "tests");

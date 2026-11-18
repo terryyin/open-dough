@@ -19,17 +19,7 @@ import {
   completedChanges as changed,
   selectCompletedStoryInIntent,
 } from "../../dashboard/tests/support/intentCompletedStory.ts";
-import {
-  chooseStoryTab,
-  intentDiff,
-  intentFile,
-  outsideCount,
-  storyHeaderDetail,
-  storyOnly,
-  storySummary,
-  storyTitle,
-  storyHeaderReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+import { intentStory } from "../../dashboard/tests/support/intentStoryPage.ts";
 import { lines } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 
@@ -71,19 +61,16 @@ test("a Done story keeps landing locations, inventory and unchanged source after
     origin,
     { later },
   );
-  await chooseStoryTab(intent, "Changed tests");
+  const story = intentStory(intent);
+  await story.chooseTab("Changed tests");
   await expandIntentGroup(intent, "dashboard/tests");
-  await expect(intentFile(intent, changed.modified)).toBeVisible();
-  await expect(intentFile(intent, changed.added)).toBeVisible();
-  await expect(intentFile(intent, changed.deleted)).toBeVisible();
-  await expect(intentFile(intent, "dashboard/tests/later.spec.ts")).toHaveCount(
-    0,
-  );
-  await expect(
-    intentFile(intent, "dashboard/tests/current-a.spec.ts"),
-  ).toHaveCount(0);
+  await expect(story.file(changed.modified)).toBeVisible();
+  await expect(story.file(changed.added)).toBeVisible();
+  await expect(story.file(changed.deleted)).toBeVisible();
+  await expect(story.file("dashboard/tests/later.spec.ts")).toHaveCount(0);
+  await expect(story.file("dashboard/tests/current-a.spec.ts")).toHaveCount(0);
   expect(locations).toContain(completion);
-  await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
+  await story.file("dashboard/tests/boundary/kept.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("kept 11");
   await expect(purposeRegion(intent)).not.toContainText(
     "rewritten after landing",
@@ -91,9 +78,9 @@ test("a Done story keeps landing locations, inventory and unchanged source after
   await expect(
     sourceRevision(intent, "dashboard/tests/boundary/kept.spec.ts"),
   ).toContainText(`at revision ${completion.slice(0, 7)}`);
-  expect(await intentDiff(intent, changed.modified)).toContain("completed");
-  expect(await intentDiff(intent, changed.added)).toContain("added");
-  expect(await intentDiff(intent, changed.deleted)).toContain("gone 0");
+  expect(await story.diff(changed.modified)).toContain("completed");
+  expect(await story.diff(changed.added)).toContain("added");
+  expect(await story.diff(changed.deleted)).toContain("gone 0");
 });
 
 test("a completed story whose comparison cannot be recovered keeps saved coverage and explains unavailable historical source without substituting current tests", async ({
@@ -109,12 +96,13 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
     history: "shallow",
     intentCoverage: saved.intentCoverage,
   });
-  const scoped = storySummary(intent);
-  await expect(storyTitle(intent)).toHaveText("Story A");
+  const story = intentStory(intent);
+  const scoped = story.summary;
+  await expect(story.title).toHaveText("Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );
-  const detail = await storyHeaderDetail(intent);
+  const detail = await story.headerDetail();
   await expect(
     detail.getByRole("heading", { name: "Intent coverage" }),
   ).toHaveCount(0);
@@ -123,19 +111,19 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
     `${unrecoverable} The story's historical test source is unavailable.`,
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
-  await expect(storyOnly(intent)).toHaveCount(0);
+  await expect(story.header.revisions).toHaveCount(0);
+  await expect(story.storyOnly()).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
-  await expect(outsideCount(intent)).toHaveCount(0);
+  await expect(story.outsideCount).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
-  await chooseStoryTab(intent, "Changed tests");
+  await story.chooseTab("Changed tests");
   await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText(
     "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
   );
-  await chooseStoryTab(intent, "Intent coverage");
+  await story.chooseTab("Intent coverage");
   await expect(
     intent
       .getByRole("region", { name: "Intent coverage" })

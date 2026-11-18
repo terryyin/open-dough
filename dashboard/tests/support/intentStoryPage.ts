@@ -3,76 +3,24 @@ import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { codePane, expectContextRead } from "./reviewPanes.ts";
 import { reviewRegion } from "./reviewControls.ts";
 import {
+  chooseStoryTab,
+  expectStoryTab,
   filesColumn,
   storySummary,
-  expectStoryTab,
-  chooseStoryTab,
+  storyViews,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
 // read of the page: the selected story's header and views, the contains-changes
 // background, the "Selected story only" toggle, and a changed file's diff in
-// Intent's Purpose beside the same file's diff in Review changes. A row's
-// change-kind style: ./changeKindStyle.ts.
+// Intent's Purpose beside the same file's diff in Review changes. Scenarios
+// that read several of these hold `intentStory`. Arranging the taken story:
+// ./selectTakenStoryInIntent.ts. A row's change-kind style: ./changeKindStyle.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import {
-  storyA,
-  storyB,
-} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
-import { parts } from "../dashboardPage.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import {
-  changeIntentTests,
-  publishIntentTrunk,
-} from "./intentStoryWorktree.ts";
 import { expectReviewRead } from "./reviewRead.ts";
-import { openBacklog } from "./sessionDialog.ts";
-import type { StartOrigin } from "./startOrigin.ts";
-import { git } from "./storyReviewWorktree.ts";
-
-// Story A, or `story` as the Take names it, taken in Story Branch Mode by
-// Yui's declared Take, its worktree changing the tests Intent publishes, or
-// as `change` changes it; its Taken card selected by an empty-area click, and
-// Intent shown. Intent opens the story at its CI comparison; this then
-// chooses Changed tests, which the journeys read. The baseline is the claim,
-// where the worktree meets trunk; the head is the worktree's last commit.
-export async function selectTakenStoryInIntent(
-  page: Page,
-  origin: StartOrigin,
-  change: (workspace: string) => void = changeIntentTests,
-  // Whether the published trunk follows the origin's main as it moves.
-  follows = false,
-  story = storyA,
-) {
-  publishIntentTrunk(origin.project);
-  const { workspace } = await origin.publishTake({
-    agent: "Yui",
-    story,
-    queued: [storyB],
-    mode: "story-branch",
-  });
-  change(workspace);
-  await openBacklog(page, origin, follows);
-  const { taken, intentChoice, intent } = parts(page);
-  const card = taken.getByRole("article", { name: story.title });
-  await card.getByRole("heading", { level: 3 }).click();
-  await expectSelected(card, true);
-  await intentChoice.click();
-  await expect(intent).toBeVisible();
-  await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changed tests");
-  await expectStoryComparisonRead(intent);
-  return {
-    card,
-    intent,
-    workspace,
-    baseline: (await origin.originGit("rev-parse", "main")).trim(),
-    head: git(workspace, "rev-parse", "HEAD"),
-  };
-}
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -229,4 +177,34 @@ export async function openReviewFromIntent(page: Page, intent: Locator) {
   await expectReviewRead(review);
   await expect(fileBrowser(review)).toBeVisible();
   return review;
+}
+
+// The selected story in Intent. Diff text comes back for the scenario to
+// compare; `background` stays a measurement the scenario compares itself.
+export function intentStory(intent: Locator) {
+  return {
+    summary: storySummary(intent),
+    header: storyHeaderReading(intent),
+    title: storyTitle(intent),
+    views: storyViews(intent),
+    outsideCount: outsideCount(intent),
+    diffReading: intentDiffReading(intent),
+    storyOnly: (scope?: Locator) => storyOnly(scope ?? intent),
+    file: (name: string) => intentFile(intent, name),
+    folderToggle: (name: string, open: boolean) =>
+      folderToggle(intent, name, open),
+    folderRow: (name: string) => folderRow(intent, name),
+    folderItem: (name: string) => folderItem(intent, name),
+    locationGroup: (path: string) => locationGroup(intent, path),
+    headerDetail: () => storyHeaderDetail(intent),
+    expectOutsideCount: (count: number) => expectOutsideCount(intent, count),
+    chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
+      chooseStoryTab(intent, name),
+    expectTab: (name: Parameters<typeof expectStoryTab>[1]) =>
+      expectStoryTab(intent, name),
+    expectComparisonRead: () => expectStoryComparisonRead(intent),
+    diff: (name: string) => intentDiff(intent, name),
+    openReview: () => openReviewFromIntent(intent.page(), intent),
+    reviewDiff: (name: string) => reviewDiff(intent.page(), name),
+  };
 }

@@ -32,19 +32,7 @@ import {
 } from "../../tests/intentModePage.ts";
 import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import {
-  chooseStoryTab,
-  expectOutsideCount,
-  expectStoryComparisonRead,
-  expectStoryTab,
-  intentFile,
-  outsideCount,
-  storyHeaderDetail,
-  storyOnly,
-  storySummary,
-  storyTitle,
-  storyHeaderReading,
-} from "../../tests/support/intentStoryPage.ts";
+import { intentStory } from "../../tests/support/intentStoryPage.ts";
 import { changed } from "../../tests/support/intentStoryWorktree.ts";
 import {
   putFrontendIntentStory,
@@ -55,17 +43,18 @@ import {
 // count, no toggle, no claim that nothing changed, and a file reads its
 // source.
 async function expectPublishedTreeUsable(intent: Locator) {
-  await expect(storyOnly(intent)).toHaveCount(0);
+  const story = intentStory(intent);
+  await expect(story.storyOnly()).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
-  await expect(outsideCount(intent)).toHaveCount(0);
+  await expect(story.outsideCount).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await expandIntentGroup(intent, "dashboard/tests");
   await expandIntentFolders(intent, "dashboard/tests");
   await expect(
-    intentFile(intent, "dashboard/tests/boundary/kept.spec.ts"),
+    story.file("dashboard/tests/boundary/kept.spec.ts"),
   ).toBeVisible();
-  await intentFile(intent, "dashboard/tests/a.spec.ts").click();
+  await story.file("dashboard/tests/a.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("a 11");
 }
 
@@ -75,18 +64,19 @@ test("an active story with no workspace explains that no comparison is available
 }) => {
   putFrontendIntentStory(frontendServices, { workspace: false, taken: false });
   const { intent } = await openStoryIntent(page, "Story A");
-  const scoped = storySummary(intent);
-  await expect(storyTitle(intent)).toHaveText("Story A");
+  const story = intentStory(intent);
+  const scoped = story.summary;
+  await expect(story.title).toHaveText("Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );
-  const detail = await storyHeaderDetail(intent);
+  const detail = await story.headerDetail();
   await expect(detail.locator(".intent-story-problem")).toHaveText(
     "No comparison is available for this story: no workspace on this machine holds it. Intent shows the published tree without the story's changes.",
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
-  await chooseStoryTab(intent, "Changed tests");
+  await expect(story.header.revisions).toHaveCount(0);
+  await story.chooseTab("Changed tests");
   await expectPublishedTreeUsable(intent);
 });
 
@@ -112,28 +102,29 @@ test("a failed comparison read explains itself with a retry that then shows the 
     },
   );
   const { intent } = await openStoryIntent(page, "Story A");
-  await chooseStoryTab(intent, "Changed tests");
-  const scoped = storySummary(intent);
+  const story = intentStory(intent);
+  await story.chooseTab("Changed tests");
+  const scoped = story.summary;
   const problem = scoped.getByRole("alert");
   await expect(problem).toHaveText(
     "The story's changes could not be read. Retry",
   );
-  const detail = await storyHeaderDetail(intent);
+  const detail = await story.headerDetail();
   await expect(detail.locator(".intent-story-problem")).toHaveText(
     "The worktree could not be read. Intent shows the published tree without them.",
   );
-  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
+  await expect(story.header.revisions).toHaveCount(0);
   await expectPublishedTreeUsable(intent);
 
   failing = false;
   await problem.getByRole("button", { name: "Retry" }).click();
-  await expectStoryComparisonRead(intent);
-  await expect(storyHeaderReading(intent).revisions).toBeVisible();
+  await story.expectComparisonRead();
+  await expect(story.header.revisions).toBeVisible();
   await expect(problem).toHaveCount(0);
-  await expect(storyOnly(intent)).not.toBeChecked();
-  await expectOutsideCount(intent, 2);
-  await expect(intentFile(intent, changed.modified)).toBeVisible();
-  await expect(intentFile(intent, changed.added)).toBeVisible();
+  await expect(story.storyOnly()).not.toBeChecked();
+  await story.expectOutsideCount(2);
+  await expect(story.file(changed.modified)).toBeVisible();
+  await expect(story.file(changed.added)).toBeVisible();
 });
 
 test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Project Intent main's CI status beside it", async ({
@@ -147,24 +138,23 @@ test("without configured Intent locations the header names the selected story, C
   });
   await answerFrontendIntentCi(page, frontendServices.revision);
   const { card, intent } = await openStoryIntent(page, "Story A");
+  const story = intentStory(intent);
   const { intentChoice } = parts(page);
   await expect(
     intentPageFrame(intent).locator(":scope > *").first(),
   ).toHaveAttribute("aria-label", "Selected story");
-  await expect(storyTitle(intent)).toHaveText("Story A");
-  await expect(storyHeaderReading(intent).status).toHaveText(
-    "No comparison is available.",
-  );
-  await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
-  await expect(storyOnly(intent)).toHaveCount(0);
-  await expect(outsideCount(intent)).toHaveCount(0);
-  await expectStoryTab(intent, "CI comparison");
+  await expect(story.title).toHaveText("Story A");
+  await expect(story.header.status).toHaveText("No comparison is available.");
+  await expect(story.header.identity).toHaveText("SEED-A#a");
+  await expect(story.storyOnly()).toHaveCount(0);
+  await expect(story.outsideCount).toHaveCount(0);
+  await story.expectTab("CI comparison");
   await expect(
     intent
       .getByRole("tabpanel", { name: "CI comparison" })
       .getByRole("region", { name: "CI status", exact: true }),
   ).toBeVisible();
-  await chooseStoryTab(intent, "Changed tests");
+  await story.chooseTab("Changed tests");
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText("No intent locations are configured");
@@ -173,7 +163,7 @@ test("without configured Intent locations the header names the selected story, C
   ).toHaveCount(0);
 
   await openProjectIntent(intent);
-  await expect(storySummary(intent)).toHaveCount(0);
+  await expect(story.summary).toHaveCount(0);
   const project = intent.getByRole("tabpanel", { name: "CI status" });
   await expect(project).toContainText("No intent locations are configured");
   await expect(
@@ -185,8 +175,8 @@ test("without configured Intent locations the header names the selected story, C
   ).toContainText("No intent locations are configured");
   // Back to the story's Changed tests, as it was left.
   await returnToStory(intent);
-  await expectStoryTab(intent, "Changed tests");
-  await expect(storySummary(intent)).toBeVisible();
+  await story.expectTab("Changed tests");
+  await expect(story.summary).toBeVisible();
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText("No intent locations are configured");
@@ -197,7 +187,7 @@ test("without configured Intent locations the header names the selected story, C
   await emptyArea(card).click();
   await expectSelected(card, false);
   await intentChoice.click();
-  await expect(storySummary(intent)).toHaveCount(0);
+  await expect(story.summary).toHaveCount(0);
   await expect(backToStory(intent)).toHaveCount(0);
   await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
     "aria-selected",

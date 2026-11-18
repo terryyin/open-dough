@@ -26,20 +26,7 @@ import {
   completedChanges as changed,
   selectCompletedStoryInIntent,
 } from "../../dashboard/tests/support/intentCompletedStory.ts";
-import {
-  folderToggle,
-  intentDiff,
-  chooseStoryTab,
-  expectOutsideCount,
-  intentFile,
-  openReviewFromIntent,
-  reviewDiff,
-  storyHeaderDetail,
-  storyOnly,
-  storySummary,
-  storyTitle,
-  storyHeaderReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+import { intentStory } from "../../dashboard/tests/support/intentStoryPage.ts";
 import {
   kindStyles,
   nameStyle,
@@ -68,21 +55,22 @@ test("Intent overlays a completed story's published history comparison, naming i
     await selectCompletedStoryInIntent(page, origin, {
       intentCoverage: { report },
     });
-  const scoped = storySummary(intent);
+  const story = intentStory(intent);
+  const scoped = story.summary;
   let baseline = "";
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyTitle(intent)).toHaveText("Story A");
+    await expect(story.title).toHaveText("Story A");
     await expect(
       scoped.getByRole("heading", { name: "Intent coverage" }),
     ).toHaveCount(0);
-    await storyHeaderDetail(intent);
-    await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
+    await story.headerDetail();
+    await expect(story.header.identity).toHaveText("SEED-A#a");
   });
 
   await test.step("Intent coverage shows the exact saved assessment and all four costs as text", async () => {
-    await chooseStoryTab(intent, "Intent coverage");
+    await story.chooseTab("Intent coverage");
     const coverage = intent.getByRole("region", { name: "Intent coverage" });
     await expect(
       coverage.getByRole("heading", { name: "Intent coverage" }),
@@ -92,11 +80,11 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expect(result).toHaveCSS("white-space", "pre-wrap");
     expect(await result.textContent()).toBe(report);
     await expect(result.locator("img")).toHaveCount(0);
-    await chooseStoryTab(intent, "Changed tests");
+    await story.chooseTab("Changed tests");
   });
 
   await test.step("the compared revisions are the published comparison's, not Intent's published revision", async () => {
-    const revisions = storyHeaderReading(intent).revisions;
+    const revisions = story.header.revisions;
     await expect(revisions).toContainText(
       `with completion ${shortRevision(completion)}.`,
     );
@@ -121,8 +109,8 @@ test("Intent overlays a completed story's published history comparison, naming i
   const style = await kindStyles(intent);
   for (const only of [false, true]) {
     const state = only ? "on" : "off";
-    if (only) await storyOnly(intent).check();
-    await expect(storyOnly(intent)).toBeChecked({ checked: only });
+    if (only) await story.storyOnly().check();
+    await expect(story.storyOnly()).toBeChecked({ checked: only });
 
     await test.step(`Selected story only ${state}: the deleted, modified, and added files show by kind`, async () => {
       await expandIntentGroup(intent, "dashboard/tests");
@@ -131,23 +119,23 @@ test("Intent overlays a completed story's published history comparison, naming i
         [changed.modified, style.modified],
         [changed.added, style.added],
       ] as const) {
-        const file = intentFile(intent, name);
+        const file = story.file(name);
         await expect(file).toHaveCount(1);
         await expect(file).toBeVisible();
         expect(await nameStyle(file)).toEqual(expected);
       }
       // The unchanged folder stays in the whole tree only.
-      await expect(folderToggle(intent, "other", false)).toHaveCount(
+      await expect(story.folderToggle("other", false)).toHaveCount(
         only ? 0 : 1,
       );
-      await expectOutsideCount(intent, 6);
+      await story.expectOutsideCount(6);
     });
   }
 
   const inIntent = new Map<string, string>();
   await test.step("each changed file opens its diff", async () => {
     for (const name of Object.values(changed)) {
-      inIntent.set(name, await intentDiff(intent, name));
+      inIntent.set(name, await story.diff(name));
     }
   });
 
@@ -155,7 +143,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     expect(inIntent.get(changed.deleted)).toContain("gone 0");
     expect(inIntent.get(changed.modified)).toContain("completed");
     expect(inIntent.get(changed.added)).toContain("added");
-    await openReviewFromIntent(page, intent);
+    await story.openReview();
     const review = reviewRegion(page);
     await expect(review).toContainText("Published completion");
     // Its three test files and the six Intent counts outside the locations.
@@ -163,7 +151,7 @@ test("Intent overlays a completed story's published history comparison, naming i
       9,
     );
     for (const [name, diff] of inIntent)
-      expect(await reviewDiff(page, name), name).toBe(diff);
+      expect(await story.reviewDiff(name), name).toBe(diff);
   });
 
   await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
@@ -177,7 +165,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyTitle(intent)).toHaveText("Story A");
+    await expect(story.title).toHaveText("Story A");
     await development.click();
     await showColumn(page, "Recently done");
     await emptyArea(card).click();

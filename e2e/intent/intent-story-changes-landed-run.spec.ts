@@ -22,9 +22,9 @@ import {
   storyHeaderDetail,
   openReviewFromIntent,
   reviewDiff,
-  selectTakenStoryInIntent,
   storyHeaderReading,
 } from "../../dashboard/tests/support/intentStoryPage.ts";
+import { selectTakenStoryInIntent } from "../../dashboard/tests/support/selectTakenStoryInIntent.ts";
 import {
   changed,
   publishIntentTrunk,

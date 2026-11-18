@@ -35,17 +35,7 @@ import {
 } from "../../tests/intentPerspectivePage.ts";
 import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import {
-  chooseStoryTab,
-  expectStoryTab,
-  folderToggle,
-  intentFile,
-  storyOnly,
-  storySummary,
-  storyTitle,
-  storyViews,
-  intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
+import { intentStory } from "../../tests/support/intentStoryPage.ts";
 import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
 import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
 import { putFrontendIntentStory } from "../../tests/support/frontendIntentStory.ts";
@@ -85,9 +75,10 @@ test("Hide files gives the reading pane the width under the story's header; afte
 }) => {
   await page.setViewportSize({ width: 1280, height: 560 });
   const { intent } = await selectTakenStoryInIntent(page, frontendServices);
-  await storyOnly(intent).check();
-  await intentFile(intent, deepSpec).click();
-  await expect(intentDiffReading(intent).name).toHaveText(deepSpec);
+  const story = intentStory(intent);
+  await story.storyOnly().check();
+  await story.file(deepSpec).click();
+  await expect(story.diffReading.name).toHaveText(deepSpec);
   const proofTab = fileReadingTab(intent, "Proof");
   await proofTab.click();
   await expect(proofRegion(intent)).toBeVisible();
@@ -98,7 +89,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
   // The toggle ends the story's view row, after the tabs.
   const bar = storyViewBar(intent);
   const toggleBox = await box(filesToggle(intent));
-  const tabsBox = await box(storyViews(intent));
+  const tabsBox = await box(story.views);
   const barBox = await box(bar);
   expect(toggleBox.x).toBeGreaterThan(tabsBox.x + tabsBox.width);
   expect(
@@ -112,27 +103,24 @@ test("Hide files gives the reading pane the width under the story's header; afte
   expect(hidden.width).toBeGreaterThan(before.width);
   await expect(proofRegion(intent)).toBeVisible();
   // The header stays above the full-width reader.
-  const header = await box(storySummary(intent));
+  const header = await box(story.summary);
   expect(hidden.y).toBeGreaterThanOrEqual(header.y + header.height);
 
   for (const view of ["Intent coverage", "CI comparison"] as const) {
-    await chooseStoryTab(intent, view);
+    await story.chooseTab(view);
     await expect(filesToggle(intent)).toHaveCount(0);
     await expect(intentReadingPane(intent)).toBeHidden();
-    await chooseStoryTab(intent, "Changed tests");
+    await story.chooseTab("Changed tests");
     await expectFilesShown(intent, false);
     await expect(proofRegion(intent)).toBeVisible();
   }
 
   await filesToggle(intent).click();
   await expectFilesShown(intent, true);
-  await expect(storyOnly(intent)).toBeChecked();
-  await expect(intentFile(intent, deepSpec)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(story.storyOnly()).toBeChecked();
+  await expect(story.file(deepSpec)).toHaveAttribute("aria-pressed", "true");
   for (const name of ["boundary", "deep"])
-    await expect(folderToggle(intent, name, true)).toBeVisible();
+    await expect(story.folderToggle(name, true)).toBeVisible();
   await expect.poll(() => filesScroll(intent)).toBe(offset);
   await expect(proofTab).toHaveAttribute("aria-selected", "true");
 });
@@ -142,6 +130,7 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   frontendServices,
 }) => {
   const { intent } = await selectTakenStoryInIntent(page, frontendServices);
+  const story = intentStory(intent);
   await filesToggle(intent).click();
   await expectFilesShown(intent, false);
 
@@ -151,7 +140,7 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   await chooseOptimizationCandidates(intent);
   await expect(filesToggle(intent)).toHaveCount(0);
   await returnToStory(intent);
-  await expectStoryTab(intent, "Changed tests");
+  await story.expectTab("Changed tests");
   await expectFilesShown(intent, false);
 
   const { development, intentChoice } = parts(page);
@@ -168,8 +157,8 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   await expect(filesToggle(intent)).toHaveCount(0);
   await chooseProject(page, "Open Dough");
   // The restored story replaces the temporary header while its work is read.
-  await expect(storyTitle(intent)).toHaveText(storyA.title);
-  await chooseStoryTab(intent, "Changed tests");
+  await expect(story.title).toHaveText(storyA.title);
+  await story.chooseTab("Changed tests");
   await expectFilesShown(intent, true);
 });
 
