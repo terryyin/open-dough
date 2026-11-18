@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-382_give-the-frontend-group-headroom-on-slow-runners.json",
+      "identity": "SEED-382#give-the-frontend-group-headroom-on-slow-runners",
+      "completedAt": "2026-11-18T02:10:16.365Z",
+      "blob": "314d3e810c5dced190b4fe4a2c2f7a06f2c8e2cc"
+    },
+    {
       "fileName": "SEED-334_share-one-executing-agent-roster-arrangement.json",
       "identity": "SEED-334#share-one-executing-agent-roster-arrangement",
       "completedAt": "2026-11-18T01:56:26.573Z",
