@@ -1,13 +1,6 @@
-// Real built UI against the external notes boundary, with immutable line context.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  openFrontendBoardReview,
-  storyA,
-} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
-import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
-import { parts } from "../../test-support/dashboardParts.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+// Mounted board against the notes service rule, with immutable line context.
+import { expect, test } from "vitest";
+import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesPage.ts";
 import {
   storyNoteSentToFollowUp,
   storyNoteWaitingForFollowUp,
@@ -24,22 +17,14 @@ const context = {
   },
   line: { number: 7, side: "new" as const, text: "return result;" },
 };
-test("a line note edits text alone, cancel keeps it, delete removes and updates count", async ({
-  page,
-  frontendServices,
-}) => {
-  const service = await installFrontendStoryNotes(page);
-  const original = makeMe.aStoryNote
-    .withText("Original observation")
-    .withContext(context)
-    .please();
-  service.answer("open-dough", { [storyA.identity]: [original] });
-  await openFrontendBoardReview(page, frontendServices);
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
+
+test("a line note edits text alone, cancel keeps it, delete removes and updates count", async () => {
+  const board = await mountStoryNotesBoard({
+    text: "Original observation",
+    context,
   });
-  const notes = storyNotesPage(page);
+  const { notes, notesService } = board;
+  const card = board.card("Recently done", board.cards.done);
   await notes.expectCount(card, 1);
   await notes.open(card);
   await notes.edit(0, "keyboard");
@@ -60,17 +45,17 @@ test("a line note edits text alone, cancel keeps it, delete removes and updates 
   await notes.expectNotes(["Updated observation"]);
   for (const text of contextWords)
     await notes.expectNoteContext("Updated observation", text);
-  expect(service.changes()).toEqual([
+  expect(notesService.changes).toEqual([
     {
       action: "edit",
-      identity: storyA.identity,
-      id: original.id,
+      identity: board.identity,
+      id: board.note.id,
       text: "Updated observation",
     },
   ]);
   await notes.delete(0);
   await notes.expectDeleteCancelFocused(0);
-  expect(service.changes()).toHaveLength(1);
+  expect(notesService.changes).toHaveLength(1);
   await notes.answerDelete(0, "Cancel");
   await notes.expectActionFocused("Delete");
   await notes.expectNotes(["Updated observation"]);
@@ -82,26 +67,19 @@ test("a line note edits text alone, cancel keeps it, delete removes and updates 
   await notes.expectActionFocused("Add note");
   await notes.close();
   await notes.expectCount(card, 0);
+  expect(notesService.changes.slice(1)).toEqual([
+    { action: "delete", identity: board.identity, id: board.note.id },
+  ]);
 });
 
-test("saving an unchanged edit of a sent note shows it waiting again", async ({
-  page,
-  frontendServices,
-}) => {
-  const service = await installFrontendStoryNotes(page);
-  const sent = makeMe.aStoryNote
-    .withText("Send this again unchanged")
-    .withContext(context)
-    .savedAt("2026-11-17T00:10:00.000Z")
-    .deliveredAs("2026-11-17T00:10:00.000Z")
-    .please();
-  service.answer("open-dough", { [storyA.identity]: [sent] });
-  await openFrontendBoardReview(page, frontendServices);
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
+test("saving an unchanged edit of a sent note shows it waiting again", async () => {
+  const board = await mountStoryNotesBoard({
+    text: "Send this again unchanged",
+    context,
+    sentAt: "2026-11-17T00:10:00.000Z",
   });
-  const notes = storyNotesPage(page);
+  const { notes, notesService } = board;
+  const card = board.card("Recently done", board.cards.done);
   await notes.expectWaiting(card, 0);
   await notes.open(card);
   await notes.expectNoteState(0, storyNoteSentToFollowUp);
@@ -112,42 +90,33 @@ test("saving an unchanged edit of a sent note shows it waiting again", async ({
   await notes.expectNoteState(0, storyNoteWaitingForFollowUp);
   await notes.close();
   await notes.expectWaiting(card, 1);
-  expect(service.changes()).toEqual([
+  expect(notesService.changes).toEqual([
     {
       action: "edit",
-      identity: storyA.identity,
-      id: sent.id,
+      identity: board.identity,
+      id: board.note.id,
       text: "Send this again unchanged",
     },
   ]);
 });
 
-test("refused edits keep typed text and original note; refused deletion keeps text and reports failure", async ({
-  page,
-  frontendServices,
-}) => {
-  const service = await installFrontendStoryNotes(page);
-  const original = makeMe.aStoryNote
-    .withText("Original text stays saved")
-    .withContext(context)
-    .please();
-  service.answer("open-dough", { [storyA.identity]: [original] });
-  await openFrontendBoardReview(page, frontendServices);
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
+test("refused edits keep typed text and original note; refused deletion keeps text and reports failure", async () => {
+  const board = await mountStoryNotesBoard({
+    text: "Original text stays saved",
+    context,
   });
-  const notes = storyNotesPage(page);
+  const { notes, notesService } = board;
+  const card = board.card("Recently done", board.cards.done);
   await notes.open(card);
   await notes.edit(0);
   await notes.type("Typed edit survives refusal");
-  service.failNextChange();
+  notesService.failNext = "refused";
   await notes.save();
   await notes.expectProblem("The note could not be saved.");
   await notes.expectComposing("Typed edit survives refusal");
   await notes.expectNotes(["Original text stays saved"]);
   await notes.cancel();
-  service.failNextChange();
+  notesService.failNext = "refused";
   await notes.delete(0);
   await notes.answerDelete(0, "Delete");
   await notes.expectProblem("The note could not be deleted.");
@@ -157,4 +126,11 @@ test("refused edits keep typed text and original note; refused deletion keeps te
   await notes.delete(0);
   await notes.answerDelete(0, "Delete");
   await notes.expectNotes([]);
+  const { identity } = board;
+  const { id } = board.note;
+  expect(notesService.changes).toEqual([
+    { action: "edit", identity, id, text: "Typed edit survives refusal" },
+    { action: "delete", identity, id },
+    { action: "delete", identity, id },
+  ]);
 });

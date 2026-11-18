@@ -12,14 +12,14 @@ import { storyNotesNames as n } from "../storyNotesNames.ts";
 export function storyNotesPage(page: Page) {
   const dialog = page.getByRole("dialog", { name: n.dialog, exact: true });
   const field = dialog.getByRole("textbox", { name: n.field, exact: true });
-  const announcement = dialog.locator(".launch-dialog-body > [role='status']");
+  const announcement = dialog.locator(n.announcement);
   const entries = dialog
     .getByRole("list", { name: n.savedNotes })
     .getByRole("listitem");
   // A saved entry by its note text, wherever the list places it.
   const entry = (text: string) =>
     entries.filter({
-      has: page.locator(".story-note-text", { hasText: n.exactly(text) }),
+      has: page.locator(n.noteText, { hasText: n.exactly(text) }),
     });
   const saveButton = dialog.getByRole("button", {
     name: n.save,
@@ -72,56 +72,6 @@ export function storyNotesPage(page: Page) {
       expect(icon.width).toBe(nextIcon.width);
       expect(icon.height).toBe(nextIcon.height);
     },
-    edit: async (index: number, using: "mouse" | "keyboard" = "mouse") => {
-      const control = entries
-        .nth(index)
-        .getByRole("button", { name: n.edit, exact: true });
-      if (using === "keyboard") {
-        await control.focus();
-        await control.press("Enter");
-      } else await control.click();
-      await expect(
-        dialog.getByRole("heading", { name: n.editHeading, exact: true }),
-      ).toBeVisible();
-    },
-    expectComposerFocused: async () => {
-      await expect(field).toBeFocused();
-    },
-    delete: async (index: number) => {
-      await entries
-        .nth(index)
-        .getByRole("button", { name: n.delete, exact: true })
-        .click();
-      await expect(
-        entries.nth(index).getByRole("group", { name: n.deleteQuestion }),
-      ).toBeVisible();
-    },
-    expectDeleteCancelFocused: async (index: number) => {
-      await expect(
-        entries.nth(index).getByRole("button", { name: n.cancel, exact: true }),
-      ).toBeFocused();
-    },
-    answerDelete: async (index: number, answer: "Delete" | "Cancel") => {
-      await entries
-        .nth(index)
-        .getByRole("group", { name: n.deleteQuestion })
-        .getByRole("button", { name: answer, exact: true })
-        .click();
-    },
-    expectActionFocused: async (
-      action: "Edit" | "Delete" | "Add note",
-      index = 0,
-    ) => {
-      const holder = action === "Add note" ? dialog : entries.nth(index);
-      await expect(
-        holder.getByRole("button", { name: action, exact: true }),
-      ).toBeFocused();
-    },
-    expectAnnouncement: async (message: string) => {
-      await expect(announcement).toHaveText(message);
-      await expect(page.getByText(message, { exact: true })).toHaveCount(1);
-      await expect(field).toHaveCount(0);
-    },
     expectComposerContext: async (texts: readonly (string | RegExp)[]) => {
       for (const text of texts)
         await expect(dialog.locator("form")).toContainText(text);
@@ -154,7 +104,7 @@ export function storyNotesPage(page: Page) {
       await expect(dialog).toHaveCount(0);
     },
     expectNotes: async (texts: readonly string[]) => {
-      await expect(entries.locator(".story-note-text")).toHaveText([...texts]);
+      await expect(entries.locator(n.noteText)).toHaveText([...texts]);
     },
     expectNoteState: async (
       index: number,

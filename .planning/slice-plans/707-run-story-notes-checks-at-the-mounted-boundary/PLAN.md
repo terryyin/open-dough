@@ -83,7 +83,7 @@ Proof: `npm run test:dashboard:frontend -- stories/ --grep 'unreadable'` selects
 ### 4. Edit and delete a note on the mounted board
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a story holds a saved line note → the developer edits it by keyboard, cancels, saves, deletes, and meets a refused edit and a refused deletion → the saved text, context, count, announcements and focus match the built-app cases, and the recorded change requests are the same.
 
@@ -150,5 +150,7 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 **Slice 2:** the notes rule is the class `StoryNotesRule` in `dashboard/test-support/support/frontendStoryNotesRule.ts`, because a function over passed-in state failed `no-param-reassign`. Both substitutes construct it with the shared `numberedNewStoryNotes()` identity factory and call `answer`, `setNotes` and `markUnreadable`; the server and app already use `answerStoryNotes` and `StoryNotesAnswer`.
 
 **Slice 3:** the mounted notes board is `mountStoryNotesBoard()` in `dashboard/test-support/mounted-dashboard/mountedStoryNotesPage.ts`; it returns the arranged cards and project, the notes service rule, the mounted Story notes page and `runFor`. `commands.storyNotesBoard()` builds the arrangement in Node. Control names live once in `dashboard/test-support/storyNotesNames.ts`. The Vitest viewport is a 390×844 phone, so the notes board mounts at 1280×720 through the mount's `viewport` option and needs no `showColumn`. A held answer is checked before any service answers. `locator.fill` typed a draft under the fake timers.
+
+**Slice 4:** mounted keyboard activation focuses the control inside `act`, asserts focus, then sends `userEvent.keyboard("{Enter}")` inside `act`, as the Playwright form focuses and presses Enter; focus return is asserted with `toHaveFocus()`. The Playwright page object lost the edit and delete cues whose only caller moved. In 1 of 3 runs the refused-edit case printed React's "not wrapped in act(...)" warning for `ConfiguredDashboard` while passing; the same warning appears in slice 1 and 3 logs. Slice 5 owns finding the unwrapped update before relying on held answers. Split `mountedStoryNotesPage.ts` (214 lines) into the Story notes page and a mounted notes board module when slice 5 adds cues.
 
 ## Story obligations

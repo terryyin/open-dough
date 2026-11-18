@@ -23,11 +23,11 @@ Launched 2026-11-18 by the execution coordinator as a fresh general-purpose agen
 | 14 | The whole-group command is no slower than its matched baseline (Scope ¶3) | slice 7 | |
 | 15 | The summed case time and the per-file import cost are reported beside the timing comparison (Scope ¶3) | slice 7 | |
 | 16 | The seed gains the measured cost of real specs at the mounted boundary; the refinement evidence is updated with the per-file figure (Goal / Scope ¶3) | slice 7 | |
-| 17a | A saved line note edited by keyboard and saved: the mounted case shows the saved text (Key example 1) | slice 4 | |
-| 17b | ... the focus returns to Edit (Key example 1) | slice 4 | |
-| 17c | ... the same change request the built-app case recorded is made (Key example 1) | slice 4 | |
-| 18a | A save refused while a draft holds typed text: the draft and the original note remain (Key example 2) | slice 4 | |
-| 18b | ... the failure is announced (Key example 2) | slice 4 | |
+| 17a | A saved line note edited by keyboard and saved: the mounted case shows the saved text (Key example 1) | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-edit.mounted.spec.ts case 1: keyboard edit then save, expectNotes(["Updated observation"]) and 5 expectNoteContext (evidence s4-mounted) |
+| 17b | ... the focus returns to Edit (Key example 1) | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-edit.mounted.spec.ts case 1: expectActionFocused("Edit") after save (toHaveFocus) |
+| 17c | ... the same change request the built-app case recorded is made (Key example 1) | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-edit.mounted.spec.ts case 1: notesService.changes equals the built-app edit change request |
+| 18a | A save refused while a draft holds typed text: the draft and the original note remain (Key example 2) | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-edit.mounted.spec.ts case 3: refused edit keeps expectComposing("Typed edit survives refusal") and expectNotes(["Original text stays saved"]); fails when the rule accepts the refused change (evidence s4-discriminate) |
+| 18b | ... the failure is announced (Key example 2) | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-edit.mounted.spec.ts case 3: expectProblem("The note could not be saved.") |
 | 19a | Notes unreadable for a project: every card kind says so in place of a count (Key example 3) | slice 3 | observed: stories/story-notes-unreadable.mounted.spec.ts expectUnreadable on Recently done, Taken and Backlog cards (status text, no counted Notes button); fails when arranged readable (evidence s3-discriminate) |
 | 19b | ... a later project read does not restore a count (Key example 3) | slice 3 | observed: stories/story-notes-unreadable.mounted.spec.ts expectCount(done, 1) then markUnreadable and runFor(checkIntervalMs): the later project read leaves no counted Notes button on any card kind |
 | 20 | A Taken note survives a new launch and appears on Done; the case moves if a fresh mount reads the same app-owned state, otherwise (proof needs the browser's reload) it stays where a real page exists and is recorded with its reason (Key example 5) | slice 6 | |

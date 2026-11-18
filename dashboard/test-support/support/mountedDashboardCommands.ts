@@ -3,7 +3,7 @@ import { largeBacklog, queuedTitles } from "../accessibleBoard.ts";
 import { boardPositionKey } from "../boardColumnNavigation.ts";
 import { takenBacklogStories } from "../launchStoryCardPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { StoryNote } from "../../src/storyNote.ts";
+import type { StoryNote, StoryNoteContext } from "../../src/storyNote.ts";
 import { boardReviewDoneRecords, storyA } from "../recentlyDoneReviewState.ts";
 import { readyStory, takenStory } from "../launchJourney.ts";
 import {
@@ -73,18 +73,39 @@ function phoneBoardPublication(...[, long]: [BrowserCommandContext, boolean]) {
   };
 }
 
+// The saved note a notes board arranges: its text and line context, and the
+// version a follow-up session was sent, when one was.
+export type ArrangedStoryNote = {
+  text?: string;
+  context?: StoryNoteContext;
+  sentAt?: string;
+};
+
+function arrangedNote({ text, context, sentAt }: ArrangedStoryNote) {
+  let note = makeMe.aStoryNote;
+  if (text !== undefined) note = note.withText(text);
+  if (context !== undefined) note = note.withContext(context);
+  if (sentAt !== undefined) note = note.savedAt(sentAt).deliveredAs(sentAt);
+  return note.please();
+}
+
 // The recently done board with one saved note on its first done story, its
 // project, and the card of each kind the notes cases read.
-function storyNotesBoard() {
+function storyNotesBoard(
+  ...[, arranged = {}]: [BrowserCommandContext, ArrangedStoryNote?]
+) {
   const project = openDoughSource.id;
   const state = defaultFrontendServiceState();
   putFrontendDoneRecords(state, project, boardReviewDoneRecords());
+  const note = arrangedNote(arranged);
   return {
     answers: serviceAnswers(state, {
-      [project]: { [storyA.identity]: [makeMe.aStoryNote.please()] },
+      [project]: { [storyA.identity]: [note] },
     }),
     boardPositionKey,
     project,
+    identity: storyA.identity,
+    note,
     cards: { done: storyA.title, taken: takenStory, backlog: readyStory },
   };
 }
@@ -97,6 +118,8 @@ declare module "vitest/browser" {
     phoneBoardPublication(
       long: boolean,
     ): Promise<ReturnType<typeof phoneBoardPublication>>;
-    storyNotesBoard(): Promise<ReturnType<typeof storyNotesBoard>>;
+    storyNotesBoard(
+      note?: ArrangedStoryNote,
+    ): Promise<ReturnType<typeof storyNotesBoard>>;
   }
 }
