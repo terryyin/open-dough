@@ -34,11 +34,9 @@ for (const selection of ["equivalent", "later"] as const) {
         ? await publishSkippedPlanningLanding(page, origin)
         : await publishCodeLandedBeforeCompletion(page, origin);
     const endpoint = setup.landingMerge;
-    if (endpoint === undefined) throw new Error("Distinct landing required");
     expect(endpoint).not.toBe(setup.completion);
     const measured =
       selection === "equivalent" ? setup.trunkSide : setup.completion;
-    if (measured === undefined) throw new Error("Measured revision required");
     const runId = selection === "equivalent" ? 201 : 304;
     if (selection === "later") {
       serveEarlierLandingWithLandedOutcome(setup, "cancelled", {

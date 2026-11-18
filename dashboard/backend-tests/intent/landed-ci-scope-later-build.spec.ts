@@ -48,7 +48,7 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
   github,
 }) => {
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const landing = setup.landingMerge ?? setup.completion;
+  const landing = setup.landingMerge;
   const later = laterTrunkRevisions(origin.origin, landing);
   const unrelated = later.at(-1);
   expect(later[0]).toBe(setup.completion);

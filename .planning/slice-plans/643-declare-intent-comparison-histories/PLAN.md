@@ -191,6 +191,10 @@ adapter spec rerun after refactor. Follow-ups for later slices: skipped/Summary
 fixtures still `commitAll` then `rev-parse` (slices 3, 5); the backlog
 `complete` invocation repeats across ~10 completion setups (slice 4);
 `intent-story-becomes-done.spec.ts:61` calls `claimOf` (slice 6 audit).
+CI repair (run 44339614749): the refactor's narrowed earlier-landing type
+left `??`/undefined guards in three unchanged consumer specs that full lint
+rejects; the staged-only hook missed them. Run full `npm run lint` before
+publishing a narrowed shared type.
 
 ### 3. Read build eligibility from historical workflow facts
 Type: Behavior
