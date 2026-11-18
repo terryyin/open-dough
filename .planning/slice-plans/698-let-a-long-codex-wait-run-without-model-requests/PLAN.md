@@ -219,3 +219,14 @@ Slice 1 was published and registered on the execution branch at
   shared host wait. The payload-link check and `git diff --check` passed.
   Existing native proof still exercises the same command and wait. The
   refactor consumer trace is in the checkout's Git evidence directory.
+
+Slice 2 was published and registered on the execution branch at
+`bc3d8b7344c74f055707fc49e6877927356d1017`.
+
+## Execution complete
+
+Product advice: No backlog change. The controlled native traces support
+the wait guidance on the tested Codex profile. SEED-389 retains ownership
+of natural supplier-watch sampling. Review found no correction to the
+published behavior or its focused proof. The applicable execution-branch
+CI observation remains the handoff gate.
