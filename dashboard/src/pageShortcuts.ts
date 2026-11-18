@@ -1,13 +1,16 @@
 // Page-wide Command shortcuts: the Sessions sidebar's Command+B
-// (`./SessionsSidebar.tsx`) and the side panel's Command+Shift+Escape
-// (`./SidePanelControls.tsx`). Each is listened for while capturing, so the page
-// answers it before any control on it, the terminal included, handles the
-// key, and takes it from the browser and from those controls; a held key acts
-// once. What they leave alone: a key pressed inside an open dialog, as the
-// launch dialog or the badge legend, which keeps its own keyboard. Project
-// arrow navigation (`./projectKeyboardNavigation.ts`) shares that. Machine
-// settings suspends these dashboard shortcuts even when blank-space clicks
-// leave the keyboard on the body outside its controls.
+// (`./SessionsSidebar.tsx`), the side panel's Command+Shift+Escape
+// (`./SidePanelControls.tsx`), and the terminal's Command+Enter while its
+// input is focused (`./useSubmitAndCloseTerminal.ts`). Each is listened for
+// while capturing, so the page answers it before any control on it, the
+// terminal included, handles the key, and takes it from the browser and from
+// those controls; a held key acts once. An optional `when` leaves the chord
+// alone (Command+Enter outside terminal input). What they leave alone: a key
+// pressed inside an open dialog, as the launch dialog or the badge legend,
+// which keeps its own keyboard. Project arrow navigation
+// (`./projectKeyboardNavigation.ts`) shares that. Machine settings suspends
+// these dashboard shortcuts even when blank-space clicks leave the keyboard
+// on the body outside its controls.
 
 import { useEffect, useRef } from "react";
 
@@ -31,16 +34,24 @@ const matches = (event: KeyboardEvent, key: string, shift: boolean) =>
 export function useCommandShortcut(
   shortcut: CommandShortcut,
   act: () => void,
+  // When false, the chord is left alone (as when Command+Enter runs only
+  // while terminal input is focused). Defaults to always taking the chord.
+  when: () => boolean = () => true,
 ): void {
   const acting = useRef(act);
+  const taking = useRef(when);
   useEffect(() => {
     acting.current = act;
   }, [act]);
+  useEffect(() => {
+    taking.current = when;
+  }, [when]);
   const { key, shift = false } = shortcut;
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (
         !matches(event, key, shift) ||
+        !taking.current() ||
         isInsideOpenDialog(event.target) ||
         document.querySelector(".system-settings") !== null
       ) {

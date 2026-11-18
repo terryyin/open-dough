@@ -1,6 +1,7 @@
 # Submit and close the dashboard terminal
 
 **Source:** [Submit and close the dashboard terminal](../../seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-385#submit-and-close-the-dashboard-terminal
 
 ## Goal and scope
@@ -79,7 +80,7 @@ on 2026-11-18.
 
 ### 1. Command+Enter submits a ready prompt and closes after leave-ready
 Type: Behavior
-Status: planned
+Status: done
 Proof: the four rows above; focused
 `npm run --silent test:e2e -- e2e/terminals/<submit-close-spec> --workers=1 --reporter=list`
 (or the extended keyboard spec), plus `npm run typecheck:dashboard` and staged
@@ -120,3 +121,20 @@ necessary implementation for that Behavior, not a separate Structure outcome.
 No trunk-only step or human checkpoint. Slice-plan refinement was not needed:
 no boundary, cumulative design, sizing, or proof-ownership concern was
 identified. This review identified no remaining slice-specific concern.
+
+- Submit-and-close confirmation bound: `submitAndCloseConfirmMs` = 8_000
+  (`dashboard/src/submitAndCloseTerminal.ts`), longer than one prompt
+  machine-sessions round-trip and under the 15s steady poll
+  (`checkIntervalMs - 1_000`).
+- Prompt reread export: `rereadSessions` on `ReadSessions` /
+  `useAgentLaunches`, same internal `reread` path as polls, without
+  Host-switch `freshAsk`.
+- Command+Enter chord: `useCommandShortcut` with optional `when` so the
+  chord is taken only while terminal input is focused.
+
+### Slice 1 accepted proof
+
+- Focused e2e: `caffeinate -s -i npm run --silent test:e2e -- e2e/terminals/agent-terminal-submit-and-close.spec.ts --workers=1 --reporter=list` (pass after refactor; evidence `refactor-e2e-submit-and-close.log`).
+- `npm run typecheck:dashboard` (pass; unchanged through refactor).
+- Source commitments 1–7 observed in `source-review.md`.
+- Refactor: reuse `noteTerminalTraffic` and assert `submitAndCloseEnter` in the new e2e only; product seams already clean after `TerminalStatus` extract.

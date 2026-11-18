@@ -14,6 +14,9 @@ import type {
 // The machine's sessions and what their latest read said.
 export type ReadSessions = {
   readonly rereadOffers: () => void;
+  // Asks for a prompt machine-sessions read on the same path as the internal
+  // poll trigger, without marking a fresh Host-switch observation.
+  readonly rereadSessions: () => void;
   readonly creations: MachineAnswer["creations"];
   readonly hostOperations: MachineAnswer["hostOperations"];
   // Asks for the retained sessions' full entries (`./retainedHistory.ts`),

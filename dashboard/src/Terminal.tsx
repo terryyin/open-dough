@@ -1,8 +1,10 @@
 // The page's one native session terminal: output, input and size follow its
 // mounted attachment, which reports readiness and keeps startup interactive.
 // The header names its session and agent, and offers Prompts, Done where
-// supported, maximize/restore and Close. Closing or replacing the view detaches
-// without ending the session; plain Escape still goes to the native terminal.
+// supported, maximize/restore and Close. Command+Enter on a ready focused
+// terminal submits one Enter and closes after leave-ready confirmation.
+// Closing or replacing the view detaches without ending the session; plain
+// Escape still goes to the native terminal.
 // On coarse-pointer phones the key toolbar, Paste and optional composer
 // share the terminal input path, and Select pauses the output in place as
 // text the device selects. The panel fits the visual viewport as the soft
@@ -37,8 +39,6 @@ import { useAttachedTerminal } from "./useAttachedTerminal.ts";
 import { useTerminalRecovery } from "./useTerminalRecovery.ts";
 import {
   doneAnswers,
-  markDoneUnresolved,
-  notMarkedDone,
   useDoneMark,
   usePageSessions,
   type MarkSessionDone,
@@ -56,6 +56,9 @@ import {
   usePausedTerminalText,
 } from "./TerminalPausedText.tsx";
 import { useTerminalVisualViewportFit } from "./useTerminalVisualViewportFit.ts";
+import { usePageLaunches } from "./pageLaunches.ts";
+import { useSubmitAndCloseTerminal } from "./useSubmitAndCloseTerminal.ts";
+import { TerminalStatus } from "./TerminalStatus.tsx";
 
 export function Terminal({
   session,
@@ -92,6 +95,7 @@ export function Terminal({
 }) {
   const { record } = session;
   const { hostOperations } = usePageSessions();
+  const { rereadSessions } = usePageLaunches();
   const panel = useRef<HTMLElement>(null);
   const screen = useRef<HTMLDivElement>(null);
   const actions = useRef<HTMLDivElement>(null);
@@ -103,15 +107,25 @@ export function Terminal({
   // While marking, the attachment's ending the mark causes is not shown.
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
-  const { insertText, getPaste, getHeldText } = useAttachedTerminal(
+  const { insertText, acceptsInput, getPaste, getHeldText } =
+    useAttachedTerminal(
+      screen,
+      session,
+      attempt,
+      onAttached,
+      setEnding,
+      onWorkspaceUnavailable,
+      onAttachRefusal,
+    );
+  const submitAndClose = useSubmitAndCloseTerminal({
     screen,
-    session,
-    attempt,
-    onAttached,
-    setEnding,
-    onWorkspaceUnavailable,
-    onAttachRefusal,
-  );
+    current,
+    insertText,
+    acceptsInput,
+    rereadSessions,
+    onClose,
+    attachmentLost: status !== undefined,
+  });
   useTerminalVisualViewportFit(panel);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
@@ -173,25 +187,14 @@ export function Terminal({
           placed="side-panel-question"
         />
       )}
-      <div role="status" className="terminal-status">
-        {dictation.feedback}
-        {paste.feedback && <p>{paste.feedback}</p>}
-        {marking === "marking" && <p className="quiet">Marking as done…</p>}
-        {marking === "unresolved" && <p>{markDoneUnresolved}</p>}
-        {marking === "not-marked" && <p>{notMarkedDone}</p>}
-        {status && marking !== "marking" && (
-          <>
-            <p>{status.says}</p>
-            <button
-              type="button"
-              className="frame-button"
-              onClick={attachAgain}
-            >
-              {status.action}
-            </button>
-          </>
-        )}
-      </div>
+      <TerminalStatus
+        dictationFeedback={dictation.feedback}
+        pasteFeedback={paste.feedback}
+        submitAndCloseFeedback={submitAndClose.feedback}
+        marking={marking}
+        status={status}
+        onAttachAgain={attachAgain}
+      />
       <p id={inputHelp} className="visually-hidden">
         Press Alt+F10 to focus session actions, then Tab to Dictate into
         terminal, then Prompts.
