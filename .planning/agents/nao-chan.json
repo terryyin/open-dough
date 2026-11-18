@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nao-chan",
-  "email": "nao-chan@example.org",
-  "identity": "SEED-353#declare-local-worktree-review-state",
-  "mode": "story-branch",
-  "branch": "claude/declare-local-worktree-review-state-through-make",
-  "host": "claude"
-}

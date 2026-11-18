@@ -28,7 +28,6 @@ Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), co
 
 | Order | Receiving story | Original promises and scenario ownership |
 | --- | --- | --- |
-| 2 | [Declare local worktree review state through MakeMe](#declare-local-worktree-review-state) | Worktree content, staged/unstaged/untracked/ignored state, modes, renames, binary and context fixtures. |
 | 3 | [Declare merged review histories through MakeMe](#declare-merged-review-histories) | Story-branch commit/range comparisons, parent order, trunk integrations and conflict resolutions. |
 | 4 | [Declare trunk review authorship through MakeMe](#declare-trunk-review-authorship) | Trunk-mode own/foreign history, rewritten histories and attribution. |
 | 5 | [Declare completed-story review histories through MakeMe](#declare-completed-story-review-histories) | Completion publication/attribution, merge edits and incomplete-history/capture fallback starting state. |
@@ -45,73 +44,6 @@ Each story resumes through story refinement; no mapped original slices require p
 Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/test-support/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
 
 The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed. Neither establishes a full migration or speedup.
-
-<a id="declare-local-worktree-review-state"></a>
-
-### Declare local worktree review state through MakeMe
-
-**Identity:** SEED-353#declare-local-worktree-review-state
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/708-declare-local-worktree-review-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cffb7b699d1c187da31581ca092b05d70242b0cad5c0cbec274ce619ef2a84f2","plan":"3331b56127df796c6da7c11c9bc42d3c8e9539bebd7fa3a0fc7e983bdade9df3"}}
-```
-
-**Goal.** A developer reads the committed, staged, unstaged, untracked and
-ignored facts that explain a story review and its refresh directly, without
-reconstructing worktree Git setup. Review cases become easier to read and
-change together with the local-snapshot behavior they prove.
-
-**Scope.** Migrate the starting worktrees in
-`dashboard/test-support/support/storyReviewWorktree.ts` — Story A's full,
-admission, unchanged, landed, nested, large and expand-context worktrees and
-the mode-only change — with their direct and indirect callers across backend,
-E2E and Frontend-group tests, including `largeReviewFiles.ts`,
-`reviewPanes.ts`, `storyReviewTouchJourney.ts`, `expandContextDiff.ts` and
-spec-local starting edits such as the uncommitted check's edited-again story
-file. Declare Story A's `claude/story-a` workspace at `.worktrees/story-a`,
-its named trunk and workspace revisions, the other developer's merged trunk
-revision and later unfetched trunk revision, renames, deletions, binary bytes,
-file modes and the uncommitted index and file state through the shared MakeMe
-repository description and existing start-origin owners. Extend those owners
-for these demonstrated needs; preserve deferred, prepared-prefix reuse and each
-test's private mutable worktree. Named revision results replace incidental
-`rev-parse` setup.
-
-An edit, stage, revert or commit made after the review opened, and a trunk
-publication observed by a refresh, stay visible scenario actions. `observed`
-and other Git status/index reads stay independent of the description's
-renderer. Update the test-data architecture guide and compare representative
-construction before and after under ADR 0010. No production behavior change or
-speedup promise. The shared `git`, `commitAll`, `writeAt` and `lines` helpers
-stay while other families import them; story-branch commit/range and
-admission-topology helpers (`storyReviewTrunk.ts`), trunk-mode authorship and
-completed-story histories remain with their receiving siblings.
-
-**Key examples.**
-
-- Given Story A's declared worktree — committed rename with a small edit,
-  added story file, deleted file and redrawn image, merged trunk from another
-  developer with a later unfetched trunk, a staged edit, an unstaged edit with
-  a wide line, an untracked nested file and an ignored log — opening the review
-  shows the same seven changed files, baseline, counts and wide-line diff, and
-  Git reports the same porcelain status and staged names before and after.
-- Given that worktree with its committed story file edited again before
-  opening, turning “Include uncommitted changes” off lists the four committed
-  files with committed counts; a worktree declared with nothing uncommitted
-  offers no check.
-- Given the declared worktree already open in review, a further commit and a
-  new file written by the scenario do not change the snapshot until Refresh,
-  which shows them; the edit and commit remain written in the scenario.
-- Given nested trunk files and a cross-folder rename, a mode-only change, a
-  large single-commit comparison, or two distant edits in one long file, the
-  tree rows, mode-change counts, pane scrolling and expandable context stay as
-  today.
-- Given the admission worktree whose trunk later moved without a fetch, or a
-  landed first slice with a later local commit and edit, admission, refusal
-  and landed-review results stay the same.
-
-**Safe stopping point.** Local-content review fixtures are declarative and
-isolated; no trunk-attribution or completed-history migration is required for
-their value. No open human decision or blocking dependency.
 
 <a id="declare-merged-review-histories"></a>
 
