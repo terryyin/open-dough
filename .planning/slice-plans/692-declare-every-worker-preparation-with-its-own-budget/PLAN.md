@@ -152,7 +152,7 @@ resume.
 ### 6. One cold origin run proves timing and isolation
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Keep the full gated `test-preparation-budget.spec.ts` journey under
 `backendGlobalSetup.ts` once. Retain both held layouts, completion relative
 to private setup, the separate case intervals, three independent writable
@@ -161,6 +161,11 @@ nested repetitions with their ordinary group registration coverage identified
 above. Preserve a cheap real check of both keys in each group if a consuming
 journey moves. Confirm one nested budget selection and each group's rejection
 of an omitted key. Keep existing artifact failure and teardown coverage.
+Accepted proof: the budget spec selects one nested run, under
+`backendGlobalSetup.ts`, with every timing, isolation and later-revision
+assertion. Integrated's repeat-cue journey (1/1) and E2E's comparison retry
+(2/2) request both queued keys; withholding each key from each group's setup
+failed naming it.
 
 ### 7. Development notifications serve source with zero build requests
 
