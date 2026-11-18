@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 - [Pilot which new retrospective findings to record](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings ([plan](slice-plans/706-pilot-new-retrospective-findings/PLAN.md))
 - [Run the story-notes frontend checks at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md))
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
+- [Declare local worktree review state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state) — SEED-353#declare-local-worktree-review-state ([plan](slice-plans/708-declare-local-worktree-review-state/PLAN.md))
 
 ## Backlog list
 
@@ -41,7 +42,6 @@ intent introduced or affected by a newly developed story.
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
-- [Declare local worktree review state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state) — SEED-353#declare-local-worktree-review-state
 - [Declare merged review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-merged-review-histories) — SEED-353#declare-merged-review-histories
 - [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship
 - [Declare completed-story review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-completed-story-review-histories) — SEED-353#declare-completed-story-review-histories
