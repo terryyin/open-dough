@@ -1,3 +1,17 @@
+## 0.3.106 - 2026-11-18
+
+- Page-object guidance starts scenarios from one root and continues through the objects returned by actions. A disconnected step can resume from an explicitly assumed state. Inputs and expected outcomes stay visible in the scenario.
+- Refactor guidance ties assertions to observable regressions and keeps checks that compare independent settings or executed results. Source tests that only matched guidance wording were removed.
+- Dashboard Usage distinguishes Codex and Claude Code by mark shape as well as color and gives each displayed tool its own legend entries. Read errors clear when a new read starts.
+- In a ready dashboard terminal on macOS, Command+Enter submits once and closes the panel when session activity confirms the handoff. If confirmation is unavailable, the panel stays open and explains the result.
+- Dashboard CI runs the Frontend group in two shards and the Integrated group in one. Shared preparations use their own budgets so cold setup leaves the case budget available for the behavior under test.
+
+The Promoted client payload contains 381 files. Two guidance files changed, with no additions or retirements. The dashboard and CI changes stay in the source repository.
+
+The self-installation baseline, seven focused installation and release checks, dashboard type-check, and submit-and-close browser journey passed locally. The guidance review traced a Board-to-terminal-to-Board handoff and an observable test assertion that survives editorial changes. [Hosted CI passed all 17 jobs at `6366948d1`](https://github.com/terryyin/open-dough/actions/runs/44242166304), which carries the same payload. [CI for the source candidate `31a8a464a`](https://github.com/terryyin/open-dough/actions/runs/44244946998) was in progress when these notes were prepared.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the unchanged installation, discovery, and host-hook integrations reuse their existing native evidence. Native observations for freshness ordering and oversized-file reorganization remain pending for their unchanged guidance. The [retained-proof evaluation](.planning/seeds/SEED-397-evaluate-recoverable-proof-evidence.md) still awaits a qualifying real execution.
+
 ## 0.3.105 - 2026-11-18
 
 - Execute Plan keeps proof logs, full worker reports, and command records with the execution checkout until it is retired. The slice clock records the command, revision, working-tree state, timing, and result beside the log. Workers return a short verdict with links to the evidence for each promise.
