@@ -1,0 +1,21 @@
+/* Review changes' toolbar (./StoryReviewToolbar.tsx): one slim row under the
+   panel's header that stays in view above the review's top and work area.
+   The file sidebar's toggle keeps the row's start whether the sidebar is
+   shown or hidden; the comparison's name follows it on one line. */
+.story-review-toolbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--control-size);
+  padding: 0.15rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.story-review-toolbar-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

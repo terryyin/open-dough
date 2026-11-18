@@ -1,7 +1,8 @@
 /* A story review (./StoryReview.tsx) in the page's side panel, whose
    frame, header, Refresh, and panel controls it shares with the terminal
-   (./side-panel.css). Beneath the header, the review's fixed top holds the
-   context line, comparison controls, and review feedback.
+   (./side-panel.css). Beneath the header, the toolbar holds the file
+   browser's toggle (./story-review-toolbar.css) and the review's fixed top
+   the comparison controls, context line, and review feedback.
    The rest of the panel's height is
    the work area: the file browser beside the selected file's diff, each
    scrolling on its own while the top stays in view and the body beneath it
@@ -53,14 +54,9 @@
 .story-review-context-line {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   padding: 0.4rem 1rem;
   border-bottom: 1px solid var(--line);
   font-size: var(--text-sm);
-}
-
-.story-review-context-line .start-launch-button {
-  flex: none;
 }
 
 .story-review-context-values {

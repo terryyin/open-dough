@@ -4,6 +4,8 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
+  filesToggle,
+  toolbarComparison,
 } from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
@@ -75,9 +77,8 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   );
   await expect(review.getByRole("list")).toHaveCount(0);
   await expect(review.getByRole("region")).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
-    0,
-  );
+  await expect(toolbarComparison(review)).toHaveText("All changes");
+  await expect(filesToggle(review)).toHaveCount(0);
   await expectFixedWhileScrolled(page, body, [contextLine(review)]);
 });
 

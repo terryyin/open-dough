@@ -1,6 +1,7 @@
 # Keep Review changes focused on the diff
 
 **Source:** [Keep Review changes focused on the diff](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-384#keep-review-changes-focused-on-the-diff
 
 ## Goal and scope
@@ -86,7 +87,7 @@ Observed in this workspace at `e53294dd9caae680a335a31281a32d51b4703330` on
 
 ### 1. File sidebar toggle and comparison name in a review toolbar
 Type: Behavior
-Status: planned
+Status: done
 Proof: first and touch rows above; focused
 `bash scripts/test.sh` over the changed and reading review specs
 (`e2e/review/story-review.spec.ts`, `-panes`, `-context-line`, `-refresh`,
@@ -142,8 +143,11 @@ collapsed. Replaces slice 1's interim layout.
 - Before test edits, apply [dough-makeme](../../../.agents/skills/dough-makeme/SKILL.md)
   and [dough-page-objects](../../../.agents/skills/dough-page-objects/SKILL.md)
   selection. No sleeps, `test.slow()`, or timeout overrides.
-- Local gate per slice: the focused specs above through `bash scripts/test.sh
-  <paths>`, typecheck, post-change refactoring, staged lint. Slices 2 and 3
+- Local gate per slice: the focused specs above through `npm run --silent
+  test:e2e -- <paths>` (frontend specs: `npm run --silent
+  test:dashboard:frontend -- <paths>`), typecheck, post-change refactoring,
+  staged lint. `bash scripts/test.sh <spec.ts>` refuses Playwright specs (“no
+  check was run”), observed in slice 1. Slices 2 and 3
   also run `e2e/review` and the dashboard frontend suite whole, because the
   moved controls are read across them (premise row); no other full local
   suite. Hosted CI runs the shards.
@@ -151,6 +155,38 @@ collapsed. Replaces slice 1's interim layout.
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos);
   on battery, `caffeinate -i` awake with the lid open and read the sleep log.
 - Wrap-up keeps the mockup: the seed's second story still uses it.
+
+## Execution record
+
+- Mode: Story Branch; workspace `.worktrees/keep-review-changes-focused-on-the-diff`,
+  branch `claude/keep-review-changes-focused-on-the-diff`; claim
+  `70a81c6bad53c904576e0d89892b09cf52432d65` accepted on `origin/main`.
+- Slice 1 accepted on 2026-11-18: `e2e/review` whole plus
+  `e2e/intent/intent-story-changes-landed-run.spec.ts` green at load 20–36,
+  `frontend-tests/review` and seven reading frontend specs green, both
+  typechecks green. The toolbar is `StoryReviewToolbar.tsx`, a `role="group"`
+  named “Review toolbar”; support reaches it through `reviewToolbar`,
+  `toolbarComparison`, `filesToggle` in `reviewControls.ts`.
+- `e2e/review/story-review.spec.ts` is at 250 lines: later slices put new
+  assertions in support or new specs.
+- Flaky under load, not caused by this story:
+  `e2e/review/story-review-one-shot-choice.spec.ts:23` timed out once at 30 s
+  at load about 32; its trace shows about 23 s in the fixture's three real
+  launches (`oneShotReviewChoices.ts`) before the first UI step. It passed
+  alone and in two later whole-folder runs. Slices 2 and 3 run the folder
+  again; a second timeout there is diagnosed before delivery.
+
+## Story obligations
+
+### G1. Details still show beneath the toolbar
+Reported: slice 1 — "Interim: the comparison choices, run picker and context still show beneath the toolbar until slice 3."
+Story clause: "Details collapsed on every opening."
+Disposition: receiving slice 3
+
+### G2. Maintained docs still place Hide files in the context
+Reported: slice 1 — "the maintained docs still place Hide/Show files in the context (slice 3 owns them)."
+Story clause: "the panel opens with one slim toolbar above the files and the diff"
+Disposition: receiving slice 3
 
 ## Current decisions and plan review
 

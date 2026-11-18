@@ -10,6 +10,17 @@ export const comparisonWords: Readonly<Record<ShownComparison, string>> = {
   commits: "Commits",
 };
 
+// A comparison the switch offers: of the workspace, or a fixed historical one.
+export type ComparisonChoice = ShownComparison | "landed" | "published";
+
+// A comparison's name, in the switch and in the review's toolbar.
+export const comparisonName = (shown: ComparisonChoice) =>
+  shown === "landed"
+    ? "Landed runs"
+    : shown === "published"
+      ? "Published completion"
+      : comparisonWords[shown];
+
 export function ComparisonSwitch({
   shown,
   onSwitch,
@@ -18,8 +29,8 @@ export function ComparisonSwitch({
   published = false,
   workspace = true,
 }: {
-  readonly shown: ShownComparison | "landed" | "published";
-  readonly onSwitch: (shown: ShownComparison | "landed" | "published") => void;
+  readonly shown: ComparisonChoice;
+  readonly onSwitch: (shown: ComparisonChoice) => void;
   readonly commits: boolean;
   readonly landed?: boolean;
   readonly published?: boolean;
@@ -48,11 +59,7 @@ export function ComparisonSwitch({
               onSwitch(option);
             }}
           />{" "}
-          {option === "landed"
-            ? "Landed runs"
-            : option === "published"
-              ? "Published completion"
-              : comparisonWords[option]}
+          {comparisonName(option)}
         </label>
       ))}
     </div>

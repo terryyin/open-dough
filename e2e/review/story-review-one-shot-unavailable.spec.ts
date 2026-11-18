@@ -1,6 +1,10 @@
 // Honest empty and unavailable captured comparisons never substitute current trunk.
 import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  reviewRegion,
+  filesToggle,
+  toolbarComparison,
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
@@ -41,9 +45,10 @@ for (const captured of [true, false]) {
         );
       }
       await expect(review.getByRole("list")).toHaveCount(0);
-      await expect(
-        review.getByRole("button", { name: "Hide files" }),
-      ).toHaveCount(0);
+      // The toolbar names the comparison, never the run, and offers no
+      // sidebar toggle without files.
+      await expect(toolbarComparison(review)).toHaveText("Landed runs");
+      await expect(filesToggle(review)).toHaveCount(0);
     },
   );
 }

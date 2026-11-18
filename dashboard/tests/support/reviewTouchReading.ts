@@ -13,6 +13,7 @@ import {
   uncommittedLabel,
   comparisonChoice,
   comparisonLabel,
+  filesToggle,
 } from "./reviewControls.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
@@ -225,9 +226,7 @@ export async function leaveUncommittedOutByTouchLabel(
   const all = comparisonLabel(review, "All changes");
   const uncommitted = uncommittedCheck(review);
   const label = uncommittedLabel(review);
-  await tapWhereShown(
-    review.getByRole("button", { name: "Show files", exact: true }),
-  );
+  await tapWhereShown(filesToggle(review, "Show files"));
   await reachReviewControl(review, all);
   await tapWhereShown(all);
   await expect(uncommitted).toBeChecked();

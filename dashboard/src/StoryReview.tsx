@@ -13,7 +13,8 @@ import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
-import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
+import { ComparisonSwitch, comparisonName } from "./StoryReviewComparison.tsx";
+import { ReviewToolbar, reviewListsFiles } from "./StoryReviewToolbar.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
@@ -83,6 +84,12 @@ export function StoryReview({
     includeUncommitted,
     active: selectedRun === undefined,
   });
+  const shownComparison =
+    selectedRun !== undefined
+      ? "landed"
+      : published === undefined
+        ? shown
+        : "published";
   useEffect(() => {
     body.current?.focus();
   }, [request]);
@@ -128,16 +135,15 @@ export function StoryReview({
       <p id={descriptionId} hidden>
         {reviewDescription(review)}
       </p>
+      <ReviewToolbar
+        name={comparisonName(shownComparison)}
+        browser={reviewListsFiles(review, comparison) ? browser : undefined}
+        onShowBrowser={setBrowserShown}
+      />
       <div className="story-review-top">
         {(runs.length > 0 || items.length > 0) && (
           <ComparisonSwitch
-            shown={
-              selectedRun === undefined
-                ? published === undefined
-                  ? shown
-                  : "published"
-                : "landed"
-            }
+            shown={shownComparison}
             onSwitch={(choice) => {
               if (choice === "published") onWorkspace("all");
               else if (choice !== "landed") onWorkspace(choice);
@@ -159,12 +165,7 @@ export function StoryReview({
           <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
         )}
 
-        <ReviewContext
-          review={review}
-          comparison={comparison}
-          browser={browser}
-          onShowBrowser={setBrowserShown}
-        />
+        <ReviewContext review={review} />
         <ReviewFeedback
           review={review}
           reading={reading}
