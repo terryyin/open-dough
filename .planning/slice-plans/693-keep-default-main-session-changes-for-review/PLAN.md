@@ -232,7 +232,7 @@ support is in `tests/support/adHocReview.ts` (`establishDefaultMainSession`,
 
 ### 4. Say when a session made no commits
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in `backend-tests/review/ad-hoc-review-unavailable.spec.ts`.
 Scratch break: answer the no-commit capture as not captured; the case fails
 on its sentence.
@@ -241,6 +241,22 @@ Behavior: a session that edited files and committed nothing → Done → “This
 session made no commits in the Default main checkout.” A checkout whose log
 cannot be read at Done, and a record done without any capture, keep “This
 session's changes were not captured.”; Done itself succeeds.
+
+Delivered: a kept capture with no run answers the no-commit sentence
+(`keptNoSessionCommits`, `server/storyReviewSessionCommits.ts`); a `HEAD` log
+that yields no entry fails the capture as a log that cannot be read; a
+reported Done captures when its native continuation starts
+(`continueReported`, `server/doneMarks.ts`) and every Done captures once
+(`setRecordDoneAt` skips the finishing write). Scratch breaks: the no-commit
+capture answered as not captured failed its case on the sentence
+(`s4-scratch-break`), and the empty-log rule disabled failed its case on a
+kept `{runs: []}` (`s4b-scratch-break`); restored, `s4-refactor-review`
+exit 0. Learnings for later slices: both sentences arrive as the review's
+unavailable explanation, which slice 6 shows as given; removing only
+`.git/logs/HEAD` leaves Git reading the branch's log, so the empty-log
+fixture removes `.git/logs`; spec support gained `launchDefaultMainSession`
+and `keptAdHocRecord` (`tests/support/adHocReview.ts`); `server/doneMarks.ts`
+is at 244 lines.
 
 ### 5. Mark a capture from a shared checkout
 Type: Behavior
@@ -302,12 +318,12 @@ identified no remaining slice-specific concern.
 ### G1. A default launch in a checkout Git cannot read keeps no start
 Reported: slice 1 — "An unreadable checkout keeping no start has no test."
 Story clause: "a session whose checkout log cannot be read at Done, keep the not-captured explanation."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/backend-tests/review/ad-hoc-review-unavailable.spec.ts` "a default launch in a checkout Git cannot read keeps no start, is done, and says its changes were not captured" (the launch answers 200 with no `defaultStart`, Done succeeds, the review says not captured)
 
 ### G2. An automatic Done whose native continuation does not finish keeps no capture
 Reported: slice 2 — "Capture happens when the reported native Done finishes. If that wait is abandoned, the server closes during it, or the host acknowledges locally, there is no capture until a later Done."
 Story clause: "When the session is marked done, by the developer or automatically, its commits are kept with its launch record"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts` "a reported Done whose rename wait a closing server abandons has kept its commits" (a reported Done captures when its native continuation starts, `continueReported` in `server/doneMarks.ts`; `acknowledgeDoneLocally` captures through `setRecordDoneAt`). Inspected remainder: a report recorded while the server is already closing, or a crash between the durable mark and the continuation's start, keeps Done without a capture until the report is redelivered or the session is marked done again, and the review then says not captured, as the story has for a log not read at Done
 
 ### G3. File reads of a session-commits pair are not admitted
 Reported: slice 2 — "File diff reads for a session-commits pair are not admitted (`storyReviewHistoricalFileAdmission.ts` matches a landing reference only)."
@@ -322,7 +338,7 @@ Disposition: receiving slice 6
 ### G5. A repeated Done, a cleared Done and a failed read at Done are unobserved
 Reported: slice 2 — "Untested Done rules: failed read keeps Done with no capture; a second Done replaces the capture; clearing Done leaves it."
 Story clause: "the commits made in that checkout from its launch to Done, read from the checkout's local Git log."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts` "a reopened session keeps its earlier capture until its next Done…" (after reopening the record still holds the first run; the second Done answers both commits from launch) and `dashboard/backend-tests/review/ad-hoc-review-unavailable.spec.ts` unreadable-log cases (Done 200, no capture)
 
 ### G6. A root commit among the session's commits fails the whole capture
 Reported: slice 2 — "A root commit makes the whole capture fail."

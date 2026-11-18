@@ -7,7 +7,7 @@ import {
 } from "../../src/storyReviewContract.ts";
 import { reviewedWorkQuery } from "../../src/reviewedWorkSubject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { markDone } from "../agentLaunchBoundary.ts";
+import { launch, markDone, recordsOf } from "../agentLaunchBoundary.ts";
 import { getReview } from "./completedReviewRequests.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
 import type { StartOrigin } from "./startOrigin.ts";
@@ -48,6 +48,23 @@ export function adHocSessionFileDiff(
   });
 }
 
+// Launches an ad hoc session in the project's Default main checkout, blank
+// unless given an instruction; answers its record as launched.
+export async function launchDefaultMainSession(
+  dashboard: DashboardServer,
+  instruction?: string,
+): Promise<LaunchRecord> {
+  dashboard.claudeScenario("launched");
+  const launched = await launch(
+    dashboard,
+    makeMe.aLaunchRequest
+      .adHoc(instruction === undefined ? {} : { instruction })
+      .please(),
+  );
+  expect(launched.status).toBe(200);
+  return (JSON.parse(launched.body) as { record: LaunchRecord }).record;
+}
+
 // Keeps a session established now in the project's Default main checkout at
 // its current commit; answers when it launched.
 export function establishDefaultMainSession(
@@ -80,4 +97,14 @@ export async function markAdHocDone(
   const done = await markDone(dashboard, { source: "open-dough", session });
   expect(done.status).toBe(200);
   return (JSON.parse(done.body) as { record: LaunchRecord }).record.doneAt;
+}
+
+// The session's record as the project keeps it now.
+export async function keptAdHocRecord(
+  dashboard: DashboardServer,
+  session: string,
+): Promise<LaunchRecord | undefined> {
+  return ((await recordsOf(dashboard, "open-dough")) as LaunchRecord[]).find(
+    (record) => record.session.sessionId === session,
+  );
 }

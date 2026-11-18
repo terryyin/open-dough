@@ -10,10 +10,12 @@ import {
   defaultMainStart,
 } from "./sessionCommitsCapture.ts";
 
-// A set Done reads the session's commits anew, replacing an earlier capture.
-// A failed read keeps Done and leaves no capture; a Done cleared or changed
-// meanwhile keeps what it has.
-async function keptWithSessionCommits(
+// A new Done reads the session's commits anew, once, replacing an earlier
+// capture: when a set Done time is written, or, for a reported Done, whose
+// time its report wrote, when its native continuation starts. A failed read
+// keeps Done and leaves no capture; a Done cleared or changed meanwhile keeps
+// what it has.
+export async function keptWithSessionCommits(
   sourceId: string,
   marked: LaunchRecord,
 ): Promise<LaunchRecord> {
@@ -74,6 +76,9 @@ export async function setRecordDoneAt(
             : { doneProblem: options.doneProblem }),
         };
   });
-  if (doneAt === undefined || marked?.doneAt !== doneAt) return marked;
+  // A write that keeps the Done time it expects finishes that Done.
+  const finishing = options.expectedDoneAt === doneAt;
+  if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
+    return marked;
   return keptWithSessionCommits(sourceId, marked);
 }

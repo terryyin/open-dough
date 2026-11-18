@@ -10,12 +10,12 @@
 
 import path from "node:path";
 import { readFileSync } from "node:fs";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   adHocReview,
   establishDefaultMainSession,
+  keptAdHocRecord,
+  launchDefaultMainSession,
   markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
@@ -41,13 +41,7 @@ test("a default launch's commit is kept at Done and stays reviewable after trunk
   origin,
   request,
 }) => {
-  dashboard.claudeScenario("launched");
-  const launched = await launch(
-    dashboard,
-    makeMe.aLaunchRequest.adHoc({ instruction: "Fix the typo" }).please(),
-  );
-  expect(launched.status).toBe(200);
-  const { record } = JSON.parse(launched.body) as { record: LaunchRecord };
+  const record = await launchDefaultMainSession(dashboard, "Fix the typo");
   const { sessionId } = record.session;
   const start = git(origin.project, "rev-parse", "HEAD");
   const pulled = await pullPublishedWork(origin, pulledAt, "pulled.txt");
@@ -116,9 +110,7 @@ test("a default launch marked done automatically by its quiet report keeps its c
   await expect
     .poll(async () => (await adHocReview(request, dashboard, sessionId)).kind)
     .toBe("session-commits");
-  const record = (
-    (await recordsOf(dashboard, "open-dough")) as LaunchRecord[]
-  ).find((kept) => kept.session.sessionId === sessionId);
+  const record = await keptAdHocRecord(dashboard, sessionId);
   expect(record?.completion?.receivedAt).toEqual(expect.any(String));
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "session-commits",

@@ -10,6 +10,7 @@ import { establishedPlace } from "../src/establishedPlace.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import {
+  keptNoSessionCommits,
   keptSessionRun,
   type KeptSessionRun,
 } from "./storyReviewSessionCommits.ts";
@@ -105,9 +106,12 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
     const sessionRun = keptSessionRun(record, named);
     if (sessionRun !== undefined)
       return { kind: "story-review", sessionRun, runs: [] };
+    // A capture that found no commit says so; no capture claims nothing.
     return {
       kind: "story-review",
-      landingUnavailable: "This session's changes were not captured.",
+      landingUnavailable: keptNoSessionCommits(record)
+        ? "This session made no commits in the Default main checkout."
+        : "This session's changes were not captured.",
       runs: [],
     };
   }

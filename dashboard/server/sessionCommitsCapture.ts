@@ -118,7 +118,7 @@ async function runsOf(
 // What a session that started in the Default main checkout `start` names
 // committed there from its launch to now, kept in the common repository in
 // place of any pairs kept for it before. Throws when the checkout's log
-// cannot be read.
+// cannot be read or holds no entry.
 export async function captureSessionCommits(
   record: Pick<LaunchRecord, "launchedAt" | "session">,
   start: { readonly workspace: string },
@@ -127,8 +127,11 @@ export async function captureSessionCommits(
   // The log keeps whole seconds; an entry in the launch's own second is not
   // the session's.
   const since = Date.parse(record.launchedAt) / 1000;
+  const log = await headLog(checkout);
+  // A log without any entry says nothing of what was made there.
+  if (log.length === 0) throw new Error("The checkout's log has no entries.");
   const made: string[] = [];
-  for (const commit of madeSince(await headLog(checkout), since))
+  for (const commit of madeSince(log, since))
     if (await ancestorOfHead(checkout, commit)) made.push(commit);
   const repository = await git(checkout, [
     "rev-parse",

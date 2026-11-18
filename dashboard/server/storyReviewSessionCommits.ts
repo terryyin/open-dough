@@ -31,6 +31,13 @@ function keptRuns(record: LaunchRecord): readonly SessionCommitRun[] {
     : [];
 }
 
+// Whether a done session's capture found that it made no commit.
+export function keptNoSessionCommits(record: LaunchRecord): boolean {
+  return (
+    record.doneAt !== undefined && record.sessionCommits?.runs.length === 0
+  );
+}
+
 // The kept run a done session's review answers: the one at the `named`
 // position, or the oldest; undefined when the record keeps none.
 export function keptSessionRun(

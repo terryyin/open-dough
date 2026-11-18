@@ -7,16 +7,15 @@
 // and a file read names a kept run's pair. The single kept commit answers as
 // ./ad-hoc-session-commits.spec.ts states.
 
-import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   reviewedFileDiffSchema,
   type StoryReview,
 } from "../../src/storyReviewContract.ts";
-import { recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import {
   adHocReview,
   adHocSessionFileDiff,
   establishDefaultMainSession,
+  keptAdHocRecord,
   markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
@@ -205,6 +204,7 @@ test("a commit made before the session and rebased during it is not kept", async
   await pullPublishedWork(origin, firstAt, "story.txt", { how: "rebase" });
   await markAdHocDone(dashboard, sessionId);
 
-  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  expect(record?.sessionCommits?.runs).toEqual([]);
+  expect(
+    (await keptAdHocRecord(dashboard, sessionId))?.sessionCommits?.runs,
+  ).toEqual([]);
 });

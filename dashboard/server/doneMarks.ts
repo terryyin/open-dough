@@ -7,6 +7,7 @@ import type { AgentTerminals } from "./agentTerminals.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
+import { keptWithSessionCommits } from "./recordDoneAt.ts";
 import { completedWithoutAttention } from "../src/completionReport.ts";
 import { localFolder, machineFolder } from "./projectFolders.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -70,10 +71,12 @@ export class NativeDoneMarks {
     if (this.closed || !reportedNativeDonePending(current, receipt)) return;
     const key = sessionKey(current.session);
     if (this.running.has(key)) return;
-    await this.track(key, (stopped) =>
+    // The report wrote the mark: its commits are kept before the native wait,
+    // which closing or the developer's Done may abandon.
+    await this.track(key, async (stopped) =>
       finishNativeDone(
         sourceId,
-        current,
+        await keptWithSessionCommits(sourceId, current),
         reportingFolder(sourceId),
         this.terminals,
         { intent: "reporting", stopped },
