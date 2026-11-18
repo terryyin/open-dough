@@ -123,8 +123,16 @@ specs. The whole-group minute stays this seed's ambition, and
 [the other families](#run-the-other-frontend-families-at-the-mounted-boundary)
 carry the rest, including the other `stories/` specs.
 
-**Goal.** A developer running the story-notes specs gets their answer in at
-most a third of today's time at the usual two-worker local budget, with every
+Terry changed the speed promise on 2026-11-19. In matched alternating runs the
+story-notes command took 0.80 and 0.86 of its baseline: the mounted cases
+spend most of their time settling inside React's act, and the attached-terminal
+case keeps a Playwright phase in the command. This story closes on that
+measured gain, and
+[the next story](#run-the-story-notes-checks-in-a-third-of-their-time)
+carries the third.
+
+**Goal.** A developer running the story-notes specs gets their answer faster
+than today at the usual two-worker local budget, with every
 original product assertion accounted for. The seed gains the measured cost of
 real specs at the mounted boundary, and later families gain the mounted
 fixture these specs need.
@@ -148,8 +156,7 @@ continue to work through `npm run test:dashboard:frontend`.
 Set the comparison before changing anything: the four specs' whole command,
 and the whole-group command, at two workers in one session on the same
 machine, with the load recorded. Keep the change when the four specs' command
-takes at most a third of its matched baseline and the whole-group command is
-no slower. Report the summed case time and the per-file import cost beside it,
+is faster than its matched baseline and the whole-group command is no slower. Report the summed case time and the per-file import cost beside it,
 and update the refinement evidence above with the per-file figure.
 
 Deferred: the other `stories/` specs and families, the whole-group minute,
@@ -175,8 +182,8 @@ file isolation, and rebalancing the CI shards.
 - `npm run test:dashboard:frontend -- stories/ --grep 'unreadable'` selects
   the moved case.
 - Before: the four specs' command took 22.1 s at load 21. After, in a matched
-  session, the same command reports all accounted cases in a third of its
-  matched baseline or less.
+  session, the same command reports all accounted cases faster than its
+  matched baseline.
 
 **Architecture.** The phone-board delivery kept its own in-page page objects
 and service answers. These specs must not grow a parallel copy of Dashboard
@@ -185,6 +192,50 @@ substitute and the mounted answers both use, and the notes page object names
 its phases, cues and controls once. No Accepted decision conflicts.
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 requires the comparison basis above before the observed run.
+
+<a id="run-the-story-notes-checks-in-a-third-of-their-time"></a>
+
+### Run the story-notes checks in a third of their time
+
+**Identity:** SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Split from the story above on 2026-11-19, when its matched comparison measured
+0.83 of the baseline instead of a third.
+
+**Goal.** A developer running the story-notes specs gets their answer in at
+most a third of the 2026-11-19 matched baseline at the usual two-worker local
+budget, with every original product assertion kept, and later mounted
+families inherit the cheaper settling.
+
+**Scope.** In a 10.8 s run of `npm run test:dashboard:frontend --
+stories/story-notes`, runner start took 1.2 s, the Playwright phase 2.7 s
+(startup and the attached-terminal case) and the mounted phase 6.6 s; mounted
+cases took 0.5–1.5 s each, against about 0.15 s for the phone-board cases,
+and import about 0.3 worker-s per file. Most mounted time goes to
+`actSettled` in `dashboard/test-support/mounted-dashboard/mountedActInput.ts`,
+which waits for frames and tasks inside act after every input so no update
+escapes act. Make settling cheaper without bringing back React's "not wrapped
+in act" warnings or the reopened Story notes dialog that skipped `showModal`.
+Take the Playwright phase out of the command by answering the attached
+terminal's socket in the mounted board through the engine-free
+`TerminalApplication` rule, or record why the case stays with its cost.
+Compare in matched alternating runs against `e8e01643a`, as the story above
+did. Deferred: the other families and the whole-group minute.
+
+**Key examples.**
+
+- The edit case's keyboard save still shows the saved text, returns focus to
+  Edit and records the same change request, in a fraction of today's 1.0 s.
+- A run of the mounted story-notes specs prints no "not wrapped in act" line,
+  and reopening Story notes after a project read still opens the dialog.
+- Story notes opens beside an attached terminal on the mounted board, and the
+  terminal stays connected and shows output printed while notes was open.
+- Before: 10.4 and 13.5 s for the baseline revision in matched runs on
+  2026-11-19. After, in a matched session, the command takes a third of its
+  baseline or less.
 
 <a id="run-the-other-frontend-families-at-the-mounted-boundary"></a>
 

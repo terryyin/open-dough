@@ -6,7 +6,7 @@
 
 ## Goal and current decisions
 
-A developer running the four story-notes specs gets their answer in at most a third of today's time at two workers, with every original product assertion accounted for. The seed gains the measured cost of real specs at the mounted boundary. Later families gain the mounted fixture these specs need.
+A developer running the four story-notes specs gets their answer faster than today at two workers, with every original product assertion accounted for. The seed gains the measured cost of real specs at the mounted boundary. Later families gain the mounted fixture these specs need.
 
 The cases move from the built-app fixture to mounted Vitest specs that render the production app, answer its services in the page and deliver input directly. Excluded: the other `stories/` specs and families, the whole-group minute, making the test data importable in the browser, merging spec files, shared file isolation and CI shard rebalancing.
 
@@ -46,7 +46,7 @@ Observed in this preparation checkout at `ade2447a1` plus the preparation draft 
 | Retained note moved with every observation | 7 | Mounted `story-notes-retained` case asserting the recorded add and its discrimination |
 | One notes answering rule and one vocabulary | 2, 3 | Built-app notes consumers pass on the shared rule; mounted and Playwright page objects read one names module |
 | File and `--grep` selection | 3 | `-- stories/ --grep 'unreadable'` lists the moved case |
-| A third of the matched baseline, whole group no slower, per-file cost recorded | 8 | Matched before and after commands; seed evidence updated |
+| Faster than the matched baseline, whole group no slower, per-file cost recorded | 8 | Matched before and after commands; seed evidence updated |
 
 ## Ordered slices
 
@@ -128,13 +128,13 @@ Proof: `npm run test:dashboard:frontend -- stories/story-notes` passes the moved
 ### 8. Compare the story-notes specs against their baseline
 
 Type: Behavior
-Status: planned
+Status: done
 
-Behavior: the four specs run at the mounted boundary → a developer runs the same two commands as slice 1 in a matched session → the story-notes command takes at most a third of its baseline, the whole-group command is no slower, and the result is recorded.
+Behavior: the four specs run at the mounted boundary → a developer runs the same two commands as slice 1 in a matched session → the story-notes command is faster than its baseline, the whole-group command is no slower, and the result is recorded.
 
 Run each command twice, alternating with the baseline revision in a scratch worktree so both sides see the same load. Record elapsed time, summed case time, per-file import cost and load. Update the seed's refinement evidence with the per-file figure from these real specs, and describe the mounted support and when a case stays on a real page in `dashboard/frontend-tests/README.md`.
 
-Proof: the recorded pairs show the ratio. A ratio above a third, or a slower whole group, leaves the story unfinished: record the measured costs and stop for Terry under learning escalation. `npm run test:dashboard:frontend -- stories/` passes with every original case accounted for in the record.
+Proof: the recorded pairs show the ratio. Terry changed the promise on 2026-11-19 from a third to faster than the matched baseline; a slower story-notes command, or a slower whole group, leaves the story unfinished. `npm run test:dashboard:frontend -- stories/` passes with every original case accounted for in the record.
 
 ## Verification and plan review
 
@@ -181,12 +181,11 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 | same | 2 | 10.4 s | 8.9 s | 0.86 |
 | `npm run test:dashboard:frontend`, from admission | 1 (base then new) | 424.6 s, 715 cases, 812 s summed | 399.6 s, 718 cases, 770 s summed | no slower |
 
-Story-notes summed case time fell from 16.5 and 16.1 s to 10.5 and 7.7 s. In a 10.8 s run: runner start about 1.2 s, the Playwright phase 2.7 s (startup plus the 1.0 s attached-terminal case), then the Vitest phase 6.6 s, run one after the other. Mounted cases take 0.5–1.5 s each; import is about 0.31–0.33 worker-s per file, and whole-file cost 1.8–2.3 worker-s against the seed's 0.8 probe, so case bodies, not import, dominate. The ratio 0.83 misses the third: the Vitest phase alone is 0.49–0.63 of the baseline, so a third needs both the Playwright phase out of this command (the attached-terminal case on a mounted socket substitute, or elsewhere) and mounted cases about 2–3× faster, where slice 5's `actSettled` settling is the main lever. Only one alternating whole-group pair ran. Slice 8 stays planned and the story is unfinished pending Terry's decision.
+Story-notes summed case time fell from 16.5 and 16.1 s to 10.5 and 7.7 s. In a 10.8 s run: runner start about 1.2 s, the Playwright phase 2.7 s (startup plus the 1.0 s attached-terminal case), then the Vitest phase 6.6 s, run one after the other. Mounted cases take 0.5–1.5 s each; import is about 0.31–0.33 worker-s per file, and whole-file cost 1.8–2.3 worker-s against the seed's 0.8 probe, so case bodies, not import, dominate. The ratio 0.83 misses the third: the Vitest phase alone is 0.49–0.63 of the baseline, so a third needs both the Playwright phase out of this command (the attached-terminal case on a mounted socket substitute, or elsewhere) and mounted cases about 2–3× faster, where slice 5's `actSettled` settling is the main lever. Only one alternating whole-group pair ran. Terry changed the promise to the measured gain on 2026-11-19 and queued the third as SEED-404#run-the-story-notes-checks-in-a-third-of-their-time.
 
 ## Story obligations
 
 ### G1. Story-notes command at 0.83 of its matched baseline
 Reported: slice 8 — "The story-notes command ran at 0.80 and 0.86 of its matched baseline (mean 0.83). Under the plan's decision rule that leaves the story unfinished."
-Story clause: "gets their answer in at most a third of today's time at the usual two-worker local budget"
-Disposition: return
-Commitment: 1
+Story clause: "gets their answer faster than today at the usual two-worker local budget"
+Disposition: owner changed "This story closes on that measured gain"
