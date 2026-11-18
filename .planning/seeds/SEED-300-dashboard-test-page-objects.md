@@ -219,7 +219,7 @@ North Star direction needs no addition for this test-side change.
   no longer exist. Page objects and fixtures stay under `dashboard/tests/`,
   and `e2e/` workflows import them, so a shared helper change reaches callers
   in every group; trace and run them per group
-  ([groups](../../dashboard/tests/README.md),
+  ([groups](../../dashboard/tests/support/runnerConfig.mjs),
   `.github/workflows/ci.yml`). The queued
   SEED-334#finish-dissolving-integrated-ui-test (spent) emptied the interim
   session/terminal/review/story/observation folders; coordinate remaining

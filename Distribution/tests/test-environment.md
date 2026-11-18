@@ -67,6 +67,6 @@ demand only. Its header lists its settings; `Distribution/tests/ci/ci-repeat.sh`
 A dashboard failure on unchanged code, on CI or locally, is likewise a defect
 to find and fix, not a reason to rerun until green. To repeat the dashboard
 suite on this machine, idle, under load, or from a fresh worktree, use
-`scripts/dashboard-repeat.sh`; the
-[dashboard tests guide](../../dashboard/tests/README.md) describes it and where a
-failed run keeps its report and traces.
+`scripts/dashboard-repeat.sh`, whose header describes it;
+`dashboard/tests/support/quietReporter.ts` says where a failed run keeps its
+report and traces.

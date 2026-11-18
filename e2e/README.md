@@ -45,9 +45,7 @@ variant, failure or test-runtime contract at a stable boundary belongs in
 awaiting that conversion. Workflows reuse the dashboard's fixtures, page objects and
 [MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
 `../dashboard/tests/` and `../Distribution/tests/support/`. Waits, clocks and
-fake GitHub answers are the helpers a workflow imports; the
-[dashboard test guide](../dashboard/tests/README.md#synchronization) states
-the synchronization rule.
+fake GitHub answers are the helpers a workflow imports.
 
 ## Running
 

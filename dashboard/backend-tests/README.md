@@ -64,6 +64,3 @@ still names protected service behavior.
 | `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
 | `observation/` | Published-source consistency, freshness, refresh and read recovery. |
 | `runtime/` | Serving, production updates and test harness operation. |
-
-The [dashboard test guide](../tests/README.md) owns test placement, external
-boundaries, synchronization, prerequisites and failure handling.

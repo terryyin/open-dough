@@ -225,7 +225,7 @@ fixtures, not with a module-level `test.use` (`support/pageTest.ts`).
 
 ### 8. Remove the hub and point its readers at code
 Type: Behavior
-Status: planned
+Status: done
 Proof: both outside-in commands print nothing; `npm run lint`.
 
 Behavior: nine guides and records link the README → delete

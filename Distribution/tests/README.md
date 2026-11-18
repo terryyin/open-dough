@@ -4,7 +4,7 @@ Prepare [native prerequisites](../evaluation/native-setup.md) once per lockfile 
 
 Four browser test groups run with Playwright, each under its own command,
 configuration, setup, settings, outputs and CI producer; `npm test` does not
-discover their specs ([dashboard tests](../../dashboard/tests/README.md)):
+discover their specs:
 
 | Group | Command | Sources |
 | --- | --- | --- |
@@ -151,8 +151,7 @@ File timestamps that must differ are set explicitly, and the dashboard's timed
 journeys step a paused page clock. A dashboard journey waits in
 the page for the answer a check depends on before the check's own bound
 starts: it opens with `openUntilRead` or `reloadUntilRead`, or checks through
-`expectMembership` or `expectSettledPage`, and marks done with `markDone`
-([dashboard tests guide](../../dashboard/tests/README.md)).
+`expectMembership` or `expectSettledPage`, and marks done with `markDone`.
 
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a

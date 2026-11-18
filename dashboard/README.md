@@ -218,11 +218,6 @@ plain heading. There is no web manifest or installable app.
 Action glyphs, execution-mode symbols, host avatars, and human and agent
 portraits keep their own concepts; prose-only documentation adds no artwork.
 
-## Tests
-
-[Dashboard tests](tests/README.md) indexes the Playwright strategy, two tiers,
-check placement, real/replaced boundaries, silence rule, journeys, hosts and proof records.
-
 ## GitHub requests
 
 [GitHub requests](GITHUB-REQUESTS.md) lists each load and revision check's

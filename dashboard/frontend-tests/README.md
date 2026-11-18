@@ -47,5 +47,4 @@ CI runs this group as its own producer, the `dashboard-frontend` job, and
 publishes its cases under the **Dashboard Frontend Test** entry and the frontend test proof
 artifact.
 
-The [dashboard test guide](../tests/README.md) owns placement across the
-roots; `.github/workflows/ci.yml` declares each group's shards.
+`.github/workflows/ci.yml` declares each group's shards.
