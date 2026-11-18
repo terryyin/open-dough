@@ -1,15 +1,16 @@
 # Pilot when a repeat adds useful retrospective evidence
 
 **Source:** [Pilot when a repeat adds useful retrospective evidence](../../seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings)
+**Source review:** [Source-only commitments](source-review.md)
 **Identity:** SEED-401#pilot-repeat-retrospective-findings
 
 ## Goal and scope
 
-Terry gets a keep or revise decision on one recording choice in Doughnut and Pygardon: a repeat that teaches something gets a full row, and any other repeat leaves one line naming its execution. The trial lives in one removable paragraph of each project's `AGENTS.md`. The distributed recording rule, the collector and the other clients stay as they are and provide the baseline. The [sibling pilot](../../seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) owns first reports. Promotion into the distributed rule is a later story, queued only on keep.
+Terry gets a keep or revise decision on one recording choice in Doughnut and Pygardon: a repeat that teaches something gets a full row, and any other repeat leaves one line naming its execution. The trial lives in one removable paragraph of each project's `AGENTS.md`. The distributed recording rule, the collector and the other clients stay as they are and provide the baseline. The [sibling pilot](../../seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) owns first reports. Promotion into the distributed rule is a later story, queued only on keep.
 
 ## Trial paragraph
 
-Slice 1 may adjust this wording once before the replay. Later changes follow the replay rule in slice 2.
+Slice 1 retained the prepared wording. A change after replay follows the safeguard rule in slice 2.
 
 ```markdown
 ### Trial: record what a repeat teaches
@@ -36,16 +37,20 @@ Observed on 18 November 2026 at preparation revision `3d3db9851`, read-only in t
 | A project paragraph reaches the retrospective reviewer on both hosts | Both projects keep always-on guidance in `AGENTS.md`, and each `CLAUDE.md` points Claude Code to it. Each has carried private process rules there, last changed in Pygardon `46e6443d2` and Doughnut `f9c03e11de`. This shows presence. Slice 3's scratch walk in each project is the observation of the paragraph changing what is recorded. |
 | The collector still counts a one-line entry as a distinct execution | Its [step 3](../../../.agents/skills/collect-client-feedback/SKILL.md#collect-reconcile-and-adopt) uses project plus execution identity, and its response-observation step uses the execution's release. Slice 2 checks the count on the candidate output. |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 ### 1. The comparison is fixed before any run
 
 Type: Structure
-Status: planned
+Status: done
 
 Add a dated follow-up section to the [evaluation record](../../../docs/maintainer/empirical-process-control-research.md) with the decision basis under [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md): beneficiaries, intended gain, comparison with current practice, and the keep and revise criteria from the story. Name the counts to report: decisions changed, consequential misses, repeat narratives reaching triage, and writer and reviewer effort with active time, elapsed time and tokens kept apart. Settle the trial paragraph. Build the replay set from the story's three case groups at their pinned revisions, at most six occurrences per group. Include the ODF-200 publication, both ODF-325 launches, the Pygardon DD-136 and Doughnut DD-202 recurrences, the Pygardon 0.3.76 recurrence of ODF-264 and the Lizard move. For each occurrence keep the finding entry as it stood before that execution and the evidence the execution had. Keep later corrections and retirements in a separate answer note. The set stays with this plan until wrap-up. This enables slice 2's replay.
 
 **Proof.** The basis section precedes any replay output in history. Each replay input opens at its pinned revision and contains nothing dated after its execution.
+
+The [comparison basis](../../../docs/maintainer/empirical-process-control-research.md#repeat-finding-recording-pilot-2026-11-18) is fixed against the recording rule at the established take revision. Both readers use [the same historical inputs](replay-inputs.md). The coordinator alone uses the [answer and source note](replay-answer.md) after both readers have recorded their decisions.
+
+**Accepted proof.** The pin and cutoff check opened all 13 starting snapshots, checked the recorded events and held the later judgments out of the reader packet. The comparison and its decision criteria precede the replay. The first ODF-325 launch predates the Clipboard deviations, so it enters as a first report. Group C includes a matched repeat from 0.3.66 with no adopted response in the earlier entry. Whitespace passed. Records-only delivery.
 
 ### 2. The same history shows what each wording records
 
@@ -92,3 +97,11 @@ On keep, add a promotion story to the seed and queue it. It changes the distribu
 - [SEED-402](../../seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) edits numbering and collection-time shortening in the same references. This plan changes neither file.
 - Local gates for each slice are its walk, inspection of the resulting log or record, and `git diff --check`. Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md). If a long full run becomes necessary, start fully awake on AC with `caffeinate -s -i`. On battery, plug in or keep the lid open under `caffeinate -i` and check the sleep log afterwards. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 - Each slice is sized for 15 active minutes. Slice 1 is bounded by the cap of six occurrences per group. Slice-plan refinement was not needed: each slice has one outcome and its own observation. No remaining slice-specific concerns were identified.
+
+## Execution context
+
+- Established Story Branch Mode execution of SEED-401#pilot-repeat-retrospective-findings, publisher `dashboard-territory.local-open-dough`, agent Kaoru-chan. Checkout `.worktrees/pilot-when-a-repeat-adds-useful-retrospective-ev`, branch `codex/pilot-when-a-repeat-adds-useful-retrospective-ev`, integration checkout at the repository root, target `origin/main`.
+- Starting revision `e8e01643a4e966416f0fd0b857d8deb342bbc311`. The established Take and first published base `678454f8aa4d90d910c876d36589cbe25331954f` was confirmed on trunk and the execution branch. No separate replan instruction.
+- Checkout readiness: pinned Node 24.21.0, checkout-local `npm ci` and passing `npm run typecheck:dashboard`.
+- Codex observer for story-branch increments: `terryyin/open-dough`, `ci.yml` (CI), coordinator `kaoru-401`, directory `/tmp/dough-ci-501/watch-UtsGvk`, PID 89550, session 77670, cell `g101:9`. Paths-only `.planning/` and `docs/` changes are excluded by the push workflow.
+- On trunk `720c2d5d5`, the first-report pilot integration `211360795` moved ordinary assessment to the linked successor. Its one-review instruction applies to first reports. SEED-402 integration `10074f37e` changes unreleased missing-log recovery and collector step 5. The two clients' installed 0.3.106 recording text still matches the pinned rule, and collector step 3 still uses project plus execution.

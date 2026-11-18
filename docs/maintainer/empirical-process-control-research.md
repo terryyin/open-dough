@@ -1631,3 +1631,45 @@ observation. This creates no story, finding or watch-list entry.
 
 Re-reading the same records yields the same follow-up. It adds no occurrence,
 finding, story or backlog item, and changes nothing in Doughnut.
+
+## Repeat finding recording pilot (2026-11-18)
+
+### Decision basis
+
+Doughnut and Pygardon maintainers need repeat evidence that can change a
+triage decision, including an escalation, a different explanation or an adopted
+response succeeding or failing. Retrospective writers should spend less effort
+preparing routine repeats, and maintainers should spend less effort reading
+them while still seeing how often the mechanism recurs. [ADR 0010, Definition of improvement](../adrs/0010-definition-of-improvement-accepted.md)
+
+The baseline is the 0.3.106 recording rule at Open Dough revision
+`678454f8aa4d90d910c876d36589cbe25331954f`. A supported new execution of a
+matched finding gets a full occurrence row. The candidate adds the local trial
+paragraph to that wording. It uses the same row when the occurrence could
+change the next action or the writer is unsure. Other matched executions get a
+line with their identity, time, tool and release. Both still use the existing
+matching, numbering and rereview rules. [Recording rule at the comparison revision](https://github.com/terryyin/open-dough/blob/678454f8aa4d90d910c876d36589cbe25331954f/Distribution/src/skills/dough-execution-retrospective/references/process-finding-recording.md)
+
+Use the same pinned historical inputs, each at its own evidence cutoff, with
+one fresh reader for each wording. Judge the two scratch logs before comparing
+effort. The replay is exploratory. For ordinary use, select the next five
+eligible executions per project that started after the local trial revision
+and reached trunk. Select from story, Git or CI history before reading the
+findings records, including executions with no report. Record each project's
+guidance revision, actual route, sample size, exposure and evidence gaps.
+Reconstruct what happened independently of what the log recorded. [ADR 0005, Native validation and A/B testing](../adrs/0005-cross-tool-validation-accepted.md)
+
+Report decisions changed, consequential misses and repeat narratives reaching
+triage, with their sample counts. Look for missed first incidents, accumulating
+costs, incorrect merges or splits, and evidence for or against earlier
+responses. Compare the writer's effort and downstream reviewer effort, including
+checking skipped cases and reconstructing evidence. Keep active time, elapsed
+time and tokens separate. Record unavailable measurements as unknown.
+
+**Keep** when fewer repeat narratives reach triage and total effort falls
+while material changes, frequency and post-response counterexamples stay
+discoverable. **Revise** when a compact line obscures an escalation, a mechanism
+is merged or split incorrectly, or the maintainer must reconstruct what a
+full row would have said. A sample with no repeat leaves effectiveness open.
+An unverified execution release leaves the failed-fix judgment open. Terry
+decides on the recording choice after the comparison.
