@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Carry dashboard test knowledge in test code and remove its Markdown](seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code) — SEED-334#carry-dashboard-test-knowledge-in-code ([plan](slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md))
 - [Keep source-freshness checks usable after a contributor merge](seeds/SEED-400-source-freshness-with-a-valid-take.md#keep-freshness-with-a-valid-take) — SEED-400#keep-freshness-with-a-valid-take ([plan](slice-plans/696-keep-freshness-with-a-valid-take/PLAN.md))
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff ([plan](slice-plans/695-keep-review-changes-focused-on-the-diff/PLAN.md))
+- [Resize and remember the Review changes file sidebar](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar) — SEED-384#resize-and-remember-the-review-file-sidebar ([plan](slice-plans/697-resize-and-remember-the-review-file-sidebar/PLAN.md))
 
 ## Backlog list
 
-- [Resize and remember the Review changes file sidebar](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar) — SEED-384#resize-and-remember-the-review-file-sidebar
 - [Let a long Codex wait run without model requests](seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests) — SEED-399#let-a-long-codex-wait-run-without-model-requests
 - [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
