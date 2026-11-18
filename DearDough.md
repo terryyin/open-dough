@@ -275,6 +275,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: one preparation refusal and a coordinator repair with one focused rerun; no failed candidate was committed or published.
   - Inference: matches ODF-329; allowing the read-only check in the brief again removed it for the rest of the execution.
 
+- Execution: SEED-379#state-only-what-the-checkout-log-shows (plan 700; first implementation `c5a081fccc6319dd1d4f9bfa264c1e352affdd66`)
+  - Timestamp: unknown (2026-11-18 +08:00; slice 1 and slice 5 delivery)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound guidance at Take `730571d29023631e33ef8bb8da3260fa6eb1fcd7`)
+  - Evidence: guarded formatting refused on `no-unnecessary-condition` in `doneMarks.ts` and `no-param-reassign` in `launchRecordPins.ts` after both independent refactors. The coordinator separated the existing pre- and post-await checks, reran the Done and quiet rename specs, then used a local variable for the second repair.
+  - Observed effect: two failed preparation attempts before publication. Neither failing candidate was committed.
+  - Inference: the briefs left formatting and full lint with delivery and did not include an authored-file, read-only check. Both diagnostics were available before commit; net saving was not measured.
+
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-169.md).

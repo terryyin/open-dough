@@ -391,6 +391,15 @@ The independent refactor reused the driver's checkout edit and unified
 the retained-record fixture's origin. Three affected backend specs,
 typecheck and the unchanged-case audit passed again.
 
+## Execution complete
+
+Product advice: queue [Bound a session's kept commits to its Done](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done).
+A held Git read reproduced a commit made after the accepted Done appearing in
+its review. The checkout read uses only the launch bound in the original
+implementation and in the delivered code. Plan 703 retains the actual
+reproduction and the remaining behavior. The eight planned slices are
+delivered at `a7a008a9f`. The queue and publication decision stay with wrap-up.
+
 ## Story obligations
 
 ### G1. A later Done can show the previous Done's capture while its read is pending
