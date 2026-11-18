@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 570. Removed numbers are never reused.
+- Highest allocated local number: 571. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -867,3 +867,20 @@ commands into `.planning/.../proof/` before delivery.
   - Observed effect: one extra full focused-proof cycle on the same green gates solely to place durable acceptance logs; no disputed product result and no CI impact.
   - Inference: naming the plan `proof/` directory (as slice 1 did) or copying `/tmp` logs into it on return would skip the re-run; elapsed/token saving is unmeasured.
 
+
+## DD-571 — A refactor pass removes support as dead after searching only the dashboard test folders <a id="dd-571"></a>
+
+A post-change refactor pass judged support unused from a search limited to
+`dashboard/tests` and `dashboard/frontend-tests`, removed it, then found
+callers under `e2e/` and `dashboard/backend-tests/` and restored the files.
+
+### Occurrences
+
+- Execution: SEED-334#retire-integrated-ui-test-and-its-documents (plan 688; first implementation `c2f93725c`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 3 refactor pass)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `0f5a7964c`)
+  - Evidence: slice 3 refactor return: it removed `storyWorktree` and un-exported `openStoryReview` after the deletion of `dashboard/tests/navigation/story-destination-repeat-cue.spec.ts`, then restored both with `git show HEAD:<path> > <path>` once e2e and Backend callers turned up; `git status` clean afterwards. Slice 4's brief then required a whole-checkout grep, and its return complied.
+  - Observed effect: no change reached a commit; one wasted edit-and-restore round inside the pass.
+  - Inference: the dead-code check names no search scope; a test-folder search looks sufficient for test support but is not. Overlaps DD-568 (agents replace the scripted trace with their own search). Cost not measured.
