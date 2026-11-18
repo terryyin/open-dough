@@ -115,6 +115,18 @@ export const storyReviewSchema = z
       tree: objectIdSchema,
       files: z.array(reviewedFileSchema),
     }),
+    // The commits a Default main session made in its checkout
+    // (`./sessionCommits.ts`): one kept run's comparison.
+    z.object({
+      kind: z.literal("session-commits"),
+      session: z.object({
+        launchedAt: z.iso.datetime(),
+        doneAt: z.iso.datetime(),
+      }),
+      baseline: objectIdSchema,
+      tree: objectIdSchema,
+      files: z.array(reviewedFileSchema),
+    }),
     z.object({
       kind: z.literal("landing-unavailable"),
       reference: z.uuid().optional(),

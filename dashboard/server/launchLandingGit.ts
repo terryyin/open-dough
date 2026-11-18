@@ -140,24 +140,36 @@ export async function verifyLanding(
     );
   }
 }
-export async function pinLanding(landing: LaunchLanding): Promise<void> {
-  const prefix = `${landingRefPrefix(landing.reference)}${landing.delivery}/`;
-  await git(landing.repository, ["update-ref", `${prefix}base`, landing.base]);
-  await git(landing.repository, [
-    "update-ref",
-    `${prefix}revision`,
-    landing.revision,
-  ]);
-}
-export async function removeLandingPins(
+// Holds a comparison's two ends in `repository` by references under `prefix`,
+// so the pair outlives its branches.
+export async function pinPair(
   repository: string,
-  reference: string,
+  prefix: string,
+  pair: { readonly base: string; readonly revision: string },
+): Promise<void> {
+  await git(repository, ["update-ref", `${prefix}base`, pair.base]);
+  await git(repository, ["update-ref", `${prefix}revision`, pair.revision]);
+}
+// Releases every pair held under `prefix`.
+export async function removePins(
+  repository: string,
+  prefix: string,
 ): Promise<void> {
   const listed = await git(repository, [
     "for-each-ref",
     "--format=%(refname)",
-    landingRefPrefix(reference),
+    prefix,
   ]);
   for (const ref of listed.stdout.trim().split("\n").filter(Boolean))
     await git(repository, ["update-ref", "-d", ref]);
 }
+export const pinLanding = (landing: LaunchLanding): Promise<void> =>
+  pinPair(
+    landing.repository,
+    `${landingRefPrefix(landing.reference)}${landing.delivery}/`,
+    landing,
+  );
+export const removeLandingPins = (
+  repository: string,
+  reference: string,
+): Promise<void> => removePins(repository, landingRefPrefix(reference));

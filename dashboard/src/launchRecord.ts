@@ -16,6 +16,7 @@ import {
   type EstablishedSession,
 } from "./unattachedSession.ts";
 import { defaultLaunchStartSchema } from "./defaultLaunchStart.ts";
+import { sessionCommitsSchema } from "./sessionCommits.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -157,6 +158,7 @@ export const launchRecordSchema = z.object({
   returnedToBacklog: z.uuid().optional(),
   landing: launchLandingSchema.optional(),
   landingReporting: landingReportingSchema.optional(),
+  sessionCommits: sessionCommitsSchema.optional(),
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.
   reportRead: z.uuid().optional(),

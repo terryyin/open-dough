@@ -29,17 +29,54 @@ export async function landedStoryReview(
         ? "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk."
         : "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     );
-  if (directoryState(landing.repository).kind !== "available")
+  const read = await retainedPairFiles(landing, signal);
+  if ("missing" in read)
     return unavailable(
-      "The captured landing repository is missing or unreadable.",
+      {
+        repository: "The captured landing repository is missing or unreadable.",
+        objects:
+          "The captured landing comparison objects are missing or unreadable.",
+        changes: "The captured landing changes could not be read.",
+      }[read.missing],
     );
+  const workflow = record.request.workflow;
+  if (!reviewLandedWorkflowSchema.safeParse(workflow).success)
+    return unavailable("This launch's workflow has no landed review.");
+  return {
+    kind: "landed",
+    landing: landedReviewContextSchema.parse({
+      ...landing,
+      workflow,
+      launchedAt: record.launchedAt,
+    }),
+    baseline: landing.base,
+    tree: landing.revision,
+    files: read.files,
+  };
+}
+
+// A retained pair's changed files, read from its own repository's objects
+// alone, or what of the pair could not be read.
+export async function retainedPairFiles(
+  pair: {
+    readonly repository: string;
+    readonly base: string;
+    readonly revision: string;
+  },
+  signal: AbortSignal,
+): Promise<
+  | { readonly files: Awaited<ReturnType<typeof changedFrom>> }
+  | { readonly missing: "repository" | "objects" | "changes" }
+> {
+  if (directoryState(pair.repository).kind !== "available")
+    return { missing: "repository" };
   const call: GitCall = {
-    cwd: landing.repository,
+    cwd: pair.repository,
     signal,
     maxBuffer: 64 * 1024 * 1024,
   };
   try {
-    for (const object of [landing.base, landing.revision]) {
+    for (const object of [pair.base, pair.revision]) {
       if (
         (await runGit(["cat-file", "-t", object], call)).stdout.trim() !==
         "commit"
@@ -47,27 +84,11 @@ export async function landedStoryReview(
         throw new Error("Missing commit");
     }
   } catch {
-    return unavailable(
-      "The captured landing comparison objects are missing or unreadable.",
-    );
+    return { missing: "objects" };
   }
   try {
-    const files = await changedFrom(landing.base, landing.revision, call);
-    const workflow = record.request.workflow;
-    if (!reviewLandedWorkflowSchema.safeParse(workflow).success)
-      return unavailable("This launch's workflow has no landed review.");
-    return {
-      kind: "landed",
-      landing: landedReviewContextSchema.parse({
-        ...landing,
-        workflow,
-        launchedAt: record.launchedAt,
-      }),
-      baseline: landing.base,
-      tree: landing.revision,
-      files,
-    };
+    return { files: await changedFrom(pair.base, pair.revision, call) };
   } catch {
-    return unavailable("The captured landing changes could not be read.");
+    return { missing: "changes" };
   }
 }

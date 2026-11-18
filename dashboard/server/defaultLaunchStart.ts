@@ -6,13 +6,13 @@
 import type { RecordedLaunchRequest } from "../src/agentLaunch.ts";
 import { establishesSession } from "../src/unattachedSession.ts";
 import { checkoutHead } from "./defaultCheckoutChanges.ts";
-import type { EstablishedRecordFacts } from "./launchRecord.ts";
+import type { LaunchStartFacts } from "./launchRecord.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export async function defaultLaunchStartFacts(
   request: RecordedLaunchRequest,
   checkout: ProjectFolder,
-): Promise<EstablishedRecordFacts> {
+): Promise<LaunchStartFacts> {
   if (request.workflow !== "ad-hoc" || establishesSession(request)) return {};
   try {
     return {

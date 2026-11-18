@@ -161,7 +161,7 @@ the checkout's evidence location.
 
 ### 2. Review the commit a Default main session made
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `backend-tests/review/ad-hoc-session-commits.spec.ts`. Scratch
 break: treat a fast-forward entry as a commit; the case fails on the pulled
 file.
@@ -175,6 +175,25 @@ checkout's `HEAD` and index unchanged. An established Default main session
 answers the same way when it holds no landing; one holding a landing keeps
 answering its landing. Update `STORY-REVIEW-LANDED-RUNS.md` and
 `AGENT-LAUNCH-COMPLETION.md` for the capture at Done.
+
+Delivered: the record keeps `sessionCommits` (`src/sessionCommits.ts`:
+the common Git directory, runs, optional `shared`, `readAt`), captured by
+`server/sessionCommitsCapture.ts` after a set Done in `server/recordDoneAt.ts`
+and pinned under `refs/open-dough/session-commits/<host>/<sessionId>/<n>/`
+through `pinPair`/`removePins` (`server/launchLandingGit.ts`); the review
+answers kind `session-commits` from `keptSessionRun`
+(`server/storyReviewSessionCommits.ts`). Scratch break: a `Fast-forward`
+entry accepted as a commit failed the first case on `pulled.txt`
+(`s2-refactor-scratch-break-1`, exit 1); restored, `s2-refactor-backend-1`
+exit 0. Learnings for later slices: the spec launches in the `origin`
+fixture's project checkout, since a launch needs the configured checkout,
+and work after the launch is a dated action in
+`tests/support/sessionCheckoutWork.ts` (slice 3 extends it for amend and
+rebase), while a stored capture is the builder step `keptSessionCommits`;
+log times are whole seconds, so fixtures date their work after the launch;
+an automatic Done captures when its native Done finishes and a manual Done
+captures twice (`server/doneMarks.ts` lines 205 and 234), both settled in
+slice 4 with G2 and G5; `src/launchRecord.ts` is at 249 lines.
 
 ### 3. Keep each uninterrupted run in its final form
 Type: Behavior
@@ -265,3 +284,28 @@ identified no remaining slice-specific concern.
 Reported: slice 1 — "An unreadable checkout keeping no start has no test."
 Story clause: "a session whose checkout log cannot be read at Done, keep the not-captured explanation."
 Disposition: receiving slice 4
+
+### G2. An automatic Done whose native continuation does not finish keeps no capture
+Reported: slice 2 — "Capture happens when the reported native Done finishes. If that wait is abandoned, the server closes during it, or the host acknowledges locally, there is no capture until a later Done."
+Story clause: "When the session is marked done, by the developer or automatically, its commits are kept with its launch record"
+Disposition: receiving slice 4
+
+### G3. File reads of a session-commits pair are not admitted
+Reported: slice 2 — "File diff reads for a session-commits pair are not admitted (`storyReviewHistoricalFileAdmission.ts` matches a landing reference only)."
+Story clause: "Each uninterrupted run of those commits is one retained comparison, from the commit before the run to its last commit."
+Disposition: receiving slice 3
+
+### G4. The panel shows session commits with worktree wording
+Reported: slice 2 — "Until slice 6 the panel receives kind `session-commits` and shows it with worktree wording and no file diffs; these sessions previously said not captured."
+Story clause: "The review's context names the comparison as commits made in the Default main checkout while the session was open, with its exact two revisions."
+Disposition: receiving slice 6
+
+### G5. A repeated Done, a cleared Done and a failed read at Done are unobserved
+Reported: slice 2 — "Untested Done rules: failed read keeps Done with no capture; a second Done replaces the capture; clearing Done leaves it."
+Story clause: "the commits made in that checkout from its launch to Done, read from the checkout's local Git log."
+Disposition: receiving slice 4
+
+### G6. A root commit among the session's commits fails the whole capture
+Reported: slice 2 — "A root commit makes the whole capture fail."
+Story clause: "a session whose checkout log cannot be read at Done, keep the not-captured explanation."
+Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": a root commit needs an orphan history in a checkout that had a HEAD at launch (`defaultLaunchStartFacts` keeps a start only when HEAD resolves), which trunk work in Default main does not make; the failed read keeps Done (`keptWithSessionCommits` in `server/recordDoneAt.ts`) and the review keeps the not-captured explanation.

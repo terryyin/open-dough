@@ -104,6 +104,26 @@ rename. A server that closes during the wait leaves the pending mark. Early
 quiet reporting applies the same operation when its native session is bound.
 Launch binding releases persistence locks before its required Done owner
 continues an early report.
+
+### Session commits kept at Done
+
+When a session that started in the project's Default main checkout is marked
+done, by Mark as done or by the Done operation of an automatic Done, its launch
+record keeps the commits it made there: the entries of the checkout's local
+`HEAD` log from the launch on that made a commit in the checkout (a commit, an
+amend, a cherry-pick, a revert, or a rebase replaying one of those) and are
+still part of the checkout's `HEAD` at Done. Work pulled, fast-forwarded or
+merged into the checkout is none of them. Commits that follow one another
+form one run, kept oldest first as a fixed pair (the first commit's first
+parent and the last commit) in the checkout's common Git repository and held
+there by references under `refs/open-dough/session-commits/`, so the pair
+outlives its branches. A default launch starts from the checkout and revision
+its record kept at launch; a session established in the default checkout from
+its own start. Each Done reads anew and replaces the earlier capture; a log
+that cannot be read keeps Done and leaves no capture; reopening a session
+leaves its capture until the next Done. An automatic Done whose native rename
+wait is abandoned keeps no capture until a later Done.
+[Landed run review](STORY-REVIEW-LANDED-RUNS.md) shows the kept commits.
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a

@@ -9,6 +9,10 @@ import {
 import { establishedPlace } from "../src/establishedPlace.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
+import {
+  keptSessionRun,
+  type KeptSessionRun,
+} from "./storyReviewSessionCommits.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
@@ -66,6 +70,12 @@ export type AdmittedStoryReview =
         readonly identity: string;
       };
     }
+  // A Default main session's kept commits (`../src/sessionCommits.ts`).
+  | {
+      readonly kind: "story-review";
+      readonly sessionRun: KeptSessionRun;
+      readonly runs: readonly ReviewLandedRun[];
+    }
   // An ad hoc session kept without a landing: explain before the landed reader,
   // including default launches that established no place.
   | {
@@ -86,12 +96,16 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
       400,
       "This session belongs to a story launch and is reviewed by its story.",
     );
-  if (record.landing === undefined)
+  if (record.landing === undefined) {
+    const sessionRun = keptSessionRun(record);
+    if (sessionRun !== undefined)
+      return { kind: "story-review", sessionRun, runs: [] };
     return {
       kind: "story-review",
       landingUnavailable: "This session's changes were not captured.",
       runs: [],
     };
+  }
   const established = establishedPlace(record);
   if (established === undefined)
     throw new RefusedRequest(
