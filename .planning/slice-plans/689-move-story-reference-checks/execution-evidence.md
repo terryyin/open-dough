@@ -210,3 +210,50 @@ opened Story B); the second passed. Restored from a copy kept in this
 directory and then deleted (`git diff -- dashboard/src` 0 bytes); same command
 with the interim spec deleted → exit 0 (`s3-focused2`, with
 `story-reference-navigation.spec.ts`).
+
+## Slice 4. Recover an active reference
+
+Assertion map (interim `dashboard/tests/navigation/story-reference-recovery.spec.ts`
+→ Frontend `dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts`,
+same test names; arrangements in `dashboard/tests/support/frontendStoryReferenceRecovery.ts`):
+
+- Setup `originRepository` (`queuedReadyRepository` + `twoDependencies`),
+  `publishCommittedOrigin`, `openUntilRead` → `putFrontendRecoverableReference`
+  publishes the same revision through `putFrontendDependencies` and keeps the
+  page's revision checks (`since`/`at`) held, so only a retry reads the later
+  revision (without this the substitute's stream announced it at once and the
+  page refreshed itself). `pausePageClock` dropped: no case passes time.
+- `origin.publishRevision(queueStoryC)` → `queueStoryC()` publishes Story C
+  queued at revision `c3…` (`describedRevisions` + `backlogApart`).
+- `published.hold(".planning/PRODUCT-BACKLOG.md")` → `hold()` on Open Dough's
+  backlog read (no `path`, `done`, `intent`, `agents`, `branch`, `since`, `at`);
+  `answerWith(notFoundAnswer())` → `fail()` answers it 502 with an actionable
+  error; `restore()` → `pass()`.
+- Case 1: notice empty and marked, Dependencies, reference visible, follow;
+  marker kept and "SEED-C#c is unavailable in Open Dough's dashboard" (11a);
+  Inspect enabled (`inspectionToggle`); "Reading Open Dough to find SEED-C#c"
+  (11b) and Story C count 0; "Could not read Open Dough to find SEED-C#c", not
+  "unavailable" (11c); retry → Story C detail visible, focused, in view 0.5,
+  notice empty (11d). All kept.
+- Case 2: Pygardon `startOrigin`/`publishCommittedOrigin` →
+  `answerOwnPublications([catalogPublications.pygardon])`; "unavailable",
+  "Reading Open Dough", choose Pygardon, choice kept after release, notice
+  empty, no detail region, project control focused (11e) → same.
+- Case 3: "unavailable", "Reading Open Dough", Inspect opens Story A's detail,
+  release, Story C visible with no detail, Story A's toggle ("Hide detail")
+  focused, notice empty (11e) → same.
+
+Support removal (consumer trace `evidence/s4-consumer-trace.md`, base
+`d703ce37`): none. `retryReference` stays (new spec and interim
+`story-reference-done-recovery.spec.ts`); other interim imports keep many
+importers.
+
+Scratch break (2026-11-18): fault — `dashboard/src/storyReferenceJourney.tsx`
+problem branch `: follows && readProblem !== undefined` → `: false && follows && …`
+(a failed read reads "unavailable"). Command
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-reference-recovery.spec.ts --workers=2`
+→ exit 1 (`s4-break`): case 1 failed at line 70 expecting "Could not read Open
+Dough to find SEED-C#c", received "SEED-C#c is unavailable in Open Dough's
+dashboard."; cases 2 and 3 passed. Restored from a copy in the evidence dir,
+then deleted (`git diff -- dashboard/src` 0 bytes); same command with the
+interim spec deleted → exit 0 (`s4-focused3`).

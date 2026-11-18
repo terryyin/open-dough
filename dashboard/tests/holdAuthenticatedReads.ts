@@ -6,7 +6,8 @@
 // `../frontend-tests/intent/intent-story-coverage.spec.ts`), and of one
 // project's reads for navigation journeys
 // (`../frontend-tests/navigation/project-keyboard-navigation-focus.spec.ts`,
-// `../frontend-tests/navigation/story-url-destination.spec.ts`). Its route
+// `../frontend-tests/navigation/story-url-destination.spec.ts`,
+// `./support/frontendStoryReferenceRecovery.ts`). Its route
 // pattern also serves journeys that observe Session details' reads
 // (`./support/historicalCreditReads.ts`).
 

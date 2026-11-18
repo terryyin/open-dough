@@ -2,7 +2,7 @@
 // story's highlight (the class, its inset accent ring and pale fill), and
 // inspection (its open detail and Inspect story's expanded state).
 
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { inspectionToggle } from "./storyCardControls.ts";
 
@@ -11,8 +11,9 @@ import { inspectionToggle } from "./storyCardControls.ts";
 export const emptyArea = (card: Locator) =>
   card.getByRole("heading", { level: 3 }).first();
 
-export const storyDetail = (card: Locator) =>
-  card.getByRole("region", { name: /^Detail for / });
+// The open detail of a story card, or of any card on a page.
+export const storyDetail = (scope: Locator | Page) =>
+  scope.getByRole("region", { name: /^Detail for / });
 
 export async function expectSelected(card: Locator, on: boolean) {
   if (on) {

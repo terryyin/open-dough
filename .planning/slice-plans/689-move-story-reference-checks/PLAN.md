@@ -164,7 +164,7 @@ the real-server reading of the same data.
 
 ### 4. Recover an active reference
 Type: Behavior
-Status: planned
+Status: done
 Proof: the three `story-reference-recovery` tests in
 `story-reference-recovery.spec.ts`, holding and failing the backlog read and
 publishing Story C as queued at a later revision; then delete the interim
