@@ -9,7 +9,8 @@
 // A test that restarts a server on the same machine state passes a `machine`
 // directory it owns, which holds HOME and the fake `claude`'s state and
 // outlives each server, and, to keep an open page's address, the `port` the
-// closed server had. The Cursor runner listens from that HOME and is not in
+// closed server had, which no other listener takes meanwhile
+// (./testServerPort.ts). The Cursor runner listens from that HOME and is not in
 // this server's process group, so closing the server leaves it. When this
 // helper owns the machine directory, close stops that runner before the
 // directory is removed; a test that owns the directory stops the runner
@@ -37,6 +38,7 @@ import { defaultBaseCiRevision } from "./baseCiActions.ts";
 import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
 import { standInCursorRunner } from "./cursorRunnerStandIn.ts";
+import { testServerPort } from "./testServerPort.ts";
 import {
   serverLaunch,
   startOnOwnAddress,
@@ -175,11 +177,12 @@ export async function startDashboardServer(
   });
 
   const launch = async () => {
+    const port = options.port ?? (await testServerPort());
     const { spawn, outDir } = await serverLaunch(
       {
         mode: options.mode,
         restartable: options.restartable,
-        port: options.port,
+        port,
         environment,
         prebuilt,
         buildDir: path.join(tempRoot, "dist"),
@@ -189,7 +192,7 @@ export async function startDashboardServer(
     );
     return {
       ...(await startOnOwnAddress(
-        options.port,
+        port,
         spawn,
         `The ${options.mode} server this test started could not start`,
       )),

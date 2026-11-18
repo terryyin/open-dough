@@ -130,3 +130,15 @@ runs: shares 563/609/681 s against 618; accepted change adds
 `Distribution/tests/installation/update-*` to share 1 (623/609/622). Proof:
 share listings 262/76/322 checks; share-matrix, split, selection and
 browser-group checks and lint exit 0. Published `05828f0b`.
+
+CI repair (2026-11-18): run 44234977392 attempt 1 at 05828f0b, dashboard-backend
+1/3, `fake-gh-in-process-scopes.spec.ts` "simultaneous servers keep distinct
+answers across a restart on one machine" failed with `listen EADDRINUSE`
+127.0.0.1:34351. Cause: test servers started on `--port 0` took an ephemeral
+port; a restart on that named port lost it to any other `listen(0)` or outgoing
+connection. A scratch reproduction took the freed port before the restart (same
+EADDRINUSE); after the repair 60000 anonymous binds never reached it. Repair:
+`testServerPort.ts` gives unnamed test servers a leased port from 20000–32767,
+below the ephemeral range (checked at runtime); named ports still never move.
+Proof: full dashboard-backend group, focused backend rerun 10/10, frontend and
+e2e restart users, lint and typecheck (evidence `fix-eaddrinuse-*`, `r3-*`).
