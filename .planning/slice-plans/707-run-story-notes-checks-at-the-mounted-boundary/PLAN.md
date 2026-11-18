@@ -15,7 +15,7 @@ The cases move from the built-app fixture to mounted Vitest specs that render th
 - **One page-object vocabulary.** The mounted notes page offers the phases and cues of `storyNotesPage.ts` under the same names, and both read control names, roles and announcement text from one module. `storyNotesPage.ts` stays the Playwright form because backend and end-to-end journeys use it.
 - **The phone-board support becomes the general mounted support.** Its mount, cleanup, fetch answers and Node command generalize in place. The phone-board specs keep their own gesture page object.
 - **The mounted fixture controls time.** It uses the fake timers the phone-board mount installs. A case advances them where the built-app case ran `page.clock.runFor`.
-- **Where a case stays.** A case keeps a real page only when its proof needs the browser's reload or a live socket. Slice 6 judges the two candidates and records reason, destination and cost.
+- **Where a case stays.** A case keeps a real page only when its proof needs the browser's reload or a live socket. Slice 6 judged the two candidates: the attached terminal stays for its live socket; the retained note moves in slice 7.
 
 No Accepted decision conflicts. [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md) requires the comparison basis before the observed run; slice 1 records it. [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md) names apply to the support modules.
 
@@ -42,10 +42,11 @@ Observed in this preparation checkout at `ade2447a1` plus the preparation draft 
 | Unreadable notes on every card kind | 3 | Mounted `story-notes-unreadable` case and its discrimination |
 | Keyboard edit, cancel, delete, refused edit and deletion | 4 | Mounted `story-notes-edit` cases with recorded change requests |
 | General notes, failed saves keep the draft, waiting and sent states, newer read against older read | 5 | Mounted `story-notes` cases |
-| Retained note and attached terminal accounted for | 6 | Moved case or recorded stay with reason, destination and cost |
+| One story-review answering rule; attached terminal kept with reason, destination and cost | 6 | Built-app review consumers pass on the shared rule; recorded stay |
+| Retained note moved with every observation | 7 | Mounted `story-notes-retained` case asserting the recorded add and its discrimination |
 | One notes answering rule and one vocabulary | 2, 3 | Built-app notes consumers pass on the shared rule; mounted and Playwright page objects read one names module |
 | File and `--grep` selection | 3 | `-- stories/ --grep 'unreadable'` lists the moved case |
-| A third of the matched baseline, whole group no slower, per-file cost recorded | 7 | Matched before and after commands; seed evidence updated |
+| A third of the matched baseline, whole group no slower, per-file cost recorded | 8 | Matched before and after commands; seed evidence updated |
 
 ## Ordered slices
 
@@ -102,18 +103,29 @@ Move the general, failure, state and project-read cases of `story-notes.spec.ts`
 
 Proof: `npm run test:dashboard:frontend -- stories/story-notes` passes the moved cases mounted and the remaining built-app case. Releasing the older read before the save in a scratch edit fails the older-read case.
 
-### 6. Account for the retained note and the attached terminal
+### 6. Answer the story-review service by one rule and keep the attached terminal
+
+Type: Structure
+Status: done
+
+Extract the story-review answering rule from `dashboard/test-support/support/frontendStoryReviewRoutes.ts` and `frontendStoryReviewAnswers.ts` into a module without Playwright or Node imports, as slice 2 did for notes: snapshot, range, file diff and file text answers, and held answers through a caller-supplied hold. The Playwright routes keep their interface and call the rule. External behavior is unchanged. This enables slice 7.
+
+The attached-terminal case stays in `dashboard/frontend-tests/stories/story-notes.spec.ts`: its proof needs a live terminal WebSocket held open while Story notes opens and closes. The substitute's rule (`TerminalApplication` in `terminalSubstituteApplication.ts`) is engine-free, but its socket is Playwright's `page.routeWebSocket` and the mounted answers serve fetch only. Cost 0.8–1.23 s across slice 6 runs.
+
+Proof: the built-app review consumers the consumer trace lists for the routes and answers pass unchanged, including `review/` and `stories/story-notes-retained`. A scratch mounted spec imports the rule module in the browser. `npm run typecheck:dashboard` and ESLint pass.
+
+### 7. Keep a Taken note through launch and Done on the mounted board
 
 Type: Behavior
 Status: planned
 
-Behavior: a Taken note exists and a new launch and Done follow; separately, Story notes opens beside an attached terminal → the note appears on Done without workspace or launch records, and the terminal stays mounted and connected.
+Behavior: the developer saves a line note from the Taken story's review diff → a new launch and then Done follow → the recorded add carries the line context, the note shows on the relaunched Taken card and on Done with its full context, without workspace or launch records.
 
-`story-notes-retained.spec.ts` reloads the page twice. Move it when a fresh mount on the same arranged services observes the same app-owned state. The attached-terminal case needs the terminal WebSocket. Move it when the mounted answers can hold that socket open with the existing terminal substitute's rule. Otherwise keep the case on the built-app fixture. Record each decision in this plan with its reason, destination and measured cost.
+Answer the story-review requests in the mounted services through slice 6's rule. Add a Node arrangement with the kept story-branch launch, the review snapshot and the `story.txt` diff, and Done and relaunch arrangements sharing the notes. Remount the dashboard carrying the same notes service rule into the relaunch and Done mounts. Add the review cues the case uses (`fromLine`, `saveDiffNote`, closing the panel) to the mounted page objects under the Playwright names, splitting files to stay under 250 lines. Move `story-notes-retained.spec.ts` with every observation, using `frontendReviewIds` and the board's card helper, and delete the original. Slice 6's attempt is in this checkout's `open-dough/evidence/slice-6-partial` (an `unmount()` on the mount result and a `retainedNoteBoards` command).
 
-Proof: each case passes where it lives. A moved retained case fails when the note is dropped at the new launch in a scratch arrangement. A kept case is named in the record with its seconds from the run.
+Proof: `npm run test:dashboard:frontend -- stories/story-notes` passes the moved case mounted with 0 act warnings, and it asserts the recorded add with context. Dropping the note at the new launch in a scratch arrangement fails it. Consumers of the changed support pass.
 
-### 7. Compare the story-notes specs against their baseline
+### 8. Compare the story-notes specs against their baseline
 
 Type: Behavior
 Status: planned
@@ -126,7 +138,7 @@ Proof: the recorded pairs show the ratio. A ratio above a third, or a slower who
 
 ## Verification and plan review
 
-Run changed cases and their reached consumers through `npm run test:dashboard:frontend -- <paths>`, with `npm run lint` and `npm run typecheck:dashboard`. Slices 1 and 7 run the whole frontend group because the shared mount and the comparison need it. Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md) for every failing or flaky case. Tests follow [`dough-makeme`](../../../.agents/skills/dough-makeme/SKILL.md) and [`dough-page-objects`](../../../.agents/skills/dough-page-objects/SKILL.md). Keep the default test timeout.
+Run changed cases and their reached consumers through `npm run test:dashboard:frontend -- <paths>`, with `npm run lint` and `npm run typecheck:dashboard`. Slices 1 and 8 run the whole frontend group because the shared mount and the comparison need it. Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md) for every failing or flaky case. Tests follow [`dough-makeme`](../../../.agents/skills/dough-makeme/SKILL.md) and [`dough-page-objects`](../../../.agents/skills/dough-page-objects/SKILL.md). Keep the default test timeout.
 
 Local gate on awake macOS uses `caffeinate -s -i` on AC power for the whole-group runs. On battery use the maintained open-lid `caffeinate -i` procedure and sleep-log check. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 
@@ -143,7 +155,7 @@ Slice-plan refinement ran in planning: the first mounted notes case was split so
 | `npm run test:dashboard:frontend` (715 cases) | 1 | 29.8 | 534 s after suite admission (3,142 s including 43 min queued) | 1,003 s |
 | same | 2 | 16.6 after | 527 s after suite admission (2,255 s including 29 min queued) | 1,007 s |
 
-The whole-group command takes the repository's one-full-local-suite admission (`refs/dough/local-test-suite`); run 1 waited 43 minutes and run 2 29 minutes behind another worktree's backend suite. Run 2's built-app cases ran while slice 1's uncommitted mounted-support edits were in the tree; those edits reach only the mounted specs, which had already run, but the slice 1 agent's focused runs added load. Measure the whole group from admission (the proof record's Playwright output directory time to `finishedAt`), not from command launch. The story-notes command varied 2.4× between runs at similar load, so slice 7's alternating matched pairs, not these single figures, decide the ratio.
+The whole-group command takes the repository's one-full-local-suite admission (`refs/dough/local-test-suite`); run 1 waited 43 minutes and run 2 29 minutes behind another worktree's backend suite. Run 2's built-app cases ran while slice 1's uncommitted mounted-support edits were in the tree; those edits reach only the mounted specs, which had already run, but the slice 1 agent's focused runs added load. Measure the whole group from admission (the proof record's Playwright output directory time to `finishedAt`), not from command launch. The story-notes command varied 2.4× between runs at similar load, so slice 8's alternating matched pairs, not these single figures, decide the ratio.
 
 **Slice 1:** the board already sent `/__project-configuration/ci-follow-up` unanswered on the mounted board; the old stub threw and the app swallowed it. The mounted support now fails any unanswered `/__` request by name, so later mounted families must answer every service their board reads.
 
@@ -153,6 +165,10 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 
 **Slice 4:** mounted keyboard activation focuses the control inside `act`, asserts focus, then sends `userEvent.keyboard("{Enter}")` inside `act`, as the Playwright form focuses and presses Enter; focus return is asserted with `toHaveFocus()`. The Playwright page object lost the edit and delete cues whose only caller moved. In 1 of 3 runs the refused-edit case printed React's "not wrapped in act(...)" warning for `ConfiguredDashboard` while passing; the same warning appears in slice 1 and 3 logs. Slice 5 owns finding the unwrapped update before relying on held answers. Split `mountedStoryNotesPage.ts` (214 lines) into the Story notes page and a mounted notes board module when slice 5 adds cues.
 
-**Slice 5:** the "not wrapped in act" warning was service answers, effects started as act ended and frame-timed callbacks reaching React after act; after a notes refresh outside act a reopened dialog rendered without `showModal`. `actSettled()` in `dashboard/test-support/mounted-dashboard/mountedActInput.ts` runs each mount, input, `runFor` and held-answer release inside act, repeats task rounds while the page changes, then confirms with one frame round. Mounted cases now take about 0.4–1.9 s each instead of 0.06–0.4 s; the `stories/story-notes` command took 10.1–12.5 s with two built-app cases still in it, against the 16.3 s and 39.7 s baseline runs. Slice 7 decides whether that meets a third; settling is the first lever. The planned older-read discrimination (release the older read before the save) cannot fail, since a read answered before the save is not older; removing the product guard `sequence <= shown` in `dashboard/src/localSettingState.ts` fails the case instead. The Playwright substitute and page object lost the controls and cues whose only callers moved.
+**Slice 5:** the "not wrapped in act" warning was service answers, effects started as act ended and frame-timed callbacks reaching React after act; after a notes refresh outside act a reopened dialog rendered without `showModal`. `actSettled()` in `dashboard/test-support/mounted-dashboard/mountedActInput.ts` runs each mount, input, `runFor` and held-answer release inside act, repeats task rounds while the page changes, then confirms with one frame round. Mounted cases now take about 0.4–1.9 s each instead of 0.06–0.4 s; the `stories/story-notes` command took 10.1–12.5 s with two built-app cases still in it, against the 16.3 s and 39.7 s baseline runs. Slice 8 decides whether that meets a third; settling is the first lever. The planned older-read discrimination (release the older read before the save) cannot fail, since a read answered before the save is not older; removing the product guard `sequence <= shown` in `dashboard/src/localSettingState.ts` fails the case instead. The Playwright substitute and page object lost the controls and cues whose only callers moved.
+
+**Slice 6 refinement** (5.5 active minutes, no overrun): the retained case's reloads read only app-owned state, so it must move, but its journey saves the note from a review diff line and asserts the recorded add; the mounted services answer no story-review requests and the review substitute is Playwright-only (`page.route`, `holdAnswer(page)`). An attempt that arranged the note instead dropped both observations and was removed. Slice 6 now extracts the review rule and records the terminal stay; slice 7 moves the retained case; the comparison is slice 8.
+
+**Slice 6:** the story-review rule is `answerStoryReview(state, pathname, params)` over `createReviewBuckets<Hold>()` in `dashboard/test-support/support/frontendStoryReviewRule.ts`; it returns `undefined` for other paths and `{ body: () => unknown, hold }`, computing a held body after release. Slice 7's mounted fetch answers route through it as they do for notes. Under zsh a space-joined spec list reaches the runner as one argument, selects nothing and still exits 0; pass each path separately and read the selection count from the proof record.
 
 ## Story obligations
