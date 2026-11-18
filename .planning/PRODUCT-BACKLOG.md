@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks ([plan](slice-plans/689-move-story-reference-checks/PLAN.md))
-- [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal ([plan](slice-plans/692-submit-and-close-the-dashboard-terminal/PLAN.md))
 
 ## Backlog list
 
@@ -87,3 +86,4 @@ intent introduced or affected by a newly developed story.
 - [Richer Done follow-up card cues](seeds/SEED-395-richer-done-follow-up-card-cues.md#richer-done-follow-up-card-cues) — SEED-395#richer-done-follow-up-card-cues
 - [Offer more syntax styling choices beyond Off and Default](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#more-syntax-styling-choices) — SEED-387#more-syntax-styling-choices
 - [Further word-emphasis follow-ups](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#further-word-emphasis-follow-ups) — SEED-387#further-word-emphasis-follow-ups
+- [Deferred submit-and-close follow-ups](seeds/SEED-398-deferred-submit-and-close-follow-ups.md#deferred-submit-and-close-follow-ups) — SEED-398#deferred-submit-and-close-follow-ups

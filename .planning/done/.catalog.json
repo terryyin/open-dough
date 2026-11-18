@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-385_submit-and-close-the-dashboard-terminal.json",
+      "identity": "SEED-385#submit-and-close-the-dashboard-terminal",
+      "completedAt": "2026-11-18T05:31:08.136Z",
+      "blob": "5303d19feaca9ec28b2163697ec01898190d9048"
+    },
+    {
       "fileName": "SEED-300_chain-board-paging-side-panel-page-objects.json",
       "identity": "SEED-300#chain-board-paging-side-panel-page-objects",
       "completedAt": "2026-11-18T03:54:34.242Z",

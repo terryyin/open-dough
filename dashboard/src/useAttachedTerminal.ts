@@ -42,6 +42,10 @@ export function useAttachedTerminal(
     (text: string) => live.current?.insert(text) ?? false,
     [],
   );
+  const acceptsInput = useCallback(
+    () => live.current?.paste.acceptsInput() ?? false,
+    [],
+  );
   // Capture the attachment at the tap, before a clipboard read can yield.
   const getPaste = useCallback(() => live.current?.paste, []);
   // What the mounted terminal holds now, attached or not.
@@ -83,5 +87,5 @@ export function useAttachedTerminal(
     onAttachRefusal,
     takesKeyboard,
   ]);
-  return { insertText, getPaste, getHeldText };
+  return { insertText, acceptsInput, getPaste, getHeldText };
 }

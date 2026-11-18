@@ -208,6 +208,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       freshAsk.current = true;
       reread();
     },
+    rereadSessions: reread,
     records: readAnswered ? configuredKnown : undefined,
     readHistory: retained.readHistory,
     workspaces: sessions.workspaces,
