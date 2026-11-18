@@ -2,6 +2,7 @@
 
 **Identity:** SEED-399#let-a-long-codex-wait-run-without-model-requests
 **Source:** [Let a long Codex wait run without model requests](../../seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
+**Source review:** [Independent source commitments](source-review.md)
 
 ## Goal and scope
 
@@ -42,7 +43,7 @@ and the shared
 
 ### 1. Measure the outer Codex wait window
 Type: Behavior
-Status: planned
+Status: done
 Proof: retain a matched native control and candidate trace with timed calls,
 distinct in-window model requests, the command's terminal result, and the
 host returns that explain those counts. Record the selected route and the
@@ -149,3 +150,41 @@ Refinement was not needed. The host-window probe bounds the remaining
 runtime premise before the guidance change, and the three final examples
 exercise one wait rule with their existing terminal contracts. This review
 identified no remaining slice-specific concern outside that probe.
+
+## Execution context
+
+- Story Branch Mode. Established workspace `codex/let-a-long-codex-wait-run-without-model-requests` in `.worktrees/let-a-long-codex-wait-run-without-model-requests`, publisher `dashboard-territory.local-open-dough`, agent Eimi-chan. Base `6c78472566abcb7434da517e3ce48408cd25fac1`, claim `0b0997b02ae68fb85427da76e0f7b96a16d804f6` accepted on `origin/main` and the execution branch, initial candidate equal to the claim. Default integration checkout is the repository's `main` worktree.
+- GitHub Actions `ci.yml` (CI), observer `eimi-chan-seed-399` on `terryyin/open-dough` and the execution branch. Codex cell `g12:15`, shell session `32037`, mailbox `/tmp/dough-ci-501/watch-fLtqNT`, PID `29503`. The trunk claim predates this branch observer.
+- Slice 1 proof budget: one matched 275-second control and candidate and one crossing trial, capped at 650 seconds of shell time. These quiet timers and native traces run on the AC-powered macOS 26.6.2 execution host under `caffeinate -s -i`. Initial host sample showed 16 logical CPUs, load about 18, 58% system memory free, and other browser work. This proof adds no build or browser load. Stop or reconsider on loss of trace access, deadline or terminal result, changing host conditions that invalidate timing, or no measured gain.
+
+## Slice 1 measured wait window
+
+Codex 0.170.0, dashboard app server (`vscode`, `open_dough_dashboard`),
+`gpt-6.2-sol` at `xhigh`, payload `0b0997b02`. Both matched arms used the
+same quiet 275-second command and returned exit 0. Control rollout
+`01a1ede2-2d38-7f51-8ecc-9cde40ceb0a9` had five in-window response IDs
+(rows 23, 27, 31, 35, 39) from a 1.043-second launch handback and four
+roughly 61-second waits. Candidate rollout
+`01a1ede2-2d38-7f51-8ecc-9ca2c0d58dfd` had zero between the launch usage
+row 17 and the terminal result at row 19 (275.109 seconds). Both returned
+within 21 ms of the command's output.
+
+Crossing rollout `01a1ede2-2d38-7f51-8ecc-9d0d6f34399d` used `300000` on
+both outer tools. `exec` handed back after 301.034 seconds (rows 18–20).
+The first `wait` on cell `g18:1` handed back after 301.080 seconds (rows
+22–24). The next `wait` on the same cell returned after 10.517 seconds
+(rows 26–29), 25 ms after output from the original shell session `10363`.
+That cell continued through three inner polls. The only two in-window
+responses were rows 23 and 27, one per outer handback; the original
+command exited 0 before its deadline. Use the observed five-minute
+window where the host supports it, keeping the command, cell, and deadline
+on handback. Treat earlier host returns according to their actual handles.
+
+Separate-cell shell continuation returned exit 17 on the same shell
+handle. The generic blocking fallback produced the recorded exit and the
+deadline result in separate cases. The isolated CLI and app-server
+surfaces did not expose a separate direct-only tool UI under the attempted
+configuration. The evidence for that fallback is the exercised underlying
+command/session path. Full report and run record are in the checkout's Git
+evidence directory (`slice-1-report.md`, `slice-1-native-run.log.run.json`).
+Records-only refactor disposition.
