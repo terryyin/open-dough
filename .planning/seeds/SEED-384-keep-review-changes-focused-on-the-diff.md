@@ -122,6 +122,37 @@ No new consequential concern. The panel keeps its one multi-purpose side-panel
 region and read-only review boundary; only where the existing controls sit
 changes.
 
+<a id="keep-review-toolbar-truthful-while-reading"></a>
+
+### Keep the Review changes toolbar truthful while it reads
+
+**Identity:** SEED-384#keep-review-toolbar-truthful-while-reading
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md"}
+```
+
+Correction from the execution retrospective of
+[Keep Review changes focused on the diff](#keep-review-changes-focused-on-the-diff);
+its [plan](../slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md)
+holds the findings, provenance and proof.
+
+#### Goal
+
+A developer opening **Review changes** for a completed story, a published
+completion or an ad hoc session's landing never sees the toolbar name a
+comparison that is not shown or an eye that reveals nothing, and on a short
+touch screen the revealed details and status leave the diff its room.
+
+#### Scope
+
+- Before the review's first answer, and when it cannot be read, the toolbar
+  names no comparison it cannot yet show, and the eye is offered only when the
+  details hold something.
+- On touch input, the revealed details and the review's status share the one
+  height budget the status had before the details existed.
+- The two-run landed opening is proved collapsed at the layer that owns it,
+  and the end-to-end runs journey keeps only what needs real launches.
+
 <a id="resize-and-remember-the-review-file-sidebar"></a>
 
 ### Resize and remember the Review changes file sidebar

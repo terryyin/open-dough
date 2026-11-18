@@ -238,3 +238,22 @@ Disposition: excluded "Each keeps today's words, facts and behavior."
 - Slice-plan refinement was not needed: three slices, each one outcome and
   one proof loop, with the consumer set observed rather than assumed. This
   review identified no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: correct before building on the toolbar. The execution
+retrospective found three regressions of this story, planned as one
+correction,
+[Keep the Review changes toolbar truthful while it reads](../702-keep-review-toolbar-truthful-while-reading/PLAN.md)
+(SEED-384#keep-review-toolbar-truthful-while-reading): before the first
+answer, and after a failed read, a historical review's toolbar reads “All
+changes” and offers an eye over empty details; on touch the revealed details
+and the status each take their own 30% of the panel height; and the
+end-to-end landed-runs details journey pays for real launches to prove
+frontend behaviour while no test opens a two-run landed review collapsed.
+Queue the correction ahead of, or together with,
+[Resize and remember the Review changes file sidebar](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar),
+which builds on the same toolbar and still uses the mockup. Whether the
+**Landed run** picker should hide for a story's single run (today it shows;
+excluded here as G3) is a product question for that next look at the
+details, not a defect of this story.
