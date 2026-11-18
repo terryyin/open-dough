@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-402#keep-client-finding-evidence-and-ids-stable",
+  "title": "Store duplicate finding evidence once and preserve IDs across log recreation",
+  "completedAt": "2026-11-18T15:18:13.423Z",
+  "developer": "Terry Yin",
+  "agent": "Sola-chan",
+  "host": "claude"
+}

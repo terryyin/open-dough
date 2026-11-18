@@ -103,10 +103,10 @@ the old list, omit unfinished delivery to a removed project, or pass its watch.
    `Former local code: DD-NNN.` alias and the finding's meaning/evidence. A
    revision-qualified mapping must not rename an entire historical entry. Keep
    ambiguous mappings separate and name the gap; proceed with clear siblings.
-5. Once evidence is retained, collapse exact duplicate reports/aliases of the same
-   project/execution into concise source text with original locators. Do not erase
-   distinct occurrences, local facets or meaningful differences. Recheck source
-   contents before saving; concurrent or unowned changes are not yours to absorb.
+5. Once evidence is retained, link each verified duplicate occurrence to its shared
+   account as [retention and watch](references/retention-and-watch.md#link-a-verified-shared-account)
+   describes, keeping distinct occurrences, local facets and meaningful differences.
+   Recheck source contents before saving; concurrent or unowned changes are not yours to absorb.
 
 The wrapper supplies collection and adoption authority; the child skills retain
 their standalone triggers. Merely encountering a finding invokes none of them.

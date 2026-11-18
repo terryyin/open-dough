@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-402_keep-client-finding-evidence-and-ids-stable.json",
+      "identity": "SEED-402#keep-client-finding-evidence-and-ids-stable",
+      "completedAt": "2026-11-18T15:18:13.423Z",
+      "blob": "0e3437746f40fd5deb7abb3092dffa6439c42f3d"
+    },
+    {
       "fileName": "SEED-379_bound-capture-to-done.json",
       "identity": "SEED-379#bound-capture-to-done",
       "completedAt": "2026-11-18T15:14:59.624Z",

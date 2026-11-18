@@ -440,3 +440,20 @@ separate checks. The [repository proof guide](Distribution/tests/README.md#waits
 documents the focused typecheck, and the commit hook caught both errors before
 publication. Retain the two occurrences as project evidence. No new story is
 queued.
+
+<a id="dd-579"></a>
+
+## DD-579 — A guidance walk scripted by the guidance's author confirms its own reading
+
+The behavior review asks for one representative walk of a changed skill. An implementer who writes the guidance and then encodes it in a fixture script observes only their own interpretation. A reader who did not write it can expose ambiguities that this script cannot.
+
+### Occurrences
+
+- Execution: SEED-402#keep-client-finding-evidence-and-ids-stable (plan 704; first implementation `5cc62ffe53ea21452e60f22d3448322e773c7a4b`)
+  - Timestamp: unknown (2026-11-18, slice 1 acceptance before `5cc62ffe5` at 2026-11-18T23:01:47+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.106 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 implementer proof was its own `walk.py` applying the new collector section; the coordinator then sent a fresh agent only the guidance and rebuilt fixtures. That agent reached the same six outcomes and raised two wording gaps, both fixed before commit. The slice 2 brief required an independent walker from the start. That walker raised five open questions about how a recreated log represents recovered content (`bdcf715a2e826926a00b551498596e7a3ca6279c:.planning/slice-plans/704-stable-client-finding-records/PLAN.md` slice 2 accepted proof).
+  - Observed effect: one extra walker run (~76 s) in slice 1; no rework of accepted behavior.
+  - Inference: `.agents/skills/author-open-dough-skills/SKILL.md#behavior-review` could ask that the walk be performed by an agent that did not write the change, given only the guidance and the situation.
