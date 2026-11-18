@@ -33,6 +33,7 @@ export const sessionBranchResultSchema = z.object({
   revision: commitIdSchema,
   committedTip: commitIdSchema,
   attributionGap: z.string().min(1).optional(),
+  manualDeliveryChecked: z.literal(true).optional(),
 });
 export type SessionBranchResult = z.infer<typeof sessionBranchResultSchema>;
 

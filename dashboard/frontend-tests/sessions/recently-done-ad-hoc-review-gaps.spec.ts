@@ -131,3 +131,29 @@ test("an ad hoc review explains an empty comparison", async ({
     },
   );
 });
+
+test("an unverified delivery explains the gap alongside the saved branch files", async ({
+  page,
+  frontendServices,
+}) => {
+  const title = "Kept branch with no verified delivery";
+  const session = makeMe.aLaunchRecord.adHoc({ title }).markedDone().please();
+  const explanation =
+    "Delivery to trunk is unverified. The recorded history does not establish a merge or exact fast-forward of this session's committed tip.";
+  await installFrontendStoryReview(page, {
+    kind: "branch-result",
+    ...frontendReviewIds,
+    doneAt: session.doneAt ?? "",
+    files: [{ kind: "added", path: "draft.txt" }],
+    deliveryGap: explanation,
+  });
+  await openFrontendBoardReview(page, frontendServices, {
+    doneSessions: [session],
+  });
+
+  await sidePanelPages(page).phase("review the saved branch", (pages) => {
+    pages.board.reviewDoneSession(title);
+    pages.storyReview.expectFeedback(explanation);
+    pages.storyReview.expectChangedFiles("1 changed file");
+  });
+});

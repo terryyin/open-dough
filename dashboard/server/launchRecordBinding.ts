@@ -47,15 +47,13 @@ export async function bindRecord(
       );
     }
     const completion = attempt?.completion ?? record.completion;
+    const accepted = { ...record, landing: attempt?.landing ?? record.landing };
     const closure =
       completion === undefined
         ? "open"
-        : await completionClosure(
-            { ...record, landing: attempt?.landing ?? record.landing },
-            completion,
-          );
+        : await completionClosure(accepted, completion);
     await withBranchResultAtDone(
-      record,
+      accepted,
       closure === "open" ? undefined : completion?.receivedAt,
       (settle) =>
         replaceRecords(async (kept) => {
@@ -76,12 +74,17 @@ export async function bindRecord(
             existing === undefined
               ? completion
               : (existing.completion ?? record.completion);
-          const landing =
-            existing?.landing ?? attempt?.landing ?? record.landing;
+          const landing = existing?.landing ?? accepted.landing;
+          const landingReporting = boundLandingReporting(attempt, existing);
           const bound =
             existing === undefined
               ? reported !== undefined && closure !== "open"
-                ? await settle(doneSessionRecord(record, reported.receivedAt))
+                ? await settle(
+                    doneSessionRecord(
+                      { ...accepted, landingReporting },
+                      reported.receivedAt,
+                    ),
+                  )
                 : record
               : {
                   ...record,
@@ -105,8 +108,8 @@ export async function bindRecord(
                   existing === undefined
                     ? returnedOutcome(closure, reported?.receipt)
                     : existing.returnedToBacklog,
-                landing,
-                landingReporting: boundLandingReporting(attempt, existing),
+                landing: landing ?? bound.landing,
+                landingReporting,
                 dispositionChangedAt:
                   existing?.dispositionChangedAt ?? record.dispositionChangedAt,
                 reportRead: existing?.reportRead ?? record.reportRead,

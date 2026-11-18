@@ -1,5 +1,5 @@
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { commitIdSchema } from "../src/launchLanding.ts";
+import { commitIdSchema, type LaunchLanding } from "../src/launchLanding.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
 import {
@@ -20,7 +20,14 @@ import { configuredProject } from "./projectConfiguration.ts";
 import {
   attributeBranchResult,
   branchTrunk,
+  readBranchTrunkRevision,
 } from "./sessionBranchAttribution.ts";
+import {
+  keepManualLanding,
+  manualLandingComparison,
+  manualLandingTrunk,
+  releaseManualLanding,
+} from "./manualSessionLanding.ts";
 
 const gitCall = (cwd: string) => ({
   cwd,
@@ -86,10 +93,7 @@ export async function readBranchWorkspace({
   };
 }
 
-async function readBranchResult(
-  record: LaunchRecord,
-  doneAt: string,
-): Promise<SessionBranchResult> {
+async function readBranchResult(record: LaunchRecord, doneAt: string) {
   const entry = record.branchEntry;
   const start = entry ?? record.establishedSession;
   const repository = entry?.repository ?? record.branchReviewRepository;
@@ -107,24 +111,44 @@ async function readBranchResult(
     ["merge-base", "--is-ancestor", baseTip, committedTip],
     gitCall(start.workspace),
   );
-  const established = record.establishedSession;
   const source = configuredProject(record.request.source);
+  const witnessedTrunk = manualLandingTrunk(record);
   const trunk =
-    entry === undefined && established !== undefined
-      ? {
-          ...branchTrunk(established.remote, established.target),
-          revision: established.fetched ?? baseTip,
-        }
-      : (entry?.trunk ??
-        (source === undefined ? undefined : branchTrunk("origin", source.ref)));
+    witnessedTrunk ??
+    (source === undefined ? undefined : branchTrunk("origin", source.ref));
+  const call = gitCall(repository);
+  const targetHead = await readBranchTrunkRevision(trunk, call);
+  const delivery =
+    record.landing === undefined
+      ? await manualLandingComparison(
+          repository,
+          committedTip,
+          witnessedTrunk,
+          targetHead,
+          call,
+        )
+      : undefined;
+  // A proved direct delivery establishes that this exact tip is session work.
+  // Its prior target is the trunk history imported by the branch.
+  const attributionTarget =
+    delivery?.revision === committedTip ? delivery.base : targetHead;
   const attribution = await attributeBranchResult(
     base,
     baseTip,
     committedTip,
-    trunk,
-    gitCall(repository),
+    trunk?.revision ?? (entry === undefined ? baseTip : undefined),
+    attributionTarget,
+    call,
   );
-  return { repository, doneAt, revision, committedTip, ...attribution };
+  const result: SessionBranchResult = {
+    repository,
+    doneAt,
+    revision,
+    committedTip,
+    manualDeliveryChecked: true,
+    ...attribution,
+  };
+  return { result, delivery };
 }
 
 // Read before publishing the mark, then admit and pin the result within the
@@ -159,11 +183,13 @@ export async function withBranchResultAtDone<T>(
   const read = await readBranchResult(candidate, doneAt).catch(() => undefined);
   let previous: SessionBranchResult | undefined;
   let pinned: SessionBranchResult | undefined;
+  let landing: LaunchLanding | undefined;
   try {
     const saved = await write(async (marked) => {
       if (
         marked.doneAt !== doneAt ||
         !branchCapturePending(marked, doneAt) ||
+        marked.launchedAt !== candidate.launchedAt ||
         sessionKey(marked.session) !== sessionKey(candidate.session) ||
         marked.branchReviewRepository !== candidate.branchReviewRepository ||
         marked.branchEntry?.committedTip !== candidate.branchEntry?.committedTip
@@ -171,22 +197,25 @@ export async function withBranchResultAtDone<T>(
         return marked;
       if (read === undefined)
         return { ...marked, branchResultFailedAt: doneAt };
+      const { result, delivery } = read;
       try {
-        await keepBranchResultRefs(owner, read);
+        await keepBranchResultRefs(owner, result);
       } catch {
-        await releaseBranchResultRefs(owner, read);
+        await releaseBranchResultRefs(owner, result);
         return { ...marked, branchResultFailedAt: doneAt };
       }
       previous = marked.branchResult;
-      pinned = read;
-      const next = { ...marked, branchResult: read };
+      pinned = result;
+      landing = await keepManualLanding(marked, delivery);
+      const next = { ...marked, branchResult: result };
       delete next.branchResultFailedAt;
-      return next;
+      return landing === undefined ? next : { ...next, landing };
     });
     if (pinned !== undefined) await releaseBranchResultRefs(owner, previous);
     return saved;
   } catch (error) {
     await releaseBranchResultRefs(owner, pinned);
+    await releaseManualLanding(landing);
     throw error;
   }
 }

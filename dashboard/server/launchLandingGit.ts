@@ -8,8 +8,10 @@ const git = (repository: string, args: readonly string[]) =>
     maxBuffer: defaultGitOutputLimit,
     signal: AbortSignal.timeout(30_000),
   });
-export const landingRefPrefix = (reference: string) =>
+const landingRefPrefix = (reference: string) =>
   `refs/open-dough/one-shot/${reference}/`;
+const landingDeliveryRefPrefix = ({ reference, delivery }: LaunchLanding) =>
+  `${landingRefPrefix(reference)}${delivery}/`;
 
 // Recorded landing ancestry from already retained local Git objects, across
 // all merge parents. Only requested landing revisions enter the order; private
@@ -164,11 +166,13 @@ export async function removePins(
     await git(repository, ["update-ref", "-d", ref]);
 }
 export const pinLanding = (landing: LaunchLanding): Promise<void> =>
-  pinPair(
-    landing.repository,
-    `${landingRefPrefix(landing.reference)}${landing.delivery}/`,
-    landing,
-  );
+  pinPair(landing.repository, landingDeliveryRefPrefix(landing), landing);
+
+export const removeLandingDeliveryPins = (
+  landing: LaunchLanding,
+): Promise<void> =>
+  removePins(landing.repository, landingDeliveryRefPrefix(landing));
+
 export const removeLandingPins = (
   repository: string,
   reference: string,

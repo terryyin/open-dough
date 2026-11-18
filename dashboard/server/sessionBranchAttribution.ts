@@ -26,6 +26,27 @@ export async function observeBranchTrunk(
   return { ...trunk, revision };
 }
 
+export async function readBranchTrunkRevision(
+  trunk: BranchTrunk | undefined,
+  call: BranchGitCall,
+): Promise<string | undefined> {
+  if (trunk === undefined) return undefined;
+  try {
+    const { revision } = await observeBranchTrunk(trunk, call);
+    if (revision === undefined) return undefined;
+    const commit = ["cat-file", "-e", `${revision}^{commit}`];
+    try {
+      await runGit(commit, call);
+    } catch {
+      await fetchGitTarget(trunk.remote, trunk.target, call);
+      await runGit(commit, call);
+    }
+    return revision;
+  } catch {
+    return undefined;
+  }
+}
+
 // Excluding the ancestry of tip leaves a contiguous prefix of the target's
 // first-parent history. The next commit is the latest shared trunk point.
 // Git's --boundary also prints merge side parents, including a delivered
@@ -61,7 +82,8 @@ export async function attributeBranchResult(
   base: string,
   entryTip: string,
   committedTip: string,
-  trunk: BranchTrunk | undefined,
+  observedAtEntry: string | undefined,
+  target: string | undefined,
   call: BranchGitCall,
 ): Promise<BranchAttribution> {
   const ambiguous = {
@@ -75,25 +97,9 @@ export async function attributeBranchResult(
       "The authorized trunk could not be read to separate its changes from the saved branch result.",
   };
   if (entryTip === committedTip) return { base };
-  if (trunk === undefined) return unavailable;
-
-  let target: string;
-  try {
-    const { revision } = await observeBranchTrunk(trunk, call);
-    if (revision === undefined) return unavailable;
-    target = revision;
-    try {
-      await runGit(["cat-file", "-e", `${target}^{commit}`], call);
-    } catch {
-      await fetchGitTarget(trunk.remote, trunk.target, call);
-      await runGit(["cat-file", "-e", `${target}^{commit}`], call);
-    }
-  } catch {
-    return unavailable;
-  }
+  if (target === undefined) return unavailable;
 
   try {
-    const observedAtEntry = trunk.revision;
     if (
       observedAtEntry !== undefined &&
       (await sharedFirstParent(target, observedAtEntry, call)) !==

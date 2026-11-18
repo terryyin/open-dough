@@ -196,6 +196,7 @@ export const storyReviewSchema = z
       runs: z.array(reviewRunChoiceSchema).optional(),
       selectedRun: z.string().min(1).optional(),
       sessionComparisonKeys: z.array(sessionComparisonKeySchema).optional(),
+      deliveryGap: z.string().min(1).optional(),
     }),
   );
 export type StoryReview = z.infer<typeof storyReviewSchema>;

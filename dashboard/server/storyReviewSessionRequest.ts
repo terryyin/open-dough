@@ -61,8 +61,16 @@ export async function sessionReviewRequest(
   const read = async (signal: AbortSignal): Promise<StoryReview> => {
     if (selected === sessionDeliveryRun && record.landing !== undefined)
       return landedStoryReview({ record }, signal);
-    if (selected === sessionBranchRun && branch !== undefined)
-      return branchResultReview(branch, signal);
+    if (selected === sessionBranchRun && branch !== undefined) {
+      const review = await branchResultReview(branch, signal);
+      return record.landing === undefined && branch.manualDeliveryChecked
+        ? {
+            ...review,
+            deliveryGap:
+              "Delivery to trunk is unverified. The recorded history does not establish a merge or exact fast-forward of this session's committed tip.",
+          }
+        : review;
+    }
     const run =
       selected !== undefined &&
       selected !== sessionBranchRun &&

@@ -101,6 +101,7 @@ export function ReviewFeedback({
         </p>
       )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
+      {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
       {problem !== undefined && <p>The review could not be read: {problem}</p>}
       {review?.kind === "unavailable" && (
         <p>

@@ -132,11 +132,15 @@ Hosted run `44367653081` attempt 1 exposed two regressions in unavailable landin
 ### 8. Read a manual integration that reached trunk before Done
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the identified branch's committed tip and the authorized target's history to retain a provable manual integration. For a merge into trunk, establish the trunk parent and session side and keep the actual merge tree. For a fast-forward, use an evidenced prior target and accepted result when the exact range and association are established. Keep any available branch result separately.
 
 Proof: merge with an actual conflict, resolve it by hand, and check an unpublished local merge, then a plain Git push and Done. Assert the exact trunk-parent/merge pair and resolution even after a further advance. Exercise a verified fast-forward and the ambiguous previous-tip case. A same-content squash with no association, an unrelated accepted pair, or local-only integration leaves delivery unverified and the captured branch inspectable.
+
+`dashboard/backend-tests/review/ad-hoc-manual-landing.spec.ts` drives a real manual conflict resolution, local-only and alternate-target rejection, a plain push and later trunk advances, and exact comparison and file reads after retirement. The verified single-commit fast-forward uses the witnessed trunk parent, while the unwitnessed range and matching-content squash preserve the branch and explain the gap. The precedence proof covers unrelated accepted work, early native binding and the installed publisher's exact prepared receipt. The backend, browser gap and dashboard typecheck gates passed. See `slice-8-implementation.md` in the Git evidence directory.
+
+The independent pass consolidated exact delivery pin installation and rollback. The real Git rollback probe, eight focused backend specs, dashboard typecheck, and whitespace checks passed. See `slice-8-refactor.md` in the Git evidence directory.
 
 ### 9. Discover a verified manual delivery after Done
 

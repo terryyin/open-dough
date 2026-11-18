@@ -208,7 +208,9 @@ test("a branch merged into trunk still retains its own Done comparison", async (
   await markAdHocDone(dashboard, session);
   retireAdHocBranch(origin.project, workspace, branch);
 
-  expect(await adHocReview(request, dashboard, session)).toMatchObject({
+  expect(
+    await adHocReview(request, dashboard, session, "branch-result"),
+  ).toMatchObject({
     kind: "branch-result",
     files: [{ path: "session-only.txt" }],
   });
