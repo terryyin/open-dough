@@ -1,7 +1,5 @@
-// Test-side reader for the documented comparison contract
-// (dashboard/AGENT-EFFORT-OUTPUT.md#comparison-contract): how two groups
-// compare. Types describe the public output independently of production
-// types.
+// Test-side reader for the public comparison output: how two groups compare.
+// These types are the output contract, independent of production types.
 import { effortCli, succeeded } from "./agentEffortSelection.ts";
 import {
   readableFact,

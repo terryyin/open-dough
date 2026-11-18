@@ -1,6 +1,5 @@
-// Test-side reader for the documented single-report contract
-// (dashboard/AGENT-EFFORT-OUTPUT.md#single-report-contract): what one execution
-// cost. Types describe the public output independently of production types.
+// Test-side reader for the public single-report output: what one execution
+// cost. These types are the output contract, independent of production types.
 import { cursorCli, effortCli, succeeded } from "./agentEffortSelection.ts";
 import type { ReportedSelection } from "./agentEffortSelection.ts";
 
