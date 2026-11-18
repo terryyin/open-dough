@@ -41,6 +41,13 @@ Prepare one invocation-scoped version of the [recording rule](../../../Distribut
 - **Replay result.** Exploratory, on one model with 18 isolated reviewers. Both arms made the same decision in all nine packets: the six seed incidents and practices recorded, the quiet control unchanged, the matched control given one row under DD-246. Writer effort: current arm 474,280 tokens, 43 tool calls and 429.5 s; candidate arm 470,635 tokens, 41 tool calls and 452.2 s. Neither difference exceeds run-to-run noise. Six packets carry neutral notes rebuilt from the original entries’ evidence lines, and the wrong-mount packet had no execution identity, so neither arm could write a countable row.
 - **Replay limit.** The candidate admitted the break checks under a use the reviewer named, which bears on the ODF-147 response. A routine entry was therefore not avoided. The ordinary-work assessment weighs this as its G1.
 
+## Execution complete
+
+Product advice:
+
+- Keep the ordinary-work assessment ([SEED-401#assess-new-retrospective-findings-pilot](../709-assess-new-retrospective-findings-pilot/PLAN.md)) queued behind this landing. The exploratory replay is no evidence of a saving: both arms decided alike on all nine packets at equal writer effort, and the candidate still admitted the later-pruned break checks (G1). The assessment should expect equivalence and settle cost and missed-incident risk from ordinary work. Before this checkout retires, carry the replay outputs that its G1 and effort baseline rely on (packet 04 in both arms and the per-arm effort table) into plan 709, because the checkout-bound evidence directory goes with the worktree.
+- Plans 704 (Taken, SEED-402) and 706-pilot-repeat still head their slices `## Ordered slices and outside-in proof`, which the obligations reader refuses (ODF-368). Their executions will stop at the first listing until the heading reads `## Ordered slices`.
+
 ## Current decisions and gates
 
 - The first-report decision belongs with the existing recording rule. The [bounded log](../../../Distribution/src/skills/dough-execution-retrospective/references/bounded-process-log.md) ranks material only when a supported write would exceed the ceiling or the log is already oversized. Project and shared triage act after the write. Reusing those downstream checks alone cannot save writing the original entry. Keep the project obligations and repeat decisions fixed in both arms.
