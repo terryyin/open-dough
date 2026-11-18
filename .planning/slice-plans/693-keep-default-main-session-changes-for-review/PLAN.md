@@ -260,7 +260,7 @@ is at 244 lines.
 
 ### 5. Mark a capture from a shared checkout
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in `ad-hoc-session-commits.spec.ts`. Scratch break: ignore
 records still open; the open-session case fails.
 
@@ -268,6 +268,18 @@ Behavior: two default launches open in one checkout both commit; either is
 marked done → its answer holds the commits made while it was open and is
 marked shared, whether the other is done or still open. A session in an
 isolated workspace, or one done before this one launched, does not mark it.
+
+Delivered: at Done the capture records `shared`
+(`checkoutSharedMeanwhile`, `server/sessionCheckoutShared.ts`): another kept
+session of the project names the same resolved checkout by its
+`defaultStart` or recorded workspace, launched by this session's Done, and
+is open or was done no earlier than this session's launch. The answer
+carries `session.shared: true`, absent otherwise. Scratch break: records
+still open ignored failed the open-session assertion (`s5-scratch-break`,
+exit 1); restored, `s5-refactor-backend` exit 0. Learnings for later slices:
+the panel reads `review.session.shared` (slice 6); the builder step
+`keptSessionCommits` takes no `shared` yet; `keepLaunchRecords` replaces the
+whole store, so stored records are kept before any launch.
 
 ### 6. Show session commits in the review panel
 Type: Behavior
@@ -359,3 +371,8 @@ Disposition: no user cost "with other people's and other sessions' trunk work le
 Reported: slice 3 — "The `run` refusals (400 malformed, 404 past the end) are implemented but have no test. Run labels are read from the saved repository at answer time. If any run's objects are gone, the whole answer fails rather than answering unavailable; not observed."
 Story clause: "otherwise the Comparison switch lists the runs, oldest first, and the review opens on the first."
 Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": the panel asks only for positions the answer listed (`commitRuns`), so a refusal is reached only by a hand-written request; every run's two commits are pinned at capture (`pinPair` in `server/sessionCommitsCapture.ts`) and stay until the record is released, so a kept run's objects leave the saved repository only with the record itself.
+
+### G10. Another session with no known checkout does not mark a capture shared
+Reported: slice 5 — "Records with no known checkout do not mark a capture: Claude default launches kept before slice 1, and records whose workspace no longer exists on disk. Records dropped by store retention before this session's Done cannot mark it."
+Story clause: "When another session was open in the same checkout during that time, the context also says the comparison may include that session's work."
+Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": the story covers future sessions, and every session launched after slice 1 keeps its checkout (`defaultStart`, or its established or continuation workspace, read by `checkoutSharedMeanwhile` in `server/sessionCheckoutShared.ts`); a record leaves the store only 30 days after its own Done or by deletion, and a workspace missing from disk is not the Default main checkout a capture reads.

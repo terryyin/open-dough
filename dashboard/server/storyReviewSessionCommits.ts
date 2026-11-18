@@ -21,6 +21,8 @@ export interface KeptSessionRun {
   readonly position: number;
   readonly launchedAt: string;
   readonly doneAt: string;
+  // Whether another session was open in the same checkout meanwhile.
+  readonly shared: boolean;
 }
 
 // The kept runs a done session's review offers, oldest first: none while the
@@ -56,7 +58,8 @@ export function keptSessionRun(
     throw new RefusedRequest(404, "This session kept no run at that position.");
   }
   const { repository } = sessionCommits;
-  return { repository, ...run, runs, position, launchedAt, doneAt };
+  const shared = sessionCommits.shared === true;
+  return { repository, ...run, runs, position, launchedAt, doneAt, shared };
 }
 
 // The kept pair of `record` a file read names by its two commits, with where
@@ -96,7 +99,7 @@ async function runChoice(
 }
 
 export async function sessionCommitsReview(
-  { launchedAt, doneAt, runs, position, ...pair }: KeptSessionRun,
+  { launchedAt, doneAt, shared, runs, position, ...pair }: KeptSessionRun,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const read = await retainedPairFiles(pair, signal);
@@ -112,7 +115,7 @@ export async function sessionCommitsReview(
     };
   return {
     kind: "session-commits",
-    session: { launchedAt, doneAt },
+    session: { launchedAt, doneAt, ...(shared && { shared }) },
     commitRuns: await Promise.all(
       runs.map((run) => runChoice(pair.repository, run, signal)),
     ),

@@ -33,6 +33,10 @@ export function defaultMainStart(
     : undefined;
 }
 
+// The checkout a folder path names, resolved. Throws when it is gone.
+export const resolvedCheckout = (workspace: string) =>
+  realpathSync(path.resolve(workspace));
+
 const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
   `refs/open-dough/session-commits/${session.host}/${session.sessionId}/`;
 
@@ -123,7 +127,7 @@ export async function captureSessionCommits(
   record: Pick<LaunchRecord, "launchedAt" | "session">,
   start: { readonly workspace: string },
 ): Promise<SessionCommits> {
-  const checkout = realpathSync(path.resolve(start.workspace));
+  const checkout = resolvedCheckout(start.workspace);
   // The log keeps whole seconds; an entry in the launch's own second is not
   // the session's.
   const since = Date.parse(record.launchedAt) / 1000;

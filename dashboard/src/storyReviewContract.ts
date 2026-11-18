@@ -124,6 +124,9 @@ export const storyReviewSchema = z
       session: z.object({
         launchedAt: z.iso.datetime(),
         doneAt: z.iso.datetime(),
+        // Another session was open in the same checkout meanwhile, so the
+        // comparison may include that session's work.
+        shared: z.literal(true).optional(),
       }),
       commitRuns: z.array(sessionRunChoiceSchema).min(1),
       commitRun: z.number().int().nonnegative(),

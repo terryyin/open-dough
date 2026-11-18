@@ -4,7 +4,8 @@
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
-import { changeSessionRecord } from "./launchRecordStore.ts";
+import { changeSessionRecord, keptRecords } from "./launchRecordStore.ts";
+import { checkoutSharedMeanwhile } from "./sessionCheckoutShared.ts";
 import {
   captureSessionCommits,
   defaultMainStart,
@@ -14,16 +15,24 @@ import {
 // capture: when a set Done time is written, or, for a reported Done, whose
 // time its report wrote, when its native continuation starts. A failed read
 // keeps Done and leaves no capture; a Done cleared or changed meanwhile keeps
-// what it has.
+// what it has. The capture says whether another kept session of the project
+// was open in the same checkout meanwhile.
 export async function keptWithSessionCommits(
   sourceId: string,
   marked: LaunchRecord,
 ): Promise<LaunchRecord> {
   const start = defaultMainStart(marked);
   if (start === undefined) return marked;
-  const captured = await captureSessionCommits(marked, start).catch(
-    () => undefined,
-  );
+  const captured = await captureSessionCommits(marked, start)
+    .then(async (read) => ({
+      ...read,
+      shared: checkoutSharedMeanwhile(
+        marked,
+        start,
+        await keptRecords(sourceId),
+      ),
+    }))
+    .catch(() => undefined);
   return (
     (await changeSessionRecord(sourceId, marked.session, (record) => {
       if (record.doneAt !== marked.doneAt) return record;
