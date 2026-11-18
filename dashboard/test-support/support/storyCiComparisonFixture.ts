@@ -3,8 +3,7 @@
 // commits before a claim, and the done Story Branch publisher. SEED-236
 // lives in ./storyCiComparisonEarlierLanding.ts; Taken shapes in
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
-// ./storyCiComparisonEntryProofs.ts; history readers in
-// ./storyCiComparisonHistory.ts, the declared pre-claim baseline in
+// ./storyCiComparisonEntryProofs.ts; the declared pre-claim baseline in
 // ./storyCiComparisonBaseline.ts and workflow files in
 // ./storyCiComparisonWorkflows.ts, re-exported here; the GitHub requests a
 // comparison read asked in ./storyCiComparisonRequests.ts.
@@ -30,7 +29,6 @@ import type { ActionsAnswerer, CommittedOrigin } from "../committedOrigin.ts";
 import { comparisonWorkflowPath } from "./storyCiComparisonWorkflows.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
-export { claimOf } from "./storyCiComparisonHistory.ts";
 export {
   laterWithoutBuildBeforeClaim,
   precedeClaimWithPlanning,

@@ -41,7 +41,10 @@ export async function publishCodeLandedBeforeCompletion(
         StoryCiComparisonSetup,
         "landingMerge" | "trunkSide" | "branchAncestor"
       >
-    >
+    > & {
+      // The trunk advance after completion, parent of the later trunk build.
+      readonly advanced: string;
+    }
 > {
   const baseline = await precedeClaimWithPlanning(origin);
   writeAt(origin.project, "shared.txt", lines("line"));
@@ -102,7 +105,7 @@ export async function publishCodeLandedBeforeCompletion(
   git(origin.project, "worktree", "remove", "--force", workspace);
   git(origin.project, "branch", "--delete", "--force", branch);
 
-  advanceCompletedTrunk(origin);
+  const advanced = advanceCompletedTrunk(origin);
   // A later trunk build that must not stand in for Branch or Landed.
   writeAt(origin.project, "later-ci.txt", "later built trunk\n");
   const laterTrunk = commitAll(
@@ -150,6 +153,7 @@ export async function publishCodeLandedBeforeCompletion(
     baseline,
     branchSide,
     branchAncestor,
+    advanced,
     laterWithoutBuild: 1,
     agent,
     branch,

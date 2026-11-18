@@ -76,7 +76,7 @@ export async function completedPublishedStory(
     push(origin.project);
   }
   const claimant = "Yui";
-  const claim = agentIdentity(claimant);
+  const claimantIdentity = agentIdentity(claimant);
   const start = await origin.publishTake({
     agent: claimant,
     story: storyA,
@@ -85,7 +85,7 @@ export async function completedPublishedStory(
       ? { mode, slug: "completed-a" }
       : { mode: "story-branch" as const }),
   });
-  const { workspace, branch } = start;
+  const { workspace, branch, agent, claim } = start;
   writeCompletedStoryImplementation(workspace);
   change?.(workspace);
   if (ownConflict) moveAgentsFolder(workspace);
@@ -135,7 +135,7 @@ export async function completedPublishedStory(
     if (variant === "takeover" || variant === "returned-takeover") {
       const name = "Akiho";
       const next = agentIdentity(name);
-      rmSync(path.join(workspace, ".planning", claim.path));
+      rmSync(path.join(workspace, ".planning", claimantIdentity.path));
       writeAt(
         workspace,
         `.planning/${next.path}`,
@@ -207,7 +207,7 @@ export async function completedPublishedStory(
     retainWorkspace: options?.retainWorkspace,
     skillsDirectory: options?.skillsDirectory,
   });
-  return { completion, branchSide, agent: start.agent, workspace, branch };
+  return { completion, branchSide, agent, claim, workspace, branch };
 }
 
 export function advanceCompletedTrunk(origin: StartOrigin) {

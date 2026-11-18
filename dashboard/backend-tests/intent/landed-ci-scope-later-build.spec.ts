@@ -19,7 +19,6 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { publishCodeLandedBeforeCompletion } from "../../test-support/support/storyCiComparisonEarlierLanding.ts";
 import {
   laterTrunkRevisions,
@@ -57,18 +56,20 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
   const recorded = [
     {
       revision: landing,
+      base: setup.trunkSide,
       receipt: "30000000-0000-4000-8000-000000000001",
       at: "2026-11-05T14:00:00.000Z",
     },
     {
       revision: unrelated,
+      base: setup.advanced,
       receipt: "30000000-0000-4000-8000-000000000002",
       at: "2026-11-05T15:00:00.000Z",
     },
   ];
   keepMoreLaunchRecords(
     dashboard,
-    recorded.map(({ revision, receipt, at }) =>
+    recorded.map(({ revision, base, receipt, at }) =>
       makeMe.aLaunchRecord
         .executing({ identity: setup.identity, title: "Story A" })
         .inClaudeSession({ sessionId: receipt })
@@ -84,7 +85,7 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
             .forLaunch(receipt)
             .deliveredAs({ delivery: receipt, receipt })
             .comparing({
-              base: git(origin.project, "rev-parse", `${revision}^`),
+              base,
               revision,
             })
             .receivedAt(at)

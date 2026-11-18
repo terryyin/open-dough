@@ -39,7 +39,7 @@ test("partial selected timing beside a zero prior average and missing terminal i
   const setup = await serveSummaryComparisonStory(
     page,
     origin,
-    declaredSummaryComparisonEndpointsIn(origin.project),
+    declaredSummaryComparisonEndpointsIn(origin),
   );
   const partial = makeMe.aCiProof
     .forRun({ revision: setup.completion, runId: 103 })

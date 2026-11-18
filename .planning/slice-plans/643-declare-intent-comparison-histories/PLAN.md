@@ -268,7 +268,7 @@ subjects; `intent-story-becomes-done.spec.ts:61` still calls `claimOf`.
 
 ### 6. Read timing-history provenance from named revisions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Scope-history/provenance and final readability rows above.
 
 Behavior: Given named represented landings and selected builds, ordered measured
@@ -279,6 +279,16 @@ keep independent Git/order observations, collection, corruption, recovery and
 cleanup actions visible. Finish this story's indirect candidate audit and guide
 examples, preserving deferred siblings' ownership. One timing-history reading
 loop; 15 active minutes, commands excluded.
+
+Delivered: kept-checkout Summary endpoints read the start origin's named
+revisions; `completedPublishedStory` and the skipped landing answer `claim`, so
+`claimOf` is gone; backend landed-ci-scope bases are named first parents
+(`claim`, `trunkSide`, `advanced`, `origin.revision`, `trunk.parent`); the
+test-data architecture guide names the Intent comparison results. Accepted
+proof: 9 E2E files (11), 45 backend files (99), returned landed-ci-scope files
+(4) and their E2E consumers (7), full lint; represented-landing fault failed
+4 consumer cases, restored passed. G1 records the pre-existing kept-checkout
+baseline/branch-side blind spot.
 
 ## Verification and execution gates
 
@@ -318,3 +328,10 @@ and repair handoff. Execution retains its required final CI ownership.
 - No blocking dependency, pre-Take human decision, trunk-only operation or
   execution authorization. Preserve earlier slices' proof while later consumers
   migrate; no CI-breaking interim state is accepted.
+
+## Story obligations
+
+### G1. Kept-checkout baseline and branch side are not independently checked
+Reported: slice 6 — "pointing baseline or branchSide at the wrong revision did not make any test fail; those tests build both the served runs and the expected values from the same setup value; that blind spot existed before this slice."
+Story clause: "preserve deferred preparation, prepared-prefix/worker reuse, private mutable copies and independent assertions"
+Disposition: no user cost "A developer reads the repository facts explaining Intent's compared revisions, selected source and build provenance directly, without reconstructing routine Git setup.": the kept-checkout consumers (projectScopeHistoryFixture, intent-ci-done-prior-states, intent-scope-prior-build-states) derived those expectations from the same setup values before this story through a commit-subject search; their assertions are unchanged, the represented landing still discriminates (s6-fault-d), and the named revisions now come from the start origin's declared map. Strengthening those assertions is new proof scope, not a loss.

@@ -36,6 +36,7 @@ import {
 export type SkippedLandingSetup = StoryCiComparisonSetup & {
   readonly landingMerge: string;
   readonly trunkSide: string;
+  readonly claim: string;
   readonly olderBaseline: string;
 };
 
@@ -56,7 +57,7 @@ export async function publishUnbuiltStoryLanding(
 
   const claimant = "Yui";
   const identity = agentIdentity(claimant);
-  const { agent, workspace, branch } = await origin.publishTake({
+  const { agent, workspace, branch, claim } = await origin.publishTake({
     agent: claimant,
     story: storyA,
     queued: [storyB],
@@ -114,6 +115,7 @@ export async function publishUnbuiltStoryLanding(
     completion,
     landingMerge,
     trunkSide,
+    claim,
     olderBaseline,
     baseline: olderBaseline,
     branchSide,
