@@ -7,6 +7,7 @@ import {
   adHocReview,
   adHocSessionFileDiff,
   adHocSessionFileText,
+  keptAdHocRecord,
 } from "../../test-support/support/adHocReview.ts";
 import { quote } from "../../test-support/support/completionRecovery.ts";
 import {
@@ -143,4 +144,59 @@ test("a held later Done cannot inherit the previous no-commit finding", async ({
   await expect
     .poll(() => adHocReview(request, dashboard, sessionId))
     .toMatchObject({ kind: "session-commits", tree: committed });
+});
+
+test("a held Done keeps commits through that Done when a later commit arrives before the log", async ({
+  checkoutLog,
+  dashboard,
+  origin,
+  request,
+}) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
+  const { sessionId } = session;
+  const checkout = origin.project;
+  const baseline = git(checkout, "rev-parse", "HEAD");
+  const first = await work.commit("2099-01-02T12:00:00Z", "first.txt");
+  dashboard.claudeSessionBecomes(sessionId, "working-idle");
+  await session.report({ message: "" });
+  await expect
+    .poll(() => adHocReview(request, dashboard, sessionId))
+    .toMatchObject({ kind: "session-commits", baseline, tree: first });
+
+  const second = await work.commit("2099-01-02T12:05:00Z", "second.txt");
+  checkoutLog.hold();
+  let secondDone: string | undefined;
+  let third: string | undefined;
+  try {
+    await session.report({ message: "" });
+    await expect.poll(checkoutLog.isHeld).toBe(true);
+    secondDone = (await keptAdHocRecord(dashboard, sessionId))?.doneAt;
+    expect(secondDone).toEqual(expect.any(String));
+    third = await work.commit("2099-01-02T12:10:00Z", "after-done.txt");
+  } finally {
+    checkoutLog.release();
+  }
+  await expect
+    .poll(() => adHocReview(request, dashboard, sessionId))
+    .toMatchObject({
+      kind: "session-commits",
+      session: { doneAt: secondDone },
+      baseline,
+      tree: second,
+    });
+  const laterFile = { baseline, tree: second, path: "after-done.txt" };
+  for (const read of [adHocSessionFileDiff, adHocSessionFileText])
+    expect(
+      (await read(request, dashboard, sessionId, laterFile)).status(),
+    ).toBe(409);
+
+  await session.report({ message: "" });
+  await expect
+    .poll(() => adHocReview(request, dashboard, sessionId))
+    .toMatchObject({
+      kind: "session-commits",
+      baseline,
+      tree: third,
+    });
 });

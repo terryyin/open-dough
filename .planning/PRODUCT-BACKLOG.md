@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Bound a session's kept commits to its Done](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done) — SEED-379#bound-capture-to-done ([plan](slice-plans/703-bound-session-capture-to-done/PLAN.md))
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable ([plan](slice-plans/704-stable-client-finding-records/PLAN.md))
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review ([plan](slice-plans/705-keep-own-branch-session-results-for-review/PLAN.md))
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories ([plan](slice-plans/643-declare-intent-comparison-histories/PLAN.md))

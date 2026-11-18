@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-379_bound-capture-to-done.json",
+      "identity": "SEED-379#bound-capture-to-done",
+      "completedAt": "2026-11-18T15:14:59.624Z",
+      "blob": "c1ed7922a2a86afecc153e20dbcba488eaa412d0"
+    },
+    {
       "fileName": "SEED-404_run-dashboard-frontend-checks-at-doughnut-speed.json",
       "identity": "SEED-404#run-dashboard-frontend-checks-at-doughnut-speed",
       "completedAt": "2026-11-18T14:45:54.658Z",
