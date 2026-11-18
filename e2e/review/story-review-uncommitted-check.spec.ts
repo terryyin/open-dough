@@ -30,7 +30,6 @@ import {
   fileDiff,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
-import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
@@ -44,16 +43,15 @@ import {
   unchangedWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+import { withLocalState } from "../../Distribution/tests/support/repository-local-state.mjs";
 
 test.describe("from Story A's declared history", () => {
-  test.use({ originRepository: storyARepository });
-
   // Story A's worktree with its committed story file edited again, uncommitted.
-  function storyWorktreeEditedAgain(origin: StartOrigin) {
-    const { workspace } = storyWorktree(origin);
-    writeFileSync(path.join(workspace, "story.txt"), "story\nmore\n");
-    return { workspace };
-  }
+  test.use({
+    originRepository: withLocalState(storyARepository, {
+      unstaged: { "story.txt": "story\nmore\n" },
+    }),
+  });
 
   // The snapshot and range requests the page has made so far.
   function reviewRequests(page: Page) {
@@ -71,7 +69,7 @@ test.describe("from Story A's declared history", () => {
     dashboard,
     origin,
   }) => {
-    const { workspace } = storyWorktreeEditedAgain(origin);
+    const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
     await openStoryReview(page, card);
@@ -122,7 +120,7 @@ test.describe("from Story A's declared history", () => {
     dashboard,
     origin,
   }) => {
-    const { workspace } = storyWorktreeEditedAgain(origin);
+    const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
     await openStoryReview(page, card);

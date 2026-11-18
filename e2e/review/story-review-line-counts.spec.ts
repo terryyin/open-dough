@@ -6,8 +6,10 @@
 // image or the mode-only change, shows none, and a collapsed folder still
 // tells how many changed files it holds.
 
+import { withLocalState } from "../../Distribution/tests/support/repository-local-state.mjs";
 import {
   expect,
+  storyARepository,
   test,
 } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import {
@@ -18,11 +20,15 @@ import {
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { openReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
-import {
-  changeModeOnly,
-  storyWorktree,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+
+// The merged trunk file's mode changes alone against the baseline.
+test.use({
+  originRepository: withLocalState(storyARepository, {
+    modes: { "other.txt": 0o755 },
+  }),
+});
 
 test("each file's row shows the lines its diff adds and removes, in words to assistive technology", async ({
   page,
@@ -30,7 +36,6 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  changeModeOnly(workspace);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReview(page, card);

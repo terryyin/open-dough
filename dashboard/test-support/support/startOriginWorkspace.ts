@@ -10,7 +10,10 @@ import {
   configureIdentity,
   declaredParents,
 } from "../../../Distribution/tests/support/repository-revision-commit.mjs";
-import type { RepositoryWorkspace } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import {
+  type WorkspaceWithLocalState,
+  writeLocalState,
+} from "../../../Distribution/tests/support/repository-local-state.mjs";
 import {
   dashboardDeveloper,
   type StartRepository,
@@ -36,10 +39,11 @@ export async function leaveTrunkUnfetched(
 }
 
 // The workspace's branch from its named trunk revision, checked out at
-// `.worktrees/<slug>`, with its revisions committed there and never pushed.
+// `.worktrees/<slug>`, with its revisions committed there and never pushed,
+// then its declared local state written over them.
 export async function materializeStartWorkspace(
   project: string,
-  { branch, from, checkoutIdentity, revisions }: RepositoryWorkspace,
+  { branch, from, checkoutIdentity, revisions, local }: WorkspaceWithLocalState,
   commits: Map<string, string>,
 ) {
   const worktree = path.join(project, ".worktrees", path.basename(branch));
@@ -65,4 +69,5 @@ export async function materializeStartWorkspace(
         declaredParents(revision, commits),
       ),
     );
+  writeLocalState(worktree, local);
 }

@@ -2,12 +2,14 @@
 // worktree renaming, adding, deleting and redrawing files, another
 // developer's trunk revision merged into it, and a later trunk revision the
 // checkout has not fetched. Revision `merged` is the review's baseline.
-// `test` starts every origin from it.
+// Its worktree's uncommitted state is declared too. `test` starts every
+// origin from it.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 import { test as base } from "./preparationPage.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
-import { branch, lines } from "./storyReviewWorktree.ts";
+import { branch, lines, wideLine } from "./storyReviewWorktree.ts";
 
 // PNG bytes whose last byte tells one drawing from another.
 const image = (last: number) =>
@@ -18,7 +20,7 @@ const anotherDeveloper = {
   email: "another@example.test",
 };
 
-export const storyARepository: StartRepository = queuedReadyRepository()
+const storyAHistory = queuedReadyRepository()
   .withRevision("trunk files", {
     files: {
       "old.txt": lines("old"),
@@ -58,6 +60,17 @@ export const storyARepository: StartRepository = queuedReadyRepository()
     files: { "other.txt": "other story\n" },
   })
   .please();
+
+// Uncommitted: one file staged, one edited with the wide line, a nested
+// untracked file and a file ignored through info/exclude.
+export const storyARepository: StartRepository = withLocalState(storyAHistory, {
+  staged: { "staged.txt": `${lines("staged")}more\n` },
+  unstaged: {
+    "unstaged.txt": `${lines("unstaged").replace("unstaged 5\n", "unstaged five\n")}${wideLine}\n`,
+  },
+  untracked: { "fresh/new.txt": "untracked\n" },
+  ignored: { "ignored.log": "ignored\n" },
+});
 
 export { expect } from "./preparationPage.ts";
 export const test = base.extend({

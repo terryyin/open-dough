@@ -3,7 +3,7 @@
 // diffs; cases remain in ../review/story-review*.spec.ts.
 
 import { execFileSync } from "node:child_process";
-import { chmodSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
@@ -41,29 +41,15 @@ export function addStoryWorktree(project: string) {
   return workspace;
 }
 
-// Story A's worktree as the review should find it, from an origin started
-// with ./storyAReviewRepository.ts, and the trunk commit the story merged,
-// which is the review's baseline. Its uncommitted edits are written here.
+// Story A's worktree as the review finds it, from an origin started with
+// ./storyAReviewRepository.ts, and the trunk commit the story merged, which
+// is the review's baseline.
 export function storyWorktree(origin: StartOrigin) {
-  const workspace = storyWorkspace(origin.project);
-  const merged = origin.revision("merged");
-  const later = origin.revision("later");
-  writeFileSync(path.join(workspace, "staged.txt"), `${lines("staged")}more\n`);
-  git(workspace, "add", "staged.txt");
-  writeFileSync(
-    path.join(workspace, "unstaged.txt"),
-    `${lines("unstaged").replace("unstaged 5\n", "unstaged five\n")}${wideLine}\n`,
-  );
-  mkdirSync(path.join(workspace, "fresh"));
-  writeFileSync(path.join(workspace, "fresh", "new.txt"), "untracked\n");
-  const exclude = path.join(
-    git(workspace, "rev-parse", "--git-common-dir"),
-    "info",
-    "exclude",
-  );
-  writeFileSync(exclude, "ignored.log\n", { flag: "a" });
-  writeFileSync(path.join(workspace, "ignored.log"), "ignored\n");
-  return { workspace, merged, later };
+  return {
+    workspace: storyWorkspace(origin.project),
+    merged: origin.revision("merged"),
+    later: origin.revision("later"),
+  };
 }
 
 // Admission: one story commit, a merged baseline and an edit, with trunk later unfetched.
@@ -92,11 +78,6 @@ export function admissionWorktree(origin: StartOrigin) {
   );
   git(origin.origin, "update-ref", "refs/heads/main", later, merged);
   return { workspace, merged };
-}
-
-// A merged trunk file changes mode alone against the baseline.
-export function changeModeOnly(workspace: string) {
-  chmodSync(path.join(workspace, "other.txt"), 0o755);
 }
 
 // Story A's worktree straight off trunk, with nothing the story changed.

@@ -112,7 +112,7 @@ materializer.
 ### G1. Story A's uncommitted edits still written imperatively
 Reported: slice 1 — "It still writes the uncommitted edits imperatively (the interim until slice 2)."
 Story clause: "file modes and the uncommitted index and file state through the shared MakeMe repository description and existing start-origin owners"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: storyAReviewRepository.ts declares the local state via withLocalState; materializeStartWorkspace writes it; storyWorktree writes nothing (s2-e2e, s2-i evidence)
 
 ## Ordered slices
 
@@ -143,7 +143,7 @@ Slice 4's guide update notes `fetched: false` is honored only by start origins.
 
 ### 2. Read uncommitted review state from declared workspace facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Local-state and uncommitted-check rows.
 
 Behavior: Given declared staged, unstaged (with the wide line), untracked
@@ -152,6 +152,13 @@ review, uncommitted check and line counts keep their results; the
 edited-again story file is a declared starting edit. Edits, stages, reverts
 and commits after opening stay written in the scenario. One local-state loop;
 15 active minutes, commands excluded.
+
+Accepted: `repository-local-state.mjs` holds `withLocalState`/`writeLocalState`;
+both start origins and `buildRepository` write a workspace's `local` after its
+revisions. `repository-local-state.test.mjs` checks literal porcelain, cached
+names and mode change. D2 repeated (rule dropped, file kept as untracked):
+the two predicted cases failed. 11b moves to slice 3 (`nestedWorktree`).
+Focused Playwright proof runs through `npx playwright test --config …`.
 
 ### 3. Read nested, large and context worktrees from declared revisions
 Type: Behavior

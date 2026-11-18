@@ -7,6 +7,7 @@ import {
   exec,
   git,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { writeLocalState } from "./repository-local-state.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import {
   commitDeclaredRevision,
@@ -19,6 +20,7 @@ import {
 /** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
 /** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
 /** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
+/** @typedef {import("./repository-local-state.mjs").WorkspaceWithLocalState} WorkspaceWithLocalState */
 
 /**
  * Where a history's repositories live: its bare origin, if it publishes to
@@ -195,8 +197,9 @@ export async function buildRepository(
     };
 
   // The workspace is a worktree of the integration checkout. Its revisions
-  // are committed there and never pushed. The builder has checked that it
-  // starts from a trunk revision and that every revision name is new.
+  // are committed there and never pushed, then its declared local state is
+  // written over them. The builder has checked that it starts from a trunk
+  // revision and that every revision name is new.
   const start = /** @type {string} */ (commits.get(workspace.from));
   await git(integration, "branch", workspace.branch, start);
   await git(integration, "worktree", "add", execution, workspace.branch);
@@ -215,5 +218,9 @@ export async function buildRepository(
     await tagRevision(execution, revision);
     commits.set(revision.name, candidateSha);
   }
+  writeLocalState(
+    execution,
+    /** @type {WorkspaceWithLocalState} */ (workspace).local,
+  );
   return { revisions: Object.fromEntries(commits), trunkSha, candidateSha };
 }
