@@ -23,48 +23,6 @@ import { scrollByTouch } from "../tests/touchGestures.ts";
 
 test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 
-test("completed native swipes traverse one whole column and stop at both ends", async ({
-  page,
-}) => {
-  await openFrontendTakenBacklog(page);
-  const board = boardView(page);
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("right");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
-  await board.swipe("right");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
-  await board.swipe("right");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-});
-
-test("short and cancelled gestures leave the view alone, and the next swipe works", async ({
-  page,
-}) => {
-  await openFrontendTakenBacklog(page);
-  const board = boardView(page);
-  await board.swipe("left", { distance: 24 });
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("left", { cancel: true });
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
-});
-
 test("swiping from a card or action does not select, inspect or launch it; taps still work", async ({
   page,
 }) => {

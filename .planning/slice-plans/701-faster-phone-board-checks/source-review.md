@@ -27,17 +27,17 @@ The baseline is the current seven-case selection at **22.07 s elapsed with two w
 | P17 | Each retained case appears once in the frontend CI summary in an ordinary run. Example 4. | slice 7 | |
 | P18 | Each moved case, including the failing case, appears once as an identifiable case in the frontend CI summary when a moved assertion fails. Goal and example 4. | slice 7 | |
 | P19 | Each retained case appears once in the frontend CI summary when a moved assertion fails. Example 4. | slice 7 | |
-| P20 | A completed swipe from a column with an available neighbor moves exactly one column. Examples 1–2. Includes the 390 × 844 Backlog-to-Taken swipe. | slice 5 | |
+| P20 | A completed swipe from a column with an available neighbor moves exactly one column. Examples 1–2. Includes the 390 × 844 Backlog-to-Taken swipe. | slice 5 | observed: board-swipe.mounted.spec.ts verifies each completed Backlog → Taken → Recently done and reverse whole-column step and its named controls, using actual board boxes. Slice5-completed.json and the restored pair passed. |
 | P21 | One of the two indicators measures at most 16 px wide. Example 1. The 390 × 844 Backlog-to-Taken journey. | slice 4 | observed: The Backlog-to-Taken width case measured the first rendered control at 12 px and passed its 16 px limit in slice4-final-pair.log. |
 | P22 | The other indicator measures at most 16 px wide. Example 1. The same journey. | slice 4 | observed: The same case measured the other rendered control at 12 px and checks each width against 16 px in board-indicators.mounted.spec.ts. |
 | P23 | The view gains more than 44 px of width. Example 1. The same journey, measured against the former layout. | slice 4 | observed: The mounted case compares the 366 px rendered view to 390 - 2 × 44 = 302 px, a 64 px gain. Slice4-final-pair.log recorded the passing width case. |
 | P24 | The story card gains more than 44 px of width. Example 1. The same journey, measured against the former layout. | slice 4 | observed: The mounted case compares the 366 px rendered story card to the former 302 px view, a 64 px gain. Slice4-final-pair.log recorded the passing assertion. |
 | P25 | A native tap on an indicator reaches the column it names. Example 1. | slice 4 | observed: The first title in board-indicators.mounted.spec.ts verifies Recently done and Backlog after the two native taps, through the frame hit-target and named column checks. The isolated title and the paired run passed. |
 | P26 | Keyboard activation transfers focus to the surviving indicator. Example 1. | slice 4 | observed: The second title in board-indicators.mounted.spec.ts checks Taken focus, then Recently done focus after Enter, then Taken focus on returning. Slice4-focus-title.log and slice4-final-pair.log passed. |
-| P27 | A short swipe leaves the current column unchanged. Example 2. | slice 5 | |
-| P28 | A cancelled swipe leaves the current column unchanged. Example 2. | slice 5 | |
-| P29 | A completed outward swipe at the first column stops there. Example 2. | slice 5 | |
-| P30 | A completed outward swipe at the last column stops there. Example 2. | slice 5 | |
+| P27 | A short swipe leaves the current column unchanged. Example 2. | slice 5 | observed: The second mounted swipe case sends a 24 px native stroke, then checks that the whole Backlog and its Taken control are still visible. Slice5-interrupted.json passed. |
+| P28 | A cancelled swipe leaves the current column unchanged. Example 2. | slice 5 | observed: The second mounted swipe case sends native cancel, verifies Backlog still visible, then checks Taken after the following completed left stroke. Slice5-interrupted.json and the restored pair passed. |
+| P29 | A completed outward swipe at the first column stops there. Example 2. | slice 5 | observed: The completed-travel case checks the whole Backlog before and after the completed rightward stroke at the first endpoint. Slice5-completed.json passed. |
+| P30 | A completed outward swipe at the last column stops there. Example 2. | slice 5 | observed: The completed-travel case reaches Recently done, sends a completed outward left stroke, and checks it still fills the view with the Taken control. Slice5-completed.json passed. |
 | P31 | A swipe starting on a card leaves selection untouched. Example 2. | slice 6 | |
 | P32 | A swipe starting on a card leaves inspection untouched. Example 2. | slice 6 | |
 | P33 | A swipe starting on a card leaves launch untouched. Example 2. | slice 6 | |

@@ -108,9 +108,10 @@ export const phoneBoardCommands = {
   phoneBoardSwipe: (
     { page }: BrowserCommandContext,
     direction: "left" | "right",
+    options?: { distance?: number; cancel?: boolean },
   ) =>
     boardView(mountedPage(page))
-      .swipe(direction)
+      .swipe(direction, options)
       .then(() => undefined),
   phoneBoardTapIndicator: (
     { page }: BrowserCommandContext,

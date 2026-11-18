@@ -78,11 +78,13 @@ Given a phone board with the original published stories and service answers, run
 ### 5. Check completed, short and cancelled swipes on the mounted board
 
 Type: Behavior
-Status: planned
+Status: done
 
 A completed finger stroke pages exactly one whole column and clamps at either end. A short or cancelled stroke leaves the visible column alone, and the following completed swipe works. Move the two existing travel/cancellation cases with their full action sequences.
 
 **Proof.** Run both named cases through the frontend command. Keep the observed whole-column geometry, named controls and boundary destinations after each step. Confirm an incomplete stroke cannot satisfy the completed-stroke expectation. During a partial-file move, keep each original title discoverable and executable exactly once.
+
+**Observed.** The saved swipe filename listed and ran each of the five original titles once, with two mounted and three retained. The two mounted titles each passed alone, including both end stops, the 24 px short stroke, native cancellation and the following completed stroke. Replacing the first completed left stroke with native cancel kept Backlog visible and failed the original Taken named-control assertion. Exact restoration passed both mounted cases. The two mounted indicators still passed their default swipes. Dashboard typecheck passed. The Git evidence directory retains `slice5-return.md` with the discovery, execution and negative-control records.
 
 ### 6. Preserve story interaction while paging and rotating
 
