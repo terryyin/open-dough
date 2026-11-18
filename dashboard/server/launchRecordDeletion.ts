@@ -1,5 +1,7 @@
 // Deletion records launch-local intent even before native launch settlement.
-import { releaseRecordPins } from "./launchRecordPins.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
+import { removeLandingPins } from "./launchLandingGit.ts";
+import { recordLanding, releaseSessionCommitRefs } from "./launchRecordPins.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import {
@@ -54,7 +56,7 @@ export async function deleteRecord(
         ?.repository;
     const landing =
       reference === undefined || repository === undefined
-        ? undefined
+        ? recordLanding(record)
         : { repository, reference };
     const retainedCleanup = record?.landingReporting !== undefined;
     if (retainedCleanup) {
@@ -78,24 +80,31 @@ export async function deleteRecord(
             : entry,
         ),
       }));
-      await releaseRecordPins(record, landing);
+      if (landing !== undefined)
+        await removeLandingPins(landing.repository, landing.reference);
     }
-    let deleted = false;
+    let deleted: LaunchRecord | undefined;
     await replaceRecords((kept) => {
       const records = kept[sourceId];
       if (records === undefined) {
         return kept;
       }
-      const remaining = records.filter(
-        (record) =>
+      const remaining = records.filter((record) => {
+        if (
           !("session" in record) ||
-          sessionKey(record.session) !== sessionKey(session),
-      );
-      deleted = remaining.length < records.length;
+          sessionKey(record.session) !== sessionKey(session)
+        )
+          return true;
+        deleted = record;
+        return false;
+      });
       return { ...kept, [sourceId]: remaining };
     });
+    // Any capture that won the record lock first has settled in `deleted`.
+    if (deleted !== undefined) await releaseSessionCommitRefs(deleted);
     // Older records recover their repository through the retained attempt.
-    if (!retainedCleanup) await releaseRecordPins(record, landing);
-    return deleted;
+    if (!retainedCleanup && landing !== undefined)
+      await removeLandingPins(landing.repository, landing.reference);
+    return deleted !== undefined;
   });
 }

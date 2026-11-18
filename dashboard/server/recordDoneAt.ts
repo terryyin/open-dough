@@ -10,6 +10,10 @@ import {
 } from "../src/sessionCommits.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
+import {
+  keepSessionCommitRefs,
+  releaseSessionCommitRefs,
+} from "./launchRecordPins.ts";
 import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { acquireWriteLock, releaseWriteLock } from "./machineJsonLock.ts";
@@ -17,7 +21,6 @@ import { leaveMachineJson } from "./machineJsonStore.ts";
 import { checkoutSharedMeanwhile } from "./sessionCheckoutShared.ts";
 import {
   defaultMainStart,
-  keepSessionCommitRefs,
   readSessionCommits,
 } from "./sessionCommitsCapture.ts";
 
@@ -115,6 +118,16 @@ async function keepCurrentCapture(
       captured === undefined
         ? { ...next, sessionCommitsFailedAt: doneAt }
         : { ...next, sessionCommits: captured };
+    const previousRepository = record.sessionCommits?.repository;
+    const repository = read?.repository ?? previousRepository;
+    if (captured === undefined)
+      await releaseSessionCommitRefs(settled, repository);
+    if (previousRepository !== undefined && previousRepository !== repository)
+      await releaseSessionCommitRefs(
+        settled,
+        previousRepository,
+        captured?.repository,
+      );
     current = settled;
     return {
       ...kept,

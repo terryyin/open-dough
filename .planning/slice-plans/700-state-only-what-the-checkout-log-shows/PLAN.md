@@ -285,7 +285,7 @@ the commands, HTTP observations and dispositions in the Git evidence directory.
 
 ### 5. Release every reference a session's record kept
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in a sibling spec
 `backend-tests/review/kept-commits-release-after-done.spec.ts`. Scratch
 break: release only when the record holds `sessionCommits`; the failed
@@ -298,6 +298,17 @@ cannot be read → its earlier references are gone and the review says not
 captured; deleting that record leaves none under its prefix. Release works
 by the record's prefix in the repository its start names, whatever capture
 the record holds.
+
+Proof: gating release on a present capture left both earlier refs after
+the unreadable-log Done (exit 1). With cleanup restored and the existing
+legacy landing fallback preserved, 38 backend specs, nine E2E consumers
+and dashboard typecheck passed. The real Done test compares the full ref
+set, and the mixed-record tests cover preservation of neighboring refs.
+Exact commands and dispositions are in `slice-5-return.md` and
+`slice-5-consumer-trace.md` in the Git evidence directory.
+The real Git alias case failed before comparing canonical repository paths.
+The two release specs, reopened-Done spec and typecheck passed after that
+correction.
 
 ### 6. Put the review's own actions on the Story review page object
 Type: Structure
@@ -350,6 +361,11 @@ No product change.
 Reported: slice 1 — "The Done write keeps the earlier capture while the new read is pending. Review admission can put the later Done time beside the old comparison or its no-commit answer. The two dashboard processes that share the store can defer the new read when the same-session lock wait expires."
 Story clause: "the review holds the session's commits up to the Done it names"
 Disposition: proved by slice 4: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts observes both prior capture forms withheld while Git is held, historical file and text refusal, and the later comparison after release.
+
+### G2. Two directory names can identify one kept repository
+Reported: slice 5 — "Comparing saved common-directory path strings can delete the newly captured pair when the previous path still aliases the same Git repository."
+Story clause: "the review holds the session's commits up to the Done it names"
+Disposition: proved by slice 5: dashboard/backend-tests/review/kept-commits-release-after-done.spec.ts observes the newly kept pair after a real Git directory move leaves the previous path as an alias.
 
 ## Execution context
 

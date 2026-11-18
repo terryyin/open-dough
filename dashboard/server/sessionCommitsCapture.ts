@@ -11,8 +11,6 @@ import type {
   SessionCommits,
 } from "../src/sessionCommits.ts";
 import { defaultGitOutputLimit, gitExitedOne, runGit } from "./gitRunner.ts";
-import { pinPair, removePins } from "./launchLandingGit.ts";
-import { sessionCommitsRefPrefix } from "./launchRecordPins.ts";
 
 const git = async (cwd: string, args: readonly string[]) =>
   (
@@ -170,15 +168,4 @@ export async function readSessionCommits(
   ]);
   const runs = await runsOf(checkout, made);
   return { repository, runs, readAt: new Date().toISOString() };
-}
-
-// Hold the read's pairs in place of any pairs pinned for an earlier Done.
-export async function keepSessionCommitRefs(
-  session: LaunchRecord["session"],
-  { repository, runs }: SessionCommits,
-): Promise<void> {
-  const prefix = sessionCommitsRefPrefix(session);
-  await removePins(repository, prefix);
-  for (const [index, run] of runs.entries())
-    await pinPair(repository, `${prefix}${String(index)}/`, run);
 }
