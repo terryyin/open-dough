@@ -36,7 +36,7 @@ Observed on 18 November 2026 at preparation revision `3d3db9851`, read-only in t
 | A project paragraph reaches the retrospective reviewer on both hosts | Both projects keep always-on guidance in `AGENTS.md`, and each `CLAUDE.md` points Claude Code to it. Each has carried private process rules there, last changed in Pygardon `46e6443d2` and Doughnut `f9c03e11de`. This shows presence. Slice 3's scratch walk in each project is the observation of the paragraph changing what is recorded. |
 | The collector still counts a one-line entry as a distinct execution | Its [step 3](../../../.agents/skills/collect-client-feedback/SKILL.md#collect-reconcile-and-adopt) uses project plus execution identity, and its response-observation step uses the execution's release. Slice 2 checks the count on the candidate output. |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 ### 1. The comparison is fixed before any run
 

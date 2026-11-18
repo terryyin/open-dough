@@ -48,7 +48,7 @@ Doughnut and Pygardon developers write findings, and project and Open Dough main
 {"schemaVersion":1,"identity":"SEED-401#assess-new-retrospective-findings-pilot","dependencies":[{"supplier":{"identity":"SEED-401#pilot-new-retrospective-findings","href":"seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings"},"implementation":"The supplier freezes the first-report trial wording, its baseline and criteria after the historical replay, and lands them on trunk.","rationale":"The assessment's seven-day ordinary-work window and its exposure route start from the frozen wording on trunk. Starting earlier would expose unpinned wording or count executions from before the freeze, and shared direction cannot stand in for that landed wording.","condition":"SEED-401#pilot-new-retrospective-findings has landed its frozen trial wording on the authorized trunk.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1fa0138bffcea35648ab7536398f81836bc693fea6b3eefbf049fb743b106b76","plan":"7370710ca12b5fdd4e13bfe9d5c32dcb5aba01c2ec2375d509d17b2489e59fa9"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1fa0138bffcea35648ab7536398f81836bc693fea6b3eefbf049fb743b106b76","plan":"f2b2106f11d8f335188c34afddec4b692bf64d6620a04dcaa954d874d7f303f8"}}
 ```
 
 **Split from** SEED-401#pilot-new-retrospective-findings, which froze the trial wording after an exploratory historical replay.
