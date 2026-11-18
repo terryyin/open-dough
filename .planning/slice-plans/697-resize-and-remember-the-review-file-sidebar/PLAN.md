@@ -130,7 +130,7 @@ e2e spec and the typecheck passed. The leading side has no caller yet; slice
 
 ### 2. The Files divider resizes the file sidebar and the width is kept
 Type: Behavior
-Status: planned
+Status: done
 Proof: rows two to six and the Intent row above; new focused specs under
 `dashboard/frontend-tests/review/` for the Drag, Reload, Keyboard, Bounds,
 Hidden sidebar and No choice yet examples, plus
@@ -146,6 +146,28 @@ the sidebar and gives or takes the same width from the diff, stopping at
 sidebar's in every review opened afterwards, also after a reload → **Hide
 files** removes the divider and **Show files** returns both at that width → a
 browser with no choice shows 16rem.
+
+Accepted proof (2026-11-18, on 28b3cac with the change uncommitted, load
+about 25 to 44): `reviewFileSidebarWidth.ts` and `StoryReviewWorkarea.tsx`
+with `story-review-workarea.css`; new specs
+`story-review-files-divider.spec.ts` and `-kept.spec.ts` with the page object
+`dashboard/tests/filesDividerPage.ts`; the review, intent and side-panel width
+frontend folders, the panes, tree and touch e2e specs and the typecheck
+passed. The fourth premise row was wrong as measured: the sidebar's 16rem was
+its content width, so it showed 282px. The sidebar's width now includes its
+padding and border, so it shows the 16rem (256px) the divider says, 26px
+narrower than before, as in the mockup. `e2e/intent/intent-story-completed.spec.ts:55`,
+reached by the consumer trace, timed out once at load about 44 in the Board's
+`showColumn("Recently done")` after its review assertions passed, and passed
+alone at load 36; the change does not touch Board column paging, so delivery
+rests on that targeted rerun and hosted CI's verdict, and a CI failure there
+is this execution's to repair. The refactor pass moved room measurement into
+`measuredRoom.ts` and the choice's clamp into `sharedRoom.ts`'s
+`useChoiceWithin`, used by the Side panel, the Sessions sidebar and the
+review; on that state the two new specs, the side-panel width, Sessions
+sidebar divider, review and intent frontend folders, the review panes, tree
+and touch, Sessions sidebar resize and `intent-story-completed` e2e specs and
+the typecheck passed at load about 12 to 25.
 
 ### 3. The room's limit leaves the preferred width alone
 Type: Behavior

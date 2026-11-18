@@ -1,6 +1,7 @@
 // A boundary between two areas that resizes the one it belongs to: the side
-// Panel divider (`./PanelDivider.tsx`) and the dividers above optional Sessions
-// sidebar sections (`./SessionsSidebar.tsx`). It is a
+// Panel divider (`./PanelDivider.tsx`), the dividers above optional Sessions
+// sidebar sections (`./SessionsSidebar.tsx`) and a review's Files divider
+// (`./StoryReviewWorkarea.tsx`). It is a
 // focusable separator that says its area's current size and bounds. The area
 // lies on one side of the divider along its axis: trailing (right of a
 // vertical divider, below a horizontal one; the default) or leading (left of
