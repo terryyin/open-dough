@@ -6,8 +6,9 @@
 ## Provenance and findings
 
 Retrospective correction of
-[Resize and remember the Review changes file sidebar](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar)
-(plan [697](../697-resize-and-remember-the-review-file-sidebar/PLAN.md), claim
+Resize and remember the Review changes file sidebar (`88a7f2348:.planning/seeds/SEED-384-keep-review-changes-focused-on-the-diff.md`, section
+`resize-and-remember-the-review-file-sidebar`)
+(plan `88a7f2348:.planning/slice-plans/697-resize-and-remember-the-review-file-sidebar/PLAN.md`, claim
 `c4c7b2472`, commits `28b3cac77`, `67bfd6bd8`, `a275db203`). Findings verified
 at `a275db203`:
 
@@ -55,7 +56,7 @@ horizontal Sessions sidebar grip, already written once in
 
 Preserved promises and constraints: all of the source story's Scope and Key
 examples, observed as
-[source-review.md](../697-resize-and-remember-the-review-file-sidebar/source-review.md)
+`88a7f2348:.planning/slice-plans/697-resize-and-remember-the-review-file-sidebar/source-review.md`
 P1–P21 records; Intent's locations column keeps its width; the 12rem and 18rem
 minimums; the 16rem border-box default (an accepted decision of plan 697);
 files stacked above the diff below a 34.75rem review body with at most two
@@ -141,7 +142,7 @@ P1–P21 observation kept.
   in `dashboard/tests/filesDividerPage.ts` that reads the bound and drags to
   it within the window, then asserts the sidebar is at that bound.
 - Spec header comments name the shared specs their removed cases rely on.
-- While [plan 697's source-review.md](../697-resize-and-remember-the-review-file-sidebar/source-review.md)
+- While plan 697's source review (`88a7f2348:.planning/slice-plans/697-resize-and-remember-the-review-file-sidebar/source-review.md`)
   still exists, its P13 and P14 rows name the surviving observations.
 
 ## Verification and delivery

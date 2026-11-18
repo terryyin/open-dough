@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-384_resize-and-remember-the-review-file-sidebar.json",
+      "identity": "SEED-384#resize-and-remember-the-review-file-sidebar",
+      "completedAt": "2026-11-18T08:20:24.252Z",
+      "blob": "b269325fd331ce9dbe53ea74fe19dc00802e563b"
+    },
+    {
       "fileName": "SEED-334_move-story-reference-checks.json",
       "identity": "SEED-334#move-story-reference-checks",
       "completedAt": "2026-11-18T06:35:15.275Z",

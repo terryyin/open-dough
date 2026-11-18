@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maria-chan",
-  "email": "maria-chan@example.org",
-  "identity": "SEED-384#resize-and-remember-the-review-file-sidebar",
-  "mode": "story-branch",
-  "branch": "claude/resize-and-remember-the-review-changes-file-side",
-  "host": "claude"
-}
