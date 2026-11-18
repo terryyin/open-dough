@@ -1,8 +1,5 @@
 // Retained intent and incomparable later attempts remain honest after restart.
-import {
-  expect,
-  queuedClaudeBoundaryTest as test,
-} from "../../tests/support/landedCiHistoryTest.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import {
   followUpCards,

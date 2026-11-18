@@ -46,6 +46,11 @@ the strict local gate at the end of this plan. Scratch changes were reverted.
 | Group registration has an independent witness. | The three existing nested budget cases passed. In normal group runs, Integrated's `navigation/story-destination-repeat-cue.spec.ts` and E2E's `intent/intent-ci-comparison-retry.spec.ts` requested both queued keys. Withholding **each key in turn** from each actual global setup failed the selected case naming the missing key (four failures). Restored runs passed 1/1 and 2/2. These existing runs detect missing registrations without starting another group or building another eager story-columns history for that purpose. |
 | The development notification journey lacks a demand assertion. | `test:e2e -- sessions/session-alerts-navigation.spec.ts --grep 'dev on its own ephemeral port' --workers=1` passed with zero app/bundle requests, and also passed with an injected preview dependency that requested both. A disposable nested Backend run shared the actual dev fixture, fetched `/@vite/client`, and checked its owner's request trace. It passed clean, failed with both unexpected keys, and passed after restoration. |
 
+**Owed CI repair:** Distribution Tests share 2/3 exceeds its 320 s cutoff on
+slow runners (run 44214090643, also main 44201614131). Per Terry's decision,
+after slice 7 and before landing, cut that share's cost through a bounded
+test-optimization repair; see [the diagnosis](diagnosis-distribution-tests-2of3-deadline.md).
+
 ## Ordered slices
 
 ### 1. Kept and ordinary histories share a worker
@@ -113,7 +118,7 @@ sessions and stories readers passed 10/10; typecheck covers the rest.
 ### 4. Landed-CI boundary starts prepare their own bundle
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Make `landedCiHistoryTest.ts`'s custom `startServer` fixture take
 `dashboardBoundaryReady` once. The inherited origin already takes both
 queued bases. Remove `queuedClaudeBoundaryTest` at its ten consumer sites,
@@ -123,6 +128,12 @@ common `dashboard` directly. In a fresh former opt-in case, observe the
 bundle completed before custom server setup and zero app requests. Run
 the landed-CI consumers, including the late-start teardown and kept-history
 cases. Keep bundle preparation attached to the consumer of the bundle.
+Accepted proof: `startServer` takes `dashboardBoundaryReady`;
+`queuedClaudeBoundaryTest` and `queuedClaudeBoundaryReady` are gone. The
+Backend `runtime/test-preparation-boundary.spec.ts` custom-start case runs
+`custom-boundary.proof.ts`: no app request, bundle completed before
+`startServer`; dropping the readiness from `startServer` failed it. All 99
+`intent/landed-ci-*` and runtime cases and 5 comparison cases passed.
 
 ### 5. Codex startup and resume read complete environment records
 

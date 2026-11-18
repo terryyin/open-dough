@@ -18,10 +18,10 @@ import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts
 import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import {
   expect,
-  queuedClaudeBoundaryTest,
+  test as base,
 } from "../../tests/support/landedCiHistoryTest.ts";
 
-const test = queuedClaudeBoundaryTest.extend(startingFromKeptStory);
+const test = base.extend(startingFromKeptStory);
 test.use({ serverMode: "boundary" });
 
 test("a kept accepted request asks for no rerun, reads its repeat in progress, then a possible slowdown at 106 seconds beside the 105 second original and 100 second average, and keeps the original in history", async ({

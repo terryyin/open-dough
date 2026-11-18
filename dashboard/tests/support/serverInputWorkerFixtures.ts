@@ -21,7 +21,6 @@ export type ServerInputWorkerFixtures = {
   queuedOriginsReady: undefined;
   queuedCodexOriginReady: undefined;
   queuedClaudePreviewReady: undefined;
-  queuedClaudeBoundaryReady: undefined;
   queuedCodexPreviewReady: undefined;
 };
 
@@ -86,11 +85,6 @@ export const serverInputWorkerFixtures: Fixtures<
   // Each host's preview needs its queued origin and the same immutable app inputs.
   queuedClaudePreviewReady: [
     prepared(["claude"], "preview"),
-    coldInputPreparation,
-  ],
-  // Boundary servers on the queued Claude origin open no app.
-  queuedClaudeBoundaryReady: [
-    prepared(["claude"], "boundary"),
     coldInputPreparation,
   ],
   queuedCodexPreviewReady: [

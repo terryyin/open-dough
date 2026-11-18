@@ -1,8 +1,5 @@
 // Admission failures retain one spent request without later attribution.
-import {
-  expect,
-  queuedClaudeBoundaryTest as test,
-} from "../../tests/support/landedCiHistoryTest.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
 import {
   ingest,

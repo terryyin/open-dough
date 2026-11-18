@@ -3,10 +3,7 @@
 // intent and accepted reply, and the resulting card. Kept eligible receipts
 // start in ./landed-ci-repeat-eligible-receipt.spec.ts; saved accepted
 // requests start in ./landed-ci-repeat-verdict.spec.ts.
-import {
-  expect,
-  queuedClaudeBoundaryTest as test,
-} from "../../tests/support/landedCiHistoryTest.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { keepRecordedPriorsMeasured } from "../../tests/support/ciFollowUpKeptPriors.ts";
 import {
   aWholePass,

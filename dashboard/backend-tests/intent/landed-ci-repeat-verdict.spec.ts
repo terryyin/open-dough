@@ -2,10 +2,7 @@
 // requests, without a receipt journey. Raw conclusion fields are exact
 // provider input under test, not supplied outcomes.
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
-import {
-  expect,
-  queuedClaudeBoundaryTest as test,
-} from "../../tests/support/landedCiHistoryTest.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
   rerunRuns,
   saveRepeatRequests,

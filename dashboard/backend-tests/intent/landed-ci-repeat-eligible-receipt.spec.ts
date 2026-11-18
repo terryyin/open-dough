@@ -11,12 +11,9 @@ import {
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
 import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
 import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
-import {
-  expect,
-  queuedClaudeBoundaryTest,
-} from "../../tests/support/landedCiHistoryTest.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 
-const keptStoryTest = queuedClaudeBoundaryTest.extend(startingFromKeptStory);
+const keptStoryTest = test.extend(startingFromKeptStory);
 keptStoryTest.use({ serverMode: "boundary" });
 
 // A landing the machine keeps with its unspent eligible receipt: Story A,
