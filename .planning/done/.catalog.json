@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-300_chain-board-paging-side-panel-page-objects.json",
+      "identity": "SEED-300#chain-board-paging-side-panel-page-objects",
+      "completedAt": "2026-11-18T03:54:34.242Z",
+      "blob": "ebb05a0d9bf384d78d8f5c317cfbb81f843e46f1"
+    },
+    {
       "fileName": "SEED-382_run-the-integrated-group-as-one-ci-job.json",
       "identity": "SEED-382#run-the-integrated-group-as-one-ci-job",
       "completedAt": "2026-11-18T03:13:50.106Z",

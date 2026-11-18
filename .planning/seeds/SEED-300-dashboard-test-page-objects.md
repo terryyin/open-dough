@@ -390,28 +390,3 @@ execution prerequisite on another story.
   [reachability](../../dashboard/frontend-tests/control-reachability-observation.spec.ts#L99),
   [touch reading](../../dashboard/frontend-tests/touch-reading-observation.spec.ts#L37),
   [runtime browser turn](../../dashboard/backend-tests/runtime/observation-measurements.spec.ts#L43).
-
-<a id="chain-board-paging-side-panel-page-objects"></a>
-
-### Chain the Board paging beside the Side panel journey through fluent page objects
-
-**Identity:** SEED-300#chain-board-paging-side-panel-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
-```
-
-**Goal:** A developer reads the Board paging beside the Side panel journeys as a chain of
-user actions: opening the Board returns the object the scenario uses next, each
-hand-off returns the object reached, and multi-click actions such as starting a
-story's execution are one call, so the spec imports one entry instead of a
-page object per part.
-
-**Scope:** Terry's note on the landed `SEED-334#keep-navigation-conversion-proof-whole`
-asks for this refactor in
-[board-paging-side-panel.spec.ts](../../dashboard/frontend-tests/navigation/board-paging-side-panel.spec.ts#L118)
-and similar changes in that landed commit, and for a slight extension of the
-shared page-object preference toward returning the reached object. Keep the
-column view, paging-control names and counts, slide count, Board width, card
-share, session count and Recently done count as visible caller facts; keep the
-start's held machine attempt, change notice and answered reads explicit in the
-scenario. Other dashboard specs keep their current form.
