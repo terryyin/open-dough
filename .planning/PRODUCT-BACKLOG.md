@@ -32,10 +32,11 @@ intent introduced or affected by a newly developed story.
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable ([plan](slice-plans/704-stable-client-finding-records/PLAN.md))
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review ([plan](slice-plans/705-keep-own-branch-session-results-for-review/PLAN.md))
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories ([plan](slice-plans/643-declare-intent-comparison-histories/PLAN.md))
-- [Pilot which new retrospective findings to record](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings ([plan](slice-plans/706-pilot-new-retrospective-findings/PLAN.md))
+- [Freeze the first-report trial wording against historical findings](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings ([plan](slice-plans/706-pilot-new-retrospective-findings/PLAN.md))
 
 ## Backlog list
 
+- [Assess the first-report trial in ordinary Doughnut and Pygardon work](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot
 - [Run the remaining Dashboard Frontend Test checks at Doughnut's speed](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings
