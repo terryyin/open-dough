@@ -4,24 +4,24 @@ import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
 import {
   effortCli,
   listedTasks,
   succeeded,
-} from "../../tests/usage-history/agentEffortSelection.ts";
+} from "../../test-support/usage-history/agentEffortSelection.ts";
 import {
   costReport,
   costViews,
   readableFact,
-} from "../../tests/usage-history/agentEffortCost.ts";
+} from "../../test-support/usage-history/agentEffortCost.ts";
 import {
   nativeFile,
   writeClaudeSession,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("a selected launch reports coordinator and failed/cancelled workers once, excludes another task and leaves every input byte unchanged", ({
   home,

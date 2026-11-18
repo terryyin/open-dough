@@ -1,5 +1,5 @@
 // The run prepares the story-columns history before completion once
-// (../../tests/launchJourney.ts); each worker's copy owns its completion
+// (../../test-support/launchJourney.ts); each worker's copy owns its completion
 // and its mutable state (../../../Distribution/tests/support/repository-fixture.mjs).
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
@@ -15,9 +15,9 @@ import { materializeRepository } from "../../../Distribution/tests/support/repos
 import {
   storyColumnsPrefixArtifactKey,
   storyColumnsRepository,
-} from "../../tests/launchJourney.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { requestRunArtifact } from "../../tests/support/runArtifacts.ts";
+} from "../../test-support/launchJourney.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { requestRunArtifact } from "../../test-support/support/runArtifacts.ts";
 
 const exec = promisify(execFile);
 const git = async (cwd: string, ...args: string[]) =>

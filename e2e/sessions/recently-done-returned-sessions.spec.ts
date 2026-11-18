@@ -8,19 +8,19 @@
 // ../../dashboard/backend-tests/sessions/agent-completion-returned-closure.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { rem } from "../../dashboard/tests/boardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectMembership,
   parts,
   sessionEntryShowing,
   sessionStateOf,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { describedRevisions } from "../../dashboard/tests/describedRevisions.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
-import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   at,
   publishedFiles,
@@ -29,20 +29,20 @@ import {
   repository,
   revision,
   workspaceEntry,
-} from "../../dashboard/tests/recentlyDoneRecords.ts";
+} from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import {
   expectEntries,
   listed,
   queuedEntry,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { expectSessionsSidebarSessionEntryShown } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { expectSessionsSidebarSessionEntryShown } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 // Marking done and reopening act in the project's folder.
 test.use({ projectFolders: ["open-dough"] });

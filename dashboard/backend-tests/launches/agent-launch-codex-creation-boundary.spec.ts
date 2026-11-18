@@ -7,14 +7,17 @@
 import { chmodSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../tests/launchJourney.ts";
-import { launch, machineSessions } from "../../tests/agentLaunchBoundary.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/launchJourney.ts";
+import {
+  launch,
+  machineSessions,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
   .refining({

@@ -1,14 +1,14 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Named builds, source cues and overall observed metrics use the production UI.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiTimeWithoutRunnerWaits } from "../../src/storyCiComparison.ts";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expectCueState } from "../../test-support/support/expectCiComparisonCues.ts";
 import {
   expectAncestorSourceCue,
   sourceIdentityFacts,
   expectNoRunOrAttemptIds,
-} from "../../tests/support/expectCiComparisonSourceCue.ts";
+} from "../../test-support/support/expectCiComparisonSourceCue.ts";
 import "./mountedComparisonGapCases.ts";
 import "./mountedComparisonEndpointCases.ts";
 import "./mountedComparisonAdapterCases.ts";

@@ -1,7 +1,7 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session whose choices cannot be honored starts no
 // native session and silently runs nowhere else, with a real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`: a choice the
+// (../../test-support/support/startOrigin.ts) and the synthetic `claude`: a choice the
 // installation cannot establish, in default main or a new workspace, is
 // refused before anything is accepted, and a start that stops, cannot be
 // formatted answers in the session's own words, which name no story, Take,
@@ -17,17 +17,17 @@ import {
   continued,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { keptSessionStarts } from "../../tests/support/keptSessionStart.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { keptSessionStarts } from "../../test-support/support/keptSessionStart.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   isolatedSession,
   isolatedStart,
   recordStarts,
   worktrees,
-} from "../../tests/support/startSessionLanding.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startSessionLanding.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

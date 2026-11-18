@@ -1,5 +1,5 @@
 // Which launches an unattached landing is captured for, with a real bare
-// origin (../../tests/support/startOrigin.ts), the installed start and publication
+// origin (../../test-support/support/startOrigin.ts), the installed start and publication
 // scripts, and the synthetic hosts: a Wait for review session that
 // established a session carries the landing context, for a landing the
 // developer asks for later; a launch with the default choices establishes no
@@ -15,27 +15,27 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { commit } from "../../tests/support/launchLanding.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { commit } from "../../test-support/support/launchLanding.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   adHocRequest as request,
   keptRecord,
   launched,
   postLanding as post,
   type UnattachedPolicy as Policy,
-} from "../../tests/support/startSessionLandingCapture.ts";
+} from "../../test-support/support/startSessionLandingCapture.ts";
 import {
   deliver,
   land,
   landingHandoff,
   repositoryOf,
   withOlderLandingModule,
-} from "../../tests/support/startSessionLandingContext.ts";
-import { sessionBlock } from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLandingContext.ts";
+import { sessionBlock } from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

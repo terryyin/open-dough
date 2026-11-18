@@ -2,17 +2,17 @@
 // its hold file when the caller receives either kind of arrival.
 import { rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   buildGateChanges,
   holdBuildPath,
   holdCompletedBuildPath,
   waitForBuild,
   waitForCompletedBuild,
-} from "../../tests/support/productionBuildGate.ts";
-import { localPublishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { startProductionWatcher } from "../../tests/support/productionWatcher.ts";
+} from "../../test-support/support/productionBuildGate.ts";
+import { localPublishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { startProductionWatcher } from "../../test-support/support/productionWatcher.ts";
 
 for (const mode of ["starting", "completed"] as const) {
   test(`the native ${mode} gate accepts release immediately after arrival`, async () => {

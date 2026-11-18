@@ -1,8 +1,8 @@
 import {
   askToDeleteRecord,
   sessionAction,
-} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 // Delete record… on an entry that reads Session unavailable, on its active
 // card or in Recently done after its story completes
 // (./agent-launch-recent-delete.spec.ts covers State unknown and keyboard
@@ -13,7 +13,7 @@ import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionOf,
   parts,
@@ -21,17 +21,17 @@ import {
   sessionNamedBy,
   sessionStateOf,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -8,22 +8,22 @@
 // ../../dashboard/frontend-tests/launches/agent-launch-codex-catalog.spec.ts and
 // ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { test as journeyTest } from "../../dashboard/tests/support/codexLaunch.ts";
-import type { FakeCodex } from "../../dashboard/tests/support/fakeCodex.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { test as journeyTest } from "../../dashboard/test-support/support/codexLaunch.ts";
+import type { FakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 // The ad-hoc and vanished-model cases use codexLaunch.ts, which gives no
 // project folder; Start session needs the one an installed origin makes.

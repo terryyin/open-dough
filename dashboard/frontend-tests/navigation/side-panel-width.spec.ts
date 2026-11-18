@@ -5,16 +5,16 @@
 // reload's recovery is ./side-panel-width-kept.spec.ts; the narrow window's
 // covering is ./side-panel-width-covering.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { takenStoryWorkingSession } from "../../tests/support/frontendCardSessions.ts";
-import { expectFocusedAndIndicated } from "../../tests/accessibleReading.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { takenStoryWorkingSession } from "../../test-support/support/frontendCardSessions.ts";
+import { expectFocusedAndIndicated } from "../../test-support/accessibleReading.ts";
 import {
   pressTerminalKey,
   terminalScreenParts,
   typeLine,
-} from "../../tests/terminalScreenPage.ts";
-import { box, expectSideBySideInOrder } from "../../tests/pageLayout.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { box, expectSideBySideInOrder } from "../../test-support/pageLayout.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import {
   cancelDividerDrag,
   control,
@@ -30,12 +30,12 @@ import {
   split,
   usableMinimum,
   wideWindow,
-} from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sidePanelWidthPage.ts";
 import {
   closeSidePanel,
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/sidePanelFrame.ts";
 
 test("mouse and keyboard choose one bounded width for an attached terminal that fits it", async ({
   page,

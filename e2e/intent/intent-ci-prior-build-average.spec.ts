@@ -1,8 +1,8 @@
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+import { attemptLink } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   compactReadout,
   priorBuildReferenceReading,
-} from "../../dashboard/tests/priorBuildReferencePage.ts";
+} from "../../dashboard/test-support/priorBuildReferencePage.ts";
 // Settled retained producer observations and a collected selected attempt
 // traverse the normal authenticated history read, never a fixture average.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
@@ -15,27 +15,30 @@ import {
   historyOf,
   openProjectCiStatus,
   publishTrunk,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { proofOf } from "../../dashboard/tests/intentCiProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import { commonGitDir } from "../../dashboard/tests/support/launchLanding.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { proofOf } from "../../dashboard/test-support/intentCiProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import { commonGitDir } from "../../dashboard/test-support/support/launchLanding.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
   recheckingLandedCi,
   restartAsLandedCiReader,
   storyLandingRecord,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
 import {
   landedTrunk,
   passedFrom,
   publishCiWorkflow,
   trunkRun,
-} from "../../dashboard/tests/support/landedCiTrunk.ts";
-import { retainedProofs } from "../../dashboard/tests/support/scopeHistoryCollection.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/landedCiTrunk.ts";
+import { retainedProofs } from "../../dashboard/test-support/support/scopeHistoryCollection.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
 test.use({ extraEnv: recheckingLandedCi });
 const readers: DashboardServer[] = [];

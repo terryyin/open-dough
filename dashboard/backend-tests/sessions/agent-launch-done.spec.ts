@@ -9,13 +9,13 @@
 // is still stopped. What the listing changes about a stop is
 // ./agent-launch-done-stop.spec.ts. Which requests are refused before
 // `claude` runs is ./agent-launch-done-refusal.spec.ts. The machine
-// directory holds HOME and the synthetic `claude`'s (../../tests/fixtures/fake-claude)
+// directory holds HOME and the synthetic `claude`'s (../../test-support/fixtures/fake-claude)
 // state; the real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launch,
   launchRequest,
@@ -23,18 +23,18 @@ import {
   openDoughFolder,
   recordsOf,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
   launched,
   openTerminal,
   shows,
   type LaunchedSession,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const launchName = `Open Dough · Execution · ${title}`;
 const doneName = `done-${launchName}`;

@@ -3,18 +3,21 @@
 // A held WebSocket substitute keeps the terminal connecting, where Paste says
 // so instead of naming a recovery action.
 
-import { expect, test } from "../tests/support/frontendApp.ts";
-import { openFrontendTerminalByTouch } from "../tests/support/frontendTouchTerminal.ts";
-import { echoingApplication } from "../tests/support/terminalSubstituteApplication.ts";
-import { copyClipboardText } from "../tests/terminalPastePage.ts";
-import { terminalStatus } from "../tests/terminalScreenPage.ts";
-import { focusByTouch, tapTerminalKey } from "../tests/touchTerminalPage.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
+import { openFrontendTerminalByTouch } from "../test-support/support/frontendTouchTerminal.ts";
+import { echoingApplication } from "../test-support/support/terminalSubstituteApplication.ts";
+import { copyClipboardText } from "../test-support/terminalPastePage.ts";
+import { terminalStatus } from "../test-support/terminalScreenPage.ts";
+import {
+  focusByTouch,
+  tapTerminalKey,
+} from "../test-support/touchTerminalPage.ts";
 import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
 import {
   launchAttachmentLimitBytes,
   launchAttachmentTooLarge,
 } from "../src/launchAttachments.ts";
-import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
+import { phoneLaunchTouchViewport } from "../test-support/touchLaunchPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({

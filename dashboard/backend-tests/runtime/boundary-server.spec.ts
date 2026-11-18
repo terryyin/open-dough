@@ -5,17 +5,17 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   otherProjectEnvironment,
   projectConfigurationFile,
-} from "../../tests/support/projectConfiguration.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/projectConfiguration.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   liveRunner,
   runnerCommand,
-} from "../../tests/support/cursorRunnerJourney.ts";
+} from "../../test-support/support/cursorRunnerJourney.ts";
 
 test("a boundary-mode server is the Node entry alone, naming no Vite and serving no page", async () => {
   const server = await startDashboardServer({ mode: "boundary" });

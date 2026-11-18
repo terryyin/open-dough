@@ -6,16 +6,16 @@ import {
   expect,
   mountComparison,
   updateComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import {
   comparisonLabels,
   expectEvidenceLabels,
   expectLabelInFull,
   expectNoComparisonFraming,
   expectObservedNotAttributed,
-} from "../../tests/ciEvidenceLabelsPage.ts";
-import { expectComparisonScopeRows } from "../../tests/intentScopeProofPage.ts";
-import { entryComparisonRows } from "../../tests/support/summaryComparisonExpectedRows.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import { expectComparisonScopeRows } from "../../test-support/intentScopeProofPage.ts";
+import { entryComparisonRows } from "../../test-support/support/summaryComparisonExpectedRows.ts";
 
 test("selecting a queued story clears the previous Summary comparison and Baseline column", async ({
   page,

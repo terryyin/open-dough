@@ -10,7 +10,7 @@ import {
   runGit,
 } from "../../server/gitRunner.ts";
 import { storyCompletionEndpoints } from "../../server/storyCompletionEndpoints.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   historyFacts,
   historySource,

@@ -10,24 +10,27 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   expectSteadyPace,
   passTimeUntilChecked,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   branches,
   fromTrunk,
   trunk,
-} from "../../dashboard/tests/branchProgressRecords.ts";
+} from "../../dashboard/test-support/branchProgressRecords.ts";
 import {
   openedSettled,
   trunkMoved,
-} from "../../dashboard/tests/branchRefreshJourney.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import type { PublishedRevision } from "../../dashboard/tests/publishedFiles.ts";
+} from "../../dashboard/test-support/branchRefreshJourney.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import type { PublishedRevision } from "../../dashboard/test-support/publishedFiles.ts";
 
 // A name Git allows but the local read boundary does not use.
 const unusable = "story/café";

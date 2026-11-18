@@ -6,18 +6,22 @@
 import {
   startDashboardServer,
   sharedDashboardBuild,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 import {
   attempts,
   continued,
   launch,
   machineSessions,
-} from "../../tests/agentLaunchBoundary.ts";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
   .refining({

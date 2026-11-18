@@ -9,15 +9,15 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   ensureCursorRunner,
   stopCursorRunner,
 } from "../../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerDirectory } from "../../server/hosts/cursor/runnerPaths.ts";
 import { cursorRunnerChildEnvironment } from "../../server/hosts/cursor/runnerProcess.ts";
-import { runnersFor } from "../../tests/support/cursorRunnerJourney.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { runnersFor } from "../../test-support/support/cursorRunnerJourney.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 const runnerMain = path.join(
   repoRoot,

@@ -1,24 +1,24 @@
 // Representative acquisition from the real authenticated-read backend through
 // FakeGitHub into the browser. Detailed target/grammar/scroll state is Frontend.
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   candidateEntry,
   chooseOptimizationCandidates,
-} from "../../dashboard/tests/intentModePage.ts";
+} from "../../dashboard/test-support/intentModePage.ts";
 import {
   expectSourceTargetLine,
   fileSource,
   sourceFile,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
-import { contentReadsOf } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
+import { contentReadsOf } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   doughnutCaseFeaturePath,
   doughnutUniqueScenario,
   doughnutUniqueScenarioLine,
   publishDoughnutCasePosition,
-} from "../../dashboard/tests/intentCandidatesCasePositionFixtures.ts";
+} from "../../dashboard/test-support/intentCandidatesCasePositionFixtures.ts";
 
 test("opening a recorded Purpose case acquires its pinned source from GitHub exactly once", async ({
   page,

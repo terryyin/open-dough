@@ -9,32 +9,32 @@
 // reads wait their turn: ./authenticated-read-wait-in-turn.spec.ts; the turns
 // themselves: ./authenticated-read-turns.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import {
   answeringFirst,
   holdingAnswer,
-} from "../../tests/support/heldGitHubAnswer.ts";
+} from "../../test-support/support/heldGitHubAnswer.ts";
 import {
   onServerOfItsOwn,
   untilReported,
-} from "../../tests/support/directedWait.ts";
+} from "../../test-support/support/directedWait.ts";
 import {
   expectHeldBack,
   heldBackPattern,
   timedRead,
   type Timed,
-} from "../../tests/support/heldBackReads.ts";
+} from "../../test-support/support/heldBackReads.ts";
 import {
   noConnection,
   rateLimitedAnswer,
   type OriginAnswer,
-} from "../../tests/originAnswers.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/originAnswers.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
 import {
   asked,
   isSeed,
@@ -43,12 +43,12 @@ import {
   revision,
   seedPaths,
   seedRead,
-} from "../../tests/support/resumingReads.ts";
+} from "../../test-support/support/resumingReads.ts";
 import {
   askedSince,
   readAt,
   refusedMarker,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 // Serves the revision with its backlog read, then meets a wait on the last
 // seed read and lets it pass, as reported.

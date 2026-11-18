@@ -1,45 +1,45 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
   typeLine,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
   parts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { setPageVisibility } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
-} from "../../dashboard/tests/sessionsTogglePage.ts";
-import { box, expectFills } from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/sessionsTogglePage.ts";
+import { box, expectFills } from "../../dashboard/test-support/pageLayout.ts";
 import {
   closeSidePanel,
   control as frameControl,
   maximizeSidePanel,
   restoreSidePanel,
   sidePanelNamesOf,
-} from "../../dashboard/tests/sidePanelFrame.ts";
-import { expectCovering } from "../../dashboard/tests/sidePanelWidthPage.ts";
-import { expectFrameIconControl } from "../../dashboard/tests/frameIconControl.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
+import { expectCovering } from "../../dashboard/test-support/sidePanelWidthPage.ts";
+import { expectFrameIconControl } from "../../dashboard/test-support/frameIconControl.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

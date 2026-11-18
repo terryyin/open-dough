@@ -1,6 +1,5 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
 import {
   chmodSync,
   cpSync,
@@ -14,29 +13,26 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
-import { requestRunArtifact } from "../../tests/support/runArtifacts.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { requestRunArtifact } from "../../test-support/support/runArtifacts.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import {
   fixtureFiles as snapshot,
+  git,
   objectPack as pack,
-} from "../../tests/support/startOriginObservation.ts";
+  publishPrivateOriginFiles,
+} from "../../test-support/support/startOriginObservation.ts";
 import {
   createStartOriginPreparationDirectory,
   installedStartSkills,
   prepareStartOrigin,
   startOriginArtifactKey,
   startOriginPreparationVariable,
-} from "../../tests/support/startOriginPreparation.ts";
-
-const exec = promisify(execFile);
-const git = async (cwd: string, ...args: string[]) =>
-  (await exec("git", ["-C", cwd, ...args])).stdout.trim();
+} from "../../test-support/support/startOriginPreparation.ts";
 test("concurrent installed starts edit, publish and clean private repositories without changing peers or later instances", async () => {
   const origins: StartOrigin[] = [];
   try {
@@ -77,15 +73,7 @@ test("concurrent installed starts edit, publish and clean private repositories w
     }
     await Promise.all(
       origins.map(async (origin, index) => {
-        writeFileSync(
-          path.join(origin.machine, "home", "private"),
-          String(index),
-        );
-        writeFileSync(path.join(origin.project, "private"), String(index));
-        await git(origin.project, "checkout", "-b", "private");
-        await git(origin.project, "add", "private");
-        await git(origin.project, "commit", "-m", `private ${String(index)}`);
-        await git(origin.project, "push", "origin", "private");
+        await publishPrivateOriginFiles(origin, String(index));
         expect(await origin.originGit("show", "private:private")).toBe(
           String(index),
         );

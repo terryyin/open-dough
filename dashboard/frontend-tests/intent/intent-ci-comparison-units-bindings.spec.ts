@@ -1,29 +1,29 @@
-import { expectFileComparisonRows } from "../../tests/intentFileProofPage.ts";
+import { expectFileComparisonRows } from "../../test-support/intentFileProofPage.ts";
 import {
   expectNamedScopeRows,
   expectNamedScopeFigures,
-} from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/intentScopeProofPage.ts";
 // The actual mixed-unit tree → folder → file callbacks.
 import {
   test,
   expect,
   mountComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { childName } from "../../tests/intentScopeProofPage.ts";
+import { childName } from "../../test-support/intentScopeProofPage.ts";
 import {
   dashboardTests,
   entry,
   folder,
   aSpec,
-} from "../../tests/support/ciComparisonUnitsJourney.ts";
+} from "../../test-support/support/ciComparisonUnitsJourney.ts";
 import {
   expandIntentFolders,
   intentLocationName,
-} from "../../tests/intentPerspectivePage.ts";
-import { intentFile } from "../../tests/support/intentStoryPage.ts";
-import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonFixture.ts";
-import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { intentFile } from "../../test-support/support/intentStoryPage.ts";
+import { summaryComparisonChanges } from "../../test-support/support/intentSummaryStoryComparisonFixture.ts";
+import { expectCueState } from "../../test-support/support/expectCiComparisonCues.ts";
 
 test("mixed-unit tree and Summary callbacks keep both units through folder and file Proof", async ({
   page,

@@ -1,14 +1,14 @@
 // A Sessions sidebar Session entry is one line: title cut with an ellipsis and
 // elapsed launch age, against controlled machine answers and a paused page
 // clock. Tooltip holds state, project, workflow and launch time.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   doughnutSource,
   openDoughSource,
-} from "../../tests/support/frontendServiceState.ts";
-import { expectProjectChoice } from "../../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { box } from "../../tests/pageLayout.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { expectProjectChoice } from "../../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { box } from "../../test-support/pageLayout.ts";
 import {
   expectRowShows,
   expectSessionsSidebarSessionEntryShown,
@@ -16,7 +16,7 @@ import {
   sessionsSidebarDetailsOf,
   sessionsSidebarElapsedOf,
   sessionsSidebarParts,
-} from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const shortWork = { identity: "SEED-901#short", title: "A short title" };

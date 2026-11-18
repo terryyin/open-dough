@@ -5,19 +5,19 @@
 // repository's listing of branch heads, and its `main`, as the case sets
 // them, and records every invocation.
 
-import { test } from "../../tests/support/pageTest.ts";
+import { test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   asHeadsListing,
   commitAnswer,
   headsEtag,
   type OriginAnswer,
-} from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 export const revisionA = "a1".repeat(20);
 export const revisionB = "b2".repeat(20);

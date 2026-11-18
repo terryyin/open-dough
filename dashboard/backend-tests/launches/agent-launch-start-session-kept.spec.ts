@@ -1,7 +1,7 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // What an unattached Start session keeps of its start, and when, over raw
-// HTTP with a real bare origin (../../tests/support/startOrigin.ts) and the installed
-// start recorded and held as the case needs (../../tests/support/keptSessionStart.ts):
+// HTTP with a real bare origin (../../test-support/support/startOrigin.ts) and the installed
+// start recorded and held as the case needs (../../test-support/support/keptSessionStart.ts):
 // a start refused before any workspace existed keeps nothing, so a later
 // Start selects its workspace afresh; a Default main start that outlasts its
 // wait is kept as an isolated one is and continues without a second start,
@@ -19,15 +19,15 @@ import {
   continued,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
 import {
   holdStarts,
   keptSessionStarts,
   keptWords,
-} from "../../tests/support/keptSessionStart.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+} from "../../test-support/support/keptSessionStart.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   defaultMainSession,
   defaultMainStart,
@@ -38,7 +38,7 @@ import {
   sessionBlock,
   worktree,
   worktrees,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

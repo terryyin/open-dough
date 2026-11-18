@@ -1,9 +1,12 @@
 // A joined current-screen replay is restored at its held dimensions before
 // xterm fits it to the panel. This uses the actual browser consumer and PTY.
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   closeTerminal,
   expectTerminalText,
@@ -11,17 +14,17 @@ import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   heldOnWorkspaceTrust,
   instructedCursorRequest,
   keptCursor,
-} from "../../dashboard/tests/support/keptCursorTurn.ts";
+} from "../../dashboard/test-support/support/keptCursorTurn.ts";
 import { terminalReplaySchema } from "../../dashboard/src/agentTerminal.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 
 // The launch wait ends once the runner holds the client on the trust prompt.
 test.use({ cursorScreen: "trust-unframed", launchWaitEnd: true });

@@ -1,9 +1,9 @@
 import {
   closeSidePanel,
   sidePanelNamesOf,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // A confirmed ad hoc launch with nothing typed opens its session in the page's
-// terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../../dashboard/tests/launchJourney.ts):
+// terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../../dashboard/test-support/launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, the project
 // actions row stays quiet (no success log), the session's entry and Sessions
@@ -11,25 +11,25 @@ import {
 // only and returns the keyboard to Start session. The synthetic `claude`
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalControl,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   parts,
   sessionNamedBy,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { scrollYOf, wheelTo } from "../../dashboard/tests/boardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openWhileStarting } from "../../dashboard/tests/support/adHocTerminalStartup.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { scrollYOf, wheelTo } from "../../dashboard/test-support/boardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openWhileStarting } from "../../dashboard/test-support/support/adHocTerminalStartup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

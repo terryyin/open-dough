@@ -3,19 +3,19 @@ import {
   scopeHistory,
   scopeHistoryReading,
   scopeHistoryChart,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Cheap Project Intent refusal/absence and configured-trunk variants. The
 // integrated journey owns real collection; these routes exercise only the UI.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { parts } from "../tests/dashboardPage.ts";
-import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
+import { parts } from "../test-support/dashboardPage.ts";
+import { openSummary } from "../test-support/intentSummaryCiProofFixtures.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../tests/pageRequestNotes.ts";
-import { expect, test } from "../tests/support/frontendApp.ts";
-import { frontendRevision } from "../tests/support/frontendServiceState.ts";
+} from "../test-support/pageRequestNotes.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
+import { frontendRevision } from "../test-support/support/frontendServiceState.ts";
 
 test("configured trunk keeps its observed endpoint through failed and empty local reads while scope Proof stays usable", async ({
   page,

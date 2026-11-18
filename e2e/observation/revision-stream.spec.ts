@@ -5,69 +5,59 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   checksAskedWhilePassing,
   passTimeUntilAsked,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   callsSince,
   isRevisionStream,
   matchingRefsSince,
   openSecondStreamingAtA,
   openStreamingAtA,
+  queuedSlotRequests,
   recordsAt,
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
   setPageVisibility,
-} from "../../dashboard/tests/revisionStreamJourney.ts";
+} from "../../dashboard/test-support/revisionStreamJourney.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
-import { revisionStreamSlotLockNames } from "../../dashboard/src/revisionStreamSlot.ts";
 import {
   backlogB,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   sliceBar,
   sliceProgress,
-} from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   onBranch,
   opened,
   planPath,
   revision,
-} from "../../dashboard/tests/branchProgressRecords.ts";
+} from "../../dashboard/test-support/branchProgressRecords.ts";
 import {
   branchPlanPublication,
   openedSettled,
   sevenDoneOnBranch,
-} from "../../dashboard/tests/branchRefreshJourney.ts";
+} from "../../dashboard/test-support/branchRefreshJourney.ts";
 
 test.use({
   preholdRevisionStreamSlots: false,
   extraEnv: streamServerEnv,
 });
-
-// Slot requests the browser has queued, across this origin's pages.
-function queuedSlotRequests(page: Page): Promise<number> {
-  return page.evaluate(async (names) => {
-    const { pending = [] } = await navigator.locks.query();
-    return pending.filter(
-      ({ name }) => name !== undefined && names.includes(name),
-    ).length;
-  }, revisionStreamSlotLockNames());
-}
 
 test("a streaming page sends no since request over a quiet minute", async ({
   page,

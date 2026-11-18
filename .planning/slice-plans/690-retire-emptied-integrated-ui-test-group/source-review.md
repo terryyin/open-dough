@@ -125,14 +125,14 @@ source conditions.
 | 75 | `CHANGELOG.md` retains recorded integrated-group names. | slice 6 | observed: slice-6-history.log confirms CHANGELOG.md unchanged |
 | 76 | CI repeat fixtures retain their recorded integrated job names. | slice 6 | observed: slice-6-history.log confirms historical CI repeat job labels unchanged; ci-repeat.sh passed with those labels |
 | 77 | Fixture data using `dashboard/tests` as an example path retains that path. | slice 6 | observed: slice-6-history.log confirms synthetic old path assertions and historical Intent proof fixtures untouched |
-| R1 | The rename happens after both the source-navigation migration and Dashboard Integrated UI Test retirement are complete, and serves as the final step in this migration session. | slice 7 |  |
-| R2 | The shared support folder moves from `dashboard/tests/` to `dashboard/test-support/`. | slice 7 |  |
-| R3 | Maintained prose names the folder “Dashboard Test Support.” | slice 7 |  |
-| R4 | Live imports that depend on the folder resolve against its new location. | slice 7 |  |
-| R5 | Live path references that depend on the folder point to its new location. | slice 7 |  |
-| R6 | Live configuration that depends on the folder uses its new location. | slice 7 |  |
-| R7 | Live guidance that depends on the folder reflects its new location. | slice 7 |  |
-| R8 | Each remaining suite still discovers its tests after the rename. | slice 7 |  |
+| R1 | The rename happens after both the source-navigation migration and Dashboard Integrated UI Test retirement are complete, and serves as the final step in this migration session. | slice 7 | observed: S5 closed at 9ee949c25 and S6 published at fa39dd126, the rename working diff is based on the completed retirement and is the final planned change |
+| R2 | The shared support folder moves from `dashboard/tests/` to `dashboard/test-support/`. | slice 7 | observed: slice-7-move-manifest.tsv verifies all 753 tracked old/new pairs, destination exists and old tracked source absent; no specs registered under the new support directory |
+| R3 | Maintained prose names the folder “Dashboard Test Support.” | slice 7 | observed: current AGENTS.md and Frontend, Backend, E2E and Distribution README links and prose name Dashboard Test Support |
+| R4 | Live imports that depend on the folder resolve against its new location. | slice 7 | observed: slice-7 relative path scan and dashboard typecheck pass; focused E2E, Frontend, Backend and Distribution consumers import the relocated helpers |
+| R5 | Live path references that depend on the folder point to its new location. | slice 7 | observed: slice-7 Backend runner ownership, artifact gating and installed origin cases and focused Distribution checkout/shard tests pass using real relocated fixture paths |
+| R6 | Live configuration that depends on the folder uses its new location. | slice 7 | observed: three current runner configs, both TS configs and ESLint point to relocated files; local tests and typecheck pass with unchanged Intent roster |
+| R7 | Live guidance that depends on the folder reflects its new location. | slice 7 | observed: current AGENTS, Frontend and Backend, E2E, Distribution and dashboard observation guidance point at the relocated support owners |
+| R8 | Each remaining suite still discovers its tests after the rename. | slice 7 | observed: slice-7 before/after browser checks compare exact project/spec/title: E2E 797, Frontend 695, Backend 1710; byte-identical 652 Distribution jobs |
 | R9 | Each remaining suite still runs its tests after the rename. | slice 7 |  |
-| R10 | Historical proof referring to `dashboard/tests` at older revisions is preserved with those references. | slice 7 |  |
-| R11 | Historical records referring to `dashboard/tests` at older revisions are preserved with those references. | slice 7 |  |
+| R10 | Historical proof referring to `dashboard/tests` at older revisions is preserved with those references. | slice 7 | observed: slice-7 focused historical Done and legacy CI scope checks passed; old source and Intent Git blobs exist at Take; historical overlay remains pinned and archived YAML bytes match |
+| R11 | Historical records referring to `dashboard/tests` at older revisions are preserved with those references. | slice 7 | observed: git diff against fa39dd126 is empty for historical changelog, DearDough, findings and done records; retained comparison inputs unchanged |

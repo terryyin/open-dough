@@ -1,12 +1,15 @@
 import path from "node:path";
 import { appendFileSync } from "node:fs";
-import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
+import { costViews } from "../../test-support/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   writeClaudeSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const familyFlags = [
   "--host",

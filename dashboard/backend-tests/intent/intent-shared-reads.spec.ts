@@ -5,7 +5,7 @@
 // reader does not call fixed, is asked again; kept answers stay within their
 // byte budget, least recently used first out. The fetch substitute stands in
 // for the local authenticated read boundary.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   answerMemoBudgetBytes,
   forgetAnswers,

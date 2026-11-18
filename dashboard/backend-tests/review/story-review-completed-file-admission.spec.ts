@@ -1,13 +1,13 @@
 // Literal-file admission is independent of the completed comparison's
 // interleaved-work and later-trunk stability journey.
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   getReview as get,
   completedStoryQuery as named,
   completedReviewQuery as completed,
-} from "../../tests/support/completedReviewRequests.ts";
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,

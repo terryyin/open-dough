@@ -4,13 +4,13 @@
 // Board is only as long as its shown columns is
 // ./board-height.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
 import {
   publishLargeBacklog,
   queuedCount,
   queuedTitle,
-} from "../../tests/accessibleBoard.ts";
+} from "../../test-support/accessibleBoard.ts";
 import {
   expectEndsWithShown,
   expectLongerThanTheBoard,
@@ -19,11 +19,11 @@ import {
   scrollYOf,
   showColumn,
   wheelTo,
-} from "../../tests/boardPage.ts";
+} from "../../test-support/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
-} from "../../tests/boardReading.ts";
+} from "../../test-support/boardReading.ts";
 
 test("a long Backlog read far down: shorter columns clamp the Board to their bottom, a position they hold stays, and widening or narrowing keeps the Board as long as the columns it shows", async ({
   page,

@@ -1,18 +1,21 @@
 import { statSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   bytes,
   writeCursorTranscript,
-} from "../../tests/usage-history/agentEffortHarness.ts";
+} from "../../test-support/usage-history/agentEffortHarness.ts";
 import {
   cursorCost,
   readableFact,
-} from "../../tests/usage-history/agentEffortCost.ts";
+} from "../../test-support/usage-history/agentEffortCost.ts";
 import {
   cursorCli,
   succeeded,
-} from "../../tests/usage-history/agentEffortSelection.ts";
+} from "../../test-support/usage-history/agentEffortSelection.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Cursor reports belonging nested workers and recorded dynamic tools without charging another family", ({

@@ -1,8 +1,8 @@
 // Display variants stay in the frontend; real store/filter/refresh wiring is E2E.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { usageTokenIndexEndpoint } from "../src/usageTokenIndex.ts";
-import { test } from "../tests/support/frontendApp.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+import { test } from "../test-support/support/frontendApp.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 
 test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });

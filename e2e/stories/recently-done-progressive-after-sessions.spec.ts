@@ -9,23 +9,23 @@
 // read.
 
 import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { holdSessionReads } from "../../dashboard/tests/sessionStatePace.ts";
-import { entryName } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
+import { entryName } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   opened,
   recordsAsked,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   entries,
   firstTen,
   shownWithoutSessions,
   storiesOf,
   thirteenth,
-} from "../../dashboard/tests/recentlyDoneSessionPlaced.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionPlaced.ts";
 
 test("while the saved sessions are still being read after the done catalog answered, no done record is read, and once they answer only the ten shown entries' stories are", async ({
   page,

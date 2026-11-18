@@ -1,4 +1,4 @@
-import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
+import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 // A default comparison is not a remembered run choice. Switching from one
 // story's valid captured fallback to another story must use its server default.
 import { execFileSync } from "node:child_process";
@@ -10,41 +10,41 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expect,
   stored,
   test,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { publishCompletedStory } from "../../dashboard/tests/support/completedStoryPublication.ts";
-import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { publishCompletedStory } from "../../dashboard/test-support/support/completedStoryPublication.ts";
+import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
   chooseStoryTab,
   intentDiff,
   intentFile,
   storySummary,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import {
   capturedPublicationSchema,
   scripts,
-} from "../../dashboard/tests/support/launchLanding.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { selectDoneStoryInIntent } from "../../dashboard/tests/support/selectDoneStoryInIntent.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { claimedLaunchWithStoryCommit } from "../../dashboard/tests/support/storyBranchIntegration.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { claimedLaunchWithStoryCommit } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import {
   commitAll,
   git,
   lines,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test.beforeAll(({ queuedCodexOriginReady }) =>
   Promise.resolve(queuedCodexOriginReady),

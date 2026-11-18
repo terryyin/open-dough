@@ -1,5 +1,5 @@
 // Deleted and renamed files under Intent's location rule
-// (../../dashboard/tests/support/intentStoryWorktree.ts): a deleted spec stays visible as
+// (../../dashboard/test-support/support/intentStoryWorktree.ts): a deleted spec stays visible as
 // removed; a rename between the two configured locations sits at its new
 // path, its old folder gone; a rename into a location from outside is
 // inserted at its new path; a rename out of a location stays reviewable at
@@ -11,8 +11,11 @@
 // tree shows, the story's added one included. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   expectOutsideCount,
   intentDiff,
@@ -21,20 +24,20 @@ import {
   reviewDiff,
   selectTakenStoryInIntent,
   storyOnly,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   kindStyles,
   nameStyle,
-} from "../../dashboard/tests/support/changeKindStyle.ts";
-import { changed } from "../../dashboard/tests/support/intentStoryWorktree.ts";
+} from "../../dashboard/test-support/support/changeKindStyle.ts";
+import { changed } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import {
   expandIntentGroup,
   intentFolderName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   expectChildNames,
   summaryRegion,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
 
 test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits counts once outside", async ({
   page,

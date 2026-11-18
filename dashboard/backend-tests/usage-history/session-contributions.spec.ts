@@ -18,12 +18,12 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
 import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   nodeProcess,
@@ -31,7 +31,7 @@ import {
   runImport,
   sessionTotals,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const used = (output: number) => ({
   input_tokens: 10,

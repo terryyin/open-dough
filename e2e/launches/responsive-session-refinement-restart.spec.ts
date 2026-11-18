@@ -2,33 +2,33 @@
 // focused; starting the card again after Mark as done shows its startup marks
 // and protection without a current-session mark, and Recently done keeps the
 // done session outside the card's protected frame. Uses the real bare origin
-// of ../../dashboard/tests/responsiveStart.ts.
+// of ../../dashboard/test-support/responsiveStart.ts.
 
 import {
   storyCardSessions,
   parts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   inspectByKeyboard,
   marksOf,
-} from "../../dashboard/tests/responsiveAccess.ts";
-import { startExecution } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/responsiveAccess.ts";
+import { startExecution } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   openTerminalControl,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   openStories,
   startupUnavailable as unavailable,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({
   projectFolders: ["open-dough"],

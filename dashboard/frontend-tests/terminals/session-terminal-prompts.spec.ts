@@ -1,9 +1,9 @@
 // Literal editable quick replies, and explicit recovery after an attachment ends.
 // Connecting/refused recovery stays with ../terminal-prompts-recovery.spec.ts.
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
-import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";
+import { directedApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
 import {
   chooseTerminalPrompt,
   expectTerminalInputFocused,
@@ -13,9 +13,9 @@ import {
   submitTerminalInput,
   terminalStatus,
   writeTerminalInput,
-} from "../../tests/terminalScreenPage.ts";
-import { unfocusedPromptButtons } from "../../tests/support/terminalVoicePage.ts";
-import { tapWhereShown } from "../../tests/pageLayout.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { unfocusedPromptButtons } from "../../test-support/support/terminalVoicePage.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
 
 const variants = [
   {

@@ -8,12 +8,12 @@ import {
   expectScopeReadout,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
-import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
-import { expect, test } from "../tests/support/comparisonMountPage.ts";
-import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
-import { openSummaryScopeHistory } from "../tests/support/summaryScopeHistory.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
+import { expectComparisonScopeRows } from "../test-support/intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
+import { expect, test } from "../test-support/support/comparisonMountPage.ts";
+import { entryComparisonRows } from "../test-support/support/summaryComparisonExpectedRows.ts";
+import { openSummaryScopeHistory } from "../test-support/support/summaryScopeHistory.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
 import { scopeHistoryGlanceOf } from "../server/ciHistoryGlance.ts";

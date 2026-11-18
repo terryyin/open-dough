@@ -2,9 +2,9 @@
 // readiness builds the app before the case's own frontendApp starts, and the
 // run requests no server bundle and no installed origin.
 import { startPreparationProofRun } from "../support/preparationProofRun.ts";
-import { dashboardAppArtifactKey } from "../../tests/support/dashboardBuild.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
+import { dashboardAppArtifactKey } from "../../test-support/support/dashboardBuild.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
 
 test.afterEach(removeProofDirectories);
 

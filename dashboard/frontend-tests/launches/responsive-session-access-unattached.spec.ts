@@ -7,24 +7,24 @@
 // keyboard start is ./responsive-session-access.spec.ts; the real held start
 // is ../../../e2e/launches/responsive-session-start.spec.ts.
 
-import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
-import { tabTo } from "../../tests/accessibleReading.ts";
+import { parts, sessionEntriesIn } from "../../test-support/dashboardPage.ts";
+import { tabTo } from "../../test-support/accessibleReading.ts";
 import {
   backlogLaunchers,
   startSession,
-} from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
-import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
-import { inspectByKeyboard } from "../../tests/responsiveAccess.ts";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
+import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
+import { inspectByKeyboard } from "../../test-support/responsiveAccess.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 for (const typed of ["", "why is CI slow?"]) {

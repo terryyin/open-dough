@@ -1,7 +1,7 @@
 // An unattached Start session whose start is lost with its server, before or
 // after it made its workspace (../../server/sessionStartStore.ts), with a real
-// bare origin (../../tests/support/startOrigin.ts), the installed start held
-// as the case needs (../../tests/support/keptSessionStart.ts), and the
+// bare origin (../../test-support/support/startOrigin.ts), the installed start held
+// as the case needs (../../test-support/support/keptSessionStart.ts), and the
 // synthetic `claude`: Continue on the restarted server runs the installed
 // start again for the kept workspace and branch, which makes it or takes it
 // as it is, opens the session there, and leaves default main's existing
@@ -15,27 +15,30 @@ import {
   attempts,
   continued,
   launch,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { dirty, status } from "../../tests/support/defaultCheckoutChanges.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  dirty,
+  status,
+} from "../../test-support/support/defaultCheckoutChanges.ts";
 import {
   holdStarts,
   keptSessionStarts,
   keptWords,
-} from "../../tests/support/keptSessionStart.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+} from "../../test-support/support/keptSessionStart.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
   isolatedStart,
   recordStarts,
   worktree,
   worktrees,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // Every start here is held past this wait, however long the machine takes.
 test.use({ startTimeoutMs: 500 });

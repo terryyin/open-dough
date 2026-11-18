@@ -1,5 +1,5 @@
 // A Trunk Mode story's file that trunk rewrote where the story changed it
-// (../../dashboard/tests/support/storyReviewTrunkMode.ts), which Git cannot separate, is listed
+// (../../dashboard/test-support/support/storyReviewTrunkMode.ts), which Git cannot separate, is listed
 // in All changes flagged as including trunk's changes, counted and diffed
 // from trunk as it was before the story's first change to that file; the
 // committed work alone lists it the same way. When an older published story
@@ -9,39 +9,42 @@
 // published commit. ./story-review-trunk-own-changes.spec.ts covers the
 // files Git separates.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectTreeRows,
   fileDiff,
   changedFilesList,
   fileLineCounts,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
   refreshReview,
   openStoryReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   reviewRegion,
   uncommittedCheck,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   openTaken,
   publishRewrittenLine,
   shownWorkspace,
   trunkModeRepository,
   trunkModeStory,
-} from "../../dashboard/tests/support/storyReviewTrunkMode.ts";
+} from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 // Trunk up to Yui-chan's claim of Story A in Trunk Mode.
 test.use({ originRepository: trunkModeRepository });

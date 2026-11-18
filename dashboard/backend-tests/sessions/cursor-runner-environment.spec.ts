@@ -9,7 +9,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   execOnRunner,
   keepCursorClient,
@@ -19,16 +19,16 @@ import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.t
 import {
   fakeCursorHost,
   installFakeCursor,
-} from "../../tests/support/fakeCursor.ts";
+} from "../../test-support/support/fakeCursor.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
-} from "../../tests/support/launchEnvironment.ts";
+} from "../../test-support/support/launchEnvironment.ts";
 import {
   endGroup,
   spawnGroupLeader,
-} from "../../tests/support/processGroup.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/support/processGroup.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 test("a runner started with a deployment's start-up additions starts cursor-agent without them", async () => {
   const cursor = installFakeCursor({ working: true });

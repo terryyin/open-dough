@@ -1,17 +1,17 @@
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   publishLargeBacklog,
   queuedCount,
   queuedTitle,
   queuedTitles,
-} from "../../tests/accessibleBoard.ts";
-import { expectMembership, parts } from "../../tests/dashboardPage.ts";
-import { scrollYOf } from "../../tests/boardPage.ts";
-import { readWithKey } from "../../tests/boardReading.ts";
+} from "../../test-support/accessibleBoard.ts";
+import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
+import { scrollYOf } from "../../test-support/boardPage.ts";
+import { readWithKey } from "../../test-support/boardReading.ts";
 import {
   box,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 
 test("accessible Board reads a backlog longer than one screen by scrolling the Board", async ({
   page,

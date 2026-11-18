@@ -10,17 +10,20 @@ import {
   measuredHistoryOf,
   type FinalGap,
 } from "../../src/landedCiHistory.ts";
-import type { GhCall } from "../../tests/support/fakeGitHub.ts";
+import type { GhCall } from "../../test-support/support/fakeGitHub.ts";
 import {
   landedCiHistory,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   keepRetainedMeasureGapHistory,
   retainedMeasureGapCases,
-} from "../../tests/support/landedCiRetainedMeasureGapSetup.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { listedAttemptJobPages } from "../../tests/support/storyCiComparisonRequests.ts";
+} from "../../test-support/support/landedCiRetainedMeasureGapSetup.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { listedAttemptJobPages } from "../../test-support/support/storyCiComparisonRequests.ts";
 
 test.use({ serverMode: "boundary" });
 

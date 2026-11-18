@@ -6,12 +6,12 @@ import {
   expect,
   storedReviewRuns,
   preferredReviewKey,
-} from "../../tests/support/reviewRunStore.ts";
-import { reviewLaunch } from "../../tests/support/reviewRunRecords.ts";
+} from "../../test-support/support/reviewRunStore.ts";
+import { reviewLaunch } from "../../test-support/support/reviewRunRecords.ts";
 import {
   keepLaunchRecords,
   keptLaunchRecords,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import { withinRetention } from "../../server/launchRecordDocument.ts";
 import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import { reviewRunKey } from "../../src/storyReviewLandedRun.ts";

@@ -3,19 +3,19 @@
 // fake GitHub serves that commit's Git bytes, and the local read boundary, the
 // shared readers, and the page decide everything shown.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   admitInvestigation,
   admitted,
   publishAdmission,
   stillQueued,
   type Admission,
-} from "../../dashboard/tests/admittedWork.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/admittedWork.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 let admission: Admission;
 const cleanups: Array<() => Promise<void>> = [];

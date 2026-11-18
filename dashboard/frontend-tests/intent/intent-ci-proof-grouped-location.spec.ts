@@ -1,7 +1,7 @@
 import {
   ciProofReading,
   expectProofRows,
-} from "../../tests/intentCiProofPage.ts";
+} from "../../test-support/intentCiProofPage.ts";
 // One CI status Proof row per declared location with every result type's own
 // counts, times, and genuine gaps labeled in that row (../../src/IntentCiProof.tsx,
 // ../../src/ciProofEntryCells.ts). Decisive published-summary facts — shard
@@ -10,8 +10,8 @@ import {
 // ../../../e2e/intent/intent-ci-proof-units.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const failed = { state: "failed" } as const;
 

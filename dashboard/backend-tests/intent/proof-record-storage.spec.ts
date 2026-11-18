@@ -1,4 +1,4 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   existsSync,
   mkdirSync,
@@ -14,7 +14,7 @@ import {
   readProof,
   removeProofDirectories,
   startProofRun,
-} from "../../tests/support/proofRecordRun.ts";
+} from "../../test-support/support/proofRecordRun.ts";
 
 test.afterAll(removeProofDirectories);
 

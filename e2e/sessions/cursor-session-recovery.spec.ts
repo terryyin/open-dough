@@ -1,4 +1,4 @@
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // Recover for an unfinished Cursor session the runner does not hold: the
 // not-held offer, resume through the runner, one continuation only on the
 // idle composer with confirmed first input, and cases that type nothing or
@@ -7,11 +7,11 @@ import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclos
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   agentCalls,
@@ -20,18 +20,21 @@ import {
   openTakenCursorSession,
   projectedSessions,
   cursorRecord,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
   openStoppedCursorEntry,
   startCursorExecution,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 // Cursor repaints a while after Enter on a paste chip, so a continuation's
 // answer can read the submitted chip unless Recover waits for that repaint.

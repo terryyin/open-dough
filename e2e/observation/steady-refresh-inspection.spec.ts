@@ -4,9 +4,9 @@
 // until that revision answers for them. A record's reads, or GitHub's account
 // of what changed, are held so the read stays under way to be seen. The fake
 // GitHub only publishes the commits, records, and histories
-// (../../dashboard/tests/publishedOrigin.ts,
-// ../../dashboard/tests/publishedFiles.ts,
-// ../../dashboard/tests/assignmentCreditRecords.ts); the page decides what is
+// (../../dashboard/test-support/publishedOrigin.ts,
+// ../../dashboard/test-support/publishedFiles.ts,
+// ../../dashboard/test-support/assignmentCreditRecords.ts); the page decides what is
 // shown.
 
 import type { Page } from "@playwright/test";
@@ -15,31 +15,31 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   shortRevision,
   parts,
   rosterParts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
-import { avatarHost } from "../../dashboard/tests/agentAttributionRecords.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
-import { expectNoPlaceholderShown } from "../../dashboard/tests/retainedFacts.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { avatarHost } from "../../dashboard/test-support/agentAttributionRecords.ts";
+import { inspectedDetail } from "../../dashboard/test-support/storyCardControls.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
+import { expectNoPlaceholderShown } from "../../dashboard/test-support/retainedFacts.ts";
 import {
   contentReads,
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogB,
   revisionB,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
 import {
   agents,
   atA,
@@ -48,7 +48,7 @@ import {
   repository,
   titleOf,
   toB,
-} from "../../dashboard/tests/assignmentCreditRecords.ts";
+} from "../../dashboard/test-support/assignmentCreditRecords.ts";
 
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
 

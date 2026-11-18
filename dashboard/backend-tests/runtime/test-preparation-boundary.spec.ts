@@ -2,10 +2,10 @@
 // readiness prepares the server bundle before the case's own dashboard or
 // custom boundary server starts, and requests no app build.
 import { startPreparationProofRun } from "../support/preparationProofRun.ts";
-import { dashboardAppArtifactKey } from "../../tests/support/dashboardBuild.ts";
-import { serverBundleArtifactKey } from "../../tests/support/serverBundle.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
+import { dashboardAppArtifactKey } from "../../test-support/support/dashboardBuild.ts";
+import { serverBundleArtifactKey } from "../../test-support/support/serverBundle.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
 
 test.afterEach(removeProofDirectories);
 

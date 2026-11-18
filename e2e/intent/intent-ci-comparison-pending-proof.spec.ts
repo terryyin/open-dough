@@ -1,13 +1,16 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // The real Check again control reaches the production read/memory after an
 // unanswered equivalent proof, replacing Branch fallback with Landed.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
-import { parseRequest } from "../../dashboard/tests/support/ghRequest.ts";
-import { publishSkippedPlanningLanding } from "../../dashboard/tests/support/storyCiComparisonSkippedFixture.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { checkComparisonAgain } from "../../dashboard/tests/support/storyCiComparisonRetry.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { parseRequest } from "../../dashboard/test-support/support/ghRequest.ts";
+import { publishSkippedPlanningLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedFixture.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { checkComparisonAgain } from "../../dashboard/test-support/support/storyCiComparisonRetry.ts";
 
 test("Check again recovers an unanswered equivalent proof from Branch fallback to Landed with the same source, then reuses the final answer", async ({
   page,

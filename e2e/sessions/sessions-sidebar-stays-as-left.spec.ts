@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // The Sessions sidebar stays as the developer left it. It starts closed;
 // open, it stays open across project switches, the agent roster and back, the
 // terminal opening and closing, and reloads, since this browser keeps the
@@ -7,11 +7,11 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // attaches the synthetic `claude` (./fixtures/fake-claude); the real one is
 // never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTerminalControl,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessionOf,
@@ -19,22 +19,22 @@ import {
   parts,
   rosterParts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { doughnutSharedTitle } from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 

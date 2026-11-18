@@ -4,32 +4,32 @@
 // Different release orders also exercise later human and clock publications.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { rosterParts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { rosterParts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   heldFactGroups,
   preparing,
   preparer,
   type FactGroup,
-} from "../../dashboard/tests/publishedFactsArrival.ts";
+} from "../../dashboard/test-support/publishedFactsArrival.ts";
 import {
   afterTake,
   revision,
-} from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 import {
   expectCanonicalFacts,
   expectStoryCardAssignments,
   expectDoneFacts,
-} from "../../dashboard/tests/publishedFactsAssertions.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/publishedFactsAssertions.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   badge,
   progressSource,
   sliceBar,
   sliceProgress,
-} from "../../dashboard/tests/storyCardFacts.ts";
-import { expectNoPlaceholderShown } from "../../dashboard/tests/retainedFacts.ts";
-import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
+import { expectNoPlaceholderShown } from "../../dashboard/test-support/retainedFacts.ts";
+import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
 
 async function expectAssignments(
   page: Page,

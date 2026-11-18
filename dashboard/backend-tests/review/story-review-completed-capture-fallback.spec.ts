@@ -6,18 +6,21 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import { expect, test } from "../../tests/support/codexStart.ts";
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
 import {
   completedReviewQuery,
   getReview,
-} from "../../tests/support/completedReviewRequests.ts";
-import { capturedChoice } from "../../tests/support/oneShotReviewChoices.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { retainedIntentLanding } from "../../tests/support/retainedIntentLanding.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
-import { claimedRecord } from "../../tests/support/storyBranchIntegration.ts";
-import { commitAll, git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
+import { capturedChoice } from "../../test-support/support/oneShotReviewChoices.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { retainedIntentLanding } from "../../test-support/support/retainedIntentLanding.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { claimedRecord } from "../../test-support/support/storyBranchIntegration.ts";
+import {
+  commitAll,
+  git,
+} from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 const historical = { ...completedReviewQuery, historical: "true" };

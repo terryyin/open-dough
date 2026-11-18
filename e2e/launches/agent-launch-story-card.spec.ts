@@ -1,8 +1,8 @@
 // Starting execution or refinement from a Backlog card, on a committed origin
-// from ../../dashboard/tests/launchJourney.ts: two queued stories, one Ready
+// from ../../dashboard/test-support/launchJourney.ts: two queued stories, one Ready
 // for execution and one not refined, and one Taken. The page's own dashboard
 // server launches the synthetic `claude`
-// (../../dashboard/tests/fixtures/fake-claude), which records what it was
+// (../../dashboard/test-support/fixtures/fake-claude), which records what it was
 // asked; the real one is never reached. Each card's Starts, readiness notes
 // and dialogs are ../../dashboard/frontend-tests/launches/agent-launch-story-card.spec.ts;
 // a launch that did not start is ./agent-launch-story-card-problems.spec.ts;
@@ -13,23 +13,23 @@
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionName,
   storyCardSessions,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   instructionField,
   openTakenBacklog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
   readyStory,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

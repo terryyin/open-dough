@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Opening a Sessions sidebar Session entry goes to its story and its session: the
 // page shows the session's project's stories, from the agent roster too, as
 // one history entry; the terminal opens the session as Open terminal does,
@@ -11,31 +11,31 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // session. The page's own dashboard server launches and attaches the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectProjectChoice,
   expectMembership,
   parts,
   rosterParts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { expectRoute } from "../../dashboard/tests/agentRosterRecords.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { expectRoute } from "../../dashboard/test-support/agentRosterRecords.ts";
 import {
   expectCurrentEntry,
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
 import {
   attachesOf,
   expectRevealsSince,
@@ -44,11 +44,11 @@ import {
   openDoughStories,
   openNavigationJourney,
   revealsOf,
-} from "../../dashboard/tests/sessionNavigationJourney.ts";
+} from "../../dashboard/test-support/sessionNavigationJourney.ts";
 import {
   pygardonBacklogTitles,
   pygardonStory,
-} from "../../dashboard/tests/pygardonProject.ts";
+} from "../../dashboard/test-support/pygardonProject.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 

@@ -1,22 +1,22 @@
-import { expectFileComparisonRows } from "../../tests/intentFileProofPage.ts";
+import { expectFileComparisonRows } from "../../test-support/intentFileProofPage.ts";
 import {
   expectNamedScopeRows,
   expectNamedScopeFigures,
-} from "../../tests/intentScopeProofPage.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+} from "../../test-support/intentScopeProofPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { intentLocationName } from "../../tests/intentPerspectivePage.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { intentLocationName } from "../../test-support/intentPerspectivePage.ts";
 import {
   aSpec,
   dashboardTests,
   entry,
   folder,
-} from "../../tests/support/ciComparisonUnitsJourney.ts";
-import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
-import { expectCiComparisonEntryRows } from "../../tests/support/expectCiComparisonEntryRows.ts";
-import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/ciComparisonUnitsJourney.ts";
+import { expectCueState } from "../../test-support/support/expectCiComparisonCues.ts";
+import { expectCiComparisonEntryRows } from "../../test-support/support/expectCiComparisonEntryRows.ts";
+import { summaryComparisonChanges } from "../../test-support/support/intentSummaryStoryComparisonFixture.ts";
+import { intentFile } from "../../test-support/support/intentStoryPage.ts";
 
 // Five/six/seven test cases and one test file, arranged anew by every case.
 function casesAndFiles() {

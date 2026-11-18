@@ -8,11 +8,11 @@ import {
   continued,
   launch,
   keptStarts,
-} from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { expectExecutionInput } from "../../tests/support/codexStartAssertions.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { expectExecutionInput } from "../../test-support/support/codexStartAssertions.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.

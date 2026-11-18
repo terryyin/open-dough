@@ -1,21 +1,24 @@
 // What a phone reads of automatic CI follow-up with no receipt journey: in
 // Recently done, the card of a landing the machine keeps with an accepted
-// rerun request (../../dashboard/tests/support/ciFollowUpPageLanding.ts), as the page's
+// rerun request (../../dashboard/test-support/support/ciFollowUpPageLanding.ts), as the page's
 // collecting dashboard saves what the provider's repeat becomes.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { recheckingLandedCi } from "../../dashboard/tests/support/landedCiHistory.ts";
-import { keepRepeatLandingForPage } from "../../dashboard/tests/support/ciFollowUpPageLanding.ts";
-import { startingFromKeptStory } from "../../dashboard/tests/support/keptPublishedStory.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { recheckingLandedCi } from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { keepRepeatLandingForPage } from "../../dashboard/test-support/support/ciFollowUpPageLanding.ts";
+import { startingFromKeptStory } from "../../dashboard/test-support/support/keptPublishedStory.ts";
 import {
   rerunRuns,
   savedRepeatRequest,
-} from "../../dashboard/tests/support/ciFollowUpSavedRequests.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/support/ciFollowUpSavedRequests.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
 import {
   ciFollowUpWarning,
   expectWholeOnPhone,
   shownCiFollowUpCard,
-} from "../../dashboard/tests/support/ciFollowUpReadingPage.ts";
+} from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
 
 test.use({
   extraEnv: recheckingLandedCi,

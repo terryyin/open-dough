@@ -4,13 +4,13 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   attempts,
   continued,
   continueAttempt,
   launch,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import { settledAttempt } from "./settledAttempt.ts";
 import {
   answerOf,
@@ -24,16 +24,16 @@ import {
   workspaceOf,
   type Launched,
   type Problem,
-} from "../../tests/keptExecutionStart.ts";
+} from "../../test-support/keptExecutionStart.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 test.describe("a kept execution start", () => {
   let origin: StartOrigin;

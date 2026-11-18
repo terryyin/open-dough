@@ -12,25 +12,28 @@ import {
   parts,
   sessionStateOf,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   agentCalls,
   expectReadingWithoutScreenLabel,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   expectContinuationThroughScope,
   recordedScope,
-} from "../../dashboard/tests/support/cursorScopeAssertions.ts";
-import { killCursorRunnerLeavingAddress } from "../../dashboard/tests/support/cursorRunnerRecordedAddress.ts";
+} from "../../dashboard/test-support/support/cursorScopeAssertions.ts";
+import { killCursorRunnerLeavingAddress } from "../../dashboard/test-support/support/cursorRunnerRecordedAddress.ts";
 import {
   agentNotRunningLabel,
   keptRecords,
   startScopedCursorExecution,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 
 test.use({ cursorSubmitPaintMs: 300 });
 

@@ -5,7 +5,7 @@
 // evidence -- while a history ask answers every done session in full
 // (../../src/sessionListing.ts,
 // ../../server/machineSessionsFragments.ts). The machine state is the
-// Sessions replay's (../../tests/support/sessionsReplaySeed.ts).
+// Sessions replay's (../../test-support/support/sessionsReplaySeed.ts).
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,25 +17,25 @@ import {
 } from "../../src/agentLaunch.ts";
 import { sessionsHistoryReadSchema } from "../../src/machineSessionsRevision.ts";
 import { withRetainedDetail } from "../../src/sessionListing.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { installFakeCodex } from "../../tests/support/fakeCodex.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   followUpContextOf,
   quietSession,
   quietTitle,
-} from "../../tests/support/followUpSources.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+} from "../../test-support/support/followUpSources.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   replayProjectIds,
   seedReplayProjects,
-} from "../../tests/support/sessionsReplayProjects.ts";
-import { seedReplaySessions } from "../../tests/support/sessionsReplaySeed.ts";
+} from "../../test-support/support/sessionsReplayProjects.ts";
+import { seedReplaySessions } from "../../test-support/support/sessionsReplaySeed.ts";
 import {
   type AnsweredEntry,
   withoutRetainedDetail,
-} from "../../tests/support/retainedDetail.ts";
-import { askSessions } from "../../tests/support/sessionsReplayMeasures.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/retainedDetail.ts";
+import { askSessions } from "../../test-support/support/sessionsReplayMeasures.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 const entriesOf = (body: string) =>
   new Map(

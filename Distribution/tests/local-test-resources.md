@@ -34,7 +34,7 @@ cost when that supported context exposes a failure, retaining the complete
 journey and the project's failing/flaky-test policy.
 
 Cold shared preparation has a separate 60-second worker-fixture budget
-(`coldInputPreparation`, `dashboard/tests/support/publishedMainWorkerFixtures.ts`):
+(`coldInputPreparation`, `dashboard/test-support/support/publishedMainWorkerFixtures.ts`):
 the app, server bundle and any queued installed origin a server profile needs, each
 published-main live-source snapshot, a worker's staged pinned deployment
 and its full-source fixture without a run owner, the kept story histories,

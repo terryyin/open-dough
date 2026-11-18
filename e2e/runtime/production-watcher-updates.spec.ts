@@ -4,10 +4,10 @@
 // activation, which a prepared or prebuilt deployment would bypass. Detailed
 // policy ranges use the real selection owner without staging. Setup
 // and waits around the activations stay open to improvement.
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 import {
   checkedAfterActivation,
   deploymentCheckout,
@@ -16,24 +16,24 @@ import {
   productionDeployments,
   productionInspections,
   settledSkip,
-} from "../../dashboard/tests/support/productionWatcher.ts";
+} from "../../dashboard/test-support/support/productionWatcher.ts";
 import {
   builtCommitPrefixes,
   holdBuildPath,
   waitForBuild,
-} from "../../dashboard/tests/support/productionBuildGate.ts";
-import { writeSharedLaunchRecord } from "../../dashboard/tests/support/sharedLaunchRecord.ts";
+} from "../../dashboard/test-support/support/productionBuildGate.ts";
+import { writeSharedLaunchRecord } from "../../dashboard/test-support/support/sharedLaunchRecord.ts";
 import {
   productionUpdateJourney,
   prefixesOf,
 } from "./productionUpdateJourney.ts";
-import { launchRequest } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   observeWatcherOutput,
   waitForWatcherOutput,
-} from "../../dashboard/tests/support/watcherEvents.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { publishedPolicy } from "../../dashboard/tests/support/productionQualificationFixture.ts";
+} from "../../dashboard/test-support/support/watcherEvents.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { publishedPolicy } from "../../dashboard/test-support/support/productionQualificationFixture.ts";
 import { ciWorkflowPath } from "../../dashboard/server/productionQualification.mjs";
 import { replaceWhileStartDrains } from "./productionHeldUpdate.ts";
 

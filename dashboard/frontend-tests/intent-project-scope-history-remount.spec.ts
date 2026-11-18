@@ -1,7 +1,7 @@
 import {
   scopeHistory,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // The page keeps disposable reading state when the Intent provider unmounts.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -9,11 +9,11 @@ import {
   test,
   mountComparison,
   updateComparison,
-} from "../tests/support/comparisonMountPage.ts";
+} from "../test-support/support/comparisonMountPage.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
-} from "../tests/support/projectScopeHistoryFacts.ts";
+} from "../test-support/support/projectScopeHistoryFacts.ts";
 
 test("reentering Intent after a same-head snapshot refresh keeps the observed endpoint and prior answer when local history fails", async ({
   page,

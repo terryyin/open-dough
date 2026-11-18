@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // What keeps Recently done's requested range and what starts it again at
 // ten. A refresh's old revision answering late changes nothing it shows.
 // Opening and closing the terminal and the sidebar, resizing the panel, and
@@ -10,32 +10,32 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // refreshes: ../recentlyDoneRefresh.ts; the `gh` calls reaching the fake
 // GitHub show which records were read, and at which revision.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shownProjectControl,
   chooseProject,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { rem, showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { rem, showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectEntries,
   revealAction,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   entryName,
   revision as revisionA,
-} from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   recordsAsked,
   terminalOf,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
   entries,
@@ -43,22 +43,22 @@ import {
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   movingMain,
   namesOf,
   recordsAskedAt,
   refreshedTo,
   retitled,
-} from "../../dashboard/tests/recentlyDoneRefresh.ts";
+} from "../../dashboard/test-support/recentlyDoneRefresh.ts";
 import {
   focusDivider,
   pressDividerKey,
-} from "../../dashboard/tests/sidePanelWidthPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { holding } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+} from "../../dashboard/test-support/sidePanelWidthPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { holding } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 

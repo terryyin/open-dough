@@ -1,6 +1,6 @@
 // Keyboard access to terminal actions and the quick-reply menu.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";
 import {
   dismissTerminalPrompts,
   expectTerminalActionFocused,
@@ -16,7 +16,7 @@ import {
   pressTerminalKey,
   returnToTerminalDictation,
   writeTerminalInput,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 
 test("terminal Tab remains input", async ({ page, frontendServices }) => {
   const { panel, sent } = await openFrontendTerminalVoice(

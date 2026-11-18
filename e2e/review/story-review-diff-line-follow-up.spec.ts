@@ -6,7 +6,7 @@
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   copyDiffLine,
   expectLineMenuOpen,
@@ -14,32 +14,35 @@ import {
   followUpFromLine,
   lineNumberControl,
   openLineMenu,
-} from "../../dashboard/tests/support/diffLineFollowUpPage.ts";
-import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
-import { contextExpansion } from "../../dashboard/tests/support/expandContextDiff.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/diffLineFollowUpPage.ts";
+import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { contextExpansion } from "../../dashboard/test-support/support/expandContextDiff.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   codePane,
   diffLines,
   expectContextRead,
-} from "../../dashboard/tests/support/reviewPanes.ts";
-import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
+} from "../../dashboard/test-support/support/reviewPanes.ts";
+import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   commitAll,
   expandContextFile,
   expandContextLines,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import type { Page } from "@playwright/test";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 
 const storyName = `${queuedIdentity} — Story A`;
 const fileLabel = `Modified ${expandContextFile}`;

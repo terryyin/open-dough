@@ -1,4 +1,4 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { claudePromptReady } from "../../server/hosts/claude/prompt.ts";
 import { KeptClientScreen } from "../../server/keptClientScreen.ts";
 

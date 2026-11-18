@@ -1,5 +1,5 @@
 // Delete record… on a card's session, against a controlled machine read and
-// delete boundary (../../tests/support/frontendSessionActions.ts): a State
+// delete boundary (../../test-support/support/frontendSessionActions.ts): a State
 // unknown or Session unavailable entry asks in place, with the keyboard on
 // Keep; Keep and Escape delete nothing; confirming removes the entry from its
 // card, Recently done and the Sessions sidebar without a success message and
@@ -13,14 +13,14 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { cardSession } from "../../tests/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
 import {
   askToDeleteRecord,
   deleteRecordQuestion,
   sessionAction,
-} from "../../tests/support/sessionEntryDisclosure.ts";
+} from "../../test-support/support/sessionEntryDisclosure.ts";
 import {
   expectMembership,
   parts,
@@ -29,14 +29,17 @@ import {
   storyCardAttentionOf,
   storyCardSessionOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   backlogLaunchers,
   takenBacklogStories,
-} from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import { openTerminalControl } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+import { openTerminalControl } from "../../test-support/terminalScreenPage.ts";
 import type { SessionState } from "../../src/launchRecord.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

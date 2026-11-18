@@ -1,22 +1,22 @@
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+import { attemptLink } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   compactReadout,
   priorBuildReferenceReading,
-} from "../../dashboard/tests/priorBuildReferencePage.ts";
+} from "../../dashboard/test-support/priorBuildReferencePage.ts";
 // Boundary states consume raw retained supplier observations through the
 // authenticated reader; no fixture supplies a calculated average.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
   evidenceByKeyboard,
   historyOf,
   openJudgedCiStatus,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import { keepLandedCiMeasurements } from "../../dashboard/tests/support/keepLandedCiMeasurements.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import { keepLandedCiMeasurements } from "../../dashboard/test-support/support/keepLandedCiMeasurements.ts";
 
 test("five complete zeros give a zero reference with its median, line and each build's evidence", async ({
   page,

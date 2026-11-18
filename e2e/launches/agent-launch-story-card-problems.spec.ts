@@ -1,20 +1,20 @@
 // A Backlog launch that may not have started, on the committed origin of
 // ./agent-launch-story-card.spec.ts: on a phone, a constrained-height Start
-// whose synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) does
+// whose synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) does
 // not answer within the launch wait reports uncertainty under Startup
 // recovery, and only the explicit recovery choice starts its kept instruction
 // again. What the card and Startup recovery say about failed and uncertain
 // answers is ../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts
 // and ../../dashboard/frontend-tests/launches/agent-launch-story-card-uncertain.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   parts,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { readyStory } from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

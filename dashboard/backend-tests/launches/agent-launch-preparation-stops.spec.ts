@@ -2,7 +2,7 @@
 // answers "Launch failed:" with why (../../server/preparationResult.ts
 // `preparationRefusal`), over raw HTTP against the real installed
 // `preparation-assignment.mjs` and a real bare origin
-// (../../tests/support/startOrigin.ts), with the synthetic `claude`: the story not
+// (../../test-support/support/startOrigin.ts), with the synthetic `claude`: the story not
 // queued, every agent name held, a workspace that cannot be selected. Each
 // leaves no session and no progress phase. The table's mapping of the
 // remaining stop statuses is ./preparation-start-result.spec.ts.
@@ -13,19 +13,22 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { renderAgentProfile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { launch, runningStarts } from "../../tests/agentLaunchBoundary.ts";
+import {
+  launch,
+  runningStarts,
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 const exec = promisify(execFile);
 

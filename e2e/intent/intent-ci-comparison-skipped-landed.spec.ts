@@ -1,12 +1,15 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // The real GitHub Actions missing-proof connection keeps timed equivalent
 // wall time separate from Branch's proof-backed entry comparison.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { readWaitLimitMs } from "../../dashboard/src/authenticatedReadRules.ts";
-import { expectCiComparisonEntryRows } from "../../dashboard/tests/support/expectCiComparisonEntryRows.ts";
-import { publishSkippedLandingWithoutProof } from "../../dashboard/tests/support/storyCiComparisonSkippedFixture.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
+import { expectCiComparisonEntryRows } from "../../dashboard/test-support/support/expectCiComparisonEntryRows.ts";
+import { publishSkippedLandingWithoutProof } from "../../dashboard/test-support/support/storyCiComparisonSkippedFixture.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 
 test("Landed reuses equivalent wall time when that build published no proof, walks no further, and keeps entry comparison on Branch", async ({
   page,

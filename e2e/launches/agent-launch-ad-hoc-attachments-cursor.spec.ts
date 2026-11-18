@@ -3,23 +3,23 @@
 // Codex (typed text, blank line, then the numbered absolute path under the
 // test HOME's launch-attachments folder), then reporting context.
 
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   startSessionField,
   startedSession,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   deploymentCursorTest as test,
   expect,
   keptRecord,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   expectCopiedAttachmentPath,
   pickImagesInDialog,
   pngA,
   writePickedImages,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 
 test("Cursor Start session with one attached image ends the prompt's developer part with its copied path", async ({
   page,

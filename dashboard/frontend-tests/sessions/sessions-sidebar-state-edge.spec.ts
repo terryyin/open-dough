@@ -1,17 +1,17 @@
 // Sessions sidebar Session entry state edge against controlled machine
 // answers: border style, thickness and colour per state, plus hidden AT label.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   doughnutSource,
   openDoughSource,
-} from "../../tests/support/frontendServiceState.ts";
-import { expectProjectChoice } from "../../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { expectProjectChoice } from "../../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarSessionEntryEdges,
   sessionsSidebarParts,
-} from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { SessionState } from "../../src/launchRecord.ts";
 

@@ -1,23 +1,23 @@
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import { doneHistoryBuilder } from "../../tests/support/doneWallReferenceHistory.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import { doneHistoryBuilder } from "../../test-support/support/doneWallReferenceHistory.ts";
 import {
   mountedDoneTrunk,
   serveDoneWallTimeHistory,
-} from "../../tests/support/mountedDoneWallTime.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
-import { expectStackedInOrder } from "../../tests/partArrangement.ts";
+} from "../../test-support/support/mountedDoneWallTime.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
+import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
 import {
   doneHistoryRead,
   doneWallTimeHistory,
-} from "../../tests/priorBuildReferencePage.ts";
+} from "../../test-support/priorBuildReferencePage.ts";
 // CI state transitions move the independent local history between the gap
 // and the shown comparison; they cannot own, reread or discard it.
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
-import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
-import { checkAgainOf } from "../../tests/support/storyCiComparisonRetry.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
+import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
+import { checkAgainOf } from "../../test-support/support/storyCiComparisonRetry.ts";
 
 const average = "Prior-build average · 1 min 43 s · 5 prior builds used";
 

@@ -1,42 +1,45 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A claimed Story Branch Mode launch's landed integration in the story review
 // (../../dashboard/STORY-REVIEW-LANDED-RUNS.md): the real installed start, the installed
 // `history-preserving-publication.mjs integrate` and `worktree-retirement.mjs`
 // against a real bare origin produce the launch record the review reads
-// (../../dashboard/tests/support/storyBranchLandedReview.ts). Only the native Codex transport and
+// (../../dashboard/test-support/support/storyBranchLandedReview.ts). Only the native Codex transport and
 // GitHub's answers are substituted.
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { browserLocaleString } from "../../dashboard/tests/browserLocale.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { browserLocaleString } from "../../dashboard/test-support/browserLocale.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   git,
   retireLaunchWorkspace,
-} from "../../dashboard/tests/support/launchLanding.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
 import {
   readReview,
   refreshReview,
-} from "../../dashboard/tests/support/launchLandingReview.ts";
-import { reviewFeedback } from "../../dashboard/tests/support/reviewContextLine.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/launchLandingReview.ts";
+import { reviewFeedback } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedRecord,
   trunkCommitFromAnotherWriter,
-} from "../../dashboard/tests/support/storyBranchIntegration.ts";
+} from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import {
   integratedOntoTrunk,
   storyBranchExecutionAfterRefinement,
-} from "../../dashboard/tests/support/storyBranchLandedReview.ts";
+} from "../../dashboard/test-support/support/storyBranchLandedReview.ts";
 
 const repository = "terryyin/open-dough";
 

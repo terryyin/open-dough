@@ -6,7 +6,7 @@
 // without reaching it; a request the boundary refuses on its own terms is
 // answered while every turn is taken; closing the server ends the waiting
 // reads with the outstanding ones. GitHub holds every answer and releases
-// them one at a time (../../tests/support/heldGitHubAnswer.ts), and reports the most
+// them one at a time (../../test-support/support/heldGitHubAnswer.ts), and reports the most
 // `gh` calls it had unanswered at once: a call beyond the bound would stay
 // unanswered and be counted. Each request's pinned reads before its held one
 // are made first, as ./authenticated-read-shared.spec.ts makes them. Two tabs
@@ -14,23 +14,23 @@
 // time went, in its `Server-Timing`:
 // ./authenticated-read-turns-timing.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
-import { heldInTurn } from "../../tests/support/heldGitHubAnswer.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
-import { onServerOfItsOwn } from "../../tests/support/directedWait.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
+import { heldInTurn } from "../../test-support/support/heldGitHubAnswer.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
+import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
 import {
   askedSince,
   readAt,
   refusedMarker,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 import {
   arrived,
   asked,
@@ -42,7 +42,7 @@ import {
   servedInTurn,
   turns,
   underWay,
-} from "../../tests/support/turnReads.ts";
+} from "../../test-support/support/turnReads.ts";
 
 test.describe.configure({ mode: "serial" });
 

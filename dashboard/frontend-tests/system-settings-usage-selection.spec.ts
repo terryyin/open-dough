@@ -7,13 +7,13 @@ import {
   usageTokenIndexEndpoint,
   type UsageTool,
 } from "../src/usageTokenIndex.ts";
-import { test } from "../tests/support/frontendApp.ts";
+import { test } from "../test-support/support/frontendApp.ts";
 import {
   answerHeld,
   holdAnswer,
   type AnswerHold,
-} from "../tests/support/frontendSubstituteAnswers.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+} from "../test-support/support/frontendSubstituteAnswers.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 import type { Page } from "@playwright/test";
 
 const answerFor = (tool: UsageTool) =>

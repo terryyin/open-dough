@@ -4,26 +4,29 @@ import {
   keptLaunchRecords,
   keptLaunchStore,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
-import { test, expect } from "../../tests/support/pageTest.ts";
+} from "../../test-support/support/launchStore.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { existsSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import { acceptanceSchema } from "../../src/launchOutcome.ts";
-import { accept } from "../../tests/agentLaunchBoundary.ts";
-import { keptAttempts, settledOutcome } from "../../tests/acceptedAttempts.ts";
+import { accept } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  keptAttempts,
+  settledOutcome,
+} from "../../test-support/acceptedAttempts.ts";
 import {
   startOrigin,
   queuedIdentity,
   queuedTitle,
-} from "../../tests/support/startOrigin.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   reportingChild,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
-import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
+} from "../../test-support/support/completionRecovery.ts";
+import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());

@@ -4,25 +4,25 @@ import {
   expect,
   test,
   openFrontendTakenBacklog,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
-} from "../../tests/support/frontendStoryReview.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { storyNoteVoicePage } from "../../tests/support/storyNoteVoicePage.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { storyNoteVoicePage } from "../../test-support/support/storyNoteVoicePage.ts";
 import {
   observeMicrophone,
   stoppedTracks,
   holdMicrophonePermission,
-} from "../../tests/support/voicePage.ts";
-import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { takenStory, takenIdentity } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/voicePage.ts";
+import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { takenStory, takenIdentity } from "../../test-support/launchJourney.ts";
 
 test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {

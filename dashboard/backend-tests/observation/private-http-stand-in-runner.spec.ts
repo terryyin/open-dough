@@ -1,26 +1,29 @@
 // Ownership and isolation of the Cursor runner stand-in selected by private
 // HTTP fixtures that do not prove Cursor operations
-// (../../tests/support/cursorRunnerStandIn.ts via dashboardServer). The
+// (../../test-support/support/cursorRunnerStandIn.ts via dashboardServer). The
 // authenticated-read refusal complete spec exercises the same opt-in for its
 // refusals and accepted read; this file owns absence of a real runner,
 // unexpected protocol diagnostics after cleanup, overlapping fixtures and
 // runs, and retirement of owned resources after success or failure.
 
 import { existsSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
   expectCursorRunnerStandIn,
   runnersFor,
-} from "../../tests/support/cursorRunnerJourney.ts";
+} from "../../test-support/support/cursorRunnerJourney.ts";
 
 const knownSourceId = "open-dough";
 const withStandIn = {

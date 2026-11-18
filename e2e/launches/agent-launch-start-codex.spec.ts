@@ -3,35 +3,35 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { keptStarts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
-import { expectCodexRetryProgress } from "../../dashboard/tests/support/codexRetryPage.ts";
+import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
+import { expectCodexRetryProgress } from "../../dashboard/test-support/support/codexRetryPage.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   test as base,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { expectExecutionInput } from "../../dashboard/tests/support/codexStartAssertions.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { expectExecutionInput } from "../../dashboard/test-support/support/codexStartAssertions.ts";
 import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   changedReviewRevision,
   queuedIdentity,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   openUntilRead,
   passCheckPace,
   reloadUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 
 // Story A's seed changed after its readiness review.
 const test = base.extend({

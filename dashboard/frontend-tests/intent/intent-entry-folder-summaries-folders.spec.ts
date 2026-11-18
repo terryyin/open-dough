@@ -1,11 +1,14 @@
-import { putFrontendFolderSources } from "../../tests/support/frontendIntentSources.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { putFrontendFolderSources } from "../../test-support/support/frontendIntentSources.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent folder toggle/name selection, keyboard operation, and toggle reader
 // preservation (../../src/StoryReviewFileTree.tsx, ../../src/IntentBrowser.tsx).
 // Location toggle/name: ./intent-entry-folder-summaries.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -14,9 +17,9 @@ import {
   intentGroupToggle,
   intentLocationName,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
-import { expectChildNames } from "../../tests/intentScopeProofPage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { expectChildNames } from "../../test-support/intentScopeProofPage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   featuresPath,
   jobsFolder,
@@ -25,7 +28,7 @@ import {
   reportsFolder,
   stooqPath,
   topFeaturePath,
-} from "../../tests/intentEntryFolderSummariesFixtures.ts";
+} from "../../test-support/intentEntryFolderSummariesFixtures.ts";
 
 test("Intent folder toggle/name, keyboard, and location toggle preserve the reader", async ({
   page,

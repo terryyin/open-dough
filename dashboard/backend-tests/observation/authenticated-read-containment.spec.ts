@@ -8,25 +8,25 @@
 // before any `gh` call. The page's use of it, against a real origin's history:
 // ../../../e2e/launches/responsive-session-reconciliation.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
   type GhCall,
-} from "../../tests/support/fakeGitHub.ts";
-import { compareAnswer } from "../../tests/comparisonAnswers.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { compareAnswer } from "../../test-support/comparisonAnswers.ts";
 import {
   noConnection,
   notFoundAnswer,
   rateLimitedAnswer,
   type OriginAnswer,
-} from "../../tests/originAnswers.ts";
-import { onServerOfItsOwn } from "../../tests/support/directedWait.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/originAnswers.ts";
+import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

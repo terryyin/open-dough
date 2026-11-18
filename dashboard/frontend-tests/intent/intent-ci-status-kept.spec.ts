@@ -6,37 +6,37 @@
 // GitHub reads behind each judgment are ../../../e2e/intent/intent-ci-status.spec.ts
 // and ../../../e2e/intent/intent-ci-status-story.spec.ts.
 
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
-import { failing } from "../../tests/intentCiStoryBoard.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
+import { failing } from "../../test-support/intentCiStoryBoard.ts";
 import {
   chooseCiStatus,
   ciPanel,
   ciStatusReading,
   expectChecked,
   expectCiAnswer,
-} from "../../tests/intentCiStatusPage.ts";
+} from "../../test-support/intentCiStatusPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
   filesColumn,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   openUntilRead,
   passCheckPace,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   judgedCiStatus,
   serveFrontendCiStatus,
-} from "../../tests/support/frontendCiStatusAnswers.ts";
+} from "../../test-support/support/frontendCiStatusAnswers.ts";
 import {
   publishCiStoryBoard,
   publishUnconfiguredDoughnut,
-} from "../../tests/support/frontendServiceState.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");
 

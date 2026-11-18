@@ -6,15 +6,15 @@
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { untilPublishedWorkRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { authorizeFeedbackMaintenance } from "../../dashboard/tests/support/feedbackMaintenanceDue.ts";
+import { untilPublishedWorkRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { authorizeFeedbackMaintenance } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   expectPreservedMachineRecordContents,
   machineRecordNames,
   snapshotMachineRecords,
-} from "../../dashboard/tests/support/machineRecordNames.ts";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
+} from "../../dashboard/test-support/support/machineRecordNames.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

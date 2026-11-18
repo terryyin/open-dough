@@ -5,25 +5,25 @@
 // A browser's touch emulation performs no long-press selection, so the range
 // is given to the page as a device's handles would leave it. Variants are
 // ../../frontend-tests/agent-terminal-touch-select*.spec.ts.
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   box,
   expectOnOneLine,
   tapWhereShown,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   copyClipboardText,
   pasteKey,
   phonePasteJourney,
   test,
-} from "../../dashboard/tests/terminalPastePage.ts";
+} from "../../dashboard/test-support/terminalPastePage.ts";
 import {
   expectTerminalInputNotFocused,
   expectTerminalText,
   pressTerminalKey,
   terminalStatus,
   typeLine,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -34,14 +34,14 @@ import {
   selectKey,
   selectPausedRange,
   selectedText,
-} from "../../dashboard/tests/terminalSelectPage.ts";
+} from "../../dashboard/test-support/terminalSelectPage.ts";
 import {
   expectMinTouchTarget,
   focusByTouch,
   reportedRows,
   tapTerminalKey,
   terminalKey,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 const openPasteTerminal = phonePasteJourney();
 

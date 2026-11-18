@@ -4,22 +4,25 @@
 // ./agent-launch-codex-observation-workspace.spec.ts; the states endpoint's
 // own failures are ../../dashboard/backend-tests/sessions/agent-launch-codex-observation-status.spec.ts.
 import { readFileSync, realpathSync } from "node:fs";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../dashboard/tests/launchJourney.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
+import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../dashboard/test-support/launchJourney.ts";
 import {
   storyCardSessions,
   parts,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
   openSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { test, expect } from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
   saveObservations as save,
@@ -27,8 +30,8 @@ import {
   observed,
   passive,
   daemonStarts,
-} from "../../dashboard/tests/support/codexObservation.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/codexObservation.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 test.use({ projectFolders: ["open-dough"] });
 
 test("saved Codex states appear on active cards and sidebar while Recently done retains only the closed session, through reload with their attention counts", async ({

@@ -3,13 +3,16 @@ import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   failing,
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 

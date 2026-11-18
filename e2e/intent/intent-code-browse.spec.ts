@@ -3,14 +3,17 @@ import {
   fileSource,
   sourceFile,
   sourceLineText,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent lists and reads configured code test source at the observed revision
 // (../../dashboard/src/IntentPerspective.tsx): include-pattern matches, helpers/product
 // omitted, group headers, and exact text with kind styling. Doughnut and
 // Pygardon kinds: ./intent-code-browse-projects.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts, shortRevision } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  parts,
+  shortRevision,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -18,15 +21,15 @@ import {
   intentGroupToggle,
   intentFolderName,
   intentLocationName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expectKeywordAndStringColours } from "../../dashboard/tests/pageColours.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { expectKeywordAndStringColours } from "../../dashboard/test-support/pageColours.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   browseSpec,
   openDough,
   publishIntentProject,
   shellCheck,
-} from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
@@ -82,7 +85,8 @@ test("Intent lists matched code test files under include patterns, omits helpers
         browseSpec,
       ]),
     ),
-    "dashboard/tests/intentPerspectivePage.ts": "export const helper = 1;\n",
+    "dashboard/test-support/intentPerspectivePage.ts":
+      "export const helper = 1;\n",
     "dashboard/frontend-tests/touch-reading-observation.spec.ts": browseSpec,
     "dashboard/frontend-tests/pageLayout.ts": "export const helper = 1;\n",
     ...Object.fromEntries(
@@ -126,7 +130,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
       ),
     ).toBeVisible();
     await expect(
-      sourceFile(intent, "dashboard/tests/intentPerspectivePage.ts"),
+      sourceFile(intent, "dashboard/test-support/intentPerspectivePage.ts"),
     ).toHaveCount(0);
 
     await sourceFile(

@@ -1,12 +1,12 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   doughnutSource,
   openDoughSource,
   putFrontendDonePublication,
   putFrontendBacklog,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import {
@@ -18,27 +18,30 @@ import {
   queuedTitles,
   publishLargeBacklog,
   revision,
-} from "../../tests/accessibleBoard.ts";
+} from "../../test-support/accessibleBoard.ts";
 import {
   chooseProject,
   expectProjectChoice,
   expectSettledPage,
   parts,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   tapColumnIndicator,
   expectView,
   wheelTo,
-} from "../../tests/boardPage.ts";
-import { expectReadWholeInCard } from "../../tests/boardReading.ts";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+} from "../../test-support/boardPage.ts";
+import { expectReadWholeInCard } from "../../test-support/boardReading.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../../tests/pageLayout.ts";
-import { doneRecordFiles, executed } from "../../tests/recentlyDoneRecords.ts";
+} from "../../test-support/pageLayout.ts";
+import {
+  doneRecordFiles,
+  executed,
+} from "../../test-support/recentlyDoneRecords.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 
 const phoneWholeTextCut = [".owner-mark", ...compactProjectSelectCut] as const;

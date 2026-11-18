@@ -2,32 +2,35 @@ import {
   prepareDoughnutCandidates,
   prepareOpenDoughCandidates,
   preparePygardonCandidates,
-} from "../../tests/support/frontendIntentCandidates.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+} from "../../test-support/support/frontendIntentCandidates.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Project Intent opens recorded test locations from a candidate entry on the
 // Optimization Candidates tab into the CI status tab's Purpose selection,
 // and choosing Optimization Candidates again returns the keyboard to that
 // entry without rereading (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
-} from "../../tests/intentModePage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentModePage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   doughnutFeaturePath,
   openDoughSpecPaths,
   pygardonClipPath,
-} from "../../tests/intentCandidatesFixtures.ts";
+} from "../../test-support/intentCandidatesFixtures.ts";
 import {
   doughnut,
   openDough,
   pygardon,
-} from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 
 test("Intent opens a recorded location into the Intent tab's Purpose, marks the tree, and returns to the entry without rereading", async ({
   page,

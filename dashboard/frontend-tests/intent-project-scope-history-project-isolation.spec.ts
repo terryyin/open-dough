@@ -1,23 +1,26 @@
 import {
   scopeHistory,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Changing scope/project cannot relabel an earlier local read as current proof.
-import { parts } from "../tests/dashboardPage.ts";
-import { chooseProject } from "../tests/projectChoice.ts";
-import { fileReadingTab, proofRegion } from "../tests/intentPerspectivePage.ts";
-import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
+import { parts } from "../test-support/dashboardPage.ts";
+import { chooseProject } from "../test-support/projectChoice.ts";
+import {
+  fileReadingTab,
+  proofRegion,
+} from "../test-support/intentPerspectivePage.ts";
+import { openSummary } from "../test-support/intentSummaryCiProofFixtures.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../tests/pageRequestNotes.ts";
-import { expect, test } from "../tests/support/frontendApp.ts";
-import { doughnutSource } from "../tests/support/frontendServiceState.ts";
+} from "../test-support/pageRequestNotes.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
+import { doughnutSource } from "../test-support/support/frontendServiceState.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
-} from "../tests/support/projectScopeHistoryFacts.ts";
-import { childName } from "../tests/intentScopeProofPage.ts";
+} from "../test-support/support/projectScopeHistoryFacts.ts";
+import { childName } from "../test-support/intentScopeProofPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 
 test("late entry history cannot replace another file or project's history while live Proof is absent", async ({

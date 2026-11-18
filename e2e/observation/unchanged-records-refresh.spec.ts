@@ -6,7 +6,7 @@
 // profile, setting, or done-record text or listing, done catalog, profile
 // history, or last commit time being read again. A
 // second tab costs what a reload does, and a restarted dashboard process reads
-// B in full. The fake GitHub only publishes the commits (../../dashboard/tests/publishedFiles.ts);
+// B in full. The fake GitHub only publishes the commits (../../dashboard/test-support/publishedFiles.ts);
 // the local read boundary, its memo, and the page decide what is asked and
 // shown.
 
@@ -14,14 +14,14 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   atA,
   atB,
@@ -39,7 +39,7 @@ import {
   revisionB,
   seedPath,
   settingsPath,
-} from "../../dashboard/tests/unchangedRecordsRefresh.ts";
+} from "../../dashboard/test-support/unchangedRecordsRefresh.ts";
 
 test("a commit that changes no planning record is shown without reading the unchanged records again; a second tab and a restarted dashboard cost what they did", async ({
   page,

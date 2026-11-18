@@ -1,5 +1,5 @@
 // A follow-up started with Codex over raw HTTP, with the real installed start
-// (../../tests/support/codexStart.ts) and the protocol-only Codex fixture:
+// (../../test-support/support/codexStart.ts) and the protocol-only Codex fixture:
 // Codex's first input has Claude's follow-up layout (expectFollowUpInput in
 // ./followUpBoundaryCases.ts; Claude's: agent-launch-follow-up-boundary.spec.ts
 // and, for a done story, agent-launch-follow-up-story.spec.ts), and a start
@@ -14,23 +14,23 @@ import {
   attempts,
   continued,
   launch,
-} from "../../tests/agentLaunchBoundary.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import { expect, stored, test } from "../../tests/support/codexStart.ts";
-import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import { expect, stored, test } from "../../test-support/support/codexStart.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   doneStoryFiles,
   quietStorySessions,
   recoverStory,
   storyContextOf,
-} from "../../tests/support/followUpStories.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+} from "../../test-support/support/followUpStories.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   git,
   isolatedSession,
-} from "../../tests/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/startSessionLanding.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,

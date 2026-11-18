@@ -6,11 +6,11 @@
 import { appendFileSync, rmSync, utimesSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 import {
   counters,
   expect,
@@ -19,7 +19,7 @@ import {
   storedUsage,
   test,
   usageServer,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const longAgo = new Date("2026-11-01T00:00:00.000Z");
 

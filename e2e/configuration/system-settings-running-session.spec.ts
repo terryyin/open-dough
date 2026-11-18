@@ -1,19 +1,19 @@
 // Opening System settings over a running native session hides its terminal
 // without ending or re-attaching it: the same attach keeps its context when
 // the dashboard returns.
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
-import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
-import { startSessionDialog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
+import { startSessionDialog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 import {
   back,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

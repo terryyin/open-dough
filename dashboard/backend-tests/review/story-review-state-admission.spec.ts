@@ -8,11 +8,11 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
-import { expect, test } from "../../tests/dashboardTest.ts";
+import { expect, test } from "../../test-support/dashboardTest.ts";
 import {
   keptReviewStates,
   reviewStatesFile,
-} from "../../tests/recentlyDoneReviewState.ts";
+} from "../../test-support/recentlyDoneReviewState.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });

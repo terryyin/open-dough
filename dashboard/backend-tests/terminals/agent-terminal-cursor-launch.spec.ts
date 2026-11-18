@@ -2,18 +2,18 @@
 // instruction when that client's screen is ready. Opening the terminal joins
 // that client. A screen that is not ready does not receive the instruction.
 // A client that leaves before acceptance is agent-terminal-cursor-exit.spec.ts.
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { shows } from "../../tests/agentTerminalBoundary.ts";
-import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
-import { openCursorTerminal } from "../../tests/support/cursorTerminal.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { shows } from "../../test-support/agentTerminalBoundary.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
+import { openCursorTerminal } from "../../test-support/support/cursorTerminal.ts";
 import {
   enteredInstruction,
   instructedCursorRequest,
   keptCursor,
   withInstructedCursor,
-} from "../../tests/support/keptCursorTurn.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "hold this launch";
 const notice =

@@ -13,16 +13,19 @@
 // listed the sessions, again, never after a sleep.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { attempts, deleteRecord } from "../../tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../tests/dashboardTest.ts";
-import { publishMovingOrigin } from "../../tests/publishedOrigin.ts";
-import { reportingThrough } from "../../tests/support/reportedLaunch.ts";
+import {
+  attempts,
+  deleteRecord,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/dashboardTest.ts";
+import { publishMovingOrigin } from "../../test-support/publishedOrigin.ts";
+import { reportingThrough } from "../../test-support/support/reportedLaunch.ts";
 import {
   afterFurtherListings,
   messages,
-} from "../../tests/support/sessionAlerts.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
-import { dayFromToday } from "../../tests/support/feedbackMaintenanceDue.ts";
+} from "../../test-support/support/sessionAlerts.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { dayFromToday } from "../../test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   launchedInput,
@@ -31,7 +34,7 @@ import {
   serverOn,
   turnOn,
   watchListDue,
-} from "../../tests/support/feedbackMaintenanceServer.ts";
+} from "../../test-support/support/feedbackMaintenanceServer.ts";
 
 test("a session started at Open Dough's default effort: an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again", async ({
   github,

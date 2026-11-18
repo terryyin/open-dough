@@ -1,10 +1,10 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import {
   reviewRefresh,
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
@@ -18,15 +18,18 @@ import {
 // names no workspace offers no review at all, which the launch boundary also
 // refuses.
 
-import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../../dashboard/src/storyReviewContract.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
-import { reviewAfter } from "../../dashboard/tests/support/launchLandingReview.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
+import { reviewAfter } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
@@ -34,24 +37,24 @@ import {
   expectFixedWhileScrolled,
   reviewBody,
   reviewFeedback,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectReviewRead,
   openReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   branch,
   git,
   storyWorktree,
   unchangedWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   keepLaunchRecord,
   storyALaunch,
-} from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 const gapExplanation =

@@ -1,19 +1,19 @@
 // Built app with explicit retained-run/diff/notes substitutes. Published Git
 // selection remains the real journey's responsibility.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendDoneStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { parts } from "../../tests/dashboardParts.ts";
-import { storyA } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendDoneStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
+import { storyA } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 
 const oldPath = "old-name.ts";
 const path = "new-name.ts";

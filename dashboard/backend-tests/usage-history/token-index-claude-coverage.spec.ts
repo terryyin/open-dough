@@ -6,18 +6,18 @@
 // (1,000×4 + 9,000×0.20 + O×20) / 4 = 1,450 + 5×O Opus 5.5 input tokens.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   nativeFile,
   readImported,
   runImport,
   writeClaudeSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 import {
   expect,
   test,
   usageServer,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const usage = (output: number) => ({
   input_tokens: 1_000,

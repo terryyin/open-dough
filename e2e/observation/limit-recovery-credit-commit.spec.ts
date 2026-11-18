@@ -2,9 +2,9 @@
 // the walk back from a trunk revision that does not move is read on its own
 // once the wait ends: the history listing and the commit walked before the
 // refusal are not asked again, and the human appears on its card, detail,
-// and roster, with its Take clock beside it (../../dashboard/tests/limitRecoveryCredit.ts).
+// and roster, with its Take clock beside it (../../dashboard/test-support/limitRecoveryCredit.ts).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   askedSince,
   expectRecovered,
@@ -12,9 +12,9 @@ import {
   openedWithYumaWithheld,
   waitedOut,
   yumaAddition,
-} from "../../dashboard/tests/limitRecoveryCredit.ts";
-import { pathChange } from "../../dashboard/tests/pathHistoryAnswers.ts";
-import { takes } from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/limitRecoveryCredit.ts";
+import { pathChange } from "../../dashboard/test-support/pathHistoryAnswers.ts";
+import { takes } from "../../dashboard/test-support/sliceClockRecords.ts";
 
 test("an addition commit limited during the walk is read once the wait ends, reusing the steps already answered", async ({
   page,

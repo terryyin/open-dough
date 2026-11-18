@@ -6,28 +6,28 @@ import path from "node:path";
 import {
   startDashboardServer,
   sharedDashboardBuild,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedStory,
   notRefinedIdentity,
-} from "../../dashboard/tests/launchJourney.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
-import { sessionDetailsControl } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
+import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import { shellCommand } from "../../dashboard/src/sessionCapabilities.ts";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   attempts,
   continued,
   launch,
   refinementRequest,
   machineSessions,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -4,7 +4,7 @@ import {
   expect,
   usageServer,
   writeTaskUsage,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 test("an isolated 65-million task leaves the ten-task median at one million", async ({
   machine,

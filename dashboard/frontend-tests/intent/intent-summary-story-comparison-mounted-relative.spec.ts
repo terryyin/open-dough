@@ -1,19 +1,19 @@
-import { fileComparisonCell } from "../../tests/intentFileProofPage.ts";
-import { proofTableRowsNamed } from "../../tests/proofTablePage.ts";
+import { fileComparisonCell } from "../../test-support/intentFileProofPage.ts";
+import { proofTableRowsNamed } from "../../test-support/proofTablePage.ts";
 // Scope-relative scales and Show % are rendered by the production scope frame.
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   scopeComparisonFigure,
   scopeComparisonCell,
   scopeTable,
-} from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/intentScopeProofPage.ts";
 import {
   expectMark,
   markGeometry,
   relativePresentation,
-} from "../../tests/support/relativeTimingMarks.ts";
-import { rowNames } from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/relativeTimingMarks.ts";
+import { rowNames } from "../../test-support/support/expectSortedColumns.ts";
 
 const examples = [
   {

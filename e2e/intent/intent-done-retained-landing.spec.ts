@@ -1,4 +1,4 @@
-import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
+import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Done Intent prefers its published completion, recovering the same completed
 // result from a validated capture when configured history becomes shallow.
 // The real installed integration captures the completed execution; ordinary
@@ -10,12 +10,15 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   expandIntentGroup,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expect, test } from "../../dashboard/tests/support/codexStart.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/codexStart.ts";
 import {
   chooseStoryTab,
   intentDiff,
@@ -23,14 +26,14 @@ import {
   intentFile,
   openReviewFromIntent,
   reviewDiff,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { retainedIntentLanding } from "../../dashboard/tests/support/retainedIntentLanding.ts";
-import { selectDoneStoryInIntent } from "../../dashboard/tests/support/selectDoneStoryInIntent.ts";
-import { trunkCommitFromAnotherWriter } from "../../dashboard/tests/support/storyBranchIntegration.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { retainedIntentLanding } from "../../dashboard/test-support/support/retainedIntentLanding.ts";
+import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
+import { trunkCommitFromAnotherWriter } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import {
   git,
   lines,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 // This installed queued origin is input to the real native journey. Its
 // maintained owner prepares it before the first test's budget starts; every

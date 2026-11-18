@@ -6,41 +6,41 @@
 // identity, so only the named project's card may be the destination. Nothing
 // here launches or attaches an agent.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { holdProjectReads } from "../../tests/holdAuthenticatedReads.ts";
-import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
-import { answerSharedStoryProjects } from "../../tests/support/frontendStoryUrlDestination.ts";
-import { publishExecutingRoster } from "../../tests/support/frontendExecutingRoster.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { countProjectReads } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { holdProjectReads } from "../../test-support/holdAuthenticatedReads.ts";
+import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
+import { answerSharedStoryProjects } from "../../test-support/support/frontendStoryUrlDestination.ts";
+import { publishExecutingRoster } from "../../test-support/support/frontendExecutingRoster.ts";
 import {
   doughnutSharedTitle,
   openDoughSharedTitle,
   sharedStoryIdentity,
-} from "../../tests/projectSelectionProjects.ts";
+} from "../../test-support/projectSelectionProjects.ts";
 import {
   chooseProject,
   expectProjectChoice,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   expectRoute,
   takenIdentity,
   takenStory,
-} from "../../tests/agentRosterRecords.ts";
+} from "../../test-support/agentRosterRecords.ts";
 import {
   recordReveals,
   revealsOf,
-} from "../../tests/sessionNavigationJourney.ts";
+} from "../../test-support/sessionNavigationJourney.ts";
 import {
   expectArrivedAt,
   expectKeyboardWithin,
   storyUrl,
-} from "../../tests/notificationStoryJourney.ts";
-import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
-import { expectSelected } from "../../tests/storyCardSelection.ts";
+} from "../../test-support/notificationStoryJourney.ts";
+import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
+import { expectSelected } from "../../test-support/storyCardSelection.ts";
 import {
   expectCueEnds,
   expectDestinationCue,
-} from "../../tests/destinationCue.ts";
+} from "../../test-support/destinationCue.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

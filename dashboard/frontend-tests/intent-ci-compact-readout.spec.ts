@@ -10,22 +10,22 @@ import type { ProjectHistory } from "../server/landedCiHistoryStore.ts";
 import {
   doneWallTimeHistory,
   expectChangeCue,
-} from "../tests/priorBuildReferencePage.ts";
+} from "../test-support/priorBuildReferencePage.ts";
 import {
   expect,
   mountComparison,
   test,
   type ComparisonReply,
   type ComparisonServices,
-} from "../tests/support/comparisonMountPage.ts";
-import { doneHistoryBuilder } from "../tests/support/doneWallReferenceHistory.ts";
-import type { FrontendAppServer } from "../tests/support/frontendAppServer.ts";
+} from "../test-support/support/comparisonMountPage.ts";
+import { doneHistoryBuilder } from "../test-support/support/doneWallReferenceHistory.ts";
+import type { FrontendAppServer } from "../test-support/support/frontendAppServer.ts";
 import {
   laterTrunkRevision,
   mountedDoneTrunk,
   preparedDoneComparison,
   serveDoneWallTimeHistory,
-} from "../tests/support/mountedDoneWallTime.ts";
+} from "../test-support/support/mountedDoneWallTime.ts";
 
 const landing = "Selected landing ccccccc";
 const { endpoint } = mountedDoneTrunk;

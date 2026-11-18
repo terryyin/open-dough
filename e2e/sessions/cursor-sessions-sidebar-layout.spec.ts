@@ -12,20 +12,23 @@ import {
   expectCollapsed,
   expectScrollsOnItsOwn,
   showCrowded,
-} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
+} from "../../dashboard/test-support/cursorSessionsSidebarResizePage.ts";
 import {
   box,
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   crowd,
   expectLastInReach,
   listFloor,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { sessionsSidebarTitleCut } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import { sessionsSidebarTitleCut } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
 

@@ -5,14 +5,14 @@
 // ../../dashboard/frontend-tests/configuration/system-settings-terminal-theme.spec.ts.
 import { chmodSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
 import {
   expectThemeShown,
   sampleColor,
   terminalThemeFile,
   themeChoice,
-} from "../../dashboard/tests/support/terminalThemeSettingsPage.ts";
+} from "../../dashboard/test-support/support/terminalThemeSettingsPage.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

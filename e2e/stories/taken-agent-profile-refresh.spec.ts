@@ -3,26 +3,29 @@
 // publishes the files; the page decides everything shown.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   defaultRepository as repository,
   publishFiles,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   expectMark,
   expectPortrait,
-} from "../../dashboard/tests/agentPortrait.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/agentPortrait.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { describedRevisions } from "../../dashboard/tests/describedRevisions.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
 
 const trunkStory = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";

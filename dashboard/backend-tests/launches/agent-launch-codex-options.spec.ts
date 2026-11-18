@@ -1,14 +1,21 @@
 // Selected-host defaults and admission are proven before native creation.
 import { readFileSync, realpathSync } from "node:fs";
-import { launchStoreFile } from "../../tests/support/launchStore.ts";
-import { installRefinementSkill } from "../../tests/launchStoryCardPage.ts";
-import { test, expect, codexSkill } from "../../tests/support/codexLaunch.ts";
+import { launchStoreFile } from "../../test-support/support/launchStore.ts";
+import { installRefinementSkill } from "../../test-support/launchStoryCardPage.ts";
+import {
+  test,
+  expect,
+  codexSkill,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   launch,
   machineSessions,
   refinementRequest,
-} from "../../tests/agentLaunchBoundary.ts";
-import { daemonStarts, passive } from "../../tests/support/codexObservation.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  daemonStarts,
+  passive,
+} from "../../test-support/support/codexObservation.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });

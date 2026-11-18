@@ -1,6 +1,6 @@
 // Shared creation recovery consumes native host facts without borrowing a command.
 import { execFileSync } from "node:child_process";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { creationRecovery } from "../../src/launchCreation.ts";
 import { launchRecordsSchema } from "../../src/agentLaunch.ts";
 import { creationProblem, creationView } from "../../server/launchCreation.ts";

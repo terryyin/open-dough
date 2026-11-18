@@ -10,17 +10,17 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   endGroup,
   processAlive,
   spawnGroupLeader,
-} from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/processGroup.ts";
 import {
   endRunProcesses,
   processesOfRun,
   runIdVariable,
-} from "../../tests/support/runProcesses.ts";
+} from "../../test-support/support/runProcesses.ts";
 
 function observationFixture() {
   const directory = mkdtempSync(

@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { WebSocket, WebSocketServer } from "ws";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect } from "../support/pageTest.ts";
+import { expect } from "./pageTest.ts";
 import {
   execOnRunner,
   keepCursorClient,

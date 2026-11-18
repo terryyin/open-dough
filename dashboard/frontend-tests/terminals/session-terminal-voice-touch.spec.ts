@@ -1,26 +1,26 @@
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
-import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
-import { observeMicrophone } from "../../tests/support/voicePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";
+import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
+import { observeMicrophone } from "../../test-support/support/voicePage.ts";
 import {
   finishTerminalDictation,
   startTerminalDictation,
   unfocusedPromptButtons,
-} from "../../tests/support/terminalVoicePage.ts";
+} from "../../test-support/support/terminalVoicePage.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalText,
   insertTerminalText,
   replaceLastTerminalCharacter,
   submitTerminalInput,
-} from "../../tests/terminalScreenPage.ts";
-import { tapWhereShown } from "../../tests/pageLayout.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
 import {
   expectTerminalActionsFit,
   expectTerminalActionsOrder,
   closeTouchTerminal,
   writeTouchTerminalInput,
-} from "../../tests/support/terminalTouchActionsPage.ts";
+} from "../../test-support/support/terminalTouchActionsPage.ts";
 
 test.use({
   ...microphoneBrowserOptions,

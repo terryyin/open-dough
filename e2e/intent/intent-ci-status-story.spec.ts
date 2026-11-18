@@ -4,7 +4,7 @@ import {
   expectCiAnswer,
   chooseCiStatus,
   expectChecked,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 
 // Intent's CI status follows the page's selected story
 // (../../dashboard/src/intentCiTarget.ts): a Taken Story Branch Mode story selected on
@@ -24,15 +24,15 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
 import {
   failing,
   planningOnly,
   running,
-} from "../../dashboard/tests/intentCiStoryBoard.ts";
+} from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
   failedRun,
@@ -42,16 +42,16 @@ import {
   runningRun,
   started,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   storyTitle,
   storySummary,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
   page,

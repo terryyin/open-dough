@@ -21,7 +21,7 @@
 // Discovery is the group's own: scripts/test-jobs.sh's unsplit listing for
 // distribution-tests, whose `test-times-<i>` artifacts hold repository-relative
 // `test-times.txt` labels; for a browser group, the spec files under its job's
-// `root` input (dashboard/tests/support/testFiles.mjs), whose
+// `root` input (dashboard/test-support/support/testFiles.mjs), whose
 // `<group>-times-<i>` artifacts hold `browser-times.txt` labels relative to
 // the configuration's directory, the root's first segment (`e2e/`,
 // `dashboard/`). Exits 1 saying why when the declaration is refused, gh fails,
@@ -32,7 +32,7 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, posix } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { dashboardSpecFiles } from "../dashboard/tests/support/testFiles.mjs";
+import { dashboardSpecFiles } from "../dashboard/test-support/support/testFiles.mjs";
 import { formatProposal, proposeChange } from "./ci-shard-proposal.mjs";
 import { NoTimesError, median, readRecentTimes } from "./ci-shard-times.mjs";
 import {

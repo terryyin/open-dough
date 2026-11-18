@@ -20,6 +20,7 @@ import {
   setPageVisibility,
 } from "./autoRefreshJourney.ts";
 import { revisionStreamAtParameter } from "../src/authenticatedReadRules.ts";
+import { revisionStreamSlotLockNames } from "../src/revisionStreamSlot.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
@@ -181,3 +182,13 @@ export {
   revisionA,
   titlesOfA,
 };
+
+// Slot requests the browser has queued, across this origin's pages.
+export function queuedSlotRequests(page: Page): Promise<number> {
+  return page.evaluate(async (names) => {
+    const { pending = [] } = await navigator.locks.query();
+    return pending.filter(
+      ({ name }) => name !== undefined && names.includes(name),
+    ).length;
+  }, revisionStreamSlotLockNames());
+}

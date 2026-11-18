@@ -1,18 +1,18 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   accept,
   continueAttempt,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   startOrigin,
   queuedIdentity,
   queuedTitle,
-} from "../../tests/support/startOrigin.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("update drain closes admission and waits through published execution start and durable native confirmation", async () => {

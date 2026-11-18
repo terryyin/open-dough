@@ -8,13 +8,13 @@
 // ./agent-launch-done-rename-wait.spec.ts; shutdown abandonment is in
 // ./agent-launch-done-close.spec.ts. The whole-flow
 // cases are ./agent-launch-done.spec.ts. The machine directory holds HOME and
-// the synthetic `claude`'s (../../tests/fixtures/fake-claude) state; the real one is
+// the synthetic `claude`'s (../../test-support/fixtures/fake-claude) state; the real one is
 // never reached.
 
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
@@ -22,14 +22,14 @@ import {
   openDoughFolder,
   recordsOf,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
-import { retainedDoneAt } from "../../tests/machineLaunchRecords.ts";
-import { keepMoreLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { retainedDoneAt } from "../../test-support/machineLaunchRecords.ts";
+import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const launchName = `Open Dough · Execution · ${title}`;
 

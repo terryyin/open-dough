@@ -30,7 +30,7 @@ harness; its fixtures delegate domain construction to these builders.
 
 For example, dashboard and skill tests can build the same preparation profile
 facts and hand them directly to `renderAgentProfile` when writing a published
-profile. [Dashboard setup](../../dashboard/tests/publishedFactsIsolation.ts) ·
+profile. [Dashboard setup](../../dashboard/test-support/publishedFactsIsolation.ts) ·
 [Skill setup](skills/dough-story-refinement/preparation-assignment-test-fixtures.mjs)
 
 ```js
@@ -52,7 +52,7 @@ case relies on it. Dashboard harnesses keep the environment, the saved
 project list file and its encoding; the default development harness writes
 the real production seed only when the development list is missing.
 [Builder](support/projectConfigurationTestData.mjs) ·
-[Harness](../../dashboard/tests/support/projectConfiguration.ts)
+[Harness](../../dashboard/test-support/support/projectConfiguration.ts)
 
 Declare the Git state your test starts from with
 `makeMe.aRepository.withRevision(name, facts).please()`. Name the revisions and
@@ -116,7 +116,7 @@ Build a kept launch with `makeMe.aLaunchRecord`: the requested story or
 instruction, the host session (the request takes the session's host), the
 workspace its start established, and when it was launched. Dashboard tests keep
 such records in the machine launch store only through
-`dashboard/tests/support/launchStore.ts`, which writes the store's own
+`dashboard/test-support/support/launchStore.ts`, which writes the store's own
 `{ [project]: records }` document under the machine home without retention;
 the file and its location stay harness facts. Read the parsed document through
 `keptLaunchStore` or one project's records through `keptLaunchRecords`, which
@@ -124,7 +124,7 @@ includes unresolved creations. Use `launchStoreFile` when checking exact bytes
 or waiting for the file. Write exact store text under proof through
 `keepLaunchStoreText`.
 [Builder](support/launchTestData.mjs) ·
-[Launch store harness](../../dashboard/tests/support/launchStore.ts)
+[Launch store harness](../../dashboard/test-support/support/launchStore.ts)
 
 Build native session rows for usage-history import with
 `makeMe.aCodexRollout` and `makeMe.aClaudeTranscript`. Name the session, turns,
@@ -138,7 +138,7 @@ facts for report and collector boundaries with `makeMe.aUsageTask`.
 [Codex builder](support/codexRolloutTestData.mjs) ·
 [Claude builder](support/claudeTranscriptTestData.mjs) ·
 [Persisted task](support/usageHistoryTestData.mjs) ·
-[Import harness](../../dashboard/tests/usage-history/importHarness.ts)
+[Import harness](../../dashboard/test-support/usage-history/importHarness.ts)
 
 Build the host session a terminal or runner consumes on its own with
 `makeMe.aHostSession.claude`, `.codex` or `.cursor`; a kept launch's
@@ -224,7 +224,7 @@ materialized checkout, so the same facts publish the same bytes, including
 the done catalog rebuilt from the records. `describedRevision`,
 `describedBacklog` and `describedFiles` serve one revision. Revision SHAs,
 commit dates, path histories, unanswered paths and held or failing reads stay
-harness inputs. [Served revisions](../../dashboard/tests/describedRevisions.ts) ·
+harness inputs. [Served revisions](../../dashboard/test-support/describedRevisions.ts) ·
 [Renderer](support/repository-revision-files.mjs)
 
 Add installed skills, CI adapters, mailboxes, ignored local configuration, and

@@ -1,24 +1,24 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Every retained run is a keyboard choice beside the live workspace.
-import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
 import {
   reviewChoices,
   addLiveEdit,
-} from "../../dashboard/tests/support/oneShotReviewChoices.ts";
-import { refreshAndRead } from "../../dashboard/tests/support/reviewRead.ts";
-import { openCapturedReview } from "../../dashboard/tests/support/oneShotReview.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+} from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import { refreshAndRead } from "../../dashboard/test-support/support/reviewRead.ts";
+import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
+import { chooseCommit } from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
 import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 
 test("keyboard choices show each retained captured or legacy run beside the live workspace comparison", async ({
   page,

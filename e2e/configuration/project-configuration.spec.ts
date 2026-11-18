@@ -1,21 +1,24 @@
 // Real server configuration, selection and storage; fake GitHub supplies published facts.
 import { mkdirSync, readFileSync } from "node:fs";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectConfigurationMachine } from "../../dashboard/tests/support/projectConfigurationMachine.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectConfigurationMachine } from "../../dashboard/test-support/support/projectConfigurationMachine.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   daysAgo,
   machineHome,
-} from "../../dashboard/tests/machineLaunchRecords.ts";
+} from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
-import { identity, title } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { settings } from "../../dashboard/tests/support/systemSettingsPage.ts";
-import { expectFrameIconControl } from "../../dashboard/tests/frameIconControl.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
+import {
+  identity,
+  title,
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { settings } from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { expectFrameIconControl } from "../../dashboard/test-support/frameIconControl.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { productionSeedProjects } from "../../dashboard/server/projectConfigurationSeed.ts";
 
 let fixture: ReturnType<typeof projectConfigurationMachine>;

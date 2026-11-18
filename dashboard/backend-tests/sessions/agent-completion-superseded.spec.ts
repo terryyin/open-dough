@@ -2,16 +2,16 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import {
   reportingChild,
   completionWriteFault,
   retainedSubmission,
   quote,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 
 test.use({ serverMode: "boundary" });
 

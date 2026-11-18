@@ -3,21 +3,24 @@
 // grammar still wins, renames follow the new path, and outside Intent or
 // unfamiliar hints stay plain.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   frontendFileDiff,
   frontendPublishedReview,
   frontendReviewIds,
   frontendReviewSnapshot,
-} from "../../tests/support/frontendStoryReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
 import {
   openFrontendDoneStoryReview,
   openFrontendStoryReview,
-} from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
-import { codePane } from "../../tests/support/reviewPanes.ts";
-import { storyReviewDiff } from "../../tests/support/reviewDiffSyntax.ts";
+} from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
+import { codePane } from "../../test-support/support/reviewPanes.ts";
+import { storyReviewDiff } from "../../test-support/support/reviewDiffSyntax.ts";
 import type { Locator } from "@playwright/test";
 
 const shellCode = "if true; then echo x; fi";

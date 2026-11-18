@@ -8,7 +8,7 @@ name: Browser test group
 # Each group runs against controlled GitHub responses (no credentials, no live
 # project contents) as one shard job per matrix shard, each running the spec
 # files its shard's `specs` patterns in ci.yml select (the last shard the
-# rest; dashboard/tests/support/testFiles.mjs) and failing on its own failing
+# rest; dashboard/test-support/support/testFiles.mjs) and failing on its own failing
 # test. Tests that serve the production app share a build within their shard
 # and fail if the build fails.
 on:
@@ -144,7 +144,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 90
       # This shard's test cases of the group's proof entry, from its own
-      # proof record (dashboard/tests/support/proofRecordTypes.ts).
+      # proof record (dashboard/test-support/support/proofRecordTypes.ts).
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments

@@ -6,15 +6,15 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   doughnut,
   doughnutSettings,
-} from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   countLocationsReads,
   intentLocationName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   advanceRecoveryClock,
   locationFiles,
@@ -22,17 +22,17 @@ import {
   opened,
   settingsPath,
   readFailure,
-} from "../../dashboard/tests/intentReadRecoveryPage.ts";
+} from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 import {
   httpErrorAnswer,
   noConnection,
-} from "../../dashboard/tests/originAnswers.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { limiting } from "../../dashboard/tests/limitedReadingJourney.ts";
-import { noticedResumeTime } from "../../dashboard/tests/limitNotice.ts";
-import { untilReported } from "../../dashboard/tests/support/directedWait.ts";
-import { headsChecks } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
+} from "../../dashboard/test-support/originAnswers.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { limiting } from "../../dashboard/test-support/limitedReadingJourney.ts";
+import { noticedResumeTime } from "../../dashboard/test-support/limitNotice.ts";
+import { untilReported } from "../../dashboard/test-support/support/directedWait.ts";
+import { headsChecks } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 
 for (const failure of ["settings", "listing"] as const) {
   test(`a boundary-classified transient Intent ${failure} failure recovers at the same revision`, async ({

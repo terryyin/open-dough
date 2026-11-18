@@ -1,6 +1,6 @@
 // A fresh one-worker run of ordinary preparation-page cases before and after
 // one that starts from the kept compared history
-// (../../tests/support/keptComparedStoryBranch.ts): all share one worker,
+// (../../test-support/support/keptComparedStoryBranch.ts): all share one worker,
 // only the case that asks prepares the kept history, and each case's origin
 // is its own. Every worker preparation takes cold preparation's worker
 // allowance, and the kept stories finish before the origins they serve.
@@ -10,9 +10,9 @@ import {
   keptStoryWorkerFixtures,
   test,
   workerPreparationFixtures,
-} from "../../tests/support/pageTest.ts";
-import { coldInputPreparation } from "../../tests/support/publishedMainWorkerFixtures.ts";
-import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
+} from "../../test-support/support/pageTest.ts";
+import { coldInputPreparation } from "../../test-support/support/publishedMainWorkerFixtures.ts";
+import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
 
 type ReportedCase = {
   title: string;

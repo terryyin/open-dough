@@ -3,11 +3,11 @@
 // and touch reading reaches Retry after a refused save and rotation while the
 // saved theme stays shown. Saving, sharing across servers and the predecessor
 // file are ../../../e2e/configuration/system-settings-terminal-theme.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
 import {
   computedPalettes,
   expectThemeShown,
@@ -15,16 +15,16 @@ import {
   sampleColor,
   sampleScreen,
   themeChoice,
-} from "../../tests/support/terminalThemeSettingsPage.ts";
+} from "../../test-support/support/terminalThemeSettingsPage.ts";
 import {
   expectDarkSurface,
   expectLightSurface,
   setColorScheme,
-} from "../../tests/systemAppearanceReading.ts";
-import { expectReadableContrast } from "../../tests/accessibleReading.ts";
-import { tapWhereShown } from "../../tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { readSetting } from "../../tests/support/settingsTouchPage.ts";
+} from "../../test-support/systemAppearanceReading.ts";
+import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { readSetting } from "../../test-support/support/settingsTouchPage.ts";
 import { terminalThemeSaveEndpoint } from "../../src/terminalThemeSetting.ts";
 
 test("terminal Light and Solarized samples keep their palette while settings chrome follows the system appearance", async ({

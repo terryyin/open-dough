@@ -1,6 +1,6 @@
 # Dashboard Backend Test
 
-Focused dashboard server and test-runtime tests live here, beside `../tests/`
+Focused dashboard server and test-runtime tests live here, beside [Dashboard Test Support](../test-support/)
 and `../frontend-tests/`. They prove server behavior, its variants and
 failures at stable public boundaries: HTTP, WebSocket, stored-file, command
 and module boundaries, without a browser workflow. Use the shared
@@ -17,7 +17,7 @@ and a presentation case in `../frontend-tests/`.
 
 The test runtime's own contracts are proved here too, in `runtime/`: the
 runners' reporter, selection, settings, output and cleanup, which run
-Playwright itself on substitute specs (`../tests/fixtures/`), and the shared
+Playwright itself on substitute specs (`../test-support/fixtures/`), and the shared
 page fixture's drain, settled-page wait and held-read observation, whose
 boundary is a page the harness opens rather than a product workflow.
 
@@ -25,7 +25,7 @@ boundary is a page the harness opens rather than a product workflow.
 
 `npm run test:dashboard:backend` runs only this group from its own
 configuration (`../backend.playwright.config.ts`). Its global setup
-(`../tests/support/backendGlobalSetup.ts`) runs the fixture executables once,
+(`../test-support/support/backendGlobalSetup.ts`) runs the fixture executables once,
 gives the run a GitHub request root that admits no owner, and registers only
 the artifacts backend specs request: the server bundle, the app build a
 preview or static server serves, the installed start origins, the published
@@ -48,7 +48,7 @@ CI runs this group as its own producer, the `dashboard-backend` job's shards
 Every backend `*.spec.ts` and case-definition module belongs to one service
 feature folder. Choose the feature whose behavior the test proves,
 irrespective of an older filename prefix. Harness fixtures that several
-groups share stay in `../tests/`. The browser suite's feature folders reuse
+groups share stay in Dashboard Test Support. The browser suite's feature folders reuse
 the same domain vocabulary where it still names protected service behavior.
 
 | Folder | Responsibility |

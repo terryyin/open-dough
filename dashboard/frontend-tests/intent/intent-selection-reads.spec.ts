@@ -1,5 +1,8 @@
-import { prepareFrontendReuseJobs } from "../../tests/support/frontendIntentReuseAnswers.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { prepareFrontendReuseJobs } from "../../test-support/support/frontendIntentReuseAnswers.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent's Purpose shows only what was read for the selected file,
 // and the selection outlives reads of the same revision
 // (../../src/IntentBrowser.tsx, ../../src/IntentPerspective.tsx): while another
@@ -10,23 +13,23 @@ import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // selected feature or its Purpose. Newer revisions:
 // ./intent-revision-notice.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   countLocationsReads,
   expandIntentGroup,
   intentGroupToggle,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
-import { holdAuthenticatedReadsOf } from "../../tests/holdAuthenticatedReads.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsOf } from "../../test-support/holdAuthenticatedReads.ts";
 import {
   featurePath,
   otherPath,
-} from "../../tests/intentJobsFeatureFixtures.ts";
+} from "../../test-support/intentJobsFeatureFixtures.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];

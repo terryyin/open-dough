@@ -1,4 +1,4 @@
-import { askToDeleteRecord } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { askToDeleteRecord } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // Open-session cards disable both Starts and explain why. Mark as done and
 // Cursor Delete record return them without reload; another card stays usable.
 // Taken kept starts and already-open launch dialogs enforce the same refusal.
@@ -7,7 +7,7 @@ import { askToDeleteRecord } from "../../dashboard/tests/support/sessionEntryDis
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionOf,
   storyCardSessions,
@@ -15,31 +15,31 @@ import {
   expectSettledPage,
   parts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import { sessionOpenExplanation } from "../../dashboard/src/launchOutcome.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectStartsBlocked,
   describedBy,
-} from "../../dashboard/tests/storyCardSessionListing.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/storyCardSessionListing.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   expectStartNote,
   launchGroup,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import { identityB } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 // What every blocked Start says while its card has an open session.
 const openSessionNote =

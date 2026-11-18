@@ -5,7 +5,7 @@
 // between servers of either project environment, and an unreadable store answers none
 // and is moved aside by the next launch rather than lost, even when an earlier
 // unreadable copy is already beside it. Each test owns a fresh machine
-// directory holding HOME and the synthetic `claude`'s (../../tests/fixtures/fake-claude)
+// directory holding HOME and the synthetic `claude`'s (../../test-support/fixtures/fake-claude)
 // state; the real one is never reached. What one launch answers and keeps is
 // ./agent-launch-boundary.spec.ts; what a server answers after the store it
 // already read is replaced is ./agent-launch-records-replaced.spec.ts.
@@ -19,7 +19,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
@@ -28,19 +28,22 @@ import {
   markDone,
   recordsOf,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { daysAgo, machineHome } from "../../tests/machineLaunchRecords.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  daysAgo,
+  machineHome,
+} from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   keepLaunchStoreText,
   keptLaunchRecords,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import { launchWithStateSchema } from "../../src/agentLaunch.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { alertReading } from "../../src/sessionShown.ts";

@@ -1,30 +1,33 @@
-import { showLatestRevision } from "../../dashboard/tests/intentReadRecoveryPage.ts";
+import { showLatestRevision } from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 // A real Done story keeps its historical endpoints and saved assessment
 // across all its tabs while Project Intent independently notices a push.
 // Historical file/tab/reading-place continuity through project refresh:
 // ../../dashboard/frontend-tests/intent/intent-done-project-refresh.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { pausePageClock } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { pausePageClock } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   openProjectIntent,
   returnToStory,
   filesColumn,
-} from "../../dashboard/tests/intentModePage.ts";
+} from "../../dashboard/test-support/intentModePage.ts";
 import {
   browserRevision,
   revisionNotice,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { selectCompletedStoryInIntent } from "../../dashboard/tests/support/intentCompletedStory.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { selectCompletedStoryInIntent } from "../../dashboard/test-support/support/intentCompletedStory.ts";
 import {
   advanceDoneProject,
   recordIntentLocations,
-} from "../../dashboard/tests/support/intentDoneProjectRefresh.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/intentDoneProjectRefresh.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   chooseStoryTab,
   storyHeaderReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 test("all Done tabs ignore project freshness while Project Intent notices the later revision", async ({
   page,

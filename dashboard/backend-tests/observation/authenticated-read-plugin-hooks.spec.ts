@@ -5,12 +5,21 @@
 // hook is the only possible cause. End-to-end subprocess lifecycle is covered
 // in ./authenticated-read-subprocess-lifecycle.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { processAlive, readPid } from "../../tests/support/processGroup.ts";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { abandonedRequest, rawRequest } from "../../tests/support/rawHttp.ts";
-import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import {
+  processAlive,
+  readPid,
+} from "../../test-support/support/processGroup.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import {
+  abandonedRequest,
+  rawRequest,
+} from "../../test-support/support/rawHttp.ts";
+import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 
 const knownSourceId = "open-dough";
 

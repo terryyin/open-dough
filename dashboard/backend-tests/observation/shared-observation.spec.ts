@@ -5,7 +5,7 @@
 // past its bound is unanswered without ending the observation, and a fresh
 // demand is answered only by an observation begun after it arrived.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { SharedObservation } from "../../server/sharedObservation.ts";
 
 const open = () => new AbortController().signal;

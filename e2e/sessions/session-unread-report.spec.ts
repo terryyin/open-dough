@@ -1,4 +1,4 @@
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // Reports have separate marks/messages; activity owns state/place. Read keeps open;
 // Done confirms unfinished work. Terminal: ./agent-terminal-done-report.spec.ts;
 // messages: ../../dashboard/frontend-tests/sessions/session-unread-report-message.spec.ts.
@@ -10,37 +10,37 @@ import {
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardUnreadReportsOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   expect,
   pausePageClockAt,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
   expectTooltipLine,
   sessionsSidebarParts,
   sessionsSidebarSessionEntryTooltipOf,
   unreadSessionReport,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   launchedStory,
   reportedMessage,
-} from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   expectCollapsed,
   expectExpanded,
   messagePartOf,
-} from "../../dashboard/tests/support/sessionMessagePart.ts";
+} from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   doneNameOf,
   expectMarked,
@@ -54,7 +54,7 @@ import {
   test,
   titleA,
   unreadWords,
-} from "../../dashboard/tests/support/unreadReportPage.ts";
+} from "../../dashboard/test-support/support/unreadReportPage.ts";
 
 const titleB = "Story B";
 

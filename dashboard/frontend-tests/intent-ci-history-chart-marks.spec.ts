@@ -8,14 +8,14 @@ import {
   expectMarksByTab,
   historyChart,
   inspectMark,
-} from "../tests/historyChartPage.ts";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
+} from "../test-support/historyChartPage.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
 import {
   expect,
   test,
   type ComparisonServices,
-} from "../tests/support/comparisonMountPage.ts";
-import type { FrontendAppServer } from "../tests/support/frontendAppServer.ts";
+} from "../test-support/support/comparisonMountPage.ts";
+import type { FrontendAppServer } from "../test-support/support/frontendAppServer.ts";
 import {
   expectMarkedScopeHistoryDrawn,
   failedReadout,
@@ -23,8 +23,8 @@ import {
   markedScopeHistory,
   unavailableReadout,
   zeroReadout,
-} from "../tests/support/scopeHistoryMarksScenario.ts";
-import { openSummaryScopeHistory } from "../tests/support/summaryScopeHistory.ts";
+} from "../test-support/support/scopeHistoryMarksScenario.ts";
+import { openSummaryScopeHistory } from "../test-support/support/summaryScopeHistory.ts";
 import type { Page } from "@playwright/test";
 
 const selected = "Nov 8 · Selected landing · 1.5 s";

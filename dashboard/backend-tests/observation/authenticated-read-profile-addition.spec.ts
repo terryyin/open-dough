@@ -6,23 +6,26 @@
 // pinned revision lists, walks that profile's history no further than its
 // addition, and refuses anything else before asking GitHub. What the page
 // shows from it is covered in ../../../e2e/stories/agent-roster-avatar.spec.ts. Shares this
-// suite's harness (../../tests/support/dashboardServer.ts) and
+// suite's harness (../../test-support/support/dashboardServer.ts) and
 // ./authenticated-read-boundary.spec.ts's approach.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   backlogApart,
   describedRevision,
-} from "../../tests/describedRevisions.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { pathChange } from "../../tests/pathHistoryAnswers.ts";
+} from "../../test-support/describedRevisions.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { pathChange } from "../../test-support/pathHistoryAnswers.ts";
 
 test.describe.configure({ mode: "serial" });
 

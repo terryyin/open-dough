@@ -11,17 +11,17 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { GitHubRequests } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs";
 import { ownerRecords } from "../../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
-import { expect, test as base } from "../../tests/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import {
   endFakeGh,
   fakeGhEnv,
   installFakeGh,
   type FakeGhPaths,
-} from "../../tests/support/fakeGh.ts";
-import { startFakeGitHub } from "../../tests/support/fakeGitHub.ts";
-import { runFakeGh } from "../../tests/support/fakeGhTransport.mjs";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/support/fakeGh.ts";
+import { startFakeGitHub } from "../../test-support/support/fakeGitHub.ts";
+import { runFakeGh } from "../../test-support/support/fakeGhTransport.mjs";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 export { expect };
 
 type RecordedOwner = {
@@ -43,7 +43,7 @@ export function poisonApi(gh: FakeGhPaths, root: string) {
     executable,
     `#!/bin/sh
 if [ "$1" = api ]; then printf poison > ${JSON.stringify(poison)}; exit 99; fi
-exec ${JSON.stringify(path.join(repoRoot, "dashboard/tests/fixtures/fake-gh"))} "$@"
+exec ${JSON.stringify(path.join(repoRoot, "dashboard/test-support/fixtures/fake-gh"))} "$@"
 `,
     { mode: 0o755 },
   );

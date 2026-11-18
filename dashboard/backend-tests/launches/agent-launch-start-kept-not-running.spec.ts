@@ -3,13 +3,13 @@
 // real bare origin. The page phase journeys: ../../../e2e/launches/agent-launch-start-phases.spec.ts.
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   keptStarts,
   launch,
   runningStarts,
-} from "../../tests/agentLaunchBoundary.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.

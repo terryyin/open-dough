@@ -1,21 +1,24 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
-import { filesColumn } from "../../tests/intentModePage.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
+import { filesColumn } from "../../test-support/intentModePage.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent Gherkin layout: the height below the banner, left-edge location
 // browser, and independent pane scrolling
-// (`../../tests/intentGherkinBrowseFixtures.ts`, ../../src/IntentBrowser.tsx).
+// (`../../test-support/intentGherkinBrowseFixtures.ts`, ../../src/IntentBrowser.tsx).
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { box } from "../../tests/partArrangement.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
-import { doughnut } from "../../tests/intentGherkinBrowseFixtures.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { box } from "../../test-support/partArrangement.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { doughnut } from "../../test-support/intentGherkinBrowseFixtures.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
-} from "../../tests/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
 
 test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
   page,

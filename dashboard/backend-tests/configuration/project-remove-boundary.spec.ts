@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { projectConfigurationFile } from "../../tests/support/projectConfiguration.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { projectConfigurationFile } from "../../test-support/support/projectConfiguration.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test("remove protects the local boundary, writes only configuration and projects no local paths", async () => {
   const server = await startDashboardServer({ mode: "boundary" });

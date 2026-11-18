@@ -3,46 +3,49 @@ import {
   scopeHistory,
   scopeHistoryReading,
   scopeHistoryChart,
-} from "../../dashboard/tests/intentScopeHistoryPage.ts";
-import { expectStackedInOrder } from "../../dashboard/tests/partArrangement.ts";
+} from "../../dashboard/test-support/intentScopeHistoryPage.ts";
+import { expectStackedInOrder } from "../../dashboard/test-support/partArrangement.ts";
 // Real collector → Project Intent, without selecting a story. Independent
 // scope totals include a measured descendant absent from the visible tree.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
 import {
   fileReadingTab,
   proofRegion,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   childName,
   scopeTable,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
-import { openSummary } from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
-import { intentFile } from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
+import { openSummary } from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
+import { intentFile } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
 import {
   recheckingLandedCi,
   restartAsLandedCiReader,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
 import {
   recordScopeHistoryLandings,
   retainedProofs,
   serveCollectedScopeFileRuns,
-} from "../../dashboard/tests/support/scopeHistoryCollection.ts";
+} from "../../dashboard/test-support/support/scopeHistoryCollection.ts";
 import {
   collectedScopeHistory,
   expectUnreadableHistoryAnswer,
   withBrokenCollectedHistory,
-} from "../../dashboard/tests/support/collectedScopeHistory.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/collectedScopeHistory.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 

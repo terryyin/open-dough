@@ -1,14 +1,17 @@
 // After a confirmed base-CI failure, a later pass skips the question; a new
 // failure at another revision asks again.
 
-import { keptStarts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { publishLaterHead } from "../../dashboard/tests/support/publishLaterHead.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { publishLaterHead } from "../../dashboard/test-support/support/publishLaterHead.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { actionsForRuns } from "../../dashboard/tests/support/baseCiActions.ts";
+import { actionsForRuns } from "../../dashboard/test-support/support/baseCiActions.ts";
 
 const baseCiFailedHeading = "Base CI failed";
 

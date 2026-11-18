@@ -3,18 +3,18 @@
 import { cpSync, mkdirSync, mkdtempSync, rmSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   IncompleteReportingSupport,
   reportingContext,
 } from "../../server/completionReporting.ts";
 import { missingReportingSupport } from "../../server/launchWorkspaceReporting.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   plantIncompleteInstall,
   scriptsOf,
-} from "../../tests/support/incompleteReportingInstall.ts";
+} from "../../test-support/support/incompleteReportingInstall.ts";
 
 test.describe("reporting preparation from a launch-workspace install", () => {
   let home: string;

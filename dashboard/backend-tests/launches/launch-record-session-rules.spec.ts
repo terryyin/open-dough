@@ -1,13 +1,13 @@
 // Per-host native identity and continuation rules, at both the session and
 // durable launch-record boundaries. Native attach, done and recovery journeys
 // remain in their host specs.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   hostSessionSchema,
   launchRecordSchema,
 } from "../../src/launchRecord.ts";
-import { defaultMainSession } from "../../tests/support/startSessionLanding.ts";
+import { defaultMainSession } from "../../test-support/support/startSessionLanding.ts";
 
 const claude = makeMe.aHostSession
   .claude({ sessionId: "claude-conversation", shortId: "a1b2" })

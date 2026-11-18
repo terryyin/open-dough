@@ -1,16 +1,19 @@
 // Active story membership owns its open session even with a matching done card.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { columnPagingControl, rem } from "../../tests/boardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { columnPagingControl, rem } from "../../test-support/boardPage.ts";
 import {
   expectMembership,
   parts,
   sessionEntriesIn,
   sessionEntryShowing,
   sessionStateOf,
-} from "../../tests/dashboardPage.ts";
-import { adHocEntry, expectEntries } from "../../tests/recentlyDoneColumn.ts";
-import { queuedTitle } from "../../tests/recentlyDoneRecords.ts";
-import { openFrontendActiveStorySessions } from "../../tests/support/frontendRecentlyDoneStoryCards.ts";
+} from "../../test-support/dashboardPage.ts";
+import {
+  adHocEntry,
+  expectEntries,
+} from "../../test-support/recentlyDoneColumn.ts";
+import { queuedTitle } from "../../test-support/recentlyDoneRecords.ts";
+import { openFrontendActiveStorySessions } from "../../test-support/support/frontendRecentlyDoneStoryCards.ts";
 
 test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose Column paging count uses the rendered entries", async ({
   page,

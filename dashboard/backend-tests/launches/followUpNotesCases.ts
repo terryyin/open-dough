@@ -7,19 +7,19 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { followUpNotesSectionText } from "../../src/followUpContext.ts";
 import { storyNotesContext } from "../../src/followUpStoryNotes.ts";
 import type { StoryNote } from "../../src/storyNote.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   doneStoryFiles,
   otherStory,
   recoverStory,
-} from "../../tests/support/followUpStories.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/followUpStories.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
 import {
   seedStoryNotes,
   storyNotesFile,
-} from "../../tests/support/storyNotesStore.ts";
+} from "../../test-support/support/storyNotesStore.ts";
 
 export const completedAt = "2026-11-08T09:05:00.000Z";
 export const repository = "terryyin/open-dough";

@@ -2,8 +2,8 @@
 // outcome is kept in a write of its own after the launch's answer, so a read
 // right after that answer can come before it.
 import { expect } from "@playwright/test";
-import { attempts } from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { attempts } from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 // Waits until the first attempt matches `expected` and warns of no slow start.
 export async function settledAttempt(

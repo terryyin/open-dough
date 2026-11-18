@@ -8,13 +8,16 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   expandIntentGroup,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expect, test } from "../../dashboard/tests/support/codexStart.ts";
-import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
 import {
   chooseStoryTab,
   folderToggle,
@@ -22,14 +25,14 @@ import {
   intentFile,
   openReviewFromIntent,
   reviewDiff,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { capturedChoice } from "../../dashboard/tests/support/oneShotReviewChoices.ts";
-import { selectDoneStoryInIntent } from "../../dashboard/tests/support/selectDoneStoryInIntent.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import { capturedChoice } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import {
   git,
   lines,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 const unchanged = "dashboard/tests/boundary/kept.spec.ts";

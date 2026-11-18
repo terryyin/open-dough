@@ -29,9 +29,9 @@ decisions, and findings with an ongoing owner.
   tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md)
   selection. [Test data architecture](Distribution/tests/README.md#test-data-architecture)
   names this project's MakeMe builders, and
-  [`dashboardPage.ts`](dashboard/tests/dashboardPage.ts) is the page-object
+  [`dashboardPage.ts`](dashboard/test-support/dashboardPage.ts) is the Dashboard Test Support page-object
   entry. The
-  [fluent side-panel page objects](dashboard/tests/sidePanelPages.ts) show
+  [fluent side-panel page objects](dashboard/test-support/sidePanelPages.ts) show
   the phase-and-cue form of the Side panel journeys.
 - Never use `test.slow()`.
 - Keep the default test timeout. Override it only when essential, inside the

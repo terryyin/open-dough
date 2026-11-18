@@ -1,7 +1,7 @@
 // A card's Delete record… that is overtaken, refused, or fails says so and
 // never brings a deleted entry back (the delete itself is
 // ./agent-launch-story-card-delete.spec.ts), against a controlled machine read
-// and delete boundary (../../tests/support/frontendSessionActions.ts). Once the
+// and delete boundary (../../test-support/support/frontendSessionActions.ts). Once the
 // read lists the session as known the question and the button go and the
 // entry shows its state; a delete the boundary answers as known keeps the
 // record and says "This session's state is now known"; a refused delete says
@@ -18,33 +18,33 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
 import {
   frontendStoryLaunch,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import {
   answerHeld,
   fulfillJson,
   holdAnswer,
-} from "../../tests/support/frontendSubstituteAnswers.ts";
+} from "../../test-support/support/frontendSubstituteAnswers.ts";
 import {
   deleteRecordQuestion,
   sessionAction,
-} from "../../tests/support/sessionEntryDisclosure.ts";
+} from "../../test-support/support/sessionEntryDisclosure.ts";
 import {
   parts,
   sessionStateOf,
   standaloneSessionName,
   storyCardSessionOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
-import { givePageItsTurns } from "../../tests/pageRequestNotes.ts";
-import { watchRecordReads } from "../../tests/sessionStatePace.ts";
+} from "../../test-support/dashboardPage.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
+import { givePageItsTurns } from "../../test-support/pageRequestNotes.ts";
+import { watchRecordReads } from "../../test-support/sessionStatePace.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import type { SessionState } from "../../src/launchRecord.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";

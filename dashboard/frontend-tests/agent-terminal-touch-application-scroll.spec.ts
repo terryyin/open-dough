@@ -5,23 +5,26 @@
 // terminal's own scrollback under an application that does not scroll itself
 // stays with ../../e2e/terminals/agent-terminal-touch-keys.spec.ts.
 
-import { expect, test } from "../tests/support/frontendApp.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
 import {
   openFrontendTerminalByTouch,
   reportedSize,
   travelOverRows,
-} from "../tests/support/frontendTouchTerminal.ts";
+} from "../test-support/support/frontendTouchTerminal.ts";
 import {
   conversationLine,
   selfScrollingApplication,
   wheelReport,
-} from "../tests/support/terminalSubstituteApplication.ts";
+} from "../test-support/support/terminalSubstituteApplication.ts";
 import {
   expectNoTerminalText,
   expectTerminalText,
-} from "../tests/terminalScreenPage.ts";
-import { focusByTouch, scrollByTouch } from "../tests/touchTerminalPage.ts";
-import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
+} from "../test-support/terminalScreenPage.ts";
+import {
+  focusByTouch,
+  scrollByTouch,
+} from "../test-support/touchTerminalPage.ts";
+import { phoneLaunchTouchViewport } from "../test-support/touchLaunchPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ viewport: phoneLaunchTouchViewport.portrait, hasTouch: true });

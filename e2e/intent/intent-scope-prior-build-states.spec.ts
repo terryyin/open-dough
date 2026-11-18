@@ -1,34 +1,34 @@
 // Normal local readers of canonical raw proof expose the selection signature
 // separately from measured completeness; never supply a finished average.
 // Retained history feeds the real authenticated read of the Done story the
-// worker keeps (../../dashboard/tests/support/projectScopeHistoryFixture.ts).
+// worker keeps (../../dashboard/test-support/support/projectScopeHistoryFixture.ts).
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   fileReadingTab,
   intentLocationName,
   proofRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   chooseTimingUnit,
   expectScopeReadout,
   scopeHistory,
   scopeHistoryChart,
-} from "../../dashboard/tests/intentScopeHistoryPage.ts";
-import { childName } from "../../dashboard/tests/intentScopeProofPage.ts";
+} from "../../dashboard/test-support/intentScopeHistoryPage.ts";
+import { childName } from "../../dashboard/test-support/intentScopeProofPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { summaryComparisonChanges } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
-import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/tests/support/intentSummaryStoryComparisonRepository.ts";
-import { serveSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonServing.ts";
+import { summaryComparisonChanges } from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
+import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/test-support/support/intentSummaryStoryComparisonRepository.ts";
+import { serveSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonServing.ts";
 import {
   intentFile,
   storyTitle,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { keepLandedCiHistory } from "../../dashboard/tests/support/landedCiHistory.ts";
-import { expect } from "../../dashboard/tests/support/preparationPage.ts";
-import { test } from "../../dashboard/tests/support/projectScopeHistoryFixture.ts";
-import { openCollectedHistoryStory } from "../../dashboard/tests/support/scopeHistoryCollectedPage.ts";
-import { scopePriorReferenceHistory } from "../../dashboard/tests/support/scopePriorReferenceHistory.ts";
-import { openSummaryComparison } from "../../dashboard/tests/support/selectDoneStoryForSummaryComparison.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { keepLandedCiHistory } from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { expect } from "../../dashboard/test-support/support/preparationPage.ts";
+import { test } from "../../dashboard/test-support/support/projectScopeHistoryFixture.ts";
+import { openCollectedHistoryStory } from "../../dashboard/test-support/support/scopeHistoryCollectedPage.ts";
+import { scopePriorReferenceHistory } from "../../dashboard/test-support/support/scopePriorReferenceHistory.ts";
+import { openSummaryComparison } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
 
 test("partial selected timing beside a zero prior average and missing terminal identity retain honest scope references and separate historical segments", async ({
   page,

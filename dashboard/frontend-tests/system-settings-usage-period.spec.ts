@@ -1,7 +1,7 @@
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { usageTokenIndexEndpoint } from "../src/usageTokenIndex.ts";
-import { test, expect } from "../tests/support/frontendApp.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+import { test, expect } from "../test-support/support/frontendApp.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 
 test.use({ timezoneId: "America/New_York" });
 

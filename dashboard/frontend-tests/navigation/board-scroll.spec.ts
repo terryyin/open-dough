@@ -3,28 +3,31 @@
 // Board alone scrolls beside an open Side panel is
 // ./board-scroll-side-panel.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { putFrontendPublished } from "../../test-support/support/frontendServiceState.ts";
 import {
   publishLargeBacklog,
   queuedCount,
-} from "../../tests/accessibleBoard.ts";
+} from "../../test-support/accessibleBoard.ts";
 import {
   boardPositionKey,
   boardScroll,
   expectView,
   keptBoardPosition,
-} from "../../tests/boardPage.ts";
-import { expectDocumentStill } from "../../tests/boardReading.ts";
+} from "../../test-support/boardPage.ts";
+import { expectDocumentStill } from "../../test-support/boardReading.ts";
 import {
   expectSettledPage,
   parts,
   rosterParts,
-} from "../../tests/dashboardPage.ts";
-import { box } from "../../tests/pageLayout.ts";
-import { openDough, openDoughFiles } from "../../tests/agentRosterRecords.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
-import { dashboardBrowserArgs } from "../../tests/support/browserArgs.ts";
+} from "../../test-support/dashboardPage.ts";
+import { box } from "../../test-support/pageLayout.ts";
+import {
+  openDough,
+  openDoughFiles,
+} from "../../test-support/agentRosterRecords.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { dashboardBrowserArgs } from "../../test-support/support/browserArgs.ts";
 
 // Exercise the browser's actual scrollbar; Playwright normally hides it.
 test.use({

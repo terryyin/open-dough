@@ -11,16 +11,16 @@ import {
   accept,
   attempts,
   launchRequest,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   storyCardSessions,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expect,
   pausePageClockAt,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   continueLabel,
   expectRecoveryOffered,
@@ -32,15 +32,18 @@ import {
   startExecution,
   subject,
   worktrees,
-} from "../../dashboard/tests/responsiveRecovery.ts";
-import { openStories, test } from "../../dashboard/tests/responsiveStart.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
+import {
+  openStories,
+  test,
+} from "../../dashboard/test-support/responsiveStart.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   openUntilRead,
   passCheckPace,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 

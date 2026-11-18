@@ -1,13 +1,13 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   proofDirectory,
   readProof,
   removeProofDirectories,
   startProofRun,
   waitForProofState,
-} from "../../tests/support/proofRecordRun.ts";
+} from "../../test-support/support/proofRecordRun.ts";
 
-import { processRunning } from "../../tests/support/processGroup.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 test.afterAll(removeProofDirectories);
 

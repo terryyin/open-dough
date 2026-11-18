@@ -7,22 +7,22 @@
 // and records its landing, and a request naming a story is refused.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { expect, stored, test } from "../../tests/support/codexStart.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { commit, git } from "../../tests/support/launchLanding.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { expect, stored, test } from "../../test-support/support/codexStart.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { commit, git } from "../../test-support/support/launchLanding.ts";
 import {
   dropExpiredAttempts,
   landingRetentionClock,
-} from "../../tests/support/landingRetentionClock.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
+} from "../../test-support/support/landingRetentionClock.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import { postLanding } from "../../test-support/support/startSessionLandingCapture.ts";
 import {
   deliver,
   landingHandoff,
   repositoryOf,
-} from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/startSessionLandingContext.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

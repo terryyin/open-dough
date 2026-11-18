@@ -7,14 +7,14 @@
 // small through `DOUGH_RETAINED_ANSWERS_BYTES`, relative to what one
 // revision's answers measure; boundary servers in the development
 // environment, over real HTTP with the synthetic `gh`, count the `gh` calls
-// each process made (../../tests/retainedAnswersJourney.ts).
+// each process made (../../test-support/retainedAnswersJourney.ts).
 
 import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import {
   startFakeGitHub,
   type FakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   backlogPath,
   filesFor,
@@ -26,7 +26,7 @@ import {
   planPath,
   seedPath,
   settingsPath,
-} from "../../tests/revisionReuseOrigin.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
 import {
   allAnswered,
   asked,
@@ -37,7 +37,7 @@ import {
   readProject,
   storeOn,
   test,
-} from "../../tests/retainedAnswersJourney.ts";
+} from "../../test-support/retainedAnswersJourney.ts";
 
 const contentPaths = [
   backlogPath,

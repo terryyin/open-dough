@@ -1,11 +1,14 @@
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   bytes,
   command,
   writeCursorTranscript,
-} from "../../tests/usage-history/agentEffortHarness.ts";
+} from "../../test-support/usage-history/agentEffortHarness.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   cursorCli,
@@ -13,8 +16,8 @@ import {
   readableListing,
   succeeded,
   type ListedCursorFamily,
-} from "../../tests/usage-history/agentEffortSelection.ts";
-import { cursorCost } from "../../tests/usage-history/agentEffortCost.ts";
+} from "../../test-support/usage-history/agentEffortSelection.ts";
+import { cursorCost } from "../../test-support/usage-history/agentEffortCost.ts";
 
 test("Cursor names whole-family evidence when requested time boundaries are unprovable", ({
   home,

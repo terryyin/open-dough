@@ -1,7 +1,10 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
-import { storySummary } from "../../tests/intentModePage.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
+import { storySummary } from "../../test-support/intentModePage.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent location groups expand exclusively
 // (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
 // all-closed reachable, Purpose survives toggle collapse, empty/unsupported
@@ -12,8 +15,8 @@ import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // selected background across that width, while an expanded one shows only
 // its open toggle.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   collapseIntentGroup,
   expandIntentFolders,
@@ -21,14 +24,14 @@ import {
   expectIntentGroupsCollapsed,
   intentGroupToggle,
   intentLocationName,
-} from "../../tests/intentPerspectivePage.ts";
-import { locationHeaderLookAt } from "../../tests/intentLocationHeaderLook.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { locationHeaderLookAt } from "../../test-support/intentLocationHeaderLook.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   doughnut,
   packagedFeature,
   recallFeature,
-} from "../../tests/intentGherkinBrowseFixtures.ts";
+} from "../../test-support/intentGherkinBrowseFixtures.ts";
 
 test("Intent group sections start collapsed, expand exclusively, keep Purpose across collapse, leave nested folders local, and stand apart from their rows", async ({
   page,

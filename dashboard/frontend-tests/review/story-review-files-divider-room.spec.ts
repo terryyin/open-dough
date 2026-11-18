@@ -4,17 +4,17 @@
 // bound grows; too narrow, the panes stack with no divider. The divider's own
 // resizing is ./story-review-files-divider.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { filesDividerOf, rem } from "../../tests/filesDividerPage.ts";
-import { dragDivider } from "../../tests/sidePanelWidthPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { filesDividerOf, rem } from "../../test-support/filesDividerPage.ts";
+import { dragDivider } from "../../test-support/sidePanelWidthPage.ts";
 import {
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/sidePanelFrame.ts";
 import {
   openReview,
   takenStoryWithReview,
-} from "../../tests/support/frontendSidePanelWidth.ts";
+} from "../../test-support/support/frontendSidePanelWidth.ts";
 
 test("the Side panel's room limits the file sidebar while its chosen width stays kept", async ({
   page,

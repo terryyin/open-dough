@@ -1,6 +1,9 @@
 // The existing live comparison's final gap omits the history-only named build.
 import { asComparisonSlot } from "../../server/intentCiComparisonSlots.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 
 test.use({ serverMode: "boundary" });
 

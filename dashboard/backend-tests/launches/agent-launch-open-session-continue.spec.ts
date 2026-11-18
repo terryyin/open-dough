@@ -5,11 +5,11 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { randomUUID } from "node:crypto";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { sessionOpen } from "../../server/launchAttemptConflicts.ts";
-import { continueAttempt } from "../../tests/agentLaunchBoundary.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import { continueAttempt } from "../../test-support/agentLaunchBoundary.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   nothingStarted,
@@ -19,14 +19,14 @@ import {
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type PushHold,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 test.describe("continuing while a story session is open", () => {
   let origin: StartOrigin;

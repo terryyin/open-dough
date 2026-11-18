@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 import type { Terminal } from "@xterm/headless";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { KeptClientScreen } from "../../server/keptClientScreen.ts";
 
 const { Terminal: HeadlessTerminal } = createRequire(import.meta.url)(

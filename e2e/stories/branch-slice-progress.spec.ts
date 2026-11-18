@@ -6,7 +6,7 @@
 // from a branch named like it. Two profiles naming a story, a branch no longer
 // published, and a plan missing or uninterpretable on the branch are each
 // shown as that gap. The fake GitHub only publishes trunk and the branch heads
-// (../../dashboard/tests/branchProgressRecords.ts); the local read boundary, the shared readers,
+// (../../dashboard/test-support/branchProgressRecords.ts); the local read boundary, the shared readers,
 // and the page decide everything shown.
 
 import type { Page } from "@playwright/test";
@@ -15,22 +15,22 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   expectNoSliceCount,
   progressSource,
   sliceBar,
   sliceProgress,
-} from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   beforeProfiles,
   branchDeleted,
@@ -49,8 +49,8 @@ import {
   stories,
   trunk,
   twoOwners,
-} from "../../dashboard/tests/branchProgressRecords.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/branchProgressRecords.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 async function openedAtOpening(page: Page) {
   await pausePageClockAt(page, opened);

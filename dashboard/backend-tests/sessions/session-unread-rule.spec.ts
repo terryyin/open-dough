@@ -3,7 +3,7 @@
 // mark for that report's receipt. A pure reading of one record; the page
 // journey is ../../../e2e/sessions/session-unread-report.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import {

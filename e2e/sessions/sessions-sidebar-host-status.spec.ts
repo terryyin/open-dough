@@ -6,21 +6,21 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
-import { expectReadableContrast } from "../../dashboard/tests/accessibleReading.ts";
-import { setPageVisibility } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
-import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { expectReadableContrast } from "../../dashboard/test-support/accessibleReading.ts";
+import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import { cpuShown, freeDiskShown } from "../../dashboard/src/hostStatus.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
-import { expectFigure } from "../../dashboard/tests/sessionsSidebarFigures.ts";
+import { expectFigure } from "../../dashboard/test-support/sessionsSidebarFigures.ts";
 import {
   readStatusView,
   noteHostReads,
   story,
   statusJourney,
-} from "../../dashboard/tests/support/sessionHostStatus.ts";
+} from "../../dashboard/test-support/support/sessionHostStatus.ts";
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 test.describe("the Sessions sidebar's title row status", () => {

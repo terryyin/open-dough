@@ -9,13 +9,16 @@
 // ../../Distribution/tests/skills/dough-execute-plan/github-request-owner-replacement.test.mjs;
 // the page's recovery from an eligible failure: ./auto-refresh-recovery.spec.ts.
 
-import { expect, githubFor } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expect,
+  githubFor,
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -25,12 +28,12 @@ import {
   passTimeUntilChecked,
   pausePageClock,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { isCheck } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { isCheck } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   backlogPath,
   publishMovingOrigin,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   backlogA,
   backlogB,
@@ -39,23 +42,23 @@ import {
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
 import type {
   FakeGitHub,
   GhCall,
-} from "../../dashboard/tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../dashboard/tests/support/ghRequest.ts";
-import { holdingAnswer } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+} from "../../dashboard/test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
+import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import {
   standingOwner,
   test,
   waitingOnItsCall,
   type StandingOwner,
-} from "../../dashboard/tests/support/killableRequestOwnerTest.ts";
-import { inspect } from "../../dashboard/tests/support/readDiagnostics.ts";
-import { readAt } from "../../dashboard/tests/support/sharedReads.ts";
-import { turns } from "../../dashboard/tests/support/turnReads.ts";
-import { expectEarlierSnapshotKept } from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/support/killableRequestOwnerTest.ts";
+import { inspect } from "../../dashboard/test-support/support/readDiagnostics.ts";
+import { readAt } from "../../dashboard/test-support/support/sharedReads.ts";
+import { turns } from "../../dashboard/test-support/support/turnReads.ts";
+import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 // Revisions nobody published, whose backlog reads GitHub never answers
 // (never released): each holds one of the login's turns at GitHub.

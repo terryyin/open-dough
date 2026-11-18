@@ -11,26 +11,26 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
 import {
   holdCompletedVoiceResponse,
   holdMicrophonePermission,
   observeMicrophone,
   recordClip,
   stoppedTracks,
-} from "../../tests/support/voicePage.ts";
+} from "../../test-support/support/voicePage.ts";
 import {
   microphoneBrowserOptions,
   originalDraft,
   startVoiceDraft,
-} from "../../tests/support/voiceRecovery.ts";
+} from "../../test-support/support/voiceRecovery.ts";
 
 test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {

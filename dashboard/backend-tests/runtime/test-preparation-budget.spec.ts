@@ -4,7 +4,7 @@
 // every case gets its host's layout as an independent copy, and the override
 // keeps its later revision. Integrated and E2E registration of both queued
 // layouts is witnessed by their own consuming journeys, which fail naming any
-// key their setup omits (../../tests/support/runArtifacts.ts).
+// key their setup omits (../../test-support/support/runArtifacts.ts).
 import { createServer, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
@@ -13,8 +13,8 @@ import {
   preparationFixtures,
   startPreparationProofRun,
 } from "../support/preparationProofRun.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
 
 const preload = pathToFileURL(
   path.join(preparationFixtures, "cloneGate.mjs"),

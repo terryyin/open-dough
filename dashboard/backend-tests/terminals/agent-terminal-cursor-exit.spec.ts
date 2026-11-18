@@ -1,16 +1,16 @@
 // A Cursor client that leaves before the first prompt is accepted.
 // An exit Cursor printed is recorded as ended, and Continue adds no
 // session. A client that is gone without that ending is replaced.
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
   enteredInstruction,
   instructedCursorRequest,
   keptCursor,
   withInstructedCursor,
-} from "../../tests/support/keptCursorTurn.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "hold this launch";
 

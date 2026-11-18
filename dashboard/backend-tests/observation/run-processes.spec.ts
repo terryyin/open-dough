@@ -1,43 +1,43 @@
 // A run ends every process it started, proven by running Playwright itself on
 // a temporary config whose specs are the substitutes in
-// ../../tests/fixtures/run-processes. Each worker ends what descends from it when it
-// exits (../../tests/support/processGroup.ts): each page journey starts a preview
+// ../../test-support/fixtures/run-processes. Each worker ends what descends from it when it
+// exits (../../test-support/support/processGroup.ts): each page journey starts a preview
 // server, which starts its Cursor runner, and after the run, passing or
 // failing with a teardown past its timeout, no process carrying that run's
 // identity remains. A process no worker can reach that way -- one whose
 // parent was already gone, left by a test whose teardown is abandoned -- is
-// ended and named by the run's own teardown (../../tests/support/runLifecycle.ts,
-// ../../tests/support/runProcesses.ts), which fails the run. The identity is a
+// ended and named by the run's own teardown (../../test-support/support/runLifecycle.ts,
+// ../../test-support/support/runProcesses.ts), which fails the run. The identity is a
 // variable only the inner run's environment holds, which its workers, their
 // servers, and the runners pass on, so processes of other runs and checkouts
 // on this machine are never counted or signalled.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { randomUUID } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { sharedDashboardBuild } from "../../tests/support/dashboardBuild.ts";
-import { runInnerPlaywright } from "../../tests/support/innerPlaywright.ts";
-import { processAlive } from "../../tests/support/processGroup.ts";
-import { quietReporter } from "../../tests/support/proofRecordRun.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { sharedDashboardBuild } from "../../test-support/support/dashboardBuild.ts";
+import { runInnerPlaywright } from "../../test-support/support/innerPlaywright.ts";
+import { processAlive } from "../../test-support/support/processGroup.ts";
+import { quietReporter } from "../../test-support/support/proofRecordRun.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   endRunProcesses,
   processesOfRun,
   runIdVariable,
   type RunProcess,
-} from "../../tests/support/runProcesses.ts";
-import { sharedServerBundle } from "../../tests/support/serverBundle.ts";
+} from "../../test-support/support/runProcesses.ts";
+import { sharedServerBundle } from "../../test-support/support/serverBundle.ts";
 
 const substitutes = path.join(
   repoRoot,
   "dashboard",
-  "tests",
+  "test-support",
   "fixtures",
   "run-processes",
 );
-const support = path.join(repoRoot, "dashboard", "tests", "support");
+const support = path.join(repoRoot, "dashboard", "test-support", "support");
 
 function innerConfig(workDir: string, spec: string) {
   // A teardown gets the config's timeout, so a short one keeps the
@@ -55,7 +55,7 @@ function innerConfig(workDir: string, spec: string) {
 
 // Preview substitutes open a page under this run's shared app and server
 // bundle. Prepare both here so the nested 5s budget is not spent waiting for
-// a cold first consumer (../../tests/support/backendGlobalSetup.ts).
+// a cold first consumer (../../test-support/support/backendGlobalSetup.ts).
 async function readyPreviewArtifacts(): Promise<void> {
   await Promise.all([sharedDashboardBuild(), sharedServerBundle()]);
 }

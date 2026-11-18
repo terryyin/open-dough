@@ -1,8 +1,8 @@
 // Choosing the model in a launch dialog, on the launch journey's committed
-// origin (../../dashboard/tests/launchJourney.ts): one representative dialog
+// origin (../../dashboard/test-support/launchJourney.ts): one representative dialog
 // offers Model beside Host after its instruction field on Default, and a
 // chosen model reaches the synthetic `claude`
-// (../../dashboard/tests/fixtures/fake-claude) as `--model`; another proves
+// (../../dashboard/test-support/fixtures/fake-claude) as `--model`; another proves
 // Default starts without `--model`, and a launched choice does not carry into
 // the next opening. Claude Code's Reasoning effort opens on Open Dough's
 // default among five levels, and a chosen one reaches `claude` as `--effort`. The real
@@ -13,18 +13,18 @@
 // ../../dashboard/frontend-tests/launches/agent-launch-model.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedStory,
   readyStory,
   type LaunchJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

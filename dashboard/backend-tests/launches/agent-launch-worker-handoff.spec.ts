@@ -3,24 +3,24 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   accept,
   attempts,
   continueAttempt,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   answerOf,
   request,
   type Problem,
-} from "../../tests/keptExecutionStart.ts";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/keptExecutionStart.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
 
 test("the persisted server worker protects initial preparation and the child-to-native write window", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());

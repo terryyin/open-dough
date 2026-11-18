@@ -2,8 +2,8 @@
 // log. Native fixtures supply observations, never alert suppression. Gaps and
 // changed summaries are not work; even a new question stays quiet if all its
 // intervening work escaped observation. The machine answer remains current.
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
   observationStates,
@@ -11,13 +11,13 @@ import {
   observed,
   afterFurtherReads,
   passive,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 import {
   afterFurtherListings,
   notices,
   start,
-} from "../../tests/support/sessionAlerts.ts";
-import { notRefinedIdentity } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/sessionAlerts.ts";
+import { notRefinedIdentity } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });

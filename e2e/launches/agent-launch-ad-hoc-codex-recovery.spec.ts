@@ -6,22 +6,22 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   launch,
   machineSessions,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });

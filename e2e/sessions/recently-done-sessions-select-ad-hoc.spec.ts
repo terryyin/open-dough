@@ -6,25 +6,28 @@
 // ./recently-done-sessions-select-ad-hoc-development.spec.ts.
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expectProjectChoice } from "../../dashboard/tests/projectChoice.ts";
-import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { expectProjectChoice } from "../../dashboard/test-support/projectChoice.ts";
+import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import { completedStoryAssociationEndpoint } from "../../dashboard/src/completedStoryAssociation.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
 import {
   chooseStoryTab,
   storyTitle,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
-import { finalReportParts } from "../../dashboard/tests/finalReportPages.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 

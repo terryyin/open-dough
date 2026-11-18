@@ -1,8 +1,8 @@
 // Controlled transcription and attached-terminal input. Keyboard access and
 // phone layout have their own focused journeys beside this file.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
-import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";
+import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
 import {
   chooseTerminalPrompt,
   expectTerminalInputFocused,
@@ -10,14 +10,14 @@ import {
   replaceLastTerminalCharacter,
   submitTerminalInput,
   writeTerminalInput,
-} from "../../tests/terminalScreenPage.ts";
-import { observeMicrophone } from "../../tests/support/voicePage.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { observeMicrophone } from "../../test-support/support/voicePage.ts";
 import {
   expectVoiceStatus,
   expectVoiceStatusText,
   finishTerminalDictation,
   startTerminalDictation,
-} from "../../tests/support/terminalVoicePage.ts";
+} from "../../test-support/support/terminalVoicePage.ts";
 
 test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {

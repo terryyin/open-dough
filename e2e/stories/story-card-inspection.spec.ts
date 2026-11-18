@@ -10,30 +10,30 @@ import {
   roughStoryC,
   storyB,
 } from "../../Distribution/tests/support/queued-repository.mjs";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   consumer,
   test,
   twoDependencies,
-} from "../../dashboard/tests/storyDependencyFixture.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { pausePageClock } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/storyDependencyFixture.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { pausePageClock } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   detailToggle,
   hideDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   emptyArea,
   expectInspected,
   expectSelected,
-} from "../../dashboard/tests/storyCardSelection.ts";
+} from "../../dashboard/test-support/storyCardSelection.ts";
 import {
   followReference,
   openDependencies,
-} from "../../dashboard/tests/storyReference.ts";
+} from "../../dashboard/test-support/storyReference.ts";
 
 // Story A waits on Story B and needs a decision about Story C, the second
 // supplier, queued as a third card; Story A is not ready for an unrelated

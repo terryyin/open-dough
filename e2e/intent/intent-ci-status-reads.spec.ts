@@ -7,7 +7,7 @@ import {
   publishProject,
   runUrl,
   trunkCi,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 
 // Reading Intent's CI status (../../dashboard/src/IntentCiStatus.tsx) again and from its
 // configured source: a 404 on main's history or runs is Could not be read
@@ -29,15 +29,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { openDough } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { openDough } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 import {
   failing,
   planningOnly,
-} from "../../dashboard/tests/intentCiStoryBoard.ts";
+} from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
   broken,
@@ -47,9 +47,9 @@ import {
   publishStoryCi,
   toggleOnDevelopment,
   trunkHead,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { httpErrorAnswer } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { httpErrorAnswer } from "../../dashboard/test-support/originAnswers.ts";
 
 test("CI status that could not be read names main and the reason; Check again reads it again", async ({
   page,

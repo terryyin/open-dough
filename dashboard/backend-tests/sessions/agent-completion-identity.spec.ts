@@ -8,20 +8,20 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { launchStoreFile } from "../../tests/support/launchStore.ts";
+import { launchStoreFile } from "../../test-support/support/launchStore.ts";
 import { randomUUID } from "node:crypto";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import type { CompletionSubmission } from "../../server/completionAdmission.ts";
-import { launch, markDone } from "../../tests/agentLaunchBoundary.ts";
+import { launch, markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   reportingChild,
   quote,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 
 test.use({ serverMode: "boundary" });
 

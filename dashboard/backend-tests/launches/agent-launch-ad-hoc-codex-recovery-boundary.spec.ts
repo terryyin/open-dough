@@ -5,8 +5,12 @@
 // a restart, on the page:
 // ../../../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });

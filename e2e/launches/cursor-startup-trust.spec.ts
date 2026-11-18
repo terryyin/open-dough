@@ -1,24 +1,24 @@
 // Start's wait expires on a native-shaped unframed trust screen. The real
 // page names its cause at the launch answer, Startup recovery, and entry,
 // then the developer answers the kept client in the rendered terminal.
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expect,
   test,
   keptRecord,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { heldOnWorkspaceTrust } from "../../dashboard/tests/support/keptCursorTurn.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { heldOnWorkspaceTrust } from "../../dashboard/test-support/support/keptCursorTurn.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 
 // Start's wait ends once the runner holds the client on the trust prompt.
 test.use({ cursorScreen: "trust-unframed", launchWaitEnd: true });

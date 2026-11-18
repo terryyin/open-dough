@@ -1,11 +1,11 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Late HTTP answers cannot replace the selected story or its attempt's proof.
 import {
   test,
   expect,
   mountComparison,
   updateComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a held comparison for an old selection cannot replace the current story's endpoints", async ({

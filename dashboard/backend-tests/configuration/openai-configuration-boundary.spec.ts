@@ -7,9 +7,9 @@
 // ../../../e2e/configuration/system-settings-openai-unusable-credential.spec.ts; the size bound in detail is
 // ./openai-configuration-size.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

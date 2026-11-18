@@ -2,24 +2,24 @@
 // the saved first input; a fresh start of its story is refused meanwhile.
 // Histories that never authorize a resend:
 // ../../dashboard/backend-tests/launches/agent-launch-codex-reconciliation-boundary.spec.ts.
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   accept,
   attempts,
   continued,
   launch,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
   .refining({

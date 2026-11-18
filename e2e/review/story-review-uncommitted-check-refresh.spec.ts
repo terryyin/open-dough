@@ -1,6 +1,6 @@
 // The check that leaves uncommitted changes out of all changes
 // (./story-review-uncommitted-check.spec.ts) keeps its state, of Story A's
-// worktree (../../dashboard/tests/support/storyReviewWorktree.ts). Off, Refresh after the agent
+// worktree (../../dashboard/test-support/support/storyReviewWorktree.ts). Off, Refresh after the agent
 // commits one file and edits another lists the new committed files, still
 // off, and announces their count; once everything is committed Refresh
 // offers no check over the whole snapshot, and uncommitted changes appearing
@@ -13,33 +13,36 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { reviewFeedback } from "../../dashboard/tests/support/reviewContextLine.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { reviewFeedback } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectFileSelected,
   expectTreeRows,
   fileRow,
   changedFilesList,
   fileDiff,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
   comparisonChoice,
   reviewRegion,
   uncommittedCheck as check,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   refreshReview,
   openStoryReview,
   reopenStoryReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   commitAll,
   git,
   storyWorktree,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const committedFiles = ["gone.txt", "image.png", "new.txt", "story.txt"];
 

@@ -3,21 +3,21 @@
 // transcript is then offered once by Insert transcript. Built frontend against
 // directed terminal end and controlled transcription answers.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendTerminalByTouch } from "../../tests/support/frontendTouchTerminal.ts";
-import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
-import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
-import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendTerminalByTouch } from "../../test-support/support/frontendTouchTerminal.ts";
+import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
+import { directedApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
+import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
 import {
   expectTerminalText,
   openAgainControl,
   pressTerminalKey,
   terminalStatus,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import {
   holdCompletedVoiceResponse,
   observeMicrophone,
-} from "../../tests/support/voicePage.ts";
+} from "../../test-support/support/voicePage.ts";
 import {
   beginTerminalClip,
   expectNoUnsentTranscript,
@@ -25,11 +25,14 @@ import {
   expectVoiceStatus,
   insertTranscriptControl,
   stopTerminalClip,
-} from "../../tests/support/terminalVoicePage.ts";
-import { tapWhereShown } from "../../tests/pageLayout.ts";
-import { copyClipboardText } from "../../tests/terminalPastePage.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { focusByTouch, tapTerminalKey } from "../../tests/touchTerminalPage.ts";
+} from "../../test-support/support/terminalVoicePage.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
+import { copyClipboardText } from "../../test-support/terminalPastePage.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import {
+  focusByTouch,
+  tapTerminalKey,
+} from "../../test-support/touchTerminalPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({

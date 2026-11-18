@@ -10,9 +10,9 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { runInnerPlaywright } from "../../tests/support/innerPlaywright.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { runInnerPlaywright } from "../../test-support/support/innerPlaywright.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 const specFile = path.join(
   repoRoot,

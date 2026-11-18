@@ -7,36 +7,36 @@
 // and the terminal's own screen is its contents, not this look's. The
 // attached-terminal substitute answers the long-titled session's terminal.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { cardSession } from "../../tests/support/frontendCardSessions.ts";
-import { putFrontendStories } from "../../tests/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendTerminalSubstitute.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
-import { control as frameControl } from "../../tests/sidePanelFrame.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
+import { putFrontendStories } from "../../test-support/support/frontendServiceState.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendTerminalSubstitute.ts";
+import { takenStory } from "../../test-support/launchJourney.ts";
+import { control as frameControl } from "../../test-support/sidePanelFrame.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import {
   expectReadableContrast,
   narrowWindow,
   zoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { expectSettledPage } from "../../tests/dashboardPage.ts";
-import { expectFrameIconControl } from "../../tests/frameIconControl.ts";
+} from "../../test-support/accessibleReading.ts";
+import { expectSettledPage } from "../../test-support/dashboardPage.ts";
+import { expectFrameIconControl } from "../../test-support/frameIconControl.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
-} from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
-} from "../../tests/sessionsTogglePage.ts";
+} from "../../test-support/sessionsTogglePage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const title = `A long story title that the narrow sidebar cuts ${"and goes on ".repeat(4)}to its end`;

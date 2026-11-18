@@ -1,24 +1,24 @@
 import {
   scopeHistory,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Same-head reads, snapshot timestamps and refresh failures use only local history.
 import { shortSha } from "../src/baseCiWording.ts";
-import { parts } from "../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../tests/dashboardTest.ts";
-import { activateIntentHome } from "../tests/intentCiStatusPage.ts";
-import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
+import { parts } from "../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../test-support/dashboardTest.ts";
+import { activateIntentHome } from "../test-support/intentCiStatusPage.ts";
+import { openSummary } from "../test-support/intentSummaryCiProofFixtures.ts";
 import {
   openUntilRead,
   passCheckPace,
   untilPageReadsAnswered,
-} from "../tests/pageRequestNotes.ts";
-import { expect, test } from "../tests/support/frontendApp.ts";
-import { fulfillEventStream } from "../tests/support/frontendSubstituteAnswers.ts";
+} from "../test-support/pageRequestNotes.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
+import { fulfillEventStream } from "../test-support/support/frontendSubstituteAnswers.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
-} from "../tests/support/projectScopeHistoryFacts.ts";
+} from "../test-support/support/projectScopeHistoryFacts.ts";
 
 test("Check again refreshes the same observed head, while time-only checks and failed reads keep their own freshness", async ({
   page,

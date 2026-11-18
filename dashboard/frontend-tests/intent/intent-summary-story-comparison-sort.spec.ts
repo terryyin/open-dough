@@ -1,34 +1,37 @@
 // Cross-story reading preferences: Summary keeps its sort while drilling, uses
 // tree order for a missing column, and restores that sort when its story
 // returns. Story A's comparison is the canonical Summary-scope answer; Story
-// B's Summary is one trunk run's (../../tests/support/frontendQueuedStoryOneRun.ts).
+// B's Summary is one trunk run's (../../test-support/support/frontendQueuedStoryOneRun.ts).
 // Column ordering and zoom rules live in
 // intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { scopeTable } from "../../tests/intentScopeProofPage.ts";
-import { openSummary } from "../../tests/intentSummaryCiProofFixtures.ts";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
-import { expectStoryTab } from "../../tests/support/intentStoryPage.ts";
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import { answerQueuedStoryOneRun } from "../../tests/support/frontendQueuedStoryOneRun.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { scopeTable } from "../../test-support/intentScopeProofPage.ts";
+import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
+import { expectStoryTab } from "../../test-support/support/intentStoryPage.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import { answerQueuedStoryOneRun } from "../../test-support/support/frontendQueuedStoryOneRun.ts";
 import {
   drillComparisonChild,
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+} from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
 import {
   expectSortedBy,
   expectUnsortedRows,
   sortButton,
-} from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
-} from "../../tests/support/summaryComparisonExpectedRows.ts";
+} from "../../test-support/support/summaryComparisonExpectedRows.ts";
 
 const entry = "dashboard/tests";
 // The entry's children in the tree's order, as the comparison names them.

@@ -1,7 +1,7 @@
 // A valid run attempt is immutable; a reader remembers only its checked proof.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   archiveOf,
   listedArtifact,

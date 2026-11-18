@@ -7,19 +7,19 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
-} from "../../dashboard/tests/doughnutProject.ts";
-import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
+import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   commitAnswer,
@@ -27,14 +27,17 @@ import {
   notFoundAnswer,
   publishMovingOrigin,
   publishOrigin,
-} from "../../dashboard/tests/publishedOrigin.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import { backlogA, revisionA } from "../../dashboard/tests/refreshJourney.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  backlogA,
+  revisionA,
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   mainReads,
   transientRecovery,
-} from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 const unexplainedFailure = {

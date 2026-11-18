@@ -2,19 +2,19 @@
 // saved per mode and survives restart. Selection around hidden projects is
 // ../../dashboard/frontend-tests/configuration/project-hide-selection.spec.ts.
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
-import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import {
   expectCompactProjectSelect,
   expectProjectChoice,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
   reloadUntilRead,
   untilPublishedWorkRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   back,
   hideButton,
@@ -23,7 +23,7 @@ import {
   removeDialog,
   settings,
   showButton,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

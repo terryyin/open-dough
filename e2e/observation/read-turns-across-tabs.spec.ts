@@ -12,17 +12,17 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { expectSettledPage } from "../../dashboard/tests/dashboardPage.ts";
-import { doughnutRepository } from "../../dashboard/tests/doughnutProject.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { describedRevision } from "../../dashboard/tests/describedRevisions.ts";
-import { backlogPath } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { expectSettledPage } from "../../dashboard/test-support/dashboardPage.ts";
+import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { describedRevision } from "../../dashboard/test-support/describedRevisions.ts";
+import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
-import type { GhRequest } from "../../dashboard/tests/support/ghRequest.ts";
-import { heldInTurn } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
-import { noteRequestsInEveryPage } from "../../dashboard/tests/pageRequestNotes.ts";
+import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
+import { heldInTurn } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
+import { noteRequestsInEveryPage } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 
 // A project whose backlog names six stories, each in a seed of its own.

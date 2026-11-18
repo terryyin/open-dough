@@ -1,27 +1,22 @@
 // Landed CI wall-time history collection (../../server/landedCiCollection.ts)
 // across the dashboard's own lifecycle, with no page open, a real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`, each
-// collecting server checking its pending landings again at a test's pace:
-// landings recorded before collection started are collected by its first
-// pass; a landing still running when the dashboard stops is measured once
-// when it starts again, from the history's own reference once its launch
-// record has expired; a second collecting process adds no second observation
-// or point; and a development server reads the same history and asks CI
-// nothing (SEED-285#see-landed-ci-wall-time-history examples 2 and 3). Each
-// build runs from when its landing was recorded, so the history answers its
-// points and the gap between them in trunk order. A landing whose CI is not
-// final is in ./landed-ci-history-pending.spec.ts; the first collection and
-// the history read's shape are in ./landed-ci-history-collection.spec.ts.
+// (../../test-support/support/startOrigin.ts) and synthetic `claude`. The first
+// pass collects prior landings. After a restart and launch-record expiry, the
+// previously running landing is measured once from the history reference. A
+// second collector adds no observation; the dev server reads without asking CI
+// (SEED-285#see-landed-ci-wall-time-history examples 2 and 3). Points and gaps
+// follow trunk order. See ./landed-ci-history-pending.spec.ts for pending CI
+// and ./landed-ci-history-collection.spec.ts for initial collection and shape.
 
 import path from "node:path";
-import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
-import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
-import { expectCollectedScopePoints } from "../../tests/support/collectedScopeReadProofs.ts";
+import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
+import { retainedHistory } from "../../test-support/support/collectedScopeHistory.ts";
+import { expectCollectedScopePoints } from "../../test-support/support/collectedScopeReadProofs.ts";
 import {
   startFakeGitHub,
   type FakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
-import { isActionsRequest } from "../../tests/support/ghActionsRequest.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { isActionsRequest } from "../../test-support/support/ghActionsRequest.ts";
 import {
   keptLandedCiHistory,
   landedCiHistory,
@@ -29,24 +24,27 @@ import {
   minutesAgo,
   observedKinds,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   exactHistoryPoint,
   noBuildHistoryGap,
   pendingBuildHistoryGap,
   publicHistoryAnswer,
-} from "../../tests/support/landedCiHistoryAnswers.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { serveCollectedTrunkRuns } from "../../tests/support/landedCiScopeProofs.ts";
+} from "../../test-support/support/landedCiHistoryAnswers.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { serveCollectedTrunkRuns } from "../../test-support/support/landedCiScopeProofs.ts";
 import {
   passedFrom,
   publishedLanding,
   runningFrom,
   serveTrunkRuns,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

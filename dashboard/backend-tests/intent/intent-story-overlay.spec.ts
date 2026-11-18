@@ -1,6 +1,6 @@
 // A selected story's changes placed over Intent's published tree
 // (../../src/intentStoryOverlay.ts), with the locations of the moves journey
-// (../../tests/support/intentStoryWorktree.ts) behind an unchanged first location: a
+// (../../test-support/support/intentStoryWorktree.ts) behind an unchanged first location: a
 // rename into a location sits at its new path, inserted; one out of a
 // location stays at its old path; one between locations sits at its new path,
 // its old entry gone; one neither location admits is not listed. A deletion
@@ -12,7 +12,7 @@
 // file by the same rule. The integrated journeys: ../../../e2e/intent/intent-story-changes-moves.spec.ts
 // and ../../../e2e/intent/intent-story-completed.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
 import {
   intentStoryOverlay,

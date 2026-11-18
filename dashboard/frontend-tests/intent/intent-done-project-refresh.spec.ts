@@ -1,19 +1,19 @@
-import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
-import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts";
 // Project refresh preserves a real Done story's selected historical Purpose
 // file and reading place, including its preceding cycle through all Done tabs;
 // choosing Proof then survives a later Project Intent visit and the story keeps
 // its Intent coverage report.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
+import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
 import {
   backToStory,
   openProjectIntent,
   projectIntentLink,
   returnToStory,
   filesColumn,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   browserRevision,
   expandIntentGroup,
@@ -21,25 +21,25 @@ import {
   fileReadingTab,
   proofRegion,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../tests/intentReadingPlacePage.ts";
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
-import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
-import { recordIntentLocations } from "../../tests/support/intentDoneProjectRefresh.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
+import { advanceFrontendDoneProject } from "../../test-support/support/frontendDoneProjectRefresh.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
+import { recordIntentLocations } from "../../test-support/support/intentDoneProjectRefresh.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   intentFile,
   storyHeaderReading,
   intentDiffReading,
   readIntentDiff,
-} from "../../tests/support/intentStoryPage.ts";
-import { lines } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { lines } from "../../test-support/support/storyReviewWorktree.ts";
 
 test("project refresh returns the same Done historical Purpose file and reading place after cycling all Done tabs, then Proof survives a later Project Intent visit", async ({
   page,

@@ -16,30 +16,30 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   expectMembership,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
-} from "../../dashboard/tests/doughnutProject.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { isCheck } from "../../dashboard/tests/pageRequestNotes.ts";
-import { setPageVisibility } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { describedRevision } from "../../dashboard/tests/describedRevisions.ts";
-import { backlogPath } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { isCheck } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { describedRevision } from "../../dashboard/test-support/describedRevisions.ts";
+import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
-import type { GhRequest } from "../../dashboard/tests/support/ghRequest.ts";
-import { holdingAnswer } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
+import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 
 const repository = "terryyin/open-dough";

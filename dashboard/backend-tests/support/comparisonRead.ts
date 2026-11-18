@@ -1,6 +1,6 @@
 // Shared driver of the real comparison read; only external acquisition is supplied.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect } from "../../tests/support/pageTest.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
 import { performIntentCiComparisonRead } from "../../server/intentCiComparisonRead.ts";
 import { clearCiComparisonAnswers } from "../../server/intentCiComparisonAnswers.ts";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";

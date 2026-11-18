@@ -9,12 +9,12 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageCheckFile } from "../../server/usageCheck.ts";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   keepRetainedLaunch,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 import {
   counters,
   expect,
@@ -26,7 +26,7 @@ import {
   test,
   usageServer,
   workerRollout,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const measured = (
   uncachedInput: number,

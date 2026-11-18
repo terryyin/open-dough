@@ -1,5 +1,5 @@
 // Development and Intent: two perspectives of the selected project in the one
-// dashboard frame (../../tests/intentPerspectivePage.ts). Development is the
+// dashboard frame (../../test-support/intentPerspectivePage.ts). Development is the
 // first-visit default; Intent keeps the selected project and, when no intent
 // locations are published, says so naming the setting and file, never that the
 // project has no tests or Proof, even when the published read failed. Changing
@@ -9,14 +9,14 @@
 // ./development-intent-frame-keyboard.spec.ts's, its sessions
 // ./development-intent-frame-sessions.spec.ts's.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { historyLength } from "../../tests/sessionNavigationJourney.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
+import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { historyLength } from "../../test-support/sessionNavigationJourney.ts";
 import {
   expectBelowBanner,
   expectPinnedShortBanner,
-} from "../../tests/bannerReading.ts";
+} from "../../test-support/bannerReading.ts";
 import {
   chooseProject,
   expectProblemAndNoSnapshot,
@@ -26,27 +26,30 @@ import {
   projectTab,
   rosterParts,
   shortRevision,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   expectAddress,
   expectNotConfiguredIntent,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../tests/pageRequestNotes.ts";
-import { expectPerspectiveMeaningMarks } from "../../tests/perspectiveMarks.ts";
+} from "../../test-support/pageRequestNotes.ts";
+import { expectPerspectiveMeaningMarks } from "../../test-support/perspectiveMarks.ts";
 import {
   doughnutProject,
   expectCatalogStories,
   openDoughProject,
-} from "../../tests/projectKeyboardNavigationJourney.ts";
-import { back, settings } from "../../tests/support/systemSettingsPage.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+} from "../../test-support/projectKeyboardNavigationJourney.ts";
+import {
+  back,
+  settings,
+} from "../../test-support/support/systemSettingsPage.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
 
 test("Intent keeps the selected project and says no intent locations are configured; project changes, history and reload keep it, and Development resumes the stories", async ({
   page,

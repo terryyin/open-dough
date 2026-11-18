@@ -4,8 +4,8 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { expectSettledPage } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { expectSettledPage } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   matchingRefsSince,
   openStreamingAtA,
@@ -16,7 +16,7 @@ import {
   titlesOfA,
   untilMatchingRefsSince,
   untilStreamingAt,
-} from "../../dashboard/tests/revisionStreamJourney.ts";
+} from "../../dashboard/test-support/revisionStreamJourney.ts";
 
 test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
 

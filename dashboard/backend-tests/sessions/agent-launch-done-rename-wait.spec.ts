@@ -9,21 +9,21 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   markDone,
   openDoughFolder,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   launched,
   openTerminal,
   shows,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const launchName = `Open Dough · Execution · ${title}`;
 

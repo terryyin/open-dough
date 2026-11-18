@@ -1,4 +1,4 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { githubRepository, projectIdentity } from "../../src/projectInput.ts";
 import { shownStartWorkspace } from "../../server/launchWorkspace.ts";
 import { workspaceWords } from "../../src/launchWorkflow.ts";

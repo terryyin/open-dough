@@ -6,41 +6,41 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutSharedTitle,
   sharedStoryIdentity,
-} from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { markDone as markSessionDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
-import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { markDone as markSessionDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   expectEntries,
   expectSessionsSidebar,
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { expectSessionsSidebarLayout } from "../../dashboard/tests/sessionsSidebarLayout.ts";
-import { expectClosedToggleCounts } from "../../dashboard/tests/sessionsTogglePage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { expectSessionsSidebarLayout } from "../../dashboard/test-support/sessionsSidebarLayout.ts";
+import { expectClosedToggleCounts } from "../../dashboard/test-support/sessionsTogglePage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   briefDoneRenameWait,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],

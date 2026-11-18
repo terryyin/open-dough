@@ -1,14 +1,14 @@
 // Primary-endpoint outside evidence is named independently of the visible tree.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   evidenceLabel,
   evidenceLabels,
   expectEvidenceLabels,
   expectInFull,
   expectLabelInFull,
-} from "../../tests/ciEvidenceLabelsPage.ts";
-import { scopeTable } from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import { scopeTable } from "../../test-support/intentScopeProofPage.ts";
 
 const outsideRow = "Not in the rows above";
 

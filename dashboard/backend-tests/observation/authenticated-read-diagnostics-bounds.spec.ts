@@ -6,23 +6,26 @@
 // ./authenticated-read-diagnostics.spec.ts. The incident record's bounds:
 // ./authenticated-read-incident-record-bounds.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   everyRepository,
   failsWith,
   hangs,
   publishes,
-} from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   httpErrorAnswer,
   rateLimitedAnswer,
-} from "../../tests/originAnswers.ts";
-import { abandonedRequest, rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/originAnswers.ts";
+import {
+  abandonedRequest,
+  rawRequest,
+} from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   describedRevision,
   withBacklogFallback,
-} from "../../tests/describedRevisions.ts";
+} from "../../test-support/describedRevisions.ts";
 import {
   inspect,
   knownSourceId,
@@ -30,7 +33,7 @@ import {
   secretMarker,
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 test.describe.configure({ mode: "serial" });
 

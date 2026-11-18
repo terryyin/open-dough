@@ -15,12 +15,12 @@ dashboard keeps under HOME, and the processes it launches.
 
 What is substituted, and only at the product's external boundaries:
 
-- GitHub, through the synthetic `gh` (`../dashboard/tests/fixtures/fake-gh`)
+- GitHub, through the synthetic `gh` (`../dashboard/test-support/fixtures/fake-gh`)
   answering from each test's own fake GitHub
-  (`../dashboard/tests/support/fakeGitHub.ts`), which also stands in for
+  (`../dashboard/test-support/support/fakeGitHub.ts`), which also stands in for
   GitHub's avatar host;
 - the native agent hosts, through the synthetic `claude`, `codex` and
-  `cursor` protocol stand-ins (`../dashboard/tests/support/fakeClaude.ts`,
+  `cursor` protocol stand-ins (`../dashboard/test-support/support/fakeClaude.ts`,
   `fakeCodex.ts` and `fakeCursor.ts`). They
   keep these workflows deterministic; they are not native skill-use
   acceptance, which remains with
@@ -43,14 +43,14 @@ variant, failure or test-runtime contract at a stable boundary belongs in
 
 Workflows reuse the dashboard's fixtures, page objects and
 [MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
-`../dashboard/tests/` and `../Distribution/tests/support/`. Waits, clocks and
+[Dashboard Test Support](../dashboard/test-support/) and `../Distribution/tests/support/`. Waits, clocks and
 fake GitHub answers are the helpers a workflow imports.
 
 ## Running
 
 `npm run test:e2e` runs only this group from its own configuration
 (`playwright.config.ts`). Its global setup
-(`../dashboard/tests/support/e2eGlobalSetup.ts`) runs the fixture executables
+(`../dashboard/test-support/support/e2eGlobalSetup.ts`) runs the fixture executables
 once, gives the run a GitHub request root that admits no owner, and registers
 the artifacts workflows request: the app build, the server bundle, the
 installed start origins, the published main sources and the story-columns

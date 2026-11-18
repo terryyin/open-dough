@@ -4,17 +4,23 @@
 // closing the boundary aborts a running listing. Settled reuse within the
 // window: ./authenticated-read-shared-listing.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   processAlive,
   processRunning,
-} from "../../tests/support/processGroup.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
-import { inspect } from "../../tests/support/readDiagnostics.ts";
-import { heldBackPattern } from "../../tests/support/heldBackReads.ts";
-import { listingReuseWithOwnerClock } from "../../tests/support/listingReuseWithOwnerClock.ts";
-import { rateLimitedAnswer, commitAnswer } from "../../tests/originAnswers.ts";
+} from "../../test-support/support/processGroup.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
+import { inspect } from "../../test-support/support/readDiagnostics.ts";
+import { heldBackPattern } from "../../test-support/support/heldBackReads.ts";
+import { listingReuseWithOwnerClock } from "../../test-support/support/listingReuseWithOwnerClock.ts";
+import {
+  rateLimitedAnswer,
+  commitAnswer,
+} from "../../test-support/originAnswers.ts";
 import {
   askedSince,
   heads,
@@ -23,7 +29,7 @@ import {
   readAt,
   refusedMarker,
   sharedReadsPublished,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 import { RevisionChecks } from "../../server/revisionChecks.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { listingTimeoutBoundary } from "./listingTimeoutBoundary.ts";

@@ -1,26 +1,29 @@
-import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
-import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
+import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
+import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts";
 // The Project Intent browser names accepted locations even with no selected
 // file, and a planning-only refresh leaves identical tests at a newer source.
 
-import { makeMe } from "../../tests/../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { shortRevision } from "../../tests/dashboardParts.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { activateIntentHome, ciPanel } from "../../tests/intentCiStatusPage.ts";
-import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
-import { featurePath } from "../../tests/intentJobsFeatureFixtures.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import {
+  activateIntentHome,
+  ciPanel,
+} from "../../test-support/intentCiStatusPage.ts";
+import { pygardon } from "../../test-support/intentCodeBrowseFixtures.ts";
+import { featurePath } from "../../test-support/intentJobsFeatureFixtures.ts";
 import {
   browserRevision,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   intentReads,
   jobsFeatures,
   publishedFiles,
-} from "../../tests/intentRevisionJourney.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentRevisionJourney.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

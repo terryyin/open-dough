@@ -1,33 +1,34 @@
 // Collected scope evidence shares project history's bounded retained cohort.
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   collectingLandedCi,
   keepLandedCiHistory,
   restartAsLandedCiReader,
   resultToLand,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   retainedHistory as retained,
   collectedScopeHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { actionsForRuns } from "../../tests/support/baseCiActions.ts";
-import { runArtifactsAnswer } from "../../tests/support/ciProofArtifacts.ts";
-import { summaryTextZipAnswer } from "../../tests/support/ciProofCollected.ts";
-import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
-import { retainedTrunkProofs } from "../../tests/support/retainedTrunkProofs.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import { expectProjectHistoryCohort } from "../../tests/support/scopeHistoryRetention.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { actionsForRuns } from "../../test-support/support/baseCiActions.ts";
+import { runArtifactsAnswer } from "../../test-support/support/ciProofArtifacts.ts";
+import { summaryTextZipAnswer } from "../../test-support/support/ciProofCollected.ts";
+import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
+import { retainedTrunkProofs } from "../../test-support/support/retainedTrunkProofs.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import { expectProjectHistoryCohort } from "../../test-support/support/scopeHistoryRetention.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
+let reader: DashboardServer | undefined;
+test.afterEach(() => reader?.close());
 const scopedHistory = (origin: string, revision: string, through: string) =>
   collectedScopeHistory(origin, "dashboard/tests", revision, through);
 
@@ -172,8 +173,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     ),
   ).toHaveLength(1);
 
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
-  readers.push(reader);
+  reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
   const asked = github.calls.length;
   const selected = await scopedHistory(
     reader.origin,

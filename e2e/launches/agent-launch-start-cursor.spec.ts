@@ -1,19 +1,22 @@
 // An execution launch on Cursor establishes its start before the session,
 // over the page, the real installed execution-start, and a bare origin
-// (../../dashboard/tests/support/startOrigin.ts). The fixture `cursor-agent` on PATH prints the
+// (../../dashboard/test-support/support/startOrigin.ts). The fixture `cursor-agent` on PATH prints the
 // create-chat id and records argv. Claude's start spec and Codex's start spec
 // stay the proofs of those hosts.
 
 import { execFileSync } from "node:child_process";
-import { keptLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import path from "node:path";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 

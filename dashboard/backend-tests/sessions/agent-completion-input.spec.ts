@@ -1,10 +1,10 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { requestFacts } from "../../../Distribution/tests/support/launchRequestTestData.mjs";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { launch, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { codexInput } from "../../server/hosts/codex/input.ts";
 import { cursorPrompt } from "../../server/hosts/cursor/prompt.ts";
 import { reportingInstruction } from "../../server/reportingInstruction.ts";

@@ -1,6 +1,6 @@
 // Recently done, under its heading and describing text, retains the closed
 // session while active story cards hold their open sessions, on a
-// committed origin from ../../dashboard/tests/launchJourney.ts: an
+// committed origin from ../../dashboard/test-support/launchJourney.ts: an
 // retained entry names its story, workflow, launch time, and session with Open
 // terminal; two launches of one story remain distinct in their current homes;
 // and another project's launches are not listed, through
@@ -12,7 +12,7 @@
 // server launches the synthetic `claude` (./fixtures/fake-claude); the real
 // one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   storyCardSessions,
@@ -22,8 +22,8 @@ import {
   parts,
   standaloneSessionName,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { doughnutSharedTitle } from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
@@ -31,18 +31,18 @@ import {
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { holdSessionReads } from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   openStoryColumnsJourney,
   type Workflow,
-} from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut"],

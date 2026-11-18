@@ -8,15 +8,15 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import type { LaunchJourney } from "../../dashboard/tests/launchJourney.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import type { LaunchJourney } from "../../dashboard/test-support/launchJourney.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expectCopiedAttachmentPath,
@@ -25,12 +25,12 @@ import {
   pngA,
   pngB,
   writePickedImages,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
-import { claudeLaunch } from "../../dashboard/tests/support/claudeLaunch.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
+import { claudeLaunch } from "../../dashboard/test-support/support/claudeLaunch.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -1,6 +1,6 @@
 // Ad hoc sessions occupy Taken without a story card, against a controlled
 // machine read, delete boundary
-// (../../tests/support/frontendSessionActions.ts) and attached terminal: a
+// (../../test-support/support/frontendSessionActions.ts) and attached terminal: a
 // blocked one reads Needs input in Taken and the sidebar, which counts it;
 // with the listing unreadable its record can be deleted from Taken, leaving
 // the sidebar and moving the keyboard to the next entry; and with Open Dough
@@ -12,25 +12,25 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { askToDeleteRecord } from "../../tests/support/sessionEntryDisclosure.ts";
-import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
-import { parts, sessionStateOf } from "../../tests/dashboardPage.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
-import { expectSessionShown } from "../../tests/sessionStatePace.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { askToDeleteRecord } from "../../test-support/support/sessionEntryDisclosure.ts";
+import { takenAdHocSession } from "../../test-support/support/startedAdHocSession.ts";
+import { parts, sessionStateOf } from "../../test-support/dashboardPage.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { takenStory } from "../../test-support/launchJourney.ts";
+import { expectSessionShown } from "../../test-support/sessionStatePace.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarParts,
-} from "../../tests/sessionsSidebarPage.ts";
-import { expectCovering } from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
+import { expectCovering } from "../../test-support/sidePanelWidthPage.ts";
 import {
   closeTerminal,
   terminalPanel,
   terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import type { SessionState } from "../../src/launchRecord.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

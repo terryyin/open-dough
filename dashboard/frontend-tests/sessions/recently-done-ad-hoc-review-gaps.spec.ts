@@ -1,15 +1,15 @@
 // Each unavailable or empty comparison explains the gap independently.
-import { test } from "../../tests/support/frontendApp.ts";
+import { test } from "../../test-support/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionListing } from "../../src/sessionListing.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
-import { sidePanelPages } from "../../tests/sidePanelPages.ts";
+import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
+import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
 import {
   frontendReviewIds,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
 
 for (const { title, answer, explanation } of [

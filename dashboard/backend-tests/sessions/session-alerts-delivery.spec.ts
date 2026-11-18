@@ -1,6 +1,6 @@
 // Notification content remains literal, and an ad hoc session has only a
 // project destination. The real alert owner reaches the isolated executable.
-import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
+import { launchRequest } from "../../test-support/agentLaunchBoundary.ts";
 import {
   afterFurtherListings,
   messages,
@@ -8,8 +8,8 @@ import {
   notificationUrls,
   start,
   test,
-} from "../../tests/support/sessionAlerts.ts";
-import { expect } from "../../tests/support/pageTest.ts";
+} from "../../test-support/support/sessionAlerts.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
 
 test("passes a title with quotes and a backslash unchanged", async ({
   server,

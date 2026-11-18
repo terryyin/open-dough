@@ -11,18 +11,18 @@ import {
   callsSince,
   contentReads,
   headsChecks,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expect,
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   filesBesideUnreachable,
   opened,
@@ -35,26 +35,26 @@ import {
   unreachableTitle,
   withheldSeed,
   withheldTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
 import {
   noConnection,
   notFoundAnswer,
-} from "../../dashboard/tests/originAnswers.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/originAnswers.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectCanonicalFacts,
   expectStoryCardAssignments,
   expectDoneFacts,
-} from "../../dashboard/tests/publishedFactsAssertions.ts";
+} from "../../dashboard/test-support/publishedFactsAssertions.ts";
 import {
   heldFactGroups,
   takenCanonicalPath,
-} from "../../dashboard/tests/publishedFactsArrival.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
-import { detailRecovery } from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/publishedFactsArrival.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
+import { detailRecovery } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const preparationGap =
   "The canonical record could not be read for preparation facts.";

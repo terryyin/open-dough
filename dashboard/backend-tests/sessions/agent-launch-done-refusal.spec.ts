@@ -3,22 +3,22 @@
 // did not record, another project's session, a session whose project folder
 // is missing, another site, an unknown project, and a malformed request. Each
 // refusal leaves the session unmarked and still busy. What an admitted done
-// request does is ./agent-launch-done.spec.ts. The synthetic `claude` (../../tests/fixtures/fake-claude)
+// request does is ./agent-launch-done.spec.ts. The synthetic `claude` (../../test-support/fixtures/fake-claude)
 // records every call, so each refusal proves none was made; the real one is
 // never reached.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { markDone, recordsOf } from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
 import {
   launched,
   withoutProjectFolder,
   type LaunchedSession,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 test.describe("refusing a done request", () => {
   test.describe.configure({ mode: "serial" });

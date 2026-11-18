@@ -3,47 +3,47 @@
 // never planted in fixtures.
 
 import type { Page } from "@playwright/test";
-import { expectChangedQueuedAssociations } from "../../dashboard/tests/queuedPlanGaps.ts";
+import { expectChangedQueuedAssociations } from "../../dashboard/test-support/queuedPlanGaps.ts";
 import {
   passTimeUntilChecked,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
   unrefined,
-} from "../../dashboard/tests/storyReadinessFixture.ts";
+} from "../../dashboard/test-support/storyReadinessFixture.ts";
 import {
   publishAssessedContentChange,
   publishFreshAssessment,
   publishConflictingPlanAssociation,
-} from "../../dashboard/tests/storyReadinessPublications.ts";
+} from "../../dashboard/test-support/storyReadinessPublications.ts";
 import {
   expectFailedPlanKeepsSupportedFacts,
   expectChangedReviewAfterContentChange,
   expectPlanAssociationConflict,
-} from "../../dashboard/tests/storyReadinessGaps.ts";
-import { expectMalformedExternalAndLegacy } from "../../dashboard/tests/storyReadinessRecordGaps.ts";
+} from "../../dashboard/test-support/storyReadinessGaps.ts";
+import { expectMalformedExternalAndLegacy } from "../../dashboard/test-support/storyReadinessRecordGaps.ts";
 import {
   expectFailedCheckKeepsPriorRevision,
   expectNoRereadAfterSettlement,
   expectProjectSwitchRejectsLateHeldRead,
-} from "../../dashboard/tests/storyReadinessRefresh.ts";
+} from "../../dashboard/test-support/storyReadinessRefresh.ts";
 import {
   hideDetail,
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/test-support/storyCardFacts.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";

@@ -174,7 +174,7 @@ jobs:
         run: npm run typecheck:dashboard
 
   # Browser producers: browser-test-group.yml; shard selection:
-  # dashboard/tests/support/testFiles.mjs.
+  # dashboard/test-support/support/testFiles.mjs.
   e2e:
     uses: ./.github/workflows/browser-test-group.yml
     with:

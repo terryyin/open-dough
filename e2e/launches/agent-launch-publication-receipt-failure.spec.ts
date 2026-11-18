@@ -3,40 +3,40 @@
 // and continues the same HTTP attempt after the directory is repaired.
 import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   accept,
   attempts,
   keptStarts,
   launchRequest,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { answerOf } from "../../dashboard/tests/keptExecutionStart.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { answerOf } from "../../dashboard/test-support/keptExecutionStart.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   agentContinueEndpoint,
   type Acceptance,
 } from "../../dashboard/src/agentLaunch.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   storyCardSessions,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectProtected,
   queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/responsiveStart.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
 import {
   recoveryOf,
   subject,
   worktrees,
-} from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   openUntilRead,
   reloadUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 

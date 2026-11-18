@@ -1,7 +1,7 @@
 // A Backlog card's launch dialog chooses a one-shot session in the default
 // checkout, with the real installed start, a real bare origin
-// (../../dashboard/tests/support/startOrigin.ts) the page reads as GitHub would
-// (../../dashboard/tests/committedOrigin.ts), and the synthetic `claude`. When the default
+// (../../dashboard/test-support/support/startOrigin.ts) the page reads as GitHub would
+// (../../dashboard/test-support/committedOrigin.ts), and the synthetic `claude`. When the default
 // checkout holds staged, changed, deleted, or untracked files, Start shows them
 // in the same dialog (paths and count, never content) before anything starts:
 // no start, no session, nothing published. Back returns to the choices and
@@ -14,21 +14,24 @@ import path from "node:path";
 import {
   keptStarts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   changedContent as content,
   changedPaths,
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/tests/support/defaultCheckoutChanges.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
   openBacklog,
   originMain,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 
 for (const [workflow, landing, landingLine] of [
   [

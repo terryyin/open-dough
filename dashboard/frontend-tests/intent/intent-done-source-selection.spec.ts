@@ -1,6 +1,6 @@
-import { prepareFrontendDoneSelection } from "../../tests/support/frontendDoneSelection.ts";
-import { filesColumn } from "../../tests/intentModePage.ts";
-import { sourceRevision } from "../../tests/intentCodeBrowsePage.ts";
+import { prepareFrontendDoneSelection } from "../../test-support/support/frontendDoneSelection.ts";
+import { filesColumn } from "../../test-support/intentModePage.ts";
+import { sourceRevision } from "../../test-support/intentCodeBrowsePage.ts";
 // Selecting another Done story while Intent stays mounted must not lend it
 // the prior story's source during either comparison or locations reading.
 // Explicit immutable completion answers provide the starting facts. The
@@ -10,25 +10,25 @@ import { sourceRevision } from "../../tests/intentCodeBrowsePage.ts";
 import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
 
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { showColumn } from "../../tests/boardPage.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 
-import { parts } from "../../tests/dashboardPage.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
 import {
   expandIntentGroup,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
-import { recentlyDoneParts } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { recentlyDoneParts } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
+import { openSessionsSidebar } from "../../test-support/sessionsSidebarPage.ts";
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   intentFile,
   storyTitle,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

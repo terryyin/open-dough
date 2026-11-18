@@ -10,28 +10,34 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { cardSession } from "../../tests/support/frontendCardSessions.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
 import {
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
-} from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
 import {
   expectRevealsSince,
   recordReveals,
   revealsOf,
-} from "../../tests/sessionNavigationJourney.ts";
+} from "../../test-support/sessionNavigationJourney.ts";
 import {
   expectEndsWithShown,
   expectView,
   showColumn,
-} from "../../tests/boardPage.ts";
-import { box, expectTopBarsShareHeight } from "../../tests/pageLayout.ts";
-import { scrollsOnItsOwn } from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/boardPage.ts";
+import {
+  box,
+  expectTopBarsShareHeight,
+} from "../../test-support/pageLayout.ts";
+import { scrollsOnItsOwn } from "../../test-support/sidePanelWidthPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a session whose story card is hidden shows its column and brings the card into view", async ({

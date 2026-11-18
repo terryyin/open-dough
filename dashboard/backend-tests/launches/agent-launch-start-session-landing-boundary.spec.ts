@@ -1,7 +1,7 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The launch boundary honors an unattached request's landing, with a real
-// bare origin (../../tests/support/startOrigin.ts), the installed start recorded as it
-// runs (../../tests/support/startSessionLanding.ts), and the synthetic `claude`: a
+// bare origin (../../test-support/support/startOrigin.ts), the installed start recorded as it
+// runs (../../test-support/support/startSessionLanding.ts), and the synthetic `claude`: a
 // requested automatic landing runs the start and hands the session its
 // "Established session" block, the reporting context, then the developer's
 // text; Wait for review, named or not, runs no start, and confirming existing
@@ -9,16 +9,16 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // ../../../e2e/launches/agent-launch-start-session-landing.spec.ts.
 
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { dirty } from "../../tests/support/defaultCheckoutChanges.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { dirty } from "../../test-support/support/defaultCheckoutChanges.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   defaultMainSession,
   recordStarts,
   sessionBlock,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

@@ -7,13 +7,13 @@
     "allowJs": true,
     "checkJs": false
   },
-  "exclude": ["tests/comparison-mount"],
+  "exclude": ["test-support/comparison-mount"],
   "include": [
     "vite.config.mts",
     "frontend.playwright.config.ts",
     "backend.playwright.config.ts",
     "server",
-    "tests",
+    "test-support",
     "frontend-tests",
     "backend-tests",
     "../e2e"

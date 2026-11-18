@@ -16,21 +16,21 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
 import {
   needsReconciliation,
   recoveryOf,
-} from "../../tests/responsiveRecovery.ts";
-import { expectProtected } from "../../tests/responsiveStart.ts";
-import { reloadUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/responsiveRecovery.ts";
+import { expectProtected } from "../../test-support/responsiveStart.ts";
+import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   notRefinedStory,
   readyIdentity,
   readyStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 
 const subject = `${readyStory} (${readyIdentity})`;
 

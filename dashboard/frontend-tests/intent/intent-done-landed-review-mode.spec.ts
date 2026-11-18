@@ -1,30 +1,30 @@
-import { prepareFrontendDoneReview } from "../../tests/support/frontendDoneReview.ts";
-import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+import { prepareFrontendDoneReview } from "../../test-support/support/frontendDoneReview.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 // A captured run chosen by Done Intent cannot remain the ordinary Review's
 // selection when its readable workspace is requested in the same open panel.
 import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../tests/support/reviewControls.ts";
-import { reviewChanges } from "../../tests/storyCardControls.ts";
+} from "../../test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../test-support/storyCardControls.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 
-import { showColumn } from "../../tests/boardPage.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   openReviewFromIntent,
   reviewDiff,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 import {
   reviewFeedback,
   fileBrowser,
-} from "../../tests/support/reviewContextLine.ts";
-import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
+} from "../../test-support/support/reviewContextLine.ts";
+import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 

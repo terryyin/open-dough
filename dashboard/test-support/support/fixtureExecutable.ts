@@ -7,7 +7,12 @@ import { chmodSync, copyFileSync, linkSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "./repositoryRoot.ts";
 
-const fixturesDir = path.join(repoRoot, "dashboard", "tests", "fixtures");
+const fixturesDir = path.join(
+  repoRoot,
+  "dashboard",
+  "test-support",
+  "fixtures",
+);
 
 // Each install hard-links the one committed script instead of copying it:
 // macOS assesses every newly created executable on its first run -- about
@@ -70,7 +75,7 @@ export function runFixtureExecutablesOnce(): void {
     });
     if (result.error !== undefined || result.status !== 1) {
       throw new Error(
-        `dashboard/tests/fixtures/${fixture} did not run and refuse as expected: ${
+        `dashboard/test-support/fixtures/${fixture} did not run and refuse as expected: ${
           result.error?.message ??
           `status ${String(result.status)}, signal ${String(result.signal)}`
         }\n${result.stdout}\n${result.stderr}`,

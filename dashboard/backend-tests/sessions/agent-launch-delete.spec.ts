@@ -7,28 +7,28 @@
 // boundary reads as known keeps its record and is answered with that state.
 // Which requests are refused before `claude` runs, and a record file that
 // cannot be written, are here too. The machine directory holds HOME and the
-// synthetic `claude`'s (../../tests/fixtures/fake-claude) state; the real one is never
+// synthetic `claude`'s (../../test-support/fixtures/fake-claude) state; the real one is never
 // reached.
 
 import { chmodSync, mkdtempSync, rmSync } from "node:fs";
 import {
   keptLaunchRecords,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   deleteRecord,
   markDone,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 test.describe("deleting a recorded session's record", () => {
   test.describe.configure({ mode: "serial" });

@@ -1,17 +1,17 @@
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectConfigurationMachine } from "../../dashboard/tests/support/projectConfigurationMachine.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectConfigurationMachine } from "../../dashboard/test-support/support/projectConfigurationMachine.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
+import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   back,
   hideButton,
   projectRow,
   removeButton,
   showButton,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 
 const alphaText = '{\n  "project": "alpha-config",\n  "extra": true\n}\n';
 const betaText = '{\n  "project": "beta-config"\n}\n';

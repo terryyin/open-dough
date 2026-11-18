@@ -7,19 +7,22 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { rmSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { keptStarts, launch } from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { oneShot, originState } from "../../tests/support/oneShotLaunch.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { keptStarts, launch } from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import {
+  oneShot,
+  originState,
+} from "../../test-support/support/oneShotLaunch.ts";
 import {
   requestFor,
   startBoundary,
-} from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 test.describe("a policy the installation or tracking cannot take", () => {
   let origin: StartOrigin;

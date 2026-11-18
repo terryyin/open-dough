@@ -10,10 +10,13 @@ import { landedCiHistorySchema } from "../../src/landedCiHistory.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
-import { publishedLanding } from "../../tests/support/landedCiTrunk.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import { publishedLanding } from "../../test-support/support/landedCiTrunk.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { adapterProject } from "../../test-support/intentCiAdapterProofProject.ts";
 
 test.use({ serverMode: "boundary" });
 

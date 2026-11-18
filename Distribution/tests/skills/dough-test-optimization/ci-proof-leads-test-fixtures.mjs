@@ -9,12 +9,12 @@ import { join } from "node:path";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
-} from "../../../../dashboard/tests/support/baseCiActions.ts";
+} from "../../../../dashboard/test-support/support/baseCiActions.ts";
 import {
   runArtifactsAnswer,
   summaryZipAnswer,
-} from "../../../../dashboard/tests/support/ciProofArtifacts.ts";
-import { parseActionsRequest } from "../../../../dashboard/tests/support/ghActionsRequest.ts";
+} from "../../../../dashboard/test-support/support/ciProofArtifacts.ts";
+import { parseActionsRequest } from "../../../../dashboard/test-support/support/ghActionsRequest.ts";
 import { makeMe } from "../../support/makeMe.mjs";
 import { GitHubAcquisitionFailed } from "../../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 

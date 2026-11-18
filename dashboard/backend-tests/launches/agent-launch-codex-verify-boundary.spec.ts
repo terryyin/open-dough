@@ -6,10 +6,10 @@ import { agentVerifyEndpoint } from "../../src/agentLaunch.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../tests/launchJourney.ts";
-import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/launchJourney.ts";
+import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

@@ -3,12 +3,12 @@ import { queuedReadyRepository } from "../../Distribution/tests/support/queued-r
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { openDoughFolder } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { openDoughFolder } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 
-import { publishMovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
+import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
 
-import { dayFromToday } from "../../dashboard/tests/support/feedbackMaintenanceDue.ts";
+import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   launchedInput,
@@ -16,15 +16,15 @@ import {
   serverOn,
   turnOn,
   watchListDue,
-} from "../../dashboard/tests/support/feedbackMaintenanceServer.ts";
+} from "../../dashboard/test-support/support/feedbackMaintenanceServer.ts";
 
-import { startOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+import { startOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   row,
   settingsLine,
   openDashboard,
   openSettings,
-} from "../../dashboard/tests/feedbackMaintenanceDuePage.ts";
+} from "../../dashboard/test-support/feedbackMaintenanceDuePage.ts";
 
 test("a launch held because Open Dough's default main has existing changes says so on the row and in settings, and starts once they are gone", async ({
   page,

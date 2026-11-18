@@ -20,13 +20,20 @@ import {
   noteReconciled,
   identity,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { keptAttempts, settledOutcome } from "../../tests/acceptedAttempts.ts";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  keptAttempts,
+  settledOutcome,
+} from "../../test-support/acceptedAttempts.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });

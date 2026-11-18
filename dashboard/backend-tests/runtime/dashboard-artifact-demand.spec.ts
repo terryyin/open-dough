@@ -3,27 +3,27 @@ import { createServer, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { appendedFileRecords } from "../../tests/support/appendedRecords.ts";
+import { appendedFileRecords } from "../../test-support/support/appendedRecords.ts";
 import {
   dashboardAppArtifactKey,
   sharedDashboardBuild,
-} from "../../tests/support/dashboardBuild.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/dashboardBuild.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 import {
   proofDirectory,
   readProof,
   removeProofDirectories,
   startProofRun,
-} from "../../tests/support/proofRecordRun.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/support/proofRecordRun.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 const fixtures = path.join(
   repoRoot,
-  "dashboard/tests/fixtures/artifact-demand",
+  "dashboard/test-support/fixtures/artifact-demand",
 );
 const setupOf = (file: string) =>
-  path.join(repoRoot, "dashboard/tests/support", file);
+  path.join(repoRoot, "dashboard/test-support/support", file);
 const setup = setupOf("backendGlobalSetup.ts");
 
 type Trace = { event: string; key: string; directory?: string };

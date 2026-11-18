@@ -5,10 +5,10 @@
 // agent-launch-follow-up-notes.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { accept } from "../../tests/agentLaunchBoundary.ts";
-import { recoverStory } from "../../tests/support/followUpStories.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import { accept } from "../../test-support/agentLaunchBoundary.ts";
+import { recoverStory } from "../../test-support/support/followUpStories.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { storyNoteVersion } from "../../src/storyNote.ts";
 import { quiet, reported, request } from "./followUpBoundaryCases.ts";
 import {

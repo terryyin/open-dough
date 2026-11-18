@@ -1,8 +1,8 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { installedSkillPath } from "../../server/launchHosts.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
 
 const exec = promisify(execFile);
 

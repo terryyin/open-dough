@@ -1,23 +1,23 @@
 // One live A/B/C chain keeps its served C through origin recovery and fatal D.
 // Each fault preserves actual npm/build/preview; SIGHUP belongs to restart.
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { readFile, rename, rm, writeFile } from "node:fs/promises";
 import type { Page } from "@playwright/test";
-import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
-import { projectConfigurationFile } from "../../dashboard/tests/support/projectConfiguration.ts";
-import { productionFailureFixture } from "../../dashboard/tests/support/productionWatcherFixture.ts";
-import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
-import { writeSharedLaunchRecord } from "../../dashboard/tests/support/sharedLaunchRecord.ts";
+import { developmentDashboard } from "../../dashboard/test-support/support/dashboardCommand.ts";
+import { projectConfigurationFile } from "../../dashboard/test-support/support/projectConfiguration.ts";
+import { productionFailureFixture } from "../../dashboard/test-support/support/productionWatcherFixture.ts";
+import { serialFileResources } from "../../dashboard/test-support/support/serialFileResources.ts";
+import { writeSharedLaunchRecord } from "../../dashboard/test-support/support/sharedLaunchRecord.ts";
 import {
   waitForEmptyDirectory,
   waitForWatcherOutput,
-} from "../../dashboard/tests/support/watcherEvents.ts";
+} from "../../dashboard/test-support/support/watcherEvents.ts";
 import {
   faultCause,
   faultGateChanges,
   ownCauseFault,
   productionFault,
-} from "../../dashboard/tests/support/productionFault.ts";
+} from "../../dashboard/test-support/support/productionFault.ts";
 import {
   expectProductionEnded,
   expectStillServing,
@@ -30,7 +30,7 @@ import {
   startProductionWatcher,
   type ProductionActivation,
   type ProductionWatcher,
-} from "../../dashboard/tests/support/productionWatcher.ts";
+} from "../../dashboard/test-support/support/productionWatcher.ts";
 
 test.describe.configure({ mode: "serial" });
 

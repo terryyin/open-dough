@@ -3,14 +3,20 @@
 // revision, and a malformed kept form before asking GitHub; a kept read with
 // nothing stored answers none without further CI asks (SEED-239 slice 5).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { judgmentCalls, trunkCi } from "../../tests/support/trunkCiAnswers.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import {
+  judgmentCalls,
+  trunkCi,
+} from "../../test-support/support/trunkCiAnswers.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 
 const revision = "b2".repeat(20);

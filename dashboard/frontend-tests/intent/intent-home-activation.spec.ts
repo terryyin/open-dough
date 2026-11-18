@@ -1,8 +1,8 @@
 import {
   prepareActivationStory,
   prepareActivationProject,
-} from "../../tests/support/frontendIntentActivation.ts";
-import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+} from "../../test-support/support/frontendIntentActivation.ts";
+import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
 import {
   expectCiScope,
   expectCiAnswer,
@@ -10,7 +10,7 @@ import {
   chooseCiStatus,
   ciPanel,
   judged,
-} from "../../tests/intentCiStatusPage.ts";
+} from "../../test-support/intentCiStatusPage.ts";
 
 // Directly activating Project Intent's CI status tab
 // (../../src/IntentPage.tsx, ../../src/intentWorkspaceSelection.ts) or the
@@ -26,16 +26,16 @@ import {
 // Enter and Space: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts. Opening a candidate's
 // file: ./intent-test-optimization-candidates-open.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   browseSpec,
   openDoughSettings,
   pygardon,
-} from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 
-import { failing } from "../../tests/intentCiStoryBoard.ts";
-import { toggleOnDevelopment } from "../../tests/intentCiStoryRecords.ts";
+import { failing } from "../../test-support/intentCiStoryBoard.ts";
+import { toggleOnDevelopment } from "../../test-support/intentCiStoryRecords.ts";
 import {
   expectIntentModeChosen,
   intentModeTab,
@@ -43,29 +43,29 @@ import {
   returnToStory,
   intentPageFrame,
   filesColumn,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
   storySummary,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
-import { shortRevision } from "../../tests/dashboardParts.ts";
+} from "../../test-support/pageRequestNotes.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
 import {
   intentReads,
   jobsFeatures,
   publishedFiles,
-} from "../../tests/intentRevisionJourney.ts";
+} from "../../test-support/intentRevisionJourney.ts";
 import type { Locator } from "@playwright/test";
-import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 
 const intentFiles = {
   ".planning/open-dough.json": intentSettingsText(openDoughSettings),

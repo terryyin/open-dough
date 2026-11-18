@@ -1,7 +1,7 @@
 // An unattached Start session whose start outlasts its wait is kept with its
 // launch attempt (../../dashboard/server/sessionStartStore.ts), with a real bare origin
-// (../../dashboard/tests/support/startOrigin.ts), the installed start recorded and held as the
-// case needs (../../dashboard/tests/support/keptSessionStart.ts), and the synthetic `claude`: the
+// (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded and held as the
+// case needs (../../dashboard/test-support/support/keptSessionStart.ts), and the synthetic `claude`: the
 // answer beside Start session and Startup recovery name the worktree and
 // branch that start goes on in and say it publishes nothing; Continue is
 // refused while that start still runs, then resumes the same workspace and
@@ -16,30 +16,33 @@ import type { LaunchWithState } from "../../dashboard/src/launchRecord.ts";
 import {
   attempts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   holdStarts,
   keptSessionStarts,
   keptWords,
   stillRunning,
-} from "../../dashboard/tests/support/keptSessionStart.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/support/keptSessionStart.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   openBacklog,
   originMain,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
   isolatedStart,
@@ -48,7 +51,7 @@ import {
   sessionBlock,
   worktree,
   worktrees,
-} from "../../dashboard/tests/support/startSessionLanding.ts";
+} from "../../dashboard/test-support/support/startSessionLanding.ts";
 
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";

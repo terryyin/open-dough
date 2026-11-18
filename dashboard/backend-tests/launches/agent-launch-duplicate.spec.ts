@@ -1,20 +1,22 @@
 // Real HTTP admission and launch lifetime, with only native answers held.
-import { test, expect, codexSkill } from "../../tests/support/codexLaunch.ts";
+import {
+  test,
+  expect,
+  codexSkill,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   accept,
   launch,
   recordsOf,
   identity,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { installRefinementSkill } from "../../tests/launchStoryCardPage.ts";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { installRefinementSkill } from "../../test-support/launchStoryCardPage.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
-import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-// No page: the local boundaries alone answer these requests. Each wait for a
-// launch to reach its native host is bounded by the test timeout alone.
 test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
@@ -170,8 +172,7 @@ for (const host of ["claude", "codex"] as const) {
     expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
     dashboard.releaseHeldClaude();
     native.release();
-    // Startup completion is the attempt's settlement, which releases the
-    // gate; its record is kept before then.
+    // Startup settlement releases the gate after keeping the launch record.
     expect(await settledOutcome(dashboard, first.attempt.id)).toMatchObject({
       kind: "launched",
       session: { host },

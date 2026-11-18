@@ -3,12 +3,12 @@
 // history; the request has no identity. Do not preload the association.
 // Competing-history and ambiguous-candidate cases live beside this file.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import {
   associationOf,
   retainAdHocCompletedStory,
-} from "../../tests/support/adHocCompletedAssociation.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/adHocCompletedAssociation.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 test.use({ serverMode: "boundary" });
 

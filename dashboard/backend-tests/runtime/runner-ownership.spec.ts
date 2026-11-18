@@ -8,10 +8,10 @@
 // also names; runs started beside each other keep their own run directories
 // and records. A runner's setup registers only the artifacts its own specs
 // request.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   proofDirectory,
   readProof,
@@ -19,12 +19,12 @@ import {
   startProofCommand,
   startProofRun,
   splitExcluding,
-} from "../../tests/support/proofRecordRun.ts";
+} from "../../test-support/support/proofRecordRun.ts";
 
 import {
   groupRunnerExamples,
   type GroupRunnerExample,
-} from "../../tests/support/groupRunnerExamples.ts";
+} from "../../test-support/support/groupRunnerExamples.ts";
 
 test.afterAll(removeProofDirectories);
 // One worker runs these in order, so only one group's two runs share the
@@ -142,10 +142,13 @@ test("Dashboard Backend Test's setup registers no comparison mount, so a spec as
   const run = startProofRun({
     spec: "unregistered.proof.ts",
     config: {
-      testDir: path.join(repoRoot, "dashboard/tests/fixtures/artifact-demand"),
+      testDir: path.join(
+        repoRoot,
+        "dashboard/test-support/fixtures/artifact-demand",
+      ),
       globalSetup: path.join(
         repoRoot,
-        "dashboard/tests/support/backendGlobalSetup.ts",
+        "dashboard/test-support/support/backendGlobalSetup.ts",
       ),
     },
   });

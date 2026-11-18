@@ -1,16 +1,19 @@
 import { readFileSync, rmSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
-} from "../../tests/usage-history/importHarness.ts";
-import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 import {
   recoveredTask as task,
   recordHistoricalTask as record,
-} from "../../tests/usage-history/historicalReferenceHarness.ts";
+} from "../../test-support/usage-history/historicalReferenceHarness.ts";
 
 const seed = ".planning/seeds/SEED-013-old.md";
 const plan = ".planning/quick/050-historical-work/PLAN.md";

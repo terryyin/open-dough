@@ -11,7 +11,7 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
@@ -19,28 +19,28 @@ import {
   sessionStateOf,
   standaloneSessionName,
   storyCardSessionOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { readyStory } from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 import {
   openTakenBacklog,
   takenBacklogStories,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expectNotReloaded,
   expectSessionShown,
   markNotReloaded,
   watchRecordReads,
-} from "../../dashboard/tests/sessionStatePace.ts";
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/sessionStatePace.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import {
   keepLaunchStoreText,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -7,10 +7,10 @@
 // kept is ./agent-launch-records.spec.ts, and a read of the machine's sessions
 // is ../sessions/agent-launch-session-listing.spec.ts, and the environment a launch
 // runs in is ./agent-launch-environment.spec.ts. The synthetic `claude`
-// (../../tests/fixtures/fake-claude) on each server's PATH records every call; the
+// (../../test-support/fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   identity,
   launch,
@@ -19,14 +19,14 @@ import {
   recordsOf,
   refinementRequest,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const launchWaitMs = 4_000;
 test.describe(`agent launch boundary`, () => {

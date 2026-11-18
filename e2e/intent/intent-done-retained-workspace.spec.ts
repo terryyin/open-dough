@@ -1,7 +1,7 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
-import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
+import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can
 // still read a retained workspace's later uncommitted edits.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -10,17 +10,20 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { retainedIntentCompletion } from "../../dashboard/tests/support/retainedIntentCompletion.ts";
-import { selectDoneStoryInIntent } from "../../dashboard/tests/support/selectDoneStoryInIntent.ts";
-import { lines } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { retainedIntentCompletion } from "../../dashboard/test-support/support/retainedIntentCompletion.ts";
+import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
+import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   chooseStoryTab,
   intentDiff,
@@ -28,7 +31,7 @@ import {
   openReviewFromIntent,
   reviewDiff,
   storySummary,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 const renamed =

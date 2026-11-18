@@ -1,28 +1,28 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // The page's Close leaves a working Cursor turn running. Reopening the
 // terminal shows that same turn still working. Session switch closes the
 // same socket; this page has one Cursor session, so Close is the control
 // the developer uses here.
-import { keptLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expect,
   workingCursorTest as test,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { waitUntil } from "../../dashboard/tests/support/waitUntil.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { startedSessionTerminal } from "../../dashboard/tests/support/startedSessionTerminal.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { waitUntil } from "../../dashboard/test-support/support/waitUntil.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const instruction = "keep this turn running";
 

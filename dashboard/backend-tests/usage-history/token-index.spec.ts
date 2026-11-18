@@ -11,7 +11,7 @@ import {
   test,
   usageServer,
   writeTaskUsage,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const sol = "gpt-6.1-sol",
   astra = "gpt-6-astra";

@@ -5,14 +5,17 @@
 // ../../dashboard/frontend-tests/launches/agent-launch-story-card-dialogs.spec.ts.
 
 import path from "node:path";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { instructionField } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { instructionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expectCopiedAttachmentPath,
@@ -20,7 +23,7 @@ import {
   pngA,
   pngB,
   writePickedImages,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 
 test("Start refinement with two picked images and no text ends the first input with their copied paths after the handoff", async ({
   page,

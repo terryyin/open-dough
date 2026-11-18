@@ -1,39 +1,34 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   filesColumn,
   intentModeViews,
-} from "../../dashboard/tests/intentModePage.ts";
-// Example 1 and 3: a Taken story whose worktree changes the tests Intent
-// publishes (../../dashboard/tests/support/intentStoryWorktree.ts) is selected by its card's empty
-// area, and one persistent header, led by the way to Project Intent, names it
-// in full, with its identity, the revisions its default Review changes
-// comparison runs between, and the count of changed files outside every
-// location, pointing to Review changes, above the story's views; Changed tests'
-// column starts with the "Selected story only" choice. The whole published tree
-// shows, changed files styled by kind and the added one inserted; the folders
-// containing changes have the contains-changes background and are open, with
-// the first changed location, while everything else stays collapsed. A location
-// containing changes keeps its own header background with a change mark,
-// distinct from a changed folder's row, and keeps the mark once selected. A
-// changed file's Purpose is the same diff Review changes shows; an unchanged
-// file shows its published source. Closing Review changes keeps the story
-// selected (ADR 0008); deselecting its card then removes the summary and shows
-// Project Intent, whose reading borrowed none of it. "Selected story only":
-// ../../dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts. Deletions and renames, and a folder's
-// Summary of the overlaid tree: ./intent-story-changes-moves.spec.ts. No
-// comparison and a failed read: ../../dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts. A long
-// title: ../../dashboard/frontend-tests/intent/intent-story-summary-title.spec.ts. Where the keyboard returns after
-// closing Review changes: ../../dashboard/frontend-tests/intent/intent-story-review-return.spec.ts.
+} from "../../dashboard/test-support/intentModePage.ts";
+// A Taken card's empty area selects its story: one header above the views
+// names it, its revisions and outside count, and offers Project Intent and
+// Review changes. Changed tests starts with "Selected story only"; the whole
+// tree shows change styling, auto-opened containing folders and the first
+// changed location. The location's change mark differs from a folder's row
+// background and stays visible after selection. Changed Purpose matches Review
+// changes; unchanged Purpose shows published source. Closing Review changes
+// preserves selection (ADR 0008); deselecting restores Project Intent.
+// Selected-only, gaps, long titles and keyboard return: related Frontend
+// intent-story-*.spec.ts. Moves and deletions: ./intent-story-changes-moves.spec.ts.
 
-import { parts, shortRevision } from "../../dashboard/tests/dashboardPage.ts";
-import { ciPanel } from "../../dashboard/tests/intentCiStatusPage.ts";
+import {
+  parts,
+  shortRevision,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { ciPanel } from "../../dashboard/test-support/intentCiStatusPage.ts";
 import {
   emptyArea,
   expectSelected,
-} from "../../dashboard/tests/storyCardSelection.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/storyCardSelection.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   background,
   folderToggle,
@@ -53,21 +48,21 @@ import {
   storyHeaderReading,
   storyViews,
   intentDiffReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   kindStyles,
   nameStyle,
-} from "../../dashboard/tests/support/changeKindStyle.ts";
-import { changed } from "../../dashboard/tests/support/intentStoryWorktree.ts";
+} from "../../dashboard/test-support/support/changeKindStyle.ts";
+import { changed } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import {
   intentGroupToggle,
   intentLocationName,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   expectChangedLocationHeader,
   locationHeaderLookAt,
-} from "../../dashboard/tests/intentLocationHeaderLook.ts";
+} from "../../dashboard/test-support/intentLocationHeaderLook.ts";
 
 test("Intent highlights a selected Taken story's test changes over the published tree, each changed file with Review changes' own diff", async ({
   page,

@@ -5,9 +5,9 @@
 // ./recently-done-review-state-persistence.spec.ts.
 
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
-import { parts } from "../../dashboard/tests/dashboardParts.ts";
-import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { refreshedTo } from "../../dashboard/tests/recentlyDoneRefresh.ts";
+import { parts } from "../../dashboard/test-support/dashboardParts.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { refreshedTo } from "../../dashboard/test-support/recentlyDoneRefresh.ts";
 import {
   doneCard,
   doneStories,
@@ -16,9 +16,12 @@ import {
   openRecentlyDone,
   publishDoneStories,
   storyA,
-} from "../../dashboard/tests/recentlyDoneReviewState.ts";
+} from "../../dashboard/test-support/recentlyDoneReviewState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 const titles = doneStories.map(({ title }) => title);
 

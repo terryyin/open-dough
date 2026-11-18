@@ -13,37 +13,37 @@
 // identity and retries: agent-launch-follow-up-identity.spec.ts there.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalControl,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   parts,
   sessionStateOf,
   standaloneSessionName,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTakenBacklog,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { listed } from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   followUpContextOf,
   quietSession,
   quietTitle,
   retiredSession,
   retiredTitle,
-} from "../../dashboard/tests/support/followUpSources.ts";
-import { radio } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { sidePanelContents } from "../../dashboard/tests/support/sidePanelContents.ts";
-import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
+} from "../../dashboard/test-support/support/followUpSources.ts";
+import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { sidePanelContents } from "../../dashboard/test-support/support/sidePanelContents.ts";
+import { readFinalReportControl } from "../../dashboard/test-support/finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

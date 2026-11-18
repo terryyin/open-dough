@@ -1,10 +1,10 @@
 // Exact Done publication boundaries traverse the authenticated local reader.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { landedTrunk } from "../../tests/support/landedCiTrunk.ts";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import { landedTrunk } from "../../test-support/support/landedCiTrunk.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary" });
 

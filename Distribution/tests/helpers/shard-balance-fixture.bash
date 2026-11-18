@@ -83,8 +83,8 @@ discovered() {
 copy_runner "${repository}"
 cp -- "${source_dir}/scripts/ci-shard-balance.mjs" "${source_dir}/scripts/ci-shard-times.mjs" \
   "${source_dir}/scripts/ci-shard-proposal.mjs" "${repository}/scripts/"
-mkdir -p -- "${repository}/dashboard/tests/support" "${repository}/.github/workflows"
-cp -- "${source_dir}/dashboard/tests/support/testFiles.mjs" "${repository}/dashboard/tests/support/"
+mkdir -p -- "${repository}/dashboard/test-support/support" "${repository}/.github/workflows"
+cp -- "${source_dir}/dashboard/test-support/support/testFiles.mjs" "${repository}/dashboard/test-support/support/"
 
 # Runs the copied command for GROUP with the stand-in, logging to <name>.log and
 # setting command_status for expect_report.

@@ -2,10 +2,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { keptStarts, launch } from "../../tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { keptStarts, launch } from "../../test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import type { StartRecord } from "../../server/startStore.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

@@ -1,7 +1,7 @@
 // A failed schema or asked-attempt identity check cannot poison proof memory.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   configuredAdapter,
   repository,

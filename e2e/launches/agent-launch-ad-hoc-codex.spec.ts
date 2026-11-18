@@ -1,7 +1,7 @@
 import {
   closeSidePanel,
   sidePanelNamesOf,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // Actual Start session, browser focus/navigation and shared done/reopen owners.
 // Native protocol and ordinary CLI replies are substitutes, never record writers.
 import { realpathSync } from "node:fs";
@@ -11,38 +11,38 @@ import {
   expect,
   expectOneThreadStarted,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
   parts,
   sessionEntriesIn,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   codexAttaches,
   codexEnded,
   codexLines,
   expectCodexHungUp,
-} from "../../dashboard/tests/support/codexTerminal.ts";
+} from "../../dashboard/test-support/support/codexTerminal.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { startedSessionTerminal } from "../../dashboard/tests/support/startedSessionTerminal.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 

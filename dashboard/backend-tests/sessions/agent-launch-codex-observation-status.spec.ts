@@ -4,20 +4,24 @@
 // while a passive read is pending never recreates it; and a silent native
 // endpoint reaches its bound without erasing a healthy one.
 import path from "node:path";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
-import { installFakeCodex } from "../../tests/support/fakeCodex.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
+import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   deleteRecord,
   launch,
   refinementRequest,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   observationRecord as record,
   saveObservations as save,
   observationStates as states,
   observed,
   passive,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

@@ -1,10 +1,10 @@
-import { openStoryIntent } from "../../tests/intentModePage.ts";
+import { openStoryIntent } from "../../test-support/intentModePage.ts";
 import {
   putFrontendIntentStory,
   answerFrontendIntentChanges,
-} from "../../tests/support/frontendIntentStory.ts";
-import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
-import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
+} from "../../test-support/support/frontendIntentStory.ts";
+import { chooseStoryTab } from "../../test-support/support/intentStoryPage.ts";
+import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
 // A selected story's views and Hide files / Show files ending their row
 // (../../src/IntentPage.tsx) at a narrow width: every control stays
 // within the page without widening it, Tab reaches the toggle after the
@@ -16,23 +16,23 @@ import {
   filesToggle,
   intentModeTab,
   intentPageFrame,
-} from "../../tests/intentModePage.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
-import { ciPanel } from "../../tests/intentCiStatusPage.ts";
-import { box } from "../../tests/partArrangement.ts";
-import { browserRevision } from "../../tests/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
+} from "../../test-support/intentModePage.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
+import { box } from "../../test-support/partArrangement.ts";
+import { browserRevision } from "../../test-support/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
 import {
   twiceZoomedWindow,
   zoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/accessibleReading.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   expectStoryTab,
   outsideCount,
   storyTab,
   storyViews,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 
 test("narrow, a selected story's views and Hide files stay reachable by keyboard without widening the page", async ({
   page,

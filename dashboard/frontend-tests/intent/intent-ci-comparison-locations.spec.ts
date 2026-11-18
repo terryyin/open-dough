@@ -4,26 +4,29 @@
 // without the browser reading the comparison again, once it settles; beside a
 // failed locations read, Changed tests explains the failure with its Retry,
 // which reads the completion revision again. The comparison is the canonical
-// Summary-scope answer (../../tests/support/frontendIntentComparison.ts); a
+// Summary-scope answer (../../test-support/support/frontendIntentComparison.ts); a
 // request log observes the browser's requests only. Real acquisition stays in
 // ../../backend-tests/intent/ci-comparison-memory-*.spec.ts and
 // ../../../e2e/intent/intent-ci-comparison{,-retry}.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
-import { readFailure, readRetry } from "../../tests/intentReadRecoveryPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
-import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
+import {
+  readFailure,
+  readRetry,
+} from "../../test-support/intentReadRecoveryPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
+import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
   storySummary,
   storyTitle,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

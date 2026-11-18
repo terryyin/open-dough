@@ -1,39 +1,39 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Actual queued closure, installed publication/reporting and workspace retirement
 // feed Recently done's shared historical review, including its unread details.
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { completedExecution } from "../../dashboard/tests/support/oneShotExecutionReview.ts";
-import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
-import { git } from "../../dashboard/tests/support/launchLanding.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { completedExecution } from "../../dashboard/test-support/support/oneShotExecutionReview.ts";
+import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import { git } from "../../dashboard/test-support/support/launchLanding.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   columnCountOf,
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   showColumn,
   columnPagingControl,
   rem,
-} from "../../dashboard/tests/boardPage.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/boardPage.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import type { landingReceiptSchema } from "../../dashboard/src/launchLanding.ts";
 import type { z } from "zod";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 async function inspectDelivered(
   page: Page,

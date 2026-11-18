@@ -5,15 +5,15 @@
 // An upgrade refused before attaching leaves the session done. How the page
 // shows the reopened session is ../../../e2e/sessions/agent-terminal-done.spec.ts, and how the
 // boundary marks it done is ./agent-launch-done.spec.ts. The machine directory
-// holds HOME and the synthetic `claude`'s (../../tests/fixtures/fake-claude) state; the
+// holds HOME and the synthetic `claude`'s (../../test-support/fixtures/fake-claude) state; the
 // real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { markDone, recordsOf } from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
 import {
   lastAttachEnded,
   launched,
@@ -22,11 +22,11 @@ import {
   shows,
   terminalUrl,
   type LaunchedSession,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 // The project's kept record of the session, as the launch boundary answers it.
 async function recordOf(server: DashboardServer, session: LaunchedSession) {

@@ -1,8 +1,8 @@
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
-import { keptLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 // A refinement launch on Cursor establishes its preparation before the
 // session, over the page, the real installed preparation start, and a bare
-// origin (../../dashboard/tests/support/startOrigin.ts). The fixture `cursor-agent` on PATH
+// origin (../../dashboard/test-support/support/startOrigin.ts). The fixture `cursor-agent` on PATH
 // prints the create-chat id and records argv. The published Preparing
 // assignment, not the launch record, is what places the story. Claude's
 // preparation specs and Codex's preparation spec stay the proofs of those
@@ -10,16 +10,19 @@ import { keptLaunchRecords } from "../../dashboard/tests/support/launchStore.ts"
 
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 const instruction = "Focus on the examples.";

@@ -1,7 +1,7 @@
 // Controlled operations model Git's completion separately from a requester's
 // departure: aborting a waiter must not release a still-running ref mutation.
 import { GitTargetFetches } from "../../server/gitTargetFetch.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 
 function deferred() {
   let resolve!: () => void;

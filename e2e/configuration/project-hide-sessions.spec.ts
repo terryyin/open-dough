@@ -1,35 +1,35 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
   expectProjectChoice,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { chooseStoryTab } from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   openUntilRead,
   untilPublishedWorkRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   openSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   back,
   hideButton,
   settings,
   showButton,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

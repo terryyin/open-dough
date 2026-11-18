@@ -1,15 +1,15 @@
 # Dashboard Frontend Test
 
-Frontend-only dashboard specs live here, beside `../tests/` and
+Frontend-only dashboard specs live here, beside [Dashboard Test Support](../test-support/) and
 `../backend-tests/`. They exercise DOM and built-frontend UI behavior with
 explicit route/WebSocket service substitutes, without starting
 `dashboardServer`, `fake-gh`, `fake-claude`, `fake-codex`, or `FakeGitHub`.
 
-- DOM-only specs import `test` from `../tests/support/pageTest.ts` and use
+- DOM-only specs import `test` from `../test-support/support/pageTest.ts` and use
   `page.setContent(...)`.
-- Built-app UI specs import `test` from `../tests/support/frontendApp.ts`,
+- Built-app UI specs import `test` from `../test-support/support/frontendApp.ts`,
   which requests the run's shared app build, serves it as static files and installs
-  substitutes from `../tests/support/frontendServiceSubstitutes.ts`.
+  substitutes from `../test-support/support/frontendServiceSubstitutes.ts`.
 
 - Mounted production-component specs import `test` from
   `../../Distribution/tests/support/comparisonMountPage.ts` or take `comparisonRenderer`
@@ -17,7 +17,7 @@ explicit route/WebSocket service substitutes, without starting
   answers (`intent/`).
 
 Each backend service family a built-app spec talks to has one substitute
-module beside `frontendServiceSubstitutes.ts` in `../tests/support/`
+module beside `frontendServiceSubstitutes.ts` in `../test-support/support/`
 (settings, launches and attempts, transcription, session actions). It keeps
 the answers as state the page's accepted requests change, records what the
 page asked, and refuses, fails or holds one answer when a case needs to
@@ -25,7 +25,7 @@ observe recovery. Held answers go through `frontendSubstituteAnswers.ts`,
 which releases any still held when the page's case ends. Arrange the project's
 stories and machine reads through `frontendServiceState.ts`.
 
-Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
+Dashboard harness helpers and fixtures stay in Dashboard Test Support. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 Keep specs and the modules that register their cases in the feature folder
 whose behavior they prove, such as `intent/`, `configuration/`, `launches/`
@@ -34,7 +34,7 @@ or `sessions/`. Representative workflows live in
 
 `npm run test:dashboard:frontend` runs only this group from its own
 configuration (`../frontend.playwright.config.ts`): its global setup prepares
-only the app and comparison mount builds (`../tests/support/frontendGlobalSetup.ts`),
+only the app and comparison mount builds (`../test-support/support/frontendGlobalSetup.ts`),
 it reads its own `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`,
 `_PROOF_RECORD` and `_DEADLINE_MS`, keeps a failed run in
 `test-results/<start time>/` here, and takes local full-suite admission only

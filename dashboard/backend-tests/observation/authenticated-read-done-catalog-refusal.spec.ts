@@ -4,23 +4,23 @@
 // `gh` call; a failing record read names that record; and a record read its
 // request leaves is ended, to be asked again later. Tested directly against
 // real HTTP and a synthetic `gh` answering from the fake GitHub, observing the
-// `gh` calls that reach it (../../tests/support/doneCatalogReads.ts).
+// `gh` calls that reach it (../../test-support/support/doneCatalogReads.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
 import {
   everyRepository,
   publishes,
   type RepositoryAnswerer,
-} from "../../tests/support/fakeGitHub.ts";
-import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
-import { processAlive } from "../../tests/support/processGroup.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import { processAlive } from "../../test-support/support/processGroup.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
 import {
   answerOf,
   doneCatalogReads,
@@ -30,7 +30,7 @@ import {
   pathOf,
   publishedDone,
   revisionOf,
-} from "../../tests/support/doneCatalogReads.ts";
+} from "../../test-support/support/doneCatalogReads.ts";
 import { doneCatalogFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 test.describe.configure({ mode: "serial" });

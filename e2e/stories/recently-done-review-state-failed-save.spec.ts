@@ -21,8 +21,11 @@ import {
   storyA,
   reviewedButton,
   unreviewStory,
-} from "../../dashboard/tests/recentlyDoneReviewState.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/recentlyDoneReviewState.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 const notSaved = "The review state could not be saved.";
 

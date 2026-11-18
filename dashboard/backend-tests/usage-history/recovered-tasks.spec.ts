@@ -6,12 +6,15 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("recovers pruned native task facts from historical deleted stories without copying private input or mutating workflow", async ({
   home,

@@ -9,11 +9,11 @@
 // the comparison is asked once however the reads coincide. Counts the `gh`
 // calls GitHub received (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { aheadByAnswer } from "../../tests/comparisonAnswers.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
-import { refusedMarker } from "../../tests/support/sharedReads.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { aheadByAnswer } from "../../test-support/comparisonAnswers.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import { refusedMarker } from "../../test-support/support/sharedReads.ts";
 import {
   answerFrom,
   backlogNaming,
@@ -29,7 +29,7 @@ import {
   profilePath,
   seedPath,
   seedText,
-} from "../../tests/revisionReuseOrigin.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 test.describe.configure({ mode: "serial" });

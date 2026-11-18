@@ -11,7 +11,7 @@ import {
 import { availableParallelism } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { fullDashboardSuite } from "../../../dashboard/tests/support/fullSuiteSelection.mjs";
+import { fullDashboardSuite } from "../../../dashboard/test-support/support/fullSuiteSelection.mjs";
 import {
   dashboard,
   fixture,

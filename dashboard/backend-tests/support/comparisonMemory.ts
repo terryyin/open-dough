@@ -1,6 +1,6 @@
 // Repeated real reads in one process, with isolated answer memory. The
 // observed source counts only external operations; comparison rules stay real.
-import { expect, test as base } from "../../tests/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import { clearCiComparisonAnswers } from "../../server/intentCiComparisonAnswers.ts";
 import { performIntentCiComparisonRead } from "../../server/intentCiComparisonRead.ts";
 import type { StoryCiComparisonSource } from "../../server/storyCiComparisonSource.ts";

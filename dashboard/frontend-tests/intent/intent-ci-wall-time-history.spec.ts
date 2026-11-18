@@ -19,19 +19,19 @@ import {
   attemptLink,
   evidenceLabels,
   expectEvidenceLabels,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
   evidenceByKeyboard,
   historyOf,
-} from "../../tests/intentCiHistoryPage.ts";
-import { expectCiAnswer } from "../../tests/intentCiStatusPage.ts";
-import { expectNoSidewaysScrollIn } from "../../tests/pageLayout.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
-import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
-import { judged } from "../../tests/support/trunkCiAnswers.ts";
+} from "../../test-support/intentCiHistoryPage.ts";
+import { expectCiAnswer } from "../../test-support/intentCiStatusPage.ts";
+import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { serveFrontendCiHistory } from "../../test-support/support/frontendCiHistoryAnswers.ts";
+import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
+import { judged } from "../../test-support/support/trunkCiAnswers.ts";
 
 // The trunk's judgment rests on run 41, 10:00 to 10:06:05 on Nov 5.
 const judgment = {

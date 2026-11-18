@@ -1,6 +1,6 @@
 // The launch boundary honors an unattached request's isolated workspace,
-// with a real bare origin (../../dashboard/tests/support/startOrigin.ts), the installed start
-// recorded as it runs (../../dashboard/tests/support/startSessionLanding.ts): slug variations
+// with a real bare origin (../../dashboard/test-support/support/startOrigin.ts), the installed start
+// recorded as it runs (../../dashboard/test-support/support/startSessionLanding.ts): slug variations
 // and collisions belong to ../../dashboard/backend-tests/launches/launch-workspace.spec.ts. A host
 // whose installation cannot establish a session offers only the default
 // choices in the dialog; Codex's worktree start is
@@ -8,20 +8,23 @@
 // The dialog's journeys are in ./agent-launch-start-session-isolated.spec.ts.
 
 import { realpathSync } from "node:fs";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   openBacklog,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   withoutSessionFormatter,
   worktrees,
-} from "../../dashboard/tests/support/startSessionLanding.ts";
+} from "../../dashboard/test-support/support/startSessionLanding.ts";
 
 test("a host whose installation cannot establish a session offers only the default choices, and says why", async ({
   page,

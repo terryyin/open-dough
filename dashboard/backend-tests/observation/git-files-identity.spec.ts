@@ -17,7 +17,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { gitFilesIdentity } from "../../server/gitFilesIdentity.ts";
 
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -6,18 +6,18 @@ import {
   test as base,
   expect,
   stored,
-} from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/support/codexLaunch.ts";
 import {
   launch,
   refinementRequest,
   machineSessions,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   shows,
   refusedResponse,
   refusedStatus,
   terminalUrl,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -25,18 +25,18 @@ import {
   codexTerminalMode,
   expectCodexHungUp,
   openCodexTerminal,
-} from "../../tests/support/codexTerminal.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { codexEnvironments } from "../../tests/support/codexObservation.ts";
-import { fakeCodexHost } from "../../tests/support/fakeCodex.ts";
+} from "../../test-support/support/codexTerminal.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { codexEnvironments } from "../../test-support/support/codexObservation.ts";
+import { fakeCodexHost } from "../../test-support/support/fakeCodex.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
-} from "../../tests/support/launchEnvironment.ts";
+} from "../../test-support/support/launchEnvironment.ts";
 
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { changeLaunchStore } from "../../tests/support/launchStore.ts";
+import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
 const test = base.extend({
   dashboard: async (
     { dashboardBoundaryReady, github, machine, codexProtocol },

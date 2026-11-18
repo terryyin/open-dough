@@ -2,11 +2,14 @@
 // after the source session expires.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptAttempts, settledOutcome } from "../../tests/acceptedAttempts.ts";
-import { accept, attempts } from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import {
+  keptAttempts,
+  settledOutcome,
+} from "../../test-support/acceptedAttempts.ts";
+import { accept, attempts } from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { reported, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });

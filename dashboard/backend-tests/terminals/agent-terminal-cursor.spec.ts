@@ -5,44 +5,31 @@
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test as base, expect } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   refusedStatus,
   terminalUrl,
-} from "../../tests/agentTerminalBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import {
-  installFakeCursor,
-  type FakeCursor,
-} from "../../tests/support/fakeCursor.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import type { FakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
   openCursorTerminal,
   type CursorTerminal,
-} from "../../tests/support/cursorTerminal.ts";
+} from "../../test-support/support/cursorTerminal.ts";
 import {
   admit,
   codexResumeLog,
   keptCursor,
   startCursorDashboard,
   stayedUp,
-} from "../../tests/support/keptCursorTurn.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+  workingKeptCursorTest as test,
+} from "../../test-support/support/keptCursorTurn.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 
 const instruction = "continue this session";
-
-const test = base.extend<{
-  cursor: FakeCursor;
-}>({
-  // eslint-disable-next-line no-empty-pattern
-  cursor: async ({}, use) => {
-    const cursor = installFakeCursor({ working: true });
-    await use(cursor);
-    cursor.cleanup();
-  },
-});
 
 async function join(
   server: DashboardServer,

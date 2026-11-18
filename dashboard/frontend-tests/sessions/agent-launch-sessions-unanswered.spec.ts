@@ -9,16 +9,16 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
-import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
-import { setPageVisibility } from "../../tests/autoRefreshJourney.ts";
-import { storyCardSessions } from "../../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
-import { givePageItsTurns } from "../../tests/pageRequestNotes.ts";
-import { watchRecordReads } from "../../tests/sessionStatePace.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
+import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
+import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
+import { storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
+import { givePageItsTurns } from "../../test-support/pageRequestNotes.ts";
+import { watchRecordReads } from "../../test-support/sessionStatePace.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

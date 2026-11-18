@@ -5,18 +5,18 @@
 // ./project-remove.spec.ts.
 import { readFileSync } from "node:fs";
 import type { ConfiguredProject } from "../../dashboard/server/projectConfiguration.ts";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
-import { expectProjectChoice } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { expectProjectChoice } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   back,
   removeProject,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

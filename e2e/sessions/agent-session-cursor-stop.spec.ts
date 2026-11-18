@@ -7,38 +7,38 @@
 // risk. Stopping one of several held sessions lives in
 // ./agent-session-cursor-stop-several.spec.ts.
 
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   closeTerminal,
   terminalPanel,
   openTerminalControl,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 import type { Page } from "@playwright/test";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   holdRunnerSessionsReads,
   rekeepKeptCursorSession,
-} from "../../dashboard/tests/support/cursorRunnerHeldReads.ts";
-import { markLocallyDone } from "../../dashboard/tests/support/cursorLocalDone.ts";
+} from "../../dashboard/test-support/support/cursorRunnerHeldReads.ts";
+import { markLocallyDone } from "../../dashboard/test-support/support/cursorLocalDone.ts";
 import {
   entryWithRunnerUnreachable,
   expectBlockThenAdmitReplacement,
   expectRetainedUnconfirmed,
-} from "../../dashboard/tests/support/cursorUnconfirmedStop.ts";
+} from "../../dashboard/test-support/support/cursorUnconfirmedStop.ts";
 import {
   expectNormalizedReading,
   openTakenCursorSession,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   keptRecord,
   workingCursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { expect } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { expect } from "../../dashboard/test-support/support/cursorStart.ts";
 // The launch presents the session's terminal beside the entry; closing
 // that panel leaves the kept client held and the entry clickable.
 const closeOpenTerminal = (page: Page) => closeTerminal(terminalPanel(page));

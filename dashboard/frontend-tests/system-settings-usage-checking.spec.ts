@@ -4,12 +4,12 @@ import {
   usageRefreshEndpoint,
   usageTokenIndexEndpoint,
 } from "../src/usageTokenIndex.ts";
-import { test } from "../tests/support/frontendApp.ts";
+import { test } from "../test-support/support/frontendApp.ts";
 import {
   answerHeld,
   holdAnswer,
-} from "../tests/support/frontendSubstituteAnswers.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+} from "../test-support/support/frontendSubstituteAnswers.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 
 const oldCheck = "2026-11-15T09:00:00.000Z";
 const nextCheck = "2026-11-15T10:00:00.000Z";

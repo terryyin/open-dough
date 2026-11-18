@@ -1,10 +1,10 @@
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   getReview,
   completedStoryQuery,
   completedReviewQuery,
-} from "../../tests/support/completedReviewRequests.ts";
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,

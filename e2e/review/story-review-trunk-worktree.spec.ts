@@ -1,6 +1,6 @@
 // A Trunk Mode story taken in a terminal keeps no launch record on this
 // machine, and its card still offers Review changes: the project's checkout
-// lists the linked worktree the real start left (../../dashboard/tests/support/startOrigin.ts
+// lists the linked worktree the real start left (../../dashboard/test-support/support/startOrigin.ts
 // `takenInTrunkMode`), authored by the story's agent with the claim at its
 // head. The review is the launched story's review of that worktree: its
 // unpublished commit and untracked file under All changes, Commits with
@@ -10,33 +10,36 @@
 // taken out of trunk as the story's own, while Commits offers Uncommitted
 // changes and no commit.
 
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { existsSync, writeFileSync } from "node:fs";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import path from "node:path";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextValues,
   contextWords,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectTreeRows,
   changedFilesList,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   refreshReview,
   openStoryReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   commitAll,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test("a Trunk Mode story started outside the dashboard offers its worktree's review without a launch record", async ({
   page,

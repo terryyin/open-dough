@@ -3,14 +3,17 @@
 // kept launches, only those marked Done, each under its own project, while
 // open ones stay among open sessions.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { showRecentlyDone } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
-import { daysAgo, retainedDoneAt } from "../../tests/machineLaunchRecords.ts";
+import { showRecentlyDone } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
+import {
+  daysAgo,
+  retainedDoneAt,
+} from "../../test-support/machineLaunchRecords.ts";
 import {
   expectRowShows,
   expectTooltipLine,
-} from "../../tests/sessionsSidebarPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendThreeProjects } from "../../test-support/support/frontendRecentlyDoneSidebar.ts";
 
 test("of two projects' kept executions, Recently done lists only the one marked Done yesterday, under its project", async ({
   page,

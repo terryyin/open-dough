@@ -5,7 +5,7 @@
 // why the measure is unavailable.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
@@ -13,10 +13,10 @@ import {
   historyOf,
   measureHistoryChart,
   openJudgedCiStatus,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { compactReadout } from "../../dashboard/tests/priorBuildReferencePage.ts";
-import { keepLandedCiHistory } from "../../dashboard/tests/support/landedCiHistory.ts";
-import { keepLandedCiMeasurements } from "../../dashboard/tests/support/keepLandedCiMeasurements.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { compactReadout } from "../../dashboard/test-support/priorBuildReferencePage.ts";
+import { keepLandedCiHistory } from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { keepLandedCiMeasurements } from "../../dashboard/test-support/support/keepLandedCiMeasurements.ts";
 
 test("five prior builds at 5 min without runner waits and a 4 min landing show −1 min (−20%) on the chart and compact readout", async ({
   page,

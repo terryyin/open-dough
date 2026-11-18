@@ -1,12 +1,12 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Compact endpoint source/absence states through the production comparison.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   expectAncestorSourceCue,
   expectExactSourceCue,
   expectNoRunOrAttemptIds,
-} from "../../tests/support/expectCiComparisonSourceCue.ts";
+} from "../../test-support/support/expectCiComparisonSourceCue.ts";
 
 test("missing Branch and Landed keep Baseline readable without fabricated zero or unrelated build", async ({
   renderComparison,

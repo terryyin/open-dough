@@ -8,21 +8,24 @@ import type { LaunchWithState } from "../../dashboard/src/launchRecord.ts";
 import {
   attempts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
-import { keptSessionStarts } from "../../dashboard/tests/support/keptSessionStart.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
+import { keptSessionStarts } from "../../dashboard/test-support/support/keptSessionStart.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   openBacklog,
   originMain,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
   isolatedStart,
@@ -31,7 +34,7 @@ import {
   sessionBlock,
   worktree,
   worktrees,
-} from "../../dashboard/tests/support/startSessionLanding.ts";
+} from "../../dashboard/test-support/support/startSessionLanding.ts";
 
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";

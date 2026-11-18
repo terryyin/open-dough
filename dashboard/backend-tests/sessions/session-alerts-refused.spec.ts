@@ -4,27 +4,27 @@
 // its raw stderr, and the next transition's notification recovers it. The
 // sidebar note that shows the reading:
 // ../../../e2e/sessions/session-alerts-unavailable.spec.ts. The synthetic
-// `claude` (../../tests/fixtures/fake-claude) and the sender
-// (../../tests/fixtures/fake-terminal-notifier) are all the server reaches; a
+// `claude` (../../test-support/fixtures/fake-claude) and the sender
+// (../../test-support/fixtures/fake-terminal-notifier) are all the server reaches; a
 // real notification is never raised.
 
-import { expect, test as base } from "../../tests/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import {
   alertsAnswered,
   alertsSettled,
   launch,
   launchRequest,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import type { FakeClaudeOptions } from "../../tests/support/fakeClaude.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import type { FakeClaudeOptions } from "../../test-support/support/fakeClaude.ts";
 import {
   afterFurtherListings,
   becomes,
-} from "../../tests/support/sessionAlerts.ts";
+} from "../../test-support/support/sessionAlerts.ts";
 
 const test = base.extend<{
   notifier: FakeClaudeOptions["notifier"];

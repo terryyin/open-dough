@@ -1,7 +1,7 @@
 // An unattached Start session that establishes a session is handed its
 // launch's landing context, as a story launch is, and a landing made from
 // its workspace is captured for that launch with no story identity. With a
-// real bare origin (../../dashboard/tests/support/startOrigin.ts), the installed start and
+// real bare origin (../../dashboard/test-support/support/startOrigin.ts), the installed start and
 // publication scripts, and the synthetic `claude`: the reporting context in
 // the first message names `--landing-context <file>`; that file names the
 // launch, its remote and trunk target and no identity; the installed shared
@@ -13,21 +13,24 @@
 // are in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-admission.spec.ts.
 
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   openBacklog,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   expectCapturedLanding,
   expectLandingHandoff,
-} from "../../dashboard/tests/support/startSessionLandingCapture.ts";
-import { worktree } from "../../dashboard/tests/support/startSessionLanding.ts";
+} from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
+import { worktree } from "../../dashboard/test-support/support/startSessionLanding.ts";
 
 test("Isolated workspace · Automatically land with no text hands the session its landing context, and a landing from its worktree is captured for the launch with no story", async ({
   page,

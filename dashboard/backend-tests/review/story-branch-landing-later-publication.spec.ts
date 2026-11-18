@@ -6,24 +6,24 @@
 // instruction directs (../../server/reportingInstruction.ts): trunk accepts it
 // and the launch record keeps the first pair. The same publication with the
 // context is refused before its push. Raw HTTP against the real installed start
-// and a real bare origin (../../tests/support/startOrigin.ts) with the synthetic `claude`.
+// and a real bare origin (../../test-support/support/startOrigin.ts) with the synthetic `claude`.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   git,
-} from "../../tests/support/launchLanding.ts";
-import { startBoundary } from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchLanding.ts";
+import { startBoundary } from "../../test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../tests/support/storyBranchIntegration.ts";
+} from "../../test-support/support/storyBranchIntegration.ts";
 import { openFirstLandingExpectation } from "../../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 let origin: StartOrigin;

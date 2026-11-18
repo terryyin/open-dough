@@ -16,7 +16,7 @@
 // (../pageRequestNotes.ts), whichever server the spec opens it at, so a first
 // check after an open can wait for that answer. Specs import `test` from
 // here; the lint configuration rejects a direct import of `test` from
-// `@playwright/test` under `dashboard/tests/`.
+// `@playwright/test` under `dashboard/test-support/`.
 //
 // Every worker-scoped fixture of the suite is declared here, whichever specs
 // take it; the published-main ones come from ./publishedMainWorkerFixtures.ts

@@ -14,21 +14,21 @@ import {
   expectFocusedAndIndicated,
   narrowWindow,
   twiceZoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { credit } from "../../tests/agentCredit.ts";
-import { expectSettledPage } from "../../tests/dashboardPage.ts";
+} from "../../test-support/accessibleReading.ts";
+import { credit } from "../../test-support/agentCredit.ts";
+import { expectSettledPage } from "../../test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
   takenStory,
-} from "../../tests/launchJourney.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchJourney.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
 import {
   expectInReadingOrder,
   expectNoSidewaysScrollAndWholeText,
   expectOnOneLine,
   expectOnOneLineWhenRoom,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   storyCardLaunchActions,
   expectActionGlyph,
@@ -36,17 +36,17 @@ import {
   expectNoteTooltip,
   inspectionGroup,
   launchGroup,
-} from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardControls.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   frontendStoryLaunch,
   putFrontendStories,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const notReadyNote = "Not assessed as ready";

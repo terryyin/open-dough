@@ -2,7 +2,7 @@ import {
   expect,
   test,
   openFrontendTakenBacklog,
-} from "../tests/support/frontendApp.ts";
+} from "../test-support/support/frontendApp.ts";
 import {
   activateColumnIndicator,
   columnReadingRoom,
@@ -11,8 +11,8 @@ import {
   focusColumnIndicator,
   swipeBoard,
   tapColumnIndicator,
-} from "../tests/boardPage.ts";
-import { compactProjectSelectCut } from "../tests/pageLayout.ts";
+} from "../test-support/boardPage.ts";
+import { compactProjectSelectCut } from "../test-support/pageLayout.ts";
 
 test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 

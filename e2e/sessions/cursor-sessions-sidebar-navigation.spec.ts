@@ -5,25 +5,31 @@
 // Expansion lasts for the page, across project and view changes and closing
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
-import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+import {
+  chooseProject,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   changesAsked,
   holdSession,
   instruction,
   showPage,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   back,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
-import { keyboardWithin } from "../../dashboard/tests/pageShortcutsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
+import { keyboardWithin } from "../../dashboard/test-support/pageShortcutsPage.ts";
 
 const wide = { width: 1440, height: 900 };
 

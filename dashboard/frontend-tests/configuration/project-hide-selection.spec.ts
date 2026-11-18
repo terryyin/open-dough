@@ -3,25 +3,25 @@
 // leaves settings usable without a Board or Intent, and links or history to a
 // hidden project do not present it. Saving the hidden flag per mode is
 // ../../../e2e/configuration/project-hide.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
 import {
   chooseProject,
   expectProjectChoice,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   openUntilRead,
   untilPublishedWorkRead,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   back,
   hideButton,
   settings,
   showButton,
-} from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/support/systemSettingsPage.ts";
 
 const visibleWithoutDoughnut = ["Open Dough", "Pygardon", "Terry Talks"];
 

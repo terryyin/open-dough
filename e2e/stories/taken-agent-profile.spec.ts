@@ -4,23 +4,23 @@
 // profile directory as GitHub's contents listing would; the local read
 // boundary, the shared profile reader, and the page decide everything shown.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   enlargedView,
   expectOwnerMarks,
   expectPortrait,
-} from "../../dashboard/tests/agentPortrait.ts";
+} from "../../dashboard/test-support/agentPortrait.ts";
 import {
   agents,
   branchStory,
@@ -32,7 +32,7 @@ import {
   repository,
   revisionA,
   trunkStory,
-} from "../../dashboard/tests/takenAgentProfileRecords.ts";
+} from "../../dashboard/test-support/takenAgentProfileRecords.ts";
 
 test("each Taken card shows its published agent profile, or says plainly that none is recorded or readable", async ({
   page,

@@ -1,14 +1,17 @@
 // Retained adapter bounds are refreshed only from that discovered attempt.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import { adapterProject } from "../../test-support/intentCiAdapterProofProject.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
-import { publishedLanding } from "../../tests/support/landedCiTrunk.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import { publishedLanding } from "../../test-support/support/landedCiTrunk.ts";
 import { buildKeyOf } from "../../src/landedCiBuildKey.ts";
 
 test.use({ serverMode: "boundary" });

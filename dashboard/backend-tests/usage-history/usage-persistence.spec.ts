@@ -3,11 +3,11 @@ import {
   expect,
   test,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   nodeProcess,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("ordinary operational reads and writes never open native usage or imported history", ({
   home,

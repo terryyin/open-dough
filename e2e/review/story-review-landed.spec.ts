@@ -2,23 +2,26 @@
 // is the baseline, so its file drops out and only the story's later commit
 // and uncommitted edit remain to review.
 
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextValues,
   contextWords,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectTreeRows,
   changedFilesList,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   branch,
   landedWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test("a landed slice leaves the review and the unlanded changes remain", async ({
   page,

@@ -1,6 +1,9 @@
-import { prepareFrontendReuseJobs } from "../../tests/support/frontendIntentReuseAnswers.ts";
-import { prepareOpenDoughCandidates } from "../../tests/support/frontendIntentCandidates.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { prepareFrontendReuseJobs } from "../../test-support/support/frontendIntentReuseAnswers.ts";
+import { prepareOpenDoughCandidates } from "../../test-support/support/frontendIntentCandidates.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent asks the read boundary once for each answer fixed at the revision
 // shown (../../src/answerMemo.ts, ../../src/repositoryFileReads.ts): reopening a
 // feature reads its text no more, and leaving for Development and returning
@@ -9,20 +12,20 @@ import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // With a selected story: ./intent-read-reuse-story.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { countAuthenticatedReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { countAuthenticatedReads } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectIntentModeChosen,
-} from "../../tests/intentModePage.ts";
-import { expandIntentGroup } from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentModePage.ts";
+import { expandIntentGroup } from "../../test-support/intentPerspectivePage.ts";
 import {
   featurePath,
   otherPath,
-} from "../../tests/intentJobsFeatureFixtures.ts";
+} from "../../test-support/intentJobsFeatureFixtures.ts";
 
 const pathReads = (page: Page, path: string) =>
   countAuthenticatedReads(page, (params) => params.get("path") === path);

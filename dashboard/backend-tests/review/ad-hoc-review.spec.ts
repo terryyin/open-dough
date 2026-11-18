@@ -1,12 +1,15 @@
 // The captured comparison survives worktree removal and later trunk commits.
 import path from "node:path";
 import { readFileSync, writeFileSync } from "node:fs";
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { commitAll, git } from "../../tests/support/storyReviewWorktree.ts";
+import { adHocReview } from "../../test-support/support/adHocReview.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import {
+  commitAll,
+  git,
+} from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 

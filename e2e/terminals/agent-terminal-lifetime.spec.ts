@@ -1,5 +1,5 @@
 // The page's one terminal (./agent-terminal.spec.ts) over its lifetime, on
-// the committed story-columns origin (../../dashboard/tests/launchJourney.ts): switching projects
+// the committed story-columns origin (../../dashboard/test-support/launchJourney.ts): switching projects
 // keeps it attached to the same session; when the dashboard server restarts,
 // the panel says it is disconnected, and Reconnect attaches to the same
 // session again; when the attached CLI exits on its own (Ctrl+Z), the panel
@@ -12,32 +12,35 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test as base, expect } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  test as base,
+  expect,
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTerminalControl,
   expectTerminalIdentity,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessions,
   expectMembership,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { doughnutSharedTitle } from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 
 const projectFolders = ["open-dough"];
 

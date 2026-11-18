@@ -1,45 +1,45 @@
 // Preparing on queued cards from published preparation assignments. Each
 // named step in preparingJourney.ts is served from a real Git revision.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectReadableContrast,
   zoomedWindow,
-} from "../../dashboard/tests/accessibleReading.ts";
+} from "../../dashboard/test-support/accessibleReading.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-} from "../../dashboard/tests/pageLayout.ts";
-import { expectMark } from "../../dashboard/tests/agentPortrait.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
+import { expectMark } from "../../dashboard/test-support/agentPortrait.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   hideDetail,
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   badgeLabels,
   expectBadges,
-} from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   contentPathsRead,
   publishCommittedOrigin,
-} from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/committedOrigin.ts";
 import {
   shortRevision,
   expectMembership,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import {
   publishPreparingJourney,
   storyA,
   storyB,
   storyC,
   type PreparingJourney,
-} from "../../dashboard/tests/preparingJourney.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/preparingJourney.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 let journey: PreparingJourney;
 test.beforeAll(async () => {

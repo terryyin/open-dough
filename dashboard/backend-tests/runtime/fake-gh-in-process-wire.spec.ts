@@ -1,8 +1,11 @@
 // Raw argv, output bytes and invalid framing remain explicit contract inputs.
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 import { expect, test } from "../support/fakeGhInProcess.ts";
 
 test("preserves raw binary stdout and exact empty/UTF-8 argv without a call PID", async ({

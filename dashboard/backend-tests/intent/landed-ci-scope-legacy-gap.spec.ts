@@ -1,29 +1,29 @@
-// Collected scope evidence shares project history's bounded retained cohort.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   collectingLandedCi,
   landedCiHistory,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   retainedHistory as retained,
   collectedScopeHistory,
   historyFile,
   writeCollectedHistoryOrder,
-} from "../../tests/support/collectedScopeHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { landedTrunk } from "../../tests/support/landedCiTrunk.ts";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { landedTrunk } from "../../test-support/support/landedCiTrunk.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
+let reader: DashboardServer | undefined;
+test.afterEach(() => reader?.close());
 const scopedHistory = (origin: string, revision: string, through: string) =>
   collectedScopeHistory(origin, "dashboard/tests", revision, through);
 
@@ -144,12 +144,10 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     )
     .gap(gap, explanation)
     .please();
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
-  readers.push(reader);
+  reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
 
   // These are exactly the older wire shapes under test, not builder defaults.
-  // The old label "test cases" did not declare a case unit. Its counts, path,
-  // breakdown and time must survive as legacy evidence, beside current proof.
+  // The old "test cases" label declared no unit; its evidence must survive.
   const legacy = structuredClone(history);
   const legacyGap = legacy.landings[gap.receipt];
   assert(legacyGap !== undefined, "The arranged history holds the legacy gap.");
@@ -224,8 +222,7 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     },
   });
 
-  // Use the real atomic store writer with this isolated machine's HOME. The
-  // write must preserve readable legacy evidence instead of rebuilding empty.
+  // The real atomic writer must preserve the isolated machine's legacy evidence.
   writeCollectedHistoryOrder(dashboard.home, [
     old.revision,
     good.revision,

@@ -1,22 +1,25 @@
 import {
   fileSource,
   sourceFile,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent code browse for Doughnut javascript and Pygardon TypeScript/Python
 // locations (../../dashboard/src/IntentPerspective.tsx). Companion to
 // ./intent-code-browse.spec.ts Open Dough TypeScript and shell coverage, and
 // ./intent-code-browse-sources.spec.ts for locations declared by source entries.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts, shortRevision } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  parts,
+  shortRevision,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentLocationName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expectKeywordAndStringColours } from "../../dashboard/tests/pageColours.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { expectKeywordAndStringColours } from "../../dashboard/test-support/pageColours.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   aspyPage,
   devicesSpec,
@@ -27,7 +30,7 @@ import {
   pygardon,
   pygardonSettings,
   pythonTest,
-} from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 
 test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, omits helpers and product, and styles selected source", async ({
   page,

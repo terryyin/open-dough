@@ -3,7 +3,7 @@
 // SIGHUP a closed terminal sends. End to end, a closing server's PTYs hang up
 // their processes anyway, so the hook is called alone here. How the page shows
 // a lost connection or an ended terminal is ../../../e2e/terminals/agent-terminal-lifetime.spec.ts.
-// The synthetic `claude` (../../tests/fixtures/fake-claude) stands in for the attached
+// The synthetic `claude` (../../test-support/fixtures/fake-claude) stands in for the attached
 // session; the real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
@@ -11,7 +11,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { installAgentLaunchMiddleware } from "../../server/launchBoundary.ts";
 import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
 import {
@@ -24,22 +24,22 @@ import {
   openTerminal,
   shows,
   type Terminal,
-} from "../../tests/agentTerminalBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { defaultBaseCiRevision } from "../../tests/support/baseCiActions.ts";
-import { installFakeClaude } from "../../tests/support/fakeClaude.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { defaultBaseCiRevision } from "../../test-support/support/baseCiActions.ts";
+import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import {
   endFakeGh,
   fakeGhEnv,
   installFakeGh,
-} from "../../tests/support/fakeGh.ts";
+} from "../../test-support/support/fakeGh.ts";
 import {
   everyRepository,
   publishes,
   startFakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
-import { configureDevelopmentProjects } from "../../tests/support/projectConfiguration.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
+import { configureDevelopmentProjects } from "../../test-support/support/projectConfiguration.ts";
 
 // What the plugin's `configureServer` hook calls `.use(handler)` with.
 type StoredHandler = (

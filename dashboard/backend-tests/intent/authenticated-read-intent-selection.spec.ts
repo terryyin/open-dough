@@ -4,17 +4,20 @@
 // contents. Listing uses the same selection rule, for a location declared by
 // a kind with include patterns or by source entries.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
-import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
+import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 
 test.describe.configure({ mode: "serial" });
 

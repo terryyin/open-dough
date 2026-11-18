@@ -4,19 +4,19 @@ import {
   expect,
   test,
   openFrontendTakenBacklog,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
-import { installFrontendSettingsSubstitutes } from "../../tests/support/frontendSettingsSubstitutes.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { storyNoteVoicePage } from "../../tests/support/storyNoteVoicePage.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
+import { installFrontendSettingsSubstitutes } from "../../test-support/support/frontendSettingsSubstitutes.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { storyNoteVoicePage } from "../../test-support/support/storyNoteVoicePage.ts";
 import {
   observeMicrophone,
   stoppedTracks,
-} from "../../tests/support/voicePage.ts";
-import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { takenStory, takenIdentity } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/voicePage.ts";
+import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { takenStory, takenIdentity } from "../../test-support/launchJourney.ts";
 import {
   instructionProblems,
   instructionTranscriptionEndpoint,
@@ -24,8 +24,8 @@ import {
 import {
   apiKey,
   save as saveKey,
-} from "../../tests/support/openAISettingsPage.ts";
-import { back } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/support/openAISettingsPage.ts";
+import { back } from "../../test-support/support/systemSettingsPage.ts";
 
 test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {

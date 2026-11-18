@@ -3,17 +3,17 @@ import {
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../../dashboard/tests/intentScopeHistoryPage.ts";
+} from "../../dashboard/test-support/intentScopeHistoryPage.ts";
 import {
   expectUnreadableHistoryAnswer,
   withBrokenCollectedHistory,
-} from "../../dashboard/tests/support/collectedScopeHistory.ts";
+} from "../../dashboard/test-support/support/collectedScopeHistory.ts";
 import {
   expectComparisonUnitFigures,
   scopeTable,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import { expectStackedInOrder } from "../../dashboard/tests/partArrangement.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import { expectStackedInOrder } from "../../dashboard/test-support/partArrangement.ts";
 // A real collector-to-Summary journey. Published CLI history supplies the Done
 // endpoint. Historical landing/Done inputs are arranged through MakeMe; an
 // additional real landing submission nudges collection with Intent closed.
@@ -22,27 +22,30 @@ import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   purposeRegion,
   intentLocationName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   collectingLandedCi,
   resultToLand,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
-import { publishSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { openSummaryComparison } from "../../dashboard/tests/support/selectDoneStoryForSummaryComparison.ts";
-import { land } from "../../dashboard/tests/support/startSessionLandingContext.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { publishSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { openSummaryComparison } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { land } from "../../dashboard/test-support/support/startSessionLandingContext.ts";
 import {
   intentFile,
   storyTitle,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   retainedProofs,
   recordScopeHistoryLandings,
   serveCollectedScopeRuns,
-} from "../../dashboard/tests/support/scopeHistoryCollection.ts";
-import { observeRetainedScopeOrder } from "../../dashboard/tests/support/scopeHistoryCollectedOrder.ts";
-import { openCollectedHistoryStory } from "../../dashboard/tests/support/scopeHistoryCollectedPage.ts";
+} from "../../dashboard/test-support/support/scopeHistoryCollection.ts";
+import { observeRetainedScopeOrder } from "../../dashboard/test-support/support/scopeHistoryCollectedOrder.ts";
+import { openCollectedHistoryStory } from "../../dashboard/test-support/support/scopeHistoryCollectedPage.ts";
 
 test.use({ extraEnv: collectingLandedCi });
 

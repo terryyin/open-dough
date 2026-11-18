@@ -14,16 +14,16 @@
 
 import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import type { Page } from "@playwright/test";
-import { openDoughFolder } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { publishMovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+import { openDoughFolder } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
-import { reportingThrough } from "../../dashboard/tests/support/reportedLaunch.ts";
-import { afterFurtherListings } from "../../dashboard/tests/support/sessionAlerts.ts";
-import { startOrigin } from "../../dashboard/tests/support/startOrigin.ts";
-import { dayFromToday } from "../../dashboard/tests/support/feedbackMaintenanceDue.ts";
+import { reportingThrough } from "../../dashboard/test-support/support/reportedLaunch.ts";
+import { afterFurtherListings } from "../../dashboard/test-support/support/sessionAlerts.ts";
+import { startOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
+import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   invocation,
@@ -34,7 +34,7 @@ import {
   turnOn,
   watchListDue,
   watchListReads,
-} from "../../dashboard/tests/support/feedbackMaintenanceServer.ts";
+} from "../../dashboard/test-support/support/feedbackMaintenanceServer.ts";
 
 async function sessionsSidebar(page: Page, server: DashboardServer) {
   await page.goto(server.baseURL);

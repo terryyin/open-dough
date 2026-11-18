@@ -5,17 +5,17 @@
 // an event, never elapsed time: GitHub's answer is held, the participating
 // requests are sent, then a marker the boundary refuses without `gh`; once
 // the marker is answered, every earlier request waits on its call
-// (../../tests/support/sharedReads.ts). Each request's pinned reads before the shared
+// (../../test-support/support/sharedReads.ts). Each request's pinned reads before the shared
 // one are made first, so nothing but its handler runs before its `gh` call.
 // Leaving waiters and closing the server:
 // ./authenticated-read-shared-waiters.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   answeredTogether,
   askedSince,
@@ -27,7 +27,7 @@ import {
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
 

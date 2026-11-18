@@ -1,16 +1,16 @@
 // Historical admission binds source/story/reference/pair/path before any file read.
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { test, expect } from "../../tests/support/codexStart.ts";
-import { getReview } from "../../tests/support/completedReviewRequests.ts";
-import { commit } from "../../tests/support/launchLanding.ts";
+import { test, expect } from "../../test-support/support/codexStart.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { commit } from "../../test-support/support/launchLanding.ts";
 import {
   startReviewRun,
   captureReviewRun,
   retireReviewRun,
   repositoryObservation,
-} from "../../tests/support/oneShotReview.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/oneShotReview.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,

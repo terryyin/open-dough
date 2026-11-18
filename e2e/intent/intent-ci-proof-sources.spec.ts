@@ -4,21 +4,21 @@
 // files' paths. The ancestor evidence it reads:
 // ./intent-ci-proof-ancestor.spec.ts.
 
-import { test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   chooseCiStatus,
   runUrl,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
-import { chooseStoryTab } from "../../dashboard/tests/support/intentStoryPage.ts";
-import { intentLocationName } from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
+import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { intentLocationName } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   childName,
   expectScopeRows,
   summaryRegion,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
-import { artifactId } from "../../dashboard/tests/intentCiProofPage.ts";
-import { running } from "../../dashboard/tests/intentCiStoryBoard.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
+import { artifactId } from "../../dashboard/test-support/intentCiProofPage.ts";
+import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   mainRun,
   publishStoryCi,
@@ -26,15 +26,15 @@ import {
   signup,
   started,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { runArtifactsAnswer } from "../../dashboard/tests/support/ciProofArtifacts.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { runArtifactsAnswer } from "../../dashboard/test-support/support/ciProofArtifacts.ts";
 import {
   collectedSummary,
   summaryTextZipAnswer,
-} from "../../dashboard/tests/support/ciProofCollected.ts";
+} from "../../dashboard/test-support/support/ciProofCollected.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
+import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 
 test("a published CI summary for a sources location shows its group and file results at their paths", async ({
   page,

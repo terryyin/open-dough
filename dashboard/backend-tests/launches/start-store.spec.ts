@@ -14,8 +14,8 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
 import {
   keepStart,
   keptStart,

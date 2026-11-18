@@ -3,20 +3,23 @@
 // only to that recorded session.
 import { cursorCannotLoadChat } from "../../dashboard/src/cursorCannotLoad.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expectNormalizedReading } from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectNormalizedReading } from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   endHeldClient,
   keptRecords,
   startCursorExecution,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { postCompletion } from "../../dashboard/tests/support/completionRecovery.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { postCompletion } from "../../dashboard/test-support/support/completionRecovery.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test("cannot-load resume replaces the chat on the same launch", async ({

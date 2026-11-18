@@ -1,15 +1,15 @@
 // One published-main origin, native daemon and serial watcher chain. The tests
 // advance it explicitly; setup never supplies a replacement or launch outcome.
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { observeLaunchAdmission } from "../../dashboard/tests/support/launchAdmissionObservation.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { observeLaunchAdmission } from "../../dashboard/test-support/support/launchAdmissionObservation.ts";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import type { APIRequestContext, Browser, Page } from "@playwright/test";
-import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
-import { localPublishedMainFixture } from "../../dashboard/tests/support/publishedMainFixture.ts";
-import { startWatcherNativeCodex } from "../../dashboard/tests/support/watcherNativeCodex.ts";
-import { configureWatcherApplication } from "../../dashboard/tests/support/productionWatcherFixture.ts";
-import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
+import { developmentDashboard } from "../../dashboard/test-support/support/dashboardCommand.ts";
+import { localPublishedMainFixture } from "../../dashboard/test-support/support/publishedMainFixture.ts";
+import { startWatcherNativeCodex } from "../../dashboard/test-support/support/watcherNativeCodex.ts";
+import { configureWatcherApplication } from "../../dashboard/test-support/support/productionWatcherFixture.ts";
+import { serialFileResources } from "../../dashboard/test-support/support/serialFileResources.ts";
 import {
   deploymentWork,
   outputCount,
@@ -18,20 +18,20 @@ import {
   startProductionWatcher,
   type ProductionActivation,
   type ProductionWatcher,
-} from "../../dashboard/tests/support/productionWatcher.ts";
+} from "../../dashboard/test-support/support/productionWatcher.ts";
 import {
   buildGateChanges,
   recordedBuilds,
-} from "../../dashboard/tests/support/productionBuildGate.ts";
-import { faultGateChanges } from "../../dashboard/tests/support/productionFault.ts";
+} from "../../dashboard/test-support/support/productionBuildGate.ts";
+import { faultGateChanges } from "../../dashboard/test-support/support/productionFault.ts";
 import {
   publishedPolicy,
   pushExclusions,
-} from "../../dashboard/tests/support/productionQualificationFixture.ts";
+} from "../../dashboard/test-support/support/productionQualificationFixture.ts";
 import {
   expectSharedLaunchRecord,
   writeSharedLaunchRecord,
-} from "../../dashboard/tests/support/sharedLaunchRecord.ts";
+} from "../../dashboard/test-support/support/sharedLaunchRecord.ts";
 import { ciWorkflowPath } from "../../dashboard/server/productionQualification.mjs";
 
 type PublishedMainFixture = Awaited<

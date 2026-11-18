@@ -1,31 +1,31 @@
 // Two dashboard servers, through their local authenticated read boundary over
 // real HTTP, and the installed CI diagnostic entry -- three processes of one
 // user -- ask one fake GitHub through one request owner
-// (github-request-owner.mjs, ../../tests/support/sharedRequestOwner.ts): eight requests
+// (github-request-owner.mjs, ../../test-support/support/sharedRequestOwner.ts): eight requests
 // at GitHub between them, one call for a read both dashboards wait on, one
 // rate-limit wait holding back all three, one request first when it ends,
 // and a leaving or closing dashboard ending only its own waits. One process's
 // turns and wait: ./authenticated-read-turns.spec.ts,
 // ./authenticated-read-cooldown.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { untilReported } from "../../tests/support/directedWait.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { untilReported } from "../../test-support/support/directedWait.ts";
 import {
   expectHeldBack,
   timedRead,
-} from "../../tests/support/heldBackReads.ts";
+} from "../../test-support/support/heldBackReads.ts";
 import {
   answeringFirst,
   heldInTurn,
-} from "../../tests/support/heldGitHubAnswer.ts";
-import { inspect } from "../../tests/support/readDiagnostics.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
-import { askedSince, readAt } from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/heldGitHubAnswer.ts";
+import { inspect } from "../../test-support/support/readDiagnostics.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
+import { askedSince, readAt } from "../../test-support/support/sharedReads.ts";
 import {
   dashboardsOnOneOwner,
   isWorkflowRead,
   withWorkflow,
-} from "../../tests/support/sharedRequestOwner.ts";
+} from "../../test-support/support/sharedRequestOwner.ts";
 import {
   asked,
   isSeed,
@@ -34,11 +34,11 @@ import {
   seedPaths,
   seedRead,
   turns,
-} from "../../tests/support/turnReads.ts";
+} from "../../test-support/support/turnReads.ts";
 import {
   httpErrorAnswer,
   rateLimitedAnswer,
-} from "../../tests/originAnswers.ts";
+} from "../../test-support/originAnswers.ts";
 
 type Machine = Awaited<ReturnType<typeof dashboardsOnOneOwner>>;
 let machine: Machine;

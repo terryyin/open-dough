@@ -11,8 +11,11 @@ import {
   writeSync,
 } from "node:fs";
 import path from "node:path";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
-import { processAlive } from "../../tests/support/processGroup.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
+import { processAlive } from "../../test-support/support/processGroup.ts";
 import { expect, test } from "../support/fakeGhClient.ts";
 
 for (const signal of ["SIGTERM", "SIGINT"] as const) {

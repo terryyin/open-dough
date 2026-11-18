@@ -9,8 +9,8 @@
 // directly against real HTTP and the synthetic `gh`, counting the `gh` calls
 // GitHub received (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { aheadBy } from "../../tests/comparisonAnswers.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { aheadBy } from "../../test-support/comparisonAnswers.ts";
 import {
   addedDonePath,
   backlogNaming,
@@ -31,7 +31,7 @@ import {
   profilePath,
   seedPath,
   seedText,
-} from "../../tests/revisionReuseOrigin.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 test.describe.configure({ mode: "serial" });

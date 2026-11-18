@@ -1,23 +1,23 @@
 // One notes collection follows identity across launches and published phases.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
-} from "../../tests/support/frontendStoryReview.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 import {
   putFrontendDoneRecords,
   frontendStoryLaunch,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
-import { parts } from "../../tests/dashboardParts.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 
 test("a Taken note survives a new launch and appears on Done without workspace or launch records", async ({
   page,

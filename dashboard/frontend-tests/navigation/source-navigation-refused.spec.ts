@@ -1,9 +1,9 @@
-import { openDirection, parts } from "../../tests/dashboardPage.ts";
+import { openDirection, parts } from "../../test-support/dashboardPage.ts";
 import {
   canonicalRecord,
   slicePlanLink,
-} from "../../tests/storyCardControls.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/storyCardControls.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   card,
   clickRefusedTargets,
@@ -14,7 +14,7 @@ import {
   inspectedSources,
   openDashboard,
   revision,
-} from "../../tests/support/frontendSourceNavigation.ts";
+} from "../../test-support/support/frontendSourceNavigation.ts";
 
 test("source navigation keeps an external reference apart from files in this snapshot", async ({
   page,

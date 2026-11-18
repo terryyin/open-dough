@@ -4,31 +4,37 @@
 // or a grammar that fails to load leaves the code plain, with only the
 // existing context problem and Retry; text a Retry reads styles the lines.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendPublishedReview,
   frontendReviewSnapshot,
-} from "../../tests/support/frontendStoryReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
 import {
   openFrontendDoneStoryReview,
   openFrontendStoryReview,
-} from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
 import {
   expectLineMenuOpen,
   lineNumberControl,
   openLineMenu,
-} from "../../tests/support/diffLineFollowUpPage.ts";
+} from "../../test-support/support/diffLineFollowUpPage.ts";
 import {
   greetDiff,
   greetText,
-} from "../../tests/support/diffSyntaxFixtures.ts";
+} from "../../test-support/support/diffSyntaxFixtures.ts";
 import {
   storyReviewDiff,
   type StoryReviewDiff,
-} from "../../tests/support/reviewDiffSyntax.ts";
-import { failGrammar, holdGrammar } from "../../tests/support/syntaxGrammar.ts";
-import type { HeldAnswer } from "../../tests/support/frontendSubstituteAnswers.ts";
+} from "../../test-support/support/reviewDiffSyntax.ts";
+import {
+  failGrammar,
+  holdGrammar,
+} from "../../test-support/support/syntaxGrammar.ts";
+import type { HeldAnswer } from "../../test-support/support/frontendSubstituteAnswers.ts";
 
 const styledPath = "greet.ts";
 const plainPath = "base.txt";

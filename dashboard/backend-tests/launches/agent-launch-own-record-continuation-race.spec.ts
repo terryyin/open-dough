@@ -4,18 +4,18 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
-import { continueAttempt } from "../../tests/agentLaunchBoundary.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { continueAttempt } from "../../test-support/agentLaunchBoundary.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   keepLaunchStoreText,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import { ownRecordContinuation } from "./ownRecordContinuation.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
 
 for (const state of ["running", "settled"] as const)
   test(`Continue preserves the ${state} attempt found after its own-record selection waited`, async () => {

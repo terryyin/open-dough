@@ -1,7 +1,7 @@
 // Dialog and claim helpers share the same refusal reasons for type, size and
 // count (commitments 11a–11c).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launchAttachmentLimitBytes,
   launchAttachmentNameFromHeader,
@@ -13,7 +13,7 @@ import {
   launchAttachmentUnsupportedType,
   partitionLaunchAttachments,
 } from "../../src/launchAttachments.ts";
-import { pngA } from "../../tests/support/launchAttachmentFixtures.ts";
+import { pngA } from "../../test-support/support/launchAttachmentFixtures.ts";
 
 // Start session put File.name in x-launch-attachment-name; non-Latin-1 names
 // threw in fetch Headers before anything launched.

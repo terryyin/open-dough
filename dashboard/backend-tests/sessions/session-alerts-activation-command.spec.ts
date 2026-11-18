@@ -2,10 +2,10 @@
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { installFakeClaude } from "../../tests/support/fakeClaude.ts";
-import { notificationActivation } from "../../tests/support/notificationActivation.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
+import { notificationActivation } from "../../test-support/support/notificationActivation.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { sendTerminalNotification } from "../../server/terminalNotifier.ts";
 
 test("the durable inline command carries quotes and substitution syntax as literal destination data", async () => {

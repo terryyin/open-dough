@@ -8,7 +8,7 @@
 // credits the re-adding commit. Counts the `gh` calls GitHub received
 // (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   backlogPath,
   filesFor,
@@ -19,9 +19,12 @@ import {
   planPath,
   profilePath,
   seedPath,
-} from "../../tests/revisionReuseOrigin.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
-import { pathChange, type PathChange } from "../../tests/pathHistoryAnswers.ts";
+import {
+  pathChange,
+  type PathChange,
+} from "../../test-support/pathHistoryAnswers.ts";
 
 test.describe.configure({ mode: "serial" });
 

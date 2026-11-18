@@ -2,10 +2,10 @@
 // while the request owner and synthetic gh use their real process timers.
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
-import { controlRequestTimers } from "../../tests/support/controlledRequestTimers.ts";
-import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
-import { readPid } from "../../tests/support/processGroup.ts";
-import { listingReuseWindowMs } from "../../tests/support/sharedReads.ts";
+import { controlRequestTimers } from "../../test-support/support/controlledRequestTimers.ts";
+import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
+import { readPid } from "../../test-support/support/processGroup.ts";
+import { listingReuseWindowMs } from "../../test-support/support/sharedReads.ts";
 
 const waiterBoundMs = 917;
 

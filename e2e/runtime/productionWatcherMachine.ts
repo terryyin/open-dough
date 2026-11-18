@@ -3,19 +3,19 @@ import type { Browser, Page } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
-import { openCursorTerminal } from "../../dashboard/tests/support/cursorTerminal.ts";
-import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
-import { localPublishedMainFixture } from "../../dashboard/tests/support/publishedMainFixture.ts";
-import { configureWatcherApplication } from "../../dashboard/tests/support/productionWatcherFixture.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
+import { openCursorTerminal } from "../../dashboard/test-support/support/cursorTerminal.ts";
+import { developmentDashboard } from "../../dashboard/test-support/support/dashboardCommand.ts";
+import { localPublishedMainFixture } from "../../dashboard/test-support/support/publishedMainFixture.ts";
+import { configureWatcherApplication } from "../../dashboard/test-support/support/productionWatcherFixture.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { serialFileResources } from "../../dashboard/test-support/support/serialFileResources.ts";
 import { waitForWatcherTerminal } from "./productionWatcherClient.ts";
 import {
   productionActivation,
   productionBoundary,
   startProductionWatcher,
   type ProductionWatcher,
-} from "../../dashboard/tests/support/productionWatcher.ts";
+} from "../../dashboard/test-support/support/productionWatcher.ts";
 
 const bannerPath = "dashboard/src/DashboardBanner.tsx";
 export const sourceMarker = (page: Page) =>

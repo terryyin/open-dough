@@ -1,7 +1,7 @@
 // Deploying a published main commit (../../server/productionDeployment.mjs):
 // selecting and verifying it, staging and serving it pinned, and cancelling
 // a commit while it installs.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -10,12 +10,12 @@ import {
   startDeploymentPreview,
   verifyPublishedCommit,
 } from "../../server/productionDeployment.mjs";
-import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { deploymentCheckout } from "../../tests/support/productionWatcher.ts";
-import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
-import { expectOwnOriginReadsOnly } from "../../tests/support/localOriginReads.ts";
-import { incidentEntries } from "../../tests/support/readDiagnostics.ts";
+import { publishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { deploymentCheckout } from "../../test-support/support/productionWatcher.ts";
+import { expectSuppliedIcons } from "../../test-support/support/brandIcons.ts";
+import { expectOwnOriginReadsOnly } from "../../test-support/support/localOriginReads.ts";
+import { incidentEntries } from "../../test-support/support/readDiagnostics.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -62,7 +62,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
   pinnedDeployment,
 }) => {
   // The worker staged the commit after main changed the title and portrait
-  // (../../tests/support/pinnedDeployment.ts).
+  // (../../test-support/support/pinnedDeployment.ts).
   const { fixture, env, commit, published, cartoon, staged } = pinnedDeployment;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {

@@ -12,13 +12,13 @@ import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 

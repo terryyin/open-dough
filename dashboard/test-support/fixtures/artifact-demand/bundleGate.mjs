@@ -7,11 +7,13 @@ import { isMainThread } from "node:worker_threads";
 // The preload installs this module's resolve hook in Node's loader thread.
 if (isMainThread) register(import.meta.url);
 
+const serverBundleUrl = new URL(
+  "../../support/serverBundle.ts",
+  import.meta.url,
+).href;
+
 export function resolve(specifier, context, nextResolve) {
-  if (
-    specifier === "rolldown" &&
-    context.parentURL?.endsWith("/tests/support/serverBundle.ts")
-  )
+  if (specifier === "rolldown" && context.parentURL === serverBundleUrl)
     return { shortCircuit: true, url: import.meta.url };
   return nextResolve(specifier, context);
 }

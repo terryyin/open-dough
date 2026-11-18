@@ -1,25 +1,28 @@
 // A story launch dialog's Session group, with the real installed start, a
-// real bare origin (../../dashboard/tests/support/startOrigin.ts) the page reads as GitHub would
-// (../../dashboard/tests/committedOrigin.ts), and the synthetic `claude`: one-shot is offered
+// real bare origin (../../dashboard/test-support/support/startOrigin.ts) the page reads as GitHub would
+// (../../dashboard/test-support/committedOrigin.ts), and the synthetic `claude`: one-shot is offered
 // only for a host whose installation takes the policy, and a kept one-shot
 // start shows the policy it was started with instead of choices.
 
 import {
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   openBacklog,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   reloadUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test("one-shot is offered only for a host whose installation takes the policy, and a kept start shows its own", async ({
   page,

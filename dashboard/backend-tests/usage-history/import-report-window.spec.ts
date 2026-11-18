@@ -3,12 +3,15 @@ import {
   writeUsageHistory,
   usageHistoryFile,
 } from "../../server/usageHistory.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
-} from "../../tests/usage-history/importHarness.ts";
-import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("counts recorded in-window activity without attributed counters and keeps undated tasks unresolved", async ({
   home,

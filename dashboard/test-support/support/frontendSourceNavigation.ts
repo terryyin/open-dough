@@ -64,7 +64,7 @@ const linkedBacklog = describedBacklog(
         queued: [
           linked(
             "Follow a record kept outside the planning directory",
-            "./seeds/../../docs/adrs/0001-ubiquitous-language-accepted.md#decision",
+            "../docs/adrs/0001-ubiquitous-language-accepted.md#decision",
           ),
           linked(
             "Follow a record named from the repository root",

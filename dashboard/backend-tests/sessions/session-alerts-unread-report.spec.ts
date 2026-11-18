@@ -4,16 +4,16 @@
 // report: <completion label>”, whatever the native reading, which goes on
 // alerting as it would without a report; none for a session marked done.
 // Real start, launch, installed reporting command and store; the synthetic
-// `claude` (../../tests/fixtures/fake-claude) and `terminal-notifier`
-// (../../tests/fixtures/fake-terminal-notifier) are all the server reaches. The server reads
+// `claude` (../../test-support/fixtures/fake-claude) and `terminal-notifier`
+// (../../test-support/fixtures/fake-terminal-notifier) are all the server reaches. The server reads
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "@playwright/test";
-import { markDone } from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { launchedStory } from "../../tests/support/reportedLaunch.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { launchedStory } from "../../test-support/support/reportedLaunch.ts";
 import {
   afterFurtherListings,
   alertCheckMs,
@@ -21,13 +21,13 @@ import {
   messages,
   notices,
   test,
-} from "../../tests/support/sessionAlerts.ts";
+} from "../../test-support/support/sessionAlerts.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
   queuedTitle,
   startOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 test("a report arriving unread raises one notification in its own words, apart from the native reading, and none once marked done", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());

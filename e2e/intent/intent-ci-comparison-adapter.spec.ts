@@ -1,26 +1,29 @@
 import {
   comparisonReading,
   comparisonBuildReading,
-} from "../../dashboard/tests/intentCiComparisonPage.ts";
+} from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // A custom adapter answers CI attempts for the revisions a done story's
 // published history names. The real Intent read resolves the endpoints and
 // reads adapter discovery for builds, jobs for timing and proof for entries.
 // The Done adapter planning-only skip wall-time journey is in
 // ./intent-ci-comparison-adapter-planning-skip.spec.ts.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { adapterProject } from "../../dashboard/tests/intentCiAdapterProofProject.ts";
-import { expectCueState } from "../../dashboard/tests/support/expectCiComparisonCues.ts";
-import { expectCiComparisonEntryRows } from "../../dashboard/tests/support/expectCiComparisonEntryRows.ts";
+import { adapterProject } from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
+import { expectCueState } from "../../dashboard/test-support/support/expectCiComparisonCues.ts";
+import { expectCiComparisonEntryRows } from "../../dashboard/test-support/support/expectCiComparisonEntryRows.ts";
 import {
   expectAncestorSourceCue,
   expectExactSourceCue,
   expectNoRunOrAttemptIds,
-} from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { landedAdapterComparisonAnswers } from "../../dashboard/tests/support/storyCiComparisonAdapterAnswers.ts";
-import { publishCodeLandedBeforeCompletion } from "../../dashboard/tests/support/storyCiComparisonEarlierLanding.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/expectCiComparisonSourceCue.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { landedAdapterComparisonAnswers } from "../../dashboard/test-support/support/storyCiComparisonAdapterAnswers.ts";
+import { publishCodeLandedBeforeCompletion } from "../../dashboard/test-support/support/storyCiComparisonEarlierLanding.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const repository = "terryyin/open-dough";
 

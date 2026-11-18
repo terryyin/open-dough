@@ -1,7 +1,7 @@
 import {
   scopeHistory,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Real evidence provider updates retain observation identity and reject late replies.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
@@ -10,15 +10,15 @@ import {
   test,
   mountComparison,
   updateComparison,
-} from "../tests/support/comparisonMountPage.ts";
+} from "../test-support/support/comparisonMountPage.ts";
 import {
   givePageItsTurns,
   untilPageReadsAnswered,
-} from "../tests/pageRequestNotes.ts";
+} from "../test-support/pageRequestNotes.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
-} from "../tests/support/projectScopeHistoryFacts.ts";
+} from "../test-support/support/projectScopeHistoryFacts.ts";
 
 test("a newer timestamp at the same head issues no history read, and a late old endpoint reply cannot replace the new one", async ({
   page,

@@ -1,30 +1,30 @@
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 // Report observation preserves done intent; only deliberate marking changes it.
 import { existsSync } from "node:fs";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
-import { machineSessions } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { codexAttaches } from "../../dashboard/tests/support/codexTerminal.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { codexAttaches } from "../../dashboard/test-support/support/codexTerminal.ts";
 import {
   report,
   save,
   retained,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

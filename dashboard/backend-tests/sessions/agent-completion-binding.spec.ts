@@ -2,38 +2,41 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import {
   keptLaunchRecords,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import {
   acceptanceSchema,
   verifiedAnswerSchema,
 } from "../../src/launchOutcome.ts";
 import { markDoneAnswerSchema } from "../../src/doneMark.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   accept,
   recordsOf,
   markDone,
-} from "../../tests/agentLaunchBoundary.ts";
-import { settledOutcome, keptAttempts } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  settledOutcome,
+  keptAttempts,
+} from "../../test-support/acceptedAttempts.ts";
 import {
   startOrigin,
   queuedIdentity,
   queuedTitle,
-} from "../../tests/support/startOrigin.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   postCompletion,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 const exec = promisify(execFile);

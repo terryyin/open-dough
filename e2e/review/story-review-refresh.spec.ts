@@ -1,10 +1,10 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import {
   reviewRefresh,
   reviewRegion,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 // A story's review stays the snapshot taken when it opened, of Story A's
-// worktree (../../dashboard/tests/support/storyReviewWorktree.ts), while the worktree moves on:
+// worktree (../../dashboard/test-support/support/storyReviewWorktree.ts), while the worktree moves on:
 // a further commit to the open file and a new file change neither the file
 // list nor the open diff, even when another file is selected and the first
 // reopened. Refresh takes a new snapshot that lists the new file and shows
@@ -16,32 +16,35 @@ import {
 // Once the selected file is reverted in the worktree, Refresh selects the
 // first file.
 
-import { diffLines } from "../../dashboard/tests/support/reviewPanes.ts";
+import { diffLines } from "../../dashboard/test-support/support/reviewPanes.ts";
 
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   expectFixedWhileScrolled,
   fileBrowser,
   reviewBody,
   reviewFeedback,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
-import { expectReviewRead } from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { expectReviewRead } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   expectTreeRows,
   changedFilesList,
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   git,
   storyWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test("a story's review stays fixed while its worktree changes until Refresh", async ({
   page,

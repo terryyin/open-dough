@@ -1,41 +1,41 @@
 // A Trunk Mode story with published commits
-// (../../dashboard/tests/support/storyReviewTrunkMode.ts) reviewed on a machine whose Git cannot
-// restate trees (../../dashboard/tests/support/storyReviewOlderGit.ts): the published commits
+// (../../dashboard/test-support/support/storyReviewTrunkMode.ts) reviewed on a machine whose Git cannot
+// restate trees (../../dashboard/test-support/support/storyReviewOlderGit.ts): the published commits
 // stay in trunk, so All changes lists the unpublished and uncommitted changes
 // against the merge-base as for any worktree, the context line reads as any
 // baseline's, and the feedback says, for as long as the snapshot is shown,
 // that the story's published commits could not be taken out.
 
 import type { Locator } from "@playwright/test";
-import { expect } from "../../dashboard/tests/support/preparationPage.ts";
+import { expect } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
   reviewFeedback,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectTreeRows,
   changedFilesList,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   openStoryReview,
   refreshReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
-import { olderGit } from "../../dashboard/tests/support/storyReviewOlderGit.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
+import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import {
   commitUnpublished,
   openTaken,
   shownWorkspace,
   trunkModeRepository,
   trunkModeStory,
-} from "../../dashboard/tests/support/storyReviewTrunkMode.ts";
+} from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 // Trunk up to Yui-chan's claim of Story A in Trunk Mode.
 olderGit.use({ originRepository: trunkModeRepository });

@@ -6,25 +6,25 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   expectMembership,
   parts,
   rosterParts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   credit,
   expectHumanAvatar,
   expectHumanInitials,
-} from "../../dashboard/tests/agentCredit.ts";
-import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
-import { avatarPathsRead } from "../../dashboard/tests/avatarAnswers.ts";
-import { loadedWidth } from "../../dashboard/tests/agentPortrait.ts";
+} from "../../dashboard/test-support/agentCredit.ts";
+import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { avatarPathsRead } from "../../dashboard/test-support/avatarAnswers.ts";
+import { loadedWidth } from "../../dashboard/test-support/agentPortrait.ts";
 import {
   avatarHost,
   credited,
@@ -44,13 +44,13 @@ import {
   secondRevision,
   unfetched,
   unfetchedAvatar,
-} from "../../dashboard/tests/agentAttributionRecords.ts";
+} from "../../dashboard/test-support/agentAttributionRecords.ts";
 import {
   doughnut,
   publishUnlistableProfiles,
   queuedStory,
   takenStory,
-} from "../../dashboard/tests/agentRosterRecords.ts";
+} from "../../dashboard/test-support/agentRosterRecords.ts";
 test("each assignment credits the committer who added its profile's current allocation, with an avatar read once through the local boundary, on cards and the roster, and says when that cannot be established", async ({
   page,
 }) => {

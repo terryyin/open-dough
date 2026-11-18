@@ -1,4 +1,4 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Taken adapter stories show a completed provisional ancestor while a
 // newer attempt is running, without an Actions read or a branch-head API
 // request for the comparison itself.
@@ -10,20 +10,23 @@ import { notLandedYetExplanation } from "../../dashboard/src/storyCiComparison.t
 import {
   adapterProject,
   passed,
-} from "../../dashboard/tests/intentCiAdapterProofProject.ts";
-import { mainRun } from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
-import { selectTakenStoryForCiComparison } from "../../dashboard/tests/support/selectTakenStoryForCiComparison.ts";
+} from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
+import { mainRun } from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import { selectTakenStoryForCiComparison } from "../../dashboard/test-support/support/selectTakenStoryForCiComparison.ts";
 import {
   publishTakenComparedStoryBranch,
   publishTakenComparedTrunk,
-} from "../../dashboard/tests/support/storyCiComparisonTakenFixture.ts";
+} from "../../dashboard/test-support/support/storyCiComparisonTakenFixture.ts";
 import {
   commitAll,
   git,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
   test(`a Taken adapter ${mode} story compares the completed ancestor of its running tip`, async ({

@@ -6,18 +6,18 @@ import path from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   expect,
   test,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("attributes own responses and explicit descendants across compressed archives and successive task turns once", ({
   home,

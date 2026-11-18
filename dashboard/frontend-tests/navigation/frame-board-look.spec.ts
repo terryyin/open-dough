@@ -10,26 +10,29 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
-import { answerBoardOnPausedPageTime } from "../../tests/support/frontendBoardPageTime.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { passTimeUntilChecked } from "../../tests/autoRefreshJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
+import { answerBoardOnPausedPageTime } from "../../test-support/support/frontendBoardPageTime.ts";
+import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
 import {
   expectControlContrast,
   expectReadableContrast,
   narrowWindow,
   zoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { openDirection, parts } from "../../tests/dashboardPage.ts";
-import { expectDecorativeIcon } from "../../tests/frameIconControl.ts";
-import { expectProductMark } from "../../tests/productMark.ts";
+} from "../../test-support/accessibleReading.ts";
+import { openDirection, parts } from "../../test-support/dashboardPage.ts";
+import { expectDecorativeIcon } from "../../test-support/frameIconControl.ts";
+import { expectProductMark } from "../../test-support/productMark.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
-import { back, settings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/pageLayout.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
+import {
+  back,
+  settings,
+} from "../../test-support/support/systemSettingsPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("the row below the banner and the Board read clearly in the frame's look", async ({

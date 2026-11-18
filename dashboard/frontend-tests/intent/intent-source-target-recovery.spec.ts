@@ -3,59 +3,59 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts, shortRevision } from "../../tests/dashboardParts.ts";
-import { describedRevisions } from "../../tests/describedRevisions.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts, shortRevision } from "../../test-support/dashboardParts.ts";
+import { describedRevisions } from "../../test-support/describedRevisions.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
 import {
   pygardon,
   pygardonSettings,
-} from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   pygardonCandidatesRecord,
   pygardonClipCase,
   pygardonClipPath,
   pygardonClipSource,
-} from "../../tests/intentCandidatesOtherProjectFixtures.ts";
+} from "../../test-support/intentCandidatesOtherProjectFixtures.ts";
 import {
   expectSourceTargetLine,
   fileSource,
   sourceFile,
   sourceRevision,
-} from "../../tests/intentCodeBrowsePage.ts";
+} from "../../test-support/intentCodeBrowsePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   browserRevision,
   purposeRegion,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   expectReadingOffset,
   intentReadingScroll,
-} from "../../tests/intentReadingPlacePage.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
 import {
   readFailure,
   readRetry,
   showLatestRevision,
-} from "../../tests/intentReadRecoveryPage.ts";
-import { intentReads } from "../../tests/intentRevisionJourney.ts";
+} from "../../test-support/intentReadRecoveryPage.ts";
+import { intentReads } from "../../test-support/intentRevisionJourney.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
+} from "../../test-support/pageRequestNotes.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
 import {
   pausePageClock,
   passTimeUntilChecked,
   passTimeUntilCheckedWhileReadsOutstanding,
   expectSteadyPace,
-} from "../../tests/autoRefreshJourney.ts";
-import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+} from "../../test-support/autoRefreshJourney.ts";
+import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 
 for (const outcome of ["held then released", "failed then retried"] as const) {
   test(`a selected source case keeps line44 and reading while a new revision's file read is ${outcome}`, async ({

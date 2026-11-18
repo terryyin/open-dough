@@ -2,45 +2,45 @@ import {
   prepareDoughnutCasePosition,
   prepareOpenDoughCaseLine,
   preparePygardonCandidates,
-} from "../../tests/support/frontendIntentCandidates.ts";
-import { intentReadingScroll } from "../../tests/intentReadingPlacePage.ts";
+} from "../../test-support/support/frontendIntentCandidates.ts";
+import { intentReadingScroll } from "../../test-support/intentReadingPlacePage.ts";
 import {
   expectSourceTargetLine,
   fileSource,
   sourceLineNumbers,
   sourceTargetLine,
   sourceFile,
-} from "../../tests/intentCodeBrowsePage.ts";
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent opens a recorded test from the Optimization Candidates tab at its
 // identified case in the Intent tab's Purpose (SEED-192 commitments 23.1–23.3, 24, E4 configured variant).
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-} from "../../tests/intentModePage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentModePage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   openDoughCaseLineNumber,
   openDoughSpecPaths,
-} from "../../tests/intentCandidatesFixtures.ts";
+} from "../../test-support/intentCandidatesFixtures.ts";
 import {
   doughnutCaseFeaturePath,
   doughnutUniqueScenario,
   doughnutUniqueScenarioLine,
-} from "../../tests/intentCandidatesCasePositionFixtures.ts";
+} from "../../test-support/intentCandidatesCasePositionFixtures.ts";
 import {
   pygardonClipCase,
   pygardonClipCaseLine,
   pygardonClipPath,
-} from "../../tests/intentCandidatesOtherProjectFixtures.ts";
+} from "../../test-support/intentCandidatesOtherProjectFixtures.ts";
 import {
   doughnut,
   openDough,
   pygardon,
-} from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 
 test("Intent opens a configured Pygardon ::name case at its line in Purpose", async ({
   page,

@@ -14,22 +14,22 @@ import {
   expectInFull,
   expectLabelInFull,
   labelWords,
-} from "../../tests/ciEvidenceLabelsPage.ts";
-import { expectProofRows } from "../../tests/intentCiProofPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import { expectProofRows } from "../../test-support/intentCiProofPage.ts";
 import {
   openSummary,
   treeGap,
-} from "../../tests/intentSummaryCiProofFixtures.ts";
+} from "../../test-support/intentSummaryCiProofFixtures.ts";
 import {
   activateIntentHome,
   ciStatusReading,
   expectCiAnswer,
-} from "../../tests/intentCiStatusPage.ts";
+} from "../../test-support/intentCiStatusPage.ts";
 import {
   bothEntries,
   openSummaryCiProof,
-} from "../../tests/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const verdict = "Passed at a1b2c3d (Add login)";
 const homeRows = [

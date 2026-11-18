@@ -1,25 +1,25 @@
 // A rate limit that directs no wait holds back every read of the server
 // process (github-request-admission.mjs) as a directed one does, for a wait of
 // the process's own, at the local authenticated read boundary over real HTTP
-// with the synthetic `gh` (../../tests/support/sharedReads.ts publishes the revision):
+// with the synthetic `gh` (../../test-support/support/sharedReads.ts publishes the revision):
 // one minute, doubling while the limit continues, up to an hour, and the base
 // again once a read succeeds. Each case starts a server of its own, because
 // the wait outlives the request that met it. How a directed wait holds back
 // reads: ./authenticated-read-cooldown.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import {
   onServerOfItsOwn,
   untilReported,
-} from "../../tests/support/directedWait.ts";
-import { developmentBoundary } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/directedWait.ts";
+import { developmentBoundary } from "../../test-support/support/dashboardServer.ts";
 import {
   expectHeldBack,
   servedRefusing,
   timedRead,
-} from "../../tests/support/heldBackReads.ts";
-import { rateLimitedAnswer } from "../../tests/originAnswers.ts";
+} from "../../test-support/support/heldBackReads.ts";
+import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
 import {
   askedSince,
   otherSeedPath,
@@ -27,7 +27,7 @@ import {
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 const revision = "c3".repeat(20);
 const otherSeedRead = `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`;

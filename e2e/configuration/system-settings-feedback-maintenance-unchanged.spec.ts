@@ -10,11 +10,11 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   givePageItsTurns,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

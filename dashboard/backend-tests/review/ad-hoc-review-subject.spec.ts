@@ -1,10 +1,10 @@
 // Only standalone ad hoc sessions can be named as review subjects.
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { getReview } from "../../tests/support/completedReviewRequests.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 
 test.use({ serverMode: "boundary" });
 

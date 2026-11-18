@@ -3,7 +3,7 @@ import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -11,13 +11,13 @@ import {
   expect,
   storedReviewChoices,
   storedCapturedChoice,
-} from "../../dashboard/tests/support/storedReviewChoices.ts";
-import { keptLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { reviewLaunch } from "../../dashboard/tests/support/reviewRunRecords.ts";
-import { refreshAndRead } from "../../dashboard/tests/support/reviewRead.ts";
-import { openCapturedReview } from "../../dashboard/tests/support/oneShotReview.ts";
-import { recordOperation } from "../../dashboard/tests/support/completionRecovery.ts";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/storedReviewChoices.ts";
+import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { reviewLaunch } from "../../dashboard/test-support/support/reviewRunRecords.ts";
+import { refreshAndRead } from "../../dashboard/test-support/support/reviewRead.ts";
+import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
+import { recordOperation } from "../../dashboard/test-support/support/completionRecovery.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 
 // Opens story A's review with the run `key` chosen under Landed runs; its
 // Refresh waits until the review has read it.

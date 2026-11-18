@@ -1,6 +1,6 @@
 // Mark as done in the page's one terminal
 // (../terminals/agent-terminal.spec.ts), on the committed story-columns origin
-// (../../dashboard/tests/launchJourney.ts): a session not known to be complete
+// (../../dashboard/test-support/launchJourney.ts): a session not known to be complete
 // is asked about first within the panel, with the terminal still showing;
 // Keep open or Escape leaves the panel open, attached, and the session
 // running, with the keyboard back on Mark as done. While it marks, the panel
@@ -16,12 +16,12 @@
 // page's own dashboard server drives the synthetic `claude`; the real one is
 // never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessionName,
   storyCardSessions,
@@ -29,18 +29,21 @@ import {
   parts,
   standaloneSessionName,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { colourOf, tokenColour } from "../../dashboard/tests/pageColours.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
-import { holdDoneRequests } from "../../dashboard/tests/support/holdDoneRequest.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import {
+  colourOf,
+  tokenColour,
+} from "../../dashboard/test-support/pageColours.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
+import { holdDoneRequests } from "../../dashboard/test-support/support/holdDoneRequest.ts";
 import {
   doneQuestion,
   expectAsked,
@@ -48,7 +51,7 @@ import {
   headerMarkAsDone,
   sendDoneMarkAnyway,
   stillWorking,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

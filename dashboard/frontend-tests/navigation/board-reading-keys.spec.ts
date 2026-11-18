@@ -3,16 +3,16 @@
 // modified reading keys do for an unfocused Board, while a focused control,
 // modal help and app shortcuts keep their keys and the document stays still.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { publishLargeBacklog } from "../../tests/accessibleBoard.ts";
-import { scrollYOf, wheelTo } from "../../tests/boardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { publishLargeBacklog } from "../../test-support/accessibleBoard.ts";
+import { scrollYOf, wheelTo } from "../../test-support/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectDocumentStill,
   readWithKey,
-} from "../../tests/boardReading.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/boardReading.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 
 test("body reading keys use native Board scrolling while focused controls and modal help keep their keys", async ({
   page,

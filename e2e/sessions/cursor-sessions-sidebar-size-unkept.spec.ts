@@ -15,10 +15,13 @@ import {
   keyDivider,
   keyStep,
   roomOf,
-} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
-import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
-import { crowd } from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/cursorSessionsSidebarResizePage.ts";
+import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
+import { crowd } from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
 

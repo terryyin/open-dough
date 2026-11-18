@@ -6,15 +6,18 @@
 import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex" });

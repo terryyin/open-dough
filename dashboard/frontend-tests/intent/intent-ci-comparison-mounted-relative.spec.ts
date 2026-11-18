@@ -1,10 +1,10 @@
 import {
   comparisonReading,
   comparisonEntryCell,
-} from "../../tests/intentCiComparisonPage.ts";
+} from "../../test-support/intentCiComparisonPage.ts";
 // Relative marks and Show % use actual preference state and rendered geometry.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   expectMark,
   relativeFigures,
@@ -12,12 +12,12 @@ import {
   showPercent,
   timeMarks,
   percentages,
-} from "../../tests/support/relativeTimingMarks.ts";
-import { rowNames } from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/relativeTimingMarks.ts";
+import { rowNames } from "../../test-support/support/expectSortedColumns.ts";
 import {
   relativelyTimed,
   relativeTimes,
-} from "../../tests/support/relativelyTimedStory.ts";
+} from "../../test-support/support/relativelyTimedStory.ts";
 
 test("summary and entries share a centred fifty percent scale with faster left and slower right", async ({
   renderComparison,

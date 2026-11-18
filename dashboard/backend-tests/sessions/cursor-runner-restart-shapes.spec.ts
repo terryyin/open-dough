@@ -12,7 +12,7 @@ import { spawn } from "node:child_process";
 import http from "node:http";
 import { rmSync } from "node:fs";
 import net from "node:net";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import {
@@ -23,14 +23,14 @@ import {
   createChatOnRunner,
   keepWorkingClient,
   startRunnerProofFixture,
-} from "../../tests/support/cursorRunnerProof.ts";
+} from "../../test-support/support/cursorRunnerProof.ts";
 import {
   killCursorRunnerLeavingAddress,
   listenOnReleasedRunnerPort,
   tamperRecordedProof,
   writeRunnerAddress,
-} from "../../tests/support/cursorRunnerRecordedAddress.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/cursorRunnerRecordedAddress.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 test("a dead pid with its stale address left behind starts a fresh current runner, and the recorded session is kept again there", async () => {
   const fixture = startRunnerProofFixture();

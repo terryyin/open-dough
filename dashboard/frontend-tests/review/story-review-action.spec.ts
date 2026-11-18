@@ -9,7 +9,7 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   storyCardLaunchActions,
   expectActionGlyph,
@@ -17,24 +17,24 @@ import {
   launchGroup,
   reviewChanges,
   storyNotesControl,
-} from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardControls.ts";
 import {
   expectFocusedAndIndicated,
   expectTabOrder,
   narrowWindow,
   twiceZoomedWindow,
-} from "../../tests/accessibleReading.ts";
+} from "../../test-support/accessibleReading.ts";
 import {
   expectInReadingOrder,
   expectOnOneLine,
   expectOnOneLineWhenRoom,
   expectStackedInOrder,
-} from "../../tests/pageLayout.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/pageLayout.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
 
 async function expectSettledLayout(page: Page) {
   await expectSettledPage(page);

@@ -3,20 +3,23 @@
 // intent and accepted reply, and the resulting card. Kept eligible receipts
 // start in ./landed-ci-repeat-eligible-receipt.spec.ts; saved accepted
 // requests start in ./landed-ci-repeat-verdict.spec.ts.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { keepRecordedPriorsMeasured } from "../../tests/support/ciFollowUpKeptPriors.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { keepRecordedPriorsMeasured } from "../../test-support/support/ciFollowUpKeptPriors.ts";
 import {
   aWholePass,
   rerunRuns,
   saveRepeatRequests,
   savedRepeatRequest,
   waitingRequest,
-} from "../../tests/support/ciFollowUpSavedRequests.ts";
+} from "../../test-support/support/ciFollowUpSavedRequests.ts";
 import {
   followUpCards,
   prepareRepeatScenario,
-} from "../../tests/support/ciFollowUpScenario.ts";
-import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
+} from "../../test-support/support/ciFollowUpScenario.ts";
+import { postLanding } from "../../test-support/support/startSessionLandingCapture.ts";
 
 test.use({ serverMode: "boundary" });
 

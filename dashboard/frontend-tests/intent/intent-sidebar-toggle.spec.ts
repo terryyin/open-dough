@@ -1,4 +1,4 @@
-import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
+import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
 // Hide files / Show files (../../src/FileBrowserToggle.tsx) in Project
 // Intent's strip on CI status (../../src/IntentPage.tsx), or ending a
 // selected story's view row on Changed tests
@@ -12,10 +12,10 @@ import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisi
 // selected story's view row: ../../frontend-tests/intent/intent-story-views-narrow.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { box } from "../../tests/partArrangement.ts";
+import { box } from "../../test-support/partArrangement.ts";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
-import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
+import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
 import {
   chooseOptimizationCandidates,
   expectFilesShown,
@@ -28,13 +28,13 @@ import {
   filesScroll,
   scrollFilesHalfway,
   intentBrowser,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   fileReadingTab,
   proofRegion,
-} from "../../tests/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
@@ -45,12 +45,12 @@ import {
   storyTitle,
   storyViews,
   intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
-import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
-import { putFrontendIntentStory } from "../../tests/support/frontendIntentStory.ts";
-import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { deepSpec } from "../../test-support/support/intentStoryWorktree.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
+import { putFrontendIntentStory } from "../../test-support/support/frontendIntentStory.ts";
+import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 
 // The reading pane spans the browser's whole width, and its whole height.
 async function expectReadingFillsBrowser(intent: Locator) {

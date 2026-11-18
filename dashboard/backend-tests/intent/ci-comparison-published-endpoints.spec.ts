@@ -7,7 +7,7 @@ import {
   deliveredCompletion,
   landingOf,
 } from "../../server/storyPublishedEndpointDerived.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   endpointPrefix,
   endpointIdentity,

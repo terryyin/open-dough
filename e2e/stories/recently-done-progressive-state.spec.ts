@@ -11,46 +11,50 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { standaloneSessionName } from "../../dashboard/tests/dashboardPage.ts";
-import { rem, scrollYOf, showColumn } from "../../dashboard/tests/boardPage.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { standaloneSessionName } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  rem,
+  scrollYOf,
+  showColumn,
+} from "../../dashboard/test-support/boardPage.ts";
 import {
   untilBoardRests,
   watchBoardScroll,
-} from "../../dashboard/tests/boardReading.ts";
-import { placedAt } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/boardReading.ts";
+import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   expectEntries,
   revealAction,
   showLatestAction,
   shownEntries,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   recordsAsked,
   terminalOf,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   recordReveals,
   revealsOf,
-} from "../../dashboard/tests/sessionNavigationJourney.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionNavigationJourney.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expect,
   keptRecord,
   test,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 

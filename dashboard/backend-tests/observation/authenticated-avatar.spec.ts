@@ -8,14 +8,17 @@
 // anything else is refused before asking GitHub or its avatar host. What the
 // page shows is covered in ../../../e2e/stories/agent-roster-avatar.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { avatarPathsRead, holdingAvatar } from "../../tests/avatarAnswers.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import {
+  avatarPathsRead,
+  holdingAvatar,
+} from "../../test-support/avatarAnswers.ts";
 import {
   additions,
   agents,
@@ -24,8 +27,8 @@ import {
   newerAvatar,
   publishedRevisions,
   revision,
-} from "../../tests/authenticatedAvatarRecords.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/authenticatedAvatarRecords.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

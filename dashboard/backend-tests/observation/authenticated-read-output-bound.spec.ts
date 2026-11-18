@@ -1,10 +1,10 @@
 // A real gh subprocess exceeds the authenticated read's 32 MiB output bound
 // (../../server/ghRead.ts); the request owner carries its safe cause through
 // the HTTP notice/history.
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { commitAnswer } from "../../tests/originAnswers.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { commitAnswer } from "../../test-support/originAnswers.ts";
 import {
   checkArgv,
   ownRevisionCheckBoundary,
@@ -17,7 +17,7 @@ import {
   secretMarker,
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 // Past the bound by a margin the answer's JSON framing cannot make up.
 const pastBound = 33 * 1024 * 1024;

@@ -1,5 +1,5 @@
 // A follow-up's source is part of its launch's identity over raw HTTP, with a
-// real bare origin (../../tests/support/startOrigin.ts) and the synthetic
+// real bare origin (../../test-support/support/startOrigin.ts) and the synthetic
 // `claude`: two sources with the same words are two launches, repeating one
 // resumes its kept start, even after the source record is gone, a continuation
 // resends the recorded context, and admission refuses context text a page
@@ -12,21 +12,21 @@ import {
   continued,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   launchAttachmentEndpoint,
   launchAttachmentNameHeader,
 } from "../../src/launchAttachments.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
 import {
   launchAttachmentClaimsRoot,
   listedMachineDirs,
   pngA,
-} from "../../tests/support/launchAttachmentFixtures.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchAttachmentFixtures.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   partsOf,

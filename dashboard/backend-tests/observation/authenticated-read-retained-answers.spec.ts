@@ -8,7 +8,7 @@
 // process never heard GitHub name asks GitHub as before; and an absent,
 // foreign, or torn store file is a miss. Development-environment boundaries over real HTTP
 // with the synthetic `gh` count the `gh` calls each process made
-// (../../tests/retainedAnswersJourney.ts).
+// (../../test-support/retainedAnswersJourney.ts).
 
 import {
   mkdtempSync,
@@ -23,20 +23,20 @@ import {
   everyRepository,
   startFakeGitHub,
   type FakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   noConnection,
   notFoundAnswer,
   notLoggedIn,
   rateLimitedAnswer,
-} from "../../tests/originAnswers.ts";
+} from "../../test-support/originAnswers.ts";
 import {
   backlogPath,
   named,
   otherSeedPath,
   profilePath,
   seedPath,
-} from "../../tests/revisionReuseOrigin.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
 import {
   allAnswered,
   asked,
@@ -49,7 +49,7 @@ import {
   repository,
   storeOn,
   test,
-} from "../../tests/retainedAnswersJourney.ts";
+} from "../../test-support/retainedAnswersJourney.ts";
 
 test.describe("authenticated read answers retained across dashboard processes (development environment)", () => {
   let github: FakeGitHub;

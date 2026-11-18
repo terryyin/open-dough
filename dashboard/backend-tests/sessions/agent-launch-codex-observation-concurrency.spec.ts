@@ -1,11 +1,11 @@
 // Real native protocol reads across overlapping observation calls.
 import { codexSessions } from "../../server/hosts/codex/sessions.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
   observed,
   passive,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

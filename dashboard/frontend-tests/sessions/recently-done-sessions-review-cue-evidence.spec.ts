@@ -1,22 +1,22 @@
 // Review warnings require successful independent link and local-state reads.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
 import {
   adHoc,
   linked,
   openFrontendSelectionPage,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
-import { expectSessionReviewCue } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
+import { expectSessionReviewCue } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   holdPygardonCatalog,
   isPygardonCatalog,
-} from "../../tests/pygardonCatalogReads.ts";
-import { passCheckPace } from "../../tests/pageRequestNotes.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
+} from "../../test-support/pygardonCatalogReads.ts";
+import { passCheckPace } from "../../test-support/pageRequestNotes.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
 import {
   installFrontendCompletedStoryAssociation,
   installFrontendStoryReviewState,
-} from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendServiceSubstitutes.ts";
 
 for (const evidence of ["catalog", "review state", "association"] as const) {
   test(`failed ${evidence} supplies no warning; a later successful read supplies it without selection`, async ({

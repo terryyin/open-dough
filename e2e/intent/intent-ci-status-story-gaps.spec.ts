@@ -1,10 +1,10 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 import {
   expectCiScope,
   ciStatusReading,
   expectCiAnswer,
   chooseCiStatus,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 
 // Intent's CI status for a selected story without a branch to judge
 // (../../dashboard/src/intentCiTarget.ts): a queued or Preparing story is named with no
@@ -18,11 +18,11 @@ import {
 // branches: ./intent-ci-status-story.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
-import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
-import { doughnut } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { doughnut } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   done,
   onTrunk,
@@ -31,14 +31,14 @@ import {
   removed,
   twoOwners,
   unusable,
-} from "../../dashboard/tests/intentCiStoryBoard.ts";
+} from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
   card,
   publishStoryCi,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 // No state, no run, nothing to check again.
 async function expectNoStatus(panel: Locator) {

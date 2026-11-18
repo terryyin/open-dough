@@ -7,26 +7,26 @@ import {
   closeSidePanel,
   control,
   expectTitleOnOneCutLine,
-} from "../../tests/sidePanelFrame.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/sidePanelFrame.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   defaultReportText,
   openFrontendUnfinishedReport,
   unfinishedReportTitle,
-} from "../../tests/support/frontendFinalReportSession.ts";
-import { keepOpen, markAsDone } from "../../tests/support/markDone.ts";
-import { finalReportParts } from "../../tests/finalReportPages.ts";
+} from "../../test-support/support/frontendFinalReportSession.ts";
+import { keepOpen, markAsDone } from "../../test-support/support/markDone.ts";
+import { finalReportParts } from "../../test-support/finalReportPages.ts";
 import {
   expectTopBarsShareHeight,
   tapWhereShown,
   pressWhereShown,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   readReportByTouch,
   reportGeometry,
-} from "../../tests/support/reportTouchPage.ts";
-import { resizeUntilArranged } from "../../tests/sidePanelWidthPage.ts";
-import { sessionStateOf } from "../../tests/dashboardPage.ts";
+} from "../../test-support/support/reportTouchPage.ts";
+import { resizeUntilArranged } from "../../test-support/sidePanelWidthPage.ts";
+import { sessionStateOf } from "../../test-support/dashboardPage.ts";
 
 const questionWords =
   "This session reported unfinished work. Mark it done anyway?";

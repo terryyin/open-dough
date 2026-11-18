@@ -1,9 +1,12 @@
 // Exact bytes/argv and deliberately invalid frames are contract inputs, not
 // domain fixtures. Real GitHubRequests and the owner retain admission/lifetime.
 import { existsSync, readdirSync } from "node:fs";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
-import { processAlive } from "../../tests/support/processGroup.ts";
-import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
+import { processAlive } from "../../test-support/support/processGroup.ts";
+import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 import { expect, test, inProcessFixture } from "../support/fakeGhInProcess.ts";
 
 test("the real owner receives exact argv and binary stdout without a call PID", async ({

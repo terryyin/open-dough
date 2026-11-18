@@ -6,12 +6,12 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { pendingWaitWords } from "../../src/ciHistoryGapWords.ts";
 import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import { landedCiHistorySchema } from "../../src/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.use({ serverMode: "boundary" });
 

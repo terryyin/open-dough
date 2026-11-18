@@ -2,30 +2,30 @@ import {
   closeSessionDetails,
   sessionDetails,
   sessionAction,
-} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+} from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   failFirstHistoricalCreditRead,
   historicalCreditReads,
   holdFirstHistoricalCreditRead,
   profileListingsAt,
   readsAtRevision,
-} from "../../dashboard/tests/support/historicalCreditReads.ts";
-import { openSessionAttributionBoard } from "../../dashboard/tests/support/sessionAttributionFixture.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/support/historicalCreditReads.ts";
+import { openSessionAttributionBoard } from "../../dashboard/test-support/support/sessionAttributionFixture.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessions,
   parts,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishPreparingJourney,
   storyA,
   storyC,
-} from "../../dashboard/tests/preparingJourney.ts";
-import { authenticatedReadRoute } from "../../dashboard/tests/holdAuthenticatedReads.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/preparingJourney.ts";
+import { authenticatedReadRoute } from "../../dashboard/test-support/holdAuthenticatedReads.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

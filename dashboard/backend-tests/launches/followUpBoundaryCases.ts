@@ -10,17 +10,17 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
 import type { EstablishedSession } from "../../src/unattachedSession.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { expect } from "../../tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
-import { sessionBlock } from "../../tests/support/startSessionLanding.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expect } from "../../test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+import { sessionBlock } from "../../test-support/support/startSessionLanding.ts";
 import {
   followUpContextOf,
   quietSession,
   quietTitle,
   retiredSession,
   retiredTitle,
-} from "../../tests/support/followUpSources.ts";
+} from "../../test-support/support/followUpSources.ts";
 
 export type Answer = {
   kind: string;

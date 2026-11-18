@@ -5,7 +5,7 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
+} from "../test-support/support/frontendApp.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { creationSchema } from "../src/launchCreation.ts";
 import { creationView } from "../server/launchCreation.ts";

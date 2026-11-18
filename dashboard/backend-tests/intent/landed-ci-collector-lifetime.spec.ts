@@ -1,11 +1,17 @@
 // A held native follow-up pass belongs to its origin until every process exits.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
-import { keepFollowUpEntries } from "../../tests/support/ciFollowUpScenario.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { prepareAdapterRepeatScenario } from "../../test-support/support/ciFollowUpAdapterScenario.ts";
+import { keepFollowUpEntries } from "../../test-support/support/ciFollowUpScenario.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { processRunning, signal } from "../../tests/support/processGroup.ts";
+import {
+  processRunning,
+  signal,
+} from "../../test-support/support/processGroup.ts";
 
 test.use({ serverMode: "boundary" });
 

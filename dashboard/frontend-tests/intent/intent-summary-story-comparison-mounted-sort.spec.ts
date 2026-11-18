@@ -1,18 +1,21 @@
 // Summary's real sortable columns use independent signed/count/change examples.
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { scopeFigures, scopeTable } from "../../tests/intentScopeProofPage.ts";
+import {
+  scopeFigures,
+  scopeTable,
+} from "../../test-support/intentScopeProofPage.ts";
 import {
   expectRenderedSortedBy,
   expectUnsortedRows,
-} from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
-} from "../../tests/support/summaryComparisonExpectedRows.ts";
-import { expectComparisonScopeRows } from "../../tests/intentScopeProofPage.ts";
-import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
-import { wordsBrokenApart } from "../../tests/wholeWords.ts";
+} from "../../test-support/support/summaryComparisonExpectedRows.ts";
+import { expectComparisonScopeRows } from "../../test-support/intentScopeProofPage.ts";
+import { twiceZoomedWindow } from "../../test-support/accessibleReading.ts";
+import { wordsBrokenApart } from "../../test-support/wholeWords.ts";
 
 const entry = "dashboard/tests";
 test("Summary Change keeps unchanged children last in both directions", async ({

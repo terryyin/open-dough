@@ -1,5 +1,5 @@
-import { ciStatusReading } from "../../dashboard/tests/intentCiStatusPage.ts";
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { ciStatusReading } from "../../dashboard/test-support/intentCiStatusPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Taken-story provisional CI timing comparison
 // (../../dashboard/src/IntentCiComparison.tsx, ../../dashboard/server/intentCiComparisonRead.ts): a
 // Taken Story Branch story keeps its live CI status and adds a provisional
@@ -8,27 +8,30 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 // trunk result beside Branch N/A. Done-story journeys stay in
 // ./intent-ci-comparison.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { notLandedYetWords } from "../../dashboard/src/storyCiComparisonWording.ts";
-import { wall } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";
-import { listedAttemptJobPages } from "../../dashboard/tests/support/storyCiComparisonRequests.ts";
-import { observedRerunJobs } from "../../dashboard/tests/support/storyCiObservedJobs.ts";
-import { publishTakenComparedStoryBranch } from "../../dashboard/tests/support/storyCiComparisonTakenFixture.ts";
-import { selectTakenStoryForCiComparison } from "../../dashboard/tests/support/selectTakenStoryForCiComparison.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { wall } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
+import { listedAttemptJobPages } from "../../dashboard/test-support/support/storyCiComparisonRequests.ts";
+import { observedRerunJobs } from "../../dashboard/test-support/support/storyCiObservedJobs.ts";
+import { publishTakenComparedStoryBranch } from "../../dashboard/test-support/support/storyCiComparisonTakenFixture.ts";
+import { selectTakenStoryForCiComparison } from "../../dashboard/test-support/support/selectTakenStoryForCiComparison.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   githubFor,
   pausePageClockAt,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   commitAll,
   git,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import path from "node:path";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { storyTitle } from "../../dashboard/tests/support/intentStoryPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { storyTitle } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 test("a Taken Story Branch story keeps live CI status and shows a provisional comparison; a new branch head re-reads", async ({
   page,

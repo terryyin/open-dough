@@ -7,30 +7,30 @@
 // still offers Stop, which then works. The report-backed path is
 // covered by ./agent-completion-cursor.spec.ts.
 
-import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionActions } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   closeTerminal,
   expectTerminalText,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import type { Page } from "@playwright/test";
 import {
   expectNormalizedReading,
   openTakenCursorSession,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   expect,
   keptRecord,
   workingCursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   headerMarkAsDone,
   markAsDone,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   markLocallyDone,
   markLocallyDoneFromSidePanel,
-} from "../../dashboard/tests/support/cursorLocalDone.ts";
+} from "../../dashboard/test-support/support/cursorLocalDone.ts";
 const localDoneWording =
   "Done is a dashboard-local name only; marking it done did not stop the native session.";
 

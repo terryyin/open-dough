@@ -9,10 +9,10 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { httpErrorAnswer } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   incidentEntryLines,
   incidentFiles,
@@ -22,7 +22,7 @@ import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 test("the incident record keeps its newest entries within its entry and byte bounds and counts what it dropped", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-incident-bounds-"));

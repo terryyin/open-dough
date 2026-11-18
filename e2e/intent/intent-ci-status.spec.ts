@@ -1,4 +1,4 @@
-import { readFailure } from "../../dashboard/tests/intentReadRecoveryPage.ts";
+import { readFailure } from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 import {
   expectCiAnswer,
   chooseCiStatus,
@@ -8,7 +8,7 @@ import {
   publishProject,
   runUrl,
   trunkCi,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 // Intent's CI status homepage (../../dashboard/src/IntentCiStatus.tsx): Intent's empty
 // selection judges the project's trunk with the launch's base-CI rule
 // (../../dashboard/server/baseCiJudgment.ts) and names `main`, the state, the judged
@@ -21,24 +21,27 @@ import {
 // ./intent-ci-status-reads.spec.ts; a running head with its nearest
 // completed ancestor is in ./intent-ci-status-story.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  chooseProject,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnut,
   openDough,
   openDoughSettings,
   pygardon,
   browseSpec,
-} from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 
 import {
   intentModeTab,
   filesColumn,
   intentModeViews,
-} from "../../dashboard/tests/intentModePage.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentModePage.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
+import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 
 test("CI status names main, its nearest Passed result, later commits without a result, the run, and when it was checked; the mode strip keeps its keys", async ({
   page,

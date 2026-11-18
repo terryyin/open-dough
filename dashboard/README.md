@@ -202,16 +202,16 @@ same tooltip (`FrameTooltip`), as a noted Start shows its note. Labelled
 actions keep their text and may add a leading icon; a button that opens and
 closes content in place (`aria-expanded`) leads with the frame disclosure's
 chevron, turned while expanded. Text meets 4.5:1 contrast; controls, icons,
-and focus outlines meet 3:1, checked with the other icon-only requirements by
-`tests/frameIconControl.ts`.
+and focus outlines meet 3:1, checked with the other icon-only requirements in
+[Dashboard Test Support](test-support/frameIconControl.ts).
 
 ## Open Dough identity
 
 The accepted raw-dough mark (`assets/brand/`) identifies Open Dough, never a
 project: as the browser tab, bookmark and touch icon (`index.html`, served by
 `server/brandAssetPlugin.ts`); on macOS session alerts, through the sender in
-[Commands](#commands); and as `ProductMark` (`src/ProductMark.tsx`, checked by
-`tests/productMark.ts`), a passive image named “Open Dough” leading the
+[Commands](#commands); and as `ProductMark` (`src/ProductMark.tsx`, checked in
+`test-support/productMark.ts`), a passive image named “Open Dough” leading the
 banner, the no-projects banner, and System settings, whichever project is
 selected. The selected project's name, even Open Dough's, stays that project's
 plain heading. There is no web manifest or installable app.

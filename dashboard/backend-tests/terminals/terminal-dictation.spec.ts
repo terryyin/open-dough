@@ -1,4 +1,4 @@
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { terminalDictationText } from "../../src/terminalDictation.ts";
 
 test("transcripts preserve words and punctuation while excluding terminal commands and line endings", () => {

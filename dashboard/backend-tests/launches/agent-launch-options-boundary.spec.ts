@@ -6,24 +6,24 @@
 // workflow with no definition are refused with the reason, before any
 // `claude` runs. The project's skill is a copy of this repository's
 // refinement skill under the literal `.claude/skills` layout; the synthetic
-// `claude` (../../tests/fixtures/fake-claude) records every call.
+// `claude` (../../test-support/fixtures/fake-claude) records every call.
 
 import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launch,
   launchRequest,
   machineSessions,
   openDoughFolder,
   refinementRequest,
-} from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const skill = "dough-story-refinement";
 const explored = "--explore";

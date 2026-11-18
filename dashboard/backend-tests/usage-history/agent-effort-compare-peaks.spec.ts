@@ -3,12 +3,15 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
-import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
-import { compareViews } from "../../tests/usage-history/agentEffortCompare.ts";
-import { writeCodexSession } from "../../tests/usage-history/importHarness.ts";
-import { costReport } from "../../tests/usage-history/agentEffortCost.ts";
-import { writeWakeEvidence } from "../../tests/usage-history/agentEffortWakeFixtures.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
+import { compareViews } from "../../test-support/usage-history/agentEffortCompare.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
+import { costReport } from "../../test-support/usage-history/agentEffortCost.ts";
+import { writeWakeEvidence } from "../../test-support/usage-history/agentEffortWakeFixtures.ts";
 
 const window = {
   from: "2026-11-14T00:00:00.000Z",

@@ -11,7 +11,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
@@ -20,13 +20,13 @@ import {
   keepWorkingClient,
   startRunnerProofFixture,
   startStandInRunner,
-} from "../../tests/support/cursorRunnerProof.ts";
+} from "../../test-support/support/cursorRunnerProof.ts";
 import {
   tamperRecordedProof,
   writeRunnerAddress,
-} from "../../tests/support/cursorRunnerRecordedAddress.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/support/cursorRunnerRecordedAddress.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 for (const mode of ["wrong", "missing"] as const) {
   test(`a stand-in runner with ${mode} build proof is replaced before exec answers`, async () => {

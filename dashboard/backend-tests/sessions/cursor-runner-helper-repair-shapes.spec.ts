@@ -5,7 +5,7 @@
 // ./cursor-runner-restart-shapes.spec.ts.
 import { existsSync, rmSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { cursorRunnerSpawnHelper } from "../../server/hosts/cursor/runnerSpawnHelper.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
@@ -14,13 +14,13 @@ import {
   createChatOnRunner,
   keepWorkingClient,
   startRunnerProofFixture,
-} from "../../tests/support/cursorRunnerProof.ts";
+} from "../../test-support/support/cursorRunnerProof.ts";
 import {
   clearRetiredCheckoutHelperProof,
   publishRetiredCheckoutHelper,
   writeRunnerAddress,
-} from "../../tests/support/cursorRunnerRecordedAddress.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/cursorRunnerRecordedAddress.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 test("a runner whose recorded helper path drifted is left by start-if-absent and kept for the next launch", async () => {
   test.skip(

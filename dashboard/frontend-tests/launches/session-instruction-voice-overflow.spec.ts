@@ -10,23 +10,23 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
 import {
   backlogLaunchers,
   instructionField,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
-} from "../../tests/support/voicePage.ts";
-import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
+} from "../../test-support/support/voicePage.ts";
+import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
 
 test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {

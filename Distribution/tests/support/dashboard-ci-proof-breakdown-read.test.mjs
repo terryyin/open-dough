@@ -14,7 +14,7 @@ import {
   ZipEntryProblem,
   ZipEntryTooLarge,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs";
-import { zipOf } from "../../../dashboard/tests/support/ciProofArtifacts.ts";
+import { zipOf } from "../../../dashboard/test-support/support/ciProofArtifacts.ts";
 import {
   SUMMARY_READ_LIMIT_BYTES,
   summaryProblems,

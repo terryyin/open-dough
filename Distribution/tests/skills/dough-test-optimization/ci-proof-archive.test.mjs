@@ -3,7 +3,7 @@
 // summary read that names its file and limit: ./ci-proof-read.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { zipOf } from "../../../../dashboard/tests/support/ciProofArtifacts.ts";
+import { zipOf } from "../../../../dashboard/test-support/support/ciProofArtifacts.ts";
 import {
   onlyZipEntry,
   ZipEntryProblem,

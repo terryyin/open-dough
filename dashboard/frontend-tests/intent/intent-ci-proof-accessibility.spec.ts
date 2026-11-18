@@ -1,4 +1,4 @@
-import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
+import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
 import {
   ciProofReading,
   ciEntryName,
@@ -6,28 +6,28 @@ import {
   failedVerdict,
   proofColumns,
   proofTable,
-} from "../../tests/intentCiProofPage.ts";
-import { expectCiAnswer } from "../../tests/intentCiStatusPage.ts";
+} from "../../test-support/intentCiProofPage.ts";
+import { expectCiAnswer } from "../../test-support/intentCiStatusPage.ts";
 // Proof table accessibility at narrow and zoomed windows: rows stay whole,
 // the reading pane never scrolls sideways, and keyboard navigation passes
 // sortable headers in their visible order. Multi-unit locations keep labeled
 // lines and full gap descriptions readable in that same boundary. Basic proof
 // behavior: ./intent-ci-proof.spec.ts.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 import {
   twiceZoomedWindow,
   zoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { wordsBrokenApart } from "../../tests/wholeWords.ts";
+} from "../../test-support/accessibleReading.ts";
+import { wordsBrokenApart } from "../../test-support/wholeWords.ts";
 import {
   attemptLink,
   evidenceLabels,
-} from "../../tests/ciEvidenceLabelsPage.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { summaryRegion } from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { summaryRegion } from "../../test-support/intentScopeProofPage.ts";
 
 const failed = { state: "failed" } as const;
 

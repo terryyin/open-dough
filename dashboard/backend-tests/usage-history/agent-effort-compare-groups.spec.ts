@@ -7,17 +7,17 @@ import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   bytes,
   writeCursorTranscript,
-} from "../../tests/usage-history/agentEffortHarness.ts";
-import { compareViews } from "../../tests/usage-history/agentEffortCompare.ts";
+} from "../../test-support/usage-history/agentEffortHarness.ts";
+import { compareViews } from "../../test-support/usage-history/agentEffortCompare.ts";
 import {
   writeCodexSession,
   runImport,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const window = {
   from: "2026-11-14T00:00:00.000Z",

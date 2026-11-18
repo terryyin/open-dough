@@ -9,17 +9,17 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   backlogLaunchers,
   instructionField,
-} from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
   readyStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 
 const notReadyNote = "Not assessed as ready";
 

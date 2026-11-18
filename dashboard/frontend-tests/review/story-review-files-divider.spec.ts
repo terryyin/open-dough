@@ -3,12 +3,12 @@
 // it. The kept width across reviews and reloads is
 // ./story-review-files-divider-kept.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { filesDividerOf, rem } from "../../tests/filesDividerPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { filesDividerOf, rem } from "../../test-support/filesDividerPage.ts";
 import {
   openReview,
   takenStoryWithReview,
-} from "../../tests/support/frontendSidePanelWidth.ts";
+} from "../../test-support/support/frontendSidePanelWidth.ts";
 
 test("the Files divider resizes the file sidebar against the diff within both minimums", async ({
   page,

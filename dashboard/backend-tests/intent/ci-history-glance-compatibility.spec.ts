@@ -7,9 +7,9 @@ import {
   readIntentCiDoneWallTimeHistory,
   readIntentCiScopeHistory,
 } from "../../src/authenticatedIntentCiHistoryRead.ts";
-import { previousDoneWallTimeHistoryOf } from "../../tests/support/previousCiHistoryReader/doneWallTimeHistory.ts";
-import { previousScopeHistoryOf } from "../../tests/support/previousCiHistoryReader/scopeHistory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { previousDoneWallTimeHistoryOf } from "../../test-support/support/previousCiHistoryReader/doneWallTimeHistory.ts";
+import { previousScopeHistoryOf } from "../../test-support/support/previousCiHistoryReader/scopeHistory.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
 import {
   doneHistoryQuery,

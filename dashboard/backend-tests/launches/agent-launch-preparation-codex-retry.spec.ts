@@ -4,13 +4,13 @@
 import { readFileSync, existsSync, writeFileSync, rmSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
 import {
   queuedIdentity,
   otherQueuedIdentity,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import type { StartRecord } from "../../server/startStore.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
@@ -77,7 +77,7 @@ for (const damage of [
         script,
         readFileSync(
           new URL(
-            "../../tests/fixtures/preparation-assignment-v0.3.51.mjs.txt",
+            "../../test-support/fixtures/preparation-assignment-v0.3.51.mjs.txt",
             import.meta.url,
           ),
         ),

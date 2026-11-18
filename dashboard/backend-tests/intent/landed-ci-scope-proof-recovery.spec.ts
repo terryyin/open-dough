@@ -4,25 +4,28 @@ import path from "node:path";
 import {
   collectedScopeHistory,
   retainedHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   landedRecord,
   minutesAgo,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   passedFrom,
   publishedLanding,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
 import {
   serveCollectedTrunkRuns,
   type CollectedTrunkProofs,
-} from "../../tests/support/landedCiScopeProofs.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
+} from "../../test-support/support/landedCiScopeProofs.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
 
 test.use({ serverMode: "boundary" });
 const readers: DashboardServer[] = [];

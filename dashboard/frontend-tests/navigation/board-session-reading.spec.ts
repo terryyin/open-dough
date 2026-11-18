@@ -5,31 +5,31 @@
 // itself stays still throughout.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import {
   putFrontendPublished,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import {
   largeBacklog,
   queuedTitle,
   revision,
-} from "../../tests/accessibleBoard.ts";
-import { boardScroll } from "../../tests/boardPage.ts";
-import { expectDocumentStill } from "../../tests/boardReading.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
-import { expectReadingTop } from "../../tests/readingPlace.ts";
-import { expectWhollyInView } from "../../tests/sessionNavigationJourney.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import { expectCovering } from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/accessibleBoard.ts";
+import { boardScroll } from "../../test-support/boardPage.ts";
+import { expectDocumentStill } from "../../test-support/boardReading.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
+import { expectReadingTop } from "../../test-support/readingPlace.ts";
+import { expectWhollyInView } from "../../test-support/sessionNavigationJourney.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+import { expectCovering } from "../../test-support/sidePanelWidthPage.ts";
 import {
   closeTerminal,
   terminalPanel,
   terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
-import { cardSession } from "../../tests/support/frontendCardSessions.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const working = () => makeMe.aSessionState.loaded("working").please();

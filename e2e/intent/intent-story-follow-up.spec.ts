@@ -5,37 +5,40 @@
 // Review changes journey: ../review/story-review-follow-up.spec.ts.
 // Line menu interaction: ../review/story-review-diff-line-follow-up.spec.ts.
 
-import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   completedChanges as changed,
   selectCompletedStoryInIntent,
-} from "../../dashboard/tests/support/intentCompletedStory.ts";
+} from "../../dashboard/test-support/support/intentCompletedStory.ts";
 import {
   chooseStoryTab,
   intentFile,
   intentDiffReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   expectFileFollowUpDialog,
   fileFollowUp,
   fileFollowUpDialog,
   startSessionField,
-} from "../../dashboard/tests/support/fileFollowUpPage.ts";
-import { followUpFromLine } from "../../dashboard/tests/support/diffLineFollowUpPage.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/fileFollowUpPage.ts";
+import { followUpFromLine } from "../../dashboard/test-support/support/diffLineFollowUpPage.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   commitAll,
   lines,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { push } from "../../dashboard/tests/support/storyReviewTrunkCommits.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
-import { sidePanelContents } from "../../dashboard/tests/support/sidePanelContents.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
+import { sidePanelContents } from "../../dashboard/test-support/support/sidePanelContents.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 
 const storyName = `${queuedIdentity} — Story A`;
 const assertion = "await intent.expectLatestTests();";

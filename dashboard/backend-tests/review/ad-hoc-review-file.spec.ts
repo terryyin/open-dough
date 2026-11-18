@@ -1,7 +1,7 @@
 // File admission uses the captured reference, comparison and listed rename.
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -10,10 +10,10 @@ import {
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
 } from "../../src/storyReviewContract.ts";
-import { getReview } from "../../tests/support/completedReviewRequests.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { lines } from "../../tests/support/storyReviewWorktree.ts";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { lines } from "../../test-support/support/storyReviewWorktree.ts";
+import { adHocReview } from "../../test-support/support/adHocReview.ts";
 
 test.use({ serverMode: "boundary" });
 

@@ -6,12 +6,12 @@
 // hover, an entry-only proof is labelled as having no file breakdown, and a
 // run without a summary keeps the children for drilling down, saying why as
 // the homepage does. The proof answer is controlled
-// (../../tests/support/frontendSummaryCiProof.ts); reading CI's collected
+// (../../test-support/support/frontendSummaryCiProof.ts); reading CI's collected
 // bytes into it: ../../backend-tests/intent/ci-proof-extraction.spec.ts and
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { fileSource } from "../../tests/intentCodeBrowsePage.ts";
+import { fileSource } from "../../test-support/intentCodeBrowsePage.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -19,19 +19,19 @@ import {
   expectInFull,
   expectLabelInFull,
   labelWords,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 import {
   childName,
   expectScopeRows,
   scopeFigures,
   scopeTable,
-} from "../../tests/intentScopeProofPage.ts";
-import { openSummary } from "../../tests/intentSummaryCiProofFixtures.ts";
+} from "../../test-support/intentScopeProofPage.ts";
+import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
 import {
   bothEntries,
   openSummaryCiProof,
-} from "../../tests/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const missing = "part 3 of 3 missing";
 const noBreakdown = "part 2 of 3 has no file breakdown";

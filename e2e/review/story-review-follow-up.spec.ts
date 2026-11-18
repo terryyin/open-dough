@@ -10,35 +10,38 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   parts,
   standaloneSessionName,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   expectFileFollowUpDialog,
   fileFollowUp,
   fileFollowUpDialog,
   startSessionField,
-} from "../../dashboard/tests/support/fileFollowUpPage.ts";
+} from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import {
   completedPublishedStory,
   advanceCompletedTrunk,
-} from "../../dashboard/tests/support/completedPublishedStory.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { listed } from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { storyALaunch } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { storyALaunch } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 const storyName = `${queuedIdentity} — Story A`;
 const sharedFile = "Modified shared.txt";

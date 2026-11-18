@@ -1,25 +1,25 @@
 // Exact launch identity, preparation and remote acceptance constrain capture.
 import { randomUUID } from "node:crypto";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { oneShot } from "../../tests/support/oneShotLaunch.ts";
-import { requestFor } from "../../tests/support/launchDashboard.ts";
-import { git, commit, refs } from "../../tests/support/launchLanding.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import { otherQueuedIdentity } from "../../tests/support/startOrigin.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../test-support/support/launchDashboard.ts";
+import { git, commit, refs } from "../../test-support/support/launchLanding.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import { otherQueuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   reportingChild,
   quote,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   checkout,
   context,
   publish,
-} from "../../tests/support/oneShotLanding.ts";
+} from "../../test-support/support/oneShotLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

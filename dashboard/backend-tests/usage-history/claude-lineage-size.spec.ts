@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
   writeClaudeSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("imports a long Claude parent chain within bounded memory and retains one response charge with its provenance", ({
   home,

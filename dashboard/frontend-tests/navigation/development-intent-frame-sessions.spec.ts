@@ -1,49 +1,49 @@
 // Changing perspective keeps sessions as they are
-// (../../tests/intentPerspectivePage.ts): a Sessions sidebar entry chosen from
+// (../../test-support/intentPerspectivePage.ts): a Sessions sidebar entry chosen from
 // Intent opens its project's Development stories and its session, and the
 // terminal, a covering one too, stays shown and attached once while the
 // perspective changes beneath it; closing it keeps its story selected
 // (ADR 0008). The machine's sessions read and the attached-terminal substitute
 // stand in for the dashboard server and the agent.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerOwnPublications } from "../../tests/support/frontendCatalogProjects.ts";
-import { cardSession } from "../../tests/support/frontendCardSessions.ts";
-import { pygardonSource } from "../../tests/support/frontendPublishedFixtures.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendTerminalSubstitute.ts";
-import { echoingApplication } from "../../tests/support/terminalSubstituteApplication.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerOwnPublications } from "../../test-support/support/frontendCatalogProjects.ts";
+import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
+import { pygardonSource } from "../../test-support/support/frontendPublishedFixtures.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendTerminalSubstitute.ts";
+import { echoingApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
 import {
   closeTerminal,
   terminalPanel,
   terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import {
   expectMembership,
   expectProjectChoice,
   parts,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   expectAddress,
   expectNotConfiguredIntent,
-} from "../../tests/intentPerspectivePage.ts";
-import { expectRoute } from "../../tests/agentRosterRecords.ts";
-import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { expectRoute } from "../../test-support/agentRosterRecords.ts";
+import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   pygardonBacklog,
   pygardonBacklogTitles,
   pygardonRevision,
   pygardonStory,
-} from "../../tests/pygardonProject.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/pygardonProject.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import {
   historyLength,
   keyboardInside,
   recordReveals,
   revealsOf,
-} from "../../tests/sessionNavigationJourney.ts";
-import { expectCovering } from "../../tests/sidePanelFrame.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+} from "../../test-support/sessionNavigationJourney.ts";
+import { expectCovering } from "../../test-support/sidePanelFrame.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const working = () => makeMe.aSessionState.loaded("working").please();

@@ -7,24 +7,27 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   keptStarts,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { oneShot, originState } from "../../tests/support/oneShotLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import {
+  oneShot,
+  originState,
+} from "../../test-support/support/oneShotLaunch.ts";
 import {
   requestFor,
   slug,
   startBoundary,
-} from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchDashboard.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 test.describe("a kept one-shot start", () => {
   let origin: StartOrigin;

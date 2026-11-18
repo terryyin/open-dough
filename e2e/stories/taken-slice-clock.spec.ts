@@ -14,20 +14,20 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { isHeadsCheck } from "../../dashboard/tests/originObservation.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
-import { callsSince } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { isHeadsCheck } from "../../dashboard/test-support/originObservation.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { callsSince } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import {
   addedAt,
   pathChange,
-} from "../../dashboard/tests/pathHistoryAnswers.ts";
+} from "../../dashboard/test-support/pathHistoryAnswers.ts";
 import {
   afterTake,
   beforeProfiles,
@@ -43,7 +43,7 @@ import {
   stories,
   takes,
   timeUnread,
-} from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 
 const noProfileLabel = "no agent profile records the Take";
 

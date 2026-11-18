@@ -1,35 +1,40 @@
 import {
   prepareDoughnutCandidates,
   prepareOpenDoughCandidates,
-} from "../../tests/support/frontendIntentCandidates.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+} from "../../test-support/support/frontendIntentCandidates.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent reads the published Test Optimization Candidates record at the
 // observed revision (../../src/IntentCandidatesRecord.tsx) on its own
 // Optimization Candidates tab (../../src/IntentPage.tsx): entering Intent
 // shows the Intent tab with locations and CI status; the record shows
 // labelled Pending and Accepted groups with every recorded field (example 1)
 // across the content area without the locations. A four-section record's
-// leading pass summary stays unshown, and the note naming its profile-only
-// mechanism shows before that section's entries.
+// leading pass summary stays unshown; the profile-only note precedes its entries.
 
 import { findingEntryFields } from "../../src/testOptimizationCandidatesRecord.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   expandIntentGroup,
   intentGroupToggle,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
   filesColumn,
-} from "../../tests/intentModePage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
-import { doughnutFeaturePath } from "../../tests/intentCandidatesFixtures.ts";
-import { doughnut, openDough } from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentModePage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { doughnutFeaturePath } from "../../test-support/intentCandidatesFixtures.ts";
+import {
+  doughnut,
+  openDough,
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const requiredFieldLabels = findingEntryFields

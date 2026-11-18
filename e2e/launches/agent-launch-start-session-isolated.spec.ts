@@ -1,9 +1,9 @@
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // The project row's Start session offers where the session runs (Workspace)
 // beside After checks, with the story dialogs' words and no Tracking. With a
-// real bare origin (../../dashboard/tests/support/startOrigin.ts), the installed start recorded
-// as it runs (../../dashboard/tests/support/startSessionLanding.ts), and the synthetic `claude`:
+// real bare origin (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded
+// as it runs (../../dashboard/test-support/support/startSessionLanding.ts), and the synthetic `claude`:
 // Isolated workspace has the installed one-shot start, with no identity,
 // create one worktree under `.worktrees/` at fetched trunk on the host's
 // branch namespace; the session opens there with its "Established session"
@@ -20,31 +20,34 @@ import {
   attempts,
   keptStarts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
   startedSession,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/tests/support/defaultCheckoutChanges.ts";
+} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
   openBacklog,
   originMain,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   established,
   git,
@@ -55,8 +58,8 @@ import {
   sessionBlock,
   worktree,
   worktrees,
-} from "../../dashboard/tests/support/startSessionLanding.ts";
-import { startedSessionTerminal } from "../../dashboard/tests/support/startedSessionTerminal.ts";
+} from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 
 const inNew = "The session runs in a new workspace under .worktrees/";
 const carries =

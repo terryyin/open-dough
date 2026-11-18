@@ -3,7 +3,7 @@
 // Playwright configuration that script runs: the settings prefix, testDir
 // (`directory`, repository-relative), root and CI job (`configuredJob`) the
 // configuration hands prepareFocusedRun
-// (dashboard/tests/support/runnerConfig.mjs).
+// (dashboard/test-support/support/runnerConfig.mjs).
 import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { browserGroups, root } from "./ci-proof-action-fixtures.mjs";

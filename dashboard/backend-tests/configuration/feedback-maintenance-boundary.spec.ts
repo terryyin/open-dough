@@ -11,10 +11,10 @@
 // `gh` call left would be the endpoints' own.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { developmentBoundary } from "../../tests/support/dashboardServer.ts";
-import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { developmentBoundary } from "../../test-support/support/dashboardServer.ts";
+import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

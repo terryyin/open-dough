@@ -1,14 +1,18 @@
 // Refusal/race substitutions supply vendor replies, never local done semantics.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   launch,
   refinementRequest,
   markDone,
-} from "../../tests/agentLaunchBoundary.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
@@ -169,7 +173,7 @@ test("shared Claude stop failure retains intent and current Working without expo
   const fixturePath = path.join(
     repoRoot,
     "dashboard",
-    "tests",
+    "test-support",
     "fixtures",
     "fake-claude",
   );

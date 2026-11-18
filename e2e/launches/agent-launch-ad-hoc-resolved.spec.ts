@@ -10,24 +10,24 @@ import { agentLaunchEndpoint } from "../../dashboard/src/agentLaunch.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   sessionsAudienceParameter,
   sessionsHistoryAudience,
 } from "../../dashboard/src/machineSessionsRevision.ts";
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

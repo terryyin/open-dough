@@ -1,9 +1,9 @@
 import {
   askToDeleteRecord,
   sessionAction,
-} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-// Recently done records on the committed story-columns origin (../../dashboard/tests/launchJourney.ts):
+} from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+// Recently done records on the committed story-columns origin (../../dashboard/test-support/launchJourney.ts):
 // State unknown entries offer Delete record…; deletion removes only that record
 // from Recently done and the sidebar, stops nothing, and moves focus within its
 // list, then to its done card or the section. The sidebar offers no deletion, nor
@@ -12,12 +12,15 @@ import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 // Session unavailable: ./agent-launch-recent-delete-unavailable.spec.ts.
 
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   identityA,
   identityB,
 } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
-import { launch, markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import {
+  launch,
+  markDone,
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -25,8 +28,8 @@ import {
   standaloneSessionName,
   sessionStateOf,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
@@ -34,10 +37,10 @@ import {
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { idleBetweenSteps } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { idleBetweenSteps } from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -9,21 +9,24 @@
 // never alerts (a report's arrival: ./session-alerts-unread-report.spec.ts).
 // Closing the server ends a sender it started. Its naming, sound and repeat
 // across a page reload: ../../../e2e/sessions/session-alerts.spec.ts. The
-// synthetic `claude` (../../tests/fixtures/fake-claude) and sender
-// (../../tests/fixtures/fake-terminal-notifier) are all the server reaches; a
+// synthetic `claude` (../../test-support/fixtures/fake-claude) and sender
+// (../../test-support/fixtures/fake-terminal-notifier) are all the server reaches; a
 // real notification is never raised. The server reads the sessions every
 // 100 ms here; "nothing more" is asserted only after the fake `claude` has
 // logged further listings, never after a sleep.
 
 import { expect } from "@playwright/test";
-import { launchRequest, markDone } from "../../tests/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
+import {
+  launchRequest,
+  markDone,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 import {
   afterFurtherListings,
   alertCheckMs,
@@ -31,7 +34,7 @@ import {
   messages,
   start,
   test,
-} from "../../tests/support/sessionAlerts.ts";
+} from "../../test-support/support/sessionAlerts.ts";
 
 test.describe("a session that starts needing the developer raises one macOS notification", () => {
   test("raises one for each other reading: ready for review, failed, stopped, unavailable, and not recognized", async ({

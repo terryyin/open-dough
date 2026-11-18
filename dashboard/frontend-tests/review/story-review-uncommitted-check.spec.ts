@@ -3,24 +3,24 @@ import {
   storyReviewEndpoint,
   storyReviewRangeEndpoint,
 } from "../../src/storyReviewContract.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
   frontendReviewSnapshot,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   expectLineCounts,
   expectTreeRows,
   fileDiff,
   fileRow,
   changedFilesList,
-} from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/reviewTreeRows.ts";
 import {
   reviewRegion,
   uncommittedCheck as check,
-} from "../../tests/support/reviewControls.ts";
+} from "../../test-support/support/reviewControls.ts";
 
 function reviewRequests(page: Page) {
   const made: string[] = [];

@@ -1,5 +1,5 @@
-import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
-// With a selected Taken story (../../tests/support/frontendIntentVisits.ts), Intent
+import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
+// With a selected Taken story (../../test-support/support/frontendIntentVisits.ts), Intent
 // reads no file text or story diff until a file is opened: browsing a
 // location and folders shows their Summaries without a request. A changed
 // file's Purpose is the story's diff alone, with no read of its published
@@ -17,10 +17,10 @@ import {
   intentFolderName,
   intentLocationName,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { intentDiff } from "../../tests/support/intentStoryPage.ts";
-import { changed } from "../../tests/support/intentStoryWorktree.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { intentDiff } from "../../test-support/support/intentStoryPage.ts";
+import { changed } from "../../test-support/support/intentStoryWorktree.ts";
 
 const locationPaths = ["dashboard/tests/", "tests/"];
 const modifiedPath = "dashboard/tests/a.spec.ts";

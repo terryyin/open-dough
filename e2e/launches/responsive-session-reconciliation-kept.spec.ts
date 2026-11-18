@@ -6,27 +6,27 @@
 // no page reconciled before its story was removed reconciles on the next
 // page once GitHub confirms the shown revision contains it.
 
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   expectSettledPage,
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   recoveryOf,
   removeQueuedStory,
   restart,
   startExecution,
-} from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
 // The worker prepares the queued Claude origin and preview inputs before a
 // case starts (queuedClaudePreviewTest), so no case pays that cold shared
 // preparation in its own default budget.
 import {
   openStories,
   queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/responsiveStart.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
 import type { Locator, Page } from "@playwright/test";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });

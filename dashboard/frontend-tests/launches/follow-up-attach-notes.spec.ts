@@ -4,34 +4,34 @@
 // uncheck or cancel names none. Built frontend with notes and launch
 // substitutes. Delivery marking is a later slice.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
 import {
   openFrontendBoardReview,
   storyA,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import { openFrontendDoneStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import { openFrontendDoneStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   frontendFileDiff,
   frontendPublishedReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { attachStoryNotes } from "../../tests/support/attachStoryNotesPage.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { attachStoryNotes } from "../../test-support/support/attachStoryNotesPage.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
 import {
   fileFollowUp,
   fileFollowUpDialog,
-} from "../../tests/support/fileFollowUpPage.ts";
+} from "../../test-support/support/fileFollowUpPage.ts";
 import {
   expectLineMenuOpen,
   lineNumberControl,
   openLineMenu,
-} from "../../tests/support/diffLineFollowUpPage.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { parts } from "../../tests/dashboardParts.ts";
-import { startSessionDialog } from "../../tests/launchStoryCardPage.ts";
-import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/diffLineFollowUpPage.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
+import { startSessionDialog } from "../../test-support/launchStoryCardPage.ts";
+import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
 import { lineNumberLabel } from "../../src/diffLineSide.ts";
 import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 

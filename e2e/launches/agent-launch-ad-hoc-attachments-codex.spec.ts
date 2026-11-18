@@ -7,17 +7,17 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   openTakenBacklog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expectCopiedAttachmentPath,
   pickImagesInDialog,
   pngA,
   writePickedImages,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 

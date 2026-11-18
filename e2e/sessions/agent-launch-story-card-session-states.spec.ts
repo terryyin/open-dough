@@ -8,7 +8,10 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test as base, expect } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  test as base,
+  expect,
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   parts,
@@ -16,33 +19,33 @@ import {
   storyCardSessions,
   expectMembership,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { doughnutSharedTitle } from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openWithOpenSessions } from "../../dashboard/tests/storyCardOpenSessions.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openWithOpenSessions } from "../../dashboard/test-support/storyCardOpenSessions.ts";
 import {
   expectStartsBlocked,
   describedBy,
-} from "../../dashboard/tests/storyCardSessionListing.ts";
+} from "../../dashboard/test-support/storyCardSessionListing.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import type { FakeGitHub } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import type { FakeGitHub } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import {
   expectNotReloaded,
   markNotReloaded,
-} from "../../dashboard/tests/sessionStatePace.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/sessionStatePace.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 // What every blocked Start says while its card has an open session.
 const openSessionNote =

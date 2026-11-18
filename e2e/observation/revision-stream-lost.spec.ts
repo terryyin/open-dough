@@ -5,7 +5,7 @@
 // on the first answer after a reopen. Slots stay free; the server pace is
 // lowered. GitHub's wait is kept by the request owner's clock alone, so the
 // rate-limited case asks through an owner of its own whose time it advances
-// (../../dashboard/tests/support/ownerClockTest.ts): its directed wait passes when the case moves
+// (../../dashboard/test-support/support/ownerClockTest.ts): its directed wait passes when the case moves
 // owner and page time to it. The other cases keep the shared owner and its
 // real clock.
 
@@ -13,19 +13,19 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   parts,
   shortRevision,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   checksAskedWhilePassing,
   pageTimeStepMs,
   passPageMs,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectLostFreshnessProblem,
   expectStreamOpenGapsAtLeastPace,
@@ -35,19 +35,19 @@ import {
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
-} from "../../dashboard/tests/revisionStreamJourney.ts";
+} from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
   backlogB,
   revisionA,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
-import { rateLimitedAnswer } from "../../dashboard/tests/publishedOrigin.ts";
-import { test as ownerClockTest } from "../../dashboard/tests/support/ownerClockTest.ts";
-import { expectEarlierSnapshotKept } from "../../dashboard/tests/transientRecoveryPage.ts";
+import { rateLimitedAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
+import { test as ownerClockTest } from "../../dashboard/test-support/support/ownerClockTest.ts";
+import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 // Added to the environment the case's own `test` gives its dashboard server.
 test.use({

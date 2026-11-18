@@ -8,26 +8,29 @@ import {
   canonicalRecord,
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { progressSource } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { progressSource } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   expectView,
   rem,
   scrollYOf,
   showColumn,
-} from "../../dashboard/tests/boardPage.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { openedSettled } from "../../dashboard/tests/branchRefreshJourney.ts";
+} from "../../dashboard/test-support/boardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
 import {
   onBranch,
   planPath,
   repository,
   revision,
   trunk,
-} from "../../dashboard/tests/branchProgressRecords.ts";
-import { expectVisibleReadingFocus } from "../../dashboard/tests/readingPlace.ts";
+} from "../../dashboard/test-support/branchProgressRecords.ts";
+import { expectVisibleReadingFocus } from "../../dashboard/test-support/readingPlace.ts";
 
 test("moved branch progress keeps a scrolled inspection and its visible focused link", async ({
   page,

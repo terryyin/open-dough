@@ -1,5 +1,5 @@
 // Exclusive groups and unavailable definitions in the refinement dialog, on
-// the launch journey's committed origin (../../dashboard/tests/launchJourney.ts):
+// the launch journey's committed origin (../../dashboard/test-support/launchJourney.ts):
 // a group the definition declares is radios with a "No <group>" choice,
 // options outside it stay checkboxes, and choosing a member replaces the
 // group's other, launching in definition order; a project without a usable
@@ -7,23 +7,23 @@
 // refinement. Clearing a group and a definition still being read are
 // ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts; a
 // refused launch's kept selection is ./agent-launch-options-kept.spec.ts. The
-// synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands in for
+// synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands in for
 // the real one; the boundary's own rules are
 // ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   groupedOptions,
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

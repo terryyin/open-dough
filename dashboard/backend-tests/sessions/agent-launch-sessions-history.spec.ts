@@ -1,13 +1,9 @@
-// A sessions ask naming the history audience is answered the machine's
-// retained done sessions in full and the attempts that no longer need
-// attention, under the history's own revision, which the regular answer
-// names; the regular answer carries only the attempts that still do
-// (../../src/launchAttemptSelection.ts,
-// ../../src/machineSessionsRevision.ts,
-// ../../server/machineSessionObservation.ts). A viewer holding the current
-// history revision is answered only that it is unchanged; a change to an open
-// session leaves it standing, and a session marked done or an attempt
-// reconciled moves it. Any other audience is refused.
+// Session history returns full Done records and reconciled attempts. The regular
+// answer returns attempts still needing attention and names the history revision
+// (../../src/launchAttemptSelection.ts, ../../src/machineSessionsRevision.ts,
+// ../../server/machineSessionObservation.ts). Holding that revision yields an
+// unchanged response. Open-session edits leave it standing; marking a session
+// Done or reconciling an attempt moves it. Any other audience is refused.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -18,19 +14,22 @@ import {
   machineSessionsReadSchema,
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
-import { markDone, noteReconciled } from "../../tests/agentLaunchBoundary.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
+import {
+  markDone,
+  noteReconciled,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { keepUnsettledAttempt } from "../../tests/support/unsettledAttempt.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { keepUnsettledAttempt } from "../../test-support/support/unsettledAttempt.ts";
 import {
   type AnsweredEntry,
   withoutRetainedDetail,
-} from "../../tests/support/retainedDetail.ts";
+} from "../../test-support/support/retainedDetail.ts";
 
 type Entry = {
   readonly session: { readonly sessionId: string };

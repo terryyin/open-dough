@@ -8,17 +8,17 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
-import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
-import { sessionDetailsControl } from "../../tests/support/sessionEntryDisclosure.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
+import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
+import { sessionDetailsControl } from "../../test-support/support/sessionEntryDisclosure.ts";
 import {
   parts,
   sessionStateOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
-import { openTerminalControl } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/dashboardPage.ts";
+import { takenStory } from "../../test-support/launchJourney.ts";
+import { openTerminalControl } from "../../test-support/terminalScreenPage.ts";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

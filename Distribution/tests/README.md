@@ -178,11 +178,11 @@ condition. Observer stream processes retitle themselves `dough-ci:<hash>`, so
 a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
 
 A dashboard journey hands its scratch repositories to the `afterGitHubStops`
-fixture (`dashboard/tests/dashboardTest.ts`), which removes them only after
+fixture (`dashboard/test-support/dashboardTest.ts`), which removes them only after
 the page, its dashboard server, and the fake GitHub have stopped, so a read
 still in flight when the journey ends never finds its repository gone.
 
-`dashboard/tests` and `dashboard/server` import shared JavaScript fixtures
+[Dashboard Test Support](../../dashboard/test-support/) and `dashboard/server` import shared JavaScript fixtures
 from `Distribution/tests/skills/` and `Distribution/tests/support/`.
 TypeScript infers their signatures, so a fixture's own Node tests can pass while a dashboard consumer
 no longer type-checks. `npm run typecheck:dashboard` is the focused check for

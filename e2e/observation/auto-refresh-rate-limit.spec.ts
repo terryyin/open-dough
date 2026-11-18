@@ -7,22 +7,25 @@
 // automatic reads: ./auto-refresh-recovery.spec.ts. The page, its local authenticated read
 // boundary, the `gh` invocation, and the shared interpretation are the
 // production ones; the fake GitHub behind the synthetic `gh`
-// (../../dashboard/tests/support/fakeGitHub.ts) only publishes commits and limits answers. The
+// (../../dashboard/test-support/support/fakeGitHub.ts) only publishes commits and limits answers. The
 // page's clock is paused and advanced by the test. GitHub's wait is kept by
 // the request owner's clock alone (github-request-admission.mjs), so this
 // case's dashboard asks through an owner of its own, the released one started
-// with a time the test advances (../../dashboard/tests/support/ownerClockTest.ts):
+// with a time the test advances (../../dashboard/test-support/support/ownerClockTest.ts):
 // each directed wait passes when the test moves owner and page time to it,
 // and a check the page's time reaches first is refused by the owner unasked.
 
 import type { Page } from "@playwright/test";
-import { expect, githubFor } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expect,
+  githubFor,
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   checksAskedWhilePassing,
@@ -34,12 +37,12 @@ import {
   passTimeUntilChecked,
   recordsAt,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   isCheck,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { rateLimitedAnswer } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { rateLimitedAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   backlogB,
   inspectDashboardStory,
@@ -47,14 +50,14 @@ import {
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { test } from "../../dashboard/tests/support/ownerClockTest.ts";
-import { expectEarlierSnapshotKept } from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { test } from "../../dashboard/test-support/support/ownerClockTest.ts";
+import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 import {
   failedAt,
   limitSaid,
   noticedResumeTime,
-} from "../../dashboard/tests/limitNotice.ts";
+} from "../../dashboard/test-support/limitNotice.ts";
 
 // A check asked after `passed` more page time, `quiet` of it having passed
 // already, came at the directed time, within one step of it.

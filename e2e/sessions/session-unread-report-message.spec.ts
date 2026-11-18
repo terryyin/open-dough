@@ -12,21 +12,21 @@ import {
   parts,
   sessionEntriesIn,
   sessionUnreadReportOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { launchedAdHoc } from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { launchedAdHoc } from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   expectCollapsed,
   expectExpanded,
   messagePartOf,
-} from "../../dashboard/tests/support/sessionMessagePart.ts";
+} from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import {
   newerMessage,
   publishOrigin,
   recordOf,
   test,
-} from "../../dashboard/tests/support/unreadReportPage.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/unreadReportPage.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test("an ad-hoc session's message is read and marked read on its Recently done entry", async ({
   page,

@@ -1,27 +1,27 @@
 // Existing record retention owns reporting continuity; no history lifetime is extended.
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { oneShot } from "../../tests/support/oneShotLaunch.ts";
-import { requestFor } from "../../tests/support/launchDashboard.ts";
-import { commit, git } from "../../tests/support/launchLanding.ts";
-import { landingGitFault } from "../../tests/support/launchLandingFault.ts";
-import { context } from "../../tests/support/oneShotLanding.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../test-support/support/launchDashboard.ts";
+import { commit, git } from "../../test-support/support/launchLanding.ts";
+import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
+import { context } from "../../test-support/support/oneShotLanding.ts";
 import {
   captureReviewRun,
   retireReviewRun,
-} from "../../tests/support/oneShotReview.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/oneShotReview.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   reportingChild,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
-import { retainedLanding } from "../../tests/support/oneShotLandingRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
+import { retainedLanding } from "../../test-support/support/oneShotLandingRecovery.ts";
 import {
   landingRetentionClock,
   dropExpiredAttempts,
-} from "../../tests/support/landingRetentionClock.ts";
-import { otherQueuedIdentity } from "../../tests/support/startOrigin.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/support/landingRetentionClock.ts";
+import { otherQueuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

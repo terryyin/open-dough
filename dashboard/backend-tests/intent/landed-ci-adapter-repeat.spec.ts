@@ -1,14 +1,17 @@
 // Custom CI uses the same real receipt, allowance and saved-reference flow.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { prepareAdapterRepeatScenario } from "../../test-support/support/ciFollowUpAdapterScenario.ts";
 import {
   followUpCards,
   readFollowUpLedger,
-} from "../../tests/support/ciFollowUpScenario.ts";
+} from "../../test-support/support/ciFollowUpScenario.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
+import { retainedHistory } from "../../test-support/support/collectedScopeHistory.ts";
 import { buildKeyOf } from "../../src/landedCiBuildKey.ts";
-import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
+import { landedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 
 test.use({ serverMode: "boundary" });
 for (const [seconds, kind, explanation] of [

@@ -1,5 +1,5 @@
 // A card session entry's message part, against a controlled machine read and
-// read boundary (../../tests/support/frontendSessionActions.ts): expanded with
+// read boundary (../../test-support/support/frontendSessionActions.ts): expanded with
 // Mark as read while its report is unread, beside the entry's own Mark as
 // done; a refused mark says so in the entry's status line; marked read, the
 // part collapses with the keyboard on its heading and expands again from it.
@@ -9,14 +9,14 @@
 // ../../../e2e/sessions/session-unread-report-message.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
 import {
   frontendStoryLaunch,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
-import { reportedMessage } from "../../tests/support/reportedLaunch.ts";
-import { sessionAction } from "../../tests/support/sessionEntryDisclosure.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { reportedMessage } from "../../test-support/support/reportedLaunch.ts";
+import { sessionAction } from "../../test-support/support/sessionEntryDisclosure.ts";
 import {
   buttonsAddedSince,
   expectCollapsed,
@@ -24,13 +24,13 @@ import {
   messagePartOf,
   rememberButtons,
   scrollOf,
-} from "../../tests/support/sessionMessagePart.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/sessionMessagePart.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { takenStory } from "../../test-support/launchJourney.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const label = "Completed with attention";

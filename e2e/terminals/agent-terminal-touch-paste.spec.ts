@@ -2,17 +2,17 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
 import {
   reconnectControl,
   terminalScreenParts,
   terminalStatus,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   copyClipboardHtmlOnly,
   copyClipboardText,
@@ -20,13 +20,13 @@ import {
   phonePasteJourney,
   revokeClipboardAccess,
   test as base,
-} from "../../dashboard/tests/terminalPastePage.ts";
+} from "../../dashboard/test-support/terminalPastePage.ts";
 import {
   expectMinTouchTarget,
   focusByTouch,
   tapTerminalKey,
   terminalKey,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 const openPasteTerminal = phonePasteJourney();
 

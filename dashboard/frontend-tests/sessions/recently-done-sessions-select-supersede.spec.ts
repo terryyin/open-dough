@@ -1,23 +1,23 @@
 // An unanswered done-story check is abandoned when the developer goes
 // elsewhere: another project, or another row's Open.
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
-} from "../../tests/projectChoice.ts";
-import { finalReportParts } from "../../tests/finalReportPages.ts";
+} from "../../test-support/projectChoice.ts";
+import { finalReportParts } from "../../test-support/finalReportPages.ts";
 import {
   holdPygardonCatalog,
   pygardonCatalogAbandoned,
-} from "../../tests/pygardonCatalogReads.ts";
+} from "../../test-support/pygardonCatalogReads.ts";
 import {
   linked,
   openFrontendSelectionPage,
   report,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
 
 async function goElsewhereWhileChecking<T>(
   page: Page,

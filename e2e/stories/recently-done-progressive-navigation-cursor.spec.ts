@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A Running Cursor sessions row the runner still holds, for a session whose
 // record is marked done and placed 27th in Recently done, chosen from another
 // project: Open Dough's stories show, Recently done extends exactly through
@@ -14,39 +14,39 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
   parts,
   standaloneSessionName,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { rem } from "../../dashboard/tests/boardPage.ts";
-import { placedAt } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
+import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   expectEntries,
   shownEntries,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { recordsAsked } from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   expectRevealsSince,
   recordReveals,
   revealsOf,
-} from "../../dashboard/tests/sessionNavigationJourney.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/sessionNavigationJourney.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   expect,
   keptRecord,
   test,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 const instruction = "hold this done session";
 const entryName = standaloneSessionName("Ad hoc", instruction);

@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A journey that lands on a done entry beyond Recently done's shown entries
 // extends the list exactly through that entry, reading only the records of
 // the stories before it; the entry shows in its place at once, and the
@@ -13,26 +13,26 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // The synthetic `claude` takes the done marks (./fixtures/fake-claude); the
 // `gh` calls reaching the fake GitHub show which records were read.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shownProjectControl,
   chooseProject,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { rem, showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { rem, showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectEntries,
   revealAction,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   recordsAsked,
   terminalOf,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
   expectThroughDestination,
@@ -40,9 +40,9 @@ import {
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 

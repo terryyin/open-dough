@@ -1,15 +1,18 @@
 // Opening a standalone session's review keeps the board state on Close.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   columnCountOf,
   standaloneSessionName,
-} from "../../tests/dashboardParts.ts";
+} from "../../test-support/dashboardParts.ts";
 import {
   expectEntries,
   sessionReviewChanges,
-} from "../../tests/recentlyDoneColumn.ts";
-import { doneStories, storyA } from "../../tests/recentlyDoneReviewState.ts";
-import { sidePanelPages } from "../../tests/sidePanelPages.ts";
+} from "../../test-support/recentlyDoneColumn.ts";
+import {
+  doneStories,
+  storyA,
+} from "../../test-support/recentlyDoneReviewState.ts";
+import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
 import { sessionListing } from "../../src/sessionListing.ts";
 import { reviewTargetName } from "../../src/storyReviewContract.ts";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
@@ -18,8 +21,8 @@ import {
   frontendFileDiff,
   frontendReviewIds,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 
 test("a standalone ad hoc Done entry opens its review from Review changes", async ({
   page,

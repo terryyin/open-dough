@@ -7,29 +7,32 @@ import type { Locator, Page } from "@playwright/test";
 import {
   canonicalRecord,
   inspectedDetail,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   expectView,
   rem,
   scrollYOf,
   showColumn,
   wheelTo,
-} from "../../dashboard/tests/boardPage.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
-import { badge, sliceProgress } from "../../dashboard/tests/storyCardFacts.ts";
-import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/boardPage.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
+import {
+  badge,
+  sliceProgress,
+} from "../../dashboard/test-support/storyCardFacts.ts";
+import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   heldFactGroups,
   takenCanonicalPath,
-} from "../../dashboard/tests/publishedFactsArrival.ts";
-import { expectDoneFacts } from "../../dashboard/tests/publishedFactsAssertions.ts";
-import { expectVisibleReadingFocus } from "../../dashboard/tests/readingPlace.ts";
+} from "../../dashboard/test-support/publishedFactsArrival.ts";
+import { expectDoneFacts } from "../../dashboard/test-support/publishedFactsAssertions.ts";
+import { expectVisibleReadingFocus } from "../../dashboard/test-support/readingPlace.ts";
 import {
   repository,
   revision,
-} from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 
 async function expectReadingPlace(
   page: Page,

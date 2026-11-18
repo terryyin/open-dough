@@ -1,7 +1,10 @@
 // Cohort choices use the most common root setting, counted by response.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
-import { readCohort } from "../../tests/usage-history/tokenIndexHarness.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { readCohort } from "../../test-support/usage-history/tokenIndexHarness.ts";
 import type { TokenIndexCohort } from "../../src/usageTokenIndex.ts";
 
 const sol = "gpt-6.1-sol",

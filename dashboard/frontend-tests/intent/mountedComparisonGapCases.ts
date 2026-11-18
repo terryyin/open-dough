@@ -1,8 +1,8 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Endpoint-only gap words; imported by the mounted wording spec.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { expectCiComparisonEntryRows } from "../../tests/support/expectCiComparisonEntryRows.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expectCiComparisonEntryRows } from "../../test-support/support/expectCiComparisonEntryRows.ts";
 
 for (const reason of [
   "Job “lint” has an ambiguous workflow job match.",

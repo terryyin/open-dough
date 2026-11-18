@@ -1,28 +1,28 @@
 import {
   closeSidePanel,
   sidePanelNamesOf,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // Phone key toolbar and scroll-versus-navigate on the ordinary
 // page/xterm/WebSocket/PTY path. Desktop fine-pointer chrome stays without
 // the toolbar or composer; swipe still scrolls history only. Composer Insert
 // lives in ./agent-terminal-touch-composer.spec.ts.
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalText,
   expectNoTerminalText,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 import {
   bringKeyIntoView,
   composeToggle,
@@ -36,7 +36,7 @@ import {
   terminalComposerDraft,
   terminalKey,
   terminalKeyToolbar,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

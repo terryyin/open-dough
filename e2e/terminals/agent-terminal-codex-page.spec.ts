@@ -4,16 +4,16 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   launch,
   refinementRequest,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   chooseProject,
   storyCardSessions,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTerminalControl,
   closeTerminal,
@@ -27,26 +27,26 @@ import {
   terminalScreenParts,
   terminalStatus,
   typeLine,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   notRefinedIdentity,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   codexAttaches,
   codexEnded,
   codexTerminalMode,
-} from "../../dashboard/tests/support/codexTerminal.ts";
+} from "../../dashboard/test-support/support/codexTerminal.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { changeLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { markAsDone } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { changeLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { markAsDone } from "../../dashboard/test-support/support/markDone.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {

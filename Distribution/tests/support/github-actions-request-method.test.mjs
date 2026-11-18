@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parseRequest } from "../../../dashboard/tests/support/ghRequest.ts";
+import { parseRequest } from "../../../dashboard/test-support/support/ghRequest.ts";
 
 test("the synthetic GitHub recognizes a full workflow repeat only with its POST method and exact run route", () => {
   const route = "repos/owner/repo/actions/runs/71/rerun";

@@ -15,8 +15,8 @@ import {
   attempts,
   identity,
   title,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import { openSessionStartReason } from "../../dashboard/src/agentLaunch.ts";
 import {
   expect,
@@ -25,9 +25,9 @@ import {
   storyRequest,
   subject,
   useUncertainLaunch,
-} from "../../dashboard/tests/claudeVerification.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { keepMoreLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/claudeVerification.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import { keepMoreLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),

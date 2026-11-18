@@ -3,7 +3,7 @@ import {
   sourceLineNumbers,
   sourceLineText,
   sourceFile,
-} from "../tests/intentCodeBrowsePage.ts";
+} from "../test-support/intentCodeBrowsePage.ts";
 // System colour-scheme appearance for the dashboard frame and Intent source:
 // dark Board/card/badge, Sessions, Side panel chrome, dialog, settings, focus,
 // and recovery text stay readable; highlighted and plain source follow the
@@ -14,12 +14,12 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
-import { parts } from "../tests/dashboardPage.ts";
+} from "../test-support/support/frontendApp.ts";
+import { parts } from "../test-support/dashboardPage.ts";
 import {
   expectControlContrast,
   expectReadableContrast,
-} from "../tests/accessibleReading.ts";
+} from "../test-support/accessibleReading.ts";
 import {
   expectDarkSurface,
   expectFocusReadable,
@@ -27,18 +27,18 @@ import {
   expectNoAppearanceSwitch,
   expectPrimaryControlReadable,
   setColorScheme,
-} from "../tests/systemAppearanceReading.ts";
-import { colourOf, sourceToken } from "../tests/pageColours.ts";
-import { expectProjectChoice } from "../tests/projectChoice.ts";
-import { settings } from "../tests/support/systemSettingsPage.ts";
-import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
-import { readyStory, notRefinedStory } from "../tests/launchJourney.ts";
+} from "../test-support/systemAppearanceReading.ts";
+import { colourOf, sourceToken } from "../test-support/pageColours.ts";
+import { expectProjectChoice } from "../test-support/projectChoice.ts";
+import { settings } from "../test-support/support/systemSettingsPage.ts";
+import { sessionsSidebarParts } from "../test-support/sessionsSidebarPage.ts";
+import { readyStory, notRefinedStory } from "../test-support/launchJourney.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
-} from "../tests/intentPerspectivePage.ts";
+} from "../test-support/intentPerspectivePage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { frontendRevision } from "../tests/support/frontendServiceState.ts";
+import { frontendRevision } from "../test-support/support/frontendServiceState.ts";
 
 const highlightedPath = "dashboard/tests/example.spec.ts";
 const plainPath = "dashboard/checks/notes.check";

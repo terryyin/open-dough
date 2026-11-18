@@ -13,23 +13,23 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
 import {
   parts,
   sessionEntriesIn,
   sessionIdLineOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { sessionDetails } from "../../tests/support/sessionEntryDisclosure.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/dashboardPage.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import { sessionDetails } from "../../test-support/support/sessionEntryDisclosure.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
 import {
   expectTooltipLine,
   openSessionsSidebar,
   sessionsSidebarParts,
   sessionsSidebarSessionEntryTooltipOf,
-} from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

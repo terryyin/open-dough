@@ -13,7 +13,7 @@ import {
   landedEndpoint,
   scopeHistoryQuery,
 } from "../support/retainedGlanceHistory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary" });
 

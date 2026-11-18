@@ -4,12 +4,15 @@
 import path from "node:path";
 import { writeFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { readLandedComparison } from "../../tests/support/pendingLandedComparison.ts";
-import { missingLandedRun } from "../../tests/support/missingLandedRun.ts";
-import { keepLaunchStoreText } from "../../tests/support/launchStore.ts";
-import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { serveTrunkRuns } from "../../tests/support/landedCiTrunk.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { readLandedComparison } from "../../test-support/support/pendingLandedComparison.ts";
+import { missingLandedRun } from "../../test-support/support/missingLandedRun.ts";
+import { keepLaunchStoreText } from "../../test-support/support/launchStore.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import { serveTrunkRuns } from "../../test-support/support/landedCiTrunk.ts";
 
 test.use({ serverMode: "boundary" });
 

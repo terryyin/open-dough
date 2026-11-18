@@ -1,5 +1,5 @@
 // A file-anchored follow-up of a Done story's Published completion over raw
-// HTTP, with a real bare origin (../../tests/support/startOrigin.ts) and the
+// HTTP, with a real bare origin (../../test-support/support/startOrigin.ts) and the
 // synthetic `claude`: the request names the story, revision and file (and
 // optional line), admission checks the file and that the line exists on its
 // side, and the first input holds the story block, the file block and the
@@ -9,7 +9,7 @@
 // agent-launch-follow-up-story.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
+import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   completedRenamedFileStory,
   fileFactsOf,
@@ -18,10 +18,10 @@ import {
   renamedNewPath,
   renamedOldPath,
   serveDoneAtTrunk,
-} from "../../tests/support/followUpCompletedFile.ts";
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/followUpCompletedFile.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   answerOf,
   expectFollowUpInput,

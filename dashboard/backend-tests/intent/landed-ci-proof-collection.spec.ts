@@ -5,28 +5,28 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof } from "../../src/ciProof.ts";
-import { actionsForRuns } from "../../tests/support/baseCiActions.ts";
+import { actionsForRuns } from "../../test-support/support/baseCiActions.ts";
 import {
   collectedSummary,
   playwrightRecord,
   summaryTextZipAnswer,
-} from "../../tests/support/ciProofCollected.ts";
-import { runArtifactsAnswer } from "../../tests/support/ciProofArtifacts.ts";
+} from "../../test-support/support/ciProofCollected.ts";
+import { runArtifactsAnswer } from "../../test-support/support/ciProofArtifacts.ts";
 import {
   collectingLandedCi,
   landedCiHistory,
   resultToLand,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   collectedScopeHistory,
   retainedHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];

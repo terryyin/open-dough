@@ -3,30 +3,33 @@
 import {
   changedFilesList,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   commitRangeHeading,
   chooseCommit,
-} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+} from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
 import {
   showCommits,
   openStoryReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   git,
   observed,
   storyWorktree,
   unchangedWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test("Commits lists the first-parent line below Uncommitted changes and shows a chosen commit's trees", async ({
   page,

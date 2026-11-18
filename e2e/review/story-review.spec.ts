@@ -1,4 +1,4 @@
-// Story A's card opens its worktree review (../../dashboard/tests/support/storyReviewWorktree.ts).
+// Story A's card opens its worktree review (../../dashboard/test-support/support/storyReviewWorktree.ts).
 // Context names branch/baseline/worktree (./story-review-context-line.spec.ts).
 // Only story files appear, grouped by kind/folder, first file selected; trunk
 // and ignored files are absent, and the worktree index/status stay unchanged.
@@ -16,35 +16,38 @@ import {
   expectHunkLines,
   hunkLines,
   pageFits,
-} from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
-import { expectFocusedAndIndicated } from "../../dashboard/tests/accessibleReading.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/reviewPanes.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import { expectFocusedAndIndicated } from "../../dashboard/test-support/accessibleReading.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
   reviewBody,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
-import { shownLineNumbers } from "../../dashboard/tests/support/reviewLineNumbers.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { shownLineNumbers } from "../../dashboard/test-support/support/reviewLineNumbers.ts";
 import {
   expectTreeRows,
   changedFilesList,
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   branch,
   git,
   observed,
   storyWorktree,
   wideLine,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test("a story's review names its worktree, branch, and baseline and lists only the story's changed files", async ({
   page,

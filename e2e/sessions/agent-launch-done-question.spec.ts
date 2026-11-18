@@ -12,15 +12,15 @@
 
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   doneQuestion,
   expectAsked,
@@ -29,26 +29,26 @@ import {
   markDone,
   stillWorking,
   waitingForInput,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   doneNameOf,
   launchedStory,
   shortIdOf,
-} from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
   type StartOrigin,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   publishOrigin,
   test,
-} from "../../dashboard/tests/support/startOriginTest.ts";
-import { markReportRead } from "../../dashboard/tests/support/sessionMessagePart.ts";
+} from "../../dashboard/test-support/support/startOriginTest.ts";
+import { markReportRead } from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 // A session waiting for input is not renamed; that wait is kept short.
 test.use({

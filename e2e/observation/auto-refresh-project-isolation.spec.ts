@@ -2,7 +2,7 @@
 // its outstanding revision check and its snapshot's detail reads. This is
 // the automatic-check counterpart of ./project-read-isolation.spec.ts, which
 // proves the same one-selected-source rule for membership reads. The page's
-// clock is paused and advanced by the test (../../dashboard/tests/autoRefreshJourney.ts), so no
+// clock is paused and advanced by the test (../../dashboard/test-support/autoRefreshJourney.ts), so no
 // deselected project's work can time out on its own, and every later check
 // is observed in the `gh` call log behind the page. As there, each held
 // answer is released only after the newly selected project is shown, and
@@ -13,13 +13,13 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   shortRevision,
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -31,16 +31,16 @@ import {
   recordsAt,
   headsCheckArgv,
   headsChecks,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
   revisionDoughnut,
-} from "../../dashboard/tests/doughnutProject.ts";
-import { selectSettledDoughnut } from "../../dashboard/tests/doughnutJourney.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { publishMovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
+import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   backlogA,
   backlogB,
@@ -48,8 +48,8 @@ import {
   revisionA,
   revisionB,
   titlesOfA,
-} from "../../dashboard/tests/refreshJourney.ts";
-import type { GhCall } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import type { GhCall } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import {
   agentProfileDirectory,
   agentSettingsPath,

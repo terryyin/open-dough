@@ -11,22 +11,22 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptAttempts as keptOfMachine } from "../../tests/acceptedAttempts.ts";
-import { accept } from "../../tests/agentLaunchBoundary.ts";
+import { keptAttempts as keptOfMachine } from "../../test-support/acceptedAttempts.ts";
+import { accept } from "../../test-support/agentLaunchBoundary.ts";
 import { answerOf, openSessionRequest } from "./openStorySessionAcceptance.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   otherQueuedIdentity,
   startOrigin,
   type PushHold,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
-import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 const request = openSessionRequest;

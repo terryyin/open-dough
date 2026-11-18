@@ -1,10 +1,10 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Real providers, authenticated readers and Check again, with prepared service answers.
 import {
   test,
   expect,
   mountComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Check again disables while a failed whole comparison is read again and recovers its endpoints", async ({

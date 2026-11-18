@@ -28,7 +28,7 @@ import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
-/** @typedef {import("../../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
+/** @typedef {import("../../../dashboard/test-support/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */

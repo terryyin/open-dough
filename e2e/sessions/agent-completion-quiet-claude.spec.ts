@@ -1,4 +1,4 @@
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // A Claude Code session's quiet completion renames it once its receipt is
 // sent (../../dashboard/server/doneMarks.ts): the receipt answers at once with the local
 // Done mark pending, shown as ordinary text, and the rename waits for Claude
@@ -10,27 +10,27 @@ import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclos
 // ../../dashboard/backend-tests/sessions/agent-completion-binding.spec.ts; Codex's is
 // ./agent-completion-quiet.spec.ts.
 
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
   sessionProblemOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   launchedAdHoc,
   shortIdOf,
-} from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   publishOrigin,
   test,
-} from "../../dashboard/tests/support/startOriginTest.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/support/startOriginTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 const title = "Story A";
 const pending = "Local done mark retained. Native done mark is pending.";

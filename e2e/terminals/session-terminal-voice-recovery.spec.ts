@@ -2,8 +2,8 @@ import type { Locator, Page } from "@playwright/test";
 import {
   test as base,
   expect,
-} from "../../dashboard/tests/support/voiceTest.ts";
-import { voiceBrowserOptions } from "../../dashboard/tests/support/voiceRecovery.ts";
+} from "../../dashboard/test-support/support/voiceTest.ts";
+import { voiceBrowserOptions } from "../../dashboard/test-support/support/voiceRecovery.ts";
 import {
   closeTerminal,
   expectTerminalInputFocused,
@@ -12,13 +12,13 @@ import {
   insertTerminalText,
   pressTerminalKey,
   reconnectTerminal,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   observeMicrophone,
   seedVoiceKey,
   stoppedTracks,
   holdCompletedVoiceResponse,
-} from "../../dashboard/tests/support/voicePage.ts";
+} from "../../dashboard/test-support/support/voicePage.ts";
 import {
   beginTerminalClip,
   discardRetainedTranscript,
@@ -31,12 +31,12 @@ import {
   insertTranscriptControl,
   openTerminalVoice,
   stopTerminalClip,
-} from "../../dashboard/tests/support/terminalVoicePage.ts";
+} from "../../dashboard/test-support/support/terminalVoicePage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { noteTerminalTraffic } from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { noteTerminalTraffic } from "../../dashboard/test-support/touchTerminalPage.ts";
 
 type TerminalServer = {
   disconnect: () => Promise<void>;

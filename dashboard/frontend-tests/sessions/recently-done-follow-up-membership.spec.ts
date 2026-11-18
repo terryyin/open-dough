@@ -2,20 +2,20 @@
 // other story or project and unlisted sources stay apart. Follow up context
 // still names the story's own sessions only.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
-import { putFrontendDoneRecords } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts, storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { putFrontendDoneRecords } from "../../test-support/support/frontendServiceState.ts";
 import {
   completedWords,
   storyNameOf,
-} from "../../tests/support/followUpStories.ts";
+} from "../../test-support/support/followUpStories.ts";
 import {
   fileFollowUpDialog,
   followUpContextList,
-} from "../../tests/support/fileFollowUpPage.ts";
-import { doneCard } from "../../tests/recentlyDoneReviewState.ts";
+} from "../../test-support/support/fileFollowUpPage.ts";
+import { doneCard } from "../../test-support/recentlyDoneReviewState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { publishSourceCard } from "../../tests/support/followUpSourceCatalog.ts";
+import { publishSourceCard } from "../../test-support/support/followUpSourceCatalog.ts";
 import {
   adHocName,
   completedAt,
@@ -24,7 +24,7 @@ import {
   ownStorySession,
   sourceStory,
   storyFollowUp,
-} from "../../tests/support/recentlyDoneFollowUpGrouping.ts";
+} from "../../test-support/support/recentlyDoneFollowUpGrouping.ts";
 
 test("another story's and another project's closed follow-ups stay off the card", async ({
   page,

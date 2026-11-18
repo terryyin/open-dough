@@ -5,26 +5,29 @@ import {
   sessionAction,
   sessionActionsControl,
   sessionDetailsControl,
-} from "../../tests/support/sessionEntryDisclosure.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/sessionEntryDisclosure.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   expectMembership,
   parts,
   standaloneSessionName,
   sessionStateOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { expectSessionEntrySetOff } from "../../tests/pageColours.ts";
-import { adHocEntry, expectEntries } from "../../tests/recentlyDoneColumn.ts";
+} from "../../test-support/dashboardPage.ts";
+import { expectSessionEntrySetOff } from "../../test-support/pageColours.ts";
+import {
+  adHocEntry,
+  expectEntries,
+} from "../../test-support/recentlyDoneColumn.ts";
 import {
   executed,
   expired,
   lastWeek,
   queuedTitle,
   removedQueued,
-} from "../../tests/recentlyDoneRecords.ts";
-import { openFrontendStoryCardSessions } from "../../tests/support/frontendRecentlyDoneStoryCards.ts";
-import { openTerminalControl } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/recentlyDoneRecords.ts";
+import { openFrontendStoryCardSessions } from "../../test-support/support/frontendRecentlyDoneStoryCards.ts";
+import { openTerminalControl } from "../../test-support/terminalScreenPage.ts";
 
 test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,

@@ -1,6 +1,6 @@
 // Landed CI wall-time history collection (../../server/landedCiCollection.ts)
 // and its read (`intent=ci-history`, ../../server/intentCiHistoryRead.ts),
-// with no page open, a real bare origin (../../tests/support/startOrigin.ts),
+// with no page open, a real bare origin (../../test-support/support/startOrigin.ts),
 // the installed publication and the synthetic `claude`: once a production
 // dashboard records an accepted landing the publication reports, it collects
 // the landed revision's completed trunk build through the CI timing
@@ -16,20 +16,20 @@
 
 import { existsSync } from "node:fs";
 import path from "node:path";
-import type { GhCall } from "../../tests/support/fakeGitHub.ts";
+import type { GhCall } from "../../test-support/support/fakeGitHub.ts";
 import {
   collectingLandedCi,
   landedCiHistory,
   restartAsLandedCiReader,
   resultToLand,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   passedBetween,
   serveTrunkRuns,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

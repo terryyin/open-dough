@@ -3,24 +3,24 @@
 // answered, and touch editing keeps the password draft through viewport
 // changes, a refused save and explicit recovery. Private persistence, no echo
 // and no egress are ../../../e2e/configuration/system-settings-openai.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
 import {
   apiKey,
   save,
   status,
-} from "../../tests/support/openAISettingsPage.ts";
+} from "../../test-support/support/openAISettingsPage.ts";
 import {
   openAIConfigurationEndpoint,
   openAIRemoveEndpoint,
   openAISaveEndpoint,
 } from "../../src/openAIConfiguration.ts";
-import { tapWhereShown } from "../../tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { readSetting } from "../../tests/support/settingsTouchPage.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { readSetting } from "../../test-support/support/settingsTouchPage.ts";
 
 const key = "sk-synthetic-held-status-084";
 

@@ -1,11 +1,11 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // The real control stays usable through repeated unavailable Baseline answers.
 import {
   test,
   expect,
   mountComparison,
   type ComparisonReply,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("each failed Baseline Check again holds the button disabled and retains the query and failure reason", async ({

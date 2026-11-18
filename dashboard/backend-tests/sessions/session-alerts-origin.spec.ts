@@ -1,10 +1,10 @@
 // Listening-address selection also has to reach existing local admission.
 // These servers use the real socket/Host/Origin guard, with no helper or host.
 import { createServer, type Server } from "node:http";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { dashboardOrigin } from "../../server/dashboardOrigin.ts";
 import { verifyLocalOrigin } from "../../server/localOrigin.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 function close(server: Server): Promise<void> {
   return new Promise((resolve, reject) => {

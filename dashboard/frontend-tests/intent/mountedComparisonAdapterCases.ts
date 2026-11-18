@@ -1,8 +1,8 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Adapter proof absence stays distinct from GitHub run wording.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { expectExactSourceCue } from "../../tests/support/expectCiComparisonSourceCue.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expectExactSourceCue } from "../../test-support/support/expectCiComparisonSourceCue.ts";
 
 test("adapter proof size limit is named separately for every endpoint", async ({
   renderComparison,

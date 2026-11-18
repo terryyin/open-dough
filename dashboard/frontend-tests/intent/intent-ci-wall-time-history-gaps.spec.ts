@@ -21,11 +21,11 @@ import {
   expectLinksByKeyboard,
   historyOf,
   runLink,
-} from "../../tests/intentCiHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../../tests/pageLayout.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
-import { openFrontendCiStatus } from "../../tests/support/frontendCiStatusAnswers.ts";
+} from "../../test-support/intentCiHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { serveFrontendCiHistory } from "../../test-support/support/frontendCiHistoryAnswers.ts";
+import { openFrontendCiStatus } from "../../test-support/support/frontendCiStatusAnswers.ts";
 
 // The day `n` days after Oct 1, at noon, when its landing was recorded.
 const day = (n: number) =>

@@ -1,14 +1,17 @@
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
-import { costReport } from "../../tests/usage-history/agentEffortCost.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
+import { costReport } from "../../test-support/usage-history/agentEffortCost.ts";
 import {
   writeCodexSession,
   writeClaudeSession,
   nativeFile,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("Codex actual CLI owns later replies and failed workers once, excludes copied ancestors and a next task", ({
   home,

@@ -1,26 +1,26 @@
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
-import { answerBoardOnPausedPageTime } from "../../tests/support/frontendBoardPageTime.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
+import { answerBoardOnPausedPageTime } from "../../test-support/support/frontendBoardPageTime.ts";
 import {
   controlFrontendAuthenticatedRead,
   countAuthenticatedReads,
-} from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { politeRegionsOfferedThenMarked } from "../../tests/accessibleReading.ts";
+} from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { politeRegionsOfferedThenMarked } from "../../test-support/accessibleReading.ts";
 import {
   expectMembership,
   parts,
   shortRevision,
-} from "../../tests/dashboardPage.ts";
-import { passTimeUntilChecked } from "../../tests/autoRefreshJourney.ts";
-import { longBacklog, revision } from "../../tests/accessibleBoard.ts";
-import { zoomedWindow } from "../../tests/accessibleReading.ts";
+} from "../../test-support/dashboardPage.ts";
+import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
+import { longBacklog, revision } from "../../test-support/accessibleBoard.ts";
+import { zoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   expectStackedInOrder,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   backlogA,
   backlogB,
@@ -28,7 +28,7 @@ import {
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../tests/refreshJourney.ts";
+} from "../../test-support/refreshJourney.ts";
 
 test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async ({
   page,

@@ -4,18 +4,18 @@ import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import {
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
   publishes,
   startFakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
-import { requestOwnerWithClock } from "../../tests/support/listingReuseWithOwnerClock.ts";
-import { readAt } from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { requestOwnerWithClock } from "../../test-support/support/listingReuseWithOwnerClock.ts";
+import { readAt } from "../../test-support/support/sharedReads.ts";
 import {
   dashboardsOnOneOwner,
   withWorkflow,
-} from "../../tests/support/sharedRequestOwner.ts";
+} from "../../test-support/support/sharedRequestOwner.ts";
 import { expect, poisonApi, test } from "../support/fakeGhInProcess.ts";
 
 test("simultaneous servers keep distinct answers across a restart on one machine", async ({

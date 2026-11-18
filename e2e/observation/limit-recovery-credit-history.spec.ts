@@ -1,9 +1,9 @@
 // A profile history GitHub's rate limit refused, at a trunk revision that
 // does not move, is read on its own once the wait ends: its human appears on
 // its card, detail, and roster, and its Take clock beside it, asking GitHub
-// only the ref, that history, and its addition (../../dashboard/tests/limitRecoveryCredit.ts).
+// only the ref, that history, and its addition (../../dashboard/test-support/limitRecoveryCredit.ts).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   askedSince,
   expectRecovered,
@@ -11,13 +11,13 @@ import {
   openedWithYumaWithheld,
   waitedOut,
   yumaAddition,
-} from "../../dashboard/tests/limitRecoveryCredit.ts";
-import { pathChange } from "../../dashboard/tests/pathHistoryAnswers.ts";
+} from "../../dashboard/test-support/limitRecoveryCredit.ts";
+import { pathChange } from "../../dashboard/test-support/pathHistoryAnswers.ts";
 import {
   profilePath,
   revision,
   takes,
-} from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 
 test("a limited profile history is read once the wait ends, crediting its human and Take clock without a reload", async ({
   page,

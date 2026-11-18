@@ -4,18 +4,21 @@
 // backgrounds and copied text stay those of the plain diff that a file of
 // another language shows.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { frontendReviewSnapshot } from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
 import {
   greetDiff,
   greetText,
-} from "../../tests/support/diffSyntaxFixtures.ts";
+} from "../../test-support/support/diffSyntaxFixtures.ts";
 import {
   storyReviewDiff,
   tokenAppearance,
-} from "../../tests/support/reviewDiffSyntax.ts";
+} from "../../test-support/support/reviewDiffSyntax.ts";
 
 const styledPath = "greet.ts";
 const plainPath = "base.txt";

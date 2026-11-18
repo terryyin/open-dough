@@ -3,15 +3,15 @@
 // mounts the same boundaries: ../../dashboard/backend-tests/runtime/serving-modes.spec.ts), requesting
 // the local authenticated read boundary (`../../dashboard/server/authenticatedRead.ts`),
 // which launches a synthetic `gh` on this test's own isolated PATH
-// (../../dashboard/tests/support/dashboardServer.ts) answering from this test's fake GitHub
-// (../../dashboard/tests/support/fakeGitHub.ts). Nothing here stubs the boundary or hands the
+// (../../dashboard/test-support/support/dashboardServer.ts) answering from this test's fake GitHub
+// (../../dashboard/test-support/support/fakeGitHub.ts). Nothing here stubs the boundary or hands the
 // page a prebuilt `PublishedWork`: opening, selecting, and reloading a project
 // must resolve its configured ref, read its backlog and reachable records
 // pinned to that exact revision, and render
 // them -- with no read of GitHub from the browser itself.
 
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
@@ -19,27 +19,27 @@ import {
   expectSettledPage,
   openDirection,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notLoggedIn,
   publishFiles,
   type ObservedRequest,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   catalogExpectations,
   expectPinnedGhCalls,
-} from "../../dashboard/tests/catalogProjectExpectations.ts";
-import { catalogPublications } from "../../dashboard/tests/catalogProjectRecords.ts";
+} from "../../dashboard/test-support/catalogProjectExpectations.ts";
+import { catalogPublications } from "../../dashboard/test-support/catalogProjectRecords.ts";
 import {
   assertNoCredentialMarker,
   collectFiles,
-} from "../../dashboard/tests/support/credentialAbsence.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/support/credentialAbsence.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   canonicalRecord,
   inspectedDetail,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 
 // Shaped like a real GitHub token and placed only in the spawned server
 // process's own environment, where the production `gh` invocation would see

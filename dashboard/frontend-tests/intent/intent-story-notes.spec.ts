@@ -1,27 +1,30 @@
 // Built app with explicit Intent and notes substitutes: notes taken from Intent
 // → Changed tests keep that view, and Story notes leaves Intent's reading as
 // it was (../../src/IntentSelectionReading.tsx).
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
 import {
   answerFrontendIntentChanges,
   putFrontendIntentStory,
-} from "../../tests/support/frontendIntentStory.ts";
+} from "../../test-support/support/frontendIntentStory.ts";
 import {
   chooseStoryTab,
   expectOutsideCount,
   intentDiffReading,
   intentFile,
   outsideCount,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../tests/intentReadingPlacePage.ts";
-import { openStoryIntent, storySummary } from "../../tests/intentModePage.ts";
-import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
+import {
+  openStoryIntent,
+  storySummary,
+} from "../../test-support/intentModePage.ts";
+import { deepSpec } from "../../test-support/support/intentStoryWorktree.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 

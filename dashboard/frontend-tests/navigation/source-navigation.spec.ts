@@ -1,9 +1,9 @@
-import { expectSettledPage } from "../../tests/dashboardPage.ts";
+import { expectSettledPage } from "../../test-support/dashboardPage.ts";
 import {
   canonicalRecord,
   slicePlanLink,
-} from "../../tests/storyCardControls.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/storyCardControls.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   card,
   destination,
@@ -13,7 +13,7 @@ import {
   openDashboard,
   revision,
   snapshotRoot,
-} from "../../tests/support/frontendSourceNavigation.ts";
+} from "../../test-support/support/frontendSourceNavigation.ts";
 
 test("source navigation opens canonical and plan records at the inspected revision", async ({
   page,

@@ -10,39 +10,39 @@ import {
   callsSince,
   contentReads,
   headsChecks,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { inspectedDetail } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   parts,
   rosterParts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   heldFactGroups,
   takenCanonicalPath,
   purpose,
-} from "../../dashboard/tests/publishedFactsArrival.ts";
-import { revision } from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/publishedFactsArrival.ts";
+import { revision } from "../../dashboard/test-support/sliceClockRecords.ts";
 import {
   expectCanonicalFacts,
   expectStoryCardAssignments,
   expectDoneFacts,
   expectNoOrphanReading,
-} from "../../dashboard/tests/publishedFactsAssertions.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/publishedFactsAssertions.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   badges,
   preparationFacts,
   sliceProgress,
   storyPurpose,
-} from "../../dashboard/tests/storyCardFacts.ts";
-import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
+import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
 
 const preparationGap =
   "The canonical record could not be read for preparation facts.";

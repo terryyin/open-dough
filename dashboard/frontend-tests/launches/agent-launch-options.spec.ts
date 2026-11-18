@@ -14,9 +14,9 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { machineOffering } from "../../tests/support/frontendServiceState.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { machineOffering } from "../../test-support/support/frontendServiceState.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   backlogLaunchers,
   groupedOptions,
@@ -24,13 +24,13 @@ import {
   showOptions,
   startSession,
   startSessionDialog,
-} from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
   readyStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 
 const sent = `/dough-story-refinement ${notRefinedIdentity}`;
 

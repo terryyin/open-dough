@@ -1,8 +1,8 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
-import { keepStartedOrigin } from "../../tests/support/startOriginPreparation.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
 // One queued story of its own: no run-wide description starts this way.
 const privateStory = makeMe.aBacklogEntry
@@ -54,7 +54,7 @@ test("an origin started from a description no run prepares holds its facts and t
 });
 
 // A first commit no run prepares and a later revision, kept by this worker
-// as a worker keeps its completed story (../../tests/support/keptPublishedStory.ts).
+// as a worker keeps its completed story (../../test-support/support/keptPublishedStory.ts).
 const keptRepository = makeMe.aRepository
   .withRevision("own story", {
     backlog: { queued: [privateStory] },

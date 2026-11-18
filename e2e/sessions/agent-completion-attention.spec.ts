@@ -1,6 +1,6 @@
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -10,35 +10,35 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { machineSessions } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { expectInstalledReportingScript } from "../../dashboard/tests/support/reportingInputAssertions.ts";
-import { keepFinalReport } from "../../dashboard/tests/support/retainedReport.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { expectInstalledReportingScript } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { keepFinalReport } from "../../dashboard/test-support/support/retainedReport.ts";
 import {
   buttonsAddedSince,
   messagePartOf,
   rememberButtons,
-} from "../../dashboard/tests/support/sessionMessagePart.ts";
+} from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import {
   startDashboardServer,
   sharedDashboardBuild,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
 import {
   reloadUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
+import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);

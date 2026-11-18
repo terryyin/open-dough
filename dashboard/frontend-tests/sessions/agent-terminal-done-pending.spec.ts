@@ -1,6 +1,6 @@
 // Pending and failed Mark as done from the page's terminal
 // (./agent-terminal-done.spec.ts), against a controlled machine read, done
-// boundary (../../tests/support/frontendSessionActions.ts) and attached
+// boundary (../../test-support/support/frontendSessionActions.ts) and attached
 // terminal: Maximize and Close stay usable while the Done answer is held, and
 // releasing still closes the panel; a failed answer leaves a recoverable
 // unresolved state without refused-intent wording. A real answer held past
@@ -12,21 +12,21 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   cardSession,
   cardSessionEntry,
   openCardSessionTerminal,
-} from "../../tests/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendCardSessions.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import {
   headerMarkAsDone,
   sendDoneMarkAnyway,
-} from "../../tests/support/markDone.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
-import { maximizeSidePanel } from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/support/markDone.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
+import { maximizeSidePanel } from "../../test-support/sidePanelFrame.ts";
 import { markDoneUnresolved } from "../../src/pageSessions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

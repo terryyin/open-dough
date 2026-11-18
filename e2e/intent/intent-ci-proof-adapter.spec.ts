@@ -2,8 +2,8 @@ import {
   ciProofReading,
   expectProofRows,
   proofOf,
-} from "../../dashboard/tests/intentCiProofPage.ts";
-import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
+import { expectCiAnswer } from "../../dashboard/test-support/intentCiStatusPage.ts";
 // The CI proof of a ciAdapter attempt in Intent's CI status tab
 // (../../dashboard/src/IntentCiProof.tsx, ../../dashboard/server/ciAdapterProof.ts): the project's own
 // adapter, run from the project folder as its discover is, is asked for the
@@ -19,12 +19,12 @@ import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
 import { adapterResponseBytes } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectAttemptAt,
   expectAttemptLinked,
   expectLabelInFull,
-} from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+} from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
   byFileTestsRow,
@@ -35,9 +35,9 @@ import {
   testsSummary,
   uuid,
   verdict,
-} from "../../dashboard/tests/intentCiAdapterProofProject.ts";
+} from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 
-import { running } from "../../dashboard/tests/intentCiStoryBoard.ts";
+import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   login,
   mainRun,
@@ -45,7 +45,7 @@ import {
   signup,
   started,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
 
 test("a ciAdapter attempt's proof is read through the project's adapter and shown below its verdict, named by its attemptId", async ({
   page,

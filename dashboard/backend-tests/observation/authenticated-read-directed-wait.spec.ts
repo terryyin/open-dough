@@ -6,32 +6,32 @@
 // with a reset time once nothing remains. An unmarked `403` and a `404` carry
 // no wait. A rate limit that directs nothing waits as the process backs off:
 // ./authenticated-read-backoff.spec.ts. Tested directly against real
-// HTTP and the synthetic `gh` (../../tests/support/sharedReads.ts publishes the
+// HTTP and the synthetic `gh` (../../test-support/support/sharedReads.ts publishes the
 // revision). The direction's validation and bound, and the check's and
 // comparison's own refusals:
 // ./authenticated-read-revision-check-failures.spec.ts and
 // ./authenticated-read-containment.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { onServerOfItsOwn } from "../../tests/support/directedWait.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import {
   notFoundAnswer,
   rateLimitedAnswer,
   type OriginAnswer,
-} from "../../tests/originAnswers.ts";
+} from "../../test-support/originAnswers.ts";
 import {
   readAt,
   sharedReadsPublished,
   sharedSeedPath,
   sharedSeedRead,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
 

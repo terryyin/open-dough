@@ -1,9 +1,12 @@
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { usageTokenIndexEndpoint } from "../src/usageTokenIndex.ts";
-import { test, expect } from "../tests/support/frontendApp.ts";
-import { narrowWindow, twiceZoomedWindow } from "../tests/accessibleReading.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
-import { usageChart } from "../tests/support/usageChartPage.ts";
+import { test, expect } from "../test-support/support/frontendApp.ts";
+import {
+  narrowWindow,
+  twiceZoomedWindow,
+} from "../test-support/accessibleReading.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
+import { usageChart } from "../test-support/support/usageChartPage.ts";
 
 const million = 1_000_000;
 const day = (date: number) =>

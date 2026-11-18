@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

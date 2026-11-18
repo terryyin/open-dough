@@ -6,11 +6,11 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
-import { readyStory } from "../tests/launchJourney.ts";
-import { parts } from "../tests/dashboardPage.ts";
-import { recoveryOf } from "../tests/responsiveRecovery.ts";
-import { installFrontendLaunchBoundary } from "../tests/support/frontendLaunchSubstitutes.ts";
+} from "../test-support/support/frontendApp.ts";
+import { readyStory } from "../test-support/launchJourney.ts";
+import { parts } from "../test-support/dashboardPage.ts";
+import { recoveryOf } from "../test-support/responsiveRecovery.ts";
+import { installFrontendLaunchBoundary } from "../test-support/support/frontendLaunchSubstitutes.ts";
 
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,

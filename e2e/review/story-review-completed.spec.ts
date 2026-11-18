@@ -1,30 +1,33 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   readReview,
   refreshReview,
-} from "../../dashboard/tests/support/launchLandingReview.ts";
+} from "../../dashboard/test-support/support/launchLandingReview.ts";
 import {
   completedPublishedStory,
   advanceCompletedTrunk,
   keepUnusableCompletedCapture,
-} from "../../dashboard/tests/support/completedPublishedStory.ts";
+} from "../../dashboard/test-support/support/completedPublishedStory.ts";
 
 test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances", async ({
   page,

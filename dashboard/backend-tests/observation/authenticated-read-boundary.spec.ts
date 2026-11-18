@@ -22,30 +22,30 @@
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
 // -- in ./authenticated-read-subprocess-lifecycle.spec.ts; reads on a story
 // branch in ./authenticated-branch-read-boundary.spec.ts. All share this
-// suite's harness (../../tests/support/dashboardServer.ts).
+// suite's harness (../../test-support/support/dashboardServer.ts).
 //
 // This spec's servers are separate processes, each with its own PATH and its
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
 // journeys' own servers.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
   failsWith,
   publishes,
-} from "../../tests/support/fakeGitHub.ts";
-import { notLoggedIn } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { notLoggedIn } from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   describedRevision,
   withBacklogFallback,
-} from "../../tests/describedRevisions.ts";
+} from "../../test-support/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 

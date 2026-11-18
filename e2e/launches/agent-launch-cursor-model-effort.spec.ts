@@ -4,23 +4,23 @@
 // the record. The fixture records native argv. Retaining an unsupported
 // effort as invalid is
 // ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expect,
   keptRecord,
   test,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   cursorEffortModels,
   cursorModels,
   cursorOtherEffortModels,
-} from "../../dashboard/tests/support/fakeCursor.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+} from "../../dashboard/test-support/support/fakeCursor.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 
 const effortListing = [
   ...cursorModels,

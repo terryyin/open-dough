@@ -8,21 +8,21 @@
 // show side by side in a wide Board is ./accessible-board.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
 import {
   expectMembership,
   expectSettledPage,
   parts,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   publishLargeBacklog,
   queuedCount,
   queuedTitle,
   queuedTitles,
-} from "../../tests/accessibleBoard.ts";
-import { expectBelowBanner } from "../../tests/bannerReading.ts";
-import { box } from "../../tests/pageLayout.ts";
+} from "../../test-support/accessibleBoard.ts";
+import { expectBelowBanner } from "../../test-support/bannerReading.ts";
+import { box } from "../../test-support/pageLayout.ts";
 import {
   columns,
   columnPagingControl,
@@ -36,11 +36,11 @@ import {
   showColumn,
   slidesOf,
   wheelTo,
-} from "../../tests/boardPage.ts";
+} from "../../test-support/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
-} from "../../tests/boardReading.ts";
+} from "../../test-support/boardReading.ts";
 
 // The dashboard, reading a Backlog longer than one screen and one Taken entry.
 async function openLargeBacklog(page: Page, services: FrontendServiceState) {

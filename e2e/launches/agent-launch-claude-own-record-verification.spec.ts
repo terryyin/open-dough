@@ -2,8 +2,8 @@
 // no longer names its session, using the latest record when several exist.
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openSessionStartReason,
   type LaunchAttemptRecord,
@@ -11,9 +11,9 @@ import {
 import {
   keepLaunchStore,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { readyStory } from "../../dashboard/tests/launchJourney.ts";
+import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 import { identityB } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import {
   expect,
@@ -21,7 +21,7 @@ import {
   recoveryOf,
   subject,
   useUncertainLaunch,
-} from "../../dashboard/tests/claudeVerification.ts";
+} from "../../dashboard/test-support/claudeVerification.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),

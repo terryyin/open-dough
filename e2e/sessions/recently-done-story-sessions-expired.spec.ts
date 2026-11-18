@@ -4,15 +4,15 @@
 // substitutes cannot supply. Nesting of other done-story sessions lives in
 // ../../dashboard/frontend-tests/sessions/recently-done-story-sessions.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
   standaloneSessionName,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { doneStorySessions } from "../../dashboard/tests/recentlyDoneSessions.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { doneStorySessions } from "../../dashboard/test-support/recentlyDoneSessions.ts";
 import {
   executed,
   expired,
@@ -24,13 +24,13 @@ import {
   repository,
   revision,
   withLastWeekRecord,
-} from "../../dashboard/tests/recentlyDoneRecords.ts";
+} from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import {
   adHocEntry,
   expectEntries,
   listed,
   sessionsOutsideDoneStories,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
 
 test("a session of a done record past the window is its own Recently done entry and still reads Working while Claude lists it", async ({
   page,

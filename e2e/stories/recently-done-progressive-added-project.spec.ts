@@ -10,8 +10,8 @@
 
 import type { Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   entryName,
   keepProgressiveSessions,
@@ -19,28 +19,28 @@ import {
   publishedWithCatalog,
   repository,
   revision,
-} from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   recordsAsked,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   entries,
   firstTen,
   shownWithoutSessions,
   storiesOf,
   thirteenth,
-} from "../../dashboard/tests/recentlyDoneSessionPlaced.ts";
-import { holdSessionReads } from "../../dashboard/tests/sessionStatePace.ts";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionPlaced.ts";
+import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import {
   addedRepository,
   addedRevision,
   projectAddMachine,
-} from "../../dashboard/tests/support/projectAddMachine.ts";
-import { addProjectThroughDialog } from "../../dashboard/tests/support/projectAddPage.ts";
+} from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { addProjectThroughDialog } from "../../dashboard/test-support/support/projectAddPage.ts";
 
 // The first project's list: three stories, no sessions.
 const first = progressiveEntries(3, []);

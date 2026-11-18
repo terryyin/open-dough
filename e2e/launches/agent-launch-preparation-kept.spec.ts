@@ -1,8 +1,8 @@
 // A preparation announced without a session offers its resume on the story's
 // Backlog card (../../dashboard/server/agentLaunches.ts, ../../dashboard/src/StoryCardLaunches.tsx). The real
-// installed preparation start and a real bare origin (../../dashboard/tests/support/startOrigin.ts)
+// installed preparation start and a real bare origin (../../dashboard/test-support/support/startOrigin.ts)
 // stand behind the page, which reads that origin as GitHub would
-// (../../dashboard/tests/committedOrigin.ts); the synthetic `claude` refuses the first launch. After
+// (../../dashboard/test-support/committedOrigin.ts); the synthetic `claude` refuses the first launch. After
 // a reload the story's Start refinement dialog names the kept workspace and says
 // the announcement is already published, so Start publishes no second one, in
 // place of the establishing sentence; another Backlog card keeps that sentence.
@@ -14,23 +14,26 @@ import path from "node:path";
 import {
   keptStarts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   openUntilRead,
   reloadUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 
 const workspaceShown = "~/git/open-dough/.worktrees/story-a";
 const establishing = "Start also publishes";

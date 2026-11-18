@@ -1,21 +1,25 @@
 // Host-qualified identity owns all attachments, independently of opaque native IDs.
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   launch,
   refinementRequest,
   markDone,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   launched,
   openTerminal,
   shows,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   codexAttaches,
   codexLines,
   expectCodexHungUp,
   openCodexTerminal,
-} from "../../tests/support/codexTerminal.ts";
+} from "../../test-support/support/codexTerminal.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });

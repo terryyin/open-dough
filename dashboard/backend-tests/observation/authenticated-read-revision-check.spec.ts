@@ -12,9 +12,9 @@
 // ./authenticated-read-boundary.spec.ts and
 // ./authenticated-read-refusal.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { commitAnswer } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { commitAnswer } from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   checkArgv,
   listingEtag,

@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { machineDashboardDirectory } from "../../server/machineHome.ts";
 import {
   machineDocumentsRevision,
@@ -16,8 +16,8 @@ import {
 import {
   replaceFileKeepingTimes,
   settleFile,
-} from "../../tests/support/machineFileIdentity.ts";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
+} from "../../test-support/support/machineFileIdentity.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 
 let home: string;
 let restoreHome: () => void;

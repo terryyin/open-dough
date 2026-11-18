@@ -1,28 +1,28 @@
 import { spawnSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import path from "node:path";
-import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
+import { costViews } from "../../test-support/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   command,
   bytes,
-} from "../../tests/usage-history/agentEffortHarness.ts";
+} from "../../test-support/usage-history/agentEffortHarness.ts";
 import {
   effortCli,
   listedTasks,
   succeeded,
-} from "../../tests/usage-history/agentEffortSelection.ts";
+} from "../../test-support/usage-history/agentEffortSelection.ts";
 import {
   runImport,
   writeClaudeSession,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("lost native files retain known stored counters with provenance and named unknowns without refreshing Usage", ({
   home,

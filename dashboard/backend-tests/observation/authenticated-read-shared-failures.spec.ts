@@ -6,21 +6,21 @@
 // late it joins, waits past its own bound or keeps the `gh` call running
 // past the call's. Tested directly against real HTTP and the synthetic
 // `gh`, with the requests made to coincide on a held answer as
-// ./authenticated-read-shared.spec.ts makes them (../../tests/support/sharedReads.ts).
+// ./authenticated-read-shared.spec.ts makes them (../../test-support/support/sharedReads.ts).
 // One request's refusals: ./authenticated-read-revision-check-failures.spec.ts;
 // its bound: ./authenticated-read-subprocess-lifecycle.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
-import { processAlive } from "../../tests/support/processGroup.ts";
-import { rateLimitedAnswer } from "../../tests/originAnswers.ts";
-import { untilReported } from "../../tests/support/directedWait.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
+import { processAlive } from "../../test-support/support/processGroup.ts";
+import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
+import { untilReported } from "../../test-support/support/directedWait.ts";
 import {
   answeredTogether,
   askedSince,
@@ -30,7 +30,7 @@ import {
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
 

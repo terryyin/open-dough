@@ -10,7 +10,7 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
@@ -18,7 +18,7 @@ import {
   expectSettledPage,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   checkedAtOnce,
@@ -33,12 +33,12 @@ import {
   headsCheckArgv,
   headsChecks,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   focusCanonicalRecord,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   backlogB,
   backlogC,
@@ -47,7 +47,7 @@ import {
   revisionC,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
 
 test("auto refresh: a hidden page makes no checks, and a page seen again checks once at once, then at its steady pace", async ({
   page,

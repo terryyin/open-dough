@@ -1,21 +1,21 @@
 // A session whose start, or whose refinement's preparation, established a
 // workspace says "Workspace <folder>" on its card, shown beneath the project
 // folder as the server projects it, never the home directory, on the
-// committed origin from ../../dashboard/tests/launchJourney.ts. What the
+// committed origin from ../../dashboard/test-support/launchJourney.ts. What the
 // launch dialogs and pending cards say of a start is
 // ../../dashboard/frontend-tests/launches/agent-launch-story-card-dialogs.spec.ts
 // and ../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts.
 
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessions,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { readyStory } from "../../dashboard/tests/launchJourney.ts";
+import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

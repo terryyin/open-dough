@@ -2,11 +2,11 @@
 // with a native PTY replaced, so one working paint arrives in two reads split
 // at its line break, as a Linux PTY can deliver it. The first read alone looks
 // like the idle composer, but its synchronized update has not finished.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { cursorSessionLabel } from "../../server/hosts/cursor/idleScreen.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
-import { keepRecoveredCursor } from "../../tests/support/recoveredCursorPty.ts";
+import { keepRecoveredCursor } from "../../test-support/support/recoveredCursorPty.ts";
 
 const followUpRead = "\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H→ Add a follow-up\r\n";
 const workingRead = "ctrl+c to stop\r\n\x1b[?2026l";

@@ -5,8 +5,8 @@
 // actions offer the shared control height. Keeping the state:
 // ./recently-done-review-state.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import {
   cancelUnreview,
   confirmUnreview,
@@ -19,7 +19,7 @@ import {
   storyB,
   storyC,
   unreviewQuestion,
-} from "../../tests/recentlyDoneReviewState.ts";
+} from "../../test-support/recentlyDoneReviewState.ts";
 
 test("a card whose record could not be read offers Mark as reviewed", async ({
   page,

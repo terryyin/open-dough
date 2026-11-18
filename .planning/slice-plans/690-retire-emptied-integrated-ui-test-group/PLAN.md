@@ -442,6 +442,75 @@ without creating a second harness or an additional Intent location.
 Measure the line-count inventory again before dispatch and resolve
 pre-existing oversized files under the applicable refactor instructions.
 
+The current inventory found seven oversized live or moved test files.
+Keep the same test files, titles, fixture behavior and observations.
+Bring the files within the limit at their existing seams:
+
+- `start-origin-isolation.spec.ts` (262 lines): give the private-origin
+  branch preparation to `startOriginObservation.ts`; the isolation cases
+  retain their own expected refs, file contents, pack and cleanup observations.
+- `landed-ci-scope-legacy-gap.spec.ts` (252) and
+  `agent-terminal-cursor.spec.ts` (252): reuse their existing collected
+  history and kept Cursor support for repeated lifecycle preparation.
+  Keep legacy scope input and individual restart and terminal verdicts in
+  their cases.
+- `story-notes.spec.ts` (273): give the repeated Recently done card
+  selection one local operation and keep the two note-save failure
+  variants explicit. `storyNotesPage.ts` (260) gives the line-note menu
+  mechanics their own focused support while retaining the page object's
+  API and all consumers.
+- `revision-stream.spec.ts` (257): move queued slot observation into the
+  existing revision-stream journey, leaving count expectations in the test.
+  `final-report-done-native.spec.ts` (253): use the existing report-touch
+  support for repeated report arrangement and keep persistence, touch,
+  passivity and Done observations in the current cases.
+
+If localized reuse already reaches the limit with less change, keep that
+smaller solution. Re-run every changed proof owner. Recorded comparison
+diffs are historical inputs and keep their bytes.
+
+Slice 6 was accepted on the story branch at
+`fa39dd126e48665b9fa6ed7ba492e93ef133f5b7` before the rename began.
+
+The move manifest in Git evidence enumerates 753 exact tracked path pairs.
+Every destination exists and every tracked source was removed. One
+focused diff-note support module was extracted. CWD-relative paths,
+multi-component fixture paths, generated test setup, configs, live links
+and imports follow the relocated tree. The support folder is absent from
+the current Intent roster, which has no diff. Historical settings and
+source are still readable at the pre-retirement revision. The archived
+comparison overlay remains pinned to its old revision; tracked historical
+findings, done records, changelog and observed-runs fixture bytes match.
+
+Exact before-and-after discovery matched project, spec and title for
+797 E2E, 695 Frontend and 1,710 Backend cases. All 652 Distribution job
+names matched byte-for-byte. Local smoke execution passed 11 E2E, 21
+Frontend, 49 Backend and 15 Distribution jobs plus dashboard typecheck.
+The first Backend run exposed the artifact proof's old server-bundle URL
+suffix. Matching the actual neighboring module URL restored interception
+and both observed gate cases passed. Import wrapping promoted eight more
+local test sources to the size check. Existing setup or observation
+owners absorbed the necessary small consolidations; no registered cases
+or assertions changed. The read-only formatting check found no remaining
+over-limit source. Git evidence `slice-7-return.md` records the precise
+observations, terminal run records and completed bounded consumer trace.
+The exact hosted suite run and four-entry artifact remain before done.
+
+Independent review corrected a surviving MakeMe import that traversed
+the old directory before resolving to Distribution. Its single Frontend
+consumer passed. Bulk selective formatting finished its fix pass and
+exposed `no-param-reassign` in the shortened launch-duplicate spec.
+Restoring the existing local fixture binding retained the original
+mutation and guard. Focused Prettier, ESLint, Backend execution and
+typecheck passed, and each owned implementation source is within 250
+lines after formatting. Full project lint follows without repeating the
+already applied bulk fixes.
+
+Slice 6 hosted run 44310084055 attempt 1 had exactly one failed job:
+E2E shard 6's checkout could not connect to GitHub on port 443 after
+three attempts. No test ran in that job. The completed diagnostic
+record confirms the full failed-job inventory and the checkout errors.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: the provisional plan was replaced in

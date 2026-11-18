@@ -3,13 +3,16 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
   writeClaudeSession,
-} from "../../tests/usage-history/importHarness.ts";
-import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("recovers Claude historical renamed seed, backlog and completion facts from recorded Git reads with separate report outcomes", async ({
   home,

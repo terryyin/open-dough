@@ -1,7 +1,7 @@
 import {
   comparisonReading,
   comparisonEntryCell,
-} from "../../tests/intentCiComparisonPage.ts";
+} from "../../test-support/intentCiComparisonPage.ts";
 // Relative timing changes in a selected story's CI comparison
 // (../../src/IntentCiTimeChange.tsx, ../../src/storyCiRelativeChange.ts):
 // each comparable change shows its signed words beside a mark whose zero sits
@@ -13,25 +13,25 @@ import {
 // marks or the order, and stays chosen across the story's views and a visit
 // to Project Intent (SEED-275#story-intent-tabs). The comparison and each
 // run's proof are canonical endpoint answers
-// (../../tests/support/frontendIntentComparison.ts); rule variants are
+// (../../test-support/support/frontendIntentComparison.ts); rule variants are
 // intent-ci-comparison-mounted-relative.spec.ts's and
 // intent-summary-story-comparison-mounted-relative.spec.ts's.
 
 import {
   openProjectIntent,
   returnToStory,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
-} from "../../tests/support/intentStoryPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
 import {
   rowNames,
   sortButton,
-} from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
 import {
   expectMark,
   markGeometry,
@@ -39,8 +39,8 @@ import {
   showPercent,
   timeMarks,
   expectPercentageValues,
-} from "../../tests/support/relativeTimingMarks.ts";
-import { relativelyTimed } from "../../tests/support/relativelyTimedStory.ts";
+} from "../../test-support/support/relativeTimingMarks.ts";
+import { relativelyTimed } from "../../test-support/support/relativelyTimedStory.ts";
 
 test("relative changes share one centred scale, without a mark for an added entry or a zero baseline, and Show % reveals every percentage together", async ({
   page,

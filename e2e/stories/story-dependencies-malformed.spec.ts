@@ -1,18 +1,21 @@
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
-import { notFoundAnswer } from "../../dashboard/tests/originAnswers.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { notFoundAnswer } from "../../dashboard/test-support/originAnswers.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   consumer,
   test,
   twoDependencies,
-} from "../../dashboard/tests/storyDependencyFixture.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyDependencyFixture.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/test-support/storyCardFacts.ts";
 
 test("malformed and unreadable dependency facts block execution without blocking refinement", async ({
   page,

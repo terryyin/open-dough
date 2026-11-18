@@ -1,11 +1,11 @@
 import {
   readFailure,
   readRetry,
-} from "../../dashboard/tests/intentReadRecoveryPage.ts";
+} from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 import {
   fileSource,
   sourceFile,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent distinguishes unusable locations and failed reads
 // (../../dashboard/src/IntentPerspective.tsx): empty or missing paths, pattern misses,
 // unsupported kinds, failed reads with retry, and settings problems, while
@@ -13,23 +13,23 @@ import {
 // unusable location's name shows its Summary with path, file count, and the
 // same location explanation the expanded body uses.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
   intentLocationName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
-import { publishIntentProject } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+import { publishIntentProject } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   doughnut,
   mixedSettings,
   usableFeature,
-} from "../../dashboard/tests/intentGherkinUnusableFixtures.ts";
+} from "../../dashboard/test-support/intentGherkinUnusableFixtures.ts";
 // Settings problems: ../../dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts
 
 test("Intent names empty, missing, and unsupported locations while others browse; failed file reads retry", async ({

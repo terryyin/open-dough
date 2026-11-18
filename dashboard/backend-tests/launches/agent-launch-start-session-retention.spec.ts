@@ -4,26 +4,26 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   dropExpiredAttempts,
   landingRetentionClock,
-} from "../../tests/support/landingRetentionClock.ts";
+} from "../../test-support/support/landingRetentionClock.ts";
 import {
   holdStarts,
   keptSessionStarts,
-} from "../../tests/support/keptSessionStart.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+} from "../../test-support/support/keptSessionStart.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   git,
   isolatedSession,
   isolatedStart,
   recordStarts,
   worktree,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

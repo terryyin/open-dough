@@ -1,8 +1,8 @@
-import { ciStatusReading } from "../../tests/intentCiStatusPage.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { ciStatusReading } from "../../test-support/intentCiStatusPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Taken stories retain their actual live judgment and provisional endpoint words.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 
 for (const mode of ["story-branch", "trunk"] as const) {
   for (const adapter of [false, true]) {

@@ -2,7 +2,7 @@
 // Keyboard Unreview after restart preserves card order, selection and repository bytes. The card-interaction journey remains in
 // ../../dashboard/frontend-tests/stories/recently-done-review-state.spec.ts.
 
-import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   doneCard,
   doneStories,
@@ -17,17 +17,20 @@ import {
   storyC,
   storyActions,
   unreviewStory,
-} from "../../dashboard/tests/recentlyDoneReviewState.ts";
+} from "../../dashboard/test-support/recentlyDoneReviewState.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { sidePanelContents } from "../../dashboard/tests/support/sidePanelContents.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { sidePanelContents } from "../../dashboard/test-support/support/sidePanelContents.ts";
 import {
   emptyArea,
   expectSelected,
-} from "../../dashboard/tests/storyCardSelection.ts";
+} from "../../dashboard/test-support/storyCardSelection.ts";
 
 const titles = doneStories.map(({ title }) => title);
 

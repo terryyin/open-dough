@@ -2,9 +2,9 @@
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { createComparisonRenderer } from "../../tests/support/comparisonRendering.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { createComparisonRenderer } from "../../test-support/support/comparisonRendering.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 
 const sharedDefaultCache = path.join(repoRoot, "dashboard/node_modules/.vite");
 

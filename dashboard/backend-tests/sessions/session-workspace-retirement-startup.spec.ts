@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { WebSocket } from "ws";
-import { test as base, expect } from "../../tests/support/pageTest.ts";
+import { test as base, expect } from "../../test-support/support/pageTest.ts";
 import { terminalWorkspaceUnavailableCode } from "../../src/agentTerminal.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

@@ -6,14 +6,14 @@
 // availability and semantic activity; a confirmed omission is unavailable;
 // listing that fails answers `unknown`. Nothing of it is stored, and with no
 // records kept no `claude` runs. The synthetic `claude`
-// (../../tests/fixtures/fake-claude) lists what it launched as the real one does, and
+// (../../test-support/fixtures/fake-claude) lists what it launched as the real one does, and
 // its controls end or forget a session or fail the listing; the real one is
 // never reached. What a launch answers and keeps is
 // ../launches/agent-launch-boundary.spec.ts.
 
 import { readFileSync } from "node:fs";
-import { launchStoreFile } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { launchStoreFile } from "../../test-support/support/launchStore.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launch,
   launchRequest,
@@ -21,16 +21,16 @@ import {
   machineSessions,
   projectRecords,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   closeOpenSessions,
   distinctStoryRequest,
-} from "../../tests/openStorySessionSetup.ts";
+} from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import type { ClaudeSessionChange } from "../../tests/support/fakeClaude.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import type { ClaudeSessionChange } from "../../test-support/support/fakeClaude.ts";
 
 type WithState = {
   session: { sessionId: string };

@@ -1,27 +1,30 @@
 // After worktree/branch retirement and trunk advance, selecting the retained
 // ad hoc row reaches the story's historical Review and Intent coverage
 // (../../dashboard/src/recentlyDoneSelection.ts) without rewriting Ad hoc. Reuses the
-// real completion publish path (../../dashboard/tests/support/adHocCompletedAssociation.ts) and
-// Intent review helpers (../../dashboard/tests/support/intentStoryPage.ts).
-import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
-import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
+// real completion publish path (../../dashboard/test-support/support/adHocCompletedAssociation.ts) and
+// Intent review helpers (../../dashboard/test-support/support/intentStoryPage.ts).
+import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
+import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
 import {
   chooseStoryTab,
   openReviewFromIntent,
   storyHeaderReading,
   storyTitle,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   git,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 

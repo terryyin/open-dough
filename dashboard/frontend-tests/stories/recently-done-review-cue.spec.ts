@@ -1,12 +1,12 @@
 // A developer scanning Recently done can distinguish the outstanding review
 // action from a reviewed story in either appearance, before selecting a card.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendBoardReview,
   storyA,
   storyB,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import {
   doneCard,
   expectQuietReviewed,
@@ -15,11 +15,11 @@ import {
   markAsReviewed,
   reviewedButton,
   unreviewStory,
-} from "../../tests/recentlyDoneReviewState.ts";
+} from "../../test-support/recentlyDoneReviewState.ts";
 import {
   expectFocusReadable,
   setColorScheme,
-} from "../../tests/systemAppearanceReading.ts";
+} from "../../test-support/systemAppearanceReading.ts";
 
 for (const appearance of [
   {

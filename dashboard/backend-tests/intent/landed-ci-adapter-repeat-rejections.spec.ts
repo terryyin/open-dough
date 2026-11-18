@@ -1,14 +1,17 @@
 // Admission failures retain one spent request without later attribution.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { prepareAdapterRepeatScenario } from "../../test-support/support/ciFollowUpAdapterScenario.ts";
 import {
   ingest,
   retained,
   requestOf,
   unverifiedCards,
-} from "../../tests/support/ciFollowUpAdapterAssertions.ts";
-import type { Answers } from "../../tests/intentCiAdapterFixture.ts";
-import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
+} from "../../test-support/support/ciFollowUpAdapterAssertions.ts";
+import type { Answers } from "../../test-support/intentCiAdapterFixture.ts";
+import { retainedHistory } from "../../test-support/support/collectedScopeHistory.ts";
 
 test.use({ serverMode: "boundary" });
 const submissions: readonly [string, Partial<Answers>, string][] = [

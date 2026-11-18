@@ -52,11 +52,11 @@ export function suiteRunnerLayer() {
       "Distribution/tests/support/node-test-failures-reporter.mjs",
       "Distribution/tests/support/node-test-case-outcomes-reporter.mjs",
       "Distribution/tests/support/check-stop-report.bash",
-      "dashboard/tests/support/testFiles.mjs",
-      "dashboard/tests/support/suiteDeadline.mjs",
-      "dashboard/tests/support/browserArgs.ts",
-      "dashboard/tests/support/fullSuiteSelection.mjs",
-      "dashboard/tests/support/runnerConfig.mjs",
+      "dashboard/test-support/support/testFiles.mjs",
+      "dashboard/test-support/support/suiteDeadline.mjs",
+      "dashboard/test-support/support/browserArgs.ts",
+      "dashboard/test-support/support/fullSuiteSelection.mjs",
+      "dashboard/test-support/support/runnerConfig.mjs",
     ]);
     const withFramework = (config) =>
       readFileSync(path.join(source, config), "utf8").replace(

@@ -1,12 +1,15 @@
 // Receipt admission through actual ingestion: a Done receipt gets no repeat
 // below the 5% rule, for another story's Taken work, or without complete
 // original jobs.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   followUpCards,
   prepareRepeatScenario,
-} from "../../tests/support/ciFollowUpScenario.ts";
-import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/ciFollowUpScenario.ts";
+import { landedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 test.use({ serverMode: "boundary" });
 
 test("a new104-second Done original is collected with sufficient history without a repeat", async ({

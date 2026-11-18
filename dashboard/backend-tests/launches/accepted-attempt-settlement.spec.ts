@@ -7,10 +7,10 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 test("following a live attempt waits past outcome replacement until its writer releases the lock", async () => {
   const home = mkdtempSync(path.join(tmpdir(), "dough-settled-"));

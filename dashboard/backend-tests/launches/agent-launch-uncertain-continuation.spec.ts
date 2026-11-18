@@ -14,11 +14,11 @@ import {
   launchRequest,
   refinementRequest,
   runningStarts,
-} from "../../tests/agentLaunchBoundary.ts";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
-import { test as startTest } from "../../tests/support/startOriginTest.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
+import { test as startTest } from "../../test-support/support/startOriginTest.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });

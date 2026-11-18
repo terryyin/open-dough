@@ -1,14 +1,14 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   proofDirectory,
   readProof,
   removeProofDirectories,
   startProofCommand,
   splitExcluding,
-} from "../../tests/support/proofRecordRun.ts";
+} from "../../test-support/support/proofRecordRun.ts";
 
 test.afterAll(removeProofDirectories);
 

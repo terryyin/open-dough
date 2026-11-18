@@ -2,18 +2,21 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   legacyHistory,
   writeLegacyStore,
   writePagedStore,
-} from "../../tests/usage-history/earlierStores.ts";
+} from "../../test-support/usage-history/earlierStores.ts";
 import {
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
-import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 const wrapper =
   "<recommended_plugins>PRIVATE-INJECTED-CONTEXT</recommended_plugins>\n# AGENTS.md instructions\n<INSTRUCTIONS>PRIVATE-RULES</INSTRUCTIONS>\n<environment_context>private environment</environment_context>\n<system-reminder>PRIVATE-SYSTEM-CONTEXT</system-reminder>";

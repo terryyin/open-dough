@@ -3,36 +3,36 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { markDone } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
   openTerminal,
   shows,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   quote,
   reportingChild,
-} from "../../tests/support/completionRecovery.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/completionRecovery.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   commit,
   git,
-} from "../../tests/support/launchLanding.ts";
-import { startBoundary } from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchLanding.ts";
+import { startBoundary } from "../../test-support/support/launchDashboard.ts";
 import {
   executionRecordBytes,
   nativeNextSlice,
-} from "../../tests/support/retainedStoryLanding.ts";
+} from "../../test-support/support/retainedStoryLanding.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../tests/support/storyBranchIntegration.ts";
+} from "../../test-support/support/storyBranchIntegration.ts";
 
 const pendingPlan =
   "# Story A plan\n\n## Ordered slices\n\n### 1. Reviewed result\nType: Behavior\nStatus: done\n\n### 2. Release result\nType: Behavior\nStatus: planned\n";

@@ -7,25 +7,25 @@
 
 import { markDoneUnresolved } from "../../dashboard/src/pageSessions.ts";
 import { markDoneWaitMs } from "../../dashboard/src/sessionRecordRequests.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   readyStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { holdDoneRequestRoute } from "../../dashboard/tests/support/holdDoneRequest.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { holdDoneRequestRoute } from "../../dashboard/test-support/support/holdDoneRequest.ts";
 import {
   headerMarkAsDone,
   idleBetweenSteps,
   sendDoneMarkAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

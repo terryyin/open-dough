@@ -1,28 +1,31 @@
 // An unattached session keeps its instruction and policy through touch
 // editing, then cancels or explicitly submits through the real start origin.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   closeSidePanelToBoard,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
   tapWhereShown,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   phoneLaunchTouchViewport,
   typeInstructionLine,
-} from "../../dashboard/tests/touchLaunchPage.ts";
-import { startedSessionTerminal } from "../../dashboard/tests/support/startedSessionTerminal.ts";
+} from "../../dashboard/test-support/touchLaunchPage.ts";
+import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 
 const defaultMainEffects =
   "Default main · Automatically land The session runs in this project's folder on default main, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";

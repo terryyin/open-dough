@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 import type { WebSocket } from "ws";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { JoinedSockets } from "../../server/joinedSockets.ts";
 import type { ScreenReplay } from "../../server/keptClientScreen.ts";
 import type { TerminalSession } from "../../server/agentTerminals.ts";

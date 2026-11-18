@@ -1,14 +1,18 @@
 // Local intent survives asynchronous native evidence and is cleared only by readiness.
-import { shows } from "../../tests/agentTerminalBoundary.ts";
-import { openCodexTerminal } from "../../tests/support/codexTerminal.ts";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+import { shows } from "../../test-support/agentTerminalBoundary.ts";
+import { openCodexTerminal } from "../../test-support/support/codexTerminal.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   launch,
   refinementRequest,
   markDone,
   deleteRecord,
   machineSessions,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });

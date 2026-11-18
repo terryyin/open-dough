@@ -1,36 +1,39 @@
 import { readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../dashboard/tests/support/voiceTest.ts";
-import { inIncidentRecord } from "../../dashboard/tests/support/machineRecordNames.ts";
-import { voiceBrowserOptions } from "../../dashboard/tests/support/voiceRecovery.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/voiceTest.ts";
+import { inIncidentRecord } from "../../dashboard/test-support/support/machineRecordNames.ts";
+import { voiceBrowserOptions } from "../../dashboard/test-support/support/voiceRecovery.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   instructionField,
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedStory,
   notRefinedIdentity,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
   saveVoiceKey,
   seedVoiceKey,
   voiceKey,
-} from "../../dashboard/tests/support/voicePage.ts";
+} from "../../dashboard/test-support/support/voicePage.ts";
 import {
   apiKey,
   save,
   status,
-} from "../../dashboard/tests/support/openAISettingsPage.ts";
-import { back } from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/openAISettingsPage.ts";
+import { back } from "../../dashboard/test-support/support/systemSettingsPage.ts";
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);

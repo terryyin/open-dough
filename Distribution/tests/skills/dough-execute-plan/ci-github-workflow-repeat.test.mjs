@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
-import { actionsRunsAnswer } from "../../../../dashboard/tests/support/baseCiActions.ts";
+import { actionsRunsAnswer } from "../../../../dashboard/test-support/support/baseCiActions.ts";
 import * as actions from "../../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { GitHubRequests } from "../../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
 import {

@@ -6,8 +6,8 @@
 // commit modifies has only its own history listed and walked, and a profile
 // removed and re-added with identical text credits the re-adding commit's
 // committer and time, never what the same text was credited with before. The
-// fake GitHub only publishes the commits and histories (../../dashboard/tests/publishedFiles.ts,
-// ../../dashboard/tests/assignmentCreditRecords.ts); the local read boundary, its memo, and the
+// fake GitHub only publishes the commits and histories (../../dashboard/test-support/publishedFiles.ts,
+// ../../dashboard/test-support/assignmentCreditRecords.ts); the local read boundary, its memo, and the
 // page decide what is asked and shown.
 
 import type { Page } from "@playwright/test";
@@ -16,28 +16,31 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
   parts,
   rosterParts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { credit, detailHuman } from "../../dashboard/tests/agentCredit.ts";
-import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  credit,
+  detailHuman,
+} from "../../dashboard/test-support/agentCredit.ts";
+import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { avatarPathsRead } from "../../dashboard/tests/avatarAnswers.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { avatarPathsRead } from "../../dashboard/test-support/avatarAnswers.ts";
 import {
   avatarHost,
   creditedAvatar,
-} from "../../dashboard/tests/agentAttributionRecords.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+} from "../../dashboard/test-support/agentAttributionRecords.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import {
   additionOf,
   agents,
@@ -54,7 +57,7 @@ import {
   toC,
   toD,
   type Move,
-} from "../../dashboard/tests/assignmentCreditRecords.ts";
+} from "../../dashboard/test-support/assignmentCreditRecords.ts";
 
 // The planned card's clock runs from its plan's last commit, half an hour
 // before the page opened, until a Take is recorded later.

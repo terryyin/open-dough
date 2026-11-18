@@ -6,32 +6,35 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { oneShot } from "../../dashboard/tests/support/oneShotLaunch.ts";
-import { requestFor } from "../../dashboard/tests/support/launchDashboard.ts";
-import { commit, git } from "../../dashboard/tests/support/launchLanding.ts";
-import { landingGitFault } from "../../dashboard/tests/support/launchLandingFault.ts";
-import { context } from "../../dashboard/tests/support/oneShotLanding.ts";
-import { retireReviewRun } from "../../dashboard/tests/support/oneShotReview.ts";
-import { keptAttempts } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../dashboard/test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../dashboard/test-support/support/launchDashboard.ts";
+import {
+  commit,
+  git,
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { landingGitFault } from "../../dashboard/test-support/support/launchLandingFault.ts";
+import { context } from "../../dashboard/test-support/support/oneShotLanding.ts";
+import { retireReviewRun } from "../../dashboard/test-support/support/oneShotReview.ts";
+import { keptAttempts } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   reportingChild,
   recordOperation,
   completionWriteFault,
   completionProxy,
-} from "../../dashboard/tests/support/completionRecovery.ts";
+} from "../../dashboard/test-support/support/completionRecovery.ts";
 import {
   publishLanding,
   resumeLanding,
   retainedLanding,
-} from "../../dashboard/tests/support/oneShotLandingRecovery.ts";
+} from "../../dashboard/test-support/support/oneShotLandingRecovery.ts";
 import { landingReceiptSchema } from "../../dashboard/src/launchLanding.ts";
-import { observeLandingRecoveryIntent } from "../../dashboard/tests/support/landingRecoveryIntent.ts";
+import { observeLandingRecoveryIntent } from "../../dashboard/test-support/support/landingRecoveryIntent.ts";
 
 test("a lost reconciled push result and record write recover the exact original launch once after retirement", async ({
   dashboard,

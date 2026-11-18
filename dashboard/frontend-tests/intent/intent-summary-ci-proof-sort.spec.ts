@@ -6,28 +6,28 @@
 // last under any sort, the group unmoved, and the sort kept in memory while
 // drilling down and across Development and back, never on the URL or in
 // storage (SEED-259#scan-intent-ci-summaries key example 2). The proof answer
-// is controlled (../../tests/support/frontendSummaryCiProof.ts). A story
+// is controlled (../../test-support/support/frontendSummaryCiProof.ts). A story
 // comparison's Summary: ./intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { parts } from "../../tests/dashboardPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   childName,
   expectScopeRows,
   scopeFigures,
   scopeTable,
   summaryRegion,
-} from "../../tests/intentScopeProofPage.ts";
-import { openSummary } from "../../tests/intentSummaryCiProofFixtures.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentScopeProofPage.ts";
+import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   expectSortedBy,
   expectUnsortedRows,
   sortButton,
-} from "../../tests/support/expectSortedColumns.ts";
-import { openSummaryCiProof } from "../../tests/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
+import { openSummaryCiProof } from "../../test-support/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const outside = "Not in the rows above";
 const one = "1 of 1 part present";

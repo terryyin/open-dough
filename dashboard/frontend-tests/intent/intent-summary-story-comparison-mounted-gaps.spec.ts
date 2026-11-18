@@ -1,6 +1,6 @@
 // Real Summary gap rendering with canonical prepared endpoint and proof answers.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   comparisonLabels,
   expectLeadingEvidenceLabels,
@@ -8,14 +8,14 @@ import {
   expectLabelInFull,
   expectNoComparisonFraming,
   expectObservedNotAttributed,
-} from "../../tests/ciEvidenceLabelsPage.ts";
-import { expectComparisonScopeRows } from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import { expectComparisonScopeRows } from "../../test-support/intentScopeProofPage.ts";
 import {
   noBreakdownEntryRows,
   runningLandedEntryRows,
   trunkEntryRows,
-} from "../../tests/support/summaryComparisonGapExpectedRows.ts";
-import { entryComparisonRows } from "../../tests/support/summaryComparisonExpectedRows.ts";
+} from "../../test-support/support/summaryComparisonGapExpectedRows.ts";
+import { entryComparisonRows } from "../../test-support/support/summaryComparisonExpectedRows.ts";
 
 test("Summary keeps entry totals and explains every child when Baseline lacks file breakdown", async ({
   page,

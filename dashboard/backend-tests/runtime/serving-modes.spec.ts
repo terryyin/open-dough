@@ -4,34 +4,45 @@
 import WebSocket from "ws";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
   type DashboardServerMode,
-} from "../../tests/support/dashboardServer.ts";
-import { accept, launchRequest } from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  accept,
+  launchRequest,
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   refusedResponse,
   terminalUrl,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   otherProjectEnvironment,
   projectConfigurationFile,
   projectEnvironmentOf,
-} from "../../tests/support/projectConfiguration.ts";
-import { rawRequest, type RawResponse } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/projectConfiguration.ts";
+import {
+  boundaryAnswerOf,
+  rawRequest,
+  type BoundaryAnswer,
+  type RawResponse,
+} from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 import {
   liveRunner,
   runnerCommand,
-} from "../../tests/support/cursorRunnerJourney.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
-import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
+} from "../../test-support/support/cursorRunnerJourney.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { expectSuppliedIcons } from "../../test-support/support/brandIcons.ts";
 
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
 const modes = ["dev", "preview"] as const;
@@ -39,30 +50,9 @@ const revision = "ab".repeat(20);
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
 
-// Keep text responses as text so a page returned in place of JSON fails parity.
-type Answer = {
-  readonly status: number;
-  readonly cacheControl: string | string[] | undefined;
-  readonly body: unknown;
-};
-
-function answerOf(response: RawResponse): Answer {
-  let body: unknown = response.body;
-  try {
-    body = JSON.parse(response.body);
-  } catch {
-    // Not JSON: compared as the text it is.
-  }
-  return {
-    status: response.status,
-    cacheControl: response.headers["cache-control"],
-    body,
-  };
-}
-
 // The answer without the moment it was asked, which each server stamps
 // itself; both must stamp it.
-function timeless(answer: Answer): Answer {
+function timeless(answer: BoundaryAnswer): BoundaryAnswer {
   const { askedAt, ...body } = answer.body as { askedAt?: unknown };
   expect(typeof askedAt).toBe("string");
   return { ...answer, body };
@@ -95,12 +85,12 @@ test.describe("serving modes mount the same boundaries", () => {
   // request having seen only its own server.
   async function asked(
     request: (server: DashboardServer) => Promise<RawResponse>,
-  ): Promise<{ dev: Answer; preview: Answer }> {
+  ): Promise<{ dev: BoundaryAnswer; preview: BoundaryAnswer }> {
     const [dev, preview] = await Promise.all([
       request(servers.dev),
       request(servers.preview),
     ]);
-    return { dev: answerOf(dev), preview: answerOf(preview) };
+    return { dev: boundaryAnswerOf(dev), preview: boundaryAnswerOf(preview) };
   }
 
   test("the launch boundary refuses the same request and lists the same sessions in both", async () => {

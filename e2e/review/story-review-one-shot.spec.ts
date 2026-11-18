@@ -1,35 +1,38 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Captured-through-CLI evidence survives actual retirement and changing trunk.
 import {
   changedFilesList,
   listedFile,
   fileDiff,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { mkdirSync, readFileSync } from "node:fs";
-import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexStart.ts";
 import {
   baseline,
   writeReviewResult,
   advanceAndRevert,
-} from "../../dashboard/tests/support/oneShotReviewFiles.ts";
+} from "../../dashboard/test-support/support/oneShotReviewFiles.ts";
 import {
   startReviewRun,
   captureReviewRun,
   retireReviewRun,
   openCapturedReview,
   repositoryObservation,
-} from "../../dashboard/tests/support/oneShotReview.ts";
+} from "../../dashboard/test-support/support/oneShotReview.ts";
 import {
   readReview,
   refreshReview,
-} from "../../dashboard/tests/support/launchLandingReview.ts";
+} from "../../dashboard/test-support/support/launchLandingReview.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
 test("a retired one-shot's common file browser reads only its captured pair after trunk advances, reverts the result, and the dashboard restarts", async ({
   page,

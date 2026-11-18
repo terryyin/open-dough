@@ -3,19 +3,19 @@ import {
   sourceFile,
   sourceLineNumbers,
   sourceText,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent browses and reads configured Gherkin source at the observed revision
 // (../../dashboard/src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
 // nested folders after expand, exact text with line numbers and Gherkin
 // styling, and project change. Layout scrolling lives in
 // `../../dashboard/frontend-tests/intent/intent-gherkin-layout.spec.ts`.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   parts,
   shortRevision,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -23,10 +23,13 @@ import {
   expectIntentGroupsCollapsed,
   intentGroupToggle,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { intentModeTab } from "../../dashboard/tests/intentModePage.ts";
-import { colourOf, sourceToken } from "../../dashboard/tests/pageColours.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { intentModeTab } from "../../dashboard/test-support/intentModePage.ts";
+import {
+  colourOf,
+  sourceToken,
+} from "../../dashboard/test-support/pageColours.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   doughnut,
   doughnutSettings,
@@ -35,7 +38,7 @@ import {
   pygardon,
   pygardonSettings,
   recallFeature,
-} from "../../dashboard/tests/intentGherkinBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentGherkinBrowseFixtures.ts";
 
 test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text with line numbers, and replaces content on project change", async ({
   page,

@@ -7,49 +7,49 @@
 // here launches or attaches an agent; a real Take is
 // ../../../e2e/launches/agent-launch-story-card.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts, shortRevision } from "../../tests/dashboardPage.ts";
-import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
-import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";
-import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts, shortRevision } from "../../test-support/dashboardPage.ts";
+import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
+import { advanceFrontendDoneProject } from "../../test-support/support/frontendDoneProjectRefresh.ts";
+import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
 import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
 import {
   failFrontendSupplierSeed,
   putFrontendActiveReference,
-} from "../../tests/support/frontendStoryReferences.ts";
-import { putFrontendDependencies } from "../../tests/support/frontendStoryDependencies.ts";
-import { twoDependencies } from "../../tests/storyDependencyFixture.ts";
-import { expectReadingTop } from "../../tests/readingPlace.ts";
+} from "../../test-support/support/frontendStoryReferences.ts";
+import { putFrontendDependencies } from "../../test-support/support/frontendStoryDependencies.ts";
+import { twoDependencies } from "../../test-support/storyDependencyFixture.ts";
+import { expectReadingTop } from "../../test-support/readingPlace.ts";
 import {
   emptyArea,
   expectInspected,
   expectSelected,
   storyDetail,
-} from "../../tests/storyCardSelection.ts";
+} from "../../test-support/storyCardSelection.ts";
 import {
   canonicalRecord,
   hideDetail,
   inspectionToggle,
   storyCard,
-} from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardControls.ts";
 import {
   dependencySummary,
   followReference,
   openDependencies,
   referenceNotice,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 import {
   expectCueEnds,
   expectDestinationCue,
   expectDestinationCueRestarted,
   holdDestinationCueWhileFading,
   passPartOfCue,
-} from "../../tests/destinationCue.ts";
+} from "../../test-support/destinationCue.ts";
 
 test.use({ hasTouch: true });
 

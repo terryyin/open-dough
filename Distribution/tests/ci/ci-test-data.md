@@ -97,5 +97,5 @@ render the built story, turning its published proofs into endpoint proofs
 through the real comparison owner, and `comparisonServices.serve(story)`
 answers its reads in a mounted case.
 [Compared story builder](../support/comparedStoryTestData.mjs) ·
-[Rendering fixtures](../../../dashboard/tests/support/pageTest.ts) ·
-[Mounted services](../../../dashboard/tests/support/comparisonMountPage.ts)
+[Rendering fixtures](../../../dashboard/test-support/support/pageTest.ts) ·
+[Mounted services](../../../dashboard/test-support/support/comparisonMountPage.ts)

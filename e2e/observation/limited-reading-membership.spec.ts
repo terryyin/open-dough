@@ -1,28 +1,28 @@
 // A page whose membership read meets GitHub's rate limit shows that nothing
 // has been read, says once when reading resumes, and asks nothing until then
-// (../../dashboard/tests/limitedReadingJourney.ts).
+// (../../dashboard/test-support/limitedReadingJourney.ts).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openedBeside,
   waitSeconds,
   whileTheLimitStands,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
 import {
   failedAt,
   noticedResumeTime,
-} from "../../dashboard/tests/limitNotice.ts";
+} from "../../dashboard/test-support/limitNotice.ts";
 import {
   files,
   opened,
   repository,
   revision,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 
 test("limiting the membership read shows that nothing has been read, says once when reading resumes, and asks nothing until then", async ({
   page,

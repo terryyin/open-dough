@@ -1,11 +1,11 @@
 // Explain why a standalone session has no readable captured comparison.
 import path from "node:path";
 import { unlinkSync } from "node:fs";
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import { adHocReview } from "../../test-support/support/adHocReview.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 test.use({ serverMode: "boundary" });
 

@@ -1,9 +1,12 @@
 // A case owns a boundary server from the moment it asks it to start, even
 // when the case ends before startup resolves. Fixture teardown closes that
 // server before its origin is removed.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 test.use({ serverMode: "boundary" });
 

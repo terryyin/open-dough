@@ -8,36 +8,40 @@ import type { Locator, Page } from "@playwright/test";
 import {
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../tests/sidePanelFrame.ts";
-import { reviewChanges } from "../../tests/storyCardControls.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
+} from "../../test-support/sidePanelFrame.ts";
+import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
 import {
   expect,
   takenStoryCard,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   takenBacklogMarkdown,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
-import { installFrontendStoryReview } from "../../tests/support/frontendStoryReview.ts";
-import { keepTakenReviewLaunch } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { largeBacklog } from "../../tests/accessibleBoard.ts";
-import { boardScroll, scrollYOf, showColumn } from "../../tests/boardPage.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
+import { keepTakenReviewLaunch } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { largeBacklog } from "../../test-support/accessibleBoard.ts";
+import {
+  boardScroll,
+  scrollYOf,
+  showColumn,
+} from "../../test-support/boardPage.ts";
 import {
   expectDocumentStill,
   pressScrollbarTrack,
   untilBoardRests,
   wheelBy,
-} from "../../tests/boardReading.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
-import { box, closeSidePanelToBoard } from "../../tests/pageLayout.ts";
-import { dashboardBrowserArgs } from "../../tests/support/browserArgs.ts";
+} from "../../test-support/boardReading.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { box, closeSidePanelToBoard } from "../../test-support/pageLayout.ts";
+import { dashboardBrowserArgs } from "../../test-support/support/browserArgs.ts";
 import {
   dragDivider,
   expectCoveringFillsWindow,
   panelDivider,
-} from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sidePanelWidthPage.ts";
 
 // Exercise the browser's actual scrollbar; Playwright normally hides it.
 test.use({

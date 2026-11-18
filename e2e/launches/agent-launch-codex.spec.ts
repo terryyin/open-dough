@@ -1,58 +1,58 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
 
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalControl,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import path from "node:path";
 import {
   startDashboardServer,
   sharedDashboardBuild,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   openTakenBacklog,
   installRefinementSkill,
   instructionField,
   showOptions,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedStory,
   notRefinedIdentity,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   storyCardSessions,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   test,
   expect,
   expectOneThreadStarted,
   stored,
   codexSkill,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   machineSessions,
   deleteRecord,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { passive } from "../../dashboard/tests/support/codexObservation.ts";
-import { expectMixedContinuation } from "../../dashboard/tests/continuationPage.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { passive } from "../../dashboard/test-support/support/codexObservation.ts";
+import { expectMixedContinuation } from "../../dashboard/test-support/continuationPage.ts";
 import {
   expectSavedContinuation,
   expectResumeCommand,
   disconnectContinuation,
-} from "../../dashboard/tests/support/codexContinuation.ts";
+} from "../../dashboard/test-support/support/codexContinuation.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({
   projectFolders: ["open-dough"],

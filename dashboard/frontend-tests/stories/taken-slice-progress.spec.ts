@@ -8,22 +8,25 @@ import type { PlanSlice } from "../../src/storyPlan.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { putFrontendPublished } from "../../test-support/support/frontendServiceState.ts";
 import {
   shortRevision,
   expectMembership,
   parts,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   backlogApart,
   describedRevisions,
-} from "../../tests/describedRevisions.ts";
-import { inspectedDetail, storyCard } from "../../tests/storyCardControls.ts";
+} from "../../test-support/describedRevisions.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../test-support/storyCardControls.ts";
 import {
   expectNoSliceCount,
   expectSliceBar,
-} from "../../tests/storyCardFacts.ts";
+} from "../../test-support/storyCardFacts.ts";
 
 const seedPath = ".planning/seeds/SEED-090-progress.md";
 

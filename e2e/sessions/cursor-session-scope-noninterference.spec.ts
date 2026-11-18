@@ -1,4 +1,4 @@
-import { askToDeleteRecord } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { askToDeleteRecord } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // Non-interference across scoped Cursor sessions and scope lifetime:
 // overlapping chosen-model launches keep separate scopes and models with
 // the shared configuration untouched; a subsequent Default launch follows
@@ -12,19 +12,22 @@ import path from "node:path";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { recordedScope } from "../../dashboard/tests/support/cursorScopeAssertions.ts";
-import { expectReadingWithoutScreenLabel } from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { recordedScope } from "../../dashboard/test-support/support/cursorScopeAssertions.ts";
+import { expectReadingWithoutScreenLabel } from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
   launchSecondHeldSession,
   startScopedCursorExecution,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { cursorModels } from "../../dashboard/tests/support/fakeCursor.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { cursorModels } from "../../dashboard/test-support/support/fakeCursor.ts";
 
 test.use({ cursorSubmitPaintMs: 300 });
 

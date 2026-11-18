@@ -2,8 +2,8 @@
 // session later verifies (After checks), with the story dialogs' words and no
 // Tracking choice; where it runs (Workspace) is
 // ./agent-launch-start-session-isolated.spec.ts's. With a real bare origin
-// (../../dashboard/tests/support/startOrigin.ts), the installed start recorded as it runs
-// (../../dashboard/tests/support/startSessionLanding.ts), and the synthetic `claude`:
+// (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded as it runs
+// (../../dashboard/test-support/support/startSessionLanding.ts), and the synthetic `claude`:
 // Automatically land runs the installed one-shot start with no identity in
 // the project folder and hands the session its "Established session" block,
 // then the reporting context, even with no text; the line beside Start names
@@ -20,32 +20,35 @@ import {
   attempts,
   keptStarts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   startSession,
   startSessionDialog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { status } from "../../dashboard/tests/support/defaultCheckoutChanges.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { status } from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   openBacklog,
   originMain,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   defaultMainSession,
   defaultMainStart,
   recordStarts,
   sessionBlock,
-} from "../../dashboard/tests/support/startSessionLanding.ts";
-import { expectLandingHandoff } from "../../dashboard/tests/support/startSessionLandingCapture.ts";
+} from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { expectLandingHandoff } from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
 
 const where =
   "The session runs in this project's folder on default main, with its existing changes;";

@@ -5,12 +5,12 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { passPageMs } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { passPageMs } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   isRevisionStream,
   openStreamingAtA,
@@ -21,22 +21,22 @@ import {
   revisionA,
   titlesOfA,
   routeFailingRevisionStreams,
-} from "../../dashboard/tests/revisionStreamJourney.ts";
+} from "../../dashboard/test-support/revisionStreamJourney.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
 import {
   publishMovingOrigin,
   noConnection,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
   doughnutRepository,
   revisionDoughnut,
   doughnutSharedTitle,
-} from "../../dashboard/tests/doughnutProject.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
-import { expectEarlierSnapshotKept } from "../../dashboard/tests/transientRecoveryPage.ts";
+import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
 

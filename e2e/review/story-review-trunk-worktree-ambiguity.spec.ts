@@ -1,7 +1,7 @@
 import {
   reviewRefresh,
   reviewRegion,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 // A Trunk Mode story taken in a terminal (./story-review-trunk-worktree.spec.ts)
 // beside other worktrees of the project's checkout, each added by Git and
 // authored through the real per-worktree authorship
@@ -13,7 +13,7 @@ import {
 // and names both as the context line would show them, with no context line,
 // file browser, diff, or comparison controls, and the boundary refuses to read either.
 
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
@@ -25,36 +25,39 @@ import {
   storyReviewRangeEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   agentWorktree,
   claimWorktree,
-} from "../../dashboard/tests/support/agentAuthoredWorktree.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/agentAuthoredWorktree.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
   reviewBody,
   reviewFeedback,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectTreeRows,
   changedFilesList,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
   type StartOrigin,
   type TakenStart,
-} from "../../dashboard/tests/support/startOrigin.ts";
-import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
+import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   commitAll,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const shown = (slug: string) => `~/git/open-dough/.worktrees/${slug}`;
 

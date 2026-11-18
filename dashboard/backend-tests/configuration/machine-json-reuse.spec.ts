@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   readMachineJson,
   replaceMachineJson,
@@ -17,7 +17,7 @@ import {
 import {
   replaceFileKeepingTimes,
   settleFile,
-} from "../../tests/support/machineFileIdentity.ts";
+} from "../../test-support/support/machineFileIdentity.ts";
 
 let directory: string;
 let parses: number;

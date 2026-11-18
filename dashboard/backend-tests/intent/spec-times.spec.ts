@@ -1,7 +1,7 @@
 // The per-spec-file times a run writes when its runner's `<prefix>_TIMES`
 // names a file (support/specTimes.ts): the form, the order, the per-file sum, and
 // that a failed run still writes it while a listing does not.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
@@ -11,8 +11,8 @@ import {
   readProof,
   removeProofDirectories,
   startProofRun,
-} from "../../tests/support/proofRecordRun.ts";
-import type { DashboardProofRecord } from "../../tests/support/proofRecordTypes.ts";
+} from "../../test-support/support/proofRecordRun.ts";
+import type { DashboardProofRecord } from "../../test-support/support/proofRecordTypes.ts";
 
 test.afterAll(removeProofDirectories);
 

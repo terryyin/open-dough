@@ -1,26 +1,26 @@
 // When the selected project's `main` names a new commit, the dashboard reads
 // that revision while what it already shows stays where it is: the read under
 // way is said without moving the columns. The journey's commits and records
-// are those of ../../dashboard/tests/refreshJourney.ts and
-// ../../dashboard/tests/autoRefreshJourney.ts; the page's clock is paused and
+// are those of ../../dashboard/test-support/refreshJourney.ts and
+// ../../dashboard/test-support/autoRefreshJourney.ts; the page's clock is paused and
 // advanced by the test.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openSettledAtA,
   passTimeUntilChecked,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogA,
   revisionB,
   titlesOfA,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { box } from "../../dashboard/tests/partArrangement.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { box } from "../../dashboard/test-support/partArrangement.ts";
 
 for (const { width, at } of [
   { width: 1280, at: "" },

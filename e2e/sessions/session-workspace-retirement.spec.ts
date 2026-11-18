@@ -2,39 +2,39 @@ import {
   readFinalReportControl,
   finalReportParts,
   readFinalReport,
-} from "../../dashboard/tests/finalReportPages.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/finalReportPages.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   expectProjectChoice,
   chooseProject,
   parts,
   sessionEntriesIn,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   report,
   save,
   retained,
   passive,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

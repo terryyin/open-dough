@@ -7,12 +7,12 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
 
 test.use({ permissions: ["clipboard-read", "clipboard-write"] });
 

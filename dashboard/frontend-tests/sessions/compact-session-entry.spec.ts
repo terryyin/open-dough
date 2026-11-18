@@ -1,5 +1,5 @@
 // The accepted Compact card hierarchy, against a controlled machine read,
-// done boundary (../../tests/support/frontendSessionActions.ts) and attached
+// done boundary (../../test-support/support/frontendSessionActions.ts) and attached
 // terminal: status and main access stay visible, routine facts and lifecycle
 // controls disclose independently, keyboard and narrow reading keep both
 // reachable. A Cursor entry's resume command is
@@ -9,40 +9,40 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
 import {
   frontendStoryLaunch,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import {
   doneQuestion,
   keepOpen,
   markAsDone,
   markDoneAnyway,
-} from "../../tests/support/markDone.ts";
+} from "../../test-support/support/markDone.ts";
 import {
   sessionActionsControl,
   sessionDetailsControl,
-} from "../../tests/support/sessionEntryDisclosure.ts";
-import { setPageVisibility } from "../../tests/autoRefreshJourney.ts";
+} from "../../test-support/support/sessionEntryDisclosure.ts";
+import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
 import {
   parts,
   sessionEntriesIn,
   sessionIdLineOf,
   sessionStateOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
-import { reloadUntilRead } from "../../tests/pageRequestNotes.ts";
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/dashboardPage.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
+import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

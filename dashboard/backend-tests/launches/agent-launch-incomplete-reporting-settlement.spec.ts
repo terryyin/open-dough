@@ -4,12 +4,12 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { execFileSync } from "node:child_process";
 import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   attempts,
   continued,
   launch,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   answerOf,
   installHook,
@@ -19,27 +19,27 @@ import {
   slug,
   workspaceOf,
   type Problem,
-} from "../../tests/keptExecutionStart.ts";
+} from "../../test-support/keptExecutionStart.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import {
   requestFor,
   startBoundary,
-} from "../../tests/support/launchDashboard.ts";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/support/launchDashboard.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
 import type { RecordedLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   plantIncompleteInstall,
   scriptsOf,
-} from "../../tests/support/incompleteReportingInstall.ts";
+} from "../../test-support/support/incompleteReportingInstall.ts";
 
 test.describe("Start-Continue settlement with incomplete launch-workspace support", () => {
   let origin: StartOrigin;

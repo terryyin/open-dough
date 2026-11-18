@@ -1,23 +1,26 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Real cancelled-landing acquisition retains the selected later build and its
 // provenance through the authenticated comparison and rendered Landed row.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { githubFor } from "../../dashboard/tests/dashboardTest.ts";
-import { proofCalls } from "../../dashboard/tests/intentCiProofPage.ts";
-import { publishCodeLandedBeforeCompletion } from "../../dashboard/tests/support/storyCiComparisonEarlierLanding.ts";
+import { githubFor } from "../../dashboard/test-support/dashboardTest.ts";
+import { proofCalls } from "../../dashboard/test-support/intentCiProofPage.ts";
+import { publishCodeLandedBeforeCompletion } from "../../dashboard/test-support/support/storyCiComparisonEarlierLanding.ts";
 import {
   laterTrunkRevisions,
   serveEarlierLandingWithLandedOutcome,
-} from "../../dashboard/tests/support/storyCiComparisonLandedOutcome.ts";
+} from "../../dashboard/test-support/support/storyCiComparisonLandedOutcome.ts";
 import {
   landedOf,
   laterProof,
   runListingsAt,
-} from "../../dashboard/tests/support/storyCiComparisonCancelledLanding.ts";
-import { wall } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
+} from "../../dashboard/test-support/support/storyCiComparisonCancelledLanding.ts";
+import { wall } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 
 test("a cancelled landing merge uses the next trunk push's passing build as a later build", async ({
   page,

@@ -1,13 +1,13 @@
-// The collector's own summary bytes (../../tests/support/ciProofCollected.ts)
+// The collector's own summary bytes (../../test-support/support/ciProofCollected.ts)
 // survive the run artifact's ZIP and `ciProofArtifactReader`
 // (../../server/ciProofArtifact.ts): a declared part no runner reported stays
 // missing and a result without a duration stays untimed. Listing/download
 // counts and attempt memory: ./ci-proof-memory-github*.spec.ts.
 
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
-import { collectedSummary } from "../../tests/support/ciProofCollected.ts";
-import { zipOf } from "../../tests/support/ciProofArtifacts.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { collectedSummary } from "../../test-support/support/ciProofCollected.ts";
+import { zipOf } from "../../test-support/support/ciProofArtifacts.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   listedArtifact,
   repository,

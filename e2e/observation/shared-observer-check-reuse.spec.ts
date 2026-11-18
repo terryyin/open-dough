@@ -13,12 +13,12 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
   shortRevision,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   checkedAtOnce,
@@ -28,15 +28,15 @@ import {
   passTimeUntilChecked,
   recordsAt,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { checkReuseMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import {
   backlogB,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
 
 test.use({ revisionCheckReuseMs: checkReuseMs, observationClock: true });
 

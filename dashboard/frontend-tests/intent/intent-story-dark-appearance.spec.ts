@@ -1,20 +1,20 @@
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
 import {
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../../tests/intentScopeHistoryPage.ts";
+} from "../../test-support/intentScopeHistoryPage.ts";
 // Dark system appearance for a selected Done story's Intent reading: CI
 // comparison, Changed tests with files shown/hidden, Intent coverage, cued
 // rows, diffs, and source stay legible; captures support visual review against
 // the approved dark mockup; live preference changes keep reading state.
 
 import path from "node:path";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   expectChartMarkContrast,
   expectReadableContrast,
-} from "../../tests/accessibleReading.ts";
+} from "../../test-support/accessibleReading.ts";
 import {
   expectDarkSurface,
   expectLightSurface,
@@ -22,24 +22,27 @@ import {
   expectSourceReadable,
   setColorScheme,
   sourceAppearance,
-} from "../../tests/systemAppearanceReading.ts";
+} from "../../test-support/systemAppearanceReading.ts";
 import {
   expandIntentGroup,
   fileReadingTab,
-} from "../../tests/intentPerspectivePage.ts";
-import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
-import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonShared.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { expectCueState } from "../../test-support/support/expectCiComparisonCues.ts";
+import { summaryComparisonChanges } from "../../test-support/support/intentSummaryStoryComparisonShared.ts";
 import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+} from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
 import {
   chooseStoryTab,
   intentFile,
   intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
-import { expectFilesShown, filesToggle } from "../../tests/intentModePage.ts";
-import { colourOf } from "../../tests/pageColours.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import {
+  expectFilesShown,
+  filesToggle,
+} from "../../test-support/intentModePage.ts";
+import { colourOf } from "../../test-support/pageColours.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const cuedFileLabel = summaryComparisonChanges.modified;

@@ -1,36 +1,36 @@
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Recorded Cursor workspace retirement uses the shared passive final report:
 // the retained explicit report is Cursor's result source, read without
 // opening, resuming, or taking control of the session.
 import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../dashboard/tests/dashboardTest.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { test, expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   keepTrackedClosureEvidence,
   plantTrackedClosureRepository,
   recordedCursor,
   report,
   save,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { markDone } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { markDone } from "../../dashboard/test-support/support/markDone.ts";
 import {
   productClosureEvidencePresent,
   workspaceMissing,

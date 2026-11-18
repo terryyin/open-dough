@@ -17,18 +17,18 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
   startSession,
   startSessionDialog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../dashboard/tests/launchJourney.ts";
-import { codexSkill } from "../../dashboard/tests/support/codexLaunch.ts";
-import { radio } from "../../dashboard/tests/support/sessionDialog.ts";
-import { repoRoot } from "../../dashboard/tests/support/repositoryRoot.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../dashboard/test-support/launchJourney.ts";
+import { codexSkill } from "../../dashboard/test-support/support/codexLaunch.ts";
+import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { repoRoot } from "../../dashboard/test-support/support/repositoryRoot.ts";
 
 test.use({
   projectFolders: ["open-dough"],

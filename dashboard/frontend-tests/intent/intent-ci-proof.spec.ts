@@ -4,7 +4,7 @@
 // revision and CI wall time -- then a table with one row per entry the run's CI
 // declared, in its order, read cell by cell under the Entry, Counts, Test
 // execution time headers (unit and any timing gap). The proof answer is
-// controlled (../../tests/support/frontendCiRunProofAnswers.ts); reading the
+// controlled (../../test-support/support/frontendCiRunProofAnswers.ts); reading the
 // run's artifacts into it, the omitted-attempt refusal and per-attempt memory:
 // ../../backend-tests/intent/ci-proof-*.spec.ts,
 // ../../backend-tests/intent/intent-ci-proof-read.spec.ts and
@@ -14,8 +14,8 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectAttemptAt,
   expectAttemptLinked,
-} from "../../tests/ciEvidenceLabelsPage.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   ciEntryName,
   ciProofReading,
@@ -23,13 +23,16 @@ import {
   failedVerdict,
   openCiEntry,
   proofTable,
-} from "../../tests/intentCiProofPage.ts";
-import { expectCiAnswer, runUrl } from "../../tests/intentCiStatusPage.ts";
-import { intentLocationName } from "../../tests/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
-import { summaryRegion } from "../../tests/intentScopeProofPage.ts";
-import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/intentCiProofPage.ts";
+import {
+  expectCiAnswer,
+  runUrl,
+} from "../../test-support/intentCiStatusPage.ts";
+import { intentLocationName } from "../../test-support/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
+import { summaryRegion } from "../../test-support/intentScopeProofPage.ts";
+import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const notRecorded = "No timings";
 const failed = { state: "failed" } as const;

@@ -1,5 +1,5 @@
 // Taken observations and source lifetimes through the actual selected-story owner.
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 import { heldResponse } from "../support/ciReadingTransport.ts";

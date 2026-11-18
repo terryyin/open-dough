@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
-import { zipOf } from "../../tests/support/ciProofArtifacts.ts";
+import { zipOf } from "../../test-support/support/ciProofArtifacts.ts";
 import type { CiProofRun } from "../../src/ciProof.ts";
 
 export const repository = "example/project";

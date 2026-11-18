@@ -12,8 +12,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
 import { keepStart, keptStart, updateStart } from "../../server/startStore.ts";
 
 test("a writer ending at the first turn after lock creation leaves its start update retryable", async () => {

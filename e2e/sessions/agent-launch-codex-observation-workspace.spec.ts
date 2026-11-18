@@ -1,34 +1,34 @@
 import {
   readFinalReportControl,
   readFinalReport,
-} from "../../dashboard/tests/finalReportPages.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/finalReportPages.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // What a saved Codex session offers when its continuation is unknown or its
 // workspace is gone: a predecessor without continuation gains no command, and
 // a missing workspace keeps passive final-report access, through reload, with
 // the store and the native host untouched. The states themselves on the card
 // and sidebar are ./agent-launch-codex-observation.spec.ts.
 import path from "node:path";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../dashboard/tests/launchJourney.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../dashboard/test-support/launchJourney.ts";
 import {
   parts,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
-import { passive as passiveReport } from "../../dashboard/tests/support/retainedReport.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { passive as passiveReport } from "../../dashboard/test-support/support/retainedReport.ts";
 import {
   observationRecord as record,
   saveObservations as save,
   observed,
   passive,
-} from "../../dashboard/tests/support/codexObservation.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/support/codexObservation.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 test.use({ projectFolders: ["open-dough"] });
 
 test("predecessor without continuation gains no command; missing workspace preserves passive final-report access", async ({

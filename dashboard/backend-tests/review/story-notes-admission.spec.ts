@@ -19,8 +19,8 @@ import {
   type StoryNotesAnswer,
 } from "../../src/storyNote.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { expect, test as base } from "../../tests/dashboardTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { expect, test as base } from "../../test-support/dashboardTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 const test = base.extend({
   // Own the machine through closing both servers, so restarting keeps HOME.

@@ -2,39 +2,42 @@
 // card through the page's story navigation and disposable range.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
-import { storyCard } from "../../tests/storyCardControls.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendTerminalSubstitute.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { takenAdHocSession } from "../../test-support/support/startedAdHocSession.ts";
+import { takenStory } from "../../test-support/launchJourney.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
+import { storyCard } from "../../test-support/storyCardControls.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendTerminalSubstitute.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
 import {
   openTerminalControl,
   terminalPanel,
-} from "../../tests/terminalScreenPage.ts";
-import { installFrontendDoneBodyReads } from "../../tests/support/frontendDoneBodyReads.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { installFrontendDoneBodyReads } from "../../test-support/support/frontendDoneBodyReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { putFrontendDoneRecords } from "../../tests/support/frontendServiceState.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { showLatestAction } from "../../tests/recentlyDoneColumn.ts";
+import { putFrontendDoneRecords } from "../../test-support/support/frontendServiceState.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { showLatestAction } from "../../test-support/recentlyDoneColumn.ts";
 import {
   doneDestination,
   followStoryReferenceLink,
   referenceNotice,
   storyReferenceLink,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 import {
   publishOlderSource,
   publishRecentSourceBatch,
   sourceFileName,
-} from "../../tests/support/followUpSourceCatalog.ts";
+} from "../../test-support/support/followUpSourceCatalog.ts";
 import {
   openBoard,
   sourceStory,
   storyFollowUp,
-} from "../../tests/support/recentlyDoneFollowUpGrouping.ts";
+} from "../../test-support/support/recentlyDoneFollowUpGrouping.ts";
 
 const sourceDestination = (page: Page) =>
   doneDestination(parts(page).recentlyDone, sourceStory.identity);

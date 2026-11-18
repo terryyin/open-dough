@@ -1,23 +1,23 @@
 // Choosing a Recently done sessions row in Development shows its project's
 // Board and brings the linked done card or standalone entry into view.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   parts,
   rosterParts,
   sessionEntriesIn,
   standaloneSessionName,
-} from "../../tests/dashboardPage.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
-import { finalReportParts } from "../../tests/finalReportPages.ts";
-import { pygardonCatalogRead } from "../../tests/pygardonCatalogReads.ts";
-import { expectSelected } from "../../tests/storyCardSelection.ts";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/dashboardPage.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
+import { finalReportParts } from "../../test-support/finalReportPages.ts";
+import { pygardonCatalogRead } from "../../test-support/pygardonCatalogReads.ts";
+import { expectSelected } from "../../test-support/storyCardSelection.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
 import {
   adHoc,
   linked,
   openFrontendSelectionPage,
   report,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
 
 async function expectDevelopmentKept(
   page: Parameters<typeof openFrontendSelectionPage>[0],

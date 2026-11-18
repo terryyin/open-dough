@@ -10,16 +10,16 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { limiting } from "../../dashboard/tests/limitedReadingJourney.ts";
-import { notFoundAnswer } from "../../dashboard/tests/originAnswers.ts";
-import { untilReported } from "../../dashboard/tests/support/directedWait.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { limiting } from "../../dashboard/test-support/limitedReadingJourney.ts";
+import { notFoundAnswer } from "../../dashboard/test-support/originAnswers.ts";
+import { untilReported } from "../../dashboard/test-support/support/directedWait.ts";
 import {
   filesBesideUnreachable,
   opened,
@@ -29,9 +29,9 @@ import {
   unreachableSeed,
   unreachableGap,
   unreachableTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 
 test("after a limited check, with nothing withheld, the page makes its next check once the wait ends and reads nothing else", async ({
   page,

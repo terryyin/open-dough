@@ -62,7 +62,7 @@ export async function ownServiceRun(
     check: () => {
       if (existsSync(ownerless))
         throw new Error(
-          "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/tests/support/fakeGh.ts).",
+          "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/test-support/support/fakeGh.ts).",
         );
     },
   });

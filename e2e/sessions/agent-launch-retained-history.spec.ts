@@ -14,20 +14,23 @@ import {
   sessionsHistoryAudience,
   sessionsRevisionHeader,
 } from "../../dashboard/src/machineSessionsRevision.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { sessionDetailsControl } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
+import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   recentlyDoneParts,
   showRecentlyDone,
-} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { showPage } from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { showPage } from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
