@@ -70,11 +70,42 @@ Both readers received the same [allocation facts from the pinned snapshots](repl
 ### 3. Doughnut and Pygardon reviewers record repeats under the trial rule
 
 Type: Behavior
-Status: planned
+Status: done
 
 Add the settled paragraph to each project's `AGENTS.md` through that project's own delivery conventions, on its configured trunk. This is an outward write to two client repositories and needs the execution instruction to cover it. Record each project's trial revision in this plan.
 
 **Proof.** In an isolated copy of each project at its trial revision, a fresh reader records one repeat that matches a collected summary and one that names a higher cost. The log gains one line for the first and a full row for the second. A second pass changes nothing. The copy is discarded and the production `DearDough.md` stays untouched.
+
+**Published trial revisions**
+
+| Project | `origin/main` revision | Remote ref confirmed |
+| --- | --- | --- |
+| Doughnut | [`d252ef8a44cc21e242e20c78d9bd11a6214eb396`](https://github.com/nerds-odd-e/doughnut/commit/d252ef8a44cc21e242e20c78d9bd11a6214eb396) | 2026-11-18T16:09:39Z |
+| Pygardon | [`2cae31f864e31a2be61bb15d56f2206885a14836`](https://github.com/terryyin/pygardon/commit/2cae31f864e31a2be61bb15d56f2206885a14836) | 2026-11-18T16:09:38Z |
+
+Each trial commit adds the same removable section to its project's `AGENTS.md`.
+The production findings log has the same Git blob as its parent. Both default
+checkouts advanced to their accepted revisions. Pygardon carried a separate
+Ruff repair (`d796c7ccf`) for a reproduced import-order failure in its
+packaged recovery measurement fixture. The checkout lint and the commit hook
+passed after the correction.
+
+The isolated readers receive the trial through `AGENTS.md` explicitly. The
+clients' `CLAUDE.md` files reference local guidance in other contexts. An
+ordinary Claude Code run needs evidence that its reviewer loaded the trial
+before its recording decision.
+
+**Accepted controlled proof.** Fresh readers used disposable copies of both
+published revisions. Each kept the original `0.3.60` execution in the
+collected summary and added one four-field line for the unchanged repeat.
+Each gave the costly repeat a full row with nine lookups and 18 active
+minutes. The newly affected workflow, corrected attribution and uncertain
+cost also received full rows. A stale list with no selected receipt was a
+different cause and got its own DD-268 entry. Each rereview left the scratch
+log byte-identical. Clipboard's isolated control at `1a3ebb443` gave the same
+ordinary repeat a full row and was likewise byte-identical on rereview. The
+copies were discarded after the observation. This walk used Codex subagents
+with explicit guidance, and ordinary exposure remains to be observed.
 
 ### 4. Five ordinary executions in each project are judged against the basis
 
@@ -84,6 +115,19 @@ Status: planned
 Execution waits here until each project's trunk holds five ordinary executions that started after its trial revision. Select them from story, Git or CI history before opening the findings files, including executions that reported nothing. For each, read what happened, then what was recorded. Report the counts named in slice 1, the project, guidance revision and route for each observation, and missing evidence. Give Terry the keep or revise recommendation with the reasons. The decision is Terry's.
 
 **Proof.** The evaluation section lists the ten executions with their selection source, what each recorded, and the counts with sample sizes. Terry's decision is recorded beside them.
+
+Use each published trial revision above as its project's exposure boundary.
+Select from first-parent trunk integrations and their execution history,
+using the execution's starting revision or known start time to verify it
+started after the trial reached trunk. Use story-completion records when
+available and ordinary Git or CI history for other eligible executions.
+Retain the selected identities before consulting findings and include quiet
+executions. The controlled walks and the pilot changes are outside that sample.
+
+On the first history check at 2026-11-18T16:14:55Z, neither client trunk had
+an execution beyond its trial revision. The ordinary sample begins at zero
+of five for each project. Resume this slice when both client trunks have
+five eligible executions. Terry owns the decision after their assessment.
 
 ### 5. The trial ends as decided
 
