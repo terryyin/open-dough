@@ -209,7 +209,10 @@ export class LaunchOutcomeBuilder {
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
       ...(sessionCommits && {
-        sessionCommits: { ...structuredClone(sessionCommits), readAt: at },
+        sessionCommits: {
+          ...structuredClone(sessionCommits),
+          readAt: doneAt ?? at,
+        },
       }),
     };
   }

@@ -5,11 +5,12 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { quote } from "./completionRecovery.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 
 const gitAt =
-  (at: string) =>
+  (at: string, editors: Record<string, string> = {}) =>
   (cwd: string, ...args: string[]) =>
     execFileSync("git", args, {
       cwd,
@@ -24,6 +25,7 @@ const gitAt =
         GIT_AUTHOR_EMAIL: dashboardDeveloper.email,
         GIT_EDITOR: "true",
         GIT_SEQUENCE_EDITOR: "true",
+        ...editors,
       },
     }).trim();
 
@@ -54,6 +56,31 @@ export function amendInCheckout(
   git(checkout, "add", "--", file);
   git(checkout, "commit", "--quiet", "--amend", "--no-edit");
   return git(checkout, "rev-parse", "HEAD");
+}
+
+// Makes a commit on a side branch and returns the checkout to its first branch.
+export async function commitOnSideBranch(
+  checkout: string,
+  at: string,
+  file: string,
+): Promise<void> {
+  const git = gitAt(at);
+  const originalBranch = git(checkout, "branch", "--show-current");
+  git(checkout, "switch", "--quiet", "--create", "side");
+  await commitInCheckout(checkout, at, file);
+  git(checkout, "switch", "--quiet", originalBranch);
+}
+
+// Rewords the latest commit through Git's interactive rebase.
+export function rewordInCheckout(
+  checkout: string,
+  at: string,
+  message: string,
+): void {
+  gitAt(at, {
+    GIT_SEQUENCE_EDITOR: "sed -i.bak 's/^pick /reword /'",
+    GIT_EDITOR: `printf '%s\\n' ${quote(message)} >`,
+  })(checkout, "rebase", "--quiet", "--interactive", "HEAD^");
 }
 
 function anotherDeveloperCheckout(

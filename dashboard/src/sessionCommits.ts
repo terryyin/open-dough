@@ -36,3 +36,18 @@ export const sessionCommitsSchema = z.object({
   readAt: z.iso.datetime(),
 });
 export type SessionCommits = z.infer<typeof sessionCommitsSchema>;
+
+// A capture can answer the current Done only if it was read for that mark.
+export function sessionCommitsAtDone({
+  sessionCommits,
+  doneAt,
+}: {
+  readonly sessionCommits?: SessionCommits | undefined;
+  readonly doneAt?: string | undefined;
+}): SessionCommits | undefined {
+  return doneAt !== undefined &&
+    sessionCommits !== undefined &&
+    Date.parse(sessionCommits.readAt) >= Date.parse(doneAt)
+    ? sessionCommits
+    : undefined;
+}

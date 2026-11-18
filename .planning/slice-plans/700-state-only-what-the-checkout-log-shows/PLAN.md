@@ -254,7 +254,7 @@ in the Git evidence directory.
 
 ### 4. Say not captured when the log does not settle the session's commits
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in `backend-tests/review/ad-hoc-review-unavailable.spec.ts`
 (200 lines) and the changed last case of `ad-hoc-session-commit-runs.spec.ts`.
 Scratch break: let an unplaced entry fall out silently; the reworded-commit
@@ -273,6 +273,15 @@ unavailable must not present the previous Done's runs or no-commit result
 under the new time. Prove at the HTTP review boundary that a held later read
 gives the not-captured explanation until the current capture can answer.
 Apply the same evidence rule to run and file-pair admission.
+
+Proof: the old discard policy returned no commits for the lone reword and
+the side-branch-only case, and a comparison for the partial reword. The
+scratch bypass of Done admission exposed both older capture types while
+Git was held. Both scratch runs failed their intended assertions (exit 1).
+After restoration and correction of the fixture's capture timestamp, 24
+selected backend specs, the three frontend consumers and dashboard
+typecheck passed. `slice-4-return.md` and `slice-4-consumer-trace.md` retain
+the commands, HTTP observations and dispositions in the Git evidence directory.
 
 ### 5. Release every reference a session's record kept
 Type: Behavior
@@ -340,7 +349,7 @@ No product change.
 ### G1. A later Done can show the previous Done's capture while its read is pending
 Reported: slice 1 — "The Done write keeps the earlier capture while the new read is pending. Review admission can put the later Done time beside the old comparison or its no-commit answer. The two dashboard processes that share the store can defer the new read when the same-session lock wait expires."
 Story clause: "the review holds the session's commits up to the Done it names"
-Disposition: interim until slices 4
+Disposition: proved by slice 4: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts observes both prior capture forms withheld while Git is held, historical file and text refusal, and the later comparison after release.
 
 ## Execution context
 

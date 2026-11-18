@@ -10,7 +10,7 @@ import type {
   SessionCommitRun,
   SessionCommits,
 } from "../src/sessionCommits.ts";
-import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
+import { defaultGitOutputLimit, gitExitedOne, runGit } from "./gitRunner.ts";
 import { pinPair, removePins } from "./launchLandingGit.ts";
 import { sessionCommitsRefPrefix } from "./launchRecordPins.ts";
 
@@ -43,12 +43,16 @@ interface LogEntry {
   readonly parents: readonly string[];
   readonly at: number;
   readonly action: string;
-  readonly made: string;
+  readonly authoredAt: number;
+  readonly subject: string;
 }
 
 const committing =
-  /^(?:commit(?: \((?:amend|initial|cherry-pick)\))?|cherry-pick|revert): /;
-const replaying = /\((?:pick|continue|fixup|squash)\): /;
+  /^(?:commit(?: \((?:amend|cherry-pick)\))?|cherry-pick|revert): /;
+const replaying =
+  /^(?:rebase|pull)\b[^:]* \((?:pick|continue|fixup|squash)\): /;
+const moving =
+  /^(?:checkout: moving from |reset: moving to |(?:merge|pull)\b[^:]*: Fast-forward\b|(?:rebase|pull)\b[^:]* \((?:start|finish|abort)\): )/;
 
 // The checkout's `HEAD` log, newest first: each entry's commit and parents,
 // its time, the action that wrote it, and the commit's author time and subject.
@@ -57,59 +61,68 @@ async function headLog(checkout: string): Promise<readonly LogEntry[]> {
     "log",
     "-g",
     "--date=unix",
-    "--format=%H%x00%P%x00%gd%x00%gs%x00%at %s",
+    "--format=%H%x00%P%x00%gd%x00%gs%x00%at%x00%s",
     "HEAD",
   ]);
-  return read.split("\n").flatMap((line) => {
-    const [commit, parents, selector, action, made] = line.split("\0");
+  if (read === "") return [];
+  return read.split("\n").map((line) => {
+    const [commit, parents, selector, action, authorTime, subject] =
+      line.split("\0");
     const at = Number(/@\{(\d+)\}$/.exec(selector ?? "")?.[1]);
-    return commit === undefined ||
+    const authoredAt = Number(authorTime);
+    if (
+      commit === undefined ||
       parents === undefined ||
       action === undefined ||
-      made === undefined ||
-      !Number.isFinite(at)
-      ? []
-      : [
-          {
-            commit,
-            parents: parents === "" ? [] : parents.split(" "),
-            at,
-            action,
-            made,
-          },
-        ];
+      subject === undefined ||
+      !Number.isFinite(at) ||
+      !Number.isFinite(authoredAt)
+    )
+      throw new Error("The checkout's log has an unreadable entry.");
+    return {
+      commit,
+      parents: parents === "" ? [] : parents.split(" "),
+      at,
+      action,
+      authoredAt,
+      subject,
+    };
   });
 }
 
-// The commits the log says were made in the checkout at or after `since`,
-// oldest first, each once: a commit, or a replay of one made there. An
-// entry for a merge has multiple parents even if its action says amend.
+// Place each entry as work made here, movement or a merge, or a replay of
+// older work. The log can settle an empty result only if every entry fits.
 function madeSince(log: readonly LogEntry[], since: number): string[] {
-  const entries = log
-    .filter(({ at, parents }) => at >= since && parents.length <= 1)
-    .reverse();
-  const made = new Set(
-    entries.filter(({ action }) => committing.test(action)).map((e) => e.made),
-  );
-  return [
-    ...new Set(
-      entries
-        .filter(
-          ({ action, made: replayed }) =>
-            committing.test(action) ||
-            (replaying.test(action) && made.has(replayed)),
-        )
-        .map(({ commit }) => commit),
-    ),
-  ];
+  const made = new Set<string>();
+  const fingerprints = new Set<string>();
+  for (const entry of log.filter(({ at }) => at >= since).reverse()) {
+    const { action, parents, commit, authoredAt, subject } = entry;
+    if (parents.length > 1 || moving.test(action)) continue;
+    const fingerprint = `${String(authoredAt)} ${subject}`;
+    if (parents.length === 1 && committing.test(action)) {
+      fingerprints.add(fingerprint);
+      made.add(commit);
+      continue;
+    }
+    if (parents.length === 1 && replaying.test(action)) {
+      if (fingerprints.has(fingerprint)) {
+        made.add(commit);
+        continue;
+      }
+      if (authoredAt < since) continue;
+    }
+    throw new Error("The checkout's log has a commit that cannot be placed.");
+  }
+  return [...made];
 }
 
-async function ancestorOfHead(checkout: string, commit: string) {
+async function ancestorOf(checkout: string, commit: string, head: string) {
   try {
-    await git(checkout, ["merge-base", "--is-ancestor", commit, "HEAD"]);
+    await git(checkout, ["merge-base", "--is-ancestor", commit, head]);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (gitExitedOne(error)) return false;
+    throw error;
   }
 }
 
@@ -142,10 +155,14 @@ export async function readSessionCommits(
   const since = Date.parse(record.launchedAt) / 1000;
   const log = await headLog(checkout);
   // A log without any entry says nothing of what was made there.
-  if (log.length === 0) throw new Error("The checkout's log has no entries.");
+  const head = log[0]?.commit;
+  if (head === undefined) throw new Error("The checkout's log has no entries.");
+  const candidates = madeSince(log, since);
   const made: string[] = [];
-  for (const commit of madeSince(log, since))
-    if (await ancestorOfHead(checkout, commit)) made.push(commit);
+  for (const commit of candidates)
+    if (await ancestorOf(checkout, commit, head)) made.push(commit);
+  if (candidates.length > 0 && made.length === 0)
+    throw new Error("None of the session's commits is in the checkout's HEAD.");
   const repository = await git(checkout, [
     "rev-parse",
     "--path-format=absolute",

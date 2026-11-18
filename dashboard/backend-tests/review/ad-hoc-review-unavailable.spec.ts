@@ -12,7 +12,11 @@ import {
   markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
+import {
+  commitInCheckout,
+  commitOnSideBranch,
+  rewordInCheckout,
+} from "../../tests/support/sessionCheckoutWork.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -129,6 +133,47 @@ test("a blank default launch that edited files and committed nothing says it mad
     explanation: "This session made no commits in the Default main checkout.",
   });
 });
+
+test("a session whose only commit stays on another branch says its changes were not captured", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  const sessionId = "side-branch";
+  establishDefaultMainSession(dashboard, origin, sessionId);
+  await commitOnSideBranch(origin.project, "2099-01-02T12:00:00Z", "side.txt");
+  await markAdHocDone(dashboard, sessionId);
+
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+    kind: "landing-unavailable",
+    explanation: "This session's changes were not captured.",
+  });
+});
+
+for (const { when, earlierFiles } of [
+  { when: "on its own", earlierFiles: [] },
+  { when: "after a retained commit", earlierFiles: ["first.txt"] },
+]) {
+  test(`a session commit reworded ${when} leaves changes not captured`, async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    const sessionId = "reworded";
+    const checkout = origin.project;
+    establishDefaultMainSession(dashboard, origin, sessionId);
+    for (const file of earlierFiles)
+      await commitInCheckout(checkout, "2099-01-02T12:00:00Z", file);
+    await commitInCheckout(checkout, "2099-01-02T12:05:00Z", "notes.txt");
+    rewordInCheckout(checkout, "2099-01-02T12:10:00Z", "Clarify session notes");
+    await markAdHocDone(dashboard, sessionId);
+
+    expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+      kind: "landing-unavailable",
+      explanation: "This session's changes were not captured.",
+    });
+  });
+}
 
 test("a session whose checkout log cannot be read at Done is done and says its changes were not captured", async ({
   request,

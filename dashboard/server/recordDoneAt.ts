@@ -4,7 +4,10 @@
 import { createHash } from "node:crypto";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
-import type { SessionCommits } from "../src/sessionCommits.ts";
+import {
+  sessionCommitsAtDone,
+  type SessionCommits,
+} from "../src/sessionCommits.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
@@ -21,12 +24,11 @@ import {
 // A capture answers the Done that led to its read. A failed read has no
 // capture, so the Done time separately remembers that it was attempted.
 export function sessionCommitsStartForDone(record: LaunchRecord) {
-  const { doneAt, sessionCommits, sessionCommitsFailedAt } = record;
+  const { doneAt, sessionCommitsFailedAt } = record;
   if (
     doneAt === undefined ||
     sessionCommitsFailedAt === doneAt ||
-    (sessionCommits !== undefined &&
-      Date.parse(sessionCommits.readAt) >= Date.parse(doneAt))
+    sessionCommitsAtDone(record) !== undefined
   )
     return undefined;
   return defaultMainStart(record);

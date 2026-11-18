@@ -15,7 +15,6 @@ import {
   adHocReview,
   adHocSessionFileDiff,
   establishDefaultMainSession,
-  keptAdHocRecord,
   markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
@@ -227,13 +226,15 @@ test("a commit rebased onto fetched trunk and pushed, as a publication from the 
 test("a commit made before the session and rebased during it is not kept", async ({
   dashboard,
   origin,
+  request,
 }) => {
   await commitInCheckout(origin.project, beforeLaunch, "earlier.txt");
   establishDefaultMainSession(dashboard, origin, sessionId);
   await pullPublishedWork(origin, firstAt, "story.txt", { how: "rebase" });
   await markAdHocDone(dashboard, sessionId);
 
-  expect(
-    (await keptAdHocRecord(dashboard, sessionId))?.sessionCommits?.runs,
-  ).toEqual([]);
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+    kind: "landing-unavailable",
+    explanation: "This session made no commits in the Default main checkout.",
+  });
 });

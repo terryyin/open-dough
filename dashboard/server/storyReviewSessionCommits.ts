@@ -1,9 +1,10 @@
 // A Default main session's kept commits (`../src/sessionCommits.ts`) answer
 // as a landing's pair does: from the saved repository's objects alone.
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import type {
-  SessionCommitRun,
-  SessionRunChoice,
+import {
+  sessionCommitsAtDone,
+  type SessionCommitRun,
+  type SessionRunChoice,
 } from "../src/sessionCommits.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit } from "./gitRunner.ts";
@@ -25,19 +26,16 @@ export interface KeptSessionRun {
   readonly shared: boolean;
 }
 
-// The kept runs a done session's review offers, oldest first: none while the
-// record holds a landing, which answers in their place.
-function keptRuns(record: LaunchRecord): readonly SessionCommitRun[] {
-  return record.landing === undefined && record.doneAt !== undefined
-    ? (record.sessionCommits?.runs ?? [])
-    : [];
+// A landing answers in place of the current Done's session commits.
+function reviewableCapture(record: LaunchRecord) {
+  return record.landing === undefined
+    ? sessionCommitsAtDone(record)
+    : undefined;
 }
 
 // Whether a done session's capture found that it made no commit.
 export function keptNoSessionCommits(record: LaunchRecord): boolean {
-  return (
-    record.doneAt !== undefined && record.sessionCommits?.runs.length === 0
-  );
+  return reviewableCapture(record)?.runs.length === 0;
 }
 
 // The kept run a done session's review answers: the one at the `named`
@@ -46,19 +44,19 @@ export function keptSessionRun(
   record: LaunchRecord,
   named: string | null = null,
 ): KeptSessionRun | undefined {
-  const { sessionCommits, launchedAt, doneAt } = record;
-  const runs = keptRuns(record);
+  const { launchedAt, doneAt } = record;
+  const capture = reviewableCapture(record);
   if (named !== null && !/^\d+$/.test(named))
     throw new RefusedRequest(400, "The review run is malformed.");
+  if (capture === undefined || doneAt === undefined) return undefined;
+  const { runs, repository } = capture;
   const position = Number(named ?? 0);
   const run = runs[position];
-  if (sessionCommits === undefined || doneAt === undefined) return undefined;
   if (run === undefined) {
     if (named === null) return undefined;
     throw new RefusedRequest(404, "This session kept no run at that position.");
   }
-  const { repository } = sessionCommits;
-  const shared = sessionCommits.shared === true;
+  const shared = capture.shared === true;
   return { repository, ...run, runs, position, launchedAt, doneAt, shared };
 }
 
@@ -68,12 +66,14 @@ export function keptSessionPair(
   record: LaunchRecord,
   { baseline, tree }: { readonly baseline: string; readonly tree: string },
 ) {
-  const run = keptRuns(record).find(
+  const capture = reviewableCapture(record);
+  if (capture === undefined) return undefined;
+  const run = capture.runs.find(
     ({ base, revision }) => base === baseline && revision === tree,
   );
-  return run === undefined || record.sessionCommits === undefined
+  return run === undefined
     ? undefined
-    : { repository: record.sessionCommits.repository, ...run };
+    : { repository: capture.repository, ...run };
 }
 
 // How a review offers one kept run, read from the saved repository.
