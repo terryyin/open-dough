@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-382#give-the-frontend-group-headroom-on-slow-runners",
+  "title": "Give the Dashboard Frontend group headroom on slow runners",
+  "completedAt": "2026-11-18T02:10:16.365Z",
+  "developer": "Terry Yin",
+  "agent": "Hitomi-chan",
+  "host": "claude",
+  "model": "fable"
+}
