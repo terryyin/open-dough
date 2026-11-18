@@ -1,7 +1,8 @@
 // Reads each selected tool's Token index answer (`./usageComparison.ts`) for
 // one period, and keeps the last complete set per selection: a new selection
 // aborts the obsolete reads, answers for another selection never join it, and
-// a read that fails is named by its tool rather than taken as empty. Once
+// a read that fails is named by its tool rather than taken as empty; that
+// failure lasts only until the selection is read again. Once
 // every selected tool answered, a model or effort none of them offers resets
 // the selection before its answers show.
 import { useEffect, useState } from "react";
@@ -44,6 +45,8 @@ export function useUsageAnswers({
       setReadAfterRefresh(refreshed);
       return;
     }
+    // A failure belongs to the read that produced it.
+    setProblem(undefined);
     const controller = new AbortController();
     const period = recentUsagePeriod(days);
     const read = (tool: UsageSelection["tools"][number]) =>

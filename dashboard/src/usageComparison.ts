@@ -27,9 +27,13 @@ export const defaultSelection: UsageSelection = {
 export const usageToolName = (tool: UsageTool): string =>
   hostDescriptions[tool].name;
 
-// A tool's swatch in its chart trace's colour; traces keep `usageTools` order.
+// A tool's chart trace slot: traces keep `usageTools` order whichever are shown.
+export const usageToolSlot = (tool: UsageTool): number =>
+  usageTools.indexOf(tool);
+
+// A tool's swatch in its chart trace's colour.
 export const usageToolSwatch = (tool: UsageTool): string =>
-  `usage-swatch usage-swatch-tool-${String(usageTools.indexOf(tool))}`;
+  `usage-swatch usage-swatch-tool-${String(usageToolSlot(tool))}`;
 
 // The selection with `tool` shown or hidden, keeping `usageTools` order.
 export const withTool = (

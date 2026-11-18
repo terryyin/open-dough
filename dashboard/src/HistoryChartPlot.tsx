@@ -4,17 +4,11 @@
 // the selected one, and on the row below the axis a red × per failed build
 // or a hollow mark per other build without timing. A selected build without
 // timing is also marked across the plot. A named trace after the first adds
-// its slot's class (`history-chart-trace-N`) to its points, trend and ↑ marks.
+// its slot's class (`history-chart-trace-N`) to its points, trend and ↑ marks;
+// unselected points take their trace's shape (`./historyChartShapes.tsx`).
 import type { ChartLayout, ChartMark } from "./historyChartLayout.ts";
 import { dateBaseline, plotBottom, plotTop } from "./historyChartLayout.ts";
-
-// The extra class of trace style slot `slot`; the first trace needs none.
-const traceClass = (slot: number) =>
-  slot === 0 ? "" : ` history-chart-trace-${String(slot)}`;
-
-// A diamond centred on (x, y), `reach` from its centre to each corner.
-const diamond = (x: number, y: number, reach: number) =>
-  `M${String(x)} ${String(y - reach)} l${String(reach)} ${String(reach)} l${String(-reach)} ${String(reach)} l${String(-reach)} ${String(-reach)} Z`;
+import { diamond, PointShape, traceClass } from "./historyChartShapes.tsx";
 
 function Mark({
   mark,
@@ -73,14 +67,15 @@ function Mark({
       </g>
     );
   if (entry.selected !== true)
-    return entry.partial === undefined ? (
-      <circle className={`history-chart-point${trace}`} cx={x} cy={y} r={4}>
+    return (
+      <PointShape
+        slot={mark.slot}
+        partial={entry.partial !== undefined}
+        x={x}
+        y={y}
+      >
         <title>{entry.description}</title>
-      </circle>
-    ) : (
-      <path className={`history-chart-partial${trace}`} d={diamond(x, y, 5)}>
-        <title>{entry.description}</title>
-      </path>
+      </PointShape>
     );
   return (
     <g>

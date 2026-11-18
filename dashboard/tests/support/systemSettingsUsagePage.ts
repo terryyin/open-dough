@@ -193,6 +193,9 @@ export function usageView(page: Page) {
     async showsProblem(words: string) {
       await expect(view.getByRole("alert")).toHaveText(words);
     },
+    async showsNoProblem() {
+      await expect(view.getByRole("alert")).toHaveCount(0);
+    },
     // "Checked" with the recorded instant `at` (ISO).
     async showsCheckedAt(at: string) {
       await expect(

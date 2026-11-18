@@ -1,10 +1,11 @@
 // One selected tool's part of System settings → Usage's trend
-// (`./TokenIndexTrend.tsx`): its name in its trace's colour, how many tasks
-// it finished in the period with the partial and unpriced ones, its own
+// (`./TokenIndexTrend.tsx`): its name beside its trace's task mark, how many
+// tasks it finished in the period with the partial and unpriced ones, its own
 // latest rolling median, and the tariff whose reference unit its values are
 // in, with the work its usage leaves out. A tool with no priced task says so.
 import { countWords } from "./chartValueAxis.ts";
-import { usageToolName, usageToolSwatch } from "./usageComparison.ts";
+import { HistoryChartKey } from "./historyChartShapes.tsx";
+import { usageToolName, usageToolSlot } from "./usageComparison.ts";
 import {
   rollingMedianTasks,
   type TokenIndexAnswer,
@@ -51,7 +52,7 @@ export function UsageToolSummary({
       <div className="usage-chart-head">
         <div>
           <h4>
-            <i className={usageToolSwatch(tool)} /> {name}
+            <HistoryChartKey slot={usageToolSlot(tool)} kind="point" /> {name}
           </h4>
           <p className="settings-note usage-tool-count">
             {cohortNote(answer)} · Last {periodWords}

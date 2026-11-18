@@ -9,9 +9,13 @@ input-token equivalents, Claude Code in Claude Opus 5.5 input-token
 equivalents, pricing five-minute and one-hour cache writes each at its own
 rate. Both tools share one numeric scale and one completion-time axis, but each
 value stays in its tool's reference unit: the comparison claims no identical
-unit, common cost or tool efficiency. Each tool has its own named, coloured
-trace and summary, so tool identity also reads without colour; readouts and
-task detail name the tool, since task IDs may repeat across tools.
+unit, common cost or tool efficiency. Each tool has its own coloured trace and
+named summary. Codex tasks are filled circles, partial ones hollow diamonds, and
+its median solid; Claude Code tasks are filled triangles, partial ones hollow,
+and its median dashed. The chart key names each shown tool's task, partial and
+median marks, and each summary heading shows its tool's task mark, so tool
+identity also reads without colour; readouts and task detail name the tool,
+since task IDs may repeat across tools.
 
 Model and Effort offer the union of the selected tools' options with one All
 models and one Any effort. A choice stays while any selected tool offers it;
@@ -58,8 +62,8 @@ shown; no observation means no median is available there.
 Ordinary task values at or below 50 million set the zero-based scale. A larger
 task appears as a red **×**, labeled with its actual value at its date, and can
 still open its details by pointer, touch or keyboard. Partial coverage remains
-explicit. Coincident large tasks use separate rows while retaining their date
-coordinates. With only large tasks, the bounded axis is 0–50 million and the
+explicit. Over time, coincident large tasks share their date's position and use
+separate rows; under equal spacing each takes its own task slot. With only large tasks, the bounded axis is 0–50 million and the
 view explains that no ordinary points exist. Measured zero remains zero.
 
 The median has a distinct line painted above the task dots and never sets their
@@ -70,9 +74,8 @@ name their tool (**Codex Median ↑**). For nine 1-million
 tasks plus one 65-million task, the median is **1 million**.
 
 Essential values need no hover. Overflow rows expand the chart for separate
-actions and labels. Closing task details returns focus to its mark; changing
-the period or hiding its tool clears a task selection that is no longer
-visible. Refresh retains the last result for the same selection and its check
+actions and labels. Closing task details returns focus to its mark; any change
+of tool, filter or day clears the selected task. Refresh retains the last result for the same selection and its check
 time while checking and when it fails.
 
 The browser sends explicit `[from, until)` instants separately from cohort
