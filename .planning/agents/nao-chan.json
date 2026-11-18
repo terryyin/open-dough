@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nao-chan",
-  "email": "nao-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-384#resize-and-remember-the-review-file-sidebar",
-  "host": "claude",
-  "model": "fable"
-}

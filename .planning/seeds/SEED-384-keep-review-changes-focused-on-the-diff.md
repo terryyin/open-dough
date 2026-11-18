@@ -129,7 +129,7 @@ changes.
 
 **Identity:** SEED-384#resize-and-remember-the-review-file-sidebar
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/697-resize-and-remember-the-review-file-sidebar/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"19696e7b7e3dfabd802e0699a0a8d30553d15e653fca8e2efbdfb7ada01f6c48","plan":"5ed2c64eceee1ba911dc5303b217001965b554a300a4adcdb13bc96cd821947d"}}
 ```
 
 Split from [Keep Review changes focused on the diff](#keep-review-changes-focused-on-the-diff)
@@ -145,23 +145,29 @@ the same browser.
 
 Required behavior:
 
-- A divider between the file sidebar and the diff, shown while both sit side
-  by side. Dragging it changes their widths. It takes keyboard focus, and Left
-  and Right move it in the arrow's direction; it says the sidebar's current
-  width and bounds as the dashboard's other resize dividers do.
-- Both panes stay usable: neither becomes narrower than its usable minimum,
-  whatever is dragged or preferred.
-- One preferred width serves every review, for any story or session, across
-  closing and reopening and a page reload, kept as a disposable preference in
-  this browser like the side panel's width
+- **Files divider.** A divider between the file sidebar and the diff, shown
+  while both sit side by side; none while the sidebar is hidden. Dragging it
+  changes their widths as the pointer moves. It takes keyboard focus, and Left
+  and Right move it one step in the arrow's direction, so Right widens the
+  sidebar. It is named **Files divider**, and says the sidebar's current width
+  and bounds and how to use it as the Panel divider does
   ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-  optional browser storage is disposable). Until the reviewer chooses, or
-  where the browser keeps none or an unusable one, the sidebar takes today's
-  default width.
-- A limit the room sets never changes the preference: a narrower panel shows
-  the sidebar as wide as the diff's minimum allows, and more room recovers the
-  preferred width. Where the panel is too narrow for both panes side by side,
-  files sit above the diff as today and no width divider is offered.
+  each control has one name; the Panel divider is the Side panel's).
+- **Both panes stay usable.** The sidebar is never narrower than 12rem, the
+  width that still shows a nested file name, and the diff never narrower than
+  18rem, the room it is given today, whatever is dragged or preferred. The
+  diff's minimum is the sidebar's only upper limit: more room for paths comes
+  from widening or maximizing the Side panel.
+- **One preferred width** serves every review, for any story or session,
+  across closing and reopening and a page reload, kept as a disposable
+  preference in this browser like the Side panel's width (ADR 0008: optional
+  browser storage is disposable). Until the reviewer chooses, or where the
+  browser keeps none or an unusable one, the sidebar takes today's default
+  width, 16rem.
+- **A limit the room sets never changes the preference:** a narrower panel
+  shows the sidebar as wide as the diff's minimum allows, and more room
+  recovers the preferred width. The panel stacks files above the diff at the
+  same width as today, and offers no width divider there.
 - Hiding and showing the sidebar restores it at the preferred width.
 
 Scope limits:
@@ -169,32 +175,52 @@ Scope limits:
 - A height divider for the narrow, stacked layout.
 - Intent's locations column keeps its own width.
 - Sharing the preference across browsers or machines.
+- Fitting the sidebar to its content, automatically or by double-clicking the
+  divider, was considered and deferred: one review's fitted width would become
+  the preference for every other review, and an automatic width would move as
+  folders open and close.
+- Wrapping or shortening file names instead of giving them room.
 
 #### Key examples
 
-- **Drag.** Review open side by side at the default width, long paths cut off
-  → drag the divider right → the sidebar widens and the diff narrows by the
-  same amount → close the review, open another story's review → the sidebar
-  has the dragged width.
+- **Drag.** Review open side by side at the default width, a long file name
+  running past the sidebar's edge → drag the divider right → the sidebar
+  widens and the diff narrows by the same amount → close the review, open
+  another story's review → the sidebar has the dragged width.
 - **Reload.** After that choice → reload the page and open **Review changes**
   → the same width.
 - **Keyboard.** Focus the divider → Right → the sidebar is one step wider and
   the divider says the new width; Left returns it.
 - **Bounds.** Drag far right → the sidebar stops where the diff reaches its
   minimum; drag far left → the sidebar stops at its own minimum.
-- **Temporary limit.** A wide preferred width, then the side panel is narrowed
+- **More room from the panel.** The Side panel at half a laptop window, the
+  sidebar dragged as wide as the diff's minimum allows and still short of the
+  name → maximize the Side panel → the divider's upper bound has grown and
+  the sidebar can be dragged wider.
+- **Temporary limit.** A wide preferred width, then the Side panel is narrowed
   until the room cannot give it → the sidebar is narrower, both panes usable →
   the panel is widened again → the preferred width returns, without the
   reviewer choosing again.
 - **Narrow panel.** The review body is too narrow for both panes → files sit
   above the diff and there is no width divider → widened, the divider returns
   with the preferred width.
+- **Hidden sidebar.** A chosen width → **Hide files** → the diff takes the
+  whole width and there is no divider → **Show files** → the sidebar and the
+  divider return at the chosen width.
 - **No choice yet.** A browser that keeps no preference → the sidebar has
   today's default width.
 
 #### Architecture
 
 Reuse the dashboard's one resize mechanism: the shared resize divider, the
-shared room calculation, and kept browser preferences that the side panel and
-Sessions sidebar already use. The divider gains the case of an area on its
-leading side, where Right grows the area. No server state.
+shared room calculation, and kept browser preferences that the Side panel and
+Sessions sidebar already use. Two cases are new to it:
+
+- The divider resizes an area on its leading side, where Right grows the
+  area; today's dividers all grow their area with Left or Up.
+- Without a preference the shared calculation gives each area an equal share.
+  The review keeps today's default instead, so it asks for 16rem where no
+  preference is kept, and keeps nothing until the reviewer chooses.
+
+The panes stack at the width they do today, wider than the two minimums need,
+so the divider always has a range where it is offered. No server state.
