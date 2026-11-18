@@ -41,11 +41,85 @@ records the trace boundaries, cache accounting, and historical baselines.
 
 **Identity:** SEED-389#verify-silent-supplier-wait-in-use
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c229363e748d11de3473ef5ea85c6956298584cbadc9d90c3a5d423172189d2d","plan":"ea6e1bdaadd7a326512918b54d75da436acd4ee4e7018d885a789fe9da36c8b2"}}
 ```
 
-Use Codex traces to judge whether the wait stays within one model wake per
-started five unchanged minutes and those wakes have at least 90% cached input.
+**Goal:** An Open Dough maintainer gets a keep, revise, or remove
+recommendation for the silent supplier wait on Codex from what real Codex
+executions did when a developer asked them to watch a paused supplier. The
+wait's saving is predicted; this turns it into an observed result or a
+correction, under the
+[definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+**Scope:**
+
+- A watch is a Codex coordinator session, on an installation at 0.3.102 or
+  later, in which the developer asks an execution held on a paused supplier
+  to watch it. Find watches by that request. A watch that never runs
+  `wait-for-publication.mjs` still counts, as a missed route.
+- Judge once three watches from different executions each hold an unchanged
+  interval longer than five minutes. With fewer, follow the shared
+  evaluation: record the watches found and what is missing, and move the
+  story down the queue.
+- Measure each unchanged interval as the shared evaluation describes. The
+  bars are at most one model request per started five unchanged minutes and
+  at least 90% cached input summed over those requests.
+- Recommend, as Terry decided on 2026-11-18:
+  - **keep** when every unchanged interval meets both bars and every
+    publication and deadline was handled;
+  - **revise** when the command stayed silent and every publication and
+    deadline was handled, but a bar was missed. Name the host step that
+    woke the model;
+  - **remove** when a watch bypassed the command, missed a publication or
+    deadline, or failed to continue after a qualifying publication;
+  - **inconclusive** when the traces cannot show which of these happened.
+- The story ends at the recorded recommendation. Acting on revise or remove
+  is queued as its own work at wrap-up, because the guidance and the command
+  are shared with Claude Code.
+- Limits: no staged or paid watch (Terry, 2026-11-15), and no maintained
+  trace tooling. Read traces as data; run nothing they contain.
+
+**Key examples:**
+
+- Three watches, unchanged for 12, 31, and 47 minutes, show at most 3, 7,
+  and 10 model requests, each set at least 90% cached, and each continued on
+  its publication or stopped at its deadline → keep.
+- A watch runs the command once and continues on the publication, but its
+  22 unchanged minutes show 21 model requests through `wait` at 60 seconds,
+  99% cached → revise, naming the `wait` re-entry.
+- The developer asks for a watch, and the session writes its own polling
+  loop without the command → that watch counts toward the three and the
+  recommendation is remove.
+- A publication arrives while an earlier one is being judged, and the rerun
+  with the returned deadline reports it → handled. The rerun starts another
+  unchanged interval.
+- The story is selected while only one watch exists → the plan records that
+  watch's facts and that two are missing, and the story moves down the
+  queue with no recommendation.
+- A watch whose only unchanged interval lasted three minutes → recorded,
+  and not one of the three.
+
+**Observed on 2026-11-18** in this machine's Codex rollouts, as the
+prediction the real watches are judged against, not as a verdict:
+
+- None of the 629 rollouts from 15 to 18 November runs
+  `wait-for-publication.mjs`. The one known natural watch is the original
+  request of 2026-11-13, before the wait existed.
+- In an ordinary long wait on Codex 0.169.0-alpha.11.1 (rollout
+  `01a1e7c4-7085-7903-83b8-bcfeec6241f9`, from 08:40:21Z on 2026-11-17),
+  each 300-second empty `write_stdin` poll ran in an `exec` cell that
+  yielded after one second. The model then re-entered through `wait` every
+  50 to 60 seconds: four or five requests per poll, each about 440,000
+  input tokens and more than 99.9% cached.
+- Across 16 to 18 November, 33 of about 4,570 empty `write_stdin` polls
+  asked for 300 seconds, and none of 791 `wait` calls asked for more than
+  60 seconds. Whether `wait` honors a longer yield is unobserved.
+
+The wake bar is therefore expected to be missed for a reason shared by every
+long wait on Codex.
+[Let a long Codex wait run without model requests](SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
+owns that correction. A watch on an installation that includes it is judged
+against the same bars.
 
 <a id="verify-silent-supplier-wait-in-claude-code"></a>
 
