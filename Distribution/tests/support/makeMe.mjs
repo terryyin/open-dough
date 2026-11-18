@@ -15,6 +15,7 @@ import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
 import { projectCiSettingsMakeMeProperties } from "./projectCiSettingsTestData.mjs";
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
+import { projectRevisionMakeMeProperties } from "./projectRevisionTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
@@ -77,9 +78,9 @@ import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
  * @property {StoryNoteBuilder} aStoryNote
  */
 
-/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe} */
+/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe} */ ({}),
+  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe} */ ({}),
   {
     aStoryNote: {
       enumerable: true,
@@ -244,5 +245,6 @@ export const makeMe = Object.defineProperties(
     ...launchMakeMeProperties(),
     ...usageMakeMeProperties(),
     ...feedbackMakeMeProperties(),
+    ...projectRevisionMakeMeProperties(),
   },
 );

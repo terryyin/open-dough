@@ -19,22 +19,18 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { answerFrom } from "../../tests/revisionReuseAnswers.ts";
 import {
-  answerFrom,
-  backlogPath,
-  filesFor,
   madeBy,
   modified,
   named,
-  otherSeedPath,
-  planPath,
   type Publication,
-  seedPath,
-  settingsPath,
-  sourceId,
 } from "../../tests/revisionReuseOrigin.ts";
 import { described } from "../../tests/revisionReuseCalls.ts";
 import { revisionReuseBoundary } from "./revisionReuseBoundary.ts";
+
+const origin = makeMe.aProjectRevision;
 
 test.describe.configure({ mode: "serial" });
 
@@ -46,7 +42,7 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
     test(`a revision ${status} A reuses nothing on the comparison, asks it once, and keeps listed records' blob reuse`, async () => {
       const pair = status === "behind" ? "6" : "7";
       const [a, b] = [named(`a${pair}`), named(`b${pair}`)];
-      const files = filesFor(status);
+      const files = origin.labeled(status).please().files;
       const published = await publishedAt(a, files);
       published.compared.set(`${a}...${b}`, () => compareAnswer(status));
       await movedTo(published, a, { revision: b, files });
@@ -54,12 +50,12 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
       expect((await asked(() => readEverything(b))).sort()).toEqual(
         [
           `compare a${pair}...b${pair}`,
-          `content ${backlogPath}@b${pair}`,
-          `content ${seedPath}@b${pair}`,
-          `content ${otherSeedPath}@b${pair}`,
-          `content ${planPath}@b${pair}`,
+          `content ${origin.paths.backlog}@b${pair}`,
+          `content ${origin.paths.seed}@b${pair}`,
+          `content ${origin.paths.otherSeed}@b${pair}`,
+          `content ${origin.paths.plan}@b${pair}`,
           `listing .planning/agents@b${pair}`,
-          `content ${settingsPath}@b${pair}`,
+          `content ${origin.paths.settings}@b${pair}`,
           `listing .planning/done@b${pair}`,
         ].sort(),
       );
@@ -68,7 +64,7 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
 
   test("eleven commits between are beyond the bound: no commit is read and B is read as before", async () => {
     const [a, b] = [named("a8"), named("b8")];
-    const files = filesFor("eleven");
+    const files = origin.labeled("eleven").please().files;
     const published = await publishedAt(a, files);
     const eleven = [...Array(11).keys()].map((n) =>
       madeBy(`e${n.toString(16)}`, [modified("src/app.ts")]),
@@ -80,13 +76,13 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
       "compare a8...b8",
     ]);
     expect(calls.filter((call) => call.startsWith("commit"))).toEqual([]);
-    expect(calls).toContain(`content ${seedPath}@b8`);
+    expect(calls).toContain(`content ${origin.paths.seed}@b8`);
     expect(calls).toContain("listing .planning/agents@b8");
   });
 
   test("a commit whose change list GitHub cuts at 300 files establishes nothing, and is asked once", async () => {
     const [a, b] = [named("a9"), named("b9")];
-    const files = filesFor("three-hundred");
+    const files = origin.labeled("three-hundred").please().files;
     const published = await publishedAt(a, files);
     const many = [...Array(300).keys()].map((n) =>
       modified(`src/generated/${String(n)}.ts`),
@@ -98,13 +94,13 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
       "compare a9...b9",
       "commit c9",
     ]);
-    expect(calls).toContain(`content ${backlogPath}@b9`);
-    expect(calls).toContain(`content ${planPath}@b9`);
+    expect(calls).toContain(`content ${origin.paths.backlog}@b9`);
+    expect(calls).toContain(`content ${origin.paths.plan}@b9`);
   });
 
   test("a comparison naming 300 files establishes nothing: no commit is read, B is read as before, and it is asked once", async () => {
     const [a, b] = [named("3a"), named("3b")];
-    const files = filesFor("three-hundred-compared");
+    const files = origin.labeled("three-hundred-compared").please().files;
     const published = await publishedAt(a, files);
     const merge = madeBy("3c", [modified("src/app.ts")]);
     await movedTo(published, a, { revision: b, files }, [merge]);
@@ -119,12 +115,12 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
     expect((await asked(() => readEverything(b))).sort()).toEqual(
       [
         "compare 3a...3b",
-        `content ${backlogPath}@3b`,
-        `content ${seedPath}@3b`,
-        `content ${otherSeedPath}@3b`,
-        `content ${planPath}@3b`,
+        `content ${origin.paths.backlog}@3b`,
+        `content ${origin.paths.seed}@3b`,
+        `content ${origin.paths.otherSeed}@3b`,
+        `content ${origin.paths.plan}@3b`,
         "listing .planning/agents@3b",
-        `content ${settingsPath}@3b`,
+        `content ${origin.paths.settings}@3b`,
         "listing .planning/done@3b",
       ].sort(),
     );
@@ -132,19 +128,21 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
 
   test("a story branch plan read at a moved head asks the plan and its commit time only, never a comparison", async () => {
     const [a, b] = [named("ac"), named("bc")];
-    const files = filesFor("branch");
+    const files = origin.labeled("branch").please().files;
     const branch = "story/branch";
     const published = await publishedAt(a, files);
     await movedTo(published, a, { revision: b, files }, [
       madeBy("cc", [modified("src/app.ts")]),
     ]);
     const [head, movedHead] = [named("dc"), named("ec")];
-    published.revisions.set(head, { [planPath]: "# Plan at head\n" });
-    published.revisions.set(movedHead, { [planPath]: "# Plan moved\n" });
+    published.revisions.set(head, { [origin.paths.plan]: "# Plan at head\n" });
+    published.revisions.set(movedHead, {
+      [origin.paths.plan]: "# Plan moved\n",
+    });
     published.branches.set(branch, head);
     const onBranch = (
       at: string,
-      path = `&path=${encodeURIComponent(planPath)}`,
+      path = `&path=${encodeURIComponent(origin.paths.plan)}`,
     ) =>
       read(
         `&revision=${b}&branch=${encodeURIComponent(branch)}&head=${at}${path}`,
@@ -165,20 +163,20 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
         await onBranch(movedHead);
         await onBranch(
           movedHead,
-          `&path=${encodeURIComponent(planPath)}&committed=last`,
+          `&path=${encodeURIComponent(origin.paths.plan)}&committed=last`,
         );
       }),
     ).toEqual([
       `branch ${branch}`,
-      `content ${planPath}@ec`,
-      `commit-list ${planPath}@ec`,
+      `content ${origin.paths.plan}@ec`,
+      `commit-list ${origin.paths.plan}@ec`,
     ]);
   });
 });
 
 test("a dashboard process restarted on another machine home holds nothing, so B is read in full without a comparison", async () => {
   const [a, b] = [named("af"), named("bf")];
-  const files = filesFor("restart");
+  const files = origin.labeled("restart").please().files;
   const published: Publication = {
     trunk: { revision: a },
     revisions: new Map([
@@ -195,7 +193,7 @@ test("a dashboard process restarted on another machine home holds nothing, so B 
       Promise.resolve(answerFrom(published, call)),
     );
     const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${sourceId}`,
+      url: `${server.baseURL}/__authenticated-read?source=${origin.paths.sourceId}`,
       headers: { Origin: server.origin },
     });
     expect(response.status).toBe(200);
@@ -206,7 +204,7 @@ test("a dashboard process restarted on another machine home holds nothing, so B 
   try {
     expect(await membershipAsked(first)).toEqual([
       "ref",
-      `content ${backlogPath}@af`,
+      `content ${origin.paths.backlog}@af`,
     ]);
   } finally {
     await first.close();
@@ -216,7 +214,7 @@ test("a dashboard process restarted on another machine home holds nothing, so B 
   try {
     expect(await membershipAsked(restarted)).toEqual([
       "ref",
-      `content ${backlogPath}@bf`,
+      `content ${origin.paths.backlog}@bf`,
     ]);
   } finally {
     await restarted.close();

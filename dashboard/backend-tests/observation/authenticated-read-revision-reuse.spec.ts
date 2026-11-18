@@ -11,28 +11,11 @@
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { aheadBy } from "../../tests/comparisonAnswers.ts";
-import {
-  addedDonePath,
-  backlogNaming,
-  backlogPath,
-  doneCatalogPath,
-  donePath,
-  doneRecordOf,
-  filesFor,
-  madeBy,
-  modified,
-  named,
-  newSeedEntry,
-  newSeedPath,
-  newSeedText,
-  otherProfilePath,
-  otherSeedPath,
-  planPath,
-  profilePath,
-  seedPath,
-  seedText,
-} from "../../tests/revisionReuseOrigin.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
+
+const origin = makeMe.aProjectRevision;
 
 test.describe.configure({ mode: "serial" });
 
@@ -42,7 +25,7 @@ test.describe("authenticated read reuse at a newly named revision (development e
 
   test("an unrelated commit: the backlog is read at B, and every other kind of read there is answered from A after one comparison and one commit read", async () => {
     const [a, b] = [named("a1"), named("b1")];
-    const files = filesFor("unrelated");
+    const files = origin.labeled("unrelated").please().files;
     const published = await publishedAt(a, files);
     const answersAtA = await readEverything(a);
     await movedTo(published, a, { revision: b, files }, [
@@ -50,13 +33,15 @@ test.describe("authenticated read reuse at a newly named revision (development e
     ]);
 
     const reads = at(b);
-    expect(await asked(reads.backlog)).toEqual([`content ${backlogPath}@b1`]);
-    expect(await asked(() => reads.file(seedPath))).toEqual([
+    expect(await asked(reads.backlog)).toEqual([
+      `content ${origin.paths.backlog}@b1`,
+    ]);
+    expect(await asked(() => reads.file(origin.paths.seed))).toEqual([
       "compare a1...b1",
       "commit c1",
     ]);
-    expect(await asked(() => reads.file(otherSeedPath))).toEqual([]);
-    expect(await asked(() => reads.file(planPath))).toEqual([]);
+    expect(await asked(() => reads.file(origin.paths.otherSeed))).toEqual([]);
+    expect(await asked(() => reads.file(origin.paths.plan))).toEqual([]);
     expect(await asked(reads.profiles)).toEqual([]);
     expect(await asked(reads.done)).toEqual([]);
     // The comparison asked GitHub for at most ten commits between.
@@ -74,57 +59,61 @@ test.describe("authenticated read reuse at a newly named revision (development e
 
   test("a changed seed alone is read at B, and its new text is answered there", async () => {
     const [a, b] = [named("a2"), named("b2")];
-    const files = filesFor("changed-seed");
+    const files = origin.labeled("changed-seed").please().files;
     const published = await publishedAt(a, files);
-    const changed = { ...files, [seedPath]: seedText("changed-seed at B") };
+    const changedText = origin.seedText("changed-seed at B");
+    const changed = { ...files, [origin.paths.seed]: changedText };
     await movedTo(published, a, { revision: b, files: changed }, [
-      madeBy("c2", [modified(seedPath)]),
+      madeBy("c2", [modified(origin.paths.seed)]),
     ]);
 
     let seedAtB: Answer | undefined;
     expect(
       await asked(async () => {
         await at(b).backlog();
-        seedAtB = await at(b).file(seedPath);
+        seedAtB = await at(b).file(origin.paths.seed);
         await readEverything(b);
       }),
     ).toEqual([
-      `content ${backlogPath}@b2`,
+      `content ${origin.paths.backlog}@b2`,
       "compare a2...b2",
       "commit c2",
-      `content ${seedPath}@b2`,
+      `content ${origin.paths.seed}@b2`,
     ]);
     expect(seedAtB).toEqual({
       status: 200,
       body: {
         revision: b,
-        path: seedPath,
-        text: seedText("changed-seed at B"),
+        path: origin.paths.seed,
+        text: changedText,
       },
     });
   });
 
   test("a changed backlog naming a new seed, an added done record, and a changed plan are read at B; nothing else is", async () => {
     const [a, b] = [named("a3"), named("b3")];
-    const files = filesFor("changed");
+    const project = origin.labeled("changed");
+    const files = project.please().files;
     const published = await publishedAt(a, files);
-    const atB = filesFor("changed", {
-      backlog: backlogNaming("changed", newSeedEntry),
-      files: {
-        [newSeedPath]: newSeedText,
-        [planPath]: "# Plan changed, a slice done\n",
-      },
-      doneRecords: [doneRecordOf("SEED-304#added", "added")],
-    });
+    const atB = project
+      .with({
+        backlog: project.backlogNaming(project.newSeedEntry),
+        files: {
+          [origin.paths.newSeed]: project.newSeedText,
+          [origin.paths.plan]: "# Plan changed, a slice done\n",
+        },
+        doneRecords: [project.doneRecord("SEED-304#added", "added")],
+      })
+      .please().files;
     await movedTo(published, a, { revision: b, files: atB }, [
       madeBy("c3", [
-        modified(backlogPath),
-        { filename: newSeedPath, status: "added" },
+        modified(origin.paths.backlog),
+        { filename: origin.paths.newSeed, status: "added" },
       ]),
       madeBy("d3", [
-        { filename: addedDonePath, status: "added" },
-        modified(doneCatalogPath),
-        modified(planPath),
+        { filename: origin.paths.addedDone, status: "added" },
+        modified(origin.paths.doneCatalog),
+        modified(origin.paths.plan),
       ]),
     ]);
 
@@ -134,7 +123,7 @@ test.describe("authenticated read reuse at a newly named revision (development e
         await asked(async () => {
           answers = [
             ...(await readEverything(b)),
-            await at(b).file(newSeedPath),
+            await at(b).file(origin.paths.newSeed),
           ];
         })
       ).sort(),
@@ -143,37 +132,39 @@ test.describe("authenticated read reuse at a newly named revision (development e
         "compare a3...b3",
         "commit c3",
         "commit d3",
-        `content ${backlogPath}@b3`,
-        `content ${planPath}@b3`,
+        `content ${origin.paths.backlog}@b3`,
+        `content ${origin.paths.plan}@b3`,
         "listing .planning/done@b3",
-        `content ${doneCatalogPath}@b3`,
-        `content ${addedDonePath}@b3`,
-        `content ${newSeedPath}@b3`,
+        `content ${origin.paths.doneCatalog}@b3`,
+        `content ${origin.paths.addedDone}@b3`,
+        `content ${origin.paths.newSeed}@b3`,
       ].sort(),
     );
     expect(answers[0]?.body).toEqual({
       revision: b,
-      backlog: atB[backlogPath],
+      backlog: atB[origin.paths.backlog],
     });
     expect(answers[3]?.body).toMatchObject({
       text: "# Plan changed, a slice done\n",
     });
     expect(answers[5]?.body).toMatchObject({
       records: [
-        { path: donePath, text: files[donePath] },
-        { path: addedDonePath, text: atB[addedDonePath] },
+        { path: origin.paths.done, text: files[origin.paths.done] },
+        { path: origin.paths.addedDone, text: atB[origin.paths.addedDone] },
       ],
     });
   });
 
   test("a profile a commit between removed is not listed at B, and its text at A is not served", async () => {
     const [a, b] = [named("a4"), named("b4")];
-    const files = filesFor("removed");
+    const files = origin.labeled("removed").please().files;
     const published = await publishedAt(a, files);
-    const { [otherProfilePath]: removed, ...atB } = files;
+    const { [origin.paths.otherProfile]: removed, ...atB } = files;
     expect(removed).toBeDefined();
     await movedTo(published, a, { revision: b, files: atB }, [
-      madeBy("c4", [{ filename: otherProfilePath, status: "removed" }]),
+      madeBy("c4", [
+        { filename: origin.paths.otherProfile, status: "removed" },
+      ]),
     ]);
 
     let profiles: Answer | undefined;
@@ -184,30 +175,34 @@ test.describe("authenticated read reuse at a newly named revision (development e
     ).toEqual(["compare a4...b4", "commit c4", "listing .planning/agents@b4"]);
     expect(profiles?.body).toMatchObject({
       revision: b,
-      profiles: [{ path: profilePath, text: files[profilePath] }],
+      profiles: [
+        { path: origin.paths.profile, text: files[origin.paths.profile] },
+      ],
     });
-    expect(JSON.stringify(profiles?.body)).not.toContain(otherProfilePath);
+    expect(JSON.stringify(profiles?.body)).not.toContain(
+      origin.paths.otherProfile,
+    );
   });
 
   test("a record the backlog still names that a commit between removed is missing at B, not filled from A", async () => {
     const [a, b] = [named("a5"), named("b5")];
-    const files = filesFor("missing");
+    const files = origin.labeled("missing").please().files;
     const published = await publishedAt(a, files);
-    const { [otherSeedPath]: removed, ...atB } = files;
+    const { [origin.paths.otherSeed]: removed, ...atB } = files;
     await movedTo(published, a, { revision: b, files: atB }, [
-      madeBy("c5", [{ filename: otherSeedPath, status: "removed" }]),
+      madeBy("c5", [{ filename: origin.paths.otherSeed, status: "removed" }]),
     ]);
 
     let missing: Answer | undefined;
     expect(
       await asked(async () => {
-        missing = await at(b).file(otherSeedPath);
+        missing = await at(b).file(origin.paths.otherSeed);
       }),
     ).toEqual([
-      `content ${backlogPath}@b5`,
+      `content ${origin.paths.backlog}@b5`,
       "compare a5...b5",
       "commit c5",
-      `content ${otherSeedPath}@b5`,
+      `content ${origin.paths.otherSeed}@b5`,
     ]);
     expect(missing?.status).toBe(502);
     expect(JSON.stringify(missing?.body)).toContain("HTTP 404");
@@ -216,7 +211,7 @@ test.describe("authenticated read reuse at a newly named revision (development e
 
   test("a move from A past B to C is compared from A, reading each commit between", async () => {
     const [a, b, c] = [named("ad"), named("bd"), named("cd")];
-    const files = filesFor("past");
+    const files = origin.labeled("past").please().files;
     const published = await publishedAt(a, files);
     // The ref named B, but no check found it before it moved on to C.
     published.revisions.set(b, files);
@@ -237,7 +232,7 @@ test.describe("authenticated read reuse at a newly named revision (development e
       "commit ed",
       "commit fd",
       "compare ad...cd",
-      `content ${backlogPath}@cd`,
+      `content ${origin.paths.backlog}@cd`,
     ]);
   });
 });

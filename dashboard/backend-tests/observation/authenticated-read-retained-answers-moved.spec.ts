@@ -18,20 +18,8 @@ import {
   type FakeGitHub,
 } from "../../tests/support/fakeGitHub.ts";
 import { noConnection } from "../../tests/originAnswers.ts";
-import {
-  backlogPath,
-  filesFor,
-  madeBy,
-  modified,
-  named,
-  otherProfilePath,
-  otherSeedPath,
-  planPath,
-  profilePath,
-  seedPath,
-  seedText,
-  settingsPath,
-} from "../../tests/revisionReuseOrigin.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
 import {
   allAnswered,
   asked,
@@ -43,6 +31,8 @@ import {
   readProject,
   test,
 } from "../../tests/retainedAnswersJourney.ts";
+
+const origin = makeMe.aProjectRevision;
 
 // What a process on a machine home of its own asks and answers reading
 // `branch`'s project.
@@ -65,14 +55,21 @@ const atRevision = (calls: readonly string[]) =>
 // but the listed profiles and done record, whose texts are kept by blob.
 const readAt = (pair: string) =>
   [
-    ...[backlogPath, seedPath, otherSeedPath, planPath, settingsPath].map(
-      (path) => `content ${path}`,
-    ),
+    ...[
+      origin.paths.backlog,
+      origin.paths.seed,
+      origin.paths.otherSeed,
+      origin.paths.plan,
+      origin.paths.settings,
+    ].map((path) => `content ${path}`),
     "listing .planning/agents",
     "listing .planning/done",
-    ...[profilePath, otherProfilePath, planPath, seedPath].map(
-      (path) => `commit-list ${path}`,
-    ),
+    ...[
+      origin.paths.profile,
+      origin.paths.otherProfile,
+      origin.paths.plan,
+      origin.paths.seed,
+    ].map((path) => `commit-list ${path}`),
   ]
     .map((call) => `${call}@b${pair}`)
     .sort();
@@ -97,13 +94,23 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
     );
     allAnswered(first.result.answers);
 
-    const changed = seedText("moved at B");
-    project.movedTo(b, { ...filesFor("moved"), [seedPath]: changed }, [
-      { ...madeBy("d6", [modified(seedPath)]), committedAt: daysAgo(1) },
-    ]);
+    const changed = origin.seedText("moved at B");
+    project.movedTo(
+      b,
+      {
+        ...origin.labeled("moved").please().files,
+        [origin.paths.seed]: changed,
+      },
+      [
+        {
+          ...madeBy("d6", [modified(origin.paths.seed)]),
+          committedAt: daysAgo(1),
+        },
+      ],
+    );
     // A, which this process never heard GitHub name, answers B's untouched
     // seed; a read pinned at A still asks GitHub for it.
-    const pinnedAtA = `&revision=${a}&path=${encodeURIComponent(otherSeedPath)}`;
+    const pinnedAtA = `&revision=${a}&path=${encodeURIComponent(origin.paths.otherSeed)}`;
     const { second, pinned } = await onMachine(
       machine,
       github,
@@ -115,22 +122,22 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
     allAnswered(second.result.answers);
     expect(second.calls).toEqual([
       "ref",
-      `content ${backlogPath}@b6`,
+      `content ${origin.paths.backlog}@b6`,
       "compare a6...b6",
       "commit d6",
-      `content ${seedPath}@b6`,
+      `content ${origin.paths.seed}@b6`,
       `branch ${project.branch}`,
-      `commit-list ${seedPath}@b6`,
+      `commit-list ${origin.paths.seed}@b6`,
     ]);
     expect(second.result.answers[1]?.body).toEqual({
       revision: b,
-      path: seedPath,
+      path: origin.paths.seed,
       text: changed,
     });
 
     expect(pinned.calls).toEqual([
-      `content ${backlogPath}@a6`,
-      `content ${otherSeedPath}@a6`,
+      `content ${origin.paths.backlog}@a6`,
+      `content ${origin.paths.otherSeed}@a6`,
     ]);
     expect(pinned.result.status).toBe(200);
 
@@ -157,7 +164,7 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
       const between = [...Array(11).keys()].map((n) =>
         madeBy(`${pair}${n.toString(16)}`, [modified("src/app.ts")]),
       );
-      project.movedTo(b, filesFor(label), between);
+      project.movedTo(b, origin.labeled(label).please().files, between);
       if (compared !== undefined) {
         project.publication.compared.set(`${a}...${b}`, compared);
       }

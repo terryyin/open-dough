@@ -15,17 +15,12 @@ import {
   startFakeGitHub,
   type FakeGitHub,
 } from "../../tests/support/fakeGitHub.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  backlogPath,
-  filesFor,
   type Files,
   madeBy,
   modified,
   named,
-  otherSeedPath,
-  planPath,
-  seedPath,
-  settingsPath,
 } from "../../tests/revisionReuseOrigin.ts";
 import {
   allAnswered,
@@ -39,12 +34,14 @@ import {
   test,
 } from "../../tests/retainedAnswersJourney.ts";
 
+const origin = makeMe.aProjectRevision;
+
 const contentPaths = [
-  backlogPath,
-  seedPath,
-  otherSeedPath,
-  planPath,
-  settingsPath,
+  origin.paths.backlog,
+  origin.paths.seed,
+  origin.paths.otherSeed,
+  origin.paths.plan,
+  origin.paths.settings,
 ];
 
 // Every entry file in the store, by name, with its size and inode.
@@ -71,9 +68,9 @@ const unbounded = (prefix: string) =>
 // The records `label`'s project publishes at another revision, each text
 // naming `at`; its profiles, and so its recorded branch, are unchanged.
 const recordsAt = (label: string, at: string): Files => {
-  const records = filesFor(`${label}-${at}`);
+  const records = origin.labeled(`${label}-${at}`).please().files;
   return {
-    ...filesFor(label),
+    ...origin.labeled(label).please().files,
     ...Object.fromEntries(
       contentPaths.map((file) => [file, records[file] ?? ""]),
     ),
@@ -154,7 +151,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
     );
     expect(sizeOf(machine)).toBeLessThanOrEqual(budget);
     expect(present(machine, c)).toEqual(contentPaths);
-    expect(present(machine, a)).not.toContain(backlogPath);
+    expect(present(machine, a)).not.toContain(origin.paths.backlog);
 
     const atC = await readAt(machine, github, project, budget);
     expect(atC.calls).toEqual(["ref", `branch ${project.branch}`]);
@@ -164,7 +161,9 @@ test.describe("authenticated read answers retained within a byte budget (develop
     project.publication.trunk.revision = a;
     const kept = stored(machine);
     // Which revision the backlog was last answered at is written anew.
-    kept.delete(path.basename(entryFile(machine, "latest", backlogPath)));
+    kept.delete(
+      path.basename(entryFile(machine, "latest", origin.paths.backlog)),
+    );
     const removedAtA = contentPaths.filter(
       (file) => !present(machine, a).includes(file),
     );
@@ -225,7 +224,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
       budget,
     );
     expect(sizeOf(machine)).toBeLessThanOrEqual(budget);
-    expect(present(machine, b)).not.toContain(backlogPath);
+    expect(present(machine, b)).not.toContain(origin.paths.backlog);
     expect(present(machine, a)).toEqual(contentPaths);
 
     project.publication.trunk.revision = a;

@@ -9,31 +9,23 @@
 // (./revisionReuseBoundary.ts).
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import {
-  backlogPath,
-  filesFor,
-  madeBy,
-  modified,
-  named,
-  otherProfilePath,
-  planPath,
-  profilePath,
-  seedPath,
-} from "../../tests/revisionReuseOrigin.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 import { pathChange, type PathChange } from "../../tests/pathHistoryAnswers.ts";
 
 test.describe.configure({ mode: "serial" });
 
+const origin = makeMe.aProjectRevision;
 const at = (iso: string) => new Date(`2026-10-0${iso}Z`);
 
 // The history facts a page asks at a revision: both profiles' additions and
 // the plan's and the seed's last commit times.
 const factPaths = [
-  ["addition", profilePath],
-  ["addition", otherProfilePath],
-  ["lastCommitted", planPath],
-  ["lastCommitted", seedPath],
+  ["addition", origin.paths.profile],
+  ["addition", origin.paths.otherProfile],
+  ["lastCommitted", origin.paths.plan],
+  ["lastCommitted", origin.paths.seed],
 ] as const;
 
 // The same human's addition of `path` by commit `n`, at `when`.
@@ -57,9 +49,9 @@ test.describe("authenticated read history reuse at a newly named revision (devel
   // Both profiles credit the same human, each by an addition of its own, and
   // the plan was last committed by a commit of its own.
   const history = {
-    [profilePath]: [addedBy(0x21, "Terry Yin", at("1T08:00:00"))],
-    [otherProfilePath]: [addedBy(0x22, "Terry Yin", at("2T08:00:00"))],
-    [planPath]: [
+    [origin.paths.profile]: [addedBy(0x21, "Terry Yin", at("1T08:00:00"))],
+    [origin.paths.otherProfile]: [addedBy(0x22, "Terry Yin", at("2T08:00:00"))],
+    [origin.paths.plan]: [
       {
         ...pathChange(0x23, "modified", "Planner"),
         committedAt: at("3T08:00:00"),
@@ -69,7 +61,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
 
   test("an unrelated commit: additions and last commit times at B are answered from A without listing any history", async () => {
     const [a, b] = [named("11"), named("12")];
-    const files = filesFor("history-unrelated");
+    const files = origin.labeled("history-unrelated").please().files;
     const published = await publishedAt(a, files, history);
     const factsAtA = await factsAt(a);
     for (const answer of factsAtA) expect(answer.status).toBe(200);
@@ -86,7 +78,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       "compare 11...12",
       "commit 13",
       // The plan's reachability reads the backlog at B itself.
-      `content ${backlogPath}@12`,
+      `content ${origin.paths.backlog}@12`,
     ]);
     // Each assignment keeps its own addition, not the other's of the same
     // human.
@@ -98,7 +90,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
 
   test("a touched profile and plan are listed and walked at B; the untouched profile's addition is reused", async () => {
     const [a, b] = [named("14"), named("15")];
-    const files = filesFor("history-touched");
+    const files = origin.labeled("history-touched").please().files;
     const published = await publishedAt(a, files, history);
     await factsAt(a);
     const changing = {
@@ -107,8 +99,8 @@ test.describe("authenticated read history reuse at a newly named revision (devel
     };
     const atB = {
       ...files,
-      [profilePath]: `${files[profilePath]}\n`,
-      [planPath]: "# Plan touched\n",
+      [origin.paths.profile]: `${files[origin.paths.profile]}\n`,
+      [origin.paths.plan]: "# Plan touched\n",
     };
     await movedTo(
       published,
@@ -118,11 +110,16 @@ test.describe("authenticated read history reuse at a newly named revision (devel
         files: atB,
         history: {
           ...history,
-          [profilePath]: [changing, ...history[profilePath]],
-          [planPath]: [changing, ...history[planPath]],
+          [origin.paths.profile]: [changing, ...history[origin.paths.profile]],
+          [origin.paths.plan]: [changing, ...history[origin.paths.plan]],
         },
       },
-      [{ ...changing, files: [modified(profilePath), modified(planPath)] }],
+      [
+        {
+          ...changing,
+          files: [modified(origin.paths.profile), modified(origin.paths.plan)],
+        },
+      ],
     );
 
     let factsAtB: Answer[] = [];
@@ -136,10 +133,10 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       [
         "compare 14...15",
         "commit 16",
-        `content ${backlogPath}@15`,
+        `content ${origin.paths.backlog}@15`,
         "listing .planning/agents@15",
-        `commit-list ${profilePath}@15`,
-        `commit-list ${planPath}@15`,
+        `commit-list ${origin.paths.profile}@15`,
+        `commit-list ${origin.paths.plan}@15`,
       ].sort(),
     );
     // The walk at B passes the modifying commit to the same addition, whose
@@ -156,7 +153,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
 
   test("a profile removed and re-added with identical text credits the re-adding commit's committer and time", async () => {
     const [a, b] = [named("17"), named("18")];
-    const files = filesFor("history-readded");
+    const files = origin.labeled("history-readded").please().files;
     const published = await publishedAt(a, files, history);
     await factsAt(a);
     const removing = {
@@ -175,12 +172,22 @@ test.describe("authenticated read history reuse at a newly named revision (devel
         files,
         history: {
           ...history,
-          [profilePath]: [readding, removing, ...history[profilePath]],
+          [origin.paths.profile]: [
+            readding,
+            removing,
+            ...history[origin.paths.profile],
+          ],
         },
       },
       [
-        { ...removing, files: [{ filename: profilePath, status: "removed" }] },
-        { ...readding, files: [{ filename: profilePath, status: "added" }] },
+        {
+          ...removing,
+          files: [{ filename: origin.paths.profile, status: "removed" }],
+        },
+        {
+          ...readding,
+          files: [{ filename: origin.paths.profile, status: "added" }],
+        },
       ],
     );
 
@@ -188,7 +195,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
     expect(
       (
         await asked(async () => {
-          addition = await readsAt(b).addition(profilePath);
+          addition = await readsAt(b).addition(origin.paths.profile);
         })
       ).sort(),
     ).toEqual(
@@ -197,7 +204,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
         "commit 19",
         "commit 1a",
         "listing .planning/agents@18",
-        `commit-list ${profilePath}@18`,
+        `commit-list ${origin.paths.profile}@18`,
       ].sort(),
     );
     expect(addition?.body).toMatchObject({

@@ -14,23 +14,12 @@ import { aheadByAnswer } from "../../tests/comparisonAnswers.ts";
 import { everyRepository } from "../../tests/support/fakeGitHub.ts";
 import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
 import { refusedMarker } from "../../tests/support/sharedReads.ts";
-import {
-  answerFrom,
-  backlogNaming,
-  backlogPath,
-  filesFor,
-  madeBy,
-  modified,
-  named,
-  newSeedEntry,
-  newSeedPath,
-  newSeedText,
-  otherSeedPath,
-  profilePath,
-  seedPath,
-  seedText,
-} from "../../tests/revisionReuseOrigin.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { answerFrom } from "../../tests/revisionReuseAnswers.ts";
+import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
+
+const origin = makeMe.aProjectRevision;
 
 test.describe.configure({ mode: "serial" });
 
@@ -40,7 +29,7 @@ test.describe("authenticated read reuse of what the comparison names (developmen
 
   test("a read at B that arrives while another awaits the commit between waits on the same comparison", async () => {
     const [a, b] = [named("f0"), named("f1")];
-    const files = filesFor("coinciding");
+    const files = origin.labeled("coinciding").please().files;
     const published = await publishedAt(a, files);
     await movedTo(published, a, { revision: b, files }, [
       madeBy("f2", [modified("src/app.ts")]),
@@ -55,7 +44,7 @@ test.describe("authenticated read reuse of what the comparison names (developmen
     let answers: Answer[] = [];
     expect(
       await asked(async () => {
-        const seed = at(b).file(seedPath);
+        const seed = at(b).file(origin.paths.seed);
         await expect
           .poll(() =>
             server().github.calls.some(
@@ -69,21 +58,26 @@ test.describe("authenticated read reuse of what the comparison names (developmen
         held.release();
         answers = await Promise.all([seed, profiles]);
       }),
-    ).toEqual([`content ${backlogPath}@f1`, "compare f0...f1", "commit f2"]);
+    ).toEqual([
+      `content ${origin.paths.backlog}@f1`,
+      "compare f0...f1",
+      "commit f2",
+    ]);
     expect(answers.map(({ status }) => status)).toEqual([200, 200]);
     expect(answers[1]?.body).toMatchObject({
       revision: b,
       profiles: expect.arrayContaining([
-        { path: profilePath, text: files[profilePath] },
+        { path: origin.paths.profile, text: files[origin.paths.profile] },
       ]),
     });
   });
 
   test("a seed that differs between A and B is read at B though the merge between does not name it", async () => {
     const [a, b] = [named("a0"), named("b0")];
-    const files = filesFor("merged");
+    const files = origin.labeled("merged").please().files;
     const published = await publishedAt(a, files);
-    const merged = { ...files, [seedPath]: seedText("merged at B") };
+    const mergedText = origin.seedText("merged at B");
+    const merged = { ...files, [origin.paths.seed]: mergedText };
     // GitHub names a merge's files against its first parent, which a line off
     // A's leaves without the seed A's line changed.
     await movedTo(published, a, { revision: b, files: merged }, [
@@ -94,29 +88,29 @@ test.describe("authenticated read reuse of what the comparison names (developmen
     expect(
       await asked(async () => {
         await at(b).backlog();
-        seedAtB = await at(b).file(seedPath);
+        seedAtB = await at(b).file(origin.paths.seed);
         await readEverything(b);
       }),
     ).toEqual([
-      `content ${backlogPath}@b0`,
+      `content ${origin.paths.backlog}@b0`,
       "compare a0...b0",
       "commit c0",
-      `content ${seedPath}@b0`,
+      `content ${origin.paths.seed}@b0`,
     ]);
     expect(seedAtB).toEqual({
       status: 200,
-      body: { revision: b, path: seedPath, text: seedText("merged at B") },
+      body: { revision: b, path: origin.paths.seed, text: mergedText },
     });
   });
 
   test("a seed the comparison names as renamed away, though no commit between does, is missing at B", async () => {
     const [a, b] = [named("0a"), named("0b")];
-    const files = filesFor("renamed");
+    const files = origin.labeled("renamed").please().files;
     const published = await publishedAt(a, files);
-    const { [otherSeedPath]: renamed = "", ...kept } = files;
+    const { [origin.paths.otherSeed]: renamed = "", ...kept } = files;
     await movedTo(published, a, {
       revision: b,
-      files: { ...kept, [newSeedPath]: renamed },
+      files: { ...kept, [origin.paths.newSeed]: renamed },
     });
     const merge = madeBy("0c", [modified("src/app.ts")]);
     published.made.set(merge.sha, merge);
@@ -124,9 +118,9 @@ test.describe("authenticated read reuse of what the comparison names (developmen
     published.compared.set(`${a}...${b}`, (perPage) =>
       aheadByAnswer([merge.sha], perPage, [
         {
-          filename: newSeedPath,
+          filename: origin.paths.newSeed,
           status: "renamed",
-          previous_filename: otherSeedPath,
+          previous_filename: origin.paths.otherSeed,
         },
       ]),
     );
@@ -134,13 +128,13 @@ test.describe("authenticated read reuse of what the comparison names (developmen
     let missing: Answer | undefined;
     expect(
       await asked(async () => {
-        missing = await at(b).file(otherSeedPath);
+        missing = await at(b).file(origin.paths.otherSeed);
       }),
     ).toEqual([
-      `content ${backlogPath}@0b`,
+      `content ${origin.paths.backlog}@0b`,
       "compare 0a...0b",
       "commit 0c",
-      `content ${otherSeedPath}@0b`,
+      `content ${origin.paths.otherSeed}@0b`,
     ]);
     expect(missing?.status).toBe(502);
     expect(JSON.stringify(missing?.body)).toContain("HTTP 404");
@@ -148,20 +142,23 @@ test.describe("authenticated read reuse of what the comparison names (developmen
 
   test("a seed a commit between renames away, though the comparison does not name it, is missing at B and its new path is read", async () => {
     const [a, b] = [named("1a"), named("1b")];
-    const files = filesFor("renamed by a commit");
+    const project = origin.labeled("renamed by a commit");
+    const files = project.please().files;
     const published = await publishedAt(a, files);
     // The backlog at B still names the old path, and names the new one too.
-    const atB = filesFor("renamed by a commit", {
-      backlog: backlogNaming("renamed by a commit", newSeedEntry),
-      files: { [newSeedPath]: newSeedText },
-      remove: [otherSeedPath],
-    });
+    const atB = project
+      .with({
+        backlog: project.backlogNaming(project.newSeedEntry),
+        files: { [origin.paths.newSeed]: project.newSeedText },
+        remove: [origin.paths.otherSeed],
+      })
+      .please().files;
     const rename = madeBy("1c", [
-      modified(backlogPath),
+      modified(origin.paths.backlog),
       {
-        filename: newSeedPath,
+        filename: origin.paths.newSeed,
         status: "renamed",
-        previous_filename: otherSeedPath,
+        previous_filename: origin.paths.otherSeed,
       },
     ]);
     await movedTo(
@@ -183,21 +180,25 @@ test.describe("authenticated read reuse of what the comparison names (developmen
     let moved: Answer | undefined;
     expect(
       await asked(async () => {
-        missing = await at(b).file(otherSeedPath);
-        moved = await at(b).file(newSeedPath);
+        missing = await at(b).file(origin.paths.otherSeed);
+        moved = await at(b).file(origin.paths.newSeed);
       }),
     ).toEqual([
-      `content ${backlogPath}@1b`,
+      `content ${origin.paths.backlog}@1b`,
       "compare 1a...1b",
       "commit 1c",
-      `content ${otherSeedPath}@1b`,
-      `content ${newSeedPath}@1b`,
+      `content ${origin.paths.otherSeed}@1b`,
+      `content ${origin.paths.newSeed}@1b`,
     ]);
     expect(missing?.status).toBe(502);
     expect(JSON.stringify(missing?.body)).toContain("HTTP 404");
     expect(moved).toEqual({
       status: 200,
-      body: { revision: b, path: newSeedPath, text: newSeedText },
+      body: {
+        revision: b,
+        path: origin.paths.newSeed,
+        text: project.newSeedText,
+      },
     });
   });
 });
