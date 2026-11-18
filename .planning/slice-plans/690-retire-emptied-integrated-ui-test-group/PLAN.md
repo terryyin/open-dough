@@ -13,7 +13,9 @@ its Intent location, npm command, Playwright configuration, global setup, CI
 producer and every live reference. The source owns scope and exclusions: no
 product code change, no new group, no speed or shard target, and the
 `dashboard/tests/` Markdown keeps only the edits that drop the retired group.
-Both blocking dependencies are recorded satisfied.
+After retirement and live tooling cleanup, move the shared folder to
+`dashboard/test-support/` and update all live consumers. Both blocking
+dependencies are recorded satisfied.
 
 ## Existing solutions and current decisions
 
@@ -117,6 +119,8 @@ whole Frontend and E2E groups and a green branch CI run, including
 | Key example 5: old proof stays readable | 5 keeps green `frontend-tests/intent/intent-done-source-selection.spec.ts`, `intent-ci-comparison-locations.spec.ts`, `intent-ci-proof.spec.ts` ("historical-only entries have no dead link"), `intent-scope-timing-history-absent.spec.ts`, and `Distribution/tests/support/dashboard-ci-comparison-entries.test.mjs` ("a removed entry is marked without inventing an after value") |
 | Live tooling and guidance lose the group | 5 (what CI needs), 6 (the rest) |
 | Shared support and `integratedStateCompletion` stay | 5: remaining groups' `--list` and `.planning/open-dough.json` diff |
+| Approved final rename, live consumers and current prose | 7 |
+| All maintained suites discover and run after the move; historical names and paths remain readable | 7 |
 
 ## Ordered slices
 
@@ -342,6 +346,25 @@ the Distribution's 652 scheduled files unchanged. The branch can publish
 with the slice still planned to acquire the hosted observation. Mark it
 done after the four local whole-suite gates and the hosted collector result.
 
+Hosted progress `12c320413368437bb17ee0657c1eca9e19ab1cc1` passed CI run
+44291151595 attempt 1. Its retained `ci-proof-summary-attempt-1` artifact
+names that revision, with every part present under `e2e`,
+`dashboard/frontend-tests`, `dashboard/backend-tests` and `Distribution`.
+It records 797, 695 and 1,710 browser results and 651 hosted Distribution
+job outcomes, with zero failures.
+
+The first slice 5 whole Distribution run at that candidate passed 651 of
+652 jobs locally and repeated the comparison baseline-reuse deadline at
+182.0 seconds. The previous diagnostic ruled out a stalled comparison;
+the repair moved two independent reader-invalidation pairs onto the existing
+archival-replay check and reused its archive. Each reader change still
+requires two fresh launches, a differing-input acquisition reason and an
+immutable prior archive. Four focused jobs passed with baseline-reuse at
+129.8 seconds and archival replay at 108.6 seconds under the unchanged
+guard. `slice-5-distribution-readers-repair.md` retains the before/after
+observations, exact commands and terminal results. The 652-job roster
+stays byte-identical. Repeat the full gate once on this specific repair.
+
 ### 6. Name three browser groups in tooling and guidance
 Type: Behavior
 Status: planned
@@ -364,6 +387,39 @@ Edits: `scripts/dashboard-repeat.sh`, `scripts/ci-shard-balance.mjs`, the
 "moved from an integrated" sentences, the remaining `dashboard/tests/`
 Markdown mentions, and the comments in `launchJourney.ts`,
 `runnerConfig.mjs`, `testFiles.mjs` and `run-processes.spec.ts`.
+
+### 7. Move shared test support to its own named directory
+Type: Structure
+Status: planned
+Proof: tracked support moves to `dashboard/test-support/`, no first-party
+live path still requires `dashboard/tests/`, historical proof fixtures
+and records keep the old path, and all three browser group listings and
+the Distribution job listing match their listings after slice 6. Run
+lint, dashboard typecheck and focused hosted-boundary consumers locally.
+Publish the candidate with this slice still planned for one exact hosted
+`ci.yml` run. Require all maintained suites to pass and its actual
+`ci-proof` artifact to contain all four maintained entries.
+
+Internal change: after slices 5 and 6 complete, move the tracked contents
+of the shared support directory in one delivery, including fixtures and
+page objects. Update absolute and relative imports, multi-segment runtime
+paths, Playwright and TypeScript configuration, build/lint settings,
+CI and local runner tooling, and maintained links/prose. Name the directory
+**Dashboard Test Support** in maintained prose. Use the existing support
+tree and unchanged group roots. Resolve relative paths against the owning
+file before rewriting. Check old path occurrences individually for live
+use versus archival or synthetic historical evidence. Preserve revision-
+bound Intent locations and proof keys, recorded comparisons, done records,
+findings and changelog. Leave the product's behavior and current Intent
+roster as proved in slice 5.
+
+Existing solution: the current tree is already the shared test-support
+owner, with 753 tracked paths after the retirement edits. Shared fixtures
+and page objects are used by E2E, Frontend and Backend, and Distribution
+fixtures exercise the three runner configs. Update those same clients
+without creating a second harness or an additional Intent location.
+Measure the line-count inventory again before dispatch and resolve
+pre-existing oversized files under the applicable refactor instructions.
 
 ## Concern evidence
 

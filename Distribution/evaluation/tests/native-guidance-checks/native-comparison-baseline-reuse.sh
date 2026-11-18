@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 # Purpose: one frozen capture of the quiet payload is the starting state for
-# three behaviors: current evidence requirements and applied conditions own
+# two behaviors: current evidence requirements and applied conditions own
 # comparability (an archived pass cannot supply a missing fact or a match); a
 # sufficient historical baseline launches only a new candidate, including a
-# failed baseline, and remains distinct from a fresh pair; and a changed stream
-# or session reader obtains fresh evidence. Each section that commits a harness
-# change starts from the harness as captured.
+# failed baseline, and remains distinct from a fresh pair.
 # shellcheck disable=SC1091,SC2154,SC2310,SC2312 # Fixture globals; expected statuses are asserted.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
@@ -13,7 +11,6 @@ source "${source_dir}/Distribution/evaluation/tests/native-guidance-checks/suppo
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
 native_comparison_pair_fixture "${source_dir}" "${work}"
-captured_harness=$(native_comparison_fixture_git "${work}/source" rev-parse HEAD)
 quiet=$(native_comparison_fixture_rule "${work}" quiet)
 shortcut=$(native_comparison_fixture_rule "${work}" shortcut)
 different_settings=$(native_comparison_fixture_rule "${work}" quiet settings)
@@ -101,30 +98,4 @@ record=$(native_comparison_fixture_record "${work}" "${quiet}" "${quiet}" concur
 [[ $(native_comparison_fixture_sessions "${work}") -eq $((before + 2)) ]]
 grep -Fqx 'baseline-acquisition-reason: explicit fresh pair' "${record}"
 [[ -s $(dirname -- "${record}")/baseline.json ]]
-[[ ${original} == "$(shasum -a 256 "${work}/baseline.json")" ]]
-
-# --- Readers: the archive lacks the raw inputs to replay a changed reader.
-native_comparison_fixture_git "${work}/source" reset -q --hard "${captured_harness}"
-saved="${work}/baseline.json"
-# A reader change is not a current-assessor correction: only its old scalar
-# metrics and stream digest survive, so another native baseline must be observed.
-for reader in native-host-stream-adapters.mjs native-codex-session.mjs; do
-  before=$(native_comparison_fixture_sessions "${work}")
-  prior=$(shasum -a 256 "${saved}")
-  [[ -f ${work}/source/Distribution/evaluation/src/${reader} ]]
-  printf '\n// A changed evidence interpretation.\n' >> "${work}/source/Distribution/evaluation/src/${reader}"
-  native_comparison_fixture_git "${work}/source" add -A
-  native_comparison_fixture_git "${work}/source" commit -q -m "Change ${reader} interpretation"
-  record=$(native_comparison_fixture_record "${work}" "${quiet}" "${quiet}" concurrent "${reader}" --reuse-baseline "${saved}")
-  after=$(native_comparison_fixture_sessions "${work}")
-  [[ ${after} -eq $((before + 2)) ]] || {
-    printf 'FAIL: changed %s started %s sessions, expected two fresh arms\n' "${reader}" "$((after - before))" >&2
-    exit 1
-  }
-  grep -Fqx 'baseline-acquisition: fresh' "${record}"
-  grep -q 'saved baseline insufficient: case, project setup or runner inputs differ' "${record}"
-  [[ ${prior} == "$(shasum -a 256 "${saved}")" ]]
-  saved="$(dirname -- "${record}")/baseline.json"
-  [[ -s ${saved} ]]
-done
 [[ ${original} == "$(shasum -a 256 "${work}/baseline.json")" ]]

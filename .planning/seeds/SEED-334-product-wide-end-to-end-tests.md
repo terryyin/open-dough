@@ -26,9 +26,9 @@ A maintainer runs and reads three browser test groups, **E2E Test**,
 **Dashboard Frontend Test** and **Dashboard Backend Test**, with no interim
 fourth group to place specs in, shard, wait on in CI or explain. Source
 navigation, the last behavior only the interim group protects, stays protected
-in those maintained groups. This story's outcome is the retired group with
-every source-navigation assertion kept; `dashboard/tests/` remaining the home
-of shared test support is outside it.
+in those maintained groups. Retirement keeps every source-navigation
+assertion and leaves the shared test support in place until the approved
+final rename.
 
 #### Scope
 
@@ -124,6 +124,16 @@ that uses `dashboard/tests` as an example path.
    revision; a current story's comparison against a baseline that still had
    `dashboard/tests` marks the entry removed with no after value; scope
    history shows a gap for builds without the scope.
+
+#### Approved final rename
+
+After the source-navigation migration and Dashboard Integrated UI Test
+retirement are complete, rename `dashboard/tests/` to
+`dashboard/test-support/` as the final step of this migration. Use
+**Dashboard Test Support** in maintained prose. Update live imports, paths,
+configuration and guidance that depend on the directory. Verify that the
+remaining suites still discover and run their tests. Preserve historical
+proof and records that refer to `dashboard/tests` at older revisions.
 
 **Plan:** [Source navigation conversion and retirement](../slice-plans/690-retire-emptied-integrated-ui-test-group/PLAN.md)
 

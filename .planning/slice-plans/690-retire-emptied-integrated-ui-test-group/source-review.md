@@ -17,6 +17,11 @@ source conditions.
 - 63–68 are key example 4 for remaining coverage. 69–72 are the maintained
   historical proof cases from Scope and key example 5. 73–77 are Scope limits
   for historical names and paths.
+- R1–R11 come from the fresh `/root/source_review_rename` review
+  (`fork_turns: none`). Its launch supplied Terry's approval of the final
+  folder rename verbatim and prohibited project access and delivery
+  judgment. The rows preserve the numbered review message. The earlier
+  rows still apply to the retirement.
 
 ## Source context from the reviewer
 
@@ -120,3 +125,14 @@ source conditions.
 | 75 | `CHANGELOG.md` retains recorded integrated-group names. | slice 6 |  |
 | 76 | CI repeat fixtures retain their recorded integrated job names. | slice 6 |  |
 | 77 | Fixture data using `dashboard/tests` as an example path retains that path. | slice 6 |  |
+| R1 | The rename happens after both the source-navigation migration and Dashboard Integrated UI Test retirement are complete, and serves as the final step in this migration session. | slice 7 |  |
+| R2 | The shared support folder moves from `dashboard/tests/` to `dashboard/test-support/`. | slice 7 |  |
+| R3 | Maintained prose names the folder “Dashboard Test Support.” | slice 7 |  |
+| R4 | Live imports that depend on the folder resolve against its new location. | slice 7 |  |
+| R5 | Live path references that depend on the folder point to its new location. | slice 7 |  |
+| R6 | Live configuration that depends on the folder uses its new location. | slice 7 |  |
+| R7 | Live guidance that depends on the folder reflects its new location. | slice 7 |  |
+| R8 | Each remaining suite still discovers its tests after the rename. | slice 7 |  |
+| R9 | Each remaining suite still runs its tests after the rename. | slice 7 |  |
+| R10 | Historical proof referring to `dashboard/tests` at older revisions is preserved with those references. | slice 7 |  |
+| R11 | Historical records referring to `dashboard/tests` at older revisions are preserved with those references. | slice 7 |  |

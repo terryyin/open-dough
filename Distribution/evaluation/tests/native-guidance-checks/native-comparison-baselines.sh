@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Purpose: frozen baseline evidence remains replayable after raw cleanup;
 # complete failures survive, while interrupted or unsupported proof does not.
+# A changed stream or session reader requires fresh evidence.
 # The only external substitute is Codex; Git/install/retention/assessment run.
 # shellcheck disable=SC1091,SC2154,SC2310,SC2312 # Fixture globals; expected-failure wrappers forward one checked command.
 set -euo pipefail
@@ -136,6 +137,7 @@ jq -e '.status == "pass"' "${work}/owned-assessment.json" > /dev/null
 node -e 'const f=require("node:fs");f.writeFileSync(process.argv[2],JSON.stringify(JSON.parse(f.readFileSync(process.argv[1],"utf8")),null,2)+"\n")' \
   "${work}/owned.json" "${work}/legacy.json"
 legacy_before=$(shasum -a 256 "${work}/legacy.json")
+mv -- "${work}/bin/codex" "${work}/codex-substitute"
 cat > "${work}/bin/codex" << 'HOST'
 #!/usr/bin/env bash
 printf 'unexpected model launch\n' > "${CODEX_HOME}.launch-attempted"
@@ -165,3 +167,29 @@ if entry --export-baseline "${work}/truncated.json" --save-baseline "${work}/inv
 fi
 [[ ! -e ${work}/invalid-copy.json ]]
 [[ ${legacy_before} == "$(shasum -a 256 "${work}/legacy.json")" && ! -e ${work}/codex-home.launch-attempted ]]
+
+# Only the original scalar metrics and stream digest remain, so a change
+# to either reader requires a fresh baseline instead of archive replay.
+mv -- "${work}/codex-substitute" "${work}/bin/codex"
+saved="${work}/baseline.json"
+for reader in native-host-stream-adapters.mjs native-codex-session.mjs; do
+  sessions_before=$(native_comparison_fixture_sessions "${work}")
+  prior=$(shasum -a 256 "${saved}")
+  reader_path="Distribution/evaluation/src/${reader}"
+  [[ -f ${work}/source/${reader_path} ]]
+  printf '\n// A changed evidence interpretation.\n' >> "${work}/source/${reader_path}"
+  native_comparison_fixture_git "${work}/source" add -- "${reader_path}"
+  native_comparison_fixture_git "${work}/source" commit -q -m "Change ${reader} interpretation"
+  record=$(native_comparison_fixture_record "${work}" "${quiet}" "${quiet}" concurrent "${reader}" --reuse-baseline "${saved}")
+  sessions_after=$(native_comparison_fixture_sessions "${work}")
+  [[ ${sessions_after} -eq $((sessions_before + 2)) ]] || {
+    printf 'FAIL: changed %s started %s sessions, expected two fresh arms\n' "${reader}" "$((sessions_after - sessions_before))" >&2
+    exit 1
+  }
+  grep -Fqx 'baseline-acquisition: fresh' "${record}"
+  grep -q 'saved baseline insufficient: case, project setup or runner inputs differ' "${record}"
+  [[ ${prior} == "$(shasum -a 256 "${saved}")" ]]
+  saved="$(dirname -- "${record}")/baseline.json"
+  [[ -s ${saved} ]]
+done
+[[ ${before} == "$(shasum -a 256 "${work}/baseline.json")" ]]
