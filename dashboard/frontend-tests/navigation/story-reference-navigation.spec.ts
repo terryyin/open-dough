@@ -2,14 +2,21 @@
 // Story A's reference opens Story B's detail at its reading top with the
 // keyboard on the card and a cue that does not select it; the canonical
 // record opens GitHub at the published revision; a later revision leaves the
-// keyboard where the developer put it. Nothing here launches or attaches an
-// agent.
+// keyboard where the developer put it. While Story B's accepted start runs,
+// following the reference reveals it with its protected detail closed. Nothing
+// here launches or attaches an agent; a real Take is
+// ../../../e2e/launches/agent-launch-story-card.spec.ts.
 
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { parts, shortRevision } from "../../tests/dashboardPage.ts";
 import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
 import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";
 import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
+import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
 import {
   failFrontendSupplierSeed,
@@ -126,6 +133,42 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
     await expect(inspect).toBeFocused();
   });
   expect(hostRequests()).toEqual([]);
+});
+
+test("a reference reveals a starting story without opening its protected inspection or starting another host action", async ({
+  page,
+  frontendServices,
+}) => {
+  putFrontendDependencies(frontendServices, twoDependencies());
+  const attempt = frontendAttempt(frontendServices);
+  const boundary = await installFrontendLaunchBoundary(page, {
+    accept: attempt.accept,
+  });
+  const hostRequests = recordHostRequests(page);
+  await page.goto("/");
+  const { start, dialog } = backlogLaunchers(page);
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  const supplier = storyCard(parts(page).board, "Story B");
+  await start("Story B").click();
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(inspectionToggle(supplier)).toBeDisabled();
+
+  await openDependencies(consumer);
+  await followReference(consumer, "Story B");
+  await expect(supplier).toBeFocused();
+  await expect(storyDetail(supplier)).toHaveCount(0);
+  await expect(canonicalRecord(supplier)).toBeVisible();
+  expect(hostRequests()).toEqual([`POST ${agentAcceptEndpoint}`]);
+
+  attempt.launch(
+    makeMe.aLaunchRecord
+      .executing({ identity: "SEED-B#b", title: "Story B" })
+      .please(),
+  );
+  await boundary.tellChanged();
+  await expect(inspectionToggle(supplier)).toBeEnabled();
+  expect(boundary.acceptances).toHaveLength(1);
 });
 
 test("an identified active block with unreadable detail still opens with its existing read gap", async ({

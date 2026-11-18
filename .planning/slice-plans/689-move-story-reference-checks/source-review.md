@@ -24,8 +24,8 @@ stopping point (active-reference or Done-reference specs alone are complete).
 | 3c | Where an existing maintained case already makes the same assertion, that case is named as its home | slice 8 | |
 | 4a | A read the interim case counted at GitHub becomes a count of the page's own reads | slice 7 | |
 | 4b | A count only the server decides (e.g. what its cache spares) keeps a Backend home | slice 7 | |
-| 5a | The real Take behind a starting story stays protected by E2E `launches/agent-launch-start-dependencies.spec.ts` | slice 2 | |
-| 5b | A Frontend case observes the protected Inspect while the page's start is unanswered | slice 2 | |
+| 5a | The real Take behind a starting story stays protected by E2E `launches/agent-launch-start-dependencies.spec.ts` |  | G1 |
+| 5b | A Frontend case observes the protected Inspect while the page's start is unanswered | slice 2 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts 'a reference reveals a starting story without opening its protected inspection or starting another host action': inspectionToggle disabled while the accepted start is unlaunched; enabled after attempt.launch + tellChanged |
 | 6a | The interim group stays runnable with `source-navigation` alone | slice 8 | |
 | 6b | The group's CI shard declaration is reduced to what selects a spec | slice 8 | |
 | 7 | Test support the deletions leave without a consumer is removed | slice 8 | |
@@ -33,8 +33,8 @@ stopping point (active-reference or Done-reference specs alone are complete).
 | 8b | Following again while the cue fades restarts the cue and keeps the selection and detail made meanwhile | slice 1 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts first test, step 'following while the cue fades restarts it…' (expectDestinationCueRestarted, selected, Hide detail, focus) |
 | 8c | The canonical record opens the GitHub blob of the published revision | slice 1 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts first test, step 'the canonical record opens GitHub's blob of the published revision' (popup URL = blob at services.revision) |
 | 8d | A later revision leaves the keyboard where the developer put it | slice 1 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts first test, step 'a later revision leaves the keyboard on Story A's Inspect' |
-| 9a | Story B starting with its start unanswered: the reference moves the keyboard to its card and leaves the protected detail closed | slice 2 | |
-| 9b | In that state the page sends no further launch or attach request | slice 2 | |
+| 9a | Story B starting with its start unanswered: the reference moves the keyboard to its card and leaves the protected detail closed | slice 2 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts 'a reference reveals a starting story without opening its protected inspection or starting another host action': supplier focused, storyDetail count 0, canonicalRecord visible after following from Story A |
+| 9b | In that state the page sends no further launch or attach request | slice 2 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts 'a reference reveals a starting story without opening its protected inspection or starting another host action': hostRequests() equals exactly ['POST /__agent-launch/accept'] after the follow; boundary.acceptances length 1 |
 | 10a | Two stories share one seed: each reference opens the story its identity names | slice 3 | |
 | 10b | Pygardon tells `SEED-B#b` in a seed of its own: the reference opens that story in the shown project | slice 3 | |
 | 10c | References can be followed by keyboard and by tap | slice 3 | |

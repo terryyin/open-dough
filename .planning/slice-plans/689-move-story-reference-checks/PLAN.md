@@ -48,10 +48,8 @@ product code change. No blocking dependency.
   count depends on what the server spares (its cache), the assertion map names
   the Backend owner (`backend-tests/observation/authenticated-read-listed-records.spec.ts`
   or a case added beside it) instead of a page-side count.
-- A starting story: the launch substitute answers an acceptance at once.
-  Slice 2 adds one hold of the next acceptance to
-  `frontendLaunchSubstitutes.ts` (193 lines), like `holdNextChoices`. The real
-  Take stays with E2E `launches/agent-launch-start-dependencies.spec.ts`.
+- A starting story is an accepted start not yet launched (a held acceptance
+  keeps the Start dialog open). The real Take is E2E (G1).
 - Dependency data stays pure: `agreement`, `twoDependencies`,
   `suppliersInOneSeed`, `secondInSeedB` (`storyDependencyFixture.ts`) and
   `queuedSeedWithDependencies`. The interim product-backlog CLI and Git steps
@@ -62,20 +60,15 @@ product code change. No blocking dependency.
 - `storyReferenceDone.ts` data (35 Done records, near, far, later, expired and
   unlisted references) moves into the Frontend Done-reference arrangement in
   slice 5; the interim module is deleted with its last importer in slice 8.
-  `takeSupplier` (`storyDependencyFixture.ts`), `holdDestinationCueWhileFading`,
-  `expectDestinationCueRestarted`, `passPartOfCue` (`destinationCue.ts`),
-  `retryReference` (`storyReference.ts`), `pointerDownOn`
-  (`storyCardControls.ts`) and `passTimeToRecovery` (`transientRecoveryPage.ts`)
-  have no other importer today: each keeps its Frontend consumer or is removed
-  by the slice that leaves it unused.
+  `takeSupplier`, `retryReference`, `pointerDownOn` and `passTimeToRecovery`
+  have no importer outside the interim specs: each gains a Frontend consumer
+  or is removed by the slice that leaves it unused.
 - An interim step that an existing maintained case already asserts is dropped
   only when the assertion map names that case and its assertion.
 - Interim `pausePageClock` and `openUntilRead` guard real-server refresh; the
   Frontend case pauses the page clock only where it passes time itself.
-- Accepted [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md),
-  [0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
-  [0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-  and [0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+- Accepted ADRs [0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md), [0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+  [0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md), [0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
   support the move; no conflict, no North Star topic.
 
 ## Outside-in proof ownership and gates
@@ -137,22 +130,20 @@ cue fades restarts it and keeps selection and detail; the canonical record
 opens the GitHub blob at the published revision; a later revision keeps the
 keyboard on Story A's Inspect; a seed that cannot be read still opens with its
 read gap and an empty notice. The page sends no launch or attach request.
-CI repair: run 44233235497 Distribution share 3/3 hit its run deadline on a
-slow runner; `rebalance-ci-shards` moved `installation/update-*` to share 1.
+CI repair (run 44233235497, share 3/3 deadline): Distribution shares rebalanced.
 
 ### 2. Reveal a starting story without opening it
 Type: Behavior
-Status: planned
+Status: done
 Proof: "a reference reveals a starting story…" in the same Frontend spec, on
-a held acceptance added to `frontendLaunchSubstitutes.ts`; then delete the
+an accepted, unlaunched start; then delete the
 interim `story-reference-navigation`. Scratch break: open detail on reveal
 although Inspect is protected; the case fails.
 
 Behavior: Story B's start is sent and unanswered (Inspect disabled) → the
 reference focuses its card, opens no detail, keeps the canonical record
 visible, and the page has sent exactly that one acceptance and no attach;
-answering the start enables Inspect. The assertion map names E2E
-`launches/agent-launch-start-dependencies.spec.ts` for the real Take.
+launching the start enables Inspect. The real Take is E2E (G1).
 
 ### 3. Tell references apart by identity and project
 Type: Behavior
@@ -247,3 +238,12 @@ Behavior: with the far Done record held and its reference followed → Inspect,
 supersedes the jump: the record arrives, the keyboard stays where the
 developer moved it, the notice empties and the pointer's own click still
 opens detail. The interim group lists 3 tests in 1 file.
+
+
+## Story obligations
+
+### G1. Real Take home named by the story asserts only refusal
+Reported: slice 2 — "e2e/launches/agent-launch-start-dependencies.spec.ts asserts takenProfiles and claudeLaunchCalls empty, not a real Take"
+Story clause: "The real Take behind a starting story stays with E2E `launches/agent-launch-start-dependencies.spec.ts`"
+Disposition: proved by slice 2: e2e/launches/agent-launch-story-card.spec.ts 'only explicit Start sends the exact multiline draft and the card distinguishes accepted startup from a launched session' (held host, Local startup in progress, claudeLaunchCalls length 1; developer chose this existing case as the home on 2026-11-18)
+Commitment: 5a
