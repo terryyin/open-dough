@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-383#tell-compared-usage-tools-apart",
+  "host": "claude",
+  "model": "fable"
+}
