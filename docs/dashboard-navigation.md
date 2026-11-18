@@ -126,7 +126,16 @@ the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
 it from the browser, except inside an open modal dialog or System settings,
 and with no panel it does nothing. Closing returns the keyboard to the control
-that opened the panel, or to its story's card when that control is gone. Command+Escape is not used: Chrome and Safari on macOS never
+that opened the panel, or to its story's card when that control is gone. While
+the terminal's input has focus on macOS, Command+Enter is a page chord: when
+the attachment accepts input and that session is ready for a follow-up
+(`awaiting-instruction` or `review`), it sends one ordinary Enter, asks a
+prompt sessions reread, and closes as Close once activity becomes `working` or
+`waiting`; if the attachment ends or a short confirmation wait expires first,
+the panel stays open and says confirmation is unavailable. When the session is
+already working or waiting, the chord is taken and nothing is submitted or
+closed; outside terminal-input focus the chord is left alone. Plain Enter still
+submits without closing. Command+Escape is not used: Chrome and Safari on macOS never
 deliver it to the page.
 The Open Dough mark is the banner's **Sessions** toggle. The project selector
 names the selected project. Beside it, a **Perspective** radio group offers

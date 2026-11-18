@@ -87,3 +87,4 @@ intent introduced or affected by a newly developed story.
 - [Richer Done follow-up card cues](seeds/SEED-395-richer-done-follow-up-card-cues.md#richer-done-follow-up-card-cues) — SEED-395#richer-done-follow-up-card-cues
 - [Offer more syntax styling choices beyond Off and Default](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#more-syntax-styling-choices) — SEED-387#more-syntax-styling-choices
 - [Further word-emphasis follow-ups](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#further-word-emphasis-follow-ups) — SEED-387#further-word-emphasis-follow-ups
+- [Deferred submit-and-close follow-ups](seeds/SEED-398-deferred-submit-and-close-follow-ups.md#deferred-submit-and-close-follow-ups) — SEED-398#deferred-submit-and-close-follow-ups
