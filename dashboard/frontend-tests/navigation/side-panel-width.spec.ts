@@ -16,20 +16,8 @@ import {
 import { box, expectSideBySideInOrder } from "../../tests/pageLayout.ts";
 import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
 import {
-  cancelDividerDrag,
-  control,
-  dragDivider,
-  expectCovering,
-  expectDividerSays,
   expectStillHolds,
-  expectWidth,
-  keyStep,
-  panelDivider,
-  pressDividerKey,
-  resizeUntilArranged,
-  split,
-  usableMinimum,
-  wideWindow,
+  sidePanelWidthPage,
 } from "../../tests/sidePanelWidthPage.ts";
 import {
   closeSidePanel,
@@ -41,14 +29,15 @@ test("mouse and keyboard choose one bounded width for an attached terminal that 
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   // The page's terminal connections: resizing never reconnects.
   const { sizes, attaches, openTerminal } = await takenStoryWorkingSession(
     page,
     frontendServices,
   );
-  await page.setViewportSize(wideWindow);
+  await page.setViewportSize(width.wideWindow);
   await page.goto("/");
-  const divider = panelDivider(page);
+  const divider = width.divider;
   const sidebar = sessionsSidebarParts(page);
   const terminal = await openTerminal();
   const rows = terminalScreenParts(terminal).rows;
@@ -56,29 +45,29 @@ test("mouse and keyboard choose one bounded width for an attached terminal that 
   await expect(rows).toContainText("keep this line");
   expect(attaches()).toBe(1);
 
-  const start = await split(page, terminal);
+  const start = await width.split(terminal);
   const room = start.pageColumn + start.sidePanel;
-  const maximum = Math.floor(room - usableMinimum);
+  const maximum = Math.floor(room - width.usableMinimum);
   await test.step("the panel begins at half the room, with a Panel divider that says its width and bounds", async () => {
     expect(start.sidePanel).toBeCloseTo(room / 2, 0);
     await expect(divider).toHaveAccessibleName("Panel divider");
     await expect(divider).toHaveAttribute("aria-orientation", "vertical");
     await expect(divider).toHaveAttribute(
       "aria-valuemin",
-      String(usableMinimum),
+      String(width.usableMinimum),
     );
     await expect(divider).toHaveAttribute("aria-valuemax", String(maximum));
-    await expectDividerSays(page, Math.round(room / 2));
+    await width.expectDividerSays(Math.round(room / 2));
     await expectSideBySideInOrder([page.locator(".page-column"), terminal]);
   });
 
   await test.step("dragging the divider widens the terminal, which stays attached and fits the new width", async () => {
     const colsBefore = sizes.at(-1)?.cols ?? 0;
-    const released = await dragDivider(page, -200);
+    const released = await width.dragDivider(-200);
     const widened = Math.round(room / 2) + 200;
-    await expectWidth(terminal, widened);
-    await expectDividerSays(page, widened);
-    expect((await split(page, terminal)).pageColumn).toBeCloseTo(
+    await width.expectWidth(terminal, widened);
+    await width.expectDividerSays(widened);
+    expect((await width.split(terminal)).pageColumn).toBeCloseTo(
       room - widened,
       0,
     );
@@ -88,24 +77,24 @@ test("mouse and keyboard choose one bounded width for an attached terminal that 
     await expectStillHolds(terminal, "keep this line");
     // Released off the divider, the drag has ended: the pointer moves freely.
     await page.mouse.move(released.x - 150, released.y);
-    await expectWidth(terminal, widened);
+    await width.expectWidth(terminal, widened);
     expect(attaches()).toBe(1);
   });
 
   await test.step("dragging past either bound stops there, and a cancelled drag ends", async () => {
-    await dragDivider(page, -2000);
-    await expectWidth(terminal, maximum);
-    await expectDividerSays(page, maximum);
-    expect((await split(page, terminal)).pageColumn).toBeGreaterThanOrEqual(
-      usableMinimum - 0.5,
+    await width.dragDivider(-2000);
+    await width.expectWidth(terminal, maximum);
+    await width.expectDividerSays(maximum);
+    expect((await width.split(terminal)).pageColumn).toBeGreaterThanOrEqual(
+      width.usableMinimum - 0.5,
     );
-    await dragDivider(page, 2000);
-    await expectWidth(terminal, usableMinimum);
-    await expectDividerSays(page, usableMinimum);
-    await expect(control(terminal, "Close")).toBeInViewport({ ratio: 1 });
+    await width.dragDivider(2000);
+    await width.expectWidth(terminal, width.usableMinimum);
+    await width.expectDividerSays(width.usableMinimum);
+    await expect(width.control(terminal, "Close")).toBeInViewport({ ratio: 1 });
     await expect(terminal.getByRole("heading", { level: 2 })).toBeInViewport();
-    await cancelDividerDrag(page, { pointerId: 1, by: -300, steps: 4 });
-    await expectWidth(terminal, usableMinimum);
+    await width.cancelDividerDrag({ pointerId: 1, by: -300, steps: 4 });
+    await width.expectWidth(terminal, width.usableMinimum);
     await page.mouse.up();
     expect(attaches()).toBe(1);
   });
@@ -115,35 +104,35 @@ test("mouse and keyboard choose one bounded width for an attached terminal that 
     await page.keyboard.press("Shift+Tab");
     await expectFocusedAndIndicated(page, divider);
     const before = page.url();
-    await pressDividerKey(page, "ArrowLeft");
-    await expectWidth(terminal, usableMinimum + keyStep);
-    await expectDividerSays(page, usableMinimum + keyStep);
-    await pressDividerKey(page, "ArrowRight", 2);
-    await expectWidth(terminal, usableMinimum);
-    await pressDividerKey(page, "ArrowLeft", 40);
-    await expectWidth(terminal, maximum);
-    await pressDividerKey(page, "ArrowRight", 8);
-    await expectWidth(terminal, maximum - 8 * keyStep);
+    await width.pressDividerKey("ArrowLeft");
+    await width.expectWidth(terminal, width.usableMinimum + width.keyStep);
+    await width.expectDividerSays(width.usableMinimum + width.keyStep);
+    await width.pressDividerKey("ArrowRight", 2);
+    await width.expectWidth(terminal, width.usableMinimum);
+    await width.pressDividerKey("ArrowLeft", 40);
+    await width.expectWidth(terminal, maximum);
+    await width.pressDividerKey("ArrowRight", 8);
+    await width.expectWidth(terminal, maximum - 8 * width.keyStep);
     expect(page.url()).toBe(before);
     await expect(divider).toBeFocused();
     expect(attaches()).toBe(1);
   });
-  const chosen = maximum - 8 * keyStep;
+  const chosen = maximum - 8 * width.keyStep;
 
   await test.step("resizing keys do nothing while the terminal holds the keyboard", async () => {
     await terminalScreenParts(terminal).screen.click();
     await pressTerminalKey(page, "ArrowLeft");
     await pressTerminalKey(page, "ArrowLeft");
-    await expectWidth(terminal, chosen);
+    await width.expectWidth(terminal, chosen);
   });
 
   await test.step("Maximize offers no divider, and Restore recovers the chosen width", async () => {
     await maximizeSidePanel(terminal);
-    await expect(control(terminal, "Restore")).toBeVisible();
+    await expect(width.control(terminal, "Restore")).toBeVisible();
     await expect(divider).toHaveCount(0);
     expect((await box(terminal)).width).toBeCloseTo(room, 0);
     await restoreSidePanel(terminal);
-    await expectWidth(terminal, chosen);
+    await width.expectWidth(terminal, chosen);
     await expectStillHolds(terminal, "keep this line");
     expect(attaches()).toBe(1);
   });
@@ -152,8 +141,8 @@ test("mouse and keyboard choose one bounded width for an attached terminal that 
     await closeSidePanel(terminal, { using: "pointer" });
     await expect(terminal).toHaveCount(0);
     await openTerminal();
-    await expectWidth(terminal, chosen);
-    await expectDividerSays(page, chosen);
+    await width.expectWidth(terminal, chosen);
+    await width.expectDividerSays(chosen);
     expect(attaches()).toBe(2);
   });
 
@@ -161,13 +150,13 @@ test("mouse and keyboard choose one bounded width for an attached terminal that 
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeVisible();
     await page.setViewportSize({ width: 900, height: 900 });
-    await expectCovering(terminal);
+    await width.expectCovering(terminal);
     await expectSideBySideInOrder([sidebar.sidebar, terminal]);
-    await resizeUntilArranged(terminal, wideWindow);
+    await width.resizeUntilArranged(terminal, width.wideWindow);
     await expect(divider).toBeVisible();
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeHidden();
-    await expectWidth(terminal, chosen);
+    await width.expectWidth(terminal, chosen);
     expect(attaches()).toBe(2);
   });
 });

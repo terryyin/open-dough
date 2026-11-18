@@ -15,19 +15,7 @@ import { installFrontendStoryReview } from "../../tests/support/frontendStoryRev
 import { watchPageErrors } from "../../tests/pageErrors.ts";
 import { reviewRegion } from "../../tests/support/reviewControls.ts";
 import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import {
-  dragDivider,
-  expectCovering,
-  expectDividerSays,
-  expectWidth,
-  focusDivider,
-  keyStep,
-  panelDivider,
-  pressDividerKey,
-  split,
-  usableMinimum,
-  wideWindow,
-} from "../../tests/sidePanelWidthPage.ts";
+import { sidePanelWidthPage } from "../../tests/sidePanelWidthPage.ts";
 import {
   maximizeSidePanel,
   restoreSidePanel,
@@ -46,27 +34,28 @@ test("a chosen width is recovered after a reload, and neither less room nor Maxi
   browser,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   await takenStoryWithReview(page, frontendServices);
   const review = await openReview(page);
   await expectHalfTheRoom(page, review);
-  const start = await split(page, review);
+  const start = await width.split(review);
   const chosen = Math.round((start.pageColumn + start.sidePanel) / 2) + 200;
-  await dragDivider(page, -200);
-  await expectWidth(review, chosen);
+  await width.dragDivider(-200);
+  await width.expectWidth(review, chosen);
   expect(await keptWidth(page)).toBe(String(chosen));
 
   await test.step("reloaded, the review opens at the chosen width", async () => {
     const reopened = await reloadAndOpenReview(page);
-    await expectWidth(reopened, chosen);
-    await expectDividerSays(page, chosen);
-    expect((await split(page, reopened)).pageColumn).toBeCloseTo(
+    await width.expectWidth(reopened, chosen);
+    await width.expectDividerSays(chosen);
+    expect((await width.split(reopened)).pageColumn).toBeCloseTo(
       start.pageColumn + start.sidePanel - chosen,
       0,
     );
   });
 
   await test.step("a fresh browser context keeps nothing and starts at half the room", async () => {
-    const fresh = await browser.newContext({ viewport: wideWindow });
+    const fresh = await browser.newContext({ viewport: width.wideWindow });
     try {
       const other = await fresh.newPage();
       await installFrontendServiceSubstitutes(other, frontendServices);
@@ -79,35 +68,40 @@ test("a chosen width is recovered after a reload, and neither less room nor Maxi
   });
 
   await test.step("in a smaller window the reloaded review takes only what the room allows", async () => {
-    await page.setViewportSize({ width: 1000, height: wideWindow.height });
+    await page.setViewportSize({
+      width: 1000,
+      height: width.wideWindow.height,
+    });
     const reopened = await reloadAndOpenReview(page);
-    const room = await split(page, reopened);
-    const fitted = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
+    const room = await width.split(reopened);
+    const fitted = Math.floor(
+      room.pageColumn + room.sidePanel - width.usableMinimum,
+    );
     expect(fitted).toBeLessThan(chosen);
-    await expectWidth(reopened, fitted);
-    await expectDividerSays(page, fitted);
+    await width.expectWidth(reopened, fitted);
+    await width.expectDividerSays(fitted);
     await maximizeSidePanel(reopened);
-    await expect(panelDivider(page)).toHaveCount(0);
+    await expect(width.divider).toHaveCount(0);
     await restoreSidePanel(reopened);
-    await expectWidth(reopened, fitted);
+    await width.expectWidth(reopened, fitted);
     expect(await keptWidth(page)).toBe(String(chosen));
   });
 
   await test.step("reloaded in a narrow window the panel covers with no divider or Maximize", async () => {
-    await page.setViewportSize({ width: 760, height: wideWindow.height });
-    await expectCovering(await reloadAndOpenReview(page));
+    await page.setViewportSize({ width: 760, height: width.wideWindow.height });
+    await width.expectCovering(await reloadAndOpenReview(page));
     expect(await keptWidth(page)).toBe(String(chosen));
   });
 
   await test.step("a wide window recovers the chosen width, also after reloading while maximized", async () => {
-    await page.setViewportSize(wideWindow);
+    await page.setViewportSize(width.wideWindow);
     const shown = reviewRegion(page, { exact: true });
-    await expectWidth(shown, chosen);
+    await width.expectWidth(shown, chosen);
     await maximizeSidePanel(shown);
-    await expect(panelDivider(page)).toHaveCount(0);
+    await expect(width.divider).toHaveCount(0);
     const reopened = await reloadAndOpenReview(page);
-    await expectWidth(reopened, chosen);
-    await expectDividerSays(page, chosen);
+    await width.expectWidth(reopened, chosen);
+    await width.expectDividerSays(chosen);
   });
 });
 
@@ -115,6 +109,7 @@ test("an unusable kept width starts at half the room, leaving the other preferen
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   await takenStoryWithReview(page, frontendServices);
   const errors = watchPageErrors(page);
   // The Sessions sidebar's own kept preference is untouched.
@@ -135,12 +130,12 @@ test("an unusable kept width starts at half the room, leaving the other preferen
     });
   }
   const review = reviewRegion(page, { exact: true });
-  const start = await split(page, review);
-  await focusDivider(page);
-  await pressDividerKey(page, "ArrowLeft");
-  const chosen = Math.round(start.sidePanel + keyStep);
-  await expectWidth(review, chosen);
-  await expectWidth(await reloadAndOpenReview(page), chosen);
+  const start = await width.split(review);
+  await width.focusDivider();
+  await width.pressDividerKey("ArrowLeft");
+  const chosen = Math.round(start.sidePanel + width.keyStep);
+  await width.expectWidth(review, chosen);
+  await width.expectWidth(await reloadAndOpenReview(page), chosen);
   expect(errors).toEqual([]);
 });
 
@@ -148,6 +143,7 @@ test("where the browser refuses storage, the panel starts at half the room and r
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   await page.addInitScript(() => {
     const refused = () => {
       throw new DOMException("Storage is refused.", "SecurityError");
@@ -162,11 +158,11 @@ test("where the browser refuses storage, the panel starts at half the room and r
   await expect(keptWidth(page)).rejects.toThrow("Storage is refused.");
   const review = await openReview(page);
   await expectHalfTheRoom(page, review);
-  const start = await split(page, review);
+  const start = await width.split(review);
   const chosen = Math.round((start.pageColumn + start.sidePanel) / 2) + 200;
-  await dragDivider(page, -200);
-  await expectWidth(review, chosen);
-  await expectDividerSays(page, chosen);
+  await width.dragDivider(-200);
+  await width.expectWidth(review, chosen);
+  await width.expectDividerSays(chosen);
   await expectHalfTheRoom(page, await reloadAndOpenReview(page));
   expect(errors).toEqual([]);
 });

@@ -22,17 +22,8 @@ import {
   sessionsSidebarTitleCut,
 } from "../../tests/sessionsSidebarPage.ts";
 import {
-  control,
-  dragDivider,
-  expectCovering,
-  expectCoveringFillsWindow,
-  expectWidth,
-  panelDivider,
-  resizeUntilArranged,
   scrollsOnItsOwn,
-  split,
-  usableMinimum,
-  wideWindow,
+  sidePanelWidthPage,
 } from "../../tests/sidePanelWidthPage.ts";
 import {
   closeSidePanel,
@@ -50,19 +41,22 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   await takenStoryWithReview(page, frontendServices);
   const { banner, board } = parts(page);
   const sidebar = sessionsSidebarParts(page);
   const review = await openReview(page);
-  const room = await split(page, review);
-  const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
-  await dragDivider(page, -2000);
-  await expectWidth(review, chosen);
-  await expect(control(review, "Maximize")).toBeVisible();
+  const room = await width.split(review);
+  const chosen = Math.floor(
+    room.pageColumn + room.sidePanel - width.usableMinimum,
+  );
+  await width.dragDivider(-2000);
+  await width.expectWidth(review, chosen);
+  await expect(width.control(review, "Maximize")).toBeVisible();
 
   await test.step("a narrow window covers the page, every control reachable", async () => {
-    await resizeUntilArranged(review, narrowWindow);
-    await expectCoveringFillsWindow(review, { banner, board });
+    await width.resizeUntilArranged(review, narrowWindow);
+    await width.expectCoveringFillsWindow(review, { banner, board });
     await sidebar.button.click();
     await expectSessionsSidebar(page, "open");
     await sidebar.button.click();
@@ -80,7 +74,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     ]);
     await expectEveryControlReachable(review);
     await expect(review.getByRole("heading", { level: 2 })).toBeInViewport();
-    const close = control(review, "Close");
+    const close = width.control(review, "Close");
     await close.focus();
     await page.keyboard.press("Shift+Tab");
     await page.keyboard.press("Tab");
@@ -88,10 +82,10 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
   });
 
   await test.step("a wide window recovers the chosen width, divider and Maximize", async () => {
-    await resizeUntilArranged(review, wideWindow);
-    await expectWidth(review, chosen);
-    await expect(panelDivider(page)).toBeVisible();
-    await expect(control(review, "Maximize")).toBeVisible();
+    await width.resizeUntilArranged(review, width.wideWindow);
+    await width.expectWidth(review, chosen);
+    await expect(width.divider).toBeVisible();
+    await expect(width.control(review, "Maximize")).toBeVisible();
     await expect(banner).toBeVisible();
   });
 
@@ -99,18 +93,18 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await closeSidePanel(review, { using: "pointer" });
     await expect(review).toHaveCount(0);
     const reopened = await openReview(page);
-    await expectWidth(reopened, chosen);
+    await width.expectWidth(reopened, chosen);
     await maximizeSidePanel(reopened);
-    await expect(control(reopened, "Restore")).toBeVisible();
+    await expect(width.control(reopened, "Restore")).toBeVisible();
     await page.setViewportSize(narrowWindow);
-    await expectCovering(reopened);
-    await page.setViewportSize(wideWindow);
-    await expect(control(reopened, "Restore")).toBeVisible();
-    await expect(control(reopened, "Maximize")).toHaveCount(0);
+    await width.expectCovering(reopened);
+    await page.setViewportSize(width.wideWindow);
+    await expect(width.control(reopened, "Restore")).toBeVisible();
+    await expect(width.control(reopened, "Maximize")).toHaveCount(0);
     await expect(banner).toBeHidden();
     await restoreSidePanel(reopened);
-    await expectWidth(reopened, chosen);
-    await expect(control(reopened, "Maximize")).toBeVisible();
+    await width.expectWidth(reopened, chosen);
+    await expect(width.control(reopened, "Maximize")).toBeVisible();
     await expect(banner).toBeVisible();
   });
 });
@@ -119,6 +113,7 @@ test("beside the open sidebar with too little room, the panel covers the page co
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   await takenStoryWithReview(page, frontendServices);
   const sidebar = sessionsSidebarParts(page);
   const { banner } = parts(page);
@@ -127,7 +122,7 @@ test("beside the open sidebar with too little room, the panel covers the page co
   await expect(sidebar.sidebar).toBeVisible();
   // 880 − 288px sidebar = 592px < two 320px minimums.
   await page.setViewportSize({ width: 880, height: 900 });
-  await expectCovering(review);
+  await width.expectCovering(review);
   const side = await box(sidebar.sidebar);
   const room = await page.evaluate(() => ({
     width: document.documentElement.clientWidth,
@@ -146,29 +141,32 @@ test("at a narrow window the terminal covers the page with no Maximize, still at
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   const { openTerminal } = await takenStoryWorkingSession(
     page,
     frontendServices,
   );
-  await page.setViewportSize(wideWindow);
+  await page.setViewportSize(width.wideWindow);
   await page.goto("/");
   const { banner, board } = parts(page);
   const terminal = await openTerminal();
   const rows = terminalScreenParts(terminal).rows;
-  const room = await split(page, terminal);
-  const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
-  await dragDivider(page, -2000);
-  await expectWidth(terminal, chosen);
+  const room = await width.split(terminal);
+  const chosen = Math.floor(
+    room.pageColumn + room.sidePanel - width.usableMinimum,
+  );
+  await width.dragDivider(-2000);
+  await width.expectWidth(terminal, chosen);
 
-  await resizeUntilArranged(terminal, narrowWindow);
-  await expectCoveringFillsWindow(terminal, { banner, board });
+  await width.resizeUntilArranged(terminal, narrowWindow);
+  await width.expectCoveringFillsWindow(terminal, { banner, board });
   await expect(rows).toContainText("attached");
   await expectEveryControlReachable(terminal);
   await expect(terminal.getByRole("heading", { level: 2 })).toBeInViewport();
 
-  await resizeUntilArranged(terminal, wideWindow);
-  await expectWidth(terminal, chosen);
-  await expect(panelDivider(page)).toBeVisible();
-  await expect(control(terminal, "Maximize")).toBeVisible();
+  await width.resizeUntilArranged(terminal, width.wideWindow);
+  await width.expectWidth(terminal, chosen);
+  await expect(width.divider).toBeVisible();
+  await expect(width.control(terminal, "Maximize")).toBeVisible();
   await expect(banner).toBeVisible();
 });

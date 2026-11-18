@@ -1,4 +1,6 @@
-// The side panel's resize divider and widths as shown.
+// The side panel's resize divider and widths as shown. Width scenarios use
+// sidePanelWidthPage; the functions are that object's actions, and other
+// journeys import the one action they need.
 
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -23,15 +25,23 @@ export const scrollsOnItsOwn = [
   ".story-review-code",
 ];
 
-export { panelDivider } from "./sidePanelFrame.ts";
-import { panelDivider } from "./sidePanelFrame.ts";
+import {
+  control,
+  expectBoardUnreachableBehindCovering,
+  expectCovering,
+  expectCoveringFillsWindow,
+  panelDivider,
+  resizeUntilArranged,
+} from "./sidePanelFrame.ts";
+
 export {
   control,
   expectBoardUnreachableBehindCovering,
   expectCovering,
   expectCoveringFillsWindow,
+  panelDivider,
   resizeUntilArranged,
-} from "./sidePanelFrame.ts";
+};
 
 // The page column and the panel, side by side, as shown.
 export async function split(page: Page, panel: Locator) {
@@ -148,4 +158,38 @@ export function recordReviewReads(page: Page) {
       reads.push(pathname);
   });
   return reads;
+}
+
+// The Panel divider and the width it chooses on one page. Expected widths,
+// the split's measured columns and a review's request log stay with the
+// scenario; frame covering and resize stay implemented in ./sidePanelFrame.ts.
+export function sidePanelWidthPage(page: Page) {
+  return {
+    wideWindow,
+    usableMinimum,
+    keyStep,
+    divider: panelDivider(page),
+    dragDivider: (by: number) => dragDivider(page, by),
+    cancelDividerDrag: (drag: {
+      pointerId: number;
+      by: number;
+      steps: number;
+    }) => cancelDividerDrag(page, drag),
+    focusDivider: () => focusDivider(page),
+    pressDividerKey: (key: string, count = 1) =>
+      pressDividerKey(page, key, count),
+    split: (panel: Locator) => split(page, panel),
+    expectWidth: (panel: Locator, shown: number) => expectWidth(panel, shown),
+    expectDividerSays: (shown: number) => expectDividerSays(page, shown),
+    expectCovering: (panel: Locator) => expectCovering(panel),
+    expectCoveringFillsWindow: (
+      panel: Locator,
+      pageParts: { readonly banner: Locator; readonly board: Locator },
+    ) => expectCoveringFillsWindow(panel, pageParts),
+    resizeUntilArranged: (
+      panel: Locator,
+      view: { readonly width: number; readonly height: number },
+    ) => resizeUntilArranged(panel, view),
+    control: (panel: Locator, name: string) => control(panel, name),
+  };
 }

@@ -8,15 +8,8 @@ import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
 import { box, expectSideBySideInOrder } from "../../tests/pageLayout.ts";
 import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
 import {
-  dragDivider,
-  expectWidth,
-  focusDivider,
-  keyStep,
-  panelDivider,
-  pressDividerKey,
   recordReviewReads,
-  split,
-  usableMinimum,
+  sidePanelWidthPage,
 } from "../../tests/sidePanelWidthPage.ts";
 import {
   maximizeSidePanel,
@@ -31,6 +24,7 @@ test("a review resized and maximized keeps its reads, and the open sidebar narro
   page,
   frontendServices,
 }) => {
+  const width = sidePanelWidthPage(page);
   const answers = await takenStoryWithReview(page, frontendServices, {
     files: [
       { kind: "added", path: "story.txt", lines: { added: 1, removed: 0 } },
@@ -48,9 +42,9 @@ test("a review resized and maximized keeps its reads, and the open sidebar narro
   const reads = recordReviewReads(page);
   const review = await openReview(page);
   const sidebar = sessionsSidebarParts(page);
-  const start = await split(page, review);
+  const start = await width.split(review);
   const room = start.pageColumn + start.sidePanel;
-  const maximum = Math.floor(room - usableMinimum);
+  const maximum = Math.floor(room - width.usableMinimum);
   await listedFile(review, "Modified unstaged.txt").click();
   const diff = fileDiff(review, "Modified unstaged.txt");
   await expect(diff).toContainText("+more wide");
@@ -58,13 +52,13 @@ test("a review resized and maximized keeps its reads, and the open sidebar narro
   const readsBefore = reads.length;
 
   await test.step("resizing and maximizing keeps the review's reads and the Sessions toggle available", async () => {
-    await dragDivider(page, 160);
-    await expectWidth(review, Math.round(room / 2) - 160);
-    await focusDivider(page);
-    await pressDividerKey(page, "ArrowLeft");
-    await expectWidth(review, Math.round(room / 2) - 160 + keyStep);
+    await width.dragDivider(160);
+    await width.expectWidth(review, Math.round(room / 2) - 160);
+    await width.focusDivider();
+    await width.pressDividerKey("ArrowLeft");
+    await width.expectWidth(review, Math.round(room / 2) - 160 + width.keyStep);
     await maximizeSidePanel(review);
-    await expect(panelDivider(page)).toHaveCount(0);
+    await expect(width.divider).toHaveCount(0);
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeVisible();
     await sidebar.button.click();
@@ -75,15 +69,15 @@ test("a review resized and maximized keeps its reads, and the open sidebar narro
     );
     await expect(diff).toContainText("+more wide");
     await restoreSidePanel(review);
-    await expectWidth(review, Math.round(room / 2) - 160 + keyStep);
+    await width.expectWidth(review, Math.round(room / 2) - 160 + width.keyStep);
     await expect(diff).toContainText("+more wide");
     expect(reads.length).toBe(readsBefore);
   });
 
   await test.step("the open sidebar narrows the room without losing the chosen width, which is used again when it closes", async () => {
-    await focusDivider(page);
-    await pressDividerKey(page, "ArrowLeft", 40);
-    await expectWidth(review, maximum);
+    await width.focusDivider();
+    await width.pressDividerKey("ArrowLeft", 40);
+    await width.expectWidth(review, maximum);
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeVisible();
     await expectSideBySideInOrder([
@@ -92,28 +86,28 @@ test("a review resized and maximized keeps its reads, and the open sidebar narro
       review,
     ]);
     const roomBeside = room - (await box(sidebar.sidebar)).width;
-    const besideMaximum = Math.floor(roomBeside - usableMinimum);
-    await expectWidth(review, besideMaximum);
-    const beside = await split(page, review);
+    const besideMaximum = Math.floor(roomBeside - width.usableMinimum);
+    await width.expectWidth(review, besideMaximum);
+    const beside = await width.split(review);
     expect(beside.pageColumn + beside.sidePanel).toBeCloseTo(roomBeside, 0);
-    expect(beside.pageColumn).toBeGreaterThanOrEqual(usableMinimum - 0.5);
-    await expect(panelDivider(page)).toHaveAttribute(
+    expect(beside.pageColumn).toBeGreaterThanOrEqual(width.usableMinimum - 0.5);
+    await expect(width.divider).toHaveAttribute(
       "aria-valuemax",
       String(besideMaximum),
     );
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeHidden();
-    await expectWidth(review, maximum);
+    await width.expectWidth(review, maximum);
 
     await sidebar.button.click();
-    await expectWidth(review, besideMaximum);
-    await dragDivider(page, 2000);
-    await expectWidth(review, usableMinimum);
-    await focusDivider(page);
-    await pressDividerKey(page, "ArrowLeft", 3);
-    await expectWidth(review, usableMinimum + 3 * keyStep);
+    await width.expectWidth(review, besideMaximum);
+    await width.dragDivider(2000);
+    await width.expectWidth(review, width.usableMinimum);
+    await width.focusDivider();
+    await width.pressDividerKey("ArrowLeft", 3);
+    await width.expectWidth(review, width.usableMinimum + 3 * width.keyStep);
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeHidden();
-    await expectWidth(review, usableMinimum + 3 * keyStep);
+    await width.expectWidth(review, width.usableMinimum + 3 * width.keyStep);
   });
 });
