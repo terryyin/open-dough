@@ -6,8 +6,9 @@
 ## Provenance and findings
 
 Retrospective correction of
-[Keep Review changes focused on the diff](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff)
-(SEED-384#keep-review-changes-focused-on-the-diff), reviewed commits
+Keep Review changes focused on the diff
+(SEED-384#keep-review-changes-focused-on-the-diff; story and plan 695 at
+`a53f0d5dff97`), reviewed commits
 `1b33fda6a`, `5911f9ae7`, `902b0139d`, `8d1132cb5`. That story's promises stand:
 one toolbar naming the comparison shown, details collapsed on every opening
 behind the eye, and full-size touch toggles with room to read the diff.

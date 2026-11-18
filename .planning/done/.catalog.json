@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-384_keep-review-changes-focused-on-the-diff.json",
+      "identity": "SEED-384#keep-review-changes-focused-on-the-diff",
+      "completedAt": "2026-11-18T10:23:08.346Z",
+      "blob": "820306fd7b4f06bb7e3b4e4ebf9f9d23002c4f20"
+    },
+    {
       "fileName": "SEED-334_move-story-reference-checks.json",
       "identity": "SEED-334#move-story-reference-checks",
       "completedAt": "2026-11-18T06:35:15.275Z",
@@ -2610,12 +2616,6 @@
       "identity": "SEED-140#avoid-repeating-input-notifications-after-reconnection",
       "completedAt": "2026-10-19T10:24:27.955Z",
       "blob": "e8175a915e5d8d44615f91367003748df40f8c77"
-    },
-    {
-      "fileName": "SEED-010_triage-project-owned-retrospective-findings.json",
-      "identity": "SEED-010#triage-project-owned-retrospective-findings",
-      "completedAt": "2026-10-19T09:25:07.294Z",
-      "blob": "bf3eb62b097c7cd674630e2923dcec776b4a8fbc"
     }
   ],
   "unreadable": []
