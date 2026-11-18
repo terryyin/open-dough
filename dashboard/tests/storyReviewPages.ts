@@ -16,7 +16,15 @@ import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
 import {
+  expectLandedContext,
+  expectSessionCommitsContext,
+  expectSharedCheckoutNote,
+  type LandedContextFacts,
+  type SessionCommitsContextFacts,
+} from "./support/reviewComparisonContext.ts";
+import {
   comparison,
+  reviewRefresh,
   reviewRegion,
   showReviewDetails,
 } from "./support/reviewControls.ts";
@@ -55,73 +63,23 @@ export class StoryReview extends PageObject {
     );
   }
 
-  // The landed run's fixed context: launch time, remote target, base and revision.
-  expectLandedContext(facts: {
-    readonly launchedAt: string;
-    readonly remoteTarget: string;
-    readonly base: string;
-    readonly revision: string;
-  }) {
-    return this.cueHere("Story review: shows the landed context", async () => {
-      await showReviewDetails(this.#review);
-      await expect(
-        this.#review.getByRole("heading", { name: "Landed run", exact: true }),
-      ).toBeVisible();
-      await expect(
-        this.#review.locator(`time[datetime="${facts.launchedAt}"]`),
-      ).toBeVisible();
-      await expect(
-        this.#review.getByText(facts.remoteTarget, { exact: true }),
-      ).toBeVisible();
-      await expect(
-        this.#review.getByText(facts.base, { exact: true }),
-      ).toBeVisible();
-      await expect(
-        this.#review.getByText(facts.revision, { exact: true }),
-      ).toBeVisible();
-    });
+  expectLandedContext(facts: LandedContextFacts) {
+    return this.cueHere("Story review: shows the landed context", () =>
+      expectLandedContext(this.#review, facts),
+    );
   }
 
-  // The session-commits context: its heading, where the commits were made,
-  // the session's two times and the comparison's two revisions.
-  expectSessionCommitsContext(facts: {
-    readonly launchedAt: string;
-    readonly doneAt: string;
-    readonly base: string;
-    readonly revision: string;
-  }) {
-    return this.cueHere("Session review: shows session commits", async () => {
-      await showReviewDetails(this.#review);
-      const context = this.#review
-        .getByRole("heading", { name: "Session commits", exact: true })
-        .locator("..");
-      await expect(context).toContainText(
-        "Commits made in the Default main checkout while the session was open",
-      );
-      for (const at of [facts.launchedAt, facts.doneAt])
-        await expect(context.locator(`time[datetime="${at}"]`)).toBeVisible();
-      await expect(context).toContainText(
-        `From ${facts.base} to ${facts.revision}.`,
-      );
-      await expect(
-        this.#review.getByRole("heading", { name: "Landed run", exact: true }),
-      ).toHaveCount(0);
-    });
+  expectSessionCommitsContext(facts: SessionCommitsContextFacts) {
+    return this.cueHere("Session review: shows session commits", () =>
+      expectSessionCommitsContext(this.#review, facts),
+    );
   }
 
   // The shared-checkout sentence beside the two revisions, or its absence.
   expectSharedCheckoutNote(shown: boolean) {
-    const note = this.#review.getByText(
-      "the comparison may include that session's work.",
-    );
     return this.cueHere(
       `Session review: ${shown ? "notes" : "does not note"} a shared checkout`,
-      async () => {
-        await showReviewDetails(this.#review);
-        await (shown
-          ? expect(note).toBeVisible()
-          : expect(note).toHaveCount(0));
-      },
+      () => expectSharedCheckoutNote(this.#review, shown),
     );
   }
 
@@ -237,6 +195,19 @@ export class StoryReview extends PageObject {
   expectKeyboardInBody() {
     return this.cueHere("Story review: its body has the keyboard", () =>
       expect(reviewBody(this.#review)).toBeFocused(),
+    );
+  }
+
+  // What the review's region is described by.
+  expectDescription(text: string) {
+    return this.cueHere(`Story review: is described as "${text}"`, () =>
+      expect(this.#review).toHaveAccessibleDescription(text),
+    );
+  }
+
+  refresh() {
+    return this.cueHere("Story review: Refresh", () =>
+      reviewRefresh(this.#review, { exact: true }).click(),
     );
   }
 

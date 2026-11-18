@@ -1,13 +1,11 @@
-// A session review's Comparison switch over its kept runs, read in the
-// review details, and its Refresh, as a fluent page object for the Side panel journeys (./sidePanelPages.ts)
-// beside the Story review (./storyReviewPages.ts) it belongs to.
+// A session review's Comparison switch over its kept runs, in the review
+// details of the Side panel journeys (./sidePanelPages.ts).
 import { PageObject } from "./fluentPageObject.ts";
 import { expect } from "./support/preparationPage.ts";
 import {
   comparison,
   comparisonChoice,
   expectShown,
-  reviewRefresh,
   reviewRegion,
   showReviewDetails,
 } from "./support/reviewControls.ts";
@@ -39,18 +37,5 @@ export class SessionRunSwitch extends PageObject {
       const review = await showReviewDetails(this.#review);
       await comparisonChoice(review, label, { exact: true }).check();
     });
-  }
-
-  // The hidden description the review's region is described by.
-  expectDescription(text: string) {
-    return this.cueHere(`Story review: is described as "${text}"`, () =>
-      expect(this.#review).toHaveAccessibleDescription(text),
-    );
-  }
-
-  refresh() {
-    return this.cueHere("Story review: Refresh", () =>
-      reviewRefresh(this.#review, { exact: true }).click(),
-    );
   }
 }

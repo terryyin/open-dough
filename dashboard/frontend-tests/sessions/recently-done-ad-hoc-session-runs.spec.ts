@@ -82,7 +82,7 @@ test("a session's two runs are switched between, oldest first", async ({
   await journey.phase("the review opens on the oldest run", (pages) => {
     pages.sessionRuns.expectRuns(labels);
     pages.sessionRuns.expectShown(firstLabel);
-    pages.sessionRuns.expectDescription(
+    pages.storyReview.expectDescription(
       "Read-only: this session's fixed commits made in the Default main checkout while the session was open, from the revision before them to their last commit.",
     );
     pages.storyReview.expectSessionCommitsContext({ ...context, ...first });
@@ -92,7 +92,7 @@ test("a session's two runs are switched between, oldest first", async ({
   // Refresh on the first run asks for it again; that reply is held.
   const firstReply = answers.holdNextSnapshot();
   await journey.phase("Refresh reads the first run", (pages) => {
-    pages.sessionRuns.refresh();
+    pages.storyReview.refresh();
   });
   await firstReply.received;
   expect(answers.queriesAsked(storyReviewEndpoint).at(-1)).not.toHaveProperty(
@@ -125,7 +125,7 @@ test("a session's two runs are switched between, oldest first", async ({
 
   const asks = answers.queriesAsked(storyReviewEndpoint).length;
   await journey.phase("Refresh keeps the second run", (pages) => {
-    pages.sessionRuns.refresh();
+    pages.storyReview.refresh();
     secondShown(pages);
   });
   await expect

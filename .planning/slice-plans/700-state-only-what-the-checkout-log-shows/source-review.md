@@ -27,23 +27,23 @@ session changes for review.
 | C10 | A rebase fixup of session commits is retained in its final form. Follow-up Scope 3. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commit-rewrites.spec.ts: autosquashed fixup returns one rewritten commit with both files |
 | C11 | A rebase squash of session commits is retained in its final form. Follow-up Scope 3. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commit-rewrites.spec.ts: autosquashed squash returns one rewritten commit with both files |
 | C12 | Each uninterrupted run of qualifying commits has one retained comparison with fixed endpoints at the commit immediately before the run and the last commit in the run. Reviewed Required behavior 3 and Architecture. The pulled-landing example has two runs. The amended-then-rebased example has one. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-session-commit-runs.spec.ts: pulled landing and amended merge pair endpoints, plus single run after amendment and rebase |
-| C13 | A session with one uninterrupted run opens directly on its single comparison. Reviewed Required behavior 3. | slice 6 | |
-| C14 | The Comparison switch is absent for a single comparison. Reviewed plain-Git-push example, including after Done and trunk advance. | slice 6 | |
-| C15 | When pulled work interrupts the session commits, the Comparison switch lists the retained runs. Reviewed Required behavior 3. The pulled-landing example yields two runs. | slice 6 | |
-| C16 | The Comparison switch lists interrupted runs oldest first. Reviewed Required behavior 3. | slice 6 | |
-| C17 | With interrupted runs, the review opens on the first comparison. Reviewed Required behavior 3. | slice 6 | |
-| C18 | Each switch label reports its run’s commit count. Reviewed UI. | slice 6 | |
-| C19 | Each switch label reports the subject of its run’s last commit. Reviewed UI. | slice 6 | |
-| C20 | Each switch label reports the time of its run’s last commit. Reviewed UI. | slice 6 | |
+| C13 | A session with one uninterrupted run opens directly on its single comparison. Reviewed Required behavior 3. | slice 6 | observed: recently-done-ad-hoc-session-commits.spec.ts: single run opens its selected file, context and diff from Recently done |
+| C14 | The Comparison switch is absent for a single comparison. Reviewed plain-Git-push example, including after Done and trunk advance. | slice 6 | observed: recently-done-ad-hoc-session-commits.spec.ts and recently-done-ad-hoc-session-runs.spec.ts assert no Comparison switch with details open; earlier real Git proof retains the single pair after trunk advance |
+| C15 | When pulled work interrupts the session commits, the Comparison switch lists the retained runs. Reviewed Required behavior 3. The pulled-landing example yields two runs. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts: interrupted UI lists its two runs; ad-hoc-session-commit-runs.spec.ts observes the actual Git interruption yielding both pairs |
+| C16 | The Comparison switch lists interrupted runs oldest first. Reviewed Required behavior 3. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts: the exact labels are in chronological order |
+| C17 | With interrupted runs, the review opens on the first comparison. Reviewed Required behavior 3. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts: first run is selected on opening and its context and file diff display |
+| C18 | Each switch label reports its run’s commit count. Reviewed UI. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts: exact labels include 1 commit and 2 commits |
+| C19 | Each switch label reports the subject of its run’s last commit. Reviewed UI. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts exact labels include the last subject; pulled landing backend case identifies actual last commit subjects |
+| C20 | Each switch label reports the time of its run’s last commit. Reviewed UI. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts: both distinct last commit times are shown in the browser locale |
 | C21 | The review is offered on the Done session’s entry in Recently done. Reviewed Goal and Scope limits. The audience is the developer who launched the session and returns to its card after trunk has advanced. | slice 7 | |
 | C22 | The context heading names session commits. Follow-up Goal and Reviewed UI. | slice 7 | |
 | C23 | The context identifies the comparison as commits made in the Default main checkout while the session was open. Reviewed Required behavior 4. | slice 7 | |
 | C24 | The context shows the comparison’s exact two revisions. Reviewed Required behavior 4 and UI. | slice 7 | |
 | C25 | If another session was open in the same checkout during the window, the context says that session’s work may be included. Reviewed Required behavior 4 and overlapping-launch example. Each overlapping review uses its own window. | slice 7 | |
 | C26 | The shared-checkout note appears as its own sentence beside the two revisions and before the files. Reviewed UI. | slice 7 | |
-| C27 | The review uses the landed-run review panel. Reviewed UI. | slice 6 | |
-| C28 | The review uses the landed-run file browser. Reviewed UI. | slice 6 | |
-| C29 | When shown, the review uses the landed-run Comparison switch. Reviewed UI. | slice 6 | |
+| C27 | The review uses the landed-run review panel. Reviewed UI. | slice 6 | observed: recently-done-ad-hoc-review.spec.ts and recently-done-ad-hoc-session-commits.spec.ts both open the common StoryReview panel; StoryReview.tsx mounts it for both |
+| C28 | The review uses the landed-run file browser. Reviewed UI. | slice 6 | observed: landed and kept-session frontend cases observe selected file and diff in the browser shared by StoryReviewBody.tsx and StoryReviewSnapshotView.tsx |
+| C29 | When shown, the review uses the landed-run Comparison switch. Reviewed UI. | slice 6 | observed: recently-done-ad-hoc-session-runs.spec.ts observes native Comparison choices; StoryReviewSessionRuns.tsx and the landed switch both use ComparisonChoices |
 | C30 | When the available checkout evidence establishes that the session made no commits there, the review shows the no-commit explanation. Reviewed Required behavior 5 distinguishes this outcome from changes not captured. The blank-edit example made no commits. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-review-unavailable.spec.ts blank edit and ad-hoc-session-commit-runs.spec.ts pre-launch replay, both HTTP no-commit explanation |
 | C31 | A session completed before the reviewed story keeps the changes-not-captured explanation. Reviewed Scope limits and pre-story default-launch example. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-review-unavailable.spec.ts older Done with no retained capture returns the not-captured explanation |
 | C32 | If the checkout log cannot be read at Done, the session keeps the changes-not-captured explanation. Reviewed Scope limits. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release-after-done.spec.ts: unreadable real log at second Done returns not captured |
@@ -57,7 +57,7 @@ session changes for review.
 | C40 | Capture writes only the references needed to keep each comparison pair’s commits. Reviewed Architecture. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release-after-done.spec.ts: exact Git ref set after Done adds only actual comparison base and revision |
 | C41a | The first guide states the delivered behavior. Follow-up Scope 5. | slice 1 | observed: dashboard/AGENT-LAUNCH-COMPLETION.md, Session commits kept at Done |
 | C41b | The second guide states the delivered behavior. Follow-up Scope 5. | slice 7 | |
-| C42 | The review’s page objects are reorganized. Follow-up Scope 6. | slice 6 | |
+| C42 | The review’s page objects are reorganized. Follow-up Scope 6. | slice 6 | observed: StoryReview owns refresh and description cues used in recently-done-ad-hoc-session-runs.spec.ts; reviewComparisonContext.ts owns the comparison assertions |
 | C43 | The review’s spec support is reorganized. Follow-up Scope 6. | slice 8 | |
 | C44 | The review’s overlapping cases are reorganized. Follow-up Scope 6. | slice 7 | |
 | C45 | The reorganization preserves proof of the reviewed promises. Follow-up Scope 6 and closing scope sentence. The product promises being preserved are listed above. | slice 8 | |

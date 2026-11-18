@@ -312,7 +312,7 @@ correction.
 
 ### 6. Put the review's own actions on the Story review page object
 Type: Structure
-Status: planned
+Status: done
 Proof: `frontend-tests/sessions/recently-done-ad-hoc-session-*.spec.ts`,
 `recently-done-ad-hoc-review*.spec.ts` and the frontend specs the consumer
 trace lists for `tests/storyReviewPages.ts` stay green.
@@ -323,6 +323,18 @@ expectations apart from the file browser and diff. `refresh()` and
 `StoryReview`. No product change. Removes the weakness that a review-level
 action is reached through the run switch, and enables slice 7's description
 case.
+
+The review-toolbar story landed during execution. Use the merged state at
+`82b6ed50e`, where `storyReviewPages.ts` is 250 lines and the run switch
+opens review details through the shared control owner. Preserve details
+visibility and all held-read observations when relocating review actions.
+
+Proof: four Recently done frontend specs and both reached Side panel E2E
+specs passed from the merged checkout, with the original held-response
+assertions, exact run labels and reader focus. Dashboard typecheck passed.
+`slice-6-return.md` and `slice-6-consumer-trace.md` retain exact commands,
+consumer dispositions and observations, including the still-applicable
+real Git run proofs.
 
 ### 7. Describe a session's unavailable review as a session's
 Type: Behavior
@@ -381,6 +393,10 @@ Disposition: proved by slice 5: dashboard/backend-tests/review/kept-commits-rele
 - GitHub Actions `ci.yml` (`CI`), repository `terryyin/open-dough`, execution branch
   above. Codex observer `hibiki-seed-379-1ad3583f`, mailbox
   `/tmp/dough-ci-501/watch-iasTzS`, PID 79402, session 16076, cell `g39:11`.
+- Before slice 6 the story branch merged `origin/main` at `b34318530` through
+  the backlog merge adapter. The review toolbar and details accepted at
+  `7900ff735` now supply the frontend starting point. Published story
+  commits are preserved. The merge is included with slice 6's candidate.
 
 ## Concerns and refinement
 
