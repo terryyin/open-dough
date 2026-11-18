@@ -1,6 +1,7 @@
 # Evaluate recoverable proof evidence in the next real planned execution
 
 **Source:** [selected story](../../seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence)
+**Source review:** [source-only review](source-review.md)
 **Identity:** SEED-397#evaluate-recoverable-proof-evidence
 
 ## Goal and scope
@@ -61,6 +62,23 @@ result. This is the probe for the later slices: when none qualifies, record
 what is missing, perform no later slice, and return the story to the queue for
 a later attempt through the human-decision stop in
 [execution decisions](../../../Distribution/src/skills/dough-execute-plan/references/execution-decisions.md#stop-for-human-judgment).
+
+Result, observed in the execution workspace at
+`36fa2883b86a9094cab77ea9b0c7214424be1fc8` on 2026-11-18 after
+`git fetch origin --tags`: no execution qualifies.
+
+| Observation | Command | Result |
+| --- | --- | --- |
+| Release containing the revision | `git tag --contains 45ff02fee774a270826cd7507fee2ce1c9d077cc` | No tag. The revision is on `origin/main` (`git merge-base --is-ancestor` succeeds) and unreleased. |
+| Latest release | `git tag --sort=-creatordate \| head -1`; `git log -1 --format='%H %ci' v0.3.104`; `VERSION` | `v0.3.104`, `d9266746caa3034b15ee4f9daca2254f43a115bc`, 2026-11-17 15:42:25 +0800; the revision is dated 2026-11-18 00:59:55 +0800. |
+| Installed release per project | `dough-update/VERSION` under each `~/git/*/.claude/skills` or `.agents/skills` | 0.3.104 in clipboard, doughnut, lizard, open-dough, pygardon and terry-talks; 0.3.60 in random. |
+| Installed guidance | `grep -rl "run record"` in each project's installed `dough-execute-plan` | No file in any of the seven projects; five references under `Distribution/src/skills/dough-execute-plan/references/`. |
+
+Missing condition: a release containing the revision, installed in a project,
+followed by a planned execution there that delegates a slice and reaches proof
+acceptance. This slice stays `planned`: a later attempt repeats the
+observation. No candidate can predate that installation, so the effort
+command's `--list` was not run. Slices 2 and 3 are not performed.
 
 ### 2. Hand-back sizes and total effort are recorded
 Type: Behavior
