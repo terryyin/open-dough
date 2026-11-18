@@ -43,100 +43,105 @@ import {
   storyWorktree,
   unchangedWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 
-// Story A's worktree with its committed story file edited again, uncommitted.
-function storyWorktreeEditedAgain(origin: StartOrigin) {
-  const { workspace } = storyWorktree(origin);
-  writeFileSync(path.join(workspace, "story.txt"), "story\nmore\n");
-  return { workspace };
-}
+test.describe("from Story A's declared history", () => {
+  test.use({ originRepository: storyARepository });
 
-// The snapshot and range requests the page has made so far.
-function reviewRequests(page: Page) {
-  const made: string[] = [];
-  page.on("request", (request) => {
-    const { pathname } = new URL(request.url());
-    if ([storyReviewEndpoint, storyReviewRangeEndpoint].includes(pathname))
-      made.push(pathname);
+  // Story A's worktree with its committed story file edited again, uncommitted.
+  function storyWorktreeEditedAgain(origin: StartOrigin) {
+    const { workspace } = storyWorktree(origin);
+    writeFileSync(path.join(workspace, "story.txt"), "story\nmore\n");
+    return { workspace };
+  }
+
+  // The snapshot and range requests the page has made so far.
+  function reviewRequests(page: Page) {
+    const made: string[] = [];
+    page.on("request", (request) => {
+      const { pathname } = new URL(request.url());
+      if ([storyReviewEndpoint, storyReviewRangeEndpoint].includes(pathname))
+        made.push(pathname);
+    });
+    return () => made;
+  }
+
+  test("the check leaves uncommitted changes out of all changes and back without reading the snapshot again", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktreeEditedAgain(origin);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openBacklog(page, origin);
+    await openStoryReview(page, card);
+    const review = reviewRegion(page);
+    const whole = changedFilesList(review, "7 changed files");
+    const diff = fileDiff(review, "Added story.txt");
+
+    // On at opening: the whole snapshot.
+    await expect(whole).toBeVisible();
+    await expect(check(review)).toBeChecked();
+    await fileRow(review, "Added story.txt").press("Enter");
+    await expectLineCounts(review, "Added story.txt", "+2 −0");
+    await expect(diff).toContainText("+story");
+    await expect(diff).toContainText("+more");
+    const requests = reviewRequests(page);
+
+    // Off: the committed files, lines, and counts alone.
+    await check(review).uncheck();
+    const committed = changedFilesList(review, "4 changed files");
+    await expectTreeRows(committed, [
+      "gone.txt",
+      "image.png",
+      "new.txt",
+      "story.txt",
+    ]);
+    await expect(
+      review.getByRole("heading", { name: "4 changed files" }),
+    ).toBeVisible();
+    await expect(whole).toHaveCount(0);
+    await expectLineCounts(review, "Added story.txt", "+1 −0");
+    await expect(
+      fileRow(review, "Added story.txt"),
+    ).toHaveAccessibleDescription("1 line added, 0 lines removed");
+    await expect(diff).toContainText("+story");
+    await expect(diff).not.toContainText("+more");
+    await expect(check(review)).not.toBeChecked();
+
+    // On again: the whole snapshot, as read at opening.
+    await check(review).check();
+    await expect(whole).toBeVisible();
+    await expectLineCounts(review, "Added story.txt", "+2 −0");
+    await expect(diff).toContainText("+more");
+    expect(requests()).toEqual([]);
   });
-  return () => made;
-}
 
-test("the check leaves uncommitted changes out of all changes and back without reading the snapshot again", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = storyWorktreeEditedAgain(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  const whole = changedFilesList(review, "7 changed files");
-  const diff = fileDiff(review, "Added story.txt");
+  test("the selected file stays selected while the committed files list it, and otherwise the first file is", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktreeEditedAgain(origin);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openBacklog(page, origin);
+    await openStoryReview(page, card);
+    const review = reviewRegion(page);
+    const expectSelected = (name: string) => expectFileSelected(review, name);
 
-  // On at opening: the whole snapshot.
-  await expect(whole).toBeVisible();
-  await expect(check(review)).toBeChecked();
-  await fileRow(review, "Added story.txt").press("Enter");
-  await expectLineCounts(review, "Added story.txt", "+2 −0");
-  await expect(diff).toContainText("+story");
-  await expect(diff).toContainText("+more");
-  const requests = reviewRequests(page);
+    await fileRow(review, "Added story.txt").press("Enter");
+    await check(review).uncheck();
+    await expect(changedFilesList(review, "4 changed files")).toBeVisible();
+    await expectSelected("Added story.txt");
 
-  // Off: the committed files, lines, and counts alone.
-  await check(review).uncheck();
-  const committed = changedFilesList(review, "4 changed files");
-  await expectTreeRows(committed, [
-    "gone.txt",
-    "image.png",
-    "new.txt",
-    "story.txt",
-  ]);
-  await expect(
-    review.getByRole("heading", { name: "4 changed files" }),
-  ).toBeVisible();
-  await expect(whole).toHaveCount(0);
-  await expectLineCounts(review, "Added story.txt", "+1 −0");
-  await expect(fileRow(review, "Added story.txt")).toHaveAccessibleDescription(
-    "1 line added, 0 lines removed",
-  );
-  await expect(diff).toContainText("+story");
-  await expect(diff).not.toContainText("+more");
-  await expect(check(review)).not.toBeChecked();
-
-  // On again: the whole snapshot, as read at opening.
-  await check(review).check();
-  await expect(whole).toBeVisible();
-  await expectLineCounts(review, "Added story.txt", "+2 −0");
-  await expect(diff).toContainText("+more");
-  expect(requests()).toEqual([]);
-});
-
-test("the selected file stays selected while the committed files list it, and otherwise the first file is", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = storyWorktreeEditedAgain(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  const expectSelected = (name: string) => expectFileSelected(review, name);
-
-  await fileRow(review, "Added story.txt").press("Enter");
-  await check(review).uncheck();
-  await expect(changedFilesList(review, "4 changed files")).toBeVisible();
-  await expectSelected("Added story.txt");
-
-  await check(review).check();
-  await expectSelected("Added story.txt");
-  await fileRow(review, "Modified staged.txt").press("Enter");
-  await expectSelected("Modified staged.txt");
-  await check(review).uncheck();
-  await expectSelected("Deleted gone.txt");
-  await expect(fileRow(review, "Modified staged.txt")).toHaveCount(0);
+    await check(review).check();
+    await expectSelected("Added story.txt");
+    await fileRow(review, "Modified staged.txt").press("Enter");
+    await expectSelected("Modified staged.txt");
+    await check(review).uncheck();
+    await expectSelected("Deleted gone.txt");
+    await expect(fileRow(review, "Modified staged.txt")).toHaveCount(0);
+  });
 });
 
 test("a worktree without uncommitted changes offers no check", async ({

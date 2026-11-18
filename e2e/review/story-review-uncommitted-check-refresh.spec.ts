@@ -16,7 +16,7 @@ import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract
 import {
   expect,
   test,
-} from "../../dashboard/test-support/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { reviewFeedback } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectFileSelected,

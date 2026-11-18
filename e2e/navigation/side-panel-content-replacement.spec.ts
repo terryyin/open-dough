@@ -28,6 +28,7 @@ import {
   storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 
 // The Board with Story A's review worktree and Story B's worktree, Story B's
 // session a Codex one whose saved workspace is gone so its final report is
@@ -65,7 +66,7 @@ const test = base.extend<{
     });
   },
 });
-test.use({ preparationHost: "codex" });
+test.use({ preparationHost: "codex", originRepository: storyARepository });
 
 test("a review, another story's review, and a final report replace each other in the one side panel", async ({
   page,

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-353#declare-local-worktree-review-state
 **Source:** [Declare local worktree review state through MakeMe](../../seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal, scope and evaluation
 
@@ -106,11 +107,18 @@ Disposition every listed consumer as run, reused evidence, or excluded with
 the unreached boundary, including non-review consumers of start origins and the
 materializer.
 
+## Story obligations
+
+### G1. Story A's uncommitted edits still written imperatively
+Reported: slice 1 — "It still writes the uncommitted edits imperatively (the interim until slice 2)."
+Story clause: "file modes and the uncommitted index and file state through the shared MakeMe repository description and existing start-origin owners"
+Disposition: receiving slice 2
+
 ## Ordered slices
 
 ### 1. Read Story A's committed review history from named revisions
 Type: Behavior
-Status: planned
+Status: done
 Proof: First consumer row; C establishes the route.
 
 Behavior: Given Story A's description — trunk files, a workspace on
@@ -123,6 +131,15 @@ materialize the description's workspace as the linked worktree at
 Interim: the helper still writes Story A's uncommitted edits after
 materialization, replaced in slice 2. One committed-history loop; 15 active
 minutes, commands excluded.
+
+Accepted: `storyAReviewRepository.ts` declares Story A; start origins
+materialize its workspace via `startOriginWorkspace.ts` and honor a trunk
+revision's `fetched: false`. Proof: full backend group, full E2E group (one
+own defect in commit-ranges fixed, that file rerun green), I, typecheck/lint.
+Learning: a spec's `test` override does not reach sibling test objects
+(`olderGit`); use `test.use` in files mixing test objects. Full local groups
+queue on `refs/dough/local-test-suite` behind other worktrees (≈1 h here).
+Slice 4's guide update notes `fetched: false` is honored only by start origins.
 
 ### 2. Read uncommitted review state from declared workspace facts
 Type: Behavior

@@ -3,13 +3,7 @@
 // diffs; cases remain in ../review/story-review*.spec.ts.
 
 import { execFileSync } from "node:child_process";
-import {
-  chmodSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { chmodSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
@@ -29,9 +23,6 @@ export function commitAll(cwd: string, message: string) {
 export const lines = (word: string, count = 12) =>
   [...Array(count).keys()].map((line) => `${word} ${String(line)}\n`).join("");
 
-const image = (last: number) =>
-  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, last]);
-
 // The unstaged edit's added line, too long for the review to show unscrolled.
 export const wideLine = `more ${"wide ".repeat(80)}`;
 
@@ -40,52 +31,23 @@ export function writeAt(root: string, file: string, text: string) {
   writeFileSync(path.join(root, file), text);
 }
 
+// Where Story A's linked worktree is checked out, on `branch`.
+const storyWorkspace = (project: string) =>
+  path.join(project, ".worktrees", "story-a");
+
 export function addStoryWorktree(project: string) {
-  const workspace = path.join(project, ".worktrees", "story-a");
+  const workspace = storyWorkspace(project);
   git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
   return workspace;
 }
 
-// Story A's worktree as the review should find it, and the trunk commit the
-// story merged, which is the review's baseline.
+// Story A's worktree as the review should find it, from an origin started
+// with ./storyAReviewRepository.ts, and the trunk commit the story merged,
+// which is the review's baseline. Its uncommitted edits are written here.
 export function storyWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  writeFileSync(path.join(project, "old.txt"), lines("old"));
-  writeFileSync(path.join(project, "staged.txt"), lines("staged"));
-  writeFileSync(path.join(project, "unstaged.txt"), lines("unstaged"));
-  writeFileSync(path.join(project, "gone.txt"), lines("gone", 3));
-  writeFileSync(path.join(project, "image.png"), image(1));
-  commitAll(project, "trunk files");
-  git(project, "push", "--quiet", "origin", "main");
-
-  const workspace = addStoryWorktree(project);
-  git(workspace, "mv", "old.txt", "new.txt");
-  writeFileSync(path.join(workspace, "new.txt"), `${lines("old")}renamed\n`);
-  commitAll(workspace, "rename with a small edit");
-  writeFileSync(path.join(workspace, "story.txt"), "story\n");
-  commitAll(workspace, "story file");
-  rmSync(path.join(workspace, "gone.txt"));
-  writeFileSync(path.join(workspace, "image.png"), image(2));
-  commitAll(workspace, "delete a file and redraw the image");
-
-  const elsewhere = mkdtempSync(path.join(origin.machine, "elsewhere-"));
-  git(elsewhere, "clone", "--quiet", origin.origin, ".");
-  git(elsewhere, "config", "user.name", "Another Developer");
-  git(elsewhere, "config", "user.email", "another@example.test");
-  writeFileSync(path.join(elsewhere, "other.txt"), "other story\n");
-  commitAll(elsewhere, "another story");
-  git(elsewhere, "push", "--quiet", "origin", "main");
-  const merged = git(elsewhere, "rev-parse", "HEAD");
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  git(workspace, "merge", "--quiet", "--no-ff", "-m", "merge trunk", merged);
-
-  // Trunk moves on after the merge; nothing here fetches it.
-  writeFileSync(path.join(elsewhere, "other2.txt"), "later trunk\n");
-  commitAll(elsewhere, "later trunk");
-  git(elsewhere, "push", "--quiet", "origin", "main");
-  const later = git(elsewhere, "rev-parse", "HEAD");
-  rmSync(elsewhere, { recursive: true, force: true });
-
+  const workspace = storyWorkspace(origin.project);
+  const merged = origin.revision("merged");
+  const later = origin.revision("later");
   writeFileSync(path.join(workspace, "staged.txt"), `${lines("staged")}more\n`);
   git(workspace, "add", "staged.txt");
   writeFileSync(

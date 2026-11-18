@@ -21,7 +21,7 @@ import {
 import {
   expect,
   test,
-} from "../../dashboard/test-support/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   otherQueuedIdentity,

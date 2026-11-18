@@ -39,6 +39,7 @@ export { backlogPath } from "./repository-revision-facts.mjs";
  *   message?: string,
  *   author?: GitPerson,
  *   committer?: GitPerson,
+ *   fetched?: false,
  * }} RevisionFacts
  * @typedef {RevisionFacts & { name: string }} RepositoryRevision
  */

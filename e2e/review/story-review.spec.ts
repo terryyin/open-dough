@@ -26,7 +26,7 @@ import { box } from "../../dashboard/test-support/pageLayout.ts";
 import {
   expect,
   test,
-} from "../../dashboard/test-support/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import {
   contextLine,
   contextValues,

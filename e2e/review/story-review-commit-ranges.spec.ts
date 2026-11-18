@@ -16,6 +16,7 @@ import {
   comparisonChoice,
 } from "../../dashboard/test-support/support/reviewControls.ts";
 import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
+import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import {
   observed,
   storyWorktree,
@@ -25,6 +26,9 @@ import {
   changedFilesList,
   listedFile,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+
+// Both test objects here start from Story A's declared history.
+test.use({ originRepository: storyARepository });
 
 test("two ends select three commits in either direction, reset to one, and survive switching comparisons", async ({
   page,

@@ -33,6 +33,7 @@ import {
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract.ts";
+import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 
 test("the first Commits default uses the current snapshot, then new commits and switching keep its anchored ends", async ({
   page,
@@ -121,81 +122,90 @@ test("the first Commits default uses the current snapshot, then new commits and 
   );
 });
 
-test("Refresh updates virtual points, resets a vanished virtual end, and does not resurrect it when uncommitted changes return", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = storyWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
-  const review = reviewRegion(page);
-  const feedback = review.locator(".story-review-top").getByRole("status");
-  await showCommits(review);
-  const rows = review
-    .getByRole("list", { name: "Story commits", exact: true })
-    .getByRole("button");
-  await expect(
-    changedFilesList(review, "3 changed files", { exact: true }),
-  ).toBeVisible();
-  writeAt(workspace, "later.txt", "later virtual point\n");
-  await expect(review.locator(".story-review-diff [role=status]")).toBeEmpty();
-  const held = await holdNextReviewResponse(
+test.describe("from Story A's declared history", () => {
+  test.use({ originRepository: storyARepository });
+
+  test("Refresh updates virtual points, resets a vanished virtual end, and does not resurrect it when uncommitted changes return", async ({
     page,
-    dashboard.origin,
-    storyReviewFileEndpoint,
-  );
-  try {
-    const changed = await refreshReview(review, { exact: true });
-    expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
-    expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
-    await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-    await expectTreeRows(
-      changedFilesList(review, "4 changed files", { exact: true }),
-      ["fresh", "  new.txt", "later.txt", "staged.txt", "unstaged.txt"],
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    keepLaunchRecord(dashboard, workspace);
+    const snapshot = await openStoryReview(
+      page,
+      await openBacklog(page, origin),
     );
-    await expect(review.getByRole("status")).toHaveCount(2);
+    const review = reviewRegion(page);
+    const feedback = review.locator(".story-review-top").getByRole("status");
+    await showCommits(review);
+    const rows = review
+      .getByRole("list", { name: "Story commits", exact: true })
+      .getByRole("button");
     await expect(
-      review.locator(".story-review-diff").getByRole("status"),
-    ).toHaveText("Reading the file's diff…");
+      changedFilesList(review, "3 changed files", { exact: true }),
+    ).toBeVisible();
+    writeAt(workspace, "later.txt", "later virtual point\n");
+    await expect(
+      review.locator(".story-review-diff [role=status]"),
+    ).toBeEmpty();
+    const held = await holdNextReviewResponse(
+      page,
+      dashboard.origin,
+      storyReviewFileEndpoint,
+    );
+    try {
+      const changed = await refreshReview(review, { exact: true });
+      expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
+      expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
+      await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+      await expectTreeRows(
+        changedFilesList(review, "4 changed files", { exact: true }),
+        ["fresh", "  new.txt", "later.txt", "staged.txt", "unstaged.txt"],
+      );
+      await expect(review.getByRole("status")).toHaveCount(2);
+      await expect(
+        review.locator(".story-review-diff").getByRole("status"),
+      ).toHaveText("Reading the file's diff…");
+      await expect(feedback).toHaveText(
+        "Review refreshed: 4 changed files in the chosen range.",
+      );
+    } finally {
+      held.release();
+      await held.delivery;
+    }
+    await chooseCommit(review, rows.last());
+    await expect(
+      review.getByRole("heading", {
+        name: "Changes in 4 commits and Uncommitted changes",
+      }),
+    ).toBeVisible();
+    commitAll(workspace, "commit worktree changes");
+    const committed = await refreshReview(review, { exact: true });
+    // The refreshed snapshot moves the chosen range, which is read again.
+    await expectReviewRead(review);
+    expect(committed.uncommitted).toBeUndefined();
+    await expect(rows.first()).toContainText("commit worktree changes");
+    await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+    await expect(rows.last()).toHaveAttribute("aria-pressed", "false");
+    await expect(
+      review.getByRole("heading", { name: "Changes in 1 commit" }),
+    ).toBeVisible();
     await expect(feedback).toHaveText(
       "Review refreshed: 4 changed files in the chosen range.",
     );
-  } finally {
-    held.release();
-    await held.delivery;
-  }
-  await chooseCommit(review, rows.last());
-  await expect(
-    review.getByRole("heading", {
-      name: "Changes in 4 commits and Uncommitted changes",
-    }),
-  ).toBeVisible();
-  commitAll(workspace, "commit worktree changes");
-  const committed = await refreshReview(review, { exact: true });
-  // The refreshed snapshot moves the chosen range, which is read again.
-  await expectReviewRead(review);
-  expect(committed.uncommitted).toBeUndefined();
-  await expect(rows.first()).toContainText("commit worktree changes");
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-  await expect(rows.last()).toHaveAttribute("aria-pressed", "false");
-  await expect(
-    review.getByRole("heading", { name: "Changes in 1 commit" }),
-  ).toBeVisible();
-  await expect(feedback).toHaveText(
-    "Review refreshed: 4 changed files in the chosen range.",
-  );
-  writeAt(workspace, "again.txt", "new uncommitted changes\n");
-  const again = await refreshReview(review, { exact: true });
-  expect(again.uncommitted?.kind).toBe("uncommitted");
-  await expect(rows.first()).toHaveText("Uncommitted changes");
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
-  await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(rows.last()).toHaveAttribute("aria-pressed", "false");
-  await expect(
-    review.getByRole("heading", { name: "Changes in 1 commit" }),
-  ).toBeVisible();
-  await expect(
-    changedFilesList(review, "4 changed files", { exact: true }),
-  ).not.toContainText("again.txt");
+    writeAt(workspace, "again.txt", "new uncommitted changes\n");
+    const again = await refreshReview(review, { exact: true });
+    expect(again.uncommitted?.kind).toBe("uncommitted");
+    await expect(rows.first()).toHaveText("Uncommitted changes");
+    await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
+    await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
+    await expect(rows.last()).toHaveAttribute("aria-pressed", "false");
+    await expect(
+      review.getByRole("heading", { name: "Changes in 1 commit" }),
+    ).toBeVisible();
+    await expect(
+      changedFilesList(review, "4 changed files", { exact: true }),
+    ).not.toContainText("again.txt");
+  });
 });
