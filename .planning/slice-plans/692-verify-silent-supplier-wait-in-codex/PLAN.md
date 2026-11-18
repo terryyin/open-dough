@@ -2,6 +2,7 @@
 
 **Identity:** SEED-389#verify-silent-supplier-wait-in-use
 **Source:** [Verify the silent supplier wait in Codex](../../seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -46,7 +47,7 @@ timestamps bounding its interval.
 
 ### 1. Find the real Codex watches
 Type: Behavior
-Status: planned
+Status: done
 Proof: `## Watches` in this plan lists every watch found, each with rollout
 path, project, installed release, request timestamp, route (`command` or
 `missed`), and each unchanged interval's bounds and eligibility; a second
@@ -77,6 +78,58 @@ recommendation, with a comparable historical wait and the token difference
 when one supports it, and names the host step that woke the model when the
 recommendation is revise.
 
+## Watches
+
+The search found **0 eligible Codex watches** and **0 confirmed missed
+routes**. Three independent watches are missing, each with an unchanged
+interval longer than five minutes on an installed release of Open Dough
+0.3.102 or later. There are no per-watch facts or intervals to record.
+
+### Search on 2026-11-18
+
+The window ran from 2026-11-16 00:00 SGT to
+2026-11-18 15:25:06.305685 SGT, excluding the cutoff. The search inventoried
+`rollout-*.jsonl` and compressed rollouts under `~/.codex/sessions` and
+`~/.codex/archived_sessions`. It selected 408 active rollouts by filename
+date or modification time, including older sessions that ran into the window.
+The earliest retained rollout was dated 2026-05-14. Archived rollouts ranged
+from 2026-06-22 to 2026-11-04, with none selected for the window.
+
+For a repeat, freeze the selected paths, their byte lengths, and the cutoff.
+Read the JSONL records by timestamp within that window:
+
+- Select `response_item` messages with `payload.role = user`. Match watch,
+  monitor, poll, keep an eye, check back, and notification requests, plus
+  wait, hold, pause, dependency, supplier and publication language.
+  Check brief approvals against the preceding assistant message and
+  use the surrounding turn to identify the thing being watched. Strip skill
+  and environment envelopes before judging the request. A request can count
+  even when the command was bypassed.
+- Select `response_item` calls with `payload.type` of `function_call` or
+  `custom_tool_call` whose arguments or input mention
+  `wait-for-publication.mjs`. Inspect those calls for an actual invocation
+  with concrete remote and ref arguments.
+
+Both scans of the frozen snapshot returned the same 767 message matches
+in 364 rollouts and 31 command-name references in eight rollouts. The
+message matches included 486 in coordinator rollouts. They resolved to
+workflow boilerplate, scheduled ticket or upstream-news monitoring,
+unrelated waits and notifications, authoring the follow-up, or this
+investigation. The command-name references were source reads, searches,
+and development or test material. None launched the command.
+
+This result covers the retained files through the cutoff and requests the
+query and surrounding turns could identify. Missing rollouts and requests
+outside those search terms remain unobserved.
+
+### Deferral and resume
+
+Return this story to the backlog immediately after the Codex long-wait
+correction, the next eligible entry at deferral. On the next take, repeat the
+search and refresh this record before starting slice 2. Begin measurement
+once the evidence includes three qualifying executions. If the shortfall
+remains, record the updated evidence and defer again.
+
 ## Current decisions
 
 - Bars and recommendation rule are fixed in the seed before any watch is
@@ -86,14 +139,15 @@ recommendation is revise.
 - Each read is a one-off query kept in the conversation. The plan keeps
   rollout paths and timestamps, never trace contents.
 
-## Learnings
+## Execution context
 
-- 2026-11-18: no rollout from 15 to 18 November runs the command, so slice 1
-  is expected to end at "missing" until developers ask Codex to watch.
+- Aino-chan, Story Branch Mode, `codex/verify-the-silent-supplier-wait-in-codex`.
+  Take `a5b5f6dc5cacdac28139c15ba9496187975d2b4a` was accepted on `origin/main`.
+- Slice 1 changes planning records only. The reference query, both terminal
+  run records, and the candidate disposition report are in this worktree's
+  Git evidence directory and the execution conversation.
 
 ## Story obligations
-
-**Source:** [Verify the silent supplier wait in Codex](../../seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use)
 
 ## Plan review
 
