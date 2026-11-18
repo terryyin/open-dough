@@ -16,8 +16,6 @@ import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
   adHocReview,
   keptAdHocRecord,
-  launchDefaultMainSession,
-  markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import {
   quote,
@@ -26,8 +24,7 @@ import {
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { launchedAdHoc } from "../../tests/support/reportedLaunch.ts";
-import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
 import { startOrigin } from "../../tests/support/startOrigin.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
@@ -44,13 +41,14 @@ test("a reopened session keeps its earlier capture until its next Done, which an
   origin,
   request,
 }) => {
-  const record = await launchDefaultMainSession(dashboard, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const record = await work.launch("Fix the typo");
   const { sessionId } = record.session;
   const kept = () => keptAdHocRecord(dashboard, sessionId);
   const start = git(origin.project, "rev-parse", "HEAD");
-  const first = await commitInCheckout(origin.project, firstAt, "first.txt");
+  const first = await work.commit(firstAt, "first.txt");
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   // Attaching reopens the session.
   const terminal = await openTerminal(dashboard, {
@@ -63,8 +61,8 @@ test("a reopened session keeps its earlier capture until its next Done, which an
     { base: start, revision: first },
   ]);
 
-  const second = await commitInCheckout(origin.project, secondAt, "second.txt");
-  const doneAt = await markAdHocDone(dashboard, sessionId);
+  const second = await work.commit(secondAt, "second.txt");
+  const doneAt = await work.markDone(sessionId);
 
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "session-commits",
@@ -80,10 +78,11 @@ test("a quiet report after a confirmed native Done keeps the additional commit",
   origin,
   request,
 }) => {
-  const session = await launchedAdHoc(dashboard, origin, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
   const { sessionId } = session;
   const start = git(origin.project, "rev-parse", "HEAD");
-  await commitInCheckout(origin.project, firstAt, "first.txt");
+  await work.commit(firstAt, "first.txt");
   dashboard.claudeSessionBecomes(sessionId, "done-live");
   await session.report({ message: "" });
   const firstDone = (await keptAdHocRecord(dashboard, sessionId))?.doneAt;
@@ -94,7 +93,7 @@ test("a quiet report after a confirmed native Done keeps the additional commit",
     )
     .toBeUndefined();
 
-  const second = await commitInCheckout(origin.project, secondAt, "second.txt");
+  const second = await work.commit(secondAt, "second.txt");
   await session.report({ message: "" });
   const secondDone = (await keptAdHocRecord(dashboard, sessionId))?.doneAt;
   expect(secondDone).toEqual(expect.any(String));
@@ -116,9 +115,10 @@ test("a quiet report during an earlier rename wait refreshes the commits and sha
   origin,
   request,
 }) => {
-  const session = await launchedAdHoc(dashboard, origin, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
   const { sessionId } = session;
-  const first = await commitInCheckout(origin.project, firstAt, "first.txt");
+  const first = await work.commit(firstAt, "first.txt");
   dashboard.claudeSessionBecomes(sessionId, "done-live");
   dashboard.claudeAttachesSilent(true);
   await session.report({ message: "" });
@@ -132,8 +132,8 @@ test("a quiet report during an earlier rename wait refreshes the commits and sha
   });
   expect(firstReview).not.toHaveProperty("session.shared");
 
-  await launchDefaultMainSession(dashboard, "Fix the link");
-  const second = await commitInCheckout(origin.project, secondAt, "second.txt");
+  await work.launch("Fix the link");
+  const second = await work.commit(secondAt, "second.txt");
   await session.report({ message: "" });
   const secondDone = (await keptAdHocRecord(dashboard, sessionId))?.doneAt;
   expect(secondDone).toEqual(expect.any(String));
@@ -154,9 +154,10 @@ test("retrying the same quiet delivery resumes native Done without repeating its
   origin,
   request,
 }) => {
-  const session = await launchedAdHoc(dashboard, origin, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
   const { sessionId } = session;
-  await commitInCheckout(origin.project, firstAt, "typo.txt");
+  await work.commit(firstAt, "typo.txt");
   const log = path.resolve(
     origin.project,
     git(origin.project, "rev-parse", "--git-path", "logs"),
@@ -219,13 +220,10 @@ test("a reported Done whose rename wait a closing server abandons has kept its c
   });
   let closed = false;
   try {
-    const session = await launchedAdHoc(server, origin, "Fix the typo");
+    const work = new DefaultMainSessionWork(server, origin);
+    const session = await work.launchReporting("Fix the typo");
     const start = git(origin.project, "rev-parse", "HEAD");
-    const committed = await commitInCheckout(
-      origin.project,
-      firstAt,
-      "typo.txt",
-    );
+    const committed = await work.commit(firstAt, "typo.txt");
     // Idle, but its attachment never shows a screen, so the rename waits.
     server.claudeSessionBecomes(session.sessionId, "done-live");
     server.claudeAttachesSilent(true);

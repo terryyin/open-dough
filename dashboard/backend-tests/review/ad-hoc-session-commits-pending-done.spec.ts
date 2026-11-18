@@ -10,8 +10,7 @@ import {
 } from "../../tests/support/adHocReview.ts";
 import { quote } from "../../tests/support/completionRecovery.ts";
 import { expect, test as base } from "../../tests/support/preparationPage.ts";
-import { launchedAdHoc } from "../../tests/support/reportedLaunch.ts";
-import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 function holdCheckoutLog(machine: string) {
@@ -71,26 +70,19 @@ test("a held later Done refuses the previous review and its files", async ({
   origin,
   request,
 }) => {
-  const session = await launchedAdHoc(dashboard, origin, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
   const { sessionId } = session;
   const checkout = origin.project;
   const baseline = git(checkout, "rev-parse", "HEAD");
-  const first = await commitInCheckout(
-    checkout,
-    "2099-01-02T12:00:00Z",
-    "first.txt",
-  );
+  const first = await work.commit("2099-01-02T12:00:00Z", "first.txt");
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
   await session.report({ message: "" });
   await expect
     .poll(() => adHocReview(request, dashboard, sessionId))
     .toMatchObject({ kind: "session-commits", baseline, tree: first });
 
-  const second = await commitInCheckout(
-    checkout,
-    "2099-01-02T12:05:00Z",
-    "second.txt",
-  );
+  const second = await work.commit("2099-01-02T12:05:00Z", "second.txt");
   checkoutLog.hold();
   try {
     await session.report({ message: "" });
@@ -121,7 +113,8 @@ test("a held later Done cannot inherit the previous no-commit finding", async ({
   origin,
   request,
 }) => {
-  const session = await launchedAdHoc(dashboard, origin, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
   const { sessionId } = session;
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
   await session.report({ message: "" });
@@ -132,11 +125,7 @@ test("a held later Done cannot inherit the previous no-commit finding", async ({
       explanation: "This session made no commits in the Default main checkout.",
     });
 
-  const committed = await commitInCheckout(
-    origin.project,
-    "2099-01-02T12:00:00Z",
-    "first.txt",
-  );
+  const committed = await work.commit("2099-01-02T12:00:00Z", "first.txt");
   checkoutLog.hold();
   try {
     await session.report({ message: "" });

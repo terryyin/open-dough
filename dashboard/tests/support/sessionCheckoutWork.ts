@@ -1,183 +1,221 @@
-// Dated Git work in a project's Default main checkout: commits and rewrites
-// there, and another developer's work pulled, merged, rebased onto or picked.
+// Drives a Default main session through launch, dated work in its checkout
+// and Done. The specs retain their own observations of Git and review answers.
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { expect } from "@playwright/test";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { launch, markDone } from "../agentLaunchBoundary.ts";
 import { quote } from "./completionRecovery.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
+import { keepLaunchRecords } from "./launchStore.ts";
+import { launchedAdHoc } from "./reportedLaunch.ts";
+import {
+  anotherDeveloperCheckout,
+  commitAt,
+  gitAt,
+} from "./sessionCheckoutGit.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { dashboardDeveloper } from "./startOriginPreparation.ts";
-
-const gitAt =
-  (at: string, editors: Record<string, string> = {}) =>
-  (cwd: string, ...args: string[]) =>
-    execFileSync("git", args, {
-      cwd,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: {
-        ...process.env,
-        GIT_COMMITTER_DATE: at,
-        GIT_COMMITTER_NAME: dashboardDeveloper.name,
-        GIT_COMMITTER_EMAIL: dashboardDeveloper.email,
-        GIT_AUTHOR_NAME: dashboardDeveloper.name,
-        GIT_AUTHOR_EMAIL: dashboardDeveloper.email,
-        GIT_EDITOR: "true",
-        GIT_SEQUENCE_EDITOR: "true",
-        ...editors,
-      },
-    }).trim();
-
-// Commits `file` in the checkout at `at`, holding `content` when given, and
-// answers the commit.
-export function commitInCheckout(
-  checkout: string,
-  at: string,
-  file: string,
-  content = `${file} at ${at}\n`,
-): Promise<string> {
-  return commitDeclaredRevision(checkout, {
-    message: `Add ${file}`,
-    files: { [file]: content },
-    committer: { ...dashboardDeveloper, date: at },
-  });
-}
-
-// Amends the checkout's last commit at `at` to also hold `file`, keeping its
-// message; answers the amended commit.
-export function amendInCheckout(
-  checkout: string,
-  at: string,
-  file: string,
-): string {
-  const git = gitAt(at);
-  writeFileSync(path.join(checkout, file), `${file} at ${at}\n`);
-  git(checkout, "add", "--", file);
-  git(checkout, "commit", "--quiet", "--amend", "--no-edit");
-  return git(checkout, "rev-parse", "HEAD");
-}
-
-// Makes a commit on a side branch and returns the checkout to its first branch.
-export async function commitOnSideBranch(
-  checkout: string,
-  at: string,
-  file: string,
-): Promise<void> {
-  const git = gitAt(at);
-  const originalBranch = git(checkout, "branch", "--show-current");
-  git(checkout, "switch", "--quiet", "--create", "side");
-  await commitInCheckout(checkout, at, file);
-  git(checkout, "switch", "--quiet", originalBranch);
-}
-
-// Rewords the latest commit through Git's interactive rebase.
-export function rewordInCheckout(
-  checkout: string,
-  at: string,
-  message: string,
-): void {
-  gitAt(at, {
-    GIT_SEQUENCE_EDITOR: "sed -i.bak 's/^pick /reword /'",
-    GIT_EDITOR: `printf '%s\\n' ${quote(message)} >`,
-  })(checkout, "rebase", "--quiet", "--interactive", "HEAD^");
-}
-
-function anotherDeveloperCheckout(
-  origin: Pick<StartOrigin, "machine" | "origin">,
-  at: string,
-): string {
-  const other = mkdtempSync(path.join(origin.machine, "other-developer-"));
-  gitAt(at)(origin.machine, "clone", "--quiet", origin.origin, other);
-  return other;
-}
-
-// Picks another developer's edit to a file already changed in the checkout.
-// Requires a conflict on that file and answers the commit after resolution.
-export async function continueConflictedCherryPick(
-  origin: Pick<StartOrigin, "machine" | "origin" | "project">,
-  at: string,
-  file: string,
-  { incoming, resolution }: { incoming: string; resolution: string },
-): Promise<string> {
-  const git = gitAt(at);
-  const checkout = origin.project;
-  const other = anotherDeveloperCheckout(origin, at);
-  const picked = await commitInCheckout(other, at, file, incoming);
-  git(checkout, "fetch", "--quiet", other, picked);
-  assert.throws(() => git(checkout, "cherry-pick", picked));
-  assert.equal(git(checkout, "rev-parse", "CHERRY_PICK_HEAD"), picked);
-  assert.ok(git(checkout, "ls-files", "--unmerged", "--", file));
-  writeFileSync(path.join(checkout, file), resolution);
-  git(checkout, "add", "--", file);
-  git(checkout, "cherry-pick", "--continue");
-  return git(checkout, "rev-parse", "HEAD");
-}
-
-// Adds `file` in a fixup or squash of `target` and answers the autosquashed
-// commit, accepting Git's proposed message.
-export function autosquashInCheckout(
-  checkout: string,
-  at: string,
-  target: string,
-  file: string,
-  kind: "fixup" | "squash",
-): string {
-  const git = gitAt(at);
-  writeFileSync(path.join(checkout, file), `${file} at ${at}\n`);
-  git(checkout, "add", "--", file);
-  git(
-    checkout,
-    "commit",
-    "--quiet",
-    `--${kind}=${target}`,
-    "-m",
-    `Add ${file}`,
-  );
-  git(
-    checkout,
-    "rebase",
-    "--quiet",
-    "--interactive",
-    "--autosquash",
-    `${target}^`,
-  );
-  return git(checkout, "rev-parse", "HEAD");
-}
+import { git } from "./storyReviewWorktree.ts";
 
 // How the project's checkout takes trunk's published work in: a fast-forward
 // pull, a pull that merges, a pull that rebases the checkout's own commits,
 // or a fetch and `git rebase --onto` of its last commit, as a publication
 // from the checkout does.
-export type TakenIn = "fast-forward" | "merge" | "rebase" | "rebase-onto";
+type TakenIn = "fast-forward" | "merge" | "rebase" | "rebase-onto";
 
-// Another developer publishes `file` on trunk at `at`, holding `content`
-// when given, and the project's checkout takes it in; answers the published
-// commit.
-export async function pullPublishedWork(
-  origin: Pick<StartOrigin, "machine" | "origin" | "project">,
-  at: string,
-  file: string,
-  { how = "fast-forward", content }: { how?: TakenIn; content?: string } = {},
-): Promise<string> {
-  const git = gitAt(at);
-  const other = anotherDeveloperCheckout(origin, at);
-  const pulled = await commitInCheckout(other, at, file, content);
-  git(other, "push", "--quiet", "origin", "HEAD:main");
-  if (how === "rebase-onto") {
-    git(origin.project, "fetch", "--quiet", "origin", "main");
-    git(origin.project, "rebase", "--quiet", "--onto", "origin/main", "HEAD~1");
-  } else
-    git(
-      origin.project,
-      "pull",
-      "--quiet",
-      { "fast-forward": "--ff-only", merge: "--no-rebase", rebase: "--rebase" }[
-        how
-      ],
-      ...(how === "merge" ? ["--no-edit"] : []),
-      "origin",
-      "main",
+export class DefaultMainSessionWork {
+  constructor(
+    private readonly dashboard: DashboardServer,
+    private readonly origin: StartOrigin,
+  ) {}
+
+  private get checkout() {
+    return this.origin.project;
+  }
+
+  launchReporting(instruction: string) {
+    return launchedAdHoc(this.dashboard, this.origin, instruction);
+  }
+
+  commit(at: string, file: string, content?: string) {
+    return commitAt(this.checkout, at, file, content);
+  }
+
+  edit(file: string, content: string) {
+    writeFileSync(path.join(this.checkout, file), content);
+  }
+
+  pushToTrunk(ref: "main" | "HEAD:main" = "main") {
+    git(this.checkout, "push", "--quiet", "origin", ref);
+  }
+
+  // Leave the comparison pins as the only local references to the commit.
+  forgetPublishedCommit(start: string) {
+    git(this.checkout, "reset", "--quiet", "--hard", start);
+    git(this.checkout, "update-ref", "refs/remotes/origin/main", start);
+    git(this.checkout, "reflog", "expire", "--expire=now", "--all");
+    git(this.checkout, "gc", "--quiet", "--prune=now");
+  }
+
+  // Launches an ad hoc session in the project's Default main checkout, blank
+  // unless given an instruction; answers its record as launched.
+  async launch(instruction?: string): Promise<LaunchRecord> {
+    this.dashboard.claudeScenario("launched");
+    const launched = await launch(
+      this.dashboard,
+      makeMe.aLaunchRequest
+        .adHoc(instruction === undefined ? {} : { instruction })
+        .please(),
     );
-  return pulled;
+    expect(launched.status).toBe(200);
+    return (JSON.parse(launched.body) as { record: LaunchRecord }).record;
+  }
+
+  // Keeps a session established now in the project's Default main checkout at
+  // its current commit; answers when it launched.
+  establish(sessionId: string): string {
+    const launchedAt = new Date().toISOString();
+    this.dashboard.claudeScenario("launched");
+    keepLaunchRecords(this.dashboard, [
+      makeMe.aLaunchRecord
+        .adHoc({ title: "Established in Default main" })
+        .inDefaultCheckout({
+          workspace: this.checkout,
+          landing: "review",
+          revision: git(this.checkout, "rev-parse", "HEAD"),
+        })
+        .inClaudeSession({ sessionId })
+        .launchedAt(launchedAt)
+        .please(),
+    ]);
+    return launchedAt;
+  }
+
+  // Marks the session done; answers its Done time.
+  async markDone(session: string): Promise<string | undefined> {
+    const done = await markDone(this.dashboard, {
+      source: "open-dough",
+      session,
+    });
+    expect(done.status).toBe(200);
+    return (JSON.parse(done.body) as { record: LaunchRecord }).record.doneAt;
+  }
+
+  // Amends the checkout's last commit at `at` to also hold `file`, keeping its
+  // message; answers the amended commit.
+  amend(at: string, file: string): string {
+    const git = gitAt(at);
+    this.edit(file, `${file} at ${at}\n`);
+    git(this.checkout, "add", "--", file);
+    git(this.checkout, "commit", "--quiet", "--amend", "--no-edit");
+    return git(this.checkout, "rev-parse", "HEAD");
+  }
+
+  // Makes a commit on a side branch and returns the checkout to its first branch.
+  async commitOnSideBranch(at: string, file: string): Promise<void> {
+    const git = gitAt(at);
+    const originalBranch = git(this.checkout, "branch", "--show-current");
+    git(this.checkout, "switch", "--quiet", "--create", "side");
+    await commitAt(this.checkout, at, file);
+    git(this.checkout, "switch", "--quiet", originalBranch);
+  }
+
+  // Rewords the latest commit through Git's interactive rebase.
+  reword(at: string, message: string): void {
+    gitAt(at, {
+      GIT_SEQUENCE_EDITOR: "sed -i.bak 's/^pick /reword /'",
+      GIT_EDITOR: `printf '%s\\n' ${quote(message)} >`,
+    })(this.checkout, "rebase", "--quiet", "--interactive", "HEAD^");
+  }
+
+  // Picks another developer's edit to a file already changed in the checkout.
+  // Requires a conflict on that file and answers the commit after resolution.
+  async continueConflictedCherryPick(
+    at: string,
+    file: string,
+    { incoming, resolution }: { incoming: string; resolution: string },
+  ): Promise<string> {
+    const git = gitAt(at);
+    const other = anotherDeveloperCheckout(this.origin, at);
+    const picked = await commitAt(other, at, file, incoming);
+    git(this.checkout, "fetch", "--quiet", other, picked);
+    assert.throws(() => git(this.checkout, "cherry-pick", picked));
+    assert.equal(git(this.checkout, "rev-parse", "CHERRY_PICK_HEAD"), picked);
+    assert.ok(git(this.checkout, "ls-files", "--unmerged", "--", file));
+    this.edit(file, resolution);
+    git(this.checkout, "add", "--", file);
+    git(this.checkout, "cherry-pick", "--continue");
+    return git(this.checkout, "rev-parse", "HEAD");
+  }
+
+  // Adds `file` in a fixup or squash of `target` and answers the autosquashed
+  // commit, accepting Git's proposed message.
+  autosquash(
+    at: string,
+    target: string,
+    file: string,
+    kind: "fixup" | "squash",
+  ): string {
+    const git = gitAt(at);
+    this.edit(file, `${file} at ${at}\n`);
+    git(this.checkout, "add", "--", file);
+    git(
+      this.checkout,
+      "commit",
+      "--quiet",
+      `--${kind}=${target}`,
+      "-m",
+      `Add ${file}`,
+    );
+    git(
+      this.checkout,
+      "rebase",
+      "--quiet",
+      "--interactive",
+      "--autosquash",
+      `${target}^`,
+    );
+    return git(this.checkout, "rev-parse", "HEAD");
+  }
+
+  // Another developer publishes `file` on trunk at `at`, holding `content`
+  // when given, and the project's checkout takes it in; answers the published
+  // commit.
+  async pullPublishedWork(
+    at: string,
+    file: string,
+    { how = "fast-forward", content }: { how?: TakenIn; content?: string } = {},
+  ): Promise<string> {
+    const git = gitAt(at);
+    const other = anotherDeveloperCheckout(this.origin, at);
+    const pulled = await commitAt(other, at, file, content);
+    git(other, "push", "--quiet", "origin", "HEAD:main");
+    if (how === "rebase-onto") {
+      git(this.checkout, "fetch", "--quiet", "origin", "main");
+      git(
+        this.checkout,
+        "rebase",
+        "--quiet",
+        "--onto",
+        "origin/main",
+        "HEAD~1",
+      );
+    } else
+      git(
+        this.checkout,
+        "pull",
+        "--quiet",
+        {
+          "fast-forward": "--ff-only",
+          merge: "--no-rebase",
+          rebase: "--rebase",
+        }[how],
+        ...(how === "merge" ? ["--no-edit"] : []),
+        "origin",
+        "main",
+      );
+    return pulled;
+  }
 }

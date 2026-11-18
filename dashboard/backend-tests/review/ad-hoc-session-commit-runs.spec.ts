@@ -14,15 +14,9 @@ import {
 import {
   adHocReview,
   adHocSessionFileDiff,
-  establishDefaultMainSession,
-  markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import {
-  amendInCheckout,
-  commitInCheckout,
-  pullPublishedWork,
-} from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -48,25 +42,24 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
   origin,
   request,
 }) => {
-  establishDefaultMainSession(dashboard, origin, sessionId);
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  work.establish(sessionId);
   const start = git(origin.project, "rev-parse", "HEAD");
-  const first = await commitInCheckout(
-    origin.project,
+  const first = await work.commit(
     firstAt,
     "notes.txt",
     numbered("one", "eight"),
   );
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const pulled = await pullPublishedWork(origin, secondAt, "notes.txt", {
+  work.pushToTrunk();
+  const pulled = await work.pullPublishedWork(secondAt, "notes.txt", {
     content: numbered("one", "story's eight"),
   });
-  const second = await commitInCheckout(
-    origin.project,
+  const second = await work.commit(
     thirdAt,
     "notes.txt",
     numbered("session's one", "story's eight"),
   );
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   const commitRuns = [
     {
@@ -124,13 +117,14 @@ test("commits either side of merged trunk work are two runs without the merge or
   origin,
   request,
 }) => {
-  establishDefaultMainSession(dashboard, origin, sessionId);
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  work.establish(sessionId);
   const start = git(origin.project, "rev-parse", "HEAD");
-  const first = await commitInCheckout(origin.project, firstAt, "first.txt");
-  await pullPublishedWork(origin, secondAt, "story.txt", { how: "merge" });
+  const first = await work.commit(firstAt, "first.txt");
+  await work.pullPublishedWork(secondAt, "story.txt", { how: "merge" });
   const merge = git(origin.project, "rev-parse", "HEAD^{/^Merge }");
-  const second = await commitInCheckout(origin.project, thirdAt, "second.txt");
-  await markAdHocDone(dashboard, sessionId);
+  const second = await work.commit(thirdAt, "second.txt");
+  await work.markDone(sessionId);
 
   const opened = await adHocReview(request, dashboard, sessionId);
   expect(opened).toMatchObject({ commitRun: 0, baseline: start, tree: first });
@@ -145,14 +139,15 @@ test("commits either side of an amended merge stay separate without the merge's 
   origin,
   request,
 }) => {
-  establishDefaultMainSession(dashboard, origin, sessionId);
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  work.establish(sessionId);
   const checkout = origin.project;
   const start = git(checkout, "rev-parse", "HEAD");
-  const first = await commitInCheckout(checkout, firstAt, "first.txt");
-  await pullPublishedWork(origin, secondAt, "story.txt", { how: "merge" });
-  const amended = amendInCheckout(checkout, thirdAt, "amended.txt");
-  const second = await commitInCheckout(checkout, fourthAt, "second.txt");
-  await markAdHocDone(dashboard, sessionId);
+  const first = await work.commit(firstAt, "first.txt");
+  await work.pullPublishedWork(secondAt, "story.txt", { how: "merge" });
+  const amended = work.amend(thirdAt, "amended.txt");
+  const second = await work.commit(fourthAt, "second.txt");
+  await work.markDone(sessionId);
 
   const opened = await adHocReview(request, dashboard, sessionId);
   expect(paths(opened)).toEqual(["first.txt"]);
@@ -174,16 +169,17 @@ test("two commits, the second amended, rebased onto pulled trunk and pushed are 
   origin,
   request,
 }) => {
-  establishDefaultMainSession(dashboard, origin, sessionId);
-  await commitInCheckout(origin.project, firstAt, "first.txt");
-  await commitInCheckout(origin.project, secondAt, "second.txt");
-  amendInCheckout(origin.project, thirdAt, "amended.txt");
-  const pulled = await pullPublishedWork(origin, fourthAt, "story.txt", {
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  work.establish(sessionId);
+  await work.commit(firstAt, "first.txt");
+  await work.commit(secondAt, "second.txt");
+  work.amend(thirdAt, "amended.txt");
+  const pulled = await work.pullPublishedWork(fourthAt, "story.txt", {
     how: "rebase",
   });
-  git(origin.project, "push", "--quiet", "origin", "main");
+  work.pushToTrunk();
   const pushed = git(origin.project, "rev-parse", "origin/main");
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   const answer = await adHocReview(request, dashboard, sessionId);
   expect(answer).toMatchObject({
@@ -203,15 +199,16 @@ test("a commit rebased onto fetched trunk and pushed, as a publication from the 
   origin,
   request,
 }) => {
-  establishDefaultMainSession(dashboard, origin, sessionId);
-  const made = await commitInCheckout(origin.project, firstAt, "landed.txt");
-  const fetched = await pullPublishedWork(origin, secondAt, "story.txt", {
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  work.establish(sessionId);
+  const made = await work.commit(firstAt, "landed.txt");
+  const fetched = await work.pullPublishedWork(secondAt, "story.txt", {
     how: "rebase-onto",
   });
-  git(origin.project, "push", "--quiet", "origin", "HEAD:main");
+  work.pushToTrunk("HEAD:main");
   const pushed = git(origin.project, "rev-parse", "origin/main");
   expect(pushed).not.toBe(made);
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   const answer = await adHocReview(request, dashboard, sessionId);
   expect(answer).toMatchObject({
@@ -228,10 +225,11 @@ test("a commit made before the session and rebased during it is not kept", async
   origin,
   request,
 }) => {
-  await commitInCheckout(origin.project, beforeLaunch, "earlier.txt");
-  establishDefaultMainSession(dashboard, origin, sessionId);
-  await pullPublishedWork(origin, firstAt, "story.txt", { how: "rebase" });
-  await markAdHocDone(dashboard, sessionId);
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  await work.commit(beforeLaunch, "earlier.txt");
+  work.establish(sessionId);
+  await work.pullPublishedWork(firstAt, "story.txt", { how: "rebase" });
+  await work.markDone(sessionId);
 
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "landing-unavailable",

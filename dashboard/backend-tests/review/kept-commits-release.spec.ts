@@ -13,13 +13,14 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deleteRecord } from "../../tests/agentLaunchBoundary.ts";
 import { daysAgo, retainedDoneAt } from "../../tests/machineLaunchRecords.ts";
-import { launchDefaultMainSession } from "../../tests/support/adHocReview.ts";
+import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   keepLaunchRecords,
   keptLaunchRecords,
 } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
+import type { StartOrigin } from "../../tests/support/startOrigin.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -107,28 +108,27 @@ const keptSessionIds = (home: Parameters<typeof keptLaunchRecords>[0]) =>
 // Two records keeping commits in the project's repository: one leaving, Done
 // at `leavingDoneAt`, and another freshly Done.
 async function twoRecordsKeepingCommits(
-  origin: { project: string },
+  dashboard: DashboardServer,
+  origin: StartOrigin,
   leavingDoneAt: string,
 ) {
-  const base = git(origin.project, "rev-parse", "HEAD");
-  const revision = await commitInCheckout(
-    origin.project,
-    committedAt,
-    "kept.txt",
-  );
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const { project } = origin;
+  const base = git(project, "rev-parse", "HEAD");
+  const revision = await work.commit(committedAt, "kept.txt");
   const repository = git(
-    origin.project,
+    project,
     "rev-parse",
     "--path-format=absolute",
     "--git-common-dir",
   );
-  const kept = { workspace: origin.project, repository };
+  const kept = { workspace: project, repository };
   const pair = { base, revision };
   const leaving = recordKeeping("leaving", leavingDoneAt, kept, pair);
   const other = recordKeeping("other-kept", retainedDoneAt(), kept, pair);
   holdKeptCommits(leaving);
   holdKeptCommits(other);
-  return { repository, leaving, other };
+  return { repository, leaving, other, work };
 }
 
 const runRefs = (record: KeepingRecord) => [
@@ -141,6 +141,7 @@ test("deleting a record removes its session-run and landing references and leave
   origin,
 }) => {
   const { repository, leaving, other } = await twoRecordsKeepingCommits(
+    dashboard,
     origin,
     retainedDoneAt(),
   );
@@ -171,7 +172,8 @@ test("a record expiring after retention removes its session-run and landing refe
   dashboard,
   origin,
 }) => {
-  const { repository, leaving, other } = await twoRecordsKeepingCommits(
+  const { repository, leaving, other, work } = await twoRecordsKeepingCommits(
+    dashboard,
     origin,
     daysAgo(31),
   );
@@ -183,7 +185,7 @@ test("a record expiring after retention removes its session-run and landing refe
   expect(refsUnder(repository, landingRefs(leaving))).toHaveLength(2);
   const headsBefore = refsUnder(repository, "refs/heads/");
 
-  const launched = await launchDefaultMainSession(dashboard);
+  const launched = await work.launch();
 
   expect(keptSessionIds(dashboard)).toEqual([
     "other-kept",
@@ -219,7 +221,7 @@ test("a record whose saved repository is gone still expires", async ({
     recordWhoseRepositoryIsGone(origin, "expired", daysAgo(31)),
   ]);
 
-  const launched = await launchDefaultMainSession(dashboard);
+  const launched = await new DefaultMainSessionWork(dashboard, origin).launch();
 
   expect(keptSessionIds(dashboard)).toEqual([launched.session.sessionId]);
 });

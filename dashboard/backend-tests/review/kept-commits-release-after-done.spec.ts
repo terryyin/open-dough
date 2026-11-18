@@ -7,13 +7,12 @@ import { openTerminal } from "../../tests/agentTerminalBoundary.ts";
 import {
   adHocReview,
   keptAdHocRecord,
-  launchDefaultMainSession,
-  markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
+import type { StartOrigin } from "../../tests/support/startOrigin.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
@@ -25,21 +24,23 @@ const refs = (repository: string, prefix = "refs/") =>
     .split("\n")
     .filter(Boolean);
 
-async function commitAndMarkDone(dashboard: DashboardServer, checkout: string) {
-  const record = await launchDefaultMainSession(
-    dashboard,
-    "Edit session notes",
-  );
+async function commitAndMarkDone(
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
+  const checkout = origin.project;
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const record = await work.launch("Edit session notes");
   const { sessionId } = record.session;
   const base = git(checkout, "rev-parse", "HEAD");
-  const revision = await commitInCheckout(checkout, committedAt, "notes.txt");
+  const revision = await work.commit(committedAt, "notes.txt");
   const beforeDone = refs(checkout);
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
-  const doneAt = await markAdHocDone(dashboard, sessionId);
+  const doneAt = await work.markDone(sessionId);
   if (doneAt === undefined) throw new Error("Expected durable Done");
   const prefix = `refs/open-dough/session-commits/claude/${sessionId}/`;
   const pair = [`${prefix}0/base ${base}`, `${prefix}0/revision ${revision}`];
-  return { record, sessionId, doneAt, prefix, pair, beforeDone };
+  return { work, record, sessionId, doneAt, prefix, pair, beforeDone };
 }
 
 async function deleteKeptSession(dashboard: DashboardServer, session: string) {
@@ -72,7 +73,7 @@ test("Done pins only the comparison pair and deleting the record releases it", a
   const checkout = origin.project;
   const { sessionId, pair, beforeDone } = await commitAndMarkDone(
     dashboard,
-    checkout,
+    origin,
   );
   expect(refs(checkout)).toEqual([...beforeDone, ...pair].sort());
 
@@ -87,15 +88,15 @@ test("a later Done with an unreadable log releases the earlier capture", async (
   request,
 }) => {
   const checkout = origin.project;
-  const { sessionId, prefix, pair } = await commitAndMarkDone(
+  const { work, sessionId, prefix, pair } = await commitAndMarkDone(
     dashboard,
-    checkout,
+    origin,
   );
   expect(refs(checkout, prefix)).toEqual(pair);
   await reopenForDone(dashboard, sessionId);
   // Git can still read and mutate refs in this repository.
   rmSync(path.join(checkout, ".git", "logs"), { recursive: true });
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "landing-unavailable",
@@ -116,9 +117,9 @@ test("a later Done keeps its pair when the repository is also reachable through 
   const moved = path.join(origin.machine, "moved-git-directory");
   git(checkout, "init", "--separate-git-dir", previous);
   const base = git(checkout, "rev-parse", "HEAD");
-  const { sessionId, prefix, pair } = await commitAndMarkDone(
+  const { work, sessionId, prefix, pair } = await commitAndMarkDone(
     dashboard,
-    checkout,
+    origin,
   );
   expect(refs(previous, prefix)).toEqual(pair);
   await reopenForDone(dashboard, sessionId);
@@ -126,12 +127,8 @@ test("a later Done keeps its pair when the repository is also reachable through 
   renameSync(previous, moved);
   symlinkSync(moved, previous);
   writeFileSync(path.join(checkout, ".git"), `gitdir: ${moved}\n`);
-  const revision = await commitInCheckout(
-    checkout,
-    "2099-01-02T12:10:00Z",
-    "more-notes.txt",
-  );
-  await markAdHocDone(dashboard, sessionId);
+  const revision = await work.commit("2099-01-02T12:10:00Z", "more-notes.txt");
+  await work.markDone(sessionId);
 
   expect(refs(moved, prefix)).toEqual([
     `${prefix}0/base ${base}`,
@@ -147,7 +144,7 @@ test("deleting a record from an older failed capture releases refs its earlier D
   const checkout = origin.project;
   const { record, sessionId, doneAt, prefix, pair } = await commitAndMarkDone(
     dashboard,
-    checkout,
+    origin,
   );
   // An older reader left Done without a comparison and kept its Git refs.
   keepLaunchRecords(dashboard, [{ ...record, doneAt }]);

@@ -13,18 +13,11 @@ import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   adHocReview,
-  establishDefaultMainSession,
   keptAdHocRecord,
-  launchDefaultMainSession,
-  markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import {
-  commitInCheckout,
-  pullPublishedWork,
-} from "../../tests/support/sessionCheckoutWork.ts";
-import { launchedAdHoc } from "../../tests/support/reportedLaunch.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -41,19 +34,16 @@ test("a default launch's commit is kept at Done and stays reviewable after trunk
   origin,
   request,
 }) => {
-  const record = await launchDefaultMainSession(dashboard, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const record = await work.launch("Fix the typo");
   const { sessionId } = record.session;
   const start = git(origin.project, "rev-parse", "HEAD");
-  const pulled = await pullPublishedWork(origin, pulledAt, "pulled.txt");
-  const committed = await commitInCheckout(
-    origin.project,
-    committedAt,
-    "typo.txt",
-  );
-  git(origin.project, "push", "--quiet", "origin", "main");
+  const pulled = await work.pullPublishedWork(pulledAt, "pulled.txt");
+  const committed = await work.commit(committedAt, "typo.txt");
+  work.pushToTrunk();
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
 
-  const doneAt = await markAdHocDone(dashboard, sessionId);
+  const doneAt = await work.markDone(sessionId);
 
   const kept = {
     kind: "session-commits",
@@ -75,11 +65,8 @@ test("a default launch's commit is kept at Done and stays reviewable after trunk
   expect(await adHocReview(request, dashboard, sessionId)).toEqual(kept);
 
   // Trunk advances, then the checkout and its branches leave the commit.
-  await pullPublishedWork(origin, laterAt, "later-trunk.txt");
-  git(origin.project, "reset", "--quiet", "--hard", start);
-  git(origin.project, "update-ref", "refs/remotes/origin/main", start);
-  git(origin.project, "reflog", "expire", "--expire=now", "--all");
-  git(origin.project, "gc", "--quiet", "--prune=now");
+  await work.pullPublishedWork(laterAt, "later-trunk.txt");
+  work.forgetPublishedCommit(start);
   expect(git(origin.project, "branch", "-a", "--contains", committed)).toBe("");
   const indexPath = path.join(origin.project, ".git", "index");
   const index = readFileSync(indexPath);
@@ -95,14 +82,11 @@ test("a default launch marked done automatically by its quiet report keeps its c
   origin,
   request,
 }) => {
-  const session = await launchedAdHoc(dashboard, origin, "Fix the typo");
+  const work = new DefaultMainSessionWork(dashboard, origin);
+  const session = await work.launchReporting("Fix the typo");
   const { sessionId } = session;
   const start = git(origin.project, "rev-parse", "HEAD");
-  const committed = await commitInCheckout(
-    origin.project,
-    committedAt,
-    "typo.txt",
-  );
+  const committed = await work.commit(committedAt, "typo.txt");
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
 
   await session.report({ message: "" });
@@ -125,16 +109,13 @@ test("a session established in the Default main checkout without a landing answe
   origin,
   request,
 }) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
   const start = git(origin.project, "rev-parse", "HEAD");
   const sessionId = "established-default-main";
-  const launchedAt = establishDefaultMainSession(dashboard, origin, sessionId);
-  const committed = await commitInCheckout(
-    origin.project,
-    committedAt,
-    "typo.txt",
-  );
+  const launchedAt = work.establish(sessionId);
+  const committed = await work.commit(committedAt, "typo.txt");
 
-  const doneAt = await markAdHocDone(dashboard, sessionId);
+  const doneAt = await work.markDone(sessionId);
 
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "session-commits",
@@ -174,13 +155,10 @@ test("a session established in the Default main checkout that holds a landing ke
   origin,
   request,
 }) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
   const start = git(origin.project, "rev-parse", "HEAD");
-  const landed = await commitInCheckout(origin.project, pulledAt, "landed.txt");
-  const committed = await commitInCheckout(
-    origin.project,
-    committedAt,
-    "typo.txt",
-  );
+  const landed = await work.commit(pulledAt, "landed.txt");
+  const committed = await work.commit(committedAt, "typo.txt");
   const sessionId = "established-landed";
   keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord

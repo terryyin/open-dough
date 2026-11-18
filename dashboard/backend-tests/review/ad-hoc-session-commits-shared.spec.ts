@@ -9,14 +9,10 @@
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  adHocReview,
-  launchDefaultMainSession,
-  markAdHocDone,
-} from "../../tests/support/adHocReview.ts";
+import { adHocReview } from "../../tests/support/adHocReview.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -34,11 +30,12 @@ test("two default launches open in one checkout both commit: either one's review
   origin,
   request,
 }) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
   const start = git(origin.project, "rev-parse", "HEAD");
-  const first = await launchDefaultMainSession(dashboard, "Fix the typo");
-  const second = await launchDefaultMainSession(dashboard, "Fix the link");
-  await commitInCheckout(origin.project, firstAt, "typo.txt");
-  const last = await commitInCheckout(origin.project, secondAt, "link.txt");
+  const first = await work.launch("Fix the typo");
+  const second = await work.launch("Fix the link");
+  await work.commit(firstAt, "typo.txt");
+  const last = await work.commit(secondAt, "link.txt");
   const both = {
     kind: "session-commits",
     commitRuns: [expect.objectContaining({ commits: 2 })],
@@ -49,7 +46,7 @@ test("two default launches open in one checkout both commit: either one's review
   dashboard.claudeSessionBecomes(second.session.sessionId, "working-idle");
 
   // Done while the other session is still open.
-  await markAdHocDone(dashboard, first.session.sessionId);
+  await work.markDone(first.session.sessionId);
 
   expect(
     await adHocReview(request, dashboard, first.session.sessionId),
@@ -59,7 +56,7 @@ test("two default launches open in one checkout both commit: either one's review
   });
 
   // Done after the other session, which was open until its own Done.
-  await markAdHocDone(dashboard, second.session.sessionId);
+  await work.markDone(second.session.sessionId);
 
   expect(
     await adHocReview(request, dashboard, second.session.sessionId),
@@ -74,6 +71,7 @@ test("a session open meanwhile in an isolated workspace of the project does not 
   origin,
   request,
 }) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
   const isolated = path.join(origin.machine, "isolated-workspace");
   git(origin.project, "worktree", "add", "--quiet", "-b", "isolated", isolated);
   keepLaunchRecords(dashboard, [
@@ -84,12 +82,12 @@ test("a session open meanwhile in an isolated workspace of the project does not 
       .launchedAt(secondsAgo(60))
       .please(),
   ]);
-  const record = await launchDefaultMainSession(dashboard, "Fix the typo");
+  const record = await work.launch("Fix the typo");
   const { sessionId } = record.session;
-  const committed = await commitInCheckout(origin.project, firstAt, "typo.txt");
+  const committed = await work.commit(firstAt, "typo.txt");
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
 
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   const review = await adHocReview(request, dashboard, sessionId);
   expect(review).toMatchObject({ kind: "session-commits", tree: committed });
@@ -101,6 +99,7 @@ test("a session done in the Default main checkout before this one launched does 
   origin,
   request,
 }) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
   keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .adHoc({ title: "Done before" })
@@ -114,12 +113,12 @@ test("a session done in the Default main checkout before this one launched does 
       .markedDoneAt(secondsAgo(30))
       .please(),
   ]);
-  const record = await launchDefaultMainSession(dashboard, "Fix the typo");
+  const record = await work.launch("Fix the typo");
   const { sessionId } = record.session;
-  const committed = await commitInCheckout(origin.project, firstAt, "typo.txt");
+  const committed = await work.commit(firstAt, "typo.txt");
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
 
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   const review = await adHocReview(request, dashboard, sessionId);
   expect(review).toMatchObject({ kind: "session-commits", tree: committed });

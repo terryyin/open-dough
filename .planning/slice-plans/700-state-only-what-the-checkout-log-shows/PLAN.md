@@ -368,7 +368,7 @@ The four affected backend specs passed again.
 
 ### 8. Drive a session's work in the checkout through one support owner
 Type: Structure
-Status: planned
+Status: done
 Proof: `backend-tests/review/ad-hoc-session-commit*.spec.ts`,
 `ad-hoc-review*.spec.ts` and `kept-commits-release*.spec.ts` stay green
 with unchanged case names, inputs and assertions.
@@ -381,6 +381,15 @@ domain-named driver of a session's work in its checkout owns them, with
 stored facts as MakeMe builder steps under
 [test data architecture](../../../Distribution/tests/README.md#test-data-architecture).
 No product change.
+
+Proof: one Default main fixture owns the dated actions in nine specs.
+The case audit preserved all 40 case title declarations and 119 assertion
+statements. The 13 planned backend specs, the prompted/blank launch-start
+spec and dashboard typecheck passed. Exact proof and consumer dispositions
+are in `slice-8-return.md` and `slice-8-consumer-trace.md`.
+The independent refactor reused the driver's checkout edit and unified
+the retained-record fixture's origin. Three affected backend specs,
+typecheck and the unchanged-case audit passed again.
 
 ## Story obligations
 

@@ -5,15 +5,9 @@ import { reviewedFileTextSchema } from "../../src/storyReviewContract.ts";
 import {
   adHocReview,
   adHocSessionFileText,
-  establishDefaultMainSession,
-  markAdHocDone,
 } from "../../tests/support/adHocReview.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import {
-  autosquashInCheckout,
-  commitInCheckout,
-  continueConflictedCherryPick,
-} from "../../tests/support/sessionCheckoutWork.ts";
+import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
 import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
@@ -29,21 +23,17 @@ test("a continued cherry-pick is kept with the session's conflict resolution", a
   origin,
   request,
 }) => {
+  const work = new DefaultMainSessionWork(dashboard, origin);
   const file = "notes.txt";
   const original = "Local notes\n";
   const resolution = "Reconciled notes\n";
-  const baseline = await commitInCheckout(
-    origin.project,
-    beforeLaunch,
-    file,
-    original,
-  );
-  establishDefaultMainSession(dashboard, origin, sessionId);
-  const tree = await continueConflictedCherryPick(origin, firstAt, file, {
+  const baseline = await work.commit(beforeLaunch, file, original);
+  work.establish(sessionId);
+  const tree = await work.continueConflictedCherryPick(firstAt, file, {
     incoming: "Incoming notes\n",
     resolution,
   });
-  await markAdHocDone(dashboard, sessionId);
+  await work.markDone(sessionId);
 
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "session-commits",
@@ -70,18 +60,13 @@ for (const kind of ["fixup", "squash"] as const) {
     origin,
     request,
   }) => {
-    establishDefaultMainSession(dashboard, origin, sessionId);
+    const work = new DefaultMainSessionWork(dashboard, origin);
+    work.establish(sessionId);
     const checkout = origin.project;
     const baseline = git(checkout, "rev-parse", "HEAD");
-    const target = await commitInCheckout(checkout, firstAt, "first.txt");
-    const tree = autosquashInCheckout(
-      checkout,
-      secondAt,
-      target,
-      "added.txt",
-      kind,
-    );
-    await markAdHocDone(dashboard, sessionId);
+    const target = await work.commit(firstAt, "first.txt");
+    const tree = work.autosquash(secondAt, target, "added.txt", kind);
+    await work.markDone(sessionId);
 
     expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
       kind: "session-commits",
