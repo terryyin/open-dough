@@ -121,8 +121,8 @@ outlives its branches. A default launch starts from the checkout and revision
 its record kept at launch; a session established in the default checkout from
 its own start. Each Done reads anew and replaces the earlier capture; a log
 that cannot be read keeps Done and leaves no capture; reopening a session
-leaves its capture until the next Done. An automatic Done whose native rename
-wait is abandoned keeps no capture until a later Done. The references stay
+leaves its capture until the next Done. A reported Done reads its
+commits when its native Done begins, so an abandoned rename wait keeps them. The references stay
 while the launch record is kept and are released with it: deleting the record,
 or its expiry 30 days after Done, removes that record's session-commit
 references and its landing references from the saved repository and leaves

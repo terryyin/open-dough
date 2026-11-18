@@ -6,7 +6,8 @@
 ## Goal and scope
 
 A bounded correction of the session-commits review delivered by
-[Keep Default main ad hoc session changes for review](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review):
+Keep Default main ad hoc session changes for review (`6d9e4c3988b0ab41b5c07aa577976f29e6bca451:.planning/seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md` (section `keep-default-main-session-changes-for-review`); its plan at
+`6d9e4c3988b0ab41b5c07aa577976f29e6bca451:.planning/slice-plans/693-keep-default-main-session-changes-for-review/PLAN.md`):
 the review holds the session's commits up to the Done it names, leaves merged
 trunk work out, keeps the not-captured explanation wherever the checkout's
 log does not settle what the session committed, describes itself in session
