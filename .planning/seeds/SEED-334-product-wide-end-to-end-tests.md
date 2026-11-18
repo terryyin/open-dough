@@ -9,26 +9,6 @@ scope: story
 # SEED-334 — Product-wide end-to-end tests
 
 
-<a id="keep-navigation-conversion-proof-whole"></a>
-
-### Keep the converted navigation proof whole and time-independent
-
-**Identity:** SEED-334#keep-navigation-conversion-proof-whole
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"16525f7b7dca2e1d1e55ffc1fbc92085ceaef38a8eefb5b3b242fc6a3e19dd94","plan":"c4acea059c8a9598e3a5d9e3e24c4973b0b990083c491bc413fa9c0eab15944c"}}
-```
-
-**Goal:** A maintainer relies on the Frontend navigation checks that
-SEED-334#move-navigation-checks-and-retire-integrated-ui-test converted: the
-header's non-eager read counts hold however long a journey takes, the paging
-view beside a newly arrived session keeps a home, and no live comment points
-at a deleted interim spec.
-
-**Scope:** Correct that execution's delivered Frontend specs and the one stale
-E2E comment its retrospective found; no product change, no other conversion.
-
-**Plan:** [Converted navigation proof correction](../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md).
-
 <a id="move-story-reference-checks"></a>
 
 ### Move story reference checks out of Dashboard Integrated UI Test

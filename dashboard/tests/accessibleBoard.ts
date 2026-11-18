@@ -2,9 +2,14 @@
 // and a backlog too long for one screen. Publishing supplies only source
 // preconditions; what the page shows is for each test to observe.
 
-import { describedBacklog } from "./describedRevisions.ts";
+import {
+  backlogApart,
+  describedBacklog,
+  describedRevision,
+} from "./describedRevisions.ts";
 import {
   putFrontendBacklog,
+  putFrontendPublished,
   type FrontendServiceState,
 } from "./support/frontendServiceState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -86,26 +91,45 @@ const queuedPlaces = Array.from(
 );
 export const queuedTitles = queuedPlaces.map(queuedTitle);
 
-export const largeBacklog = describedBacklog(
+const largeEntries = {
+  taken: [repair],
+  queued: queuedPlaces.map((place) =>
+    makeMe.aBacklogEntry
+      .with({
+        identity: `SEED-1${place}#story`,
+        title: queuedTitle(place),
+        href: `seeds/SEED-1${place}-queued.md#story`,
+      })
+      .please(),
+  ),
+};
+
+// The backlog too long for one screen, with any `files` published beside it.
+const largeRepository = (files?: Record<string, string>) =>
   makeMe.aRepository
     .withRevision("large", {
-      backlog: {
-        taken: [repair],
-        queued: queuedPlaces.map((place) =>
-          makeMe.aBacklogEntry
-            .with({
-              identity: `SEED-1${place}#story`,
-              title: queuedTitle(place),
-              href: `seeds/SEED-1${place}-queued.md#story`,
-            })
-            .please(),
-        ),
-      },
+      backlog: largeEntries,
+      ...(files === undefined ? {} : { files }),
     })
-    .please(),
-);
+    .please();
+
+export const largeBacklog = describedBacklog(largeRepository());
 
 // The substitute project publishes the backlog too long for one screen.
 export function publishLargeBacklog(services: FrontendServiceState) {
   putFrontendBacklog(services, { revision, backlog: largeBacklog });
+}
+
+// The same backlog with each listed story's record published, so every read
+// of the project's work is answered and none is asked again later.
+export function publishLargeBacklogWithRecords(services: FrontendServiceState) {
+  const records = [...largeEntries.taken, ...largeEntries.queued].map(
+    ({ href }): [string, string] => [`.planning/${href.split("#")[0]}`, ""],
+  );
+  putFrontendPublished(
+    services,
+    backlogApart(
+      describedRevision(largeRepository(Object.fromEntries(records)), revision),
+    ),
+  );
 }

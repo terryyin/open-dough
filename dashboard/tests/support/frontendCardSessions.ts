@@ -60,23 +60,23 @@ export async function openCardSessionTerminal(
   return panel;
 }
 
-// The Taken story's working Execution session, attachable through the
-// attached-terminal substitute (its `sizes` and `attaches`). `openTerminal`
-// opens it from the Taken card and waits until it shows its attachment.
+// The Taken story's working Execution session as the machine's read observes it.
+export const takenStoryWorking = () =>
+  cardSession(
+    "Execution",
+    takenStory,
+    makeMe.aSessionState.loaded("working").please(),
+  );
+
+// That session, attachable through the attached-terminal substitute (its
+// `sizes` and `attaches`). `openTerminal` opens it from the Taken card and
+// waits until it shows its attachment.
 export async function takenStoryWorkingSession(
   page: Page,
   services: FrontendServiceState,
 ) {
   services.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        cardSession(
-          "Execution",
-          takenStory,
-          makeMe.aSessionState.loaded("working").please(),
-        ),
-      )
-      .please(),
+    makeMe.aMachineAnswer.observing(takenStoryWorking()).please(),
   );
   const terminal = await installAttachedTerminalSubstitute(page);
   const panel = terminalPanel(page);
