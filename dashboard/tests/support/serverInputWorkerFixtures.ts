@@ -98,6 +98,8 @@ export const serverInputWorkerFixtures: Fixtures<
     coldInputPreparation,
   ],
   // Requested only by native readers that need this installed queued input.
-  // Its setup has the worker's default budget, before a reading test starts.
-  queuedCodexOriginReady: [prepared(["codex"], undefined), { scope: "worker" }],
+  queuedCodexOriginReady: [
+    prepared(["codex"], undefined),
+    coldInputPreparation,
+  ],
 };

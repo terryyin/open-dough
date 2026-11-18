@@ -31,7 +31,7 @@
 // population per distinct value object; that value also replaces the
 // configured browser arguments, so it spreads them in (./browserArgs.ts).
 
-import { test as base } from "@playwright/test";
+import { test as base, type Fixtures } from "@playwright/test";
 import type {
   ComparisonRenderer,
   ComparisonRenderOptions,
@@ -58,33 +58,28 @@ export type { FixtureServerMode } from "./serverInputWorkerFixtures.ts";
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
 
-// Playwright's worker-only extension takes an empty test-fixture type.
-const workerTest = base.extend<
+type KeptStoryWorkerFixtures = {
+  keptStory: StartRepository;
+  keptIntentStory: StartRepository;
+  keptSummaryComparisonStory: StartRepository;
+};
+
+// Story A published as completed and kept (./keptPublishedStory.ts), on the
+// queued trunk, on Intent's and on the summary comparison's: the worker that
+// takes one prepares it before its first such case and answers the
+// description those cases' origins start from, so none publishes the story in
+// its own time.
+export const keptStoryWorkerFixtures: Fixtures<
   object,
-  PublishedMainWorkerFixtures &
-    ServerInputWorkerFixtures & {
-      launchJourney: LaunchJourney;
-      comparisonRenderer: ComparisonRenderer;
-      keptStory: StartRepository;
-      keptIntentStory: StartRepository;
-      keptSummaryComparisonStory: StartRepository;
-      keptComparedStoryBranch: KeptComparedStoryBranch;
-    }
->({
-  ...serverInputWorkerFixtures,
-  ...publishedMainWorkerFixtures,
-  // Story A published as completed and kept (./keptPublishedStory.ts), on the
-  // queued trunk, on Intent's and on the summary comparison's: the worker
-  // that takes one prepares it before its first such case and answers the
-  // description those cases' origins start from, so none publishes the story
-  // in its own time.
+  KeptStoryWorkerFixtures
+> = {
   keptStory: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
       const { prepareKeptStory } = await import("./keptPublishedStory.ts");
       await use(await prepareKeptStory("queued"));
     },
-    { scope: "worker" },
+    coldInputPreparation,
   ],
   keptIntentStory: [
     // eslint-disable-next-line no-empty-pattern
@@ -92,7 +87,7 @@ const workerTest = base.extend<
       const { prepareKeptStory } = await import("./keptPublishedStory.ts");
       await use(await prepareKeptStory("intent"));
     },
-    { scope: "worker" },
+    coldInputPreparation,
   ],
   keptSummaryComparisonStory: [
     // eslint-disable-next-line no-empty-pattern
@@ -100,11 +95,29 @@ const workerTest = base.extend<
       const { prepareKeptStory } = await import("./keptPublishedStory.ts");
       await use(await prepareKeptStory("summary comparison"));
     },
-    { scope: "worker" },
+    coldInputPreparation,
   ],
+};
+
+type WorkerPreparationFixtures = PublishedMainWorkerFixtures &
+  ServerInputWorkerFixtures &
+  KeptStoryWorkerFixtures & {
+    launchJourney: LaunchJourney;
+    keptComparedStoryBranch: KeptComparedStoryBranch;
+  };
+
+// Every input the pool prepares once per worker, each in cold preparation's
+// own worker allowance, beside the options that select among them.
+export const workerPreparationFixtures: Fixtures<
+  object,
+  WorkerPreparationFixtures
+> = {
+  ...serverInputWorkerFixtures,
+  ...publishedMainWorkerFixtures,
+  ...keptStoryWorkerFixtures,
   // The real-CLI compared Story Branch history (./keptComparedStoryBranch.ts),
-  // completed in cold preparation's own worker allowance before the first
-  // case that asks for it; a spec selects it per case through
+  // completed before the first case that asks for it; a spec selects it per
+  // case through
   // `startingFromKeptComparedStoryBranch`.
   keptComparedStoryBranch: [
     // eslint-disable-next-line no-empty-pattern
@@ -114,20 +127,6 @@ const workerTest = base.extend<
       await use(await prepareKeptComparedStoryBranch());
     },
     coldInputPreparation,
-  ],
-  comparisonRenderer: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { createComparisonRenderer } =
-        await import("./comparisonRendering.ts");
-      const renderer = await createComparisonRenderer();
-      try {
-        await use(renderer);
-      } finally {
-        await renderer.close();
-      }
-    },
-    { scope: "worker" },
   ],
   // The launch journeys' origin (../launchJourney.ts says what it publishes),
   // published once per worker and read, never written, by every journey the
@@ -142,6 +141,28 @@ const workerTest = base.extend<
       const journey = await publishLaunchJourney();
       await use(journey);
       await journey.cleanup();
+    },
+    coldInputPreparation,
+  ],
+};
+
+// Playwright's worker-only extension takes an empty test-fixture type.
+const workerTest = base.extend<
+  object,
+  WorkerPreparationFixtures & { comparisonRenderer: ComparisonRenderer }
+>({
+  ...workerPreparationFixtures,
+  comparisonRenderer: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { createComparisonRenderer } =
+        await import("./comparisonRendering.ts");
+      const renderer = await createComparisonRenderer();
+      try {
+        await use(renderer);
+      } finally {
+        await renderer.close();
+      }
     },
     { scope: "worker" },
   ],

@@ -37,8 +37,9 @@ Cold shared preparation has a separate 60-second worker-fixture budget
 (`coldInputPreparation`, `dashboard/tests/support/publishedMainWorkerFixtures.ts`):
 the app, server bundle and any queued installed origin a server profile needs, each
 published-main live-source snapshot, a worker's staged pinned deployment
-and its full-source fixture without a run owner, and the pinned native Codex
-executable a production watcher journey drains through. The run's inputs are prepared
+and its full-source fixture without a run owner, the kept story histories,
+the launch journeys' origin, and the pinned native Codex executable a
+production watcher journey drains through. The run's inputs are prepared
 on demand and shared read-only within the run, and a worker's fixtures within
 that worker; their setup remains in the runner's elapsed time. The default
 30-second test budget still covers a scenario's private setup and observations.

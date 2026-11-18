@@ -72,7 +72,7 @@ nested proof run.
 ### 2. Cold history and native origin setup get 60 seconds
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Use the shared cold option on the three kept stories and the native
 Codex queued origin. Correct the explanation of the worker default. Extend
 the focused preparation proof to take the real fixtures and observe kept
@@ -82,6 +82,14 @@ the pool. Reverting one to plain worker scope must fail the allowance check
 even on a fast machine. Keep the 30-second case default and the full setup
 in run elapsed time. The preparation probe's runner instrumentation is
 disposable and need not ship.
+Accepted proof: `pageTest.ts` exports `workerPreparationFixtures`, every
+worker input preparation in the pool. The Backend
+`runtime/kept-history-worker.spec.ts` checks each non-option registration
+against `coldInputPreparation`; reverting `keptIntentStory` or
+`launchJourney` failed it. Its nested `kept-story.proof.ts` run shows each
+kept story ending before its case's private origin starts and the native
+Codex origin prepared only where taken. `launchJourney` joined the cold
+preparations; `comparisonRenderer` and `serverMode` keep plain worker scope.
 
 ### 3. Preparation-page readers use the ordinary test
 

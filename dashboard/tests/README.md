@@ -200,7 +200,10 @@ and `github` (and `launchJourney` for the Taken backlog), opens with
 sibling of an existing journey joins that file and asserts its delta. A
 worker-scoped fixture, or a `launchOptions` value, is declared once, in
 `support/pageTest.ts` (published-main ones in `publishedMainWorkerFixtures.ts`),
-whose header says why a second home splits the workers. Every browser starts
+whose header says why a second home splits the workers. A worker input
+preparation joins `workerPreparationFixtures` there in `coldInputPreparation`'s
+worker allowance, which `../backend-tests/runtime/kept-history-worker.spec.ts`
+checks for every registration. Every browser starts
 with the arguments in `support/browserArgs.ts`, configured for every browser
 test group in `support/runnerConfig.mjs`; a spec or fixture family that sets
 its own `launchOptions` splits the workers the same way and spreads
