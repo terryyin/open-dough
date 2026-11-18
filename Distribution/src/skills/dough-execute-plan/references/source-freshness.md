@@ -17,8 +17,10 @@ context. Run from the execution checkout:
 node '<installed-execute-plan>/scripts/source-freshness.mjs' check --workspace '<execution checkout>' --identity '<identity>' --remote '<authorized remote>' --target-ref 'refs/heads/<trunk>'
 ```
 
-It fetches the remote, takes the branch's fork from fetched trunk as the Take,
-and reads the Taken entry on fetched trunk for the records: with a plan link,
+It fetches the remote, takes as the Take the base the branch shares with
+fetched trunk that holds the Taken entry (a merged sibling or contributor
+history can add a shared base without it), and reads the Taken entry on
+fetched trunk for the records: with a plan link,
 the story section and the linked plan; for a plan-homed correction, its plan;
 otherwise the story section alone, as for a quick story or a plan linked only
 on the branch. It compares each record on trunk with the working tree (an
@@ -38,7 +40,9 @@ result is the most severe state:
   Follow [Resolve a conflict](#resolve-a-conflict).
 
 A refusal exits 3 with a `reason` and message, such as a failed fetch, an
-identity not Taken on trunk or at the Take, or an absent record. It accepts no
+identity not Taken on trunk (`not-taken`) or at any shared base
+(`not-taken-at-base`, naming the bases), several shared bases that hold the
+Taken entry (`ambiguous-base`, naming them), or an absent record. It accepts no
 boundary: correct the input or publication context and rerun, or stop under
 [human judgment](execution-decisions.md#stop-for-human-judgment). Neither
 command commits, pushes, or writes to trunk.

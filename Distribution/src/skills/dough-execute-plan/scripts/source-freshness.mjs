@@ -3,7 +3,8 @@
 // the execution branch forked from it, for a Story Branch coordinator.
 //
 // `check` resolves the Take (`source-freshness-take.mjs`): the fetched trunk
-// revision, the base, and the Taken entry on fetched trunk with the story's
+// revision, the base (a best common base of the branch and fetched trunk
+// that holds the Take), and the Taken entry on fetched trunk with the story's
 // link and plan link.
 // The records are the story section and the linked plan; without a plan link,
 // the home alone: the whole document when it reads as a plan (a plan-homed

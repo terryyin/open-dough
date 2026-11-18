@@ -101,7 +101,7 @@ selection in that module alone.
 
 ### 2. A Take on one of several shared bases passes the check
 Type: Behavior
-Status: planned
+Status: done
 Proof: rows two to four and the documentation row above; new
 `source-freshness-shared-bases.test.mjs` with its graph fixture, run with
 `source-freshness.test.mjs` through `bash scripts/test.sh`; then the two
@@ -163,3 +163,15 @@ Then record the response at ODF-482.
   `source-freshness-branch-copy.mjs`. A new distributed script is declared in
   `src/install/open-dough-execution-payload.sh`; its proof is
   `bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh Distribution/tests/installation/install-all-tools.sh Distribution/tests/installation/install-public-payload.sh`.
+
+## Story obligations
+
+### G1. Several bases that hold the Take are refused whatever their text
+Reported: slice 2 — "Interim refusal: every graph with several Taken bases is refused, including ones whose records agree. Slice 3 must narrow it and reword the `ambiguous-base` part of the reference and header."
+Story clause: "When several bases hold the Take and their text of a compared record"
+Disposition: interim until slices 3
+
+### G2. Absorb's test observes origin trunk, not every remote ref
+Reported: slice 2 — "Promise 5, \"nothing pushed\": observed for origin trunk only; the execution branch ref on origin is not separately asserted."
+Story clause: "The check still commits and pushes nothing."
+Disposition: receiving slice 3
