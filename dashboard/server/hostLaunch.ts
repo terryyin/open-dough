@@ -131,6 +131,7 @@ export function withStartPolicy(
 // record keeps it by.
 export type UnattachedEstablished = {
   readonly establishedSession: EstablishedSession;
+  readonly branchReviewRepository?: string;
 };
 
 // What a launch's start established, a story's or an unattached session's,

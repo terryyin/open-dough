@@ -2,6 +2,13 @@
 
 **Identity:** SEED-379#keep-own-branch-session-results-for-review
 **Source:** [Keep own-branch ad hoc session results for review](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review)
+**Source review:** [Source-only review](source-review.md)
+
+## Execution context
+
+Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent Mana-chan. The Dashboard established the linked execution checkout at `/Users/terryyin/git/open-dough/.worktrees/keep-own-branch-ad-hoc-session-results-for-revie` on `codex/keep-own-branch-ad-hoc-session-results-for-revie`, with the integration checkout at `/Users/terryyin/git/open-dough` and authorized trunk `origin/refs/heads/main`. Starting revision `05766f8dc62826113173e73bce1c0a49ee9f78d7`. The Take and initial execution branch were confirmed at `fc73813d6e678f44100e7a8077f55d461cd31689`.
+
+Codex observer `ci-watch-execution:terryyin/open-dough:codex/keep-own-branch-ad-hoc-session-results-for-revie:mana-seed379`, workflow `ci.yml`, coordinator `mana-seed379`, mailbox `/tmp/dough-ci-501/watch-tZzFvT`, PID `37695`, stream session `37973`, cell `g98:11`.
 
 ## Goal and current decisions
 
@@ -30,11 +37,17 @@ Each slice has a 15-active-minute budget, excluding commands. Each capability us
 ### 1. Read the isolated session's committed branch result
 
 Type: Behavior
-Status: planned
+Status: done
 
 An isolated Wait for review session commits on its recorded branch and is marked done. Its standalone entry opens the changed files and their text against the recorded start. Keep the fixed pair in its common repository. Bind capture to the actual Done, including quiet completion and an exact retry. Preserve existing evidence when reopening, settling a newer Done, or receiving an older continuation. A successful empty capture and a missing checkout have distinct answers.
 
 Proof: start an isolated session against the backend fixture's bare origin, commit, mark Done through the normal boundary, remove the worktree, delete the branch, prune and reopen the review. Assert the pair, exact file and text. Drive delete and retention expiry through the existing record owners and check that only this record's pins go. Hold a capture across another Done or deletion and check for stale files or orphan pins. Show the branch comparison through the existing Recently done action in the frontend proof.
+
+Accepted implementation proof uses the real isolated start, manual and quiet Done, exact retry and file APIs in `dashboard/backend-tests/review/ad-hoc-branch-result.spec.ts`. Its empty and missing cases and the standalone Recently done browser cases in `dashboard/frontend-tests/sessions/recently-done-ad-hoc-branch-result.spec.ts` confirm the result and wording. `dashboard/backend-tests/review/ad-hoc-branch-result-race.spec.ts` holds Git ancestry validation to observe an older Done losing to a newer mark or deletion. The backend proof also checks independent pin release, existing landed/Default main review and the Codex start and installed landing consumers. Frontend proof covers existing landed, empty, and session-run views. Dashboard typecheck passed. Literal commands and terminal records are in this worktree's Git evidence directory under `slice-1-implementation.md`.
+
+Independent refactoring separates Done intent from evidence settlement in `dashboard/server/doneCapture.ts`. The two new backend specs share real launch setup and pin inspection. Separate frontend cases observe the changed-file and empty comparisons. The affected backend and frontend cases, dashboard typecheck, and whitespace checks passed. Commands and retained results are in `slice-1-refactor.md`.
+
+At the acceptance freshness check, trunk included the sibling Default main Done correction `e629e2349`. Its change is bounded to fixing the HEAD passed through the Default main reflog scan in `sessionCommitsCapture.ts`. This slice's new isolated capture takes its own literal tip and retains the existing Default main call to `readSessionCommits`. The sibling's pending-Done tests and production path remain compatible.
 
 ### 2. Preserve work left uncommitted at Done
 
@@ -106,3 +119,23 @@ Run changed cases and their reached consumers under the corresponding dashboard 
 Local gate on awake macOS uses `caffeinate -s -i` on AC power. On battery use the maintained open-lid `caffeinate -i` procedure and sleep-log check. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 
 Slice-plan refinement was unnecessary. The slices share one launch association and one comparison reader. Each adds an independently observable result, an attribution case, or a later capture trigger. Review found no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. Capture the working tree for the same Done
+
+Reported: slice 1 — "Before a first Git read can occur, a reported Done may be acknowledged with a pending capture."
+Story clause: "A successful capture includes the session's commits and the working-tree changes it leaves for review."
+Disposition: receiving slice 2
+
+### G2. Exclude imported trunk from the branch comparison
+
+Reported: slice 1 — "The comparison shows the committed branch at Done against its starting revision."
+Story clause: "Exclude earlier branch work and changes brought in from trunk."
+Disposition: receiving slice 4
+
+### G3. Keep branch evidence selectable with a verified delivery
+
+Reported: slice 1 — "Landing still takes precedence when a saved landing exists; selection and refresh between two available results belong to slice 5."
+Story clause: "show what the branch held at Done and what reached trunk as distinct comparisons when both exist."
+Disposition: receiving slice 5

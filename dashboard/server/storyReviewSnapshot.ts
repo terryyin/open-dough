@@ -20,6 +20,7 @@ import {
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
+import { branchResultReview } from "./storyReviewBranchResult.ts";
 
 export async function storyReviewResponse(
   request: AdmittedStoryReview,
@@ -59,6 +60,8 @@ export async function storyReviewResponse(
         );
       if ("sessionRun" in request)
         return sessionCommitsReview(request.sessionRun, signal);
+      if ("branchResult" in request)
+        return branchResultReview(request.branchResult, signal);
       let local: StoryReview;
       if ("run" in request) {
         local = await landedStoryReview(request.run, signal);

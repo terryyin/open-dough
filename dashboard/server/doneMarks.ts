@@ -7,7 +7,7 @@ import type { AgentTerminals } from "./agentTerminals.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
-import { keptWithSessionCommits } from "./recordDoneAt.ts";
+import { keptWithDoneCapture } from "./doneCapture.ts";
 import { completedWithoutAttention } from "../src/completionReport.ts";
 import { localFolder, machineFolder } from "./projectFolders.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -66,7 +66,7 @@ export class NativeDoneMarks {
     );
     if (this.closed || !reportedDoneNeedsContinuation(current, receipt))
       return undefined;
-    return keptWithSessionCommits(sourceId, current);
+    return keptWithDoneCapture(sourceId, current);
   }
 
   private async continueReported(

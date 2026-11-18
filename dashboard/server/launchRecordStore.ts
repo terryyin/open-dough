@@ -191,6 +191,8 @@ export async function updateRecord(
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
+        branchResult: entry.branchResult,
+        branchResultFailedAt: entry.branchResultFailedAt,
         stopUnconfirmed: entry.stopUnconfirmed,
         reportRead: entry.reportRead,
       };

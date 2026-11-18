@@ -33,6 +33,7 @@ export function reviewListsFiles(
   return (
     (review?.kind === "landed" ||
       review?.kind === "published" ||
+      review?.kind === "branch-result" ||
       review?.kind === "session-commits") &&
     review.files.length > 0
   );
@@ -49,6 +50,7 @@ export const toolbarComparisonName = (
   // never answered likewise. A returned landing or session-commits gap
   // still names the comparison it describes.
   if (review === undefined || review.kind === "unavailable") return "";
+  if (review.kind === "branch-result") return "Committed branch at Done";
   if (reviewsSessionCommits(review)) return sessionCommitsName;
   return comparisonName(reviewsLanding(review) ? "landed" : shown);
 };

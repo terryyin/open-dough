@@ -5,6 +5,7 @@
 // share the same session prefix.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionCommits } from "../src/sessionCommits.ts";
+import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit } from "./gitRunner.ts";
 import { pinPair, removeLandingPins, removePins } from "./launchLandingGit.ts";
@@ -12,6 +13,48 @@ import { defaultMainStart, resolvedCheckout } from "./sessionCommitsCapture.ts";
 
 const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
   `refs/open-dough/session-commits/${session.host}/${session.sessionId}/`;
+
+const sessionBranchRefPrefix = (session: LaunchRecord["session"]) =>
+  `refs/open-dough/session-branch/${session.host}/${session.sessionId}/`;
+
+const branchResultRefPrefix = (
+  session: LaunchRecord["session"],
+  result: SessionBranchResult,
+) =>
+  `${sessionBranchRefPrefix(session)}${result.doneAt.replace(/[.:]/g, "-")}/`;
+
+export function keepBranchResultRefs(
+  session: LaunchRecord["session"],
+  result: SessionBranchResult,
+): Promise<void> {
+  return pinPair(
+    result.repository,
+    branchResultRefPrefix(session, result),
+    result,
+  );
+}
+
+export async function releaseBranchResultRefs(
+  session: LaunchRecord["session"],
+  result: SessionBranchResult | undefined,
+): Promise<void> {
+  if (result !== undefined)
+    await removePins(
+      result.repository,
+      branchResultRefPrefix(session, result),
+    ).catch(() => undefined);
+}
+
+export async function releaseSessionBranchRefs(
+  record: LaunchRecord,
+): Promise<void> {
+  const result = record.branchResult;
+  if (result !== undefined)
+    await removePins(
+      result.repository,
+      sessionBranchRefPrefix(record.session),
+    ).catch(() => undefined);
+}
 
 const canonicalRepository = (cwd: string) =>
   commonGitDirectory({
@@ -77,6 +120,7 @@ export async function releaseExpiredRecordPins(
   record: LaunchRecord,
 ): Promise<void> {
   await releaseSessionCommitRefs(record);
+  await releaseSessionBranchRefs(record);
   const landing = recordLanding(record);
   if (landing !== undefined)
     await removeLandingPins(landing.repository, landing.reference).catch(

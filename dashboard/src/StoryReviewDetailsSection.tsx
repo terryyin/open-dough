@@ -40,6 +40,7 @@ export function reviewHoldsDetails({
   return (
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "branch-result" ||
     review?.kind === "snapshot" ||
     review?.kind === "published"
   );

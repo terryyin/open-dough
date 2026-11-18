@@ -94,6 +94,12 @@ export const reviewRangeSchema = z.discriminatedUnion("kind", [
 ]);
 export type ReviewRange = z.infer<typeof reviewRangeSchema>;
 
+const fixedComparison = {
+  baseline: objectIdSchema,
+  tree: objectIdSchema,
+  files: z.array(reviewedFileSchema),
+};
+
 export const storyReviewSchema = z
   .discriminatedUnion("kind", [
     z.object({
@@ -105,16 +111,12 @@ export const storyReviewSchema = z
       agent: z.string().min(1),
       remote: z.string().min(1),
       target: z.string().min(1),
-      baseline: objectIdSchema,
-      tree: objectIdSchema,
-      files: z.array(reviewedFileSchema),
+      ...fixedComparison,
     }),
     z.object({
       kind: z.literal("landed"),
       landing: landedReviewContextSchema,
-      baseline: objectIdSchema,
-      tree: objectIdSchema,
-      files: z.array(reviewedFileSchema),
+      ...fixedComparison,
     }),
     // The commits a Default main session made in its checkout
     // (`./sessionCommits.ts`): one kept run's comparison, with the kept runs
@@ -130,9 +132,12 @@ export const storyReviewSchema = z
       }),
       commitRuns: z.array(sessionRunChoiceSchema).min(1),
       commitRun: z.number().int().nonnegative(),
-      baseline: objectIdSchema,
-      tree: objectIdSchema,
-      files: z.array(reviewedFileSchema),
+      ...fixedComparison,
+    }),
+    z.object({
+      kind: z.literal("branch-result"),
+      doneAt: z.iso.datetime(),
+      ...fixedComparison,
     }),
     z.object({
       kind: z.literal("landing-unavailable"),

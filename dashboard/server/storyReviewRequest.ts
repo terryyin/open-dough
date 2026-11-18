@@ -3,6 +3,10 @@
 // or an ad hoc session through one admission path.
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import {
+  branchResultAtDone,
+  type SessionBranchResult,
+} from "../src/sessionBranchResult.ts";
+import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
@@ -77,6 +81,11 @@ export type AdmittedStoryReview =
       readonly sessionRun: KeptSessionRun;
       readonly runs: readonly ReviewLandedRun[];
     }
+  | {
+      readonly kind: "story-review";
+      readonly branchResult: SessionBranchResult;
+      readonly runs: readonly ReviewLandedRun[];
+    }
   // An ad hoc session kept without a landing: explain before the landed reader,
   // including default launches that established no place.
   | {
@@ -103,6 +112,16 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
       "This session belongs to a story launch and is reviewed by its story.",
     );
   if (record.landing === undefined) {
+    const branchResult =
+      named === null ? branchResultAtDone(record) : undefined;
+    if (branchResult !== undefined)
+      return { kind: "story-review", branchResult, runs: [] };
+    if (record.branchReviewRepository !== undefined)
+      return {
+        kind: "story-review",
+        explanation: "This session's branch changes at Done were not captured.",
+        runs: [],
+      };
     const sessionRun = keptSessionRun(record, named);
     if (sessionRun !== undefined)
       return { kind: "story-review", sessionRun, runs: [] };

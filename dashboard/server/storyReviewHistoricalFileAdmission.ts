@@ -7,6 +7,7 @@
 import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { establishedPlace } from "../src/establishedPlace.ts";
+import { branchResultAtDone } from "../src/sessionBranchResult.ts";
 import type {
   ReviewedSessionSubject,
   ReviewedStorySubject,
@@ -173,9 +174,8 @@ async function admitLandedRun(
   };
 }
 
-// Admit a file against the kept run of a done session's commits its
-// comparison names (`../src/sessionCommits.ts`).
-export async function admitSessionRunFile(
+// Admit a file against the exact retained pair of a Done session.
+export async function admitSessionComparisonFile(
   subject: PublishedReviewedSubject<ReviewedSessionSubject>,
   file: HistoricalReviewedFileFields,
 ): Promise<AdmittedHistoricalReviewedFile> {
@@ -183,7 +183,11 @@ export async function admitSessionRunFile(
     host: subject.host,
     sessionId: subject.session,
   });
-  const pair = keptSessionPair(record, file);
+  const branch = branchResultAtDone(record);
+  const pair =
+    branch?.base === file.baseline && branch.revision === file.tree
+      ? branch
+      : keptSessionPair(record, file);
   const read =
     pair && (await retainedPairFiles(pair, AbortSignal.timeout(30_000)));
   if (
@@ -194,7 +198,9 @@ export async function admitSessionRunFile(
   )
     throw new RefusedRequest(
       409,
-      "The file or comparison does not belong to this session's kept commits.",
+      branch === undefined
+        ? "The file or comparison does not belong to this session's kept commits."
+        : "The file or comparison does not belong to this session's branch result.",
     );
   return { repository: pair.repository, ...file };
 }

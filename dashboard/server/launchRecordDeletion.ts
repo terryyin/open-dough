@@ -1,7 +1,11 @@
 // Deletion records launch-local intent even before native launch settlement.
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { removeLandingPins } from "./launchLandingGit.ts";
-import { recordLanding, releaseSessionCommitRefs } from "./launchRecordPins.ts";
+import {
+  recordLanding,
+  releaseSessionBranchRefs,
+  releaseSessionCommitRefs,
+} from "./launchRecordPins.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import {
@@ -101,7 +105,10 @@ export async function deleteRecord(
       return { ...kept, [sourceId]: remaining };
     });
     // Any capture that won the record lock first has settled in `deleted`.
-    if (deleted !== undefined) await releaseSessionCommitRefs(deleted);
+    if (deleted !== undefined) {
+      await releaseSessionCommitRefs(deleted);
+      await releaseSessionBranchRefs(deleted);
+    }
     // Older records recover their repository through the retained attempt.
     if (!retainedCleanup && landing !== undefined)
       await removeLandingPins(landing.repository, landing.reference);

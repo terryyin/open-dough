@@ -40,6 +40,7 @@ export function ReviewFeedback({
     review?.kind === "snapshot" ||
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "branch-result" ||
     review?.kind === "published";
   return (
     <div role="status">
@@ -84,6 +85,12 @@ export function ReviewFeedback({
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the fixed
           published completion.
+        </p>
+      )}
+      {!reading && round > 0 && review?.kind === "branch-result" && (
+        <p>
+          Review refreshed: {changedFiles(review.files.length)} in the committed
+          branch result at Done.
         </p>
       )}
       {kept !== undefined && (

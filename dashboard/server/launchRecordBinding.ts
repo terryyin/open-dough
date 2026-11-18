@@ -80,6 +80,8 @@ export async function bindRecord(
               ...record,
               doneAt: existing.doneAt,
               doneProblem: existing.doneProblem,
+              branchResult: existing.branchResult,
+              branchResultFailedAt: existing.branchResultFailedAt,
             };
       return {
         ...kept,

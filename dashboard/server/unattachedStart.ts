@@ -38,6 +38,7 @@ import {
 } from "./unattachedStartScript.ts";
 import { withinStartWait } from "./startWait.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
+import { isolatedBranchReviewRepository } from "./sessionBranchCapture.ts";
 
 const formatterScript = "established-session.mjs";
 
@@ -153,10 +154,16 @@ export async function unattachedStarted(
     );
   }
   try {
+    const repository = await isolatedBranchReviewRepository(result);
     return {
       kind: "session",
       handoff: {
-        established: { establishedSession: result },
+        established: {
+          establishedSession: result,
+          ...(repository === undefined
+            ? {}
+            : { branchReviewRepository: repository }),
+        },
         formatted: await formattedSession(project, result, request.host),
       },
       workspace: chosen.workspace,

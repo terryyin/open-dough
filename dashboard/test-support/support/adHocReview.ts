@@ -11,12 +11,45 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { getReview } from "./completedReviewRequests.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
+import { launched } from "./startSessionLandingCapture.ts";
+import { git } from "./storyReviewWorktree.ts";
 import type { APIRequestContext } from "@playwright/test";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "@playwright/test";
 
 const sessionQuery = (session: string) =>
   reviewedWorkQuery({ source: "open-dough", host: "claude", session });
+
+export async function launchIsolatedReview(
+  dashboard: DashboardServer,
+  instruction: string,
+) {
+  const { record, sent } = await launched(dashboard, {
+    instruction,
+    policy: { workspace: "isolated", landing: "review" },
+  });
+  const { establishedSession: place, session } = record;
+  if (place?.startingRevision === undefined)
+    throw new Error("Missing the isolated launch's starting revision.");
+  return {
+    workspace: place.workspace,
+    branch: place.branch,
+    baseline: place.startingRevision,
+    session: session.sessionId,
+    sent,
+  };
+}
+
+export function sessionBranchPins(checkout: string, session: string): string[] {
+  return git(
+    checkout,
+    "for-each-ref",
+    "--format=%(objectname)",
+    `refs/open-dough/session-branch/claude/${session}/`,
+  )
+    .split("\n")
+    .filter(Boolean);
+}
 
 export async function adHocReview(
   request: APIRequestContext,
