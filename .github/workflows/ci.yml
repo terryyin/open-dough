@@ -36,7 +36,7 @@ jobs:
         share: [1, 2, 3]
         include:
           - share: 1
-            tests: Distribution/tests/skills/dough-execute-plan/**
+            tests: Distribution/tests/skills/dough-execute-plan/** Distribution/tests/installation/update-*
           - share: 2
             tests: Distribution/evaluation/**
     steps:

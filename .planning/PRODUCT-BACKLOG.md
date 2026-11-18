@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks ([plan](slice-plans/689-move-story-reference-checks/PLAN.md))
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review ([plan](slice-plans/693-keep-default-main-session-changes-for-review/PLAN.md))
 
 ## Backlog list

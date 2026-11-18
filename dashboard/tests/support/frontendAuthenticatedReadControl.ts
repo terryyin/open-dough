@@ -9,6 +9,10 @@ import {
 } from "../../src/authenticatedReadRules.ts";
 import { fulfillJson } from "./frontendSubstituteAnswers.ts";
 
+// The page's revision checks: a check or its stream.
+export const isRevisionCheck = (params: URLSearchParams) =>
+  params.has("since") || params.has(revisionStreamAtParameter);
+
 type Answer = "pass" | "unreachable" | { body: unknown; status: number };
 
 export async function controlFrontendAuthenticatedRead(

@@ -76,6 +76,12 @@ export const retryReference = (page: Page) =>
     .getByRole("button", { name: "Retry story reference" })
     .click();
 
+// Dismiss story reference, on the notice of a destination still being read.
+export const dismissReference = (page: Page) =>
+  referenceNotice(page).getByRole("button", {
+    name: "Dismiss story reference",
+  });
+
 // A Recently done destination by its story identity, whether it is still being
 // read, could not be read, or shows the done story.
 export const doneDestination = (recent: Locator, identity: string) =>

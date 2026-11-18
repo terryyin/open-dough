@@ -37,16 +37,6 @@ const boundaryServerEntry = path.join(
   "boundaryServer.ts",
 );
 
-// Any free port, chosen by Vite itself (`--port 0`), which probes one and then
-// binds it, failing with "Port N is already in use" if another listener took
-// it in between; or the named `port`, which Vite then fails to start on rather
-// than take another.
-export function listenArgs(port: number | undefined): string[] {
-  return port === undefined
-    ? ["--port", "0"]
-    : ["--port", String(port), "--strictPort"];
-}
-
 // Vite in its own process group, so stopping it can wait for every `gh` it
 // launched.
 export function spawnVite(args: readonly string[], env: NodeJS.ProcessEnv) {
@@ -78,15 +68,15 @@ type Launch = {
   stop(): Promise<void>;
 };
 
-// What a server of `mode` launches as, and the directory a preview serves:
-// the boundary entry in its project environment, Vite's dev server (one a
-// test restarts in place when `restartable`), or Vite's preview of
+// What a server of `mode` launches as on `port`, and the directory a preview
+// serves: the boundary entry in its project environment, Vite's dev server
+// (one a test restarts in place when `restartable`), or Vite's preview of
 // `prebuilt`, else of a build of its own made now in `buildDir`.
 export async function serverLaunch(
   options: {
     readonly mode: DashboardServerMode;
     readonly restartable?: boolean | undefined;
-    readonly port: number | undefined;
+    readonly port: number;
     readonly environment: ProjectEnvironment;
     readonly prebuilt: string | undefined;
     readonly buildDir: string;
@@ -97,7 +87,8 @@ export async function serverLaunch(
   readonly spawn: () => Launch;
   readonly outDir: string | undefined;
 }> {
-  const listen = listenArgs(options.port);
+  // The server fails to start on `port` rather than take another.
+  const listen = ["--port", String(options.port), "--strictPort"];
   const bundle = options.serverBundle;
   if (options.mode === "boundary") {
     // A custom configuration without a run owner uses transformed source.

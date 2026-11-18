@@ -46,12 +46,19 @@ export {
   type FrontendStoryReviewState,
 } from "./frontendStoryReviewState.ts";
 
+// The state each page's substitutes answer from, for substitutes installed
+// later on the same page (./frontendLaunchSubstitutes.ts).
+const answeredFrom = new WeakMap<Page, FrontendServiceState>();
+
+export const frontendServicesOf = (page: Page) => answeredFrom.get(page);
+
 // Installs substitutes for every backend endpoint a typical page open touches.
 // Specs override individual routes afterward for the synthetic answers under test.
 export async function installFrontendServiceSubstitutes(
   page: Page,
   state: FrontendServiceState = defaultFrontendServiceState(),
 ): Promise<FrontendServiceState> {
+  answeredFrom.set(page, state);
   await page.route(
     (url) => url.pathname === projectListEndpoint,
     (route) => fulfillJson(route, state.projects),

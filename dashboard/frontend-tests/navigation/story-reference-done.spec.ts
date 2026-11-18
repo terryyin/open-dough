@@ -1,25 +1,14 @@
-import { expect, githubFor } from "../dashboardTest.ts";
-import { test, consumer, agreement } from "../storyDependencyFixture.ts";
-import { queuedSeedWithDependencies } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { parts, sessionEntriesIn } from "../dashboardPage.ts";
-import {
-  openUntilRead,
-  untilPageRequestsAnswered,
-} from "../pageRequestNotes.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
-import { recordsAsked } from "../recentlyDoneProgressivePage.ts";
-import { noConnection } from "../originAnswers.ts";
-import { expectReadingTop } from "../readingPlace.ts";
-import {
-  donePathsThrough,
-  donePathsWithSuppliersThrough,
-  doneTitlesThrough,
-  farDone,
-  nearDone,
-  laterDone,
-  serveDoneReferences,
-} from "../storyReferenceDone.ts";
-import { storyCard } from "../storyCardControls.ts";
+// Ten of 35 Done stories are shown while Story A waits on a near and a far
+// one. Following a reference reveals its Done card through the real range:
+// the near one in place, the far one by growing the range, asking only for
+// the shown records and the referenced suppliers.
+
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
+import { expectEntries } from "../../tests/recentlyDoneColumn.ts";
+import { expectReadingTop } from "../../tests/readingPlace.ts";
+import { storyCard } from "../../tests/storyCardControls.ts";
+import { expectSelected } from "../../tests/storyCardSelection.ts";
 import {
   dependencyDisclosure,
   dependencySummary,
@@ -28,25 +17,55 @@ import {
   openDependencies,
   referenceNotice,
   storyReference,
-} from "../storyReference.ts";
-import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import { expectCueEnds, expectDestinationCue } from "../destinationCue.ts";
+} from "../../tests/storyReference.ts";
+import {
+  passTimeUntilChecked,
+  pausePageClock,
+} from "../../tests/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
+import {
+  expectCueEnds,
+  expectDestinationCue,
+} from "../../tests/destinationCue.ts";
+import {
+  donePathsThrough,
+  donePathsWithSuppliersThrough,
+  doneTitlesThrough,
+  farDone,
+  laterDone,
+  nearDone,
+  putFrontendDoneReferences,
+  replacedStoryAAgreements,
+} from "../../tests/support/frontendDoneReferences.ts";
+import {
+  eachRecordOnce,
+  failDoneRecordReads,
+  holdDoneRecordReads,
+  recordDoneRecordsAsked,
+} from "../../tests/support/frontendDoneBodyReads.ts";
+import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
+import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
 
 test.use({ hasTouch: true });
 
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  releases.splice(0).forEach((release) => {
+    release();
+  });
+});
+
 test("a Done reference without sessions reveals exactly through its existing destination and keeps a longer range", async ({
   page,
-  origin,
-  dashboard,
+  frontendServices,
 }) => {
-  await serveDoneReferences(page, origin);
-  await openUntilRead(page);
+  putFrontendDoneReferences(frontendServices);
+  const recordsAsked = recordDoneRecordsAsked(page);
+  const hostRequests = recordHostRequests(page);
+  await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);
   await expectEntries(recent, doneTitlesThrough(10));
-  expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsThrough(10).toSorted(),
-  );
+  expect(eachRecordOnce(recordsAsked())).toEqual(donePathsThrough(10));
   const consumer = storyCard(backlog, "Story A");
   await openDependencies(consumer);
   await expect(storyReference(consumer, farDone.title)).toBeVisible();
@@ -56,8 +75,8 @@ test("a Done reference without sessions reveals exactly through its existing des
   await expect(near).toBeInViewport({ ratio: 0.5 });
   await expectReadingTop(near);
   await expectEntries(recent, doneTitlesThrough(10));
-  expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsWithSuppliersThrough(10).toSorted(),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(10),
   );
   await followReference(consumer, farDone.title);
   const destination = storyCard(recent, farDone.title);
@@ -65,8 +84,8 @@ test("a Done reference without sessions reveals exactly through its existing des
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expectEntries(recent, doneTitlesThrough(27));
   await expect(recent).toContainText("Showing 27 of 35 entries.");
-  expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsWithSuppliersThrough(27).toSorted(),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
   await followReference(consumer, farDone.title);
   await expect(destination).toBeFocused();
@@ -74,26 +93,27 @@ test("a Done reference without sessions reveals exactly through its existing des
   await followReference(consumer, nearDone.title);
   await expect(near).toBeFocused();
   await expect(recent).toContainText("Showing 27 of 35 entries.");
-  expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsWithSuppliersThrough(27).toSorted(),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
   await expect(sessionEntriesIn(recent)).toHaveCount(0);
   await expect(referenceNotice(page)).toBeEmpty();
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
-  expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  expect(dashboard.claudeAttaches()).toEqual([]);
+  expect(hostRequests()).toEqual([]);
 });
 
 test("a delayed Done detail keeps the destination pending and keyboard activation reaches it at a narrow reduced-motion viewport", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 390, height: 740 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await pausePageClock(page);
-  const published = await serveDoneReferences(page, origin);
-  const release = published.hold(farDone.path);
-  await openUntilRead(page);
+  putFrontendDoneReferences(frontendServices);
+  // Every ask naming the far record waits: its supplier title and its card.
+  const held = await holdDoneRecordReads(page, farDone.path, releases);
+  const recordsAsked = recordDoneRecordsAsked(page);
+  await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);
   await expectEntries(recent, doneTitlesThrough(10));
   const consumer = storyCard(backlog, "Story A");
@@ -109,9 +129,9 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
   );
   await expect(notice).not.toContainText("unavailable");
   await expect
-    .poll(() => recordsAsked(githubFor(page)).toSorted())
-    .toEqual(donePathsWithSuppliersThrough(27).toSorted());
-  release();
+    .poll(() => eachRecordOnce(recordsAsked()))
+    .toEqual(donePathsWithSuppliersThrough(27));
+  held.release();
   await expect(storyReference(consumer, farDone.title)).toBeVisible();
   await expect(destination).toHaveAccessibleName(farDone.title);
   await expect(destination).toBeFocused();
@@ -121,27 +141,25 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
   await expectCueEnds(page, destination);
   await expectSelected(destination, false);
   await expect(notice).toBeEmpty();
-  expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsWithSuppliersThrough(27).toSorted(),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
 });
 
 test("a failed Done detail reveals its identified gap and the existing Done retry recovers without reading older stories", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const published = await serveDoneReferences(page, origin);
-  const restore = published.answerWith(farDone.path, noConnection);
-  await openUntilRead(page);
+  putFrontendDoneReferences(frontendServices);
+  const unreachable = await failDoneRecordReads(page, farDone.path);
+  const recordsAsked = recordDoneRecordsAsked(page);
+  await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);
   await expectEntries(recent, doneTitlesThrough(10));
   const consumer = storyCard(backlog, "Story A");
   await openDependencies(consumer);
-  const farReads = () =>
-    recordsAsked(githubFor(page)).filter((path) => path === farDone.path);
-  // The failed title request finishes before navigation makes its own request.
-  await expect.poll(farReads).toHaveLength(1);
-  await untilPageRequestsAnswered(page);
+  // The failed title ask finishes before navigation makes its own ask.
+  await expect.poll(unreachable.failed).toBe(1);
   await expect(storyReference(consumer, farDone.identity)).toBeVisible();
   await followReference(consumer, farDone.identity);
   const destination = doneDestination(recent, farDone.identity);
@@ -150,60 +168,50 @@ test("a failed Done detail reveals its identified gap and the existing Done retr
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expect(referenceNotice(page)).toBeEmpty();
-  expect(farReads()).toHaveLength(2);
-  restore();
+  expect(unreachable.failed()).toBe(2);
+  unreachable.restore();
   await recent.getByRole("button", { name: "Retry done stories" }).click();
   await expectEntries(recent, doneTitlesThrough(27));
   await expect(recent).not.toContainText("could not be read");
-  expect(
-    recordsAsked(githubFor(page)).filter(
-      (path) => !donePathsWithSuppliersThrough(27).includes(path),
-    ),
-  ).toEqual([]);
-  expect(farReads()).toHaveLength(3);
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
+  );
+  expect(recordsAsked().filter((path) => path === farDone.path)).toHaveLength(
+    3,
+  );
   await followReference(consumer, farDone.identity);
   await expect(destination).toBeFocused();
 });
 
 test("a dependency disclosure replaced after unavailable facts waits for opening before reading its new supplier title", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  await serveDoneReferences(page, origin, { follows: true });
+  putFrontendDoneReferences(frontendServices);
+  const agreements = replacedStoryAAgreements(frontendServices);
+  const recordsAsked = recordDoneRecordsAsked(page);
   await pausePageClock(page);
-  await openUntilRead(page);
+  // With both stream slots held elsewhere, the page checks on its own clock.
+  await preholdRevisionStreamSlots(page);
+  await page.goto("/");
   const card = storyCard(parts(page).backlog, "Story A");
   await openDependencies(card);
   await expect(storyReference(card, farDone.title)).toBeVisible();
-  const seed = queuedSeedWithDependencies(consumer, [
-    agreement({
-      supplier: {
-        identity: laterDone.identity,
-        href: `seeds/${laterDone.identity.replace("#", ".md#")}`,
-      },
-      state: "waiting",
-    }),
-  ]);
-  await origin.publishRevision({
-    files: {
-      ".planning/seeds/A.md": seed.replace(
-        /```json dough-story-dependencies\n[^\n]+/,
-        "```json dough-story-dependencies\n{broken",
-      ),
-    },
-  });
+  agreements.publishUnreadable();
   await passTimeUntilChecked(page);
   await expect(card).toContainText("Dependency facts unavailable");
   await expect(dependencyDisclosure(card)).toHaveCount(0);
-  await origin.publishRevision({ files: { ".planning/seeds/A.md": seed } });
+  agreements.publishReplaced();
   await passTimeUntilChecked(page);
   await expect(dependencySummary(card)).toHaveText("Dependencies · 1 blocking");
   await expect(dependencyDisclosure(card)).not.toHaveAttribute("open", "");
   await untilPageRequestsAnswered(page);
-  expect(recordsAsked(githubFor(page))).not.toContain(laterDone.path);
+  expect(recordsAsked()).not.toContain(laterDone.path);
   await openDependencies(card);
   await expect(storyReference(card, laterDone.title)).toBeVisible();
-  expect(
-    recordsAsked(githubFor(page)).filter((path) => path === laterDone.path),
-  ).toHaveLength(1);
+  // Asked once by the page; the server sparing a same-revision re-ask is
+  // Backend's (authenticated-read-done-catalog.spec.ts).
+  expect(recordsAsked().filter((path) => path === laterDone.path)).toHaveLength(
+    1,
+  );
 });
