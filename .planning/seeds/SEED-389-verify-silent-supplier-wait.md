@@ -117,7 +117,7 @@ prediction the real watches are judged against, not as a verdict:
 
 The wake bar is therefore expected to be missed for a reason shared by every
 long wait on Codex.
-[Let a long Codex wait run without model requests](SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
+[Let a long Codex wait run without model requests](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
 owns that correction. A watch on an installation that includes it is judged
 against the same bars.
 

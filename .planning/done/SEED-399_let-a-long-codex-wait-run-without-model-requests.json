@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-399#let-a-long-codex-wait-run-without-model-requests",
+  "title": "Let a long Codex wait run without model requests",
+  "completedAt": "2026-11-18T09:43:18.505Z",
+  "developer": "Terry Yin",
+  "agent": "Eimi-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

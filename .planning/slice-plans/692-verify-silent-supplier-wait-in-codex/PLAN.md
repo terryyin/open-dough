@@ -14,7 +14,7 @@ request-counting rule.
 
 Excluded: acting on a revise or remove recommendation, the Claude Code
 sibling story, a staged or paid watch, and maintained trace tooling. The
-[Codex long-wait correction](../../seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
+[Codex long-wait correction](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
 is separate work and no prerequisite.
 
 This story changes no product code, test, or guidance, so it has no local

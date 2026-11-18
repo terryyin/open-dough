@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-399_let-a-long-codex-wait-run-without-model-requests.json",
+      "identity": "SEED-399#let-a-long-codex-wait-run-without-model-requests",
+      "completedAt": "2026-11-18T09:43:18.505Z",
+      "blob": "943d8138d7eb87c4a8f9593f0e24b192c3d9711f"
+    },
+    {
       "fileName": "SEED-384_resize-and-remember-the-review-file-sidebar.json",
       "identity": "SEED-384#resize-and-remember-the-review-file-sidebar",
       "completedAt": "2026-11-18T08:20:24.252Z",
@@ -2622,12 +2628,6 @@
       "identity": "SEED-140#avoid-repeating-input-notifications-after-reconnection",
       "completedAt": "2026-10-19T10:24:27.955Z",
       "blob": "e8175a915e5d8d44615f91367003748df40f8c77"
-    },
-    {
-      "fileName": "SEED-010_triage-project-owned-retrospective-findings.json",
-      "identity": "SEED-010#triage-project-owned-retrospective-findings",
-      "completedAt": "2026-10-19T09:25:07.294Z",
-      "blob": "bf3eb62b097c7cd674630e2923dcec776b4a8fbc"
     }
   ],
   "unreadable": []

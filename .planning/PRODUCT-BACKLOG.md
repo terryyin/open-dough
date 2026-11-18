@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff ([plan](slice-plans/695-keep-review-changes-focused-on-the-diff/PLAN.md))
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group ([plan](slice-plans/690-retire-emptied-integrated-ui-test-group/PLAN.md))
 - [Give the review file sidebar's sizing one owner](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#one-owner-for-the-review-file-sidebar-sizing) — SEED-384#one-owner-for-the-review-file-sidebar-sizing ([plan](slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md))
-- [Let a long Codex wait run without model requests](seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests) — SEED-399#let-a-long-codex-wait-run-without-model-requests ([plan](slice-plans/698-let-a-long-codex-wait-run-without-model-requests/PLAN.md))
 
 ## Backlog list
 
