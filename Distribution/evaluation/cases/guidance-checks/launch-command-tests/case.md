@@ -144,8 +144,8 @@ is left to that review.
 Credential-free tests in
 `Distribution/evaluation/tests/native-guidance-checks/` check the parts
 separately: `native-guidance-check-launch-command-tests.sh` materializes the
-fixture and runs the observer's change and backend proof, and `…-e2e.sh` the
-E2E consumer, without probes (47 s and 59 s at load 14–22, 2026-11-17);
+fixture and runs the observer's change, backend proof and E2E consumer,
+without probes;
 `…-probes.sh` applies and restores each probe edit on the overlay's files
 without Playwright; `…-assessor.sh` passes and rejects recorded fields.
 

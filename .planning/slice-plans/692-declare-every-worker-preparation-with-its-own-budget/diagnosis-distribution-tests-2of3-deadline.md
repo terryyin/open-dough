@@ -105,3 +105,61 @@ Terry chose to continue slices 4–7, then, before landing, deliver a bounded
 test-optimization repair that cuts Distribution share 2's cost (starting with
 the native-guidance pair fixture), proven on CI runs including a slow runner.
 The repair stays owed by this execution until the final target CI.
+
+## Repair experiment: share-2 cost cut (slice `repair-distribution-share2`)
+
+- Hypothesis: the native-guidance pair fixture repeats setup and substitute
+  sessions across checks; removing that redundancy cuts share 2 by at least
+  ~60 job-s (10 % of its ~600 fast-runner job-s) with no lost observation.
+- Trial limit: the slice's 15 active minutes; one discovery profile, then at
+  most one edit-and-measure trial.
+- Decision criterion: keep a change only if it projects at least ~60 share-2
+  job-s and every guarded assertion still runs; otherwise stop with evidence.
+- Evidence read: `test-times-2` of run 44213987087 (native-guidance-checks
+  446 job-s; the five `native-comparison-baseline-*` checks 184, the
+  launch-command-tests pair 71).
+- Local profile (load averages 4.7-7.7, Homebrew bash 5, scratch scripts
+  through the slice clock): pair-fixture setup 2 s, rule commit <1 s, one
+  capture 5 s, one reused-baseline pair 5 s, one fresh pair 8 s. Each
+  substitute session costs ~5 s; tracing one capture puts ~54 % of it in
+  `Distribution/evaluation/cases/guidance-checks/supplier-fixture.sh` (the
+  case's starting project: 75 Git calls, per-turn observations).
+  launch-command-tests: `case_materialize` 7 s, E2E specs 19 s, backend specs
+  9 s; the two checks share only the materialization.
+- Test-only redundancy found: identical setup+capture repeated in
+  baseline-reuse/-conditions/-readers (capture of `quiet`) and
+  baseline-misses/-unavailable (capture of the fixture baseline), and one
+  duplicated launch-command-tests materialization. Every session beyond those
+  carries its own assertion (session-count and acquisition per input kind).
+  Merging the files saves at most ~3 x 8 + ~9 = ~33 job-s and lengthens the
+  merged files.
+- Decision: stop below the criterion; no edit made. The substitute session
+  cost lives in the paused-supplier case's starting state, a case input of
+  paid comparisons: changing it changes the recorded case/project basis and
+  so the reusability of saved native baselines. That needs a maintainer
+  decision before a repair can pursue it.
+
+## Developer decision (2026-11-18, second)
+
+Terry chose: apply the ~33 job-s test-only merges in native-guidance-checks,
+then one bounded pass over git-publication for redundant test-only work. The
+paused-supplier case basis and saved baselines stay untouched.
+
+## Repair: share-2 merges (slice `repair-share2-merges`)
+
+- Change (test-only, uncommitted): `native-comparison-baseline-conditions.sh`
+  and `-readers.sh` merged into `native-comparison-baseline-reuse.sh` (one
+  fixture, one `quiet` capture; sections conditions, reuse, readers; readers
+  resets the harness to the captured commit before its own reader commits);
+  `-unavailable.sh` merged into `-misses.sh` (one fixture-baseline capture;
+  the task change stays last); `native-guidance-check-launch-command-tests-e2e.sh`
+  merged into `native-guidance-check-launch-command-tests.sh` (one
+  `case_materialize`; its E2E 0/4 and `Received length: 5` assertions run after
+  the backend proof). `-environment-e2e.sh` comment now names the merged check.
+- Every assertion of the removed files runs unchanged in the merged files;
+  only the duplicate setup, rule commits and capture (`original.json` in
+  readers is now the shared `baseline.json`) are gone.
+- Local A/B (each file alone, sequential, Homebrew bash 5): before 266 s
+  (7 files; load 12.5 -> 8.4), after 181 s (3 files; load 8.4 -> 11.3);
+  all passed. Saving ~85 local job-s; CI test-times keys of the 4 removed
+  files disappear, their cost moves to the 3 kept keys.
