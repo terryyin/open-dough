@@ -110,6 +110,19 @@ that the product depends on, and service integration. Compare the normal
 whole-group command against the baseline and account for the cost and
 destination of any case moved elsewhere.
 
+Measure repeated dashboard startup separately in a representative built-app
+family without native gestures. Playwright already reuses Chromium within a
+worker. Each Open Dough case receives a fresh browser context and page and
+starts the dashboard with service substitutes. In the phone-board profile,
+launching Chromium took 105 ms once, creating the context and page took
+about 30 ms per case, and opening the dashboard and waiting for it to settle
+averaged 220 ms per case. Test whether a smaller fixture or a fresh mount in
+an existing document avoids that startup while preserving case isolation
+and the same observations. Doughnut keeps per-file isolation. These figures
+come from the phone-board sample, so measure the saving in the selected
+family before applying it more widely. [Built-app fixture](../../dashboard/tests/support/frontendApp.ts)
+and [Doughnut configuration](https://github.com/nerds-odd-e/doughnut/blob/a23441f741486ea5bde7e892038ba33b408d78a4/frontend/vitest.config.ts#L105-L114)
+
 For example, comparison retry should still disable the button while its read
 is held and recover the Landed endpoints. Opening, reloading and traversing
 an encoded story URL must exercise real browser history. Keep a runner
