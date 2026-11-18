@@ -1,6 +1,7 @@
 # Keep client finding evidence and IDs stable
 
 **Source:** [Store duplicate finding evidence once and preserve IDs across log recreation](../../seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable)
+**Source review:** [source review](source-review.md)
 **Identity:** SEED-402#keep-client-finding-evidence-and-ids-stable
 
 ## Goal and scope
@@ -17,16 +18,18 @@ Observed at preparation revision `73902add1`. The commands below use existing Gi
 | Why checking the current path alone can misallocate | In Terry Talks, `git log --name-status --follow -- DearDough.md` shows three add/delete pairs. Reading the file with `git show <revision>:DearDough.md` at the three seed revisions returned DD-001 for a failed preceding check, composited depth review, and full export respectively. The recording reference currently starts a new log at DD-001 before its existing matching and high-water rules. |
 | What evidence is available when the log is absent | In a scratch Git repo, the first revision had empty path history. A later `git log --name-status --follow -- DearDough.md` showed deletion, an R100 rename from `former.md`, and its original addition. Reading the old blob at its revision returned adopted ODF-003, alias DD-002 and “Highest allocated local number: 7”. A depth-one clone of the same deleted state gave empty history for both paths and `git rev-parse --is-shallow-repository` returned true. Only the full fixture supported recovering that floor. |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 ### 1. A client occurrence links directly to its verified shared account
 
 Type: Behavior
-Status: planned
+Status: done
 
 During shared collection, follow the existing reconciliation and adoption steps. Before shortening the client entry, resolve the proposed link at its exact committed revision and path. Compare the project, execution and observation, including provenance and uncertainty. Replace only verified duplicate narrative with one pinned locator. Keep the local heading, any former aliases, execution identity and project-only facts or links. Preserve the existing pin on an identical reread. If the target is missing or belongs to another occurrence, retain the affected text.
 
 **Proof.** Walk the [collector](../../../.agents/skills/collect-client-feedback/SKILL.md#collect-reconcile-and-adopt) on isolated copies of the DD-393 source and ODF-153 owner identified above. Inspect the client entry, follow its pin to the exact occurrence, and compare the recovered account with the input. Repeat collection with the same material and compare source and catalog finding files byte for byte. Use a client-only effect and local link as controls. Include another execution with the same symptom and a missing or wrong destination. Check each execution remains individually identifiable, each local addition survives, and no unsupported shortening occurs. For published source evidence the pin must resolve at the revision readers receive, including if the catalog commit changed during integration.
+
+**Accepted proof.** A fresh agent given only the changed guidance walked rebuilt fixtures and pinned the accepted catalog commit, not the pre-rebase one. It linked only the verified occurrence, kept the other-execution, missing and partial targets intact, and left a second pass byte-identical. Its questions led to a complete link sentence and a named source-recovery revision. Learning: a guidance walk is independent only when the walker did not write the guidance.
 
 ### 2. A recreated client log remembers its earlier allocations
 
