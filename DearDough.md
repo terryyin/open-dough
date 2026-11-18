@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 577. Removed numbers are never reused.
-- Recovery: `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529).
+- Recovery: `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529).
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -86,6 +86,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 1 changed the `dashboard-frontend` job's `shards` in `ci.yml`. The implementer's trace (terms `dashboard/frontend-tests=`, `dashboard-frontend`) selected the plan's six checks plus five more `ci.yml`-reading support checks, all passing, and did not name `splitExcluding` (`dashboard/tests/support/proofRecordRun.ts`), which reads that job's shards for `dashboard/backend-tests/runtime/runner-ownership.spec.ts`. The refactor pass named it; the coordinator ran the spec (5 tests, pass) before publication, and branch run 44218814549/1 passed.
   - Observed effect: a browser-spec consumer of the changed declaration was missing from the implementation return and found one stage later, before publication; no failure or repair cycle.
   - Inference: the same missed-consumer form, here through a TypeScript reader of the workflow file that neither search term names by path; the support-check selection the earlier rows recommend was applied and held. Cost was one extra local spec run.
+
+- Execution: SEED-400#keep-freshness-with-a-valid-take (plan 696; first implementation `03b29b34ee3cfdbe109111b86aba327e0691c277`)
+  - Timestamp: unknown (2026-11-18; CI run 44257111689 attempt 1 on `444c34536`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `3e19bc23e`)
+  - Evidence: slice 2 reworded `references/source-freshness.md`. The plan's gate was the two freshness tests and named no check for the reference; the implementer's trace (terms `not-taken-at-base`, `resolveTake`, `merge-base`) and the refactor pass ran only `payload-declaration-links.sh` for it. `read-budget.test.mjs` counts that whole file in the "Before finishing or stopping" row: CI failed at 30221 of 30000 bytes, and slice 3's uncommitted rewording stood at 30458. [ODF-446](docs/maintainer/findings/ODF-446.md) records the same row at its limit.
+  - Observed effect: one CI failure and one repair agent trimming three references to 29838 bytes. The coordinator delivered the repair with slice 3 (`969f4924f`) instead of the stash, repair and restore cycle, because slice 3's returned, uncommitted work edited the same paragraph.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -550,20 +558,6 @@ Coordinator review continued into possible edge cases and broad consumer-match a
   - Observed effect: developer interruption and an authorized priority increase for existing `SEED-345#reach-a-proof-decision-from-retained-evidence`, marked not-ready pending investigation. The 45 minutes is the developer's total elapsed estimate, not measured acceptance time.
   - Inference: start with simple stopping instructions: proceed once promises, affected consumers and gates have decisive observations; further investigation names a mismatch or specific evidence gap. Preserve required proof and unbounded refactoring; introduce no timing machinery first. Separate implementation, command waits, refactoring, CI repair and acceptance before making a measured causal claim.
 
-## DD-556 — Case-differing sibling module basenames break TypeScript project-service lint on APFS <a id="dd-556"></a>
-
-On a case-insensitive volume, a new `AttachStoryNotes.tsx` beside `attachStoryNotes.ts` made ESLint's TypeScript project service unable to resolve the component path, so lint failed while `tsc` still passed. Diagnosis chased tsconfig/buildinfo before the collision was renamed away.
-
-### Occurrences
-
-- Execution: SEED-348#attach-story-notes-to-follow-ups (plan 672; first implementation `49396e6d2af120da82111917647c1ff678abc49f`)
-  - Timestamp: unknown (2026-11-17T14:59+08:00–15:14+08:00 coordinator wait; rename during slice 3)
-  - Tool: Cursor
-  - Open Dough release: 0.3.103 (checkout-bound installed guidance at Take `522e71f54ec31ae42d4da6558fb36d398524bfeb`)
-  - Evidence: slice 3 agent `7decb47e-d94a-48a4-ac30-24170f147269` created `dashboard/src/attachStoryNotes.ts` with `AttachStoryNotes.tsx`; coordinator turns at ~14:59–15:13 +08 reported project-service unresolved-file lint after typecheck and a forced `tsc` rebuild; agent renamed words to `attachStoryNotesWords.ts`. Plan learning and publish `e25ae7b4b` record the rename. Slice clock paused at 13.7/15 active minutes; wall-clock lint churn is separate.
-  - Observed effect: repeated lint failures and tsconfig/buildinfo investigation until the basename collision was removed; focused frontend proof and typecheck had already passed.
-  - Inference: on macOS APFS, avoid same-basename `.ts`/`.tsx` siblings that differ only by case. A planning or authoring note for that filesystem would have skipped the chase; saving is unmeasured.
-
 ## DD-557 — Launch-record delivery listeners planned for the dashboard process miss Cursor's runner process <a id="dd-557"></a>
 
 A plan treated `replaceRecords` as the single confirmation seam and installed a delivery listener only on the dashboard launch boundary. Cursor confirms first input in `runnerMain`, so that write never saw the listener until the same install ran in the runner process.
@@ -833,6 +827,14 @@ records. Agents replaced it with a targeted `git grep` and said so.
   - Evidence: Codex session `01a1ea15-5252-7c92-bcc4-9324ac217a07`, launch `3d282d5b-8c78-4ff1-bccd-8097ca474ad9`: slice 1/2/3 traces listed 559/859/848 consumers. Refactor 4's 555-row trace reported 459 matches solely from generic `PLAN.md` metadata. Retained execution evidence at `45ff02fee774a270826cd7507fee2ce1c9d077cc:.planning/slice-plans/683-recover-decisive-verification-evidence/execution-evidence.md`; corresponding hand-backs identify the full trace files.
   - Observed effect: agents annotated hundreds of grouped planning/history exclusions; slice 1 also needed a return to fill blank dispositions. Targeted purpose inspection found the meaningful consumers while the broad trace remained required.
   - Inference: the same basename/record noise as DD-568 recurred, but agents completed rather than abandoned the scripted trace. Annotation and context cost are supported qualitatively; token/time saving is unmeasured.
+
+- Execution: SEED-400#keep-freshness-with-a-valid-take (plan 696; first implementation `03b29b34ee3cfdbe109111b86aba327e0691c277`)
+  - Timestamp: unknown (2026-11-18; slice 1 to 3 implementation returns)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `3e19bc23e`)
+  - Evidence: slice 1's return: "The trace output was 155 KB, mostly from the coordinator's `PLAN.md` terms, and is not saved"; slices 2 and 3 saved theirs and read them selectively.
+  - Observed effect: the traces named the script's importers but not the size check over the edited reference (the ODF-150 row of this execution).
 
 ## DD-569 — Conversion acceptance takes a named existing owner without reading its assertion <a id="dd-569"></a>
 

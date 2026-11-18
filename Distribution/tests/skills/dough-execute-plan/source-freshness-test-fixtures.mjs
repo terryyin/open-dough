@@ -119,6 +119,8 @@ export const branchPlan = planOf(
   slice(1, "A", { status: "done" }),
   slice(2, "B"),
 );
+// The branch increment marking slice 1 done, as a repository revision.
+export const sliceOneDone = { files: { [planPath]: branchPlan } };
 
 export function writeTree(checkout, files) {
   for (const [path, body] of Object.entries(files)) {
@@ -138,25 +140,20 @@ export async function commitTree(checkout, files, message) {
   return revParse(checkout, "HEAD");
 }
 
-// A trunk before the Take, then a Take of `entry` published on trunk and the
-// execution branch, then a branch increment marking slice 1 done, published
-// only to the execution branch.
-export async function takenStoryBranch(t, entry = takenEntries.linked) {
-  const fixture = await materializeRepository(
-    makeMe.aRepository
-      .withRevision("before the Take")
-      .withRevision("take", {
-        files: {
-          [backlogPath]: backlogOf([entry], []),
-          [seedPath]: seedOf(),
-          [planPath]: takenPlan,
-        },
-        message: "Take",
-      })
-      .withWorkspace(executionBranch, { from: "take" })
-      .withUnpublishedRevision("slice 1", { files: { [planPath]: branchPlan } })
-      .please(),
-  );
+// A trunk before the Take, then a Take of `entry` published on trunk.
+const takenHistory = (entry) =>
+  makeMe.aRepository.withRevision("before the Take").withRevision("take", {
+    files: {
+      [backlogPath]: backlogOf([entry], []),
+      [seedPath]: seedOf(),
+      [planPath]: takenPlan,
+    },
+    message: "Take",
+  });
+
+// `history` materialized, with its workspace published as the execution branch.
+async function publishedBranch(t, history) {
+  const fixture = await materializeRepository(history.please());
   t.after(fixture.cleanup);
   await git(
     fixture.execution,
@@ -167,6 +164,21 @@ export async function takenStoryBranch(t, entry = takenEntries.linked) {
   );
   return { ...fixture, take: fixture.revisions.take };
 }
+
+// The Take of `entry`, then the execution branch forked at it with a branch
+// increment marking slice 1 done, published only to the execution branch.
+export const takenStoryBranch = (t, entry = takenEntries.linked) =>
+  publishedBranch(
+    t,
+    takenHistory(entry)
+      .withWorkspace(executionBranch, { from: "take" })
+      .withUnpublishedRevision("slice 1", sliceOneDone),
+  );
+
+// The Take of the linked story, then the trunk and execution branch graph
+// `grow` declares after it on the repository builder.
+export const takenStoryGraph = (t, grow) =>
+  publishedBranch(t, grow(takenHistory(takenEntries.linked)));
 
 // A human's trunk commit made from the primary checkout on main.
 export async function amendTrunk(
