@@ -42,6 +42,10 @@ When an enabled retrospective has a supported write and the canonical log is mis
 
 **Accepted proof.** A fresh walker given only the changed recording guidance produced `DD-001` for first use. In the recreated fixture it produced `DD-008` with high-water 8. A recurrence of ODF-003 kept the `DD-002` alias, and the next new finding still got `DD-008`. The shallow clone gave no allocation, left the file absent and named the missing history. The existing-log reread left the file unchanged. The three Terry Talks `DD-001` entries are distinguishable at their revisions. Named follow-up from the walk and refactor: how a recreated log represents recovered content. Open questions are whether recovered headings are restored, where the revision citation sits, how to treat a recovered log's own `Recovery:` line, whether to add the partial-history note, and where `## Retention` goes.
 
+## Execution complete
+
+Product advice: no change. Both guidance changes deliver the story's examples, and they reach clients with the next release. Five walker questions remain on how a recreated log presents recovered content: restored headings, citation placement, a recovered `Recovery:` chain, the partial-history note and placement relative to `## Retention`. Numbering and identity were already correct without them, so revisit them only if a real recreation shows confusion. The SEED-401 pilots still own admission criteria.
+
 ## Current decisions and gates
 
 - The collector owns cross-repository shortening. Extend its existing [retention guidance](../../../.agents/skills/collect-client-feedback/references/retention-and-watch.md) and step 5 where needed. Reconciliation owns the catalog, adoption owns approved names, and the supplied inventory and publication sequence already belong to collection. An isolated review can exercise those decisions without invoking a live feedback cycle.
