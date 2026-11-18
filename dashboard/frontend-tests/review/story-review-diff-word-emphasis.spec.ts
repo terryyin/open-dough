@@ -8,21 +8,13 @@ import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.
 import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
 import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
 import {
-  largeBlockLineCount,
-  largeWithSmallDiff,
-  largeWithSmallText,
-  limitDiff,
-  limitText,
-  pureAdditionDiff,
-  pureAdditionText,
-  reindentDiff,
-  reindentText,
-  rewriteDiff,
-  rewriteText,
-  rewrapDiff,
-  rewrapText,
-  splitCallDiff,
-  splitCallText,
+  largeWithSmall,
+  limit,
+  pureAddition,
+  reindent,
+  rewrite,
+  rewrap,
+  splitCall,
 } from "../../tests/support/diffWordEmphasisFixtures.ts";
 import { openPlainWordEmphasisDiff } from "../../tests/support/diffWordEmphasisOpen.ts";
 import { storyReviewDiff } from "../../tests/support/reviewDiffSyntax.ts";
@@ -37,8 +29,8 @@ test("changed words in a block are deletions and insertions; copy stays plain", 
     page,
     frontendServices,
     path,
-    limitDiff(path),
-    limitText,
+    limit.diff(path),
+    limit.text,
     { added: 1, removed: 1 },
   );
 
@@ -72,8 +64,8 @@ test("a three-line rewrap gaining a word emphasizes only that word", async ({
     page,
     frontendServices,
     path,
-    rewrapDiff(path),
-    rewrapText,
+    rewrap.diff(path),
+    rewrap.text,
     { added: 4, removed: 3 },
   );
 
@@ -94,8 +86,8 @@ test("splitting a call across lines emphasizes the added comma, indent and argum
     page,
     frontendServices,
     path,
-    splitCallDiff(path),
-    splitCallText,
+    splitCall.diff(path),
+    splitCall.text,
     { added: 2, removed: 1 },
   );
 
@@ -113,8 +105,8 @@ test("re-indent emphasizes the changed whitespace on both lines", async ({
     page,
     frontendServices,
     path,
-    reindentDiff(path),
-    reindentText,
+    reindent.diff(path),
+    reindent.text,
     { added: 1, removed: 1 },
   );
 
@@ -146,10 +138,10 @@ test("a pure addition and revealed context have no word emphasis", async ({
       ],
     }),
     (answers) => {
-      answers.answerFile(pureAdditionDiff(additionPath), additionPath);
-      answers.answerFileText(pureAdditionText, additionPath);
-      answers.answerFile(limitDiff(contextPath), contextPath);
-      answers.answerFileText(limitText, contextPath);
+      answers.answerFile(pureAddition.diff(additionPath), additionPath);
+      answers.answerFileText(pureAddition.text, additionPath);
+      answers.answerFile(limit.diff(contextPath), contextPath);
+      answers.answerFileText(limit.text, contextPath);
     },
   );
 
@@ -180,8 +172,8 @@ test("a low-similarity rewrite stays line-level with no word emphasis", async ({
     page,
     frontendServices,
     path,
-    rewriteDiff(path),
-    rewriteText,
+    rewrite.diff(path),
+    rewrite.text,
     { added: 1, removed: 1 },
   );
 
@@ -198,26 +190,26 @@ test("a several-hundred-line block stays line-level while a small block is empha
     page,
     frontendServices,
     path,
-    largeWithSmallDiff(path),
-    largeWithSmallText,
+    largeWithSmall.diff(path),
+    largeWithSmall.text,
     {
-      added: largeBlockLineCount + 1,
-      removed: largeBlockLineCount + 1,
+      added: largeWithSmall.lineCount + 1,
+      removed: largeWithSmall.lineCount + 1,
     },
   );
 
   const largeHunk = storyReviewDiff(
     diffHunk(
       diff.locator,
-      `@@ -1,${String(largeBlockLineCount)} +1,${String(largeBlockLineCount)} @@`,
+      `@@ -1,${String(largeWithSmall.lineCount)} +1,${String(largeWithSmall.lineCount)} @@`,
     ),
   );
   await expect(diff.removedLine(1).line).toBeVisible();
   await expect(largeHunk.insertions()).toHaveCount(0);
   await expect(largeHunk.deletions()).toHaveCount(0);
 
-  const smallRemoved = diff.removedLine(largeBlockLineCount + 2);
-  const smallAdded = diff.newLine(largeBlockLineCount + 2);
+  const smallRemoved = diff.removedLine(largeWithSmall.lineCount + 2);
+  const smallAdded = diff.newLine(largeWithSmall.lineCount + 2);
   await expect(smallRemoved.deletions()).toHaveText(["20"]);
   await expect(smallAdded.insertions()).toHaveText(["25"]);
 });
