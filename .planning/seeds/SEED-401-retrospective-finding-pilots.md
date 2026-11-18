@@ -13,7 +13,7 @@ Doughnut and Pygardon developers write findings, and project and Open Dough main
 
 <a id="assess-new-retrospective-findings-pilot"></a>
 
-### Assess the first-report trial in ordinary Doughnut and Pygardon work
+### Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)
 
 **Identity:** SEED-401#assess-new-retrospective-findings-pilot
 ```json dough-story-dependencies
@@ -22,6 +22,9 @@ Doughnut and Pygardon developers write findings, and project and Open Dough main
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1fa0138bffcea35648ab7536398f81836bc693fea6b3eefbf049fb743b106b76","plan":"f2b2106f11d8f335188c34afddec4b692bf64d6620a04dcaa954d874d7f303f8"}}
 ```
+
+**Owner.** The Codex thread that took this story owns execution and cleanup. Its
+SEED-401 first-report heartbeat resumes the assessment and any pilot follow-ups.
 
 **Split from** SEED-401#pilot-new-retrospective-findings, which froze the trial wording after an exploratory historical replay.
 
