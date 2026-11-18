@@ -92,6 +92,11 @@ repeats the candidate search with
 `node dashboard/server/compareAgentEffort.ts --list` for tasks launched after
 2026-11-18 08:53:30 +0800.
 
+Developer decision, 2026-11-18: the story returns to the Backlog list at
+position nine, so that planned executions under 0.3.105 exist when it is next
+taken. The execution workspace and branch are retired; a later Take starts
+from this record.
+
 ### 2. Hand-back sizes and total effort are recorded
 Type: Behavior
 Status: planned
