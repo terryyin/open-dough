@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Airi-chan",
+  "email": "airi-chan@example.org",
+  "identity": "SEED-334#retire-emptied-integrated-ui-test-group",
+  "mode": "story-branch",
+  "branch": "codex/move-source-navigation-checks-out-and-retire-das",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
