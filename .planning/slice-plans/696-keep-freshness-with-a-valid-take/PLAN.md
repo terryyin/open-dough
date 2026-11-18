@@ -127,6 +127,19 @@ written. With the same text of every compared record at each such base → the
 comparison proceeds from one of them. Replaces slice 2's interim refusal.
 Then record the response at ODF-482.
 
+## Execution complete
+
+Product advice: no backlog change. The review found no defect in the delivered
+check: one best base behaves as before, a Take on one of several best bases is
+compared from, no Taken base is refused naming each base, and Taken bases that
+disagree on a record are refused. Projects, this one included, keep the
+single-base check in their installed copies until the next Open Dough release
+and update, so a release is what delivers the response to Lizard. The
+"Before finishing or stopping", "Before delivery" and "Handling a CI
+notification" read rows have 162, 305 and 393 bytes of margin; ODF-446 owns
+that limit. Conclusions hold on `969f4924f`, whose branch CI was pending at
+review.
+
 ## Verification and delivery
 
 - Follow [the failing/flaky-test policy](../../../AGENTS.md#failing-and-flaky-tests)
