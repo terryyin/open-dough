@@ -329,6 +329,21 @@ and repair handoff. Execution retains its required final CI ownership.
   execution authorization. Preserve earlier slices' proof while later consumers
   migrate; no CI-breaking interim state is accepted.
 
+
+## Execution complete
+
+Product advice: no priority change. The remaining SEED-353 siblings can reuse
+this story's named results (`publishDeclaredTrunk`, `publishTake`'s `claim`,
+`publishCompletedStoryLanding`'s `branchSide`, `completeBacklogStory`);
+`storyBranchLandedReview.ts` and `oneShotExecutionReview.ts` still write the
+backlog `complete` call inline for their owning siblings. Minor residue to fold
+into the next sibling that touches these owners: `planningBeforeClaim` is
+exported but used only in its module, and four comparison fixtures still read
+the published head with `rev-parse main` after their pushes. A candidate
+follow-up story could check kept-checkout baseline and branch endpoints
+independently (G1). Process review is deferred into wrap-up with the Intent
+Coverage check.
+
 ## Story obligations
 
 ### G1. Kept-checkout baseline and branch side are not independently checked
