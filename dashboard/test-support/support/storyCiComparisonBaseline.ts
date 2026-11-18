@@ -24,6 +24,11 @@ export const planningBeforeClaim = [
   "plan four",
 ] as const;
 
+// First-parent revisions from the built baseline to the claim's parent: the
+// planning revisions and the story's initial shared commit, none of which CI
+// builds.
+export const laterWithoutBuildBeforeClaim = planningBeforeClaim.length + 1;
+
 export function withPlanningBeforeClaim<Name extends string>(
   history: RepositoryBuilder<Name>,
 ) {

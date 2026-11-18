@@ -13,7 +13,7 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 import {
-  planningBeforeClaim,
+  laterWithoutBuildBeforeClaim,
   precedeClaimWithPlanning,
   serveActionsFor,
   wall,
@@ -45,9 +45,7 @@ export async function completeComparedStoryHistory(
     completion,
     baseline,
     branchSide,
-    // The claim's parent is the story's initial shared commit after the
-    // planning revisions, none of which CI builds.
-    laterWithoutBuild: planningBeforeClaim.length + 1,
+    laterWithoutBuild: laterWithoutBuildBeforeClaim,
     agent,
     branch,
   };

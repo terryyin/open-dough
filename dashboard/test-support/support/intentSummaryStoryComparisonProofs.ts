@@ -148,24 +148,6 @@ export function noBreakdownBaselineProofs(args: {
   };
 }
 
-export function trunkModeProofs(args: {
-  readonly baseline: string;
-  readonly implementation: string;
-}): Record<number, ComparisonProofServe> {
-  return {
-    200: {
-      kind: "summary",
-      artifactId: 2001,
-      summary: JSON.parse(breakdownSummary(200, args.baseline, "baseline")),
-    },
-    201: {
-      kind: "summary",
-      artifactId: 2002,
-      summary: JSON.parse(breakdownSummary(201, args.implementation, "landed")),
-    },
-  };
-}
-
 // Landed holds what no Summary row shows: in dashboard/tests a file the tree
 // does not list and a second part without a file breakdown, and a tests
 // entry without any file breakdown. Baseline and Branch keep breakdowns.

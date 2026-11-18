@@ -14,7 +14,7 @@ import {
   takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
-  revList,
+  laterWithoutBuildBeforeClaim,
   withPlanningBeforeClaim,
 } from "./storyCiComparisonFixture.ts";
 import {
@@ -144,14 +144,11 @@ export function declaredSummaryComparisonEndpointsIn(checkout: string) {
       throw new Error(`No revision named ${name} on main in ${checkout}`);
     return commit;
   };
-  const baseline = revision("baseline");
   return {
-    baseline,
+    baseline: revision("baseline"),
     completion: revision("completion"),
     branchSide: revision("branch completion"),
-    laterWithoutBuild: revList(checkout, revision("shared"), 20).indexOf(
-      baseline,
-    ),
+    laterWithoutBuild: laterWithoutBuildBeforeClaim,
     agent: claimant.agent,
     branch,
   };

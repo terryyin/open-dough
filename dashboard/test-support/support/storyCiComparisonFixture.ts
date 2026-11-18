@@ -30,9 +30,9 @@ import type { ActionsAnswerer, CommittedOrigin } from "../committedOrigin.ts";
 import { comparisonWorkflowPath } from "./storyCiComparisonWorkflows.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
-export { claimOf, revList } from "./storyCiComparisonHistory.ts";
+export { claimOf } from "./storyCiComparisonHistory.ts";
 export {
-  planningBeforeClaim,
+  laterWithoutBuildBeforeClaim,
   precedeClaimWithPlanning,
   withPlanningBeforeClaim,
 } from "./storyCiComparisonBaseline.ts";

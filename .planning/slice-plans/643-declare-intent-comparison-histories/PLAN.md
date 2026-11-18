@@ -182,7 +182,7 @@ One original-landing selection loop; 15 active minutes, commands excluded.
 
 Delivered: `publishCompletedStoryLanding` names the owning `branchSide`;
 `commitAll` returns its commit; the Done publisher declares `laterWithoutBuild`
-as `planningBeforeClaim.length + 1` (no caller uses `sharedAlreadyReady`); the
+as `laterWithoutBuildBeforeClaim` (no caller uses `sharedAlreadyReady`); the
 earlier-landing publisher reads endpoints from its commits. Refactor deleted the
 uncalled fast-forward/later-fast-forward browser publishers and collapsed the
 adapter spec's single merge-landing case. Accepted proof: 25 E2E files (30),
@@ -245,7 +245,7 @@ the CLI's release but unproven.
 
 ### 5. Read Summary comparisons from the shared history
 Type: Behavior
-Status: planned
+Status: done
 Proof: Nested Summary/file-source row and complete reached Summary consumers.
 
 Behavior: Given declared added/modified/removed/renamed test files and their
@@ -255,6 +255,16 @@ comparisons in Story Branch and Trunk/Taken modes. Reuse and reconcile
 imperative variant setup and message-based SHA discovery. Keep independent
 expected rows and providers outside builders. One hierarchical comparison loop;
 15 active minutes, commands excluded.
+
+Delivered: the Summary publisher takes `branchSide` from the completed story
+and `laterWithoutBuildBeforeClaim` (one home for that count, also used by Done
+and kept-checkout endpoints); its trunk is a declared history published through
+`publishDeclaredTrunk`; the uncalled Trunk/Taken Summary publishers, their
+proofs and `revList` are gone (Frontend mounted gaps/fallback/sort keep those
+modes). Accepted proof: 14 E2E, 16 Frontend, 6 backend cases, full lint;
+branch-side fault failed both source cases at the Branch timing cell, restored
+passed. For slice 6: kept-checkout Summary endpoints still match commit
+subjects; `intent-story-becomes-done.spec.ts:61` still calls `claimOf`.
 
 ### 6. Read timing-history provenance from named revisions
 Type: Behavior
