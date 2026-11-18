@@ -294,7 +294,7 @@ fixture and diagnostic changes without edits.
 
 ### 5. Retire Dashboard Integrated UI Test
 Type: Behavior
-Status: planned
+Status: done
 Proof: Key examples 3 and 4.
 `find dashboard/tests -name '*.spec.ts'` prints nothing;
 `npm run test:dashboard:integrated` reports a missing script; each remaining
@@ -364,6 +364,17 @@ immutable prior archive. Four focused jobs passed with baseline-reuse at
 guard. `slice-5-distribution-readers-repair.md` retains the before/after
 observations, exact commands and terminal results. The 652-job roster
 stays byte-identical. Repeat the full gate once on this specific repair.
+
+The repaired progress revision `d4beccd61e20bdf8f3b8eb8c7a5556cdbdd04ce1`
+passed all 652 Distribution jobs, including baseline-reuse (155.9 seconds)
+and archival replay (118.7 seconds). It passed the full local Backend
+(1,710 cases), Frontend (695) and E2E (797) suites under AC
+`caffeinate -s -i`. Each browser group's runner and strict status is
+`passed` in its `slice-5-<group>-whole-proof.json`. The Distribution
+outcomes and all literal run records are in Git evidence. Exact GitHub
+Actions run 44296453548 attempt 1 passed and
+`ci-proof-summary-attempt-1` confirms four maintained entries, every
+part present and zero failures. Independent review made no changes.
 
 ### 6. Name three browser groups in tooling and guidance
 Type: Behavior
