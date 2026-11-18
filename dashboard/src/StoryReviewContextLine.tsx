@@ -1,5 +1,5 @@
-// A story review's context line (`./storyReviewContract.ts`), beneath its panel's
-// header (`./StoryReview.tsx`): the branch, the baseline the snapshot
+// A story review's context line (`./storyReviewContract.ts`), in its review
+// details (`./StoryReviewToolbar.tsx`): the branch, the baseline the snapshot
 // compares against, and the worktree.
 
 import { useState } from "react";

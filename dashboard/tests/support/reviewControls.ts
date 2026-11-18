@@ -55,9 +55,18 @@ export async function expectToggleLeadsToolbar(
 // picker, the context of the comparison shown and the uncommitted check.
 // Safe to take again; a later opening of the panel takes it anew.
 export async function showReviewDetails(review: Locator) {
-  await expect(reviewToolbar(review)).toBeVisible();
+  const eye = detailsToggle(review);
+  await expect(eye).toBeVisible();
+  if ((await eye.getAttribute("aria-expanded")) !== "true") await eye.click();
+  await expect(eye).toHaveAttribute("aria-expanded", "true");
   return review;
 }
+
+// The toolbar's eye, whichever of its two names it has now.
+export const detailsToggle = (review: Locator) =>
+  reviewToolbar(review).getByRole("button", {
+    name: /^(Show|Hide) review details$/,
+  });
 
 // The story review's comparison switch.
 export const comparison = (review: Locator) =>

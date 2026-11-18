@@ -174,6 +174,9 @@ export const storyReviewSchema = z
 export type StoryReview = z.infer<typeof storyReviewSchema>;
 // A review whose snapshot was taken.
 export type TakenStoryReview = Extract<StoryReview, { kind: "snapshot" }>;
+// A landed run's review, whether its delivered change could be read or not.
+export const reviewsLanding = (review: StoryReview | undefined) =>
+  review?.kind === "landed" || review?.kind === "landing-unavailable";
 
 // The revision a snapshot's baseline is named by wherever the review shows
 // it: the trunk revision the story's published commits were taken out of, or

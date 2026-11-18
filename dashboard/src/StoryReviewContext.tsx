@@ -1,15 +1,15 @@
 // Context follows the comparison actually shown, while each source of
 // evidence keeps its own description and completion facts.
-import type { StoryReview } from "./storyReviewContract.ts";
+import { reviewsLanding, type StoryReview } from "./storyReviewContract.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 
 export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
-  return review?.kind !== "landed" && review?.kind !== "landing-unavailable"
-    ? "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed."
-    : "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision.";
+  return reviewsLanding(review)
+    ? "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."
+    : "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.";
 }
 
 export function ReviewContext({

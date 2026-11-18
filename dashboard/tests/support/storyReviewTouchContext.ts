@@ -12,6 +12,7 @@ import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import {
   reviewRefresh,
   comparisonChoice,
+  detailsToggle,
   filesToggle,
 } from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
@@ -135,10 +136,12 @@ async function keepReviewContextThroughPanelControls(
   landscape: Viewport,
 ) {
   const { action, review, browser, changedFiles } = opened;
-  // The toolbar's sidebar toggle is tap-sized and keeps its place.
+  // The toolbar's two toggles are tap-sized; the sidebar's keeps its place.
   const toggleAt = await box(filesToggle(review));
-  expect(toggleAt.width).toBeGreaterThanOrEqual(44);
-  expect(toggleAt.height).toBeGreaterThanOrEqual(44);
+  for (const at of [toggleAt, await box(detailsToggle(review))]) {
+    expect(at.width).toBeGreaterThanOrEqual(44);
+    expect(at.height).toBeGreaterThanOrEqual(44);
+  }
   await tapWhereShown(filesToggle(review));
   await expect(browser).toBeHidden();
   expect(await scrollTopOf(chosen.code)).toBe(chosen.codeAt);

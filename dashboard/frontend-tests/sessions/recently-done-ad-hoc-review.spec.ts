@@ -20,6 +20,16 @@ import {
   installFrontendStoryReview,
 } from "../../tests/support/frontendStoryReview.ts";
 import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+import {
+  landedRunChoice,
+  reviewRegion,
+  toolbarComparison,
+} from "../../tests/support/reviewControls.ts";
+import {
+  expectDetailsCollapsed,
+  expectEyeBesideComparison,
+} from "../../tests/support/reviewDetails.ts";
+import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
 
 test("a standalone ad hoc Done entry opens its review from Review changes", async ({
   page,
@@ -101,6 +111,15 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
   );
 
   await action.click();
+  // The session's landing opens compact: its one toolbar, the run's facts
+  // behind the eye, and the delivered file's diff readable.
+  const opened = reviewRegion(page);
+  await expect(toolbarComparison(opened)).toHaveText("Landed runs");
+  await expectDetailsCollapsed(opened);
+  await expectEyeBesideComparison(opened, "Show review details");
+  await expect(fileDiff(opened, `Modified ${deliveredPath}`)).toContainText(
+    "after",
+  );
   await journey.phase(
     "the panel shows the session's landed review",
     (pages) => {
@@ -130,6 +149,9 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
       pages.storyReview.expectNoNoteActions();
     },
   );
+
+  // One landing: its revealed details offer no run picker.
+  await expect(landedRunChoice(opened)).toHaveCount(0);
 
   await journey.phase(
     "reviewing the session clears the selected story",

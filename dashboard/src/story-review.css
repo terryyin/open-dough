@@ -1,9 +1,9 @@
 /* A story review (./StoryReview.tsx) in the page's side panel, whose
    frame, header, Refresh, and panel controls it shares with the terminal
-   (./side-panel.css). Beneath the header, the toolbar holds the file
-   browser's toggle (./story-review-toolbar.css) and the review's fixed top
-   the comparison controls, context line, and review feedback.
-   The rest of the panel's height is
+   (./side-panel.css). Beneath the header, the toolbar
+   (./story-review-toolbar.css) names the comparison; the review details it
+   reveals hold the comparison controls and context, the fixed top the
+   feedback. The rest of the panel's height is
    the work area: the file browser beside the selected file's diff, each
    scrolling on its own while the top stays in view and the body beneath it
    never scrolls as a whole. The diff's heading stays above its code, which
@@ -25,7 +25,8 @@
   flex-basis: 100%;
 }
 
-.story-review-top {
+.story-review-top,
+.story-review-details {
   flex: none;
 }
 
@@ -44,7 +45,8 @@
   cursor: pointer;
 }
 
-.story-review-top p {
+.story-review-top p,
+.story-review-details p {
   margin: 0;
 }
 
@@ -133,7 +135,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Feedback sits beneath the context line, taking no room while silent. */
+/* Feedback sits beneath any revealed details, taking no room while silent. */
 .story-review-top [role="status"]:not(:empty) {
   padding: 0.4rem 1rem;
   border-bottom: 1px solid var(--line);
@@ -228,7 +230,7 @@
   cursor: pointer;
 }
 
-.story-review-top > .story-review-comparison,
+.story-review-details > .story-review-comparison,
 .story-review-run-choice {
   padding: 0.4rem 1rem;
   border-bottom: 1px solid var(--line);
@@ -238,6 +240,7 @@
   max-width: 100%;
 }
 
-.story-review-top > div > p code {
+.story-review-top > div > p code,
+.story-review-details > div > p code {
   overflow-wrap: anywhere;
 }

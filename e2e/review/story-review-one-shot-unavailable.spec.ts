@@ -2,9 +2,12 @@
 import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import {
   reviewRegion,
-  filesToggle,
   toolbarComparison,
 } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  expectDetailsCollapsed,
+  revealDetails,
+} from "../../dashboard/tests/support/reviewDetails.ts";
 import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
@@ -14,6 +17,7 @@ import {
   captureReviewRun,
   retireReviewRun,
   openCapturedReview,
+  openCapturedReviewAsOpened,
 } from "../../dashboard/tests/support/oneShotReview.ts";
 import { refreshReview } from "../../dashboard/tests/support/launchLandingReview.ts";
 
@@ -27,7 +31,7 @@ for (const captured of [true, false]) {
       const receipt = captured ? captureReviewRun(run, origin) : undefined;
       const base = run.established.startingRevision ?? "";
       retireReviewRun(run, origin, receipt?.revision ?? base);
-      const { review: answer } = await openCapturedReview(page, origin);
+      const { review: answer } = await openCapturedReviewAsOpened(page, origin);
       const review = reviewRegion(page);
       if (captured) {
         expect(answer).toMatchObject({
@@ -44,11 +48,23 @@ for (const captured of [true, false]) {
           "cannot be reconstructed from today's trunk",
         );
       }
+      // As opened: the explanation shows with the details collapsed.
+      await expect(
+        review.getByText(
+          captured
+            ? /empty delivered comparison/
+            : /no captured landing comparison/,
+        ),
+      ).toBeVisible();
+      await expectDetailsCollapsed(review);
       await expect(review.getByRole("list")).toHaveCount(0);
       // The toolbar names the comparison, never the run, and offers no
       // sidebar toggle without files.
       await expect(toolbarComparison(review)).toHaveText("Landed runs");
-      await expect(filesToggle(review)).toHaveCount(0);
+      await expect(
+        review.getByRole("button", { name: /^(Hide|Show) files$/ }),
+      ).toHaveCount(0);
+      await revealDetails(review);
     },
   );
 }

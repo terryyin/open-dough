@@ -1,5 +1,5 @@
 // A story review's snapshot (`./storyReviewContract.ts`) as its panel's body shows
-// it, beneath the context line (`./StoryReviewContextLine.tsx`): the story's
+// it, beneath the review's toolbar, details and feedback: the story's
 // changed files in the comparison shown, with their change kinds, in a file
 // browser the toolbar hides or shows (`./StoryReviewToolbar.tsx`). The
 // browser shows each file by name under folders that collapse and expand

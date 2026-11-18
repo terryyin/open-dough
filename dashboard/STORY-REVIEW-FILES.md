@@ -65,3 +65,32 @@ each comparison use its starting tree, and a file that includes trunk's
 changes counts from its `includesTrunkFrom`, as its diff does. A file shows counts only when its
 diff adds or removes a line: a binary, mode-only, or empty file shows none. A
 collapsed folder's count stays the changed files it holds.
+
+## Toolbar and review details
+
+Every review (a story's workspace, a landed run, a published completion, an
+ad hoc session's landing) opens with one toolbar under the panel header
+(`src/StoryReviewToolbar.tsx`). While the comparison shown lists files, an
+icon button at its far left, named **Hide files** or **Show files** in its
+accessible name and tooltip, hides or shows the file browser from the same
+place; hiding gives the diff the freed width and showing returns the browser
+with the current file selected. The name of the comparison shown follows:
+**All changes**, **Commits**, **Landed runs** or **Published completion**,
+never the selected run. Beside it, an eye icon button named **Show review
+details** or **Hide review details**, which states its expanded state,
+reveals or hides the review details: one inline section between the toolbar
+and the work area holding the Comparison switch, the **Landed run** listbox
+when a run is selected, the context of the comparison shown (the workspace
+context line, the landed run's facts, or the published completion's facts)
+and **Include uncommitted changes**. Revealing or hiding keeps the
+comparison, the selected file and the diff's reading place, and a choice made
+in the details updates the toolbar's name, the details and the diff together.
+Escape pressed inside the details hides them and returns the keyboard to the
+eye.
+
+The details are hidden and the file browser shown on every opening. The
+revealed state lasts while the panel stays open, across comparison and run
+choices and Refresh. Reading progress, problems, and an empty or unavailable
+comparison's explanation stay outside the details, as do Commits' range
+heading and commit list. With touch input both toggles keep the shared 44px
+control size, and a narrow panel keeps the files above the diff.

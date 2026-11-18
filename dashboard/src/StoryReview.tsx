@@ -10,11 +10,16 @@ import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
+import { reviewsLanding } from "./storyReviewContract.ts";
 import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
 import { ComparisonSwitch, comparisonName } from "./StoryReviewComparison.tsx";
-import { ReviewToolbar, reviewListsFiles } from "./StoryReviewToolbar.tsx";
+import {
+  ReviewDetails,
+  ReviewToolbar,
+  reviewListsFiles,
+} from "./StoryReviewToolbar.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
@@ -51,6 +56,17 @@ export function StoryReview({
   const [round, setRound] = useState(0);
   const [browserShown, setBrowserShown] = useState(true);
   const browser = { id: `${id}-files`, shown: browserShown };
+  const [detailsShown, setDetailsShown] = useState(false);
+  const eye = useRef<HTMLButtonElement>(null);
+  const details = {
+    id: `${id}-details`,
+    shown: detailsShown,
+    eye,
+    onShow: (show: boolean, focusEye = false) => {
+      setDetailsShown(show);
+      if (focusEye) eye.current?.focus();
+    },
+  };
   const {
     review,
     problem,
@@ -136,11 +152,14 @@ export function StoryReview({
         {reviewDescription(review)}
       </p>
       <ReviewToolbar
-        name={comparisonName(shownComparison)}
+        name={comparisonName(
+          reviewsLanding(review) ? "landed" : shownComparison,
+        )}
         browser={reviewListsFiles(review, comparison) ? browser : undefined}
         onShowBrowser={setBrowserShown}
+        details={details}
       />
-      <div className="story-review-top">
+      <ReviewDetails details={details}>
         {(runs.length > 0 || items.length > 0) && (
           <ComparisonSwitch
             shown={shownComparison}
@@ -164,8 +183,23 @@ export function StoryReview({
         {selectedRun !== undefined && (
           <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
         )}
-
         <ReviewContext review={review} />
+        {review?.kind === "snapshot" && committed !== undefined && (
+          <div className="story-review-uncommitted">
+            <label>
+              <input
+                type="checkbox"
+                checked={includeUncommitted}
+                onChange={(event) => {
+                  setIncludeUncommitted(event.target.checked);
+                }}
+              />{" "}
+              Include uncommitted changes
+            </label>
+          </div>
+        )}
+      </ReviewDetails>
+      <div className="story-review-top">
         <ReviewFeedback
           review={review}
           reading={reading}
@@ -183,20 +217,6 @@ export function StoryReview({
               trunkIntegrated={trunkIntegrated}
             />
           )}
-        {review?.kind === "snapshot" && committed !== undefined && (
-          <div className="story-review-uncommitted">
-            <label>
-              <input
-                type="checkbox"
-                checked={includeUncommitted}
-                onChange={(event) => {
-                  setIncludeUncommitted(event.target.checked);
-                }}
-              />{" "}
-              Include uncommitted changes
-            </label>
-          </div>
-        )}
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
         <ReviewBody

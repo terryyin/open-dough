@@ -120,7 +120,7 @@ changes that step alone to activate the details toggle.
 
 ### 3. Review details wait behind the eye
 Type: Behavior
-Status: planned
+Status: done
 Proof: rows three to seven, the eye's touch row and the docs row; new focused
 review specs for the compact opening, reveal, Escape, workspace and
 evidence-gap examples, plus the premise row's suites green.
@@ -195,6 +195,13 @@ collapsed. Replaces slice 1's interim layout.
 - `e2e/runtime/production-watcher-updates.spec.ts:43` and
   `production-watcher.spec.ts:57` timed out once in a 42-minute whole-e2e
   scratch run under load and passed on rerun; they open no review.
+- Slice 3 accepted on 2026-11-18 after one return (ad hoc landing's toolbar
+  name, next opening on another story, evidence gap observed at opening):
+  whole frontend suite green (695), `e2e/review` with the Intent landed-run
+  and ad hoc session specs green (76), both typechecks green. The toolbar
+  reads “Landed runs” for every landing, with or without a selected run.
+  Not observed: tapping the eye on touch (its box is measured), the height
+  of tall revealed details on touch, a visual comparison with the mockup.
 - Flaky under load, not caused by this story:
   `e2e/review/story-review-one-shot-choice.spec.ts:23` timed out once at 30 s
   at load about 32; its trace shows about 23 s in the fixture's three real
@@ -207,12 +214,17 @@ collapsed. Replaces slice 1's interim layout.
 ### G1. Details still show beneath the toolbar
 Reported: slice 1 — "Interim: the comparison choices, run picker and context still show beneath the toolbar until slice 3."
 Story clause: "Details collapsed on every opening."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/frontend-tests/review/story-review-details.spec.ts tests 1 and 4 (expectDetailsCollapsed at opening)
 
 ### G2. Maintained docs still place Hide files in the context
 Reported: slice 1 — "the maintained docs still place Hide/Show files in the context (slice 3 owns them)."
 Story clause: "the panel opens with one slim toolbar above the files and the diff"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/STORY-REVIEW-FILES.md “Toolbar and review details”, linked from AGENT-LAUNCH-REVIEW.md, STORY-REVIEW-LANDED-RUNS.md and STORY-REVIEW-COMMITS.md
+
+### G3. The run picker also shows for a story's single landed run
+Reported: slice 3 — "the picker renders whenever a story run is selected, whatever the count. That predates this story and may not match \"when there is more than one run\"."
+Story clause: "Each keeps today's words, facts and behavior."
+Disposition: excluded "Each keeps today's words, facts and behavior."
 
 ## Current decisions and plan review
 

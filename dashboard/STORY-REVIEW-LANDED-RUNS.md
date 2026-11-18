@@ -27,7 +27,8 @@ Closing the review returns the keyboard to the card's review action and keeps
 Recently done's shown range and entry counts.
 
 A landed run can also be reviewed after its workspace and branches
-are retired. The Comparison switch offers **Landed runs** beside the
+are retired. In the [review details](STORY-REVIEW-FILES.md#toolbar-and-review-details),
+the Comparison switch offers **Landed runs** beside the
 workspace's All changes and Commits choices. Its bounded native
 listbox, labelled **Landed run**, offers every landed refinement or execution run,
 newest first by launch time, including older runs without a reporting handoff. The initial run is the
@@ -36,7 +37,7 @@ has capture. A readable current workspace remains the opening default, including
 an integrated workspace whose retirement is held; otherwise Review changes, or
 Refresh of an open workspace review, opens that historical choice. The selector
 names workflow, launch time and accepted revision, or missing capture. The
-context names **Landed run**, its workflow/time, authorized remote target, and
+details' context names **Landed run**, its workflow/time, authorized remote target, and
 exact captured base and accepted revision. The existing file browser, counts, rename detection, binary
 explanation and file moves compare those two commits.
 

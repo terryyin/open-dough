@@ -56,7 +56,8 @@ and Refresh fetch published history; selecting a historical file validates
 against that already fetched history and performs no network fetch.
 The configured folder must still be its own Git checkout; a parent checkout's
 history is refused before reading or fetching a comparison.
-When retained landed runs are also listed, the Comparison control can switch
+When retained landed runs are also listed, the Comparison control in the
+[review details](STORY-REVIEW-FILES.md#toolbar-and-review-details) can switch
 between them and Published completion.
 
 A story with a kept launch record naming a workspace or landed run
@@ -171,13 +172,13 @@ re-read. Maximize/Restore and the Panel divider keep the snapshot
 and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
 icon controls shared with the terminal. Directly beneath the header, the
-review's top stays in place while the panes beneath it scroll. It holds
-the context line, the review's feedback, and any available comparison
-controls (`src/StoryReviewContextLine.tsx`, `src/StoryReview.tsx`). The context line shows the
-branch, the baseline's short revision with the `<remote>/<target>` it meets,
-worktree, and, while the comparison shown lists files, Hide files / Show
-files for the file browser. Values that do not fit are shortened, the
-worktree first. Activating the line, by pointer or keyboard, shows every value
+review's [toolbar](STORY-REVIEW-FILES.md#toolbar-and-review-details) and its
+feedback stay in place while the panes beneath them scroll. The toolbar's
+**Show review details** reveals the comparison controls and the context
+line (`src/StoryReviewContextLine.tsx`, `src/StoryReview.tsx`). The context
+line shows the branch, the baseline's short revision with the
+`<remote>/<target>` it meets, and the worktree. Values that do not fit are
+shortened, the worktree first. Activating the line, by pointer or keyboard, shows every value
 in full, the whole baseline revision and where the branch meets trunk
 included, and activating it again returns it to one line; its name reads
 every value in full in either state. With the story's published commits taken
@@ -188,28 +189,30 @@ full form `<revision> where <branch> meets <remote>/<target>, less the story's
 changes and after Refresh, name that trunk revision too (`baselineRevision` in
 `src/storyReviewContract.ts`). That the review is read-only is the
 review's accessible description, not a visible line. The feedback region,
-beneath the context line, announces reading, refreshing, refreshed, and
-problem messages, and an unavailable review's explanation. A review with no
-changes shows its context line above “No changes”. Empty and unavailable
-comparisons leave the file browser and diff out of the panel.
+beneath the toolbar and any revealed details, announces reading, refreshing,
+refreshed, and problem messages, and an unavailable review's explanation. A
+review with no changes says “No changes”, its context line in the details.
+Empty and unavailable comparisons leave the file browser and diff out of the
+panel.
 
-With touch input, the context disclosure, comparison labels, file and folder
-rows, commit rows and uncommitted-changes label offer at least the shared
-44px control height. The top has a bounded share of the panel's height and
-scrolls when its context or explanations need more room; expanded context
+With touch input, the toolbar's two toggles, the context disclosure,
+comparison labels, file and folder rows, commit rows and uncommitted-changes
+label offer at least the shared 44px control height. The revealed details and
+the feedback each have a bounded share of the panel's height and scroll when
+context or explanations need more room; expanded context
 values also scroll within their disclosure (`src/story-review-touch.css`).
 This leaves room to read the diff at short landscape heights. Refresh,
 Maximize/Restore and Close stay
 in the header, so they remain reachable while reading or scrolling context.
 
-Beneath the fixed top, the file browser and the selected file's diff share
-all the panel's remaining height, and the review's body does not scroll as a
+Beneath the toolbar, any revealed details and the feedback, the file browser
+and the selected file's diff share all the panel's remaining height, and the review's body does not scroll as a
 whole (`src/story-review.css`). The browser is a full-height sidebar that
 scrolls down on its own and sideways for long names. The diff's heading, the
 file's kind and path, stays above its code, which scrolls down and sideways
 within the diff; the code region takes the keyboard, so it scrolls by
-keyboard too. Scrolling either pane leaves the other and the fixed top in
-place. Selecting a file shows its diff from the top and leaves the browser
+keyboard too. Scrolling either pane leaves the other and what is above them
+in place. Selecting a file shows its diff from the top and leaves the browser
 where it was scrolled. A review with changes opens on the first file in the
 browser's order for the comparison shown, its rows read from top to bottom with every folder expanded
 (`reviewFileOrder` in `src/reviewFileTree.ts`), so a folder that comes first
