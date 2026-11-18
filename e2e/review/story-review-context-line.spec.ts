@@ -1,6 +1,6 @@
 // A story review's context line, of Story A's worktree
 // (../../dashboard/tests/support/storyReviewWorktree.ts): branch, short baseline with the trunk
-// it meets, shortened worktree, and Hide files side by side on one line.
+// it meets, and shortened worktree side by side on one line.
 // Activating it by keyboard shows every value in full and activating it again
 // returns it to one line, its name reading every value in full throughout;
 // the line stays in place while the file browser scrolls beneath it.
@@ -43,8 +43,8 @@ test("a story review's context line keeps to one line until activated and stays 
     const worktree = line.locator(".story-review-context-worktree > code");
     const shortened = () =>
       worktree.evaluate((value) => value.scrollWidth > value.clientWidth);
-    // Branch, short baseline with trunk, worktree shortened, and Hide files,
-    // side by side on one line.
+    // Branch, short baseline with trunk, and worktree shortened, side by
+    // side on one line.
     await expect(values).toHaveAttribute("aria-expanded", "false");
     await expect(line).toContainText(
       `Branch ${branch} Baseline ${merged.slice(0, 7)}`,
@@ -53,16 +53,16 @@ test("a story review's context line keeps to one line until activated and stays 
       line.locator("code", { hasText: "origin/main" }),
     ).toBeVisible();
     await expect(
-      line.getByRole("button", { name: "Hide files" }),
-    ).toBeVisible();
+      line.getByRole("button", { name: /^(Hide|Show) files$/ }),
+    ).toHaveCount(0);
     expect(await shortened()).toBe(true);
     const oneLine = (await line.boundingBox())?.height ?? 0;
     const rows = await line
-      .locator(".story-review-context-value, .start-launch-button")
+      .locator(".story-review-context-value")
       .evaluateAll((shown) =>
         shown.map((each) => Math.round(each.getBoundingClientRect().top)),
       );
-    expect(rows).toHaveLength(4);
+    expect(rows).toHaveLength(3);
     expect(Math.max(...rows) - Math.min(...rows)).toBeLessThan(8);
     await expect(line.locator("code", { hasText: merged })).toHaveCount(0);
 

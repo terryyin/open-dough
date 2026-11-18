@@ -16,7 +16,7 @@ import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { largeReviewRevision, longA } from "./largeReviewFiles.ts";
 import { expect } from "./preparationPage.ts";
-import { contextValues, fileBrowser, reviewBody } from "./reviewContextLine.ts";
+import { contextValues, fileBrowser } from "./reviewContextLine.ts";
 import {
   boxes,
   overflows,
@@ -25,7 +25,7 @@ import {
   scrollTopOf,
   codePane,
 } from "./reviewPanes.ts";
-import { expectReviewRead } from "./reviewRead.ts";
+import { expectOpenedWithKeyboard, expectReviewRead } from "./reviewRead.ts";
 import {
   chooseLargeChangesCommitByTouch,
   codePartGeometry,
@@ -81,7 +81,7 @@ export async function openReviewByTouch(
   await action.scrollIntoViewIfNeeded();
   await tapWhereShown(action);
   const review = reviewRegion(page);
-  await expect(reviewBody(review)).toBeFocused();
+  await expectOpenedWithKeyboard(review);
   await expectReviewRead(review);
   const browser = fileBrowser(review);
   await expect(

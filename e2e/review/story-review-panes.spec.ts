@@ -14,7 +14,10 @@ import {
 // the browser sits above the diff with a bounded share of the height, and
 // Hide files gives the diff the whole work area.
 
-import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  filesToggle,
+  reviewRefresh,
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { treeFolder } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { narrowWindow } from "../../dashboard/tests/accessibleReading.ts";
 import {
@@ -218,9 +221,7 @@ test("in a narrow panel the browser sits above the diff, each scrolling, and Hid
 
   await test.step("Hide files gives the diff the whole work area", async () => {
     const shownDiff = await box(diff);
-    await contextLine(review)
-      .getByRole("button", { name: "Hide files" })
-      .click();
+    await filesToggle(review).click();
     await expect(browser).toBeHidden();
     const [area, alone] = await Promise.all([box(workarea), box(diff)]);
     expect(alone.y).toBeCloseTo(area.y, 0);

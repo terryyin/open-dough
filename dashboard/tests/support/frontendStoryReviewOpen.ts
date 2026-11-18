@@ -17,7 +17,7 @@ import {
   type FrontendStoryReview,
 } from "./frontendStoryReview.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import { reviewRegion } from "./reviewControls.ts";
+import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   openFrontendBoardReview,
   storyA,
@@ -44,7 +44,9 @@ export function keepTakenReviewLaunch(services: FrontendServiceState): void {
   );
 }
 
-export async function openFrontendStoryReview(
+// The Taken story's review as the reader first meets it, before any step of
+// theirs: its details wait behind the eye.
+export async function openFrontendStoryReviewAsOpened(
   page: Page,
   frontendServices: FrontendServiceState,
   reviewAnswer?: StoryReview,
@@ -60,8 +62,16 @@ export async function openFrontendStoryReview(
   await openFrontendTakenBacklog(page);
   const card = takenStoryCard(page);
   await reviewChanges(card).click();
-  const review = reviewRegion(page);
-  return { card, review, answers };
+  return { card, review: reviewRegion(page), answers };
+}
+
+// The same opening with the review's details readable.
+export async function openFrontendStoryReview(
+  ...opening: Parameters<typeof openFrontendStoryReviewAsOpened>
+) {
+  const opened = await openFrontendStoryReviewAsOpened(...opening);
+  await showReviewDetails(opened.review);
+  return opened;
 }
 
 // Opens Review changes on a Recently done story (whose line numbers offer
@@ -76,5 +86,5 @@ export async function openFrontendDoneStoryReview(
   prepare(answers);
   await openFrontendBoardReview(page, frontendServices);
   await reviewChanges(doneCard(page, storyA.title)).click();
-  return { review: reviewRegion(page), answers };
+  return { review: await showReviewDetails(reviewRegion(page)), answers };
 }

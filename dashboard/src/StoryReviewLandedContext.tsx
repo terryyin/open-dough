@@ -1,19 +1,11 @@
 // Historical context names the fixed accepted pair.
 import type { LandedReviewContext } from "./storyReviewLandedRun.ts";
-import {
-  FileBrowserToggle,
-  type FileBrowserPlace,
-} from "./FileBrowserToggle.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
 import { reviewTargetName } from "./storyReviewContract.ts";
 export function LandedContext({
   landing,
-  browser,
-  onShowBrowser,
 }: {
   readonly landing: LandedReviewContext;
-  readonly browser?: FileBrowserPlace;
-  readonly onShowBrowser: (shown: boolean) => void;
 }) {
   return (
     <div>
@@ -28,7 +20,6 @@ export function LandedContext({
       <p>
         From <code>{landing.base}</code> to <code>{landing.revision}</code>.
       </p>
-      <FileBrowserToggle browser={browser} onShowBrowser={onShowBrowser} />
     </div>
   );
 }

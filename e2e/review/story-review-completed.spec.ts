@@ -7,6 +7,8 @@ import {
 import {
   reviewRegion,
   comparisonChoice,
+  filesToggle,
+  toolbarComparison,
 } from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
@@ -60,9 +62,10 @@ test("a CLI-completed story without a local launch opens fixed published changes
     "+story first",
   ]);
   await expect(diff.locator(".story-review-removed")).toHaveText(["-line 0"]);
-  await review.getByRole("button", { name: "Hide files", exact: true }).click();
+  await expect(toolbarComparison(review)).toHaveText("Published completion");
+  await filesToggle(review).click();
   await expect(fileBrowser(review)).toBeHidden();
-  await review.getByRole("button", { name: "Show files", exact: true }).click();
+  await filesToggle(review, "Show files").click();
   await expect(fileBrowser(review)).toBeVisible();
   advanceCompletedTrunk(origin);
   expect(await refreshReview(page, review)).toEqual(first);

@@ -1,9 +1,5 @@
 // Session commits context names the kept pair and where its commits were made.
 import type { StoryReview } from "./storyReviewContract.ts";
-import {
-  FileBrowserToggle,
-  type FileBrowserPlace,
-} from "./FileBrowserToggle.tsx";
 
 export type SessionCommitsReview = Extract<
   StoryReview,
@@ -15,12 +11,8 @@ export const sessionCommitsDescription =
 
 export function SessionCommitsContext({
   review: { session, baseline, tree },
-  browser,
-  onShowBrowser,
 }: {
   readonly review: SessionCommitsReview;
-  readonly browser?: FileBrowserPlace;
-  readonly onShowBrowser: (shown: boolean) => void;
 }) {
   return (
     <div>
@@ -42,7 +34,6 @@ export function SessionCommitsContext({
         {session.shared === true &&
           " Another session was open in the same checkout during that time, so the comparison may include that session's work."}
       </p>
-      <FileBrowserToggle browser={browser} onShowBrowser={onShowBrowser} />
     </div>
   );
 }

@@ -67,6 +67,9 @@ for (const { checkout, shared } of [
 
     await action.click();
     await journey.phase("the panel shows the session's commits", (pages) => {
+      pages.reviewToolbar.expectName("Session commits");
+      pages.reviewToolbar.expectFilesToggle(true);
+      pages.reviewToolbar.expectDetailsCollapsed();
       pages.storyReview.expectStory(title);
       pages.storyReview.expectSession(session.session.sessionId);
       pages.storyReview.expectSessionCommitsContext({

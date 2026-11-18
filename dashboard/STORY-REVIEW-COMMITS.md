@@ -16,8 +16,9 @@ is listed above the commits without a revision or timestamp; alone it compares
 the head's tree to the snapshot's, including staged, unstaged, and untracked
 files and excluding ignored files. With the oldest commit it equals All
 changes. Its heading names Uncommitted changes and the number of actual
-commits in the range. Hide files
-keeps its diff visible. A commit that changes no files says “The chosen commits
+commits in the range. The heading and the commit list stay in view with the
+[review details](STORY-REVIEW-FILES.md#toolbar-and-review-details) hidden.
+Hide files keeps its diff visible. A commit that changes no files says “The chosen commits
 changed nothing.” A snapshot with no commits and no changes offers no Commits.
 
 The range read is a GET to `/__agent-launch/review/range`, naming `source`,

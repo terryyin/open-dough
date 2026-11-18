@@ -5,7 +5,11 @@ import {
   listedFile,
   fileDiff,
 } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
+import {
+  reviewRegion,
+  filesToggle,
+  toolbarComparison,
+} from "../../dashboard/tests/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
@@ -92,9 +96,11 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   await listedFile(files, "Modified text.txt").click();
   await expect(fileDiff(review, "Modified text.txt")).toContainText("-before");
   await expect(fileDiff(review, "Modified text.txt")).toContainText("+extra");
-  await review.getByRole("button", { name: "Hide files" }).click();
+  // The toolbar names the comparison, never the selected run.
+  await expect(toolbarComparison(review)).toHaveText("Landed runs");
+  await filesToggle(review).click();
   await expect(files).toBeHidden();
-  await review.getByRole("button", { name: "Show files" }).click();
+  await filesToggle(review, "Show files").click();
   await expect(files).toBeVisible();
   expect(repositoryObservation(origin.project)).toEqual(before);
   expect(readFileSync(before.index)).toEqual(index);

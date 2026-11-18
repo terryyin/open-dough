@@ -7,8 +7,8 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { box } from "../pageLayout.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { largeReviewRevision, longA } from "./largeReviewFiles.ts";
-import { fileBrowser, reviewBody } from "./reviewContextLine.ts";
-import { openReview } from "./reviewRead.ts";
+import { fileBrowser } from "./reviewContextLine.ts";
+import { expectOpenedWithKeyboard, openReviewAsOpened } from "./reviewRead.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
@@ -108,9 +108,9 @@ export async function openLargeReview(
   );
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReview(page, card);
+  const review = await openReviewAsOpened(page, card);
   // The keyboard lands in the review's named content.
-  await expect(reviewBody(review)).toBeFocused();
+  await expectOpenedWithKeyboard(review);
   const browser = fileBrowser(review);
   await expect(changedFilesList(browser, "63 changed files")).toBeVisible();
   const diffOf = (name: string) => fileDiff(review, name);

@@ -158,8 +158,9 @@ browsing a project test never replaces the story's file, its Purpose or Proof,
 or its scroll, and a project test the story changed shows its published text
 in Project Intent. A visit to Project Intent and back restores the story's
 chosen view and reading place.
-While a location tree shows, Review changes' **Hide files** / **Show files**
-toggle states whether the locations column is shown. It ends the common view
+While a location tree shows, a worded **Hide files** / **Show files** toggle,
+sharing its names and expanded state with Review changes' file sidebar icon,
+states whether the locations column is shown. It ends the common view
 row on project **CI status** or a story's **Changed tests**, reached by Tab
 after the tabs. Hiding removes the column and gives the reading pane the full
 width, or on a narrow screen, where the tree sits above it, the full height; it

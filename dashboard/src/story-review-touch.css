@@ -4,7 +4,8 @@
 @media (any-pointer: coarse) {
   /* Context and comparison explanations scroll without taking the reading
      panes' remaining height in a short landscape view. */
-  .story-review-top {
+  .story-review-top,
+  .story-review-details {
     --story-review-top-height: max(
       calc(var(--side-panel-height) * 0.3),
       calc(var(--control-size) + 1rem)

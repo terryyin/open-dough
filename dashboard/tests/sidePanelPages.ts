@@ -33,6 +33,7 @@ import { sidePanelContents } from "./support/sidePanelContents.ts";
 import { Board } from "./storyCardPages.ts";
 import { StoryReview } from "./storyReviewPages.ts";
 import { SessionRunSwitch } from "./sessionRunSwitchPages.ts";
+import { ReviewToolbar } from "./reviewToolbarPages.ts";
 import { SessionsSidebar, Terminal } from "./terminalPages.ts";
 
 type Perspective = "Development" | "Intent";
@@ -124,6 +125,7 @@ export class SidePanelPages {
   readonly sidePanel = new SidePanel(this);
   readonly storyReview = new StoryReview(this);
   readonly sessionRuns = new SessionRunSwitch(this);
+  readonly reviewToolbar = new ReviewToolbar(this);
   readonly finalReport = new FinalReport(this);
   readonly terminal = new Terminal(this);
   readonly sessionsSidebar = new SessionsSidebar(this);

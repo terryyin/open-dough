@@ -2,6 +2,8 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 import {
   reviewRefresh,
   reviewRegion,
+  filesToggle,
+  showReviewDetails,
 } from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review stays the snapshot taken when it opened, of Story A's
 // worktree (../../dashboard/tests/support/storyReviewWorktree.ts), while the worktree moves on:
@@ -53,7 +55,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   const card = await openBacklog(page, origin);
   const action = reviewChanges(card);
   await action.click();
-  const review = reviewRegion(page);
+  const review = await showReviewDetails(reviewRegion(page));
   const listed = [
     "fresh",
     "  new.txt",
@@ -131,9 +133,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
       expect.arrayContaining(["-unstaged 5", edit]),
     );
     await expect(refresh).toBeFocused();
-    await expect(
-      contextLine(review).getByRole("button", { name: "Hide files" }),
-    ).toBeVisible();
+    await expect(filesToggle(review)).toBeVisible();
     // The message sits beneath the context line, above the body, and both
     // stay in place while the file browser scrolls.
     const statusBox = await status.boundingBox();

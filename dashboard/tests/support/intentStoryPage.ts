@@ -1,7 +1,7 @@
 import { fileBrowser } from "./reviewContextLine.ts";
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { codePane, expectContextRead } from "./reviewPanes.ts";
-import { reviewRegion } from "./reviewControls.ts";
+import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
@@ -176,7 +176,7 @@ export async function openReviewFromIntent(page: Page, intent: Locator) {
   const review = reviewRegion(page);
   await expectReviewRead(review);
   await expect(fileBrowser(review)).toBeVisible();
-  return review;
+  return showReviewDetails(review);
 }
 
 // The selected story in Intent. Diff text comes back for the scenario to

@@ -9,7 +9,12 @@ import {
 // which viewport owns what no arrangement changes.
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 
-import { reviewRefresh, comparisonChoice } from "./reviewControls.ts";
+import {
+  reviewRefresh,
+  comparisonChoice,
+  detailsToggle,
+  filesToggle,
+} from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -131,10 +136,17 @@ async function keepReviewContextThroughPanelControls(
   landscape: Viewport,
 ) {
   const { action, review, browser, changedFiles } = opened;
-  await tapWhereShown(control(review, "Hide files"));
+  // The toolbar's two toggles are tap-sized; the sidebar's keeps its place.
+  const toggleAt = await box(filesToggle(review));
+  for (const at of [toggleAt, await box(detailsToggle(review))]) {
+    expect(at.width).toBeGreaterThanOrEqual(44);
+    expect(at.height).toBeGreaterThanOrEqual(44);
+  }
+  await tapWhereShown(filesToggle(review));
   await expect(browser).toBeHidden();
   expect(await scrollTopOf(chosen.code)).toBe(chosen.codeAt);
-  await tapWhereShown(control(review, "Show files"));
+  expect(await box(filesToggle(review, "Show files"))).toEqual(toggleAt);
+  await tapWhereShown(filesToggle(review, "Show files"));
   await expectKept(opened, chosen);
   await tapWhereShown(control(review, "Next file"));
   const next = fileDiff(review, `Added ${longB}`);
@@ -158,7 +170,7 @@ async function keepReviewContextThroughPanelControls(
     `Review refreshed: ${String(changedFiles)} changed files in the chosen range.`,
   );
   await selectAddedFileByTouch(review, longB);
-  await tapWhereShown(control(review, "Hide files"));
+  await tapWhereShown(filesToggle(review));
   const nextCode = codePane(next);
   await scrollByTouch(page, nextCode, -180, "vertical", undefined, nextCode);
   await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);

@@ -33,6 +33,7 @@ import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
 import {
   reviewRegion,
   uncommittedCheck as check,
+  filesToggle,
 } from "../../dashboard/tests/support/reviewControls.ts";
 import {
   nestedWorktree,
@@ -170,9 +171,7 @@ test("with nothing committed, the check off says so, lists no files, and stays t
     "Nothing is committed yet: every change in this worktree is uncommitted.",
   );
   await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
-    0,
-  );
+  await expect(filesToggle(review)).toHaveCount(0);
   await expect(check(review)).not.toBeChecked();
 
   await check(review).check();

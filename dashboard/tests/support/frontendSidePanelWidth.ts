@@ -8,7 +8,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { reviewChanges } from "../storyCardControls.ts";
 import { doneCard } from "../doneStoryReviewPage.ts";
-import { reviewRegion } from "./reviewControls.ts";
+import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   expect,
   openFrontendTakenBacklog,
@@ -54,7 +54,7 @@ export async function openReview(page: Page): Promise<Locator> {
   await reviewChanges(takenStoryCard(page)).click();
   const review = reviewRegion(page, { exact: true });
   await expect(review.getByRole("heading", { level: 2 })).toBeVisible();
-  return review;
+  return showReviewDetails(review);
 }
 
 // Another story, done elsewhere, also offers Review changes from Recently done.
