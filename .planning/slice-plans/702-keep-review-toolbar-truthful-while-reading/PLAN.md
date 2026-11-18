@@ -134,7 +134,7 @@ layout readers that share this markup.
 
 ### 4. The frontend proves how a two-run review opens
 Type: Structure
-Status: planned
+Status: done
 
 Structure: move the dedicated real-launch details journey to the frontend.
 Reuse the Done board setup and click the card's **Review changes** action
