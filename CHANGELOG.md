@@ -1,3 +1,17 @@
+## 0.3.105 - 2026-11-18
+
+- Execute Plan keeps proof logs, full worker reports, and command records with the execution checkout until it is retired. The slice clock records the command, revision, working-tree state, timing, and result beside the log. Workers return a short verdict with links to the evidence for each promise.
+- Proof guidance requires checking all readers of a changed output, including unchanged tests. Focused runs identify the variants they exercised and any readers still unverified. Test and refactoring guidance ties each assertion to the behavior named by its test.
+- Dashboard follow-ups can attach waiting notes from a completed story. A note version is marked sent once the first input is confirmed. Recently done groups closed follow-ups under their source story, and Taken follow-ups can reveal the source card.
+- Story Review highlights changed words in eligible diff lines and uses the Intent language hint when a file has no known grammar. Rewrites and large diff blocks keep line-level emphasis. A machine-local System setting controls syntax styling in Intent and Review.
+- Source tooling adds explicit single-run and group-comparison contracts for agent-effort reports. Native guidance checks retain reusable case baselines. Dashboard CI moves several navigation and Intent checks to focused suites, and Distribution CI rebalances its test shares.
+
+The Promoted payload contains 381 files. It adds two Execute Plan references, revises ten existing paths, and retires no paths. Dashboard, CI, and native evaluation tooling changes are in the source repository.
+
+The self-installation baseline, six focused installation and release checks, proof-guidance and slice-clock checks, and dashboard type-check passed locally. Representative review covered recovery of a running command after output cleanup, acceptance from a short verdict and retained proof, and a changed output with unchanged readers in another suite. [Hosted trunk CI passed all 17 jobs at `73b6b3548`](https://github.com/terryyin/open-dough/actions/runs/44204591938). Changes from that revision through source candidate `dcccb1990` are planning records.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this release reuses evidence for the existing installation, discovery, and host-hook integrations. [One real planned execution](.planning/seeds/SEED-397-evaluate-recoverable-proof-evidence.md) will evaluate how agents use the retained records and short verdicts after rollout. Native observations for freshness ordering and oversized-file reorganization remain pending for their unchanged guidance.
+
 ## 0.3.104 - 2026-11-17
 
 - Save, dictate, edit, and delete story notes from the Board, Review changes, and Intent. File and line notes preserve the original comparison context, including after a workspace is removed. The dashboard machine stores notes outside the project repositories.
