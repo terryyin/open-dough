@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Move story destination and card selection checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-integrated-ui-test-and-its-documents) — SEED-334#retire-integrated-ui-test-and-its-documents ([plan](slice-plans/688-move-story-destination-and-card-selection-checks/PLAN.md))
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
-- [Declare every worker preparation with its own budget](seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget) — SEED-340#declare-every-worker-preparation-with-its-own-budget ([plan](slice-plans/692-declare-every-worker-preparation-with-its-own-budget/PLAN.md))
 
 ## Backlog list
 

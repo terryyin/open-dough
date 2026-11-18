@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "identity": "SEED-340#declare-every-worker-preparation-with-its-own-budget",
-  "mode": "story-branch",
-  "branch": "claude/declare-every-worker-preparation-with-its-own-bu",
-  "host": "claude"
-}
