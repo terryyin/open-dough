@@ -217,8 +217,8 @@ jobs:
       root: dashboard/backend-tests
       shards: "[1, 2, 3]"
       specs: |
-        1: dashboard/backend-tests/launches/** dashboard/backend-tests/runtime/** dashboard/backend-tests/review/**
-        2: dashboard/backend-tests/sessions/** dashboard/backend-tests/observation/** dashboard/backend-tests/terminals/** dashboard/backend-tests/configuration/**
+        1: dashboard/backend-tests/launches/** dashboard/backend-tests/runtime/**
+        2: dashboard/backend-tests/sessions/** dashboard/backend-tests/observation/** dashboard/backend-tests/terminals/** dashboard/backend-tests/configuration/** dashboard/backend-tests/review/**
 
   # One CI proof summary per run attempt once the proof jobs settle, however they
   # ended, against declared Intent locations, parts and units their reports give.
