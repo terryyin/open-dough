@@ -1,7 +1,9 @@
 # Keep the Review changes toolbar truthful while it reads
 
 **Source:** [Keep the Review changes toolbar truthful while it reads](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-toolbar-truthful-while-reading)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-384#keep-review-toolbar-truthful-while-reading
+
 
 ## Provenance and findings
 
@@ -77,7 +79,7 @@ The scratch edits were reverted.
 
 ### 1. Mode-switch and ambiguity checks observe the review as opened
 Type: Structure
-Status: planned
+Status: done
 
 Structure: prepare the two incidental eye callers for slice 2. In the Done
 Intent handoff, observe the pending live read before revealing anything.

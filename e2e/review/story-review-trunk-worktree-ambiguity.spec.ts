@@ -1,7 +1,6 @@
 import {
   reviewRefresh,
   reviewRegion,
-  showReviewDetails,
 } from "../../dashboard/tests/support/reviewControls.ts";
 // A Trunk Mode story taken in a terminal (./story-review-trunk-worktree.spec.ts)
 // beside other worktrees of the project's checkout, each added by Git and
@@ -160,7 +159,8 @@ test("two worktrees holding the story's claim open a review that names both and 
     explanation,
   });
 
-  const review = await showReviewDetails(reviewRegion(page));
+  // Read the explanation directly; do not reveal empty details.
+  const review = reviewRegion(page);
   await expect(reviewFeedback(review)).toHaveText(explanation);
   await expect(contextLine(review)).toHaveCount(0);
   await expect(reviewBody(review)).toBeEmpty();

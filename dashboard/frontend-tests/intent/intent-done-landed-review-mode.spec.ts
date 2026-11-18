@@ -88,20 +88,28 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
   try {
     await ordinary.click();
     await held.received;
-    await showReviewDetails(review);
+    // Observe the pending live read before revealing anything: the previous
+    // run's picker, facts and files are gone even from the hidden content.
     const ordinaryQuery = new URL((await ordinaryRequest).url()).searchParams;
     expect(ordinaryQuery.get("historical")).not.toBe("true");
     expect(ordinaryQuery.has("run")).toBe(false);
     await expect(reviewFeedback(review)).toHaveText(
       "Reading the story's changes…",
     );
-    await expect(landedRunChoice(review)).toHaveCount(0);
+    await expect(landedRunChoice(review, { includeHidden: true })).toHaveCount(
+      0,
+    );
     await expect(
-      review.getByRole("heading", { name: "Landed run", exact: true }),
+      review.getByRole("heading", {
+        name: "Landed run",
+        exact: true,
+        includeHidden: true,
+      }),
     ).toHaveCount(0);
     await expect(fileBrowser(review)).toHaveCount(0);
     held.release();
     await held.delivered;
+    await showReviewDetails(review);
     const live = await reviewDiff(page, modified);
     expect(live).toContain("+local edit after captured landing");
     await expect(
