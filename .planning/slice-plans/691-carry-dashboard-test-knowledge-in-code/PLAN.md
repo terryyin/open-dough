@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#carry-dashboard-test-knowledge-in-code
 **Source:** [Carry dashboard test knowledge in test code and remove its Markdown](../../seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -92,7 +93,7 @@ an earlier block's options for the same rule, so slice 1 restates the
 
 ### 1. Refuse a Frontend spec that takes the real server
 Type: Behavior
-Status: planned
+Status: done
 Proof: with a scratch `dashboard/frontend-tests/zz-scratch.spec.ts`, `npm run
 lint` fails naming the rule for each of: `test` from `../tests/dashboardTest.ts`,
 `startDashboardServer`, `startFakeGitHub`, and `test` from `@playwright/test`.
@@ -106,6 +107,11 @@ existing helper imports pass. Add one `eslint.config.mjs` block for
 `dashboard/frontend-tests/**` (120 lines today). Name the starter exports of
 `support/fakeClaude.ts`, `fakeCodex.ts` and `fakeCursor.ts` from their current
 exports.
+
+Accepted: the block refuses `test` from `@playwright/test` and
+`dashboardTest.ts`, `startDashboardServer`, `startFakeGitHub` and
+`installFakeClaude`/`Codex`/`Cursor` (the fakes' starters; the `fake*Host`
+wiring constants stay importable); the tree passes `npm run lint`.
 
 ### 2. Remove the spent records and the pilot document
 Type: Behavior
