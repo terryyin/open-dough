@@ -1,6 +1,7 @@
 # Resize and remember the Review changes file sidebar
 
 **Source:** [Resize and remember the Review changes file sidebar](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-384#resize-and-remember-the-review-file-sidebar
 
 ## Goal and scope
@@ -107,7 +108,7 @@ divider; the story changes no server behavior.
 
 ### 1. The shared divider resizes an area on its leading side
 Type: Structure
-Status: planned
+Status: done
 Proof: first row above; `npm run --silent test:dashboard:frontend --
 dashboard/frontend-tests/navigation/side-panel-width
 dashboard/frontend-tests/sessions/recently-done-sessions-sidebar-room.spec.ts
@@ -120,6 +121,12 @@ area on the leading side, a drag toward the trailing side and Right grow it;
 the existing callers keep the trailing side and their behavior. Its header
 comment states the rule once for both sides. Enables slice 2, whose sidebar
 lies left of its divider.
+
+Accepted proof (2026-11-18, on c4c7b2472 with the change uncommitted, load
+about 20 to 25): `ResizeDivider` takes `side` (`"trailing"` by default,
+`"leading"`); the named frontend specs, the Cursor Sessions sidebar resize
+e2e spec and the typecheck passed. The leading side has no caller yet; slice
+2's keyboard and drag specs observe it. Refactor pass: no change.
 
 ### 2. The Files divider resizes the file sidebar and the width is kept
 Type: Behavior

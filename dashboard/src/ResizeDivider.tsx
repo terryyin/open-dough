@@ -1,10 +1,13 @@
 // A boundary between two areas that resizes the one it belongs to: the side
 // Panel divider (`./PanelDivider.tsx`) and the dividers above optional Sessions
 // sidebar sections (`./SessionsSidebar.tsx`). It is a
-// focusable separator that says its area's current size and bounds. Dragged
-// with the pointer toward the area's far side, or, while it holds the
-// keyboard, with Left or Up, the area grows; away from it, or with Right or
-// Down, it shrinks, along the divider's own axis. A drag ends wherever the
+// focusable separator that says its area's current size and bounds. The area
+// lies on one side of the divider along its axis: trailing (right of a
+// vertical divider, below a horizontal one; the default) or leading (left of
+// it, above it). Dragged with the pointer away from the area, or, while it
+// holds the keyboard, with the arrow key pointing away from the area (Left or
+// Up for a trailing area, Right or Down for a leading one), the area grows;
+// toward it, or with the opposite key, it shrinks. A drag ends wherever the
 // pointer is released, or when the browser cancels it. Each caller owns its
 // area's sizes: the divider only asks for one (`choose`), within the bounds the
 // caller gives. Where the room offers no range to choose from, the divider says
@@ -28,23 +31,32 @@ type Drag = {
   readonly size: number;
 };
 
+// Each axis's position and its keys toward the leading and trailing sides.
 const axes = {
-  // Beside the area: across the page.
+  // Across the page.
   vertical: {
     position: (event: PointerEvent) => event.clientX,
-    grow: "ArrowLeft",
-    shrink: "ArrowRight",
+    leading: "ArrowLeft",
+    trailing: "ArrowRight",
   },
-  // Above the area: down the page.
+  // Down the page.
   horizontal: {
     position: (event: PointerEvent) => event.clientY,
-    grow: "ArrowUp",
-    shrink: "ArrowDown",
+    leading: "ArrowUp",
+    trailing: "ArrowDown",
   },
+} as const;
+
+// Which side of the divider the area lies on, and so which way it grows: away
+// from the area.
+const sides = {
+  trailing: { grow: "leading", shrink: "trailing", direction: -1 },
+  leading: { grow: "trailing", shrink: "leading", direction: 1 },
 } as const;
 
 export function ResizeDivider({
   orientation,
+  side = "trailing",
   label,
   title,
   valueText,
@@ -52,6 +64,7 @@ export function ResizeDivider({
   range,
 }: {
   readonly orientation: keyof typeof axes;
+  readonly side?: keyof typeof sides;
   readonly label: string;
   readonly title: string;
   readonly valueText: (size: number) => string;
@@ -61,6 +74,7 @@ export function ResizeDivider({
 }) {
   const drag = useRef<Drag | undefined>(undefined);
   const axis = axes[orientation];
+  const growth = sides[side];
   const end = (event: PointerEvent) => {
     if (drag.current?.pointerId === event.pointerId) drag.current = undefined;
   };
@@ -91,9 +105,9 @@ export function ResizeDivider({
         if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
           return;
         const change =
-          event.key === axis.grow
+          event.key === axis[growth.grow]
             ? step
-            : event.key === axis.shrink
+            : event.key === axis[growth.shrink]
               ? -step
               : undefined;
         if (change === undefined) return;
@@ -117,7 +131,10 @@ export function ResizeDivider({
       onPointerMove={(event) => {
         const dragged = drag.current;
         if (dragged?.pointerId !== event.pointerId) return;
-        choose(dragged.size + dragged.from - axis.position(event));
+        choose(
+          dragged.size +
+            growth.direction * (axis.position(event) - dragged.from),
+        );
       }}
       onPointerUp={end}
       onPointerCancel={end}
