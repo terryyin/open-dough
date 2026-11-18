@@ -2,6 +2,7 @@
 
 **Identity:** SEED-340#declare-every-worker-preparation-with-its-own-budget
 **Source:** [Worker preparation correction](../../seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget)
+**Source review:** [Source-only commitments](source-review.md)
 
 ## Correction input
 
@@ -50,7 +51,7 @@ the strict local gate at the end of this plan. Scratch changes were reverted.
 ### 1. Kept and ordinary histories share a worker
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Register `keptComparedStoryBranch` lazily in the common pool, keeping
 its existing cold budget. Keep the real-CLI preparation in
 `keptComparedStoryBranch.ts` and the per-case `originRepository` override
@@ -59,6 +60,14 @@ fresh one-worker run. Record the actual worker index for each, the kept
 history only where requested, and independent private origins. A local
 worker registration must break the same-worker assertion. Retain both real
 retry cases, including upstream read counts, reselection and shallow recovery.
+Accepted proof: `runtime/kept-history-worker.spec.ts` (Backend) runs
+`kept-history.proof.ts` once with one worker: ordinary, kept and ordinary cases
+share one worker index, only the kept case takes `keptComparedStoryBranch`, and
+the three origins differ with the kept completion only in the kept one. A
+spec-local worker fixture moved the kept case to another worker and failed it.
+The retry spec stays unchanged and passed 2/2. Learning: cross-case records in a
+product spec make assertions order-dependent; worker-pool claims belong in a
+nested proof run.
 
 ### 2. Cold history and native origin setup get 60 seconds
 

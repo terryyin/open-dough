@@ -39,8 +39,10 @@ import type {
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
+import type { KeptComparedStoryBranch } from "./keptComparedStoryBranch.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
 import {
+  coldInputPreparation,
   publishedMainWorkerFixtures,
   type PublishedMainWorkerFixtures,
 } from "./publishedMainWorkerFixtures.ts";
@@ -66,6 +68,7 @@ const workerTest = base.extend<
       keptStory: StartRepository;
       keptIntentStory: StartRepository;
       keptSummaryComparisonStory: StartRepository;
+      keptComparedStoryBranch: KeptComparedStoryBranch;
     }
 >({
   ...serverInputWorkerFixtures,
@@ -98,6 +101,19 @@ const workerTest = base.extend<
       await use(await prepareKeptStory("summary comparison"));
     },
     { scope: "worker" },
+  ],
+  // The real-CLI compared Story Branch history (./keptComparedStoryBranch.ts),
+  // completed in cold preparation's own worker allowance before the first
+  // case that asks for it; a spec selects it per case through
+  // `startingFromKeptComparedStoryBranch`.
+  keptComparedStoryBranch: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptComparedStoryBranch } =
+        await import("./keptComparedStoryBranch.ts");
+      await use(await prepareKeptComparedStoryBranch());
+    },
+    coldInputPreparation,
   ],
   comparisonRenderer: [
     // eslint-disable-next-line no-empty-pattern
