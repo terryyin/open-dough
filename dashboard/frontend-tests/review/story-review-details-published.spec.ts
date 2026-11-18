@@ -1,18 +1,18 @@
 // A published completion's facts wait behind the toolbar's eye like every
 // other review's details.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendPublishedReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReviewAsOpened } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { expectToggleLeadsToolbar } from "../../tests/support/reviewControls.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { expectToggleLeadsToolbar } from "../../test-support/support/reviewControls.ts";
 import {
   expectDetailsCollapsed,
   expectEyeBesideComparison,
   revealDetails,
-} from "../../tests/support/reviewDetails.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/reviewDetails.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
 
 const added = (path: string) => ({
   kind: "added" as const,

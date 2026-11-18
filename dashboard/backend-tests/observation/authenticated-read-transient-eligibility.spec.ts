@@ -5,15 +5,21 @@
 // generic 502 wrapper. Shares the harness with
 // ./authenticated-read-boundary.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, failsWith } from "../../tests/support/fakeGitHub.ts";
-import { httpErrorAnswer, noConnection } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  failsWith,
+} from "../../test-support/support/fakeGitHub.ts";
+import {
+  httpErrorAnswer,
+  noConnection,
+} from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

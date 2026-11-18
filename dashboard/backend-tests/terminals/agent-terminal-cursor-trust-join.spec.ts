@@ -1,17 +1,17 @@
 // The held current screen reaches first join and reconnect, including the
 // native trust boundary: no completed frame and no output from a join nudge.
 // A completed-frame substitute remains the compatible observation.
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { shows } from "../../tests/agentTerminalBoundary.ts";
-import { openCursorTerminal } from "../../tests/support/cursorTerminal.ts";
-import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { shows } from "../../test-support/agentTerminalBoundary.ts";
+import { openCursorTerminal } from "../../test-support/support/cursorTerminal.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
   enteredInstruction,
   heldOnWorkspaceTrust,
   keptCursor,
   withInstructedCursor,
-} from "../../tests/support/keptCursorTurn.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "hold this trust launch";
 

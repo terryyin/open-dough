@@ -1,21 +1,21 @@
 // Older actual review/file responses cannot answer a later retained choice.
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
-import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
   landedRunChoice,
   filesToggle,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   test as base,
   expect,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { reviewChoices } from "../../dashboard/tests/support/oneShotReviewChoices.ts";
-import { openCapturedReview } from "../../dashboard/tests/support/oneShotReview.ts";
-import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { reviewChoices } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
+import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -26,7 +26,7 @@ import {
   panelDivider,
   pressDividerKey,
   resizeUntilArranged,
-} from "../../dashboard/tests/sidePanelWidthPage.ts";
+} from "../../dashboard/test-support/sidePanelWidthPage.ts";
 
 // Prepare immutable installed Codex and preview inputs before the case's
 // private origin and its real native launches begin.

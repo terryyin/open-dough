@@ -8,18 +8,21 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   rateLimitedAnswer,
   type OriginAnswer,
-} from "../../tests/originAnswers.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/originAnswers.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { landedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   pendingLandedComparison,
   readLandedComparison,
   proofListings,
   serveProofAnswer,
-} from "../../tests/support/pendingLandedComparison.ts";
-import { listingReuseWithOwnerClock } from "../../tests/support/listingReuseWithOwnerClock.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/pendingLandedComparison.ts";
+import { listingReuseWithOwnerClock } from "../../test-support/support/listingReuseWithOwnerClock.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 test.use({ serverMode: "boundary" });
 

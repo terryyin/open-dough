@@ -1,23 +1,23 @@
 // The local authenticated read boundary at a revision its configured ref
 // names next, as its specs (./authenticated-read-revision-reuse*.spec.ts)
 // drive it: a development-environment boundary server over real HTTP and the synthetic
-// `gh`, answered from one publication (../../tests/revisionReuseOrigin.ts), with every
+// `gh`, answered from one publication (../../test-support/revisionReuseOrigin.ts), with every
 // `gh` call GitHub received described by kind, path, and revision pair.
 
 import { z } from "zod";
 import { parseDoneCatalog } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import type {
   MadeCommit,
   PathHistories,
-} from "../../tests/pathHistoryAnswers.ts";
+} from "../../test-support/pathHistoryAnswers.ts";
 import {
   answerFrom,
   otherSeedPath,
@@ -27,8 +27,8 @@ import {
   moved,
   type Files,
   type Publication,
-} from "../../tests/revisionReuseOrigin.ts";
-import { described } from "../../tests/revisionReuseCalls.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
+import { described } from "../../test-support/revisionReuseCalls.ts";
 
 export type Answer = { readonly status: number; readonly body: unknown };
 

@@ -3,17 +3,17 @@
 import http from "node:http";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { listenOnReleasedRunnerPort } from "../../tests/support/cursorRunnerRecordedAddress.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { listenOnReleasedRunnerPort } from "../../test-support/support/cursorRunnerRecordedAddress.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
-import { publishedLanding } from "../../tests/support/landedCiTrunk.ts";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import { publishedLanding } from "../../test-support/support/landedCiTrunk.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.use({ serverMode: "boundary" });
 

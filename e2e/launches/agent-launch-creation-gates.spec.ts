@@ -1,19 +1,22 @@
 // Native creation admission runs through real HTTP and durable machine evidence;
 // unreadable evidence:
 // ../../dashboard/backend-tests/launches/agent-launch-creation-gates-boundary.spec.ts.
-import { test, expect } from "../../dashboard/tests/support/codexLaunch.ts";
-import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   keptLaunchStore,
-} from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
 import type { CreationRecord } from "../../dashboard/src/launchCreation.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import {
   agentLaunchEndpoint,
   launchRecordsSchema,
 } from "../../dashboard/src/agentLaunch.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });

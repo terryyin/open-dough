@@ -1,41 +1,44 @@
-import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionActions } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../../dashboard/src/launchOutcome.ts";
 import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   launch,
   recordsOf,
   markDone as markDoneAtBoundary,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   queuedIdentity,
   queuedTitle,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   markAsDone,
   markDone,
-} from "../../dashboard/tests/support/markDone.ts";
-import { occupyRunner } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { occupyRunner } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
-import { messagePartOf } from "../../dashboard/tests/support/sessionMessagePart.ts";
+import { messagePartOf } from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const exec = promisify(execFile);
 

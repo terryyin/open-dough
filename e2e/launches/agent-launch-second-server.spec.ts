@@ -4,39 +4,42 @@
 // bound live in ../../dashboard/backend-tests/launches/agent-launch-worker-handoff.spec.ts and
 // ../../dashboard/backend-tests/launches/agent-launch-change-wait.spec.ts.
 import { type AttemptObservation } from "../../dashboard/src/agentLaunch.ts";
-import { accept, attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { answerOf } from "../../dashboard/tests/keptExecutionStart.ts";
+import {
+  accept,
+  attempts,
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { answerOf } from "../../dashboard/test-support/keptExecutionStart.ts";
 import {
   chooseProject,
   storyCardSessions,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expect,
   pausePageClockAt,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectProtected,
   openStories,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
 import {
   recoveryOf,
   worktrees,
-} from "../../dashboard/tests/responsiveRecovery.ts";
-import { indicatorOf } from "../../dashboard/tests/responsiveAccess.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
+import { indicatorOf } from "../../dashboard/test-support/responsiveAccess.ts";
 import {
   openUntilRead,
   passCheckPace,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: "Story A" })

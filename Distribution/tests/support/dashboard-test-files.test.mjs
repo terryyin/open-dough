@@ -14,8 +14,8 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { dashboardTestProjects } from "../../../dashboard/tests/support/testFiles.mjs";
-import { remainingSuiteTime } from "../../../dashboard/tests/support/suiteDeadline.mjs";
+import { dashboardTestProjects } from "../../../dashboard/test-support/support/testFiles.mjs";
+import { remainingSuiteTime } from "../../../dashboard/test-support/support/suiteDeadline.mjs";
 
 // A fixture runner naming no CI job, which runs every spec under its roots.
 const scratch = {

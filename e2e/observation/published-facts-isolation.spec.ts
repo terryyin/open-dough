@@ -7,26 +7,29 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
   revisionDoughnut,
-} from "../../dashboard/tests/doughnutProject.ts";
-import { selectSettledDoughnut } from "../../dashboard/tests/doughnutJourney.ts";
-import { opened, repository } from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
+import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
+import {
+  opened,
+  repository,
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 import {
   factsAt,
   publishFactsOrigin,
   revisionA,
   revisionB,
-} from "../../dashboard/tests/publishedFactsIsolation.ts";
+} from "../../dashboard/test-support/publishedFactsIsolation.ts";
 import {
   expectCurrentFacts,
   expectCurrentRoster,
@@ -37,21 +40,21 @@ import {
   expectNoEarlierFacts,
   expectOnlyProjectAsked,
   focusCanonical,
-} from "../../dashboard/tests/publishedFactsIsolationAssertions.ts";
+} from "../../dashboard/test-support/publishedFactsIsolationAssertions.ts";
 import {
   expectOnlyDoughnut,
   expectPublishedReadState,
   openHeldPublication,
   publishedReadState,
-} from "../../dashboard/tests/publishedFactsIsolationJourney.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
-import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
+} from "../../dashboard/test-support/publishedFactsIsolationJourney.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
+import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
 import {
   canonicalRecord,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
 
 const factsA = factsAt(revisionA, "A");
 const factsB = factsAt(revisionB, "B");

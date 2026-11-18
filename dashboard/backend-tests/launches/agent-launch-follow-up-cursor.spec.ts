@@ -1,5 +1,5 @@
 // A follow-up started with Cursor over raw HTTP, with the real installed start
-// (../../tests/support/cursorStart.ts) and the fixture `cursor-agent`:
+// (../../test-support/support/cursorStart.ts) and the fixture `cursor-agent`:
 // Cursor's first prompt has Claude's follow-up layout (expectFollowUpInput in
 // ./followUpBoundaryCases.ts; Claude's: agent-launch-follow-up-boundary.spec.ts).
 // A blank follow-up with a chosen model is admitted, because
@@ -15,13 +15,13 @@ import {
   continued,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
-import { expect, test } from "../../tests/support/cursorStart.ts";
-import type { FakeCursor } from "../../tests/support/fakeCursor.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import { isolatedSession } from "../../tests/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
+import { expect, test } from "../../test-support/support/cursorStart.ts";
+import type { FakeCursor } from "../../test-support/support/fakeCursor.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import { isolatedSession } from "../../test-support/support/startSessionLanding.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,

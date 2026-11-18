@@ -11,11 +11,17 @@
 
 import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { evidenceLabel, labelWords } from "../../tests/ciEvidenceLabelsPage.ts";
-import { expectProofRows, proofTable } from "../../tests/intentCiProofPage.ts";
-import { ciStatusReading } from "../../tests/intentCiStatusPage.ts";
-import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  evidenceLabel,
+  labelWords,
+} from "../../test-support/ciEvidenceLabelsPage.ts";
+import {
+  expectProofRows,
+  proofTable,
+} from "../../test-support/intentCiProofPage.ts";
+import { ciStatusReading } from "../../test-support/intentCiStatusPage.ts";
+import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const wallTime = "CI wall time 3 min";
 const noTimings = "No timings";

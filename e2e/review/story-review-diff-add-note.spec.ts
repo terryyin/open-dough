@@ -5,27 +5,30 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
-import { contextExpansion } from "../../dashboard/tests/support/expandContextDiff.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { contextExpansion } from "../../dashboard/test-support/support/expandContextDiff.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   commitAll,
   expandContextFile,
   expandContextLines,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { storyNotesPage } from "../../dashboard/tests/support/storyNotesPage.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
+import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
 
 async function openNotesReview(page: Page, origin: StartOrigin) {
   writeFileSync(

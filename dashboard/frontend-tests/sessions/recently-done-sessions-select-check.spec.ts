@@ -2,26 +2,26 @@
 // apart from a miss and superseded by a later choice; failed catalog answers
 // leave reading and Open usable.
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { routeNextReads } from "../../tests/nextActionReads.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { routeNextReads } from "../../test-support/nextActionReads.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import {
   holdPygardonCatalog,
   isPygardonCatalog,
   pygardonCatalogAbandoned,
   pygardonCatalogRead,
-} from "../../tests/pygardonCatalogReads.ts";
+} from "../../test-support/pygardonCatalogReads.ts";
 import {
   adHoc,
   linked,
   openFrontendSelectionPage,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
-import { frontendRevision } from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
+import { frontendRevision } from "../../test-support/support/frontendServiceState.ts";
 
 async function expectReadingKept(page: Page) {
   const { intentChoice, intent } = parts(page);

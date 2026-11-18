@@ -12,27 +12,27 @@
 // reaching the fake GitHub show which records were read, and at which
 // revision.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   bottomOf,
   rem,
   scrollYOf,
   wheelToBoardEnd,
-} from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/boardPage.ts";
 import {
   expectEntries,
   revealAction,
   shownEntries,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   entryName,
   type ProgressiveEntry,
-} from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   opened,
   recordsAsked,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
   entries,
@@ -40,7 +40,7 @@ import {
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   laterStory,
   movingMain,
@@ -50,7 +50,7 @@ import {
   recordsAskedAt,
   refreshedTo,
   retitled,
-} from "../../dashboard/tests/recentlyDoneRefresh.ts";
+} from "../../dashboard/test-support/recentlyDoneRefresh.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

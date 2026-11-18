@@ -1,8 +1,8 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session's identity includes its Workspace and After
 // checks choices, over raw HTTP with a real bare origin
-// (../../tests/support/startOrigin.ts), the installed start recorded
-// (../../tests/support/startSessionLanding.ts) and the protocol-only Codex: while a
+// (../../test-support/support/startOrigin.ts), the installed start recorded
+// (../../test-support/support/startSessionLanding.ts) and the protocol-only Codex: while a
 // conversation's first input is unconfirmed, a Start session with another
 // landing choice starts a new session in its own place and leaves that
 // conversation and workspace intact; repeating its choices recovers it. Both
@@ -10,18 +10,18 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // start continuation belongs to ./agent-launch-start-session-kept.spec.ts.
 
 import type { LaunchWithState } from "../../src/launchRecord.ts";
-import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
-import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+import { launch, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
   isolatedStart,
   recordStarts,
   worktrees,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

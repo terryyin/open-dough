@@ -6,12 +6,15 @@
 import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { keptStarts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { publishLaterHead } from "../../dashboard/tests/support/publishLaterHead.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
+import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { publishLaterHead } from "../../dashboard/test-support/support/publishLaterHead.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
 
 const baseCiFailedHeading = "Base CI failed";
 const baseCiUnreadHeading = "Base CI could not be read";

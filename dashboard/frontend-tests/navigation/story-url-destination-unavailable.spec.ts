@@ -5,39 +5,39 @@
 // clears the target without a late reveal. Doughnut and Open Dough both tell
 // the shared identity. Nothing here launches or attaches an agent.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { holdProjectReads } from "../../tests/holdAuthenticatedReads.ts";
-import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
-import { answerSharedStoryProjects } from "../../tests/support/frontendStoryUrlDestination.ts";
-import { installFrontendSettingsSubstitutes } from "../../tests/support/frontendSettingsSubstitutes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { holdProjectReads } from "../../test-support/holdAuthenticatedReads.ts";
+import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
+import { answerSharedStoryProjects } from "../../test-support/support/frontendStoryUrlDestination.ts";
+import { installFrontendSettingsSubstitutes } from "../../test-support/support/frontendSettingsSubstitutes.ts";
 import {
   back,
   removeDialog,
   removeProject,
   settings,
-} from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/support/systemSettingsPage.ts";
 import {
   doughnutPublication,
   doughnutSharedTitle,
   openDoughPublication,
   openDoughSharedTitle,
   sharedStoryIdentity,
-} from "../../tests/projectSelectionProjects.ts";
+} from "../../test-support/projectSelectionProjects.ts";
 import {
   chooseProject,
   expectProjectChoice,
-} from "../../tests/dashboardPage.ts";
-import { expectRoute } from "../../tests/agentRosterRecords.ts";
+} from "../../test-support/dashboardPage.ts";
+import { expectRoute } from "../../test-support/agentRosterRecords.ts";
 import {
   recordReveals,
   revealsOf,
-} from "../../tests/sessionNavigationJourney.ts";
+} from "../../test-support/sessionNavigationJourney.ts";
 import {
   expectNoCardFocused,
   storyDestination,
   storyUrl,
-} from "../../tests/notificationStoryJourney.ts";
+} from "../../test-support/notificationStoryJourney.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

@@ -1,5 +1,5 @@
 // Reopening a session marked done from the page, on the committed
-// story-columns origin (../../dashboard/tests/launchJourney.ts): a session already marked done,
+// story-columns origin (../../dashboard/test-support/launchJourney.ts): a session already marked done,
 // through the boundary, shows Done in Recently done with no card entry;
 // opening its terminal there reopens it: once the terminal attaches, it is
 // back on its card and no longer Done, through a reload, until it is marked
@@ -8,13 +8,13 @@
 // ./agent-terminal-done.spec.ts. The page's own dashboard server drives the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -22,19 +22,19 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

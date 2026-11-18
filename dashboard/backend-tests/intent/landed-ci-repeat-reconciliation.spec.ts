@@ -1,12 +1,15 @@
 // Retained intent and incomparable later attempts remain honest after restart.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import {
   followUpCards,
   prepareRepeatScenario,
   readFollowUpLedger,
-} from "../../tests/support/ciFollowUpScenario.ts";
-import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/ciFollowUpScenario.ts";
+import { landedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 test.use({ serverMode: "boundary" });
 
 test("interruption while the provider reply is lost retains intent and reconciles observed evidence without a resend", async ({
@@ -79,7 +82,7 @@ test("new current reference and history eviction cannot rewrite the frozen decis
   const { makeMe } =
     await import("../../../Distribution/tests/support/makeMe.mjs");
   const { keepLandedCiHistory } =
-    await import("../../tests/support/landedCiHistory.ts");
+    await import("../../test-support/support/landedCiHistory.ts");
   const scenario = await prepareRepeatScenario(origin, github, 120);
   const server = await startServer();
   await scenario.collectPriors(server);

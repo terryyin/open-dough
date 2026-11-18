@@ -4,27 +4,27 @@
 // ./agent-launch-cursor-model-effort.spec.ts. The launch boundary's refusals
 // of an unlisted model, an unsupported effort or an unestablished scope:
 // ../../dashboard/backend-tests/launches/agent-launch-cursor-model-admission.spec.ts.
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import path from "node:path";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expectChosenModelScope,
   expectDefaultLaunchHasNoScope,
-} from "../../dashboard/tests/support/cursorScopeAssertions.ts";
+} from "../../dashboard/test-support/support/cursorScopeAssertions.ts";
 import {
   expect,
   keptRecord,
   test,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { cursorModels } from "../../dashboard/tests/support/fakeCursor.ts";
-import { stayedUp } from "../../dashboard/tests/support/keptCursorTurn.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { expectAdHocReportingInput } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { cursorModels } from "../../dashboard/test-support/support/fakeCursor.ts";
+import { stayedUp } from "../../dashboard/test-support/support/keptCursorTurn.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 const sessionNote = "The chosen model applies to this session only.";
 const laterSessionsWarning =
   "Cursor also saves a chosen model as your Cursor setting for later sessions.";

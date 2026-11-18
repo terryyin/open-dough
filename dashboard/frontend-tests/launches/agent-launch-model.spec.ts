@@ -13,14 +13,17 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   backlogLaunchers,
   startSession,
   startSessionDialog,
-} from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
 
 // The three launch actions, each opened from the page and answering its
 // dialog.

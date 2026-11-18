@@ -10,29 +10,29 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
-import { detailRecovery } from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
+import { detailRecovery } from "../../dashboard/test-support/transientRecoveryPage.ts";
 import {
   checksAskedWhilePassing,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   isContent,
   limiting,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
-import { untilReported } from "../../dashboard/tests/support/directedWait.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { untilReported } from "../../dashboard/test-support/support/directedWait.ts";
 import {
   filesBesideUnreachable,
   opened,
@@ -47,8 +47,8 @@ import {
   unreachableTitle,
   withheldSeed,
   withheldTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 
 test("withheld detail is read on its own once the wait ends on a visible page, beside the snapshot it keeps, while a gap another failure left stays", async ({
   page,

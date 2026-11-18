@@ -34,15 +34,24 @@ grep -q 'current criterion requires unavailable complete native usage' "${work}/
 grep -Fqx 'verdict: not-comparable' "${work}/usage.out"
 grep -Fqx 'effort-difference: not computed: the pair is not-comparable' "${work}/usage.out"
 
-# A changed requested payload is a miss; its new observation is reusable later.
+# A changed requested payload is a miss. Its new observation has complete
+# native response counters and is reusable when the next pair requires them.
+known_usage=$(native_comparison_fixture_rule "${work}" quiet usage)
 before=$(native_comparison_fixture_sessions "${work}")
-record=$(native_comparison_fixture_record "${work}" "${quiet}" "${quiet}" concurrent payload --reuse-baseline "${work}/baseline.json")
+record=$(native_comparison_fixture_record "${work}" "${known_usage}" "${known_usage}" concurrent payload --reuse-baseline "${work}/baseline.json")
 [[ $(native_comparison_fixture_sessions "${work}") -eq $((before + 2)) ]]
 grep -Fqx 'baseline-acquisition: fresh' "${record}"
+grep -Fqx 'baseline-acquisition-reason: saved baseline insufficient: baseline payload or case differs' "${record}"
 next=$(dirname -- "${record}")/baseline.json
 before=$(native_comparison_fixture_sessions "${work}")
-native_comparison_fixture_record "${work}" "${quiet}" "${quiet}" sequential next --reuse-baseline "${next}" > /dev/null
+record=$(native_comparison_fixture_record "${work}" "${known_usage}" "${known_usage}" sequential next --reuse-baseline "${next}" --require-usage)
 [[ $(native_comparison_fixture_sessions "${work}") -eq $((before + 1)) ]]
+grep -Fqx 'baseline-acquisition: reused' "${record}"
+grep -Fqx 'verdict: preserved' "${record}"
+grep -Fqx 'condition-criteria: sufficient' "${record}"
+# The CLI's cumulative usage does not double the four native responses.
+grep -Fqx 'effort-native-usage-baseline: {"input_tokens":4,"cached_input_tokens":0,"output_tokens":4,"total_tokens":8}' "${record}"
+grep -Fqx 'effort-native-usage-difference: candidate 0 processed tokens against baseline' "${record}"
 
 # Model and reasoning changes are real new sessions with their actual settings.
 for change in model effort; do

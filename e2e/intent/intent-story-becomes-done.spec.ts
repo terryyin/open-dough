@@ -9,22 +9,25 @@ import {
 import {
   pausePageClock,
   passTimeUntilChecked,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   completedPublishedStory,
   keepUnusableCompletedCapture,
-} from "../../dashboard/tests/support/completedPublishedStory.ts";
+} from "../../dashboard/test-support/support/completedPublishedStory.ts";
 import {
   chooseStoryTab,
   intentDiff,
   storySummary,
   storyHeaderReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { claimOf } from "../../dashboard/tests/support/storyCiComparisonHistory.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { claimOf } from "../../dashboard/test-support/support/storyCiComparisonHistory.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 

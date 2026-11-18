@@ -3,48 +3,51 @@
 // before the child table, and file Proof's Test cases / Test file choice
 // changes the selected value, average and chart scale together, by keyboard
 // and touch, in light and dark appearance. Each scope's retained history is
-// the glance read's explicit answer (../../tests/support/scopeTimingHistory.ts);
+// the glance read's explicit answer (../../test-support/support/scopeTimingHistory.ts);
 // reading it without upstream CI requests is
 // ../../backend-tests/intent/landed-ci-scope-proof-completion.spec.ts's, and
 // collecting it is ../../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's.
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expectReadableContrast } from "../../tests/accessibleReading.ts";
+import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
 import {
   centreOf,
   expectFailedMarkPainted,
   expectMarkOver,
   inspectMark,
-} from "../../tests/historyChartPage.ts";
-import { fileProofTable } from "../../tests/intentFileProofPage.ts";
+} from "../../test-support/historyChartPage.ts";
+import { fileProofTable } from "../../test-support/intentFileProofPage.ts";
 import {
   fileReadingTab,
   proofRegion,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   chooseTimingUnit,
   expectScopeReadout,
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../../tests/intentScopeHistoryPage.ts";
-import { childName, scopeTable } from "../../tests/intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../../tests/pageLayout.ts";
-import { expectStackedInOrder } from "../../tests/partArrangement.ts";
+} from "../../test-support/intentScopeHistoryPage.ts";
+import {
+  childName,
+  scopeTable,
+} from "../../test-support/intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
+import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
 import {
   expectChangeCue,
   priorBuildReferenceReading,
-} from "../../tests/priorBuildReferencePage.ts";
+} from "../../test-support/priorBuildReferencePage.ts";
 import {
   scopeTimingHistory,
   serveDoneScopeHistories,
-} from "../../tests/support/scopeTimingHistory.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+} from "../../test-support/support/scopeTimingHistory.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
 import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+} from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
 
 test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 

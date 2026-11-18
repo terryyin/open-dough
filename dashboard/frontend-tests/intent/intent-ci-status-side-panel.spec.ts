@@ -8,36 +8,36 @@
 // story clears it, CI status judges `main` again, and closing that session's
 // terminal leaves Intent at project scope. The stories' saved workspaces are
 // gone, so each card's session offers its final report. The board is
-// ../../tests/intentCiStoryBoard.ts.
+// ../../test-support/intentCiStoryBoard.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
-import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
+import { parts, storyCardSessions } from "../../test-support/dashboardPage.ts";
 import {
   readFinalReportControl,
   finalReportParts,
-} from "../../tests/finalReportPages.ts";
-import { failing, running } from "../../tests/intentCiStoryBoard.ts";
-import { card } from "../../tests/intentCiStoryRecords.ts";
+} from "../../test-support/finalReportPages.ts";
+import { failing, running } from "../../test-support/intentCiStoryBoard.ts";
+import { card } from "../../test-support/intentCiStoryRecords.ts";
 import {
   chooseCiStatus,
   ciPanel,
   expectCiAnswer,
   expectCiScope,
-} from "../../tests/intentCiStatusPage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
-import { expectSelected } from "../../tests/storyCardSelection.ts";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
-import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
+} from "../../test-support/intentCiStatusPage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
+import { expectSelected } from "../../test-support/storyCardSelection.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
+import { installFrontendFinalReport } from "../../test-support/support/frontendFinalReportSubstitutes.ts";
 import {
   serveFrontendCiStatus,
   storyBoardCiAnswers,
-} from "../../tests/support/frontendCiStatusAnswers.ts";
-import { publishCiStoryBoard } from "../../tests/support/frontendServiceState.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendCiStatusAnswers.ts";
+import { publishCiStoryBoard } from "../../test-support/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 
 const adHocTitle = "Open Dough session";
 

@@ -10,21 +10,21 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
-import { startSessionField } from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
+import { startSessionField } from "../../test-support/launchStoryCardPage.ts";
 import {
   observeMicrophone,
   recordClip,
-} from "../../tests/support/voicePage.ts";
+} from "../../test-support/support/voicePage.ts";
 import {
   microphoneBrowserOptions,
   originalDraft,
   recoveredDialog,
   startVoiceDraft,
-} from "../../tests/support/voiceRecovery.ts";
+} from "../../test-support/support/voiceRecovery.ts";
 import { instructionProblems } from "../../src/instructionTranscription.ts";
 
 test.use(microphoneBrowserOptions);

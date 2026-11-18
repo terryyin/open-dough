@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { addProject } from "../../server/projectAddition.ts";
 import {
   appendConfiguredProject,
@@ -10,11 +10,11 @@ import {
   ProjectInputProblem,
   type ProjectInput,
 } from "../../src/projectInput.ts";
-import { failsWith, publishes } from "../../tests/support/fakeGitHub.ts";
+import { failsWith, publishes } from "../../test-support/support/fakeGitHub.ts";
 import {
   projectAdditionFixture,
   validationRepository,
-} from "../../tests/support/projectAdditionFixture.ts";
+} from "../../test-support/support/projectAdditionFixture.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });

@@ -9,7 +9,7 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   sessionOpen,
   unreadableLaunchRecords,
@@ -19,14 +19,14 @@ import {
   attempts,
   deleteRecord,
   markDone,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchRecords,
   keepLaunchStore,
   keepLaunchStoreText,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   nothingStarted,
@@ -35,14 +35,14 @@ import {
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type PushHold,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 // The requested story's execution, still open in the session it names.
 const openExecution = () =>

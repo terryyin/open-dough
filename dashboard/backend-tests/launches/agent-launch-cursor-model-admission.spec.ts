@@ -2,17 +2,21 @@
 // (../../server/hosts/cursor/): an unsupported effort pair or a missing effort
 // is refused and a composed listed id is sent; a model Cursor does not list,
 // or one whose session scope cannot be established, is refused before any
-// chat is created. The synthetic `cursor-agent` (../../tests/fixtures/fake-cursor)
+// chat is created. The synthetic `cursor-agent` (../../test-support/fixtures/fake-cursor)
 // lists the models and records native argv. Choosing them in the dialog:
 // ../../../e2e/launches/agent-launch-cursor-model.spec.ts.
 
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { expect, keptRecord, test } from "../../tests/support/cursorStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  expect,
+  keptRecord,
+  test,
+} from "../../test-support/support/cursorStart.ts";
 import {
   cursorEffortModels,
   cursorModels,
   cursorOtherEffortModels,
-} from "../../tests/support/fakeCursor.ts";
+} from "../../test-support/support/fakeCursor.ts";
 
 const effortListing = [
   ...cursorModels,

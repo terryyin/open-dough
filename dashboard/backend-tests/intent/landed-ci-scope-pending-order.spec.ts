@@ -1,33 +1,36 @@
 // Collected scope evidence shares project history's bounded retained cohort.
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   keepLandedCiHistory,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   retainedHistory as retained,
   collectedScopeHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { actionsForRuns } from "../../tests/support/baseCiActions.ts";
-import { runArtifactsAnswer } from "../../tests/support/ciProofArtifacts.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { actionsForRuns } from "../../test-support/support/baseCiActions.ts";
+import { runArtifactsAnswer } from "../../test-support/support/ciProofArtifacts.ts";
 import {
   collectedSummary,
   playwrightRecord,
   summaryTextZipAnswer,
-} from "../../tests/support/ciProofCollected.ts";
-import { retainedTrunkProofs } from "../../tests/support/retainedTrunkProofs.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+} from "../../test-support/support/ciProofCollected.ts";
+import { retainedTrunkProofs } from "../../test-support/support/retainedTrunkProofs.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import { readFileSync } from "node:fs";
-import { withoutScopeHistoryGit } from "../../tests/support/scopeHistoryCollectedGit.ts";
+import { withoutScopeHistoryGit } from "../../test-support/support/scopeHistoryCollectedGit.ts";
 import path from "node:path";
-import { historyFile } from "../../tests/support/collectedScopeHistory.ts";
-import { publishedLanding } from "../../tests/support/landedCiTrunk.ts";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import { historyFile } from "../../test-support/support/collectedScopeHistory.ts";
+import { publishedLanding } from "../../test-support/support/landedCiTrunk.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 test.use({ serverMode: "boundary" });
 const readers: DashboardServer[] = [];

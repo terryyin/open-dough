@@ -1,9 +1,9 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Actual sortable headers over canonical endpoint proof, without acquisition setup.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test } from "../../tests/support/pageTest.ts";
-import { expectRenderedSortedBy } from "../../tests/support/expectSortedColumns.ts";
-import { expectCiComparisonEntryRows } from "../../tests/support/expectCiComparisonEntryRows.ts";
+import { test } from "../../test-support/support/pageTest.ts";
+import { expectRenderedSortedBy } from "../../test-support/support/expectSortedColumns.ts";
+import { expectCiComparisonEntryRows } from "../../test-support/support/expectCiComparisonEntryRows.ts";
 
 test("Baseline sorts measured durations both ways and keeps gaps last", async ({
   renderComparison,

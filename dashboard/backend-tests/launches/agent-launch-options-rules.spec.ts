@@ -3,12 +3,12 @@
 // order, the definition's own order of a selection, how a dialog's choice
 // keeps an exclusive group to one flag, and the shape of a request's
 // `options` (../../src/agentLaunch.ts). The integrated options journey renders
-// every shipped entry (../../tests/launches/agent-launch-options.spec.ts). How
+// every shipped entry (../../test-support/launches/agent-launch-options.spec.ts). How
 // the launch boundary applies them over HTTP is
 // ./agent-launch-options-boundary.spec.ts and
 // ./agent-launch-options-groups.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { agentLaunchRequestSchema } from "../../src/agentLaunch.ts";
 import {
   inDefinitionOrder,

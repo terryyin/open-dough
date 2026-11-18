@@ -1,5 +1,5 @@
 // Example 5: a story completed through the real CLI and published
-// (../../dashboard/tests/support/intentCompletedStory.ts) is selected by its Recently done
+// (../../dashboard/test-support/support/intentCompletedStory.ts) is selected by its Recently done
 // card's empty area. Intent's story header names it by its done record's
 // title, its identity and the revisions of its published history comparison,
 // which differ from the published revision Intent describes
@@ -14,28 +14,31 @@
 // The done card's Review changes selects it too, and toggling its selection
 // clears it while the review stays open.
 
-import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
-import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   completedChanges as changed,
   selectCompletedStoryInIntent,
-} from "../../dashboard/tests/support/intentCompletedStory.ts";
-import { intentStory } from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/intentCompletedStory.ts";
+import { intentStory } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   kindStyles,
   nameStyle,
-} from "../../dashboard/tests/support/changeKindStyle.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/changeKindStyle.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   emptyArea,
   expectSelected,
-} from "../../dashboard/tests/storyCardSelection.ts";
+} from "../../dashboard/test-support/storyCardSelection.ts";
 
 const gone = "dashboard/tests/gone.spec.ts";
 

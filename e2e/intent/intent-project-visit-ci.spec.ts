@@ -1,11 +1,11 @@
-import { showLatestRevision } from "../../dashboard/tests/intentReadRecoveryPage.ts";
+import { showLatestRevision } from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 import {
   expectCiScope,
   expectCiAnswer,
   chooseCiStatus,
   ciPanel,
   expectChecked,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 
 // Project Intent visits keep the selected story and trunk CI followed
 // (../../dashboard/src/IntentPerspective.tsx). Switching scopes reuses each reading;
@@ -14,9 +14,9 @@ import {
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { failing } from "../../dashboard/tests/intentCiStoryBoard.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { failing } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
   failedRun,
@@ -25,23 +25,23 @@ import {
   revision,
   publishStoryCi,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   openProjectIntent,
   returnToStory,
-} from "../../dashboard/tests/intentModePage.ts";
+} from "../../dashboard/test-support/intentModePage.ts";
 import {
   browserRevision,
   revisionNotice,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { holdNextRevisionCheckBody } from "../../dashboard/tests/support/heldRevisionCheckBody.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { holdNextRevisionCheckBody } from "../../dashboard/test-support/support/heldRevisionCheckBody.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 
 test("a Project Intent visit reuses both CI readings, while hidden trunk and story heads each refresh only their own judgment", async ({
   page,

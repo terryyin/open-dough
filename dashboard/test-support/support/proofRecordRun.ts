@@ -15,11 +15,11 @@ import {
 
 export const proofFixtures = path.join(
   repoRoot,
-  "dashboard/tests/fixtures/quiet-reporter",
+  "dashboard/test-support/fixtures/quiet-reporter",
 );
 export const quietReporter = path.join(
   repoRoot,
-  "dashboard/tests/support/quietReporter.ts",
+  "dashboard/test-support/support/quietReporter.ts",
 );
 const dirs: string[] = [];
 

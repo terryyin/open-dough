@@ -14,7 +14,7 @@ import {
   test,
   usageServer,
   writeTaskUsage,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const opus = "claude-opus-5-5",
   fable = "claude-fable-5-2",

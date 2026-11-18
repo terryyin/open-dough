@@ -2,23 +2,23 @@ import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   doneHistoryRead,
   doneWallTimeHistory,
-} from "../../dashboard/tests/priorBuildReferencePage.ts";
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+} from "../../dashboard/test-support/priorBuildReferencePage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // A selected landing collected without its proof summary leaves the existing
 // Done comparison readable through the real retained read of the Done story
-// the worker keeps (../../dashboard/tests/support/keptPublishedStory.ts). Each history state's
+// the worker keeps (../../dashboard/test-support/support/keptPublishedStory.ts). Each history state's
 // readout is in ../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   test as base,
-} from "../../dashboard/tests/support/preparationPage.ts";
-import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/tests/support/intentSummaryStoryComparisonRepository.ts";
-import { serveSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonServing.ts";
-import { startingFromKeptSummaryComparisonStory } from "../../dashboard/tests/support/keptPublishedStory.ts";
-import { doneWallReferenceHistory } from "../../dashboard/tests/support/doneWallReferenceHistory.ts";
-import { keepLandedCiHistory } from "../../dashboard/tests/support/landedCiHistory.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/test-support/support/intentSummaryStoryComparisonRepository.ts";
+import { serveSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonServing.ts";
+import { startingFromKeptSummaryComparisonStory } from "../../dashboard/test-support/support/keptPublishedStory.ts";
+import { doneWallReferenceHistory } from "../../dashboard/test-support/support/doneWallReferenceHistory.ts";
+import { keepLandedCiHistory } from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 
 const test = base.extend(startingFromKeptSummaryComparisonStory);
 

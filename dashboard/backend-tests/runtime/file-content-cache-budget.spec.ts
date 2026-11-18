@@ -4,7 +4,7 @@
 // size plateaus for a fixed working set (post-GC when available).
 import { setFlagsFromString } from "node:v8";
 import { runInNewContext } from "node:vm";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   cachedFile,
   fileContentCacheBudgetBytes,

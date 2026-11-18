@@ -5,11 +5,11 @@
 // names its project: a project that does not own it has none, even for the
 // identity they share, and selecting one of its cards moves the selection.
 
-import type { CatalogPublication } from "../../tests/catalogProjectRecords.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerOnlyPublications } from "../../tests/support/frontendCatalogProjects.ts";
-import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import type { CatalogPublication } from "../../test-support/catalogProjectRecords.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerOnlyPublications } from "../../test-support/support/frontendCatalogProjects.ts";
+import { countProjectReads } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   shortRevision,
   expectMembership,
@@ -17,7 +17,7 @@ import {
   openDirection,
   parts,
   projectTab,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   doughnutPublication,
   doughnutSharedTitle,
@@ -28,14 +28,17 @@ import {
   sharedStoryIdentity,
   titlesOfDoughnut,
   titlesOfOpenDough,
-} from "../../tests/projectSelectionProjects.ts";
-import { describedRevision } from "../../tests/describedRevisions.ts";
+} from "../../test-support/projectSelectionProjects.ts";
+import { describedRevision } from "../../test-support/describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
 import {
   canonicalRecord,
   inspectedDetail,
-} from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardControls.ts";
 
 const sharedHref = ({ repository, revision }: CatalogPublication) =>
   `https://github.com/${repository}/blob/${revision}/.planning/seeds/SEED-777-shared.md#shared-story`;

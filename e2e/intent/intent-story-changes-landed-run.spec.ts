@@ -1,6 +1,6 @@
 // Intent's Review changes link beside a landed run. Story A has a run landed
 // through the real installed one-shot delivery (only the native Codex
-// transport is substituted, ../../dashboard/tests/support/oneShotReviewChoices.ts). While its
+// transport is substituted, ../../dashboard/test-support/support/oneShotReviewChoices.ts). While its
 // workspace lives, a landed run chosen in Review changes yields to Intent's
 // comparison when Intent's link is followed: all changes, uncommitted ones
 // included, with Intent's diffs. Once the workspace is gone, the review falls
@@ -8,46 +8,49 @@
 // it, and returns the review to it from another landed run chosen there.
 // The marked journey without runs: ./intent-story-changes-marked.spec.ts.
 
-import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
-import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { stored } from "../../dashboard/tests/support/codexStart.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { stored } from "../../dashboard/test-support/support/codexStart.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   intentDiff,
   storyHeaderDetail,
   openReviewFromIntent,
   reviewDiff,
   storyHeaderReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { selectTakenStoryInIntent } from "../../dashboard/tests/support/selectTakenStoryInIntent.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { selectTakenStoryInIntent } from "../../dashboard/test-support/support/selectTakenStoryInIntent.ts";
 import {
   changed,
   publishIntentTrunk,
-} from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { git } from "../../dashboard/tests/support/launchLanding.ts";
-import { capturedChoice } from "../../dashboard/tests/support/oneShotReviewChoices.ts";
-import type { FakeCodex } from "../../dashboard/tests/support/fakeCodex.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import { git } from "../../dashboard/test-support/support/launchLanding.ts";
+import { capturedChoice } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import type { FakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   storyA,
   storyB,
 } from "../../Distribution/tests/support/queued-repository.mjs";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { storyALaunch } from "../../dashboard/tests/support/storyLaunchRecord.ts";
-import { branch } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { storyALaunch } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { branch } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   expectShown,
   reviewRegion,
   uncommittedCheck,
   comparisonChoice,
   landedRunChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 
 test.use({ preparationHost: "codex" });
 

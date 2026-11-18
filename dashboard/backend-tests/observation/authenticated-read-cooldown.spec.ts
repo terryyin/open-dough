@@ -1,6 +1,6 @@
 // One rate limit GitHub directed holds back every read of the server process
 // (github-request-admission.mjs), at the local authenticated read boundary
-// over real HTTP with the synthetic `gh` (../../tests/support/sharedReads.ts publishes
+// over real HTTP with the synthetic `gh` (../../test-support/support/sharedReads.ts publishes
 // the revision): until GitHub's time, any read of any project is answered at
 // once as limited -- not asked, with the whole seconds left -- and reaches
 // GitHub nothing; a read already at GitHub keeps its own answer, and only a
@@ -13,28 +13,28 @@
 // that directs no wait: ./authenticated-read-backoff.spec.ts. How reading
 // resumes once a wait ends: ./authenticated-read-resumption.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
   type RepositoryAnswerer,
-} from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
-import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
-import { untilReported } from "../../tests/support/directedWait.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
+import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import { untilReported } from "../../test-support/support/directedWait.ts";
 import {
   expectHeldBack,
   servedRefusing,
   timedRead,
-} from "../../tests/support/heldBackReads.ts";
+} from "../../test-support/support/heldBackReads.ts";
 import {
   rateLimitedAnswer,
   type OriginAnswer,
-} from "../../tests/originAnswers.ts";
+} from "../../test-support/originAnswers.ts";
 import {
   askedSince,
   heads,
@@ -45,7 +45,7 @@ import {
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 import { agentSettingsPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const revision = "c3".repeat(20);

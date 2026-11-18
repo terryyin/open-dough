@@ -1,8 +1,8 @@
-import { revisionNotice } from "../../tests/intentPerspectivePage.ts";
+import { revisionNotice } from "../../test-support/intentPerspectivePage.ts";
 import {
   readFailure,
   showLatestRevision,
-} from "../../tests/intentReadRecoveryPage.ts";
+} from "../../test-support/intentReadRecoveryPage.ts";
 // Intent's Optimization Candidates tab, shown across a new trunk revision,
 // stays chosen (kept per project by ../../src/pageIntentMode.tsx) and keeps the
 // record of the revision Intent reads until **Show latest**, which reads the
@@ -11,34 +11,34 @@ import {
 // replaces the new record (../../src/IntentCandidatesRecord.tsx,
 // ../../src/IntentRevisionNotice.tsx).
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   openDoughCandidatesRecord,
   openDoughSources,
   testOptimizationCandidatesPath,
-} from "../../tests/intentCandidatesFixtures.ts";
+} from "../../test-support/intentCandidatesFixtures.ts";
 import {
   openDough,
   openDoughSettings,
-} from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   pausePageClock,
   passTimeUntilChecked,
   passTimeUntilCheckedWhileReadsOutstanding,
-} from "../../tests/autoRefreshJourney.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { prepareCandidateProjects } from "../../tests/support/frontendIntentCandidates.ts";
+} from "../../test-support/autoRefreshJourney.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { prepareCandidateProjects } from "../../test-support/support/frontendIntentCandidates.ts";
 
 const movedRevision = "e9".repeat(20);
 const openDoughAt = (revision: string, record: string) => ({

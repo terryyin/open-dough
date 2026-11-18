@@ -13,18 +13,18 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendLaunchBoundary,
   nativeCodexChoices,
-} from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { startSession } from "../../tests/launchStoryCardPage.ts";
-import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
+} from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { startSession } from "../../test-support/launchStoryCardPage.ts";
+import { twiceZoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   cursorEffortModels,
   cursorModels,
   cursorOtherEffortModels,
-} from "../../tests/support/fakeCursorModels.ts";
+} from "../../test-support/support/fakeCursorModels.ts";
 import { projectCursorModels } from "../../server/hosts/cursor/modelIds.ts";
 
 test("model changes preserve compatible effort and retain incompatible selection with linked keyboard feedback", async ({

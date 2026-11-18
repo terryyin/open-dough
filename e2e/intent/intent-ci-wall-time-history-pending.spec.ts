@@ -1,7 +1,7 @@
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+import { attemptLink } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 // Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) while a landing's CI is pending, on a real
-// bare origin (../../dashboard/tests/support/startOrigin.ts) whose dashboard collects the
+// bare origin (../../dashboard/test-support/support/startOrigin.ts) whose dashboard collects the
 // landings this machine's launch records name and checks pending ones again
 // at a test's pace: a landing recorded while its CI runs is a pending gap
 // after the last point, which CI status reads again with each trunk reading
@@ -14,8 +14,8 @@ import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
 
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
@@ -24,24 +24,27 @@ import {
   historyOf,
   openProjectCiStatus,
   publishTrunk,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import type { CiRunAnswer } from "../../dashboard/tests/support/baseCiActions.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import type { CiRunAnswer } from "../../dashboard/test-support/support/baseCiActions.ts";
 import {
   landedCiHistory,
   recheckingLandedCi,
   storyLandingRecord,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
 import {
   landedTrunk,
   passedBetween,
   trunkRun,
-} from "../../dashboard/tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import type { Page } from "@playwright/test";
 
 // How many times the page has asked for the trunk's CI status judgment

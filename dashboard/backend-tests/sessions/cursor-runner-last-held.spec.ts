@@ -1,7 +1,7 @@
 // Last-held session keys under the runner directory: keep publishes a
 // key, deliberate /hangup removes it, and killing the runner while
 // leaving its address does not clear keys for sessions it held.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerLastHeld } from "../../server/hosts/cursor/runnerPaths.ts";
 import { sessionKey } from "../../src/sessionReference.ts";
@@ -9,8 +9,8 @@ import {
   cursorProofSession,
   keepWorkingClient,
   startRunnerProofFixture,
-} from "../../tests/support/cursorRunnerProof.ts";
-import { killCursorRunnerLeavingAddress } from "../../tests/support/cursorRunnerRecordedAddress.ts";
+} from "../../test-support/support/cursorRunnerProof.ts";
+import { killCursorRunnerLeavingAddress } from "../../test-support/support/cursorRunnerRecordedAddress.ts";
 
 test("keep publishes last-held keys; hangup removes one; kill-leaving-address retains them", async () => {
   const fixture = startRunnerProofFixture();

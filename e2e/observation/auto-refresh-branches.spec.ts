@@ -6,7 +6,7 @@
 // the whole snapshot as before; an unchanged listing is answered by GitHub's
 // `304`; a completion commit on the recorded branch shows the story awaiting
 // wrap-up; a recorded branch deleted becomes that gap. The fake GitHub only
-// publishes trunk and branch heads that move (../../dashboard/tests/publishedFiles.ts); the local
+// publishes trunk and branch heads that move (../../dashboard/test-support/publishedFiles.ts); the local
 // read boundary, the shared readers, and the page decide everything shown.
 // A recorded branch whose name cannot be used:
 // ./auto-refresh-unusable-branch.spec.ts. Hidden-page and rate-limit
@@ -18,15 +18,18 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   expectSteadyPace,
   passTimeUntilChecked,
   headsCheckArgv,
   headsChecks,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   branchHead,
   branches,
@@ -35,21 +38,21 @@ import {
   repository,
   revision,
   trunk,
-} from "../../dashboard/tests/branchProgressRecords.ts";
+} from "../../dashboard/test-support/branchProgressRecords.ts";
 import {
   branchPlanPublication,
   openedSettled,
   sevenDoneOnBranch,
   trunkMoved,
-} from "../../dashboard/tests/branchRefreshJourney.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
+} from "../../dashboard/test-support/branchRefreshJourney.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { progressSource } from "../../dashboard/tests/storyCardFacts.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import type { PublishedRevision } from "../../dashboard/tests/publishedFiles.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { progressSource } from "../../dashboard/test-support/storyCardFacts.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import type { PublishedRevision } from "../../dashboard/test-support/publishedFiles.ts";
 
 const example = "story/example";
 const unrelated = "story/unrelated-work";

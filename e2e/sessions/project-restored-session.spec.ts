@@ -1,23 +1,23 @@
 // A retained host not configured at startup is restored only when re-added.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
-import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
-import { installFakeCodex } from "../../dashboard/tests/support/fakeCodex.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
+import { installFakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
 import {
   observationRecord,
   observed,
   passive,
   daemonStarts,
-} from "../../dashboard/tests/support/codexObservation.ts";
-import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
+} from "../../dashboard/test-support/support/codexObservation.ts";
+import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
-import { machineSessions } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
+import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test("adding an initially unconfigured retained Codex project prepares its passive service once without starting a conversation", async ({
   page,

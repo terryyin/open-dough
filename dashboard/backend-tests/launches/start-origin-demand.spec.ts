@@ -1,16 +1,16 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { appendedRecords } from "../../tests/support/appendedRecords.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { appendedRecords } from "../../test-support/support/appendedRecords.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   proofDirectory,
   readProof,
   removeProofDirectories,
   startProofRun,
-} from "../../tests/support/proofRecordRun.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
-import { startOriginArtifactKey } from "../../tests/support/startOriginPreparation.ts";
+} from "../../test-support/support/proofRecordRun.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { startOriginArtifactKey } from "../../test-support/support/startOriginPreparation.ts";
 
 test.afterEach(removeProofDirectories);
 
@@ -41,10 +41,13 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
     directory,
     spec: "origins.proof.ts",
     config: {
-      testDir: path.join(repoRoot, "dashboard/tests/fixtures/artifact-demand"),
+      testDir: path.join(
+        repoRoot,
+        "dashboard/test-support/fixtures/artifact-demand",
+      ),
       globalSetup: path.join(
         repoRoot,
-        "dashboard/tests/support/integratedGlobalSetup.ts",
+        "dashboard/test-support/support/backendGlobalSetup.ts",
       ),
     },
     env: {
@@ -68,8 +71,6 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
       key: string;
       directory?: string;
     }>(readFileSync(trace, "utf8"));
-    // The run also prepares the story-columns history at its start; this case
-    // observes the installed origin layouts.
     const claude = startOriginArtifactKey("claude");
     const codex = startOriginArtifactKey("codex");
     const layouts = events.filter(({ key }) => key === claude || key === codex);

@@ -1,10 +1,10 @@
 // Continuation refusal wording when a kept unannounced preparation cannot
 // continue: printed failure text reaches the Taken card inside the safety wrap.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   keptPreparation,
   type KeptPreparation,
-} from "../../tests/support/keptPreparation.ts";
+} from "../../test-support/support/keptPreparation.ts";
 
 test.describe("a kept preparation continuation refusal", () => {
   let preparation: KeptPreparation;

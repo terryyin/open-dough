@@ -2,34 +2,34 @@
 // automatically; a published read failure after settlement is recovered in
 // Startup recovery. These page journeys use real installed starts and origin.
 
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expect,
   pausePageClockAt,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import {
   needsReconciliation,
   recoveryOf,
   startExecution,
   subject,
   worktrees,
-} from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expectProtected,
   openStories,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
 import {
   countMachineReads,
   indicatorOf,
   recordAnnouncements,
-} from "../../dashboard/tests/responsiveAccess.ts";
+} from "../../dashboard/test-support/responsiveAccess.ts";
 import {
   passCheckPace,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 

@@ -1,20 +1,20 @@
-import { timeMarks } from "../../tests/support/relativeTimingMarks.ts";
-import { expectFileComparisonRow } from "../../tests/intentFileProofPage.ts";
+import { timeMarks } from "../../test-support/support/relativeTimingMarks.ts";
+import { expectFileComparisonRow } from "../../test-support/intentFileProofPage.ts";
 // File Proof rules use real scope owners; Purpose and tab return stay integrated.
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   modifiedFileRow,
   addedFileRow,
   renamedFileRow,
   unchangedFileRow,
   mergeEditedFileRow,
-} from "../../tests/support/summaryComparisonFileExpectedRows.ts";
-import { expectProofRowCues } from "../../tests/support/expectCiComparisonCues.ts";
+} from "../../test-support/support/summaryComparisonFileExpectedRows.ts";
+import { expectProofRowCues } from "../../test-support/support/expectCiComparisonCues.ts";
 import {
   comparisonLabels,
   expectEvidenceLabels,
   expectObservedNotAttributed,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const examples = [

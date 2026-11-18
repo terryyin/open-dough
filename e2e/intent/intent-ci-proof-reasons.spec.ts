@@ -7,12 +7,12 @@ import {
   proofCalls,
   run,
   verdictOf,
-} from "../../dashboard/tests/intentCiProofPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
 import {
   expectCiAnswer,
   judged,
   runUrl,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 // Why Intent's CI status tab shows no CI proof (../../dashboard/src/IntentCiProof.tsx):
 // when the shown run's
 // summary has expired, cannot be read, is invalid, or is for another
@@ -28,21 +28,21 @@ import {
 // ./intent-ci-proof-ancestor.spec.ts.
 
 import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   evidenceLabels,
   expectAttemptAt,
-} from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+} from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 
-import type { OriginAnswer } from "../../dashboard/tests/originAnswers.ts";
-import { tokenColour } from "../../dashboard/tests/pageColours.ts";
+import type { OriginAnswer } from "../../dashboard/test-support/originAnswers.ts";
+import { tokenColour } from "../../dashboard/test-support/pageColours.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
   zipOf,
-} from "../../dashboard/tests/support/ciProofArtifacts.ts";
+} from "../../dashboard/test-support/support/ciProofArtifacts.ts";
 
 // 1.3 MiB of summary text: the zip stays small so listing size_in_bytes does
 // not refuse first; onlyZipEntry reports the uncompressed entry size.

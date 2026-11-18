@@ -6,19 +6,19 @@
 // These tests each start a boundary server. One serial suite keeps them from
 // running together, which makes the runner's address look missing and crowds
 // the launch change poll.
-import { test } from "../../tests/support/pageTest.ts";
-import { serverCloseLeavesCursorAndHangsUpOtherHosts } from "../../tests/support/cursorRunnerHosts.ts";
+import { test } from "../../test-support/support/pageTest.ts";
+import { serverCloseLeavesCursorAndHangsUpOtherHosts } from "../../test-support/support/cursorRunnerHosts.ts";
 import {
   detachedPromptStaysWhileDashboardIsDown,
   stoppingRunnerResumesOnNextOpen,
   twoServersLeaveOneRunner,
   unreachableRunnerRefusesStart,
-} from "../../tests/support/cursorRunnerLifetime.ts";
+} from "../../test-support/support/cursorRunnerLifetime.ts";
 import {
   restartedDashboardTypesSameClient,
   trustScreenSurvivesRestart,
   waitingAnswerSurvivesRestart,
-} from "../../tests/support/cursorRunnerRestart.ts";
+} from "../../test-support/support/cursorRunnerRestart.ts";
 
 test.describe.configure({ mode: "serial" });
 

@@ -2,14 +2,13 @@
 
 Prepare [native prerequisites](../evaluation/native-setup.md) once per lockfile version.
 
-Four browser test groups run with Playwright, each under its own command,
+Three browser test groups run with Playwright, each under its own command,
 configuration, setup, settings, outputs and CI producer; `npm test` does not
 discover their specs:
 
 | Group | Command | Sources |
 | --- | --- | --- |
 | **E2E Test** | `npm run test:e2e` | representative product [workflows](../../e2e/README.md) in `e2e/` |
-| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the feature folders of `dashboard/tests/` |
 | **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
 | **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
 
@@ -179,11 +178,11 @@ condition. Observer stream processes retitle themselves `dough-ci:<hash>`, so
 a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
 
 A dashboard journey hands its scratch repositories to the `afterGitHubStops`
-fixture (`dashboard/tests/dashboardTest.ts`), which removes them only after
+fixture (`dashboard/test-support/dashboardTest.ts`), which removes them only after
 the page, its dashboard server, and the fake GitHub have stopped, so a read
 still in flight when the journey ends never finds its repository gone.
 
-`dashboard/tests` and `dashboard/server` import shared JavaScript fixtures
+[Dashboard Test Support](../../dashboard/test-support/) and `dashboard/server` import shared JavaScript fixtures
 from `Distribution/tests/skills/` and `Distribution/tests/support/`.
 TypeScript infers their signatures, so a fixture's own Node tests can pass while a dashboard consumer
 no longer type-checks. `npm run typecheck:dashboard` is the focused check for

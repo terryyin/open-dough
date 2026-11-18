@@ -1,6 +1,13 @@
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
-import { launch, machineSessions } from "../../tests/agentLaunchBoundary.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
+import {
+  launch,
+  machineSessions,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { launchSubject, keptStartSchema } from "../../src/agentLaunch.ts";
 import { startRecordSchema } from "../../server/startStore.ts";

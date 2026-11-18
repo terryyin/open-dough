@@ -3,16 +3,16 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test as base } from "../../tests/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import {
   installFakeClaude,
   type FakeClaudeControls,
-} from "../../tests/support/fakeClaude.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/fakeClaude.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 import { SessionAlerts } from "../../server/sessionAlerts.ts";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
-import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
-import { notificationActivation } from "../../tests/support/notificationActivation.ts";
+import { launchRequest } from "../../test-support/agentLaunchBoundary.ts";
+import { notificationActivation } from "../../test-support/support/notificationActivation.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // The kept launch the alert owner reads, in the project `source`.

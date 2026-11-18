@@ -1,6 +1,6 @@
 // Mark as done on a session its story's card lists, against a controlled
 // machine read and done boundary
-// (../../tests/support/frontendSessionActions.ts): a refused mark keeps the
+// (../../test-support/support/frontendSessionActions.ts): a refused mark keeps the
 // entry on its card, says so in its status and offers Mark as done again.
 // The real mark of a session Claude Code no longer lists is
 // ../../../e2e/sessions/agent-launch-story-card-done.spec.ts; why the
@@ -12,16 +12,16 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   cardSession,
   cardSessionEntry,
-} from "../../tests/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { sessionAction } from "../../tests/support/sessionEntryDisclosure.ts";
-import { markDoneAnyway } from "../../tests/support/markDone.ts";
-import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendCardSessions.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
+import { sessionAction } from "../../test-support/support/sessionEntryDisclosure.ts";
+import { markDoneAnyway } from "../../test-support/support/markDone.ts";
+import { parts, sessionEntriesIn } from "../../test-support/dashboardPage.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a refused mark keeps the session on its card and says so on its entry", async ({

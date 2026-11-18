@@ -12,8 +12,11 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   keepLandedCiHistory,
   landedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 
 test.use({ serverMode: "boundary" });
 

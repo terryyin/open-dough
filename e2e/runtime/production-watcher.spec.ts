@@ -4,16 +4,16 @@
 // this chain proves activation, serving beside development, the Cursor
 // runner, replacement, stop and restart end to end. Setup and waits around
 // the activations stay open to improvement.
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { readdir } from "node:fs/promises";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import {
   processGroup,
   runnersFor,
-} from "../../dashboard/tests/support/cursorRunnerJourney.ts";
-import { expectOwnOriginReadsOnly } from "../../dashboard/tests/support/localOriginReads.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { waitForEmptyDirectory } from "../../dashboard/tests/support/watcherEvents.ts";
+} from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
+import { expectOwnOriginReadsOnly } from "../../dashboard/test-support/support/localOriginReads.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { waitForEmptyDirectory } from "../../dashboard/test-support/support/watcherEvents.ts";
 import {
   deploymentCheckout,
   expectProductionEnded,
@@ -22,7 +22,7 @@ import {
   productionReplacement,
   startProductionWatcher,
   type ProductionActivation,
-} from "../../dashboard/tests/support/productionWatcher.ts";
+} from "../../dashboard/test-support/support/productionWatcher.ts";
 import {
   sourceMarker,
   ProductionWatcherMachine,

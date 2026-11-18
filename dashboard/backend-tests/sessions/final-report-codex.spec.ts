@@ -3,14 +3,14 @@
 import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { launchHost } from "../../server/launchHosts.ts";
 import type { HostSession } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   installFakeCodex,
   type FakeCodex,
-} from "../../tests/support/fakeCodex.ts";
+} from "../../test-support/support/fakeCodex.ts";
 
 const finalReport = {
   type: "agentMessage",

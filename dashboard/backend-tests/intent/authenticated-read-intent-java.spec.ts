@@ -1,15 +1,18 @@
 // Java membership and pinned file admission share the same configured selector
 // as Intent's real published listing; JUnit names and annotations add no filter.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { describedRevision } from "../../tests/describedRevisions.ts";
-import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { describedRevision } from "../../test-support/describedRevisions.ts";
+import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const root = "backend/src/test/java";

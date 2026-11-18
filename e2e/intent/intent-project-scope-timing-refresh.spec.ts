@@ -2,34 +2,34 @@ import {
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../../dashboard/tests/intentScopeHistoryPage.ts";
+} from "../../dashboard/test-support/intentScopeHistoryPage.ts";
 // Kept landed history separates a middle Done landing from observed trunk,
-// read by a dashboard that collects nothing (../../dashboard/tests/support/projectScopeHistoryFixture.ts).
+// read by a dashboard that collects nothing (../../dashboard/test-support/support/projectScopeHistoryFixture.ts).
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   openProjectIntent,
   returnToStory,
-} from "../../dashboard/tests/intentModePage.ts";
+} from "../../dashboard/test-support/intentModePage.ts";
 import {
   fileReadingTab,
   proofRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../dashboard/tests/intentReadingPlacePage.ts";
-import { childName } from "../../dashboard/tests/intentScopeProofPage.ts";
-import { openSummary } from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentReadingPlacePage.ts";
+import { childName } from "../../dashboard/test-support/intentScopeProofPage.ts";
+import { openSummary } from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   readKeptProjectHistory,
   test,
-} from "../../dashboard/tests/support/projectScopeHistoryFixture.ts";
-import { intentFile } from "../../dashboard/tests/support/intentStoryPage.ts";
-import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { expect } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/projectScopeHistoryFixture.ts";
+import { intentFile } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { expect } from "../../dashboard/test-support/support/preparationPage.ts";
 
 const landings = (["baseline", "completion", "latest"] as const).map(
   (point, index) => ({

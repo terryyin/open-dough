@@ -8,26 +8,29 @@
 
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { policyOf } from "../../dashboard/src/agentLaunch.ts";
 import type { StartRecord } from "../../dashboard/server/startStore.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectRecoveryOffered,
   recoveryOf,
   startExecution,
   subject,
   worktrees,
-} from "../../dashboard/tests/responsiveRecovery.ts";
-import { openStories, test } from "../../dashboard/tests/responsiveStart.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
+import {
+  openStories,
+  test,
+} from "../../dashboard/test-support/responsiveStart.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   keepLaunchStore,
   keptLaunchStore,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 3_000 });
 

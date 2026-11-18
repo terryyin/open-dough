@@ -12,15 +12,18 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
-import { launchGroup } from "../../tests/storyCardControls.ts";
-import { expectStackedInOrder } from "../../tests/pageLayout.ts";
-import { expectProtected } from "../../tests/responsiveStart.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import { parts, storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { launchGroup } from "../../test-support/storyCardControls.ts";
+import { expectStackedInOrder } from "../../test-support/pageLayout.ts";
+import { expectProtected } from "../../test-support/responsiveStart.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
 import { hostDescriptions } from "../../src/hostDescription.ts";
 
 test("Start is disabled while in flight, and the uncertain answer needs reconciliation under Startup recovery while the card stays protected", async ({

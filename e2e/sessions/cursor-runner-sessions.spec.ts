@@ -7,23 +7,23 @@
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   holdSession,
   instruction,
   showPageWithTaken,
   withRunningCursor,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
 import {
   expect,
   test as cursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { occupyRunner } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { occupyRunner } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 
 type Screen = "working" | "waiting" | "trust";

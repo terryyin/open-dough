@@ -1,25 +1,28 @@
 // The environment a launch runs in, at the local launch boundary
 // (../../server/launchBoundary.ts) over raw HTTP at the boundary server: a server
-// started as a deployment's is (../../tests/support/launchEnvironment.ts) launches
+// started as a deployment's is (../../test-support/support/launchEnvironment.ts) launches
 // Claude Code in the developer's shell environment. What a launch starts and
 // keeps is ./agent-launch-boundary.spec.ts. The synthetic `claude`
-// (../../tests/fixtures/fake-claude) on each server's PATH records every call and its
+// (../../test-support/fixtures/fake-claude) on each server's PATH records every call and its
 // environment; the real one is never reached.
 
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { launch, launchRequest } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import {
+  launch,
+  launchRequest,
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
   type DeploymentLikeStart,
-} from "../../tests/support/launchEnvironment.ts";
+} from "../../test-support/support/launchEnvironment.ts";
 test.describe(`agent launch environment from a deployment's start`, () => {
   let start: DeploymentLikeStart;
   let server: DashboardServer;

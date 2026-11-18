@@ -1,7 +1,7 @@
 // A refinement launch establishes its preparation before the session
 // (../../server/preparationStart.ts), over raw HTTP against the real installed
 // `preparation-assignment.mjs` and a real bare origin
-// (../../tests/support/startOrigin.ts), with the synthetic `claude`: origin ends up
+// (../../test-support/support/startOrigin.ts), with the synthetic `claude`: origin ends up
 // holding the Preparing profile (host claude, the chosen model, no Taken
 // profile), and the session starts in the new workspace under the project's
 // `.worktrees/` with the established preparation in its instruction. A
@@ -13,22 +13,22 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   establishingPreparation,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

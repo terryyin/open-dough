@@ -8,7 +8,7 @@ import { materializeRepository } from "../../../Distribution/tests/support/repos
 import { OutstandingReads } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { runGit } from "../../server/gitRunner.ts";
 import { fetchGitTarget } from "../../server/gitTargetFetch.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 
 test("sibling worktrees read the published target through one actual held Git mutation", async () => {
   const repo = await materializeRepository(

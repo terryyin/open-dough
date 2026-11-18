@@ -8,9 +8,9 @@ import path from "node:path";
 import {
   startFrontendAppServer,
   type FrontendAppServer,
-} from "../../tests/support/frontendAppServer.ts";
-import { expect, test as base } from "../../tests/support/pageTest.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/frontendAppServer.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 const index = "<!doctype html><title>Static frontend fixture</title>";
 const stylesheet = "body { color: green; }";

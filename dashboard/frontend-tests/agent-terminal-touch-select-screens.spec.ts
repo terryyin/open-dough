@@ -7,21 +7,21 @@
 // swiped scrollback and what a selection copies are
 // ./agent-terminal-touch-select-held.spec.ts.
 
-import { expect, test } from "../tests/support/frontendApp.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
 import {
   openFrontendTerminalByTouch,
   reportedSize,
-} from "../tests/support/frontendTouchTerminal.ts";
+} from "../test-support/support/frontendTouchTerminal.ts";
 import {
   heldOpening,
   heldOutput,
-} from "../tests/support/terminalHeldOutput.ts";
+} from "../test-support/support/terminalHeldOutput.ts";
 import {
   conversationLine,
   directedApplication,
-} from "../tests/support/terminalSubstituteApplication.ts";
-import { selectedPlace } from "../tests/terminalPausedScrollPage.ts";
-import { expectTerminalText } from "../tests/terminalScreenPage.ts";
+} from "../test-support/support/terminalSubstituteApplication.ts";
+import { selectedPlace } from "../test-support/terminalPausedScrollPage.ts";
+import { expectTerminalText } from "../test-support/terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -29,12 +29,15 @@ import {
   expectPausedShowsDrawnRowsInPlace,
   pausedLines,
   selectPausedRange,
-} from "../tests/terminalSelectPage.ts";
+} from "../test-support/terminalSelectPage.ts";
 import {
   phoneLaunchTouchViewport,
   tabletLaunchTouchViewport,
-} from "../tests/touchLaunchPage.ts";
-import { focusByTouch, tapTerminalKey } from "../tests/touchTerminalPage.ts";
+} from "../test-support/touchLaunchPage.ts";
+import {
+  focusByTouch,
+  tapTerminalKey,
+} from "../test-support/touchTerminalPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ hasTouch: true });

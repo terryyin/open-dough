@@ -11,16 +11,16 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { test as journeyTest } from "../../dashboard/tests/support/codexLaunch.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expectAdHocReportingInput } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { test as journeyTest } from "../../dashboard/test-support/support/codexLaunch.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   openBacklog,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 
 // codexLaunch.ts gives no project folder; Start session needs the one an
 // installed origin makes.

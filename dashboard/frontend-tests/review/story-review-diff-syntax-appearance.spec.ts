@@ -4,30 +4,36 @@
 // for token in both appearances.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { expectReadableContrast } from "../../tests/accessibleReading.ts";
-import { setColorScheme } from "../../tests/systemAppearanceReading.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { sourceToken } from "../../tests/pageColours.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
+import { setColorScheme } from "../../test-support/systemAppearanceReading.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { sourceToken } from "../../test-support/pageColours.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { frontendRevision } from "../../tests/support/frontendServiceState.ts";
-import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
+import { frontendRevision } from "../../test-support/support/frontendServiceState.ts";
+import { frontendReviewSnapshot } from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
 import {
   greetDiff,
   greetText,
-} from "../../tests/support/diffSyntaxFixtures.ts";
+} from "../../test-support/support/diffSyntaxFixtures.ts";
 import {
   fileReads,
   storyReviewDiff,
   tokenAppearance,
-} from "../../tests/support/reviewDiffSyntax.ts";
+} from "../../test-support/support/reviewDiffSyntax.ts";
 
 const path = "dashboard/tests/greet.spec.ts";
 const schemes = ["dark", "light"] as const;

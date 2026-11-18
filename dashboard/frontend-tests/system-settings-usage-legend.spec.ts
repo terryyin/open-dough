@@ -6,11 +6,11 @@ import {
   requestedCohort,
   usageTokenIndexEndpoint,
 } from "../src/usageTokenIndex.ts";
-import { narrowWindow } from "../tests/accessibleReading.ts";
-import { test } from "../tests/support/frontendApp.ts";
-import { usageChart } from "../tests/support/usageChartPage.ts";
-import { usageLegend } from "../tests/support/usageLegendPage.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+import { narrowWindow } from "../test-support/accessibleReading.ts";
+import { test } from "../test-support/support/frontendApp.ts";
+import { usageChart } from "../test-support/support/usageChartPage.ts";
+import { usageLegend } from "../test-support/support/usageLegendPage.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 import type { Page } from "@playwright/test";
 
 const at = (date: number) =>

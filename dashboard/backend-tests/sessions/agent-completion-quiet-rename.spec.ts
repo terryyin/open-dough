@@ -9,21 +9,21 @@
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { markDone, recordsOf } from "../../tests/agentLaunchBoundary.ts";
-import { expect } from "../../tests/dashboardTest.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
+import { expect } from "../../test-support/dashboardTest.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { keptLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   launchedAdHoc,
   shortIdOf,
-} from "../../tests/support/reportedLaunch.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
-import { test } from "../../tests/support/startOriginTest.ts";
+} from "../../test-support/support/reportedLaunch.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { test } from "../../test-support/support/startOriginTest.ts";
 
 const title = "Story A";
 const pending = "Local done mark retained. Native done mark is pending.";

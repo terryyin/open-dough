@@ -8,20 +8,20 @@ import {
   refusingOwner,
 } from "../../Distribution/tests/skills/dough-execute-plan/github-request-owner-refusal-test-fixtures.mjs";
 import { ownerlessRequestRoot } from "../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { sharedDashboardBuild } from "../../dashboard/tests/support/dashboardServer.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { sharedDashboardBuild } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   endFakeGh,
   fakeGhEnv,
   installFakeGh,
-} from "../../dashboard/tests/support/fakeGh.ts";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
+} from "../../dashboard/test-support/support/fakeGh.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import {
   inspect,
   knownSourceId,
   startDashboardServer,
-} from "../../dashboard/tests/support/readDiagnostics.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+} from "../../dashboard/test-support/support/readDiagnostics.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 
 for (const [fault, ownerCause, message] of [
   ["privacy", "not-private", "endpoint is open to other users"],

@@ -1,8 +1,8 @@
 // Exact unavailable endpoints are explained by the authenticated local reader.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 test.use({ serverMode: "boundary" });
 
 test("an exact unavailable Done endpoint explains retention, absence and unknown local order without using the current endpoint", async ({

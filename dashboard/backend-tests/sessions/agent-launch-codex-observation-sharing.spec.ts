@@ -3,10 +3,10 @@
 // counted by the Codex native fixture's calls: one native connection
 // (`initialized`) and one `thread/read` per session per observation.
 import { setTimeout as delay } from "node:timers/promises";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
   saveObservations as save,
@@ -14,7 +14,7 @@ import {
   sessionStatesIn,
   observed,
   passive,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

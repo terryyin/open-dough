@@ -1,8 +1,8 @@
 // What every test group's Playwright configuration does for its own run
 // before Playwright starts it, and the run options they share. Each
-// configuration (../../integrated.playwright.config.ts,
-// ../../frontend.playwright.config.ts, ../../backend.playwright.config.ts,
-// ../../../e2e/playwright.config.ts) names its own settings prefix, root,
+// configuration (../../frontend.playwright.config.ts,
+// ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts)
+// names its own settings prefix, root,
 // CI job and output directory and keeps its own global setup, so no
 // run reads another runner's split, times, proof record, deadline or output
 // directory, and each selects only its own root's specs (prepareFocusedRun).

@@ -2,19 +2,22 @@
 // the queue closes on its quiet completed report, at delivery or at binding,
 // and keeps that returned outcome with the report; Taken and unfinished stay
 // open, and product closure evidence still means published completion only.
-import { test, expect } from "../../tests/dashboardTest.ts";
+import { test, expect } from "../../test-support/dashboardTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { machineSessions, markDone } from "../../tests/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import {
+  machineSessions,
+  markDone,
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   deliverReport,
   keepPlanted,
   keptExecution,
   plantedExecution,
-} from "../../tests/support/plantedTrackedExecution.ts";
-import { recordOperation } from "../../tests/support/completionRecovery.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/plantedTrackedExecution.ts";
+import { recordOperation } from "../../test-support/support/completionRecovery.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.use({ projectFolders: ["open-dough"], serverMode: "boundary" });
 

@@ -3,24 +3,24 @@
 // story link opening its supplier's detail is in
 // ../../../e2e/stories/story-card-inspection.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   consumer,
   reason,
   twoDependencies,
-} from "../../tests/storyDependencyFixture.ts";
-import { putFrontendDependencies } from "../../tests/support/frontendStoryDependencies.ts";
+} from "../../test-support/storyDependencyFixture.ts";
+import { putFrontendDependencies } from "../../test-support/support/frontendStoryDependencies.ts";
 import {
   emptyArea,
   expectSelected,
   storyDetail,
-} from "../../tests/storyCardSelection.ts";
-import { storyCard } from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardSelection.ts";
+import { storyCard } from "../../test-support/storyCardControls.ts";
 import {
   dependencyDisclosure,
   openDependencies,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 
 test("a dependency disclosure and its explanation text do not change the selected story or open detail", async ({
   page,

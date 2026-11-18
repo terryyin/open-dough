@@ -1,38 +1,38 @@
-import { control } from "../../dashboard/tests/sidePanelFrame.ts";
+import { control } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Soft-keyboard and orientation fit for the Side panel terminal on the
 // ordinary page/xterm/WebSocket/PTY path. Simulated visualViewport / reduced
 // height / rotate keep toolbar, composer actions, and Close reachable; the
 // attachment and unsent draft survive; hide-keyboard dismisses focus; desktop
 // keeps today's layout without the fit override.
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalInputNotFocused,
   expectTerminalText,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { box, tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { box, tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 import {
   expectCovering,
   resizeUntilArranged,
-} from "../../dashboard/tests/sidePanelWidthPage.ts";
+} from "../../dashboard/test-support/sidePanelWidthPage.ts";
 import {
   clearSoftKeyboardViewport,
   expectControlInVisualViewport,
   simulateSoftKeyboardViewport,
-} from "../../dashboard/tests/touchTerminalSoftKeyboardPage.ts";
+} from "../../dashboard/test-support/touchTerminalSoftKeyboardPage.ts";
 import {
   noteTerminalTraffic,
   touchTerminal,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

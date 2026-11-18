@@ -12,29 +12,32 @@ import { storyA } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectContinuationThroughScope,
   expectContinuationWithoutScope,
   recordedScope,
-} from "../../dashboard/tests/support/cursorScopeAssertions.ts";
+} from "../../dashboard/test-support/support/cursorScopeAssertions.ts";
 import {
   expectNormalizedReading,
   expectReadingWithoutScreenLabel,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { openHeldCursorExecutions } from "../../dashboard/tests/support/heldCursorExecutions.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { openHeldCursorExecutions } from "../../dashboard/test-support/support/heldCursorExecutions.ts";
 
 test.use({ cursorSubmitPaintMs: 300 });
 

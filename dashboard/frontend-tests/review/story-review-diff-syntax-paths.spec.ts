@@ -3,15 +3,18 @@
 // renamed file follows its new path, and any other file reads as plain text.
 
 import type { ReviewedFile } from "../../src/storyReviewContract.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewSnapshot,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
-import { codePane } from "../../tests/support/reviewPanes.ts";
-import { storyReviewDiff } from "../../tests/support/reviewDiffSyntax.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
+import { codePane } from "../../test-support/support/reviewPanes.ts";
+import { storyReviewDiff } from "../../test-support/support/reviewDiffSyntax.ts";
 
 const typescript = { code: "const shown: number = 1;", keyword: "const" };
 const javascript = { code: 'const shown = require("x");', keyword: "const" };

@@ -4,26 +4,29 @@ import type { submitCompletion } from "../../dashboard/server/completionReportin
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { test, expect } from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   launch,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   queuedIdentity,
   queuedTitle,
-} from "../../dashboard/tests/support/startOrigin.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionUnreadReportOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { markDone } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { markDone } from "../../dashboard/test-support/support/markDone.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const exec = promisify(execFile);
 

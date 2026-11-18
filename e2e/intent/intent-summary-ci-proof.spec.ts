@@ -1,14 +1,14 @@
 import {
   fileSource,
   sourceFile,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // A selected Intent entry's or folder's Summary from CI's own evidence
 // (../../dashboard/src/IntentScopeProof.tsx, ../../dashboard/src/ciScopeProof.ts,
 // ../../dashboard/src/IntentCiEvidence.tsx): raw runner reports go through the
 // collector's command line (`fragment --by-file`, then `summarize`), and the
 // summary's actual bytes are the run's artifact, read through the dashboard's
 // artifact boundary and the browser's own parser
-// (../../dashboard/tests/intentSummaryCiProofFixtures.ts). The entry shows its root figures with
+// (../../dashboard/test-support/intentSummaryCiProofFixtures.ts). The entry shows its root figures with
 // parts completeness above its immediate folders and files with counts and
 // cumulative execution time. A child name drills into a folder (revealing it in the tree) or opens
 // a file's reading; a file CI has no result for, a file with an untimed test, a
@@ -17,41 +17,41 @@ import {
 // one row and a zoomed table, and a previously retrieved judgment:
 // ../../dashboard/frontend-tests/intent/intent-summary-ci-proof-{gaps,table,kept,sort}.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
-import { activateIntentHome } from "../../dashboard/tests/intentCiStatusPage.ts";
+import { activateIntentHome } from "../../dashboard/test-support/intentCiStatusPage.ts";
 import {
   artifactId,
   expectProofRows,
   proofCalls,
   proofOf,
-} from "../../dashboard/tests/intentCiProofPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
 import {
   intentFolderName,
   intentGroupToggle,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   childName,
   expectChildNames,
   expectScopeRows,
   summaryRegion,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
 import {
   allParts,
   bothEntriesSummary,
   expectAncestorEvidence,
   openIntent,
   openSummary,
-} from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
+} from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
 import {
   evidenceLabels,
   expectEvidenceLabels,
   expectLabelInFull,
-} from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+} from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   runnerCheckout,
   summaryTextZipAnswer,
-} from "../../dashboard/tests/support/ciProofCollected.ts";
+} from "../../dashboard/test-support/support/ciProofCollected.ts";
 
 test("an entry's and its folders' CI summaries come from CI's collected file breakdown: root figures, immediate children, drill-down and file reading, with no source read and no second CI read", async ({
   page,

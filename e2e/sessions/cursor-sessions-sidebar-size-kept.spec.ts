@@ -13,23 +13,29 @@ import {
   runningCursorSplit,
   type RunningCursorSplit,
   wide,
-} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
-import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/cursorSessionsSidebarResizePage.ts";
+import {
+  chooseProject,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   type RunningCursorParts,
   runningCursorParts,
-} from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/runningCursorList.ts";
 import {
   changesAsked,
   listFloor as floor,
   showPage,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   back,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
 

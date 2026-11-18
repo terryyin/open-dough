@@ -4,41 +4,41 @@
 // record arrives the keyboard stays where the developer moved it.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   expectEntries,
   showLatestAction,
   shownEntries,
-} from "../../tests/recentlyDoneColumn.ts";
-import { showColumn } from "../../tests/boardPage.ts";
+} from "../../test-support/recentlyDoneColumn.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 import {
   inspectionToggle,
   pointerDownOn,
   storyCard,
-} from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardControls.ts";
 import {
   expectInspected,
   storyDetail,
-} from "../../tests/storyCardSelection.ts";
+} from "../../test-support/storyCardSelection.ts";
 import {
   dismissReference,
   doneDestination,
   followReference,
   openDependencies,
   referenceNotice,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 import {
   expectKeyboardAtMark,
   markKeyboardPlace,
-} from "../../tests/pageShortcutsPage.ts";
-import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageShortcutsPage.ts";
+import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   doneTitlesThrough,
   farDone,
   putFrontendDoneReferences,
-} from "../../tests/support/frontendDoneReferences.ts";
-import { holdDoneRecordReads } from "../../tests/support/frontendDoneBodyReads.ts";
+} from "../../test-support/support/frontendDoneReferences.ts";
+import { holdDoneRecordReads } from "../../test-support/support/frontendDoneBodyReads.ts";
 
 test.use({ hasTouch: true });
 

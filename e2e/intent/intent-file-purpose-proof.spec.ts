@@ -4,29 +4,29 @@
 // from Intent's one evidence owner, with the chosen tab kept across file
 // selections (SEED-247#restore-file-purpose-and-proof examples 1, 4, 6).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   evidenceLabels,
   expectEvidenceLabels,
-} from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+} from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   artifactId,
   proofCalls,
-} from "../../dashboard/tests/intentCiProofPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   fileReadingTab,
   proofRegion,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { intentFile } from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { intentFile } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   ancestorEvidence,
   bothEntriesSummary,
   openIntent,
-} from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
-import { summaryTextZipAnswer } from "../../dashboard/tests/support/ciProofCollected.ts";
+} from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
+import { summaryTextZipAnswer } from "../../dashboard/test-support/support/ciProofCollected.ts";
 
 test("a selected file offers Purpose source and Proof CI results, keeping the chosen tab across files", async ({
   page,

@@ -9,39 +9,39 @@
 // Row counts, times and cue rules are
 // intent-summary-story-comparison-mounted-file.spec.ts's.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { timeMarks } from "../../tests/support/relativeTimingMarks.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
-import { expectFileComparisonRow } from "../../tests/intentFileProofPage.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { timeMarks } from "../../test-support/support/relativeTimingMarks.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
+import { expectFileComparisonRow } from "../../test-support/intentFileProofPage.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   comparisonLabels,
   expectEvidenceLabels,
   expectNoComparisonFraming,
   expectObservedNotAttributed,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 import {
   fileReadingTab,
   proofRegion,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
-import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonShared.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { summaryComparisonChanges } from "../../test-support/support/intentSummaryStoryComparisonShared.ts";
 import {
   expectStoryTab,
   intentFile,
   storyTab,
   intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
-import { selectDoneStoryForChangedTests } from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { selectDoneStoryForChangedTests } from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
   mergeEditedFileRow,
   modifiedFileRow,
   renamedFileRow,
-} from "../../tests/support/summaryComparisonFileExpectedRows.ts";
+} from "../../test-support/support/summaryComparisonFileExpectedRows.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

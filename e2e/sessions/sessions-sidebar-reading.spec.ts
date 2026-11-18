@@ -7,31 +7,31 @@
 // own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   columnCountOf,
   storyCardSessions,
   parts,
   sessionEntryShowing,
   standaloneSessionName,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   readyStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
-import { holdSessionReads } from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   columnPagingControl,
   showColumn,
-} from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/boardPage.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut"],

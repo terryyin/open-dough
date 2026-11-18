@@ -12,10 +12,10 @@ import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/run
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { makeRecordedRunnerProofStale } from "../../dashboard/tests/support/cursorRunnerRecordedAddress.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { makeRecordedRunnerProofStale } from "../../dashboard/test-support/support/cursorRunnerRecordedAddress.ts";
 import {
   doneSessionId,
   expectNotAgentNotRunning,
@@ -23,16 +23,19 @@ import {
   secondSessionId,
   thirdSessionId,
   writeLastHeld,
-} from "../../dashboard/tests/support/cursorRunnerReplacement.ts";
-import { expectReadingWithoutScreenLabel } from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorRunnerReplacement.ts";
+import { expectReadingWithoutScreenLabel } from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   keptRecords,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { openHeldCursorExecutions } from "../../dashboard/tests/support/heldCursorExecutions.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { keepMoreLaunchRecordsBesideServer } from "../../dashboard/tests/support/launchStore.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import { openHeldCursorExecutions } from "../../dashboard/test-support/support/heldCursorExecutions.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { keepMoreLaunchRecordsBesideServer } from "../../dashboard/test-support/support/launchStore.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 
 const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(

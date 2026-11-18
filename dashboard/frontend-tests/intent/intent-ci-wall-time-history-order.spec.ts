@@ -14,10 +14,10 @@ import {
   dayWords,
   historyOf,
   showBuildHistoryEvidence,
-} from "../../tests/intentCiHistoryPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
-import { openFrontendCiStatus } from "../../tests/support/frontendCiStatusAnswers.ts";
+} from "../../test-support/intentCiHistoryPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { serveFrontendCiHistory } from "../../test-support/support/frontendCiHistoryAnswers.ts";
+import { openFrontendCiStatus } from "../../test-support/support/frontendCiStatusAnswers.ts";
 
 test("accepted landing order keeps a middle gap while reversed build dates retain their labels and true measured date span", async ({
   page,

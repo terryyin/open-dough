@@ -128,7 +128,7 @@ expect_stopped() {
 # the repository, and the worktree is removed before the second run, which
 # runs in the repository.
 printf 'fail\npass\n' > "${fake}/scenario"
-run_repeat fresh 2 test:dashboard:integrated --fresh a.spec.ts b.spec.ts
+run_repeat fresh 2 test:dashboard:frontend --fresh a.spec.ts b.spec.ts
 expect_report fresh 1 << 'REPORT'
 Run 1 (fresh worktree): exit 1, <s> s, load <l> -> <l>
   FAIL: dashboard/tests/a.spec.ts:7 › a › first (failed)
@@ -149,8 +149,8 @@ case ${fresh_checkout} in
 esac
 expect_calls fresh << CALLS
 install ${fresh_checkout} unset/unset
-run ${fresh_checkout} unset/unset test:dashboard:integrated -- a.spec.ts b.spec.ts
-run ${repository} unset/unset test:dashboard:integrated -- a.spec.ts b.spec.ts
+run ${fresh_checkout} unset/unset test:dashboard:frontend -- a.spec.ts b.spec.ts
+run ${repository} unset/unset test:dashboard:frontend -- a.spec.ts b.spec.ts
 CALLS
 expect_in_log "${repository}/dashboard/test-results/stamp-1/report.txt" -x -F 'the report'
 expect_no_worktree fresh
@@ -219,6 +219,6 @@ Usage: bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [
 REPORT
 run_repeat unknown 1 test:dashboard a.spec.ts
 expect_report unknown 2 << 'REPORT'
-The group command must be test:e2e or test:dashboard:integrated, frontend or backend, not "test:dashboard".
+The group command must be test:e2e, test:dashboard:frontend, or test:dashboard:backend. Unknown group "test:dashboard".
 Usage: bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]
 REPORT

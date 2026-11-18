@@ -11,8 +11,8 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
 import {
   expectControlContrast,
   expectReadableAndRecognisable,
@@ -20,17 +20,20 @@ import {
   narrowWindow,
   twiceZoomedWindow,
   zoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { rosterParts } from "../../tests/dashboardPage.ts";
-import { expectDecorativeIcon } from "../../tests/frameIconControl.ts";
-import { showOptions, startSession } from "../../tests/launchStoryCardPage.ts";
-import { openLongTitleRefinement } from "../../tests/longTitleLaunch.ts";
+} from "../../test-support/accessibleReading.ts";
+import { rosterParts } from "../../test-support/dashboardPage.ts";
+import { expectDecorativeIcon } from "../../test-support/frameIconControl.ts";
+import {
+  showOptions,
+  startSession,
+} from "../../test-support/launchStoryCardPage.ts";
+import { openLongTitleRefinement } from "../../test-support/longTitleLaunch.ts";
 import {
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
   expectNoSidewaysScrollIn,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 
 // Every piece of text a reader reads in a dialog, and every control.
 const launchDialog = {

@@ -13,19 +13,19 @@ import {
   attempts,
   continueAttempt,
   launch,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   expectSettledPage,
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expect,
   stored,
   test,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();

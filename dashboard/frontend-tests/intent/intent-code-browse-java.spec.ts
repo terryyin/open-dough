@@ -1,36 +1,39 @@
-import { filesToggle, expectFilesShown } from "../../tests/intentModePage.ts";
+import {
+  filesToggle,
+  expectFilesShown,
+} from "../../test-support/intentModePage.ts";
 import {
   expectReadingOffset,
   scrollIntentReadingHalfway,
-} from "../../tests/intentReadingPlacePage.ts";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
-import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
+import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
 // Configured Java/JUnit source uses Intent's existing browser and Purpose/Proof
 // reader, alongside another test type, without requiring Java CI evidence.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts, shortRevision } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts, shortRevision } from "../../test-support/dashboardPage.ts";
 import {
   fileSource,
   sourceFile,
   sourceLineNumbers,
   sourceLineText,
   sourceRevision,
-} from "../../tests/intentCodeBrowsePage.ts";
+} from "../../test-support/intentCodeBrowsePage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   fileReadingTab,
   proofRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   colourOf,
   expectKeywordAndStringColours,
   sourceToken,
-} from "../../tests/pageColours.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
-import { doughnut } from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/pageColours.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { doughnut } from "../../test-support/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { failGrammar } from "../../tests/support/syntaxGrammar.ts";
+import { failGrammar } from "../../test-support/support/syntaxGrammar.ts";
 
 test("Intent lists configured nested JUnit source, reads exact pinned Java with line numbers and theme styling, and shares Purpose/Proof with other source", async ({
   page,

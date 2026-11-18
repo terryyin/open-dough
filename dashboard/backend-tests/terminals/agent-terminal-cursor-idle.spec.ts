@@ -5,24 +5,24 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   installFakeCursor,
   type FakeCursor,
-} from "../../tests/support/fakeCursor.ts";
+} from "../../test-support/support/fakeCursor.ts";
 import {
   openCursorTerminal,
   type CursorTerminal,
-} from "../../tests/support/cursorTerminal.ts";
+} from "../../test-support/support/cursorTerminal.ts";
 import {
   keptCursor,
   startCursorDashboard,
   stayedUp,
-} from "../../tests/support/keptCursorTurn.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "continue this session";
 

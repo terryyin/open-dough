@@ -1,31 +1,31 @@
 // Existing record retention owns reporting continuity; no history lifetime is extended.
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { launchStoreFile } from "../../tests/support/launchStore.ts";
+import { launchStoreFile } from "../../test-support/support/launchStore.ts";
 import path from "node:path";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { oneShot } from "../../tests/support/oneShotLaunch.ts";
-import { requestFor } from "../../tests/support/launchDashboard.ts";
-import { commit, git } from "../../tests/support/launchLanding.ts";
-import { landingGitFault } from "../../tests/support/launchLandingFault.ts";
-import { context } from "../../tests/support/oneShotLanding.ts";
-import { retireReviewRun } from "../../tests/support/oneShotReview.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../test-support/support/launchDashboard.ts";
+import { commit, git } from "../../test-support/support/launchLanding.ts";
+import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
+import { context } from "../../test-support/support/oneShotLanding.ts";
+import { retireReviewRun } from "../../test-support/support/oneShotReview.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   reportingChild,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 import {
   publishLanding,
   retainedLanding,
-} from "../../tests/support/oneShotLandingRecovery.ts";
+} from "../../test-support/support/oneShotLandingRecovery.ts";
 import {
   landingRetentionClock,
   dropExpiredAttempts,
-} from "../../tests/support/landingRetentionClock.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/support/landingRetentionClock.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
-import { retainedLandingEvidence } from "../../tests/support/landingRetentionEvidence.ts";
+import { retainedLandingEvidence } from "../../test-support/support/landingRetentionEvidence.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

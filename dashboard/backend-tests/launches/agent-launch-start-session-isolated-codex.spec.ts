@@ -1,18 +1,18 @@
 // The launch boundary honors an unattached Codex request's isolated
-// workspace, with a real bare origin (../../tests/support/startOrigin.ts) and
+// workspace, with a real bare origin (../../test-support/support/startOrigin.ts) and
 // the installed start recorded as it runs
-// (../../tests/support/startSessionLanding.ts): Codex starts with the
+// (../../test-support/support/startSessionLanding.ts): Codex starts with the
 // worktree as its working directory and the same established block, its
 // reporting context and the developer's text. Slug variations and collisions
 // belong to ./launch-workspace.spec.ts; the dialog's journeys to
 // ../../../e2e/launches/agent-launch-start-session-isolated.spec.ts.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   established,
   isolatedSession,
@@ -21,7 +21,7 @@ import {
   recordStarts,
   sessionBlock,
   worktree,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";

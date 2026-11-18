@@ -1,18 +1,18 @@
 // Passive final report requests admit only a catalog project's recorded native identity.
 import path from "node:path";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../tests/launchJourney.ts";
-import { keepMoreLaunchRecords } from "../../tests/support/launchStore.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/launchJourney.ts";
+import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   keepTrackedClosureEvidence,
   plantTrackedClosureRepository,
   report,
   retained,
-} from "../../tests/support/retainedReport.ts";
+} from "../../test-support/support/retainedReport.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });

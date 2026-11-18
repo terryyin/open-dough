@@ -1,6 +1,6 @@
 // Landed CI wall-time history collection (../../server/landedCiCollection.ts)
 // of landings whose measuring build is not final, with no page open, a real
-// bare origin (../../tests/support/startOrigin.ts) and the synthetic
+// bare origin (../../test-support/support/startOrigin.ts) and the synthetic
 // `claude`, each collecting server checking its pending landings again at a
 // test's pace: a confirmed skip waits while the earlier build it rests on is
 // running, and then is that build's reused equivalent point; a cancelled
@@ -12,15 +12,18 @@
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
-import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
+import { adapterProject } from "../../test-support/intentCiAdapterProofProject.ts";
+import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
 import {
   answeredLanding,
   landedCiHistory,
   minutesAgo,
   storyLandingRecord,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   passedBetween,
   publishCiWorkflow,
@@ -30,8 +33,8 @@ import {
   trunkRun,
   usableProofOf,
   type TrunkProofs,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

@@ -12,36 +12,36 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   parts,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   report,
   save,
   retained,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   codexAttaches,
   codexEnded,
   codexTerminalMode,
-} from "../../dashboard/tests/support/codexTerminal.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
-import { finalReportParts } from "../../dashboard/tests/finalReportPages.ts";
-import { markAsDone } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/codexTerminal.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
+import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
+import { markAsDone } from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

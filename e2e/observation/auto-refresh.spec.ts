@@ -3,7 +3,7 @@
 // shown revision, and reads a new snapshot only when it names another. The
 // page, its local authenticated read boundary, the conditional `gh api`
 // invocation, and the shared interpretation are the production ones; the
-// fake GitHub behind the synthetic `gh` (../../dashboard/tests/support/fakeGitHub.ts) only
+// fake GitHub behind the synthetic `gh` (../../dashboard/test-support/support/fakeGitHub.ts) only
 // publishes commits, answers `304 Not Modified` to an unchanged entity tag
 // as GitHub does, and records every `gh` call. The page's clock is paused
 // and advanced by the test, so "within 30 seconds" is observed in page time.
@@ -12,7 +12,7 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
@@ -20,7 +20,7 @@ import {
   expectSettledPage,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -31,7 +31,7 @@ import {
   recordsAt,
   headsCheckArgv,
   headsChecks,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogB,
   backlogC,
@@ -42,12 +42,12 @@ import {
   revisionC,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   canonicalRecord,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 
 test("auto refresh: quiet main is only checked, and newly published main appears with its own detail and keeps focus", async ({
   page,

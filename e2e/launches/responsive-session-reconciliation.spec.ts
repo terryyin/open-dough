@@ -2,37 +2,37 @@
 // A fully read accepted snapshot or descendant restores actions after native
 // startup settles; older and unrelated snapshots keep protection. The session
 // keeps working, and reconciliation survives reload without another comparison.
-// See ../../dashboard/src/startupReconciliation.ts and ../../dashboard/tests/support/startOrigin.ts.
+// See ../../dashboard/src/startupReconciliation.ts and ../../dashboard/test-support/support/startOrigin.ts.
 
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   givePageItsTurns,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import { openSessionStartReason } from "../../dashboard/src/agentLaunch.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   commitAnswer,
   noConnection,
   rateLimitedAnswer,
-} from "../../dashboard/tests/originAnswers.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/originAnswers.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   commitOn,
   expectProtected,
   openStories,
   openStory,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),

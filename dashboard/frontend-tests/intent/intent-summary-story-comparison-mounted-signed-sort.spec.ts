@@ -1,21 +1,21 @@
-import { fileProofTable } from "../../tests/intentFileProofPage.ts";
+import { fileProofTable } from "../../test-support/intentFileProofPage.ts";
 // Signed quantity and zero-baseline rendering over independent literal rows.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   scopeTable,
   scopeComparisonCell,
-} from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/intentScopeProofPage.ts";
 import {
   expectRenderedSortedBy,
   rowNames,
-} from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
 import {
   showPercent,
   timeMarks,
   percentages,
-} from "../../tests/support/relativeTimingMarks.ts";
-import { mountedSummarySortExpected } from "../../tests/support/mountedSummarySortExpected.ts";
+} from "../../test-support/support/relativeTimingMarks.ts";
+import { mountedSummarySortExpected } from "../../test-support/support/mountedSummarySortExpected.ts";
 const entry = "dashboard/tests";
 const timed = (path: string, ms: number) =>
   makeMe.aCiProofEntry.at(path).timed(ms).please();

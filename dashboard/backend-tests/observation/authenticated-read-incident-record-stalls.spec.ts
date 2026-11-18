@@ -8,15 +8,15 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   incidentEntries,
   inspect,
   developmentBoundary,
   startDashboardServer,
   type RecordedStall,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 test("stalls past the third in one window are folded into one entry, with the longest delay, their count, and the first one's time, written on close", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-incident-folds-"));

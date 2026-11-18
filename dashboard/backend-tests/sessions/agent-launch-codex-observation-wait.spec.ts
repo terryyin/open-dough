@@ -3,10 +3,10 @@
 // ends only its own wait, waiters past the bound are told to ask again, and
 // none of that starts a second observation while the first runs.
 import { setTimeout as delay } from "node:timers/promises";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
   saveObservations as save,
@@ -14,7 +14,7 @@ import {
   sessionsRequest,
   sessionStatesIn,
   passive,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

@@ -2,23 +2,30 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { accept } from "../../tests/agentLaunchBoundary.ts";
-import { oneShot } from "../../tests/support/oneShotLaunch.ts";
-import { requestFor } from "../../tests/support/launchDashboard.ts";
-import { commit, scripts, git } from "../../tests/support/launchLanding.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { accept } from "../../test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../test-support/support/launchDashboard.ts";
+import {
+  commit,
+  scripts,
+  git,
+} from "../../test-support/support/launchLanding.ts";
 import { acceptanceSchema } from "../../src/launchOutcome.ts";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import { completionSchema } from "../../src/completionReport.ts";
-import { keptAttempts, settledOutcome } from "../../tests/acceptedAttempts.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import {
+  keptAttempts,
+  settledOutcome,
+} from "../../test-support/acceptedAttempts.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   completionProxy,
   completionWriteFault,
   reportingChild,
   quote,
   recordOperation,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

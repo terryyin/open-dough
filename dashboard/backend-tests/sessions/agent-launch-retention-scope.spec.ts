@@ -17,19 +17,26 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { identity, launch, title } from "../../tests/agentLaunchBoundary.ts";
-import { daysAgo, machineHome } from "../../tests/machineLaunchRecords.ts";
+import {
+  identity,
+  launch,
+  title,
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  daysAgo,
+  machineHome,
+} from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   keptLaunchRecords,
-} from "../../tests/support/launchStore.ts";
-import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
+} from "../../test-support/support/launchStore.ts";
+import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 test.describe("a scoped record dropped by retention expiry", () => {
   test.describe.configure({ mode: "serial" });

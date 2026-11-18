@@ -1,26 +1,26 @@
 // Built app with explicit story-review and notes substitutes: what Review
 // changes offers for notes and keeps around Story notes. The real Published
 // completion journey is ../../../e2e/review/story-review-diff-add-note.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
 import {
   codePane,
   scrollPane,
   scrollTopOf,
-} from "../../tests/support/reviewPanes.ts";
-import { shownComparisonDescription } from "../../tests/support/reviewContextLine.ts";
+} from "../../test-support/support/reviewPanes.ts";
+import { shownComparisonDescription } from "../../test-support/support/reviewContextLine.ts";
 import {
   reviewHeaderActions,
   reviewRefresh,
-} from "../../tests/support/reviewControls.ts";
-import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/reviewControls.ts";
+import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
 
 const longDiff = frontendFileDiff(
   "story.txt",

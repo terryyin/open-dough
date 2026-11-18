@@ -6,14 +6,14 @@
 // receives no call. Keep process startup and teardown on real timers.
 import { EventEmitter, once } from "node:events";
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
-import { controlRequestTimers } from "../../tests/support/controlledRequestTimers.ts";
+import { controlRequestTimers } from "../../test-support/support/controlledRequestTimers.ts";
 import {
   everyRepository,
   type RepositoryAnswerer,
-} from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
-import { heldInTurn } from "../../tests/support/heldGitHubAnswer.ts";
-import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
+import { heldInTurn } from "../../test-support/support/heldGitHubAnswer.ts";
+import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 
 // A distinctive delay separates the pace from the read and process timers
 // inside the same request. Other requests never enter the clock's scope.

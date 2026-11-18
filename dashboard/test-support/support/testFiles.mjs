@@ -34,9 +34,8 @@ function specTree(directory, label) {
 // testDir), as paths relative to it: the labels its
 // `<group>-times-<shard>` artifacts carry (support/specTimes.ts writes the
 // same relative path). A root of `.` is the directory itself. Each runner
-// names its own roots (../../integrated.playwright.config.ts,
-// ../../frontend.playwright.config.ts, ../../backend.playwright.config.ts,
-// ../../../e2e/playwright.config.ts).
+// names its own roots (../../frontend.playwright.config.ts,
+// ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts).
 export function dashboardSpecFiles(directory, roots) {
   return roots
     .flatMap((root) =>

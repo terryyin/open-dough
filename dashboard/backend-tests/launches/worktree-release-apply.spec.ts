@@ -3,13 +3,13 @@
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { applyReleaseToWorktree } from "../../server/worktreeReleaseApply.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 const bothRootsHelper = path.join(
   repoRoot,
-  "dashboard/tests/support/fakeReleaseApplyBothRoots.sh",
+  "dashboard/test-support/support/fakeReleaseApplyBothRoots.sh",
 );
 
 test("ordinary apply targets the worktree, never forces, and installs both skill roots", async () => {

@@ -4,9 +4,9 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
-import { installAttachedTerminalSubstitute } from "../tests/support/frontendServiceSubstitutes.ts";
-import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
+} from "../test-support/support/frontendApp.ts";
+import { installAttachedTerminalSubstitute } from "../test-support/support/frontendServiceSubstitutes.ts";
+import { sessionsSidebarParts } from "../test-support/sessionsSidebarPage.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -16,7 +16,7 @@ import {
   reconnectTerminal,
   terminalPanel,
   terminalStatus,
-} from "../tests/terminalScreenPage.ts";
+} from "../test-support/terminalScreenPage.ts";
 
 for (const unavailable of ["connecting", "refused"] as const) {
   test(`${unavailable} input refuses presets, names recovery and requires a new choice`, async ({

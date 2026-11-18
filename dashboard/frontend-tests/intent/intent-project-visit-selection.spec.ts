@@ -1,24 +1,24 @@
-import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
+import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
 // Selection changes after Project Intent visits (../../src/IntentPerspective.tsx):
 // every new selection opens CI comparison, even when cleared and selected again
 // while Intent is hidden. Clearing selection opens Project Intent's CI status,
 // whichever view the previous visit ended on.
 
-import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
 import {
   backToStory,
   chooseOptimizationCandidates,
   expectIntentModeChosen,
   openProjectIntent,
   intentPageFrame,
-} from "../../tests/intentModePage.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { expectSelected } from "../../tests/storyCardSelection.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/intentModePage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { expectSelected } from "../../test-support/storyCardSelection.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   expectStoryTab,
   storySummary,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 
 test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after a visit that ended on Optimization Candidates", async ({
   page,

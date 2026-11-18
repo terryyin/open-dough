@@ -3,19 +3,19 @@
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   enlargedView,
   expectPortrait,
-} from "../../dashboard/tests/agentPortrait.ts";
-import { avatarPng } from "../../dashboard/tests/avatarAnswers.ts";
-import { describedRevision } from "../../dashboard/tests/describedRevisions.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/agentPortrait.ts";
+import { avatarPng } from "../../dashboard/test-support/avatarAnswers.ts";
+import { describedRevision } from "../../dashboard/test-support/describedRevisions.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 const nerdStory = "See who owns Taken work";
 const atlasStory = "Show every agent's portrait";

@@ -1,17 +1,20 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // A Done adapter planning-only skip reuses the equivalent attempt's wall
 // time without a proof summary (SEED-288#reuse-adapter-equivalent-timing).
 // Parameterized discover-build comparison journeys stay in
 // ./intent-ci-comparison-adapter.spec.ts.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { adapterProject } from "../../dashboard/tests/intentCiAdapterProofProject.ts";
-import { expectNoRunOrAttemptIds } from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { publishUnbuiltStoryLanding } from "../../dashboard/tests/support/storyCiComparisonSkippedLandingFixture.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { adapterProject } from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
+import { expectNoRunOrAttemptIds } from "../../dashboard/test-support/support/expectCiComparisonSourceCue.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { publishUnbuiltStoryLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedLandingFixture.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const repository = "terryyin/open-dough";
 

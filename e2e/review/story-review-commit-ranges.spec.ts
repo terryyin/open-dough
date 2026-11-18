@@ -1,27 +1,30 @@
 // A contiguous range uses its oldest parent and newest tree, while trunk
 // the comparison restates the starting tree across trunk integrations.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   commitRangeHeading,
   chooseCommit,
-} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
-import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { olderGit } from "../../dashboard/tests/support/storyReviewOlderGit.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import {
   observed,
   storyWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   expectTreeRows,
   changedFilesList,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 
 test("two ends select three commits in either direction, reset to one, and survive switching comparisons", async ({
   page,

@@ -1,18 +1,18 @@
 import {
   scopeHistory,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Same-ID source configuration changes cannot inherit a different source's answer.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   test,
   mountComparison,
-} from "../tests/support/comparisonMountPage.ts";
+} from "../test-support/support/comparisonMountPage.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
-} from "../tests/support/projectScopeHistoryFacts.ts";
+} from "../test-support/support/projectScopeHistoryFacts.ts";
 
 for (const changed of ["repository", "ref"] as const) {
   test(`a changed ${changed} with the same project ID and endpoint does not keep another source's history`, async ({

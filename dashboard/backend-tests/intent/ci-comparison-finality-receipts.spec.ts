@@ -14,7 +14,7 @@ import {
   trunkSide,
 } from "../support/finalityComparisonFacts.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
-import { capturedComparisonLanding } from "../../tests/support/capturedComparisonLanding.ts";
+import { capturedComparisonLanding } from "../../test-support/support/capturedComparisonLanding.ts";
 import {
   expect,
   test,

@@ -7,14 +7,14 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { markDone, title } from "../../tests/agentLaunchBoundary.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { markDone, title } from "../../test-support/agentLaunchBoundary.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const launchName = `Open Dough · Execution · ${title}`;
 

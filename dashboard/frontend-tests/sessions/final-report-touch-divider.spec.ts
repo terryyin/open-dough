@@ -1,11 +1,11 @@
 // The report scrolls inside its frame; the resize strip and its grab area
 // stay on that frame after touch reading, against a controlled report answer.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendUnfinishedReport } from "../../tests/support/frontendFinalReportSession.ts";
-import { finalReportParts } from "../../tests/finalReportPages.ts";
-import { readReportByTouch } from "../../tests/support/reportTouchPage.ts";
-import { box } from "../../tests/pageLayout.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendUnfinishedReport } from "../../test-support/support/frontendFinalReportSession.ts";
+import { finalReportParts } from "../../test-support/finalReportPages.ts";
+import { readReportByTouch } from "../../test-support/support/reportTouchPage.ts";
+import { box } from "../../test-support/pageLayout.ts";
 import {
   dividerHitTarget,
   dragDivider,
@@ -14,7 +14,7 @@ import {
   keyStep,
   panelDivider,
   pressDividerKey,
-} from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sidePanelWidthPage.ts";
 
 test.use({ hasTouch: true });
 

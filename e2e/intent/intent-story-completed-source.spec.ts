@@ -1,27 +1,30 @@
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
-import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
-import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
+import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // A Done story's historical source comes from its landing, even after trunk
 // changes tests and removes settings. Unrecoverable history never borrows the
 // current tree; an available saved coverage report remains independently useful.
-// Real CLI completion and publication: ../../dashboard/tests/support/intentCompletedStory.ts.
+// Real CLI completion and publication: ../../dashboard/test-support/support/intentCompletedStory.ts.
 // Changed-file overlay and Review equality: ./intent-story-completed.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   completedChanges as changed,
   selectCompletedStoryInIntent,
-} from "../../dashboard/tests/support/intentCompletedStory.ts";
-import { intentStory } from "../../dashboard/tests/support/intentStoryPage.ts";
-import { lines } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/intentCompletedStory.ts";
+import { intentStory } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 // Why a shallow checkout's published history yields no comparison.
 const unrecoverable =

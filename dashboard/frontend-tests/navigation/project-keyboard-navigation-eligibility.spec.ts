@@ -5,15 +5,15 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   answerCatalogProjects,
   answerOwnPublications,
-} from "../../tests/support/frontendCatalogProjects.ts";
-import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
-import { expectRoute } from "../../tests/agentRosterRecords.ts";
-import { parts, projectTab } from "../../tests/dashboardPage.ts";
-import { settings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/support/frontendCatalogProjects.ts";
+import { catalogPublications } from "../../test-support/catalogProjectRecords.ts";
+import { expectRoute } from "../../test-support/agentRosterRecords.ts";
+import { parts, projectTab } from "../../test-support/dashboardPage.ts";
+import { settings } from "../../test-support/support/systemSettingsPage.ts";
 
 type PreventingWindow = Window & {
   __projectArrowPrevent?: (event: KeyboardEvent) => void;

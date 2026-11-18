@@ -3,31 +3,31 @@
 // projects, completion ages, newest listing, empty/reading states, and Open
 // through a terminal substitute. Real Cursor reopen stays in
 // ../../../e2e/sessions/recently-done-sessions-sidebar-reopen.spec.ts.
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 import {
   chooseProject,
   expectProjectChoice,
   standaloneSessionName,
   parts,
-} from "../../tests/dashboardPage.ts";
-import { browserLocaleString } from "../../tests/browserLocale.ts";
+} from "../../test-support/dashboardPage.ts";
+import { browserLocaleString } from "../../test-support/browserLocale.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
 import {
   expectRecentlyDone,
   recentlyDoneParts,
   showRecentlyDone,
-} from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+} from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   expectRowShows,
   expectSessionsSidebar,
   expectTooltipLine,
   openSessionsSidebar,
-} from "../../tests/sessionsSidebarPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { openFrontendThreeProjects } from "../../test-support/support/frontendRecentlyDoneSidebar.ts";
 
 test("finds and opens the newest completed sessions across projects from a collapsed Recently done section", async ({
   page,

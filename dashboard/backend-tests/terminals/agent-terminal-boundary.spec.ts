@@ -9,8 +9,11 @@
 // Other origin variations: agent-launch-refusal.spec.ts and
 // authenticated-read-refusal.spec.ts; this suite proves their shared upgrade guard.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { openDoughFolder, recordsOf } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import {
+  openDoughFolder,
+  recordsOf,
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
   launched,
@@ -21,11 +24,11 @@ import {
   terminalUrl,
   withoutProjectFolder,
   type LaunchedSession,
-} from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 function attachCalls(server: DashboardServer) {
   return server.claudeCalls().filter((call) => call.argv[0] === "attach");

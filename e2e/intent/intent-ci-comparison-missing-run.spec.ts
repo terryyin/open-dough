@@ -1,27 +1,30 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Real controls and displayed source for a push run that did not exist on
 // first selection. Both routes use the same production server and memory.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   capturedComparisonLanding,
   missingLandedRun,
-} from "../../dashboard/tests/support/missingLandedRun.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/missingLandedRun.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   trunkActions,
   trunkRun,
-} from "../../dashboard/tests/support/landedCiTrunk.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/landedCiTrunk.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   checkComparisonAgain,
   watchComparisonReads,
-} from "../../dashboard/tests/support/storyCiComparisonRetry.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { expectExactSourceCue } from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";
-import type { CiRunAnswer } from "../../dashboard/tests/support/baseCiActions.ts";
+} from "../../dashboard/test-support/support/storyCiComparisonRetry.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { expectExactSourceCue } from "../../dashboard/test-support/support/expectCiComparisonSourceCue.ts";
+import type { CiRunAnswer } from "../../dashboard/test-support/support/baseCiActions.ts";
 
 for (const control of ["Check again", "reselection"] as const) {
   test(`${control} recovers a captured missing push run through queued to its measured exact Landed source`, async ({

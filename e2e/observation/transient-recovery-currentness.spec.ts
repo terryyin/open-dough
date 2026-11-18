@@ -11,22 +11,22 @@ import {
   headsChecks,
   recordsAt,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expect,
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
   expectSettledPage,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { selectSettledDoughnut } from "../../dashboard/tests/doughnutJourney.ts";
-import { revisionDoughnut } from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
+import { revisionDoughnut } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   filesBesideUnreachable,
   opened as limitedOpened,
@@ -37,17 +37,17 @@ import {
   unreachableGap,
   unreachableSeed,
   unreachableTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
 import {
   isContent,
   limiting,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import {
   httpErrorAnswer,
   publishMovingOrigin,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   backlogA,
   backlogB,
@@ -56,16 +56,16 @@ import {
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   detailRecovery,
   transientRecovery,
-} from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 

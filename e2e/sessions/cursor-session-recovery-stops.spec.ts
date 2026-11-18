@@ -10,23 +10,26 @@ import {
   parts,
   sessionEntriesIn,
   sessionProblemOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { occupyRunner } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { occupyRunner } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
 import {
   expectReadingWithoutScreenLabel,
   openTakenCursorSession,
   projectedSessions,
   cursorRecord,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { unclassifiedCursorExit } from "../../dashboard/tests/support/fakeCursor.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { unclassifiedCursorExit } from "../../dashboard/test-support/support/fakeCursor.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 
 test("missing workspace, trust, unreachable runner, and unclassified exit explain and leave no agent", async ({
   page,

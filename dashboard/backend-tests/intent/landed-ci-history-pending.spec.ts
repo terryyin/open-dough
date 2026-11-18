@@ -1,6 +1,6 @@
 // Landed CI wall-time history collection (../../server/landedCiCollection.ts)
 // of a landing whose CI is not final, with no page open, a real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`, each
+// (../../test-support/support/startOrigin.ts) and the synthetic `claude`, each
 // collecting server checking its pending landings again at a test's pace:
 // the landing is a pending gap that waits -- before its run exists, while it
 // is queued or running, while its CI cannot be read -- and becomes its exact
@@ -11,7 +11,7 @@
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
+import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
 import {
   keptLandedCiHistory,
   landedCiHistory,
@@ -20,17 +20,20 @@ import {
   observedKinds,
   recheckingLandedCi,
   resultToLand,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   passedBetween,
   publishedLanding,
   serveTrunkRuns,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { postLanding } from "../../test-support/support/startSessionLandingCapture.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

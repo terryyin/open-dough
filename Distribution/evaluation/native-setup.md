@@ -50,7 +50,6 @@ node scripts/setup-native.mjs check
 npm test -- Distribution/tests/test-runner/test-runner-selection.sh Distribution/tests/test-runner/test-runner-bash.sh Distribution/tests/test-runner/test-runner-failure-report.sh
 npm run typecheck:dashboard
 npm run test:e2e
-npm run test:dashboard:integrated
 npm run test:dashboard:frontend
 npm run test:dashboard:backend
 ```
@@ -61,7 +60,7 @@ not run npm setup, browser downloads or a system package manager. When
 `package-lock.json` changes, repeat both acquisition stages before checking.
 Every browser test group run that serves the app builds production assets from
 the current checkout into its own temporary directory
-(`dashboard/tests/support/dashboardBuild.ts`), leaving `dashboard/dist` alone; retaining prerequisites does not retain a
+(`dashboard/test-support/support/dashboardBuild.ts`), leaving `dashboard/dist` alone; retaining prerequisites does not retain a
 stale app build. Real failures retain their normal reports and exit status;
 tests are never retried to turn them green.
 

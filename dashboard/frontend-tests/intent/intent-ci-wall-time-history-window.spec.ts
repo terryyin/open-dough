@@ -19,10 +19,10 @@ import {
   dayWords,
   historyOf,
   showBuildHistoryEvidence,
-} from "../../tests/intentCiHistoryPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
-import { openFrontendCiStatus } from "../../tests/support/frontendCiStatusAnswers.ts";
+} from "../../test-support/intentCiHistoryPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { serveFrontendCiHistory } from "../../test-support/support/frontendCiHistoryAnswers.ts";
+import { openFrontendCiStatus } from "../../test-support/support/frontendCiStatusAnswers.ts";
 
 const dayMs = 24 * 60 * 60_000;
 // Day 0's build started at noon on Oct 1, one each day after; the window

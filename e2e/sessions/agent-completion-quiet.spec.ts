@@ -1,5 +1,5 @@
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 import { launchResultSchema } from "../../dashboard/src/launchOutcome.ts";
 import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
@@ -10,28 +10,28 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexStart.ts";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   queuedIdentity,
   queuedTitle,
-} from "../../dashboard/tests/support/startOrigin.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expectInstalledCompletionGuidance } from "../../dashboard/tests/support/installedCompletionGuidance.ts";
-import { withInstalledCompletionClosure } from "../../dashboard/tests/support/installedCompletionClosure.ts";
+import { expectInstalledCompletionGuidance } from "../../dashboard/test-support/support/installedCompletionGuidance.ts";
+import { withInstalledCompletionClosure } from "../../dashboard/test-support/support/installedCompletionClosure.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { keepFinalReport } from "../../dashboard/tests/support/retainedReport.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { keepFinalReport } from "../../dashboard/test-support/support/retainedReport.ts";
 import {
   completionWriteFault,
   countedGit,
   postCompletion,
-} from "../../dashboard/tests/support/completionRecovery.ts";
-import { failedCompletionRetry } from "../../dashboard/tests/support/completionRecoveryFaults.ts";
+} from "../../dashboard/test-support/support/completionRecovery.ts";
+import { failedCompletionRetry } from "../../dashboard/test-support/support/completionRecoveryFaults.ts";
 
 test.use({
   extraEnv: async ({ origin }, use) => {

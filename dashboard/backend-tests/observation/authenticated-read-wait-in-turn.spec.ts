@@ -6,15 +6,15 @@
 // own. Reading after a wait ends: ./authenticated-read-resumption.spec.ts; the
 // turns themselves: ./authenticated-read-turns.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { heldInTurn } from "../../tests/support/heldGitHubAnswer.ts";
-import { onServerOfItsOwn } from "../../tests/support/directedWait.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { heldInTurn } from "../../test-support/support/heldGitHubAnswer.ts";
+import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
 import {
   expectHeldBack,
   timedRead,
-} from "../../tests/support/heldBackReads.ts";
-import { rateLimitedAnswer } from "../../tests/originAnswers.ts";
+} from "../../test-support/support/heldBackReads.ts";
+import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
 import {
   asked,
   isSeed,
@@ -23,12 +23,12 @@ import {
   revision,
   seedPaths,
   seedRead,
-} from "../../tests/support/resumingReads.ts";
+} from "../../test-support/support/resumingReads.ts";
 import {
   askedSince,
   readAt,
   refusedMarker,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 const turns = 8;
 

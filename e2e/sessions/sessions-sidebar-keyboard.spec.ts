@@ -6,36 +6,36 @@
 // (./fixtures/fake-claude), which records each line entered in its terminal;
 // the real one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   parts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   expectKeyboardAtMark,
   keyboardWithin,
   markKeyboardPlace,
   watchCommandShortcut,
-} from "../../dashboard/tests/pageShortcutsPage.ts";
+} from "../../dashboard/test-support/pageShortcutsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 

@@ -5,23 +5,23 @@
 // through an explicit terminal WebSocket substitute; see
 // ./agent-terminal-touch-select.spec.ts for the other variants.
 
-import { expect, test } from "../tests/support/frontendApp.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
 import {
   openFrontendTerminalByTouch,
   reportedSize,
   travelOverRows,
-} from "../tests/support/frontendTouchTerminal.ts";
+} from "../test-support/support/frontendTouchTerminal.ts";
 import {
   conversationLine,
   selfScrollingApplication,
-} from "../tests/support/terminalSubstituteApplication.ts";
-import { box } from "../tests/pageLayout.ts";
-import { resizeUntilArranged } from "../tests/sidePanelWidthPage.ts";
-import { pausedHidden } from "../tests/terminalPausedScrollPage.ts";
+} from "../test-support/support/terminalSubstituteApplication.ts";
+import { box } from "../test-support/pageLayout.ts";
+import { resizeUntilArranged } from "../test-support/sidePanelWidthPage.ts";
+import { pausedHidden } from "../test-support/terminalPausedScrollPage.ts";
 import {
   expectNoTerminalText,
   expectTerminalText,
-} from "../tests/terminalScreenPage.ts";
+} from "../test-support/terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -31,8 +31,8 @@ import {
   selectKey,
   selectPausedRange,
   selectedText,
-} from "../tests/terminalSelectPage.ts";
-import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
+} from "../test-support/terminalSelectPage.ts";
+import { phoneLaunchTouchViewport } from "../test-support/touchLaunchPage.ts";
 import {
   clearSoftKeyboardViewport,
   expectControlInVisualViewport,
@@ -40,7 +40,7 @@ import {
   scrollByTouch,
   simulateSoftKeyboardViewport,
   tapTerminalKey,
-} from "../tests/touchTerminalPage.ts";
+} from "../test-support/touchTerminalPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const { portrait, landscape } = phoneLaunchTouchViewport;

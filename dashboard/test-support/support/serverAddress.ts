@@ -26,7 +26,7 @@ const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
 const devServerFixture = path.join(
   repoRoot,
   "dashboard",
-  "tests",
+  "test-support",
   "fixtures",
   "dev-server.mjs",
 );

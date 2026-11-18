@@ -3,18 +3,18 @@
 // restarts the server in the same process when a file its config imports
 // changes, loading the record's module again, and the restarted instance's
 // entries and lifecycle stay its own (../../server/incidentProcesses.ts).
-// A dev server that `restartable` starts (../../tests/fixtures/dev-server.mjs)
+// A dev server that `restartable` starts (../../test-support/fixtures/dev-server.mjs)
 // restarts on SIGUSR2, as an edit to a server file would. A process's
 // lifecycle without a restart: ./authenticated-read-incident-record-lifecycle.spec.ts.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { httpErrorAnswer } from "../../tests/originAnswers.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   developmentBoundary,
   incidentEntries,
@@ -22,7 +22,7 @@ import {
   knownSourceId,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 async function failedRead(server: DashboardServer): Promise<void> {
   const failed = await rawRequest({

@@ -5,36 +5,36 @@ import {
   launch,
   launchRequest,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   pageColumnProjectValue,
   tapWhereShown,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   sessionsSidebarDetailsOf,
   sessionsSidebarElapsedOf,
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
-} from "../../dashboard/tests/sessionsTogglePage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
-import { sidePanelNamesOf } from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sessionsTogglePage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
+import { sidePanelNamesOf } from "../../dashboard/test-support/sidePanelFrame.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;

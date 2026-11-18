@@ -34,9 +34,7 @@ test("with frontend-entry the summarize action writes the upload-named report fo
       [`${cwd}/dashboard/frontend-tests/fail.spec.ts`, "unexpected", [30]],
       [`${cwd}/dashboard/frontend-tests/other.spec.ts`, undefined, []],
     ],
-    "dashboard-integrated": [
-      [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [90]],
-    ],
+    e2e: [[`${cwd}/e2e/workflow.spec.ts`, "expected", [90]]],
     "dashboard-backend": [
       [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [60]],
     ],
@@ -66,18 +64,13 @@ test("with frontend-entry the summarize action writes the upload-named report fo
   assert.match(summary.report, /pass\.spec\.ts \| 1 \| 0 \| 0 \| 0 ms/);
   assert.match(summary.report, /fail\.spec\.ts \| 0 \| 1 \| 0 \| 30 ms/);
   assert.match(summary.report, /other\.spec\.ts \| 0 \| 0 \| 1 \| unavailable/);
-  assert.doesNotMatch(summary.report, /browser\.spec\.ts/);
+  assert.doesNotMatch(summary.report, /workflow\.spec\.ts/);
   assert.doesNotMatch(summary.report, /server\.spec\.ts/);
   // Combined summary still holds the other locations; report generation
   // only reads that written summary.
   assert.deepEqual(
     summary.written.entries.map(({ path }) => path),
-    [
-      "e2e",
-      "dashboard/tests",
-      "dashboard/frontend-tests",
-      "dashboard/backend-tests",
-    ],
+    expect.split(" ").map((entry) => entry.split("=")[0]),
   );
   assert.match(summaryAction, /scripts\/frontend-test-proof\.mjs/);
   assert.match(

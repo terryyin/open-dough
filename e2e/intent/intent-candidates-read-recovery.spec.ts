@@ -8,8 +8,8 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { openDough } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { openDough } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   advanceRecoveryClock,
   candidatesRequest,
@@ -20,8 +20,8 @@ import {
   publishedCandidates,
   readFailure,
   readRetry,
-} from "../../dashboard/tests/intentReadRecoveryPage.ts";
-import { holdingAnswer } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+} from "../../dashboard/test-support/intentReadRecoveryPage.ts";
+import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 
 test.describe("with a short GitHub read bound", () => {
   test.use({ readTimeoutMs: 3_000 });

@@ -10,11 +10,11 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
-import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
+import { parts, storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const optionsWords = "Options: --explore --borrow (requested)";

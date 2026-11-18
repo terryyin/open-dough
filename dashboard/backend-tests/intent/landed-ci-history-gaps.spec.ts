@@ -1,6 +1,6 @@
 // Landed CI wall-time history collection (../../server/landedCiCollection.ts)
 // of landings no build measures, with no page open, a real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`, each
+// (../../test-support/support/startOrigin.ts) and the synthetic `claude`, each
 // collecting server checking at a test's pace: a final gap names the build
 // the CI timing comparison's Landed rule named for its landing, with that
 // build's run -- a confirmed skip's equivalent build whose CI proof expired
@@ -14,23 +14,23 @@
 // SEED-288#reuse-adapter-equivalent-timing). The CI timing comparison
 // answers the same Landed gap without the build or the proof read the
 // history keeps (../../server/intentCiComparisonSlots.ts). Run times follow
-// when their landings were recorded, so the history answers them in trunk
-// order. A skip whose equivalent build's CI proof read GitHub does not
-// answer is in ./landed-ci-history-pending-proof.spec.ts; a landing CI never
-// built is a No build gap in ./landed-ci-history-pending.spec.ts; how
-// Project Intent shows these gaps is in
-// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts and the
-// journeys beside it.
+// when their landings were recorded, so history answers in trunk order.
+// Missing proof: ./landed-ci-history-pending-proof.spec.ts. Never built:
+// ./landed-ci-history-pending.spec.ts. The Project Intent view is proved in
+// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts.
 
 import path from "node:path";
-import { collectedScopeHistory } from "../../tests/support/collectedScopeHistory.ts";
+import { collectedScopeHistory } from "../../test-support/support/collectedScopeHistory.ts";
 import {
   answeredLanding,
   landedCiHistory,
   restartAsLandedCiReader,
   untilKept,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   answeredRun,
   landingMinutesAgo,
@@ -43,7 +43,7 @@ import {
   timeAfter,
   trunkRun,
   usableProofOf,
-} from "../../tests/support/landedCiTrunk.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

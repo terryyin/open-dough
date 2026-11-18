@@ -1,6 +1,6 @@
 // An execution launch establishes its start before the session
 // (../../server/executionStart.ts), over raw HTTP against the real installed
-// `execution-start.mjs` and a real bare origin (../../tests/support/startOrigin.ts),
+// `execution-start.mjs` and a real bare origin (../../test-support/support/startOrigin.ts),
 // with the synthetic `claude`: origin ends up holding the Taken profile that
 // names host claude and the chosen model (none on Default), the session
 // starts in the new workspace under the project's `.worktrees/` with the
@@ -11,22 +11,22 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   establishingProjects,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

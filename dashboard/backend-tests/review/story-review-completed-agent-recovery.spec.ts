@@ -1,29 +1,29 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   getReview,
   completedReviewQuery,
   completedStoryQuery,
-} from "../../tests/support/completedReviewRequests.ts";
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
-import { agentWorktree } from "../../tests/support/agentAuthoredWorktree.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { agentWorktree } from "../../test-support/support/agentAuthoredWorktree.ts";
 import {
   commitAll,
   git,
   writeAt,
-} from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/storyReviewWorktree.ts";
 import {
   commitAllAs,
   push,
-} from "../../tests/support/storyReviewTrunkCommits.ts";
+} from "../../test-support/support/storyReviewTrunkCommits.ts";
 import {
   agentIdentity,
   renderAgentProfile,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,

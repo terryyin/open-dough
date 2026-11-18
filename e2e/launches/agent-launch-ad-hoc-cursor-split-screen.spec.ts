@@ -7,16 +7,16 @@
 // waiting for the chip. The page shows the first input accepted from its
 // first answer, and the kept record is confirmed when the launch returns.
 
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   startSessionField,
   startedSession,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expect,
   keptRecord,
   workingCursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 const test = workingCursorTest.extend({ cursorSplitPaintMs: 300 });
 

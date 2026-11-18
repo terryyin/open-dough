@@ -10,7 +10,7 @@
 // fake `claude` has logged further listings, never after a sleep.
 
 import { expect } from "@playwright/test";
-import { launchRequest } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   afterFurtherListings,
   becomes,
@@ -19,7 +19,7 @@ import {
   notificationUrls,
   start,
   test,
-} from "../../dashboard/tests/support/sessionAlerts.ts";
+} from "../../dashboard/test-support/support/sessionAlerts.ts";
 
 test.describe("a session that starts needing the developer raises one macOS notification", () => {
   test("names the project, title, and what it waits for, with a sound, once while it stays, across a reload, and again after working", async ({

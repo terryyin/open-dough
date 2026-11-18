@@ -5,9 +5,9 @@
 // them, the Done landing's build of 120 s with 120 ms, and a later landing's
 // build, each landing's own exact build, and its local read.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { expect } from "../../tests/support/preparationPage.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { expect } from "../../test-support/support/preparationPage.ts";
 
 const revisionOf = (index: number) =>
   index.toString(16).padStart(2, "0").repeat(20);

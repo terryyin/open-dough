@@ -1,6 +1,6 @@
 // Real published Git trees exercise the selection state used by the watcher.
 // Only observed successful activation advances the serving baseline.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { publishedUpdates } from "../../server/productionUpdates.mjs";
@@ -8,7 +8,7 @@ import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import {
   pushExclusions,
   qualificationFixture,
-} from "../../tests/support/productionQualificationFixture.ts";
+} from "../../test-support/support/productionQualificationFixture.ts";
 
 test("excluded ranges keep the last activation as the comparison baseline", async () => {
   const { fixture, workflow, inspectionsRoot } = await qualificationFixture();

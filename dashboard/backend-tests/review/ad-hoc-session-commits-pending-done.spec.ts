@@ -7,11 +7,14 @@ import {
   adHocReview,
   adHocSessionFileDiff,
   adHocSessionFileText,
-} from "../../tests/support/adHocReview.ts";
-import { quote } from "../../tests/support/completionRecovery.ts";
-import { expect, test as base } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/adHocReview.ts";
+import { quote } from "../../test-support/support/completionRecovery.ts";
+import {
+  expect,
+  test as base,
+} from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 function holdCheckoutLog(machine: string) {
   const bin = path.join(machine, "held-checkout-log-bin");

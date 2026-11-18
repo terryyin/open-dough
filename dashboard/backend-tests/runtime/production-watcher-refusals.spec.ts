@@ -4,17 +4,17 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
-import { expect, test as base } from "../../tests/support/pageTest.ts";
-import { dashboardCommand } from "../../tests/support/dashboardCommand.ts";
-import { productionDeployments } from "../../tests/support/productionWatcher.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
+import { dashboardCommand } from "../../test-support/support/dashboardCommand.ts";
+import { productionDeployments } from "../../test-support/support/productionWatcher.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
-import { waitForWatcherOutput } from "../../tests/support/watcherEvents.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import { waitForWatcherOutput } from "../../test-support/support/watcherEvents.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   productionFailureFixture,
   unpublishedWatcherFixture,
-} from "../../tests/support/productionWatcherFixture.ts";
+} from "../../test-support/support/productionWatcherFixture.ts";
 
 type Publication = Awaited<ReturnType<typeof productionFailureFixture>>;
 const test = base.extend<{

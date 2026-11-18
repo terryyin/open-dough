@@ -4,7 +4,7 @@
 // session has no entry, it still asks about the session's reading, and marking
 // closes the panel; a session opened while Ready for review that then reads
 // Working is asked about as working. Against a controlled machine read, done
-// boundary (../../tests/support/frontendSessionActions.ts) and attached
+// boundary (../../test-support/support/frontendSessionActions.ts) and attached
 // terminal. The question following a real session's reading is
 // ../../../e2e/sessions/agent-launch-done-question-follows.spec.ts.
 
@@ -12,27 +12,30 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   cardSession,
   cardSessionEntry,
   openCardSessionTerminal,
-} from "../../tests/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { doughnutSource } from "../../tests/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendCardSessions.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
+import { doughnutSource } from "../../test-support/support/frontendServiceState.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import {
   expectAsked,
   markDone,
   stillWorking,
-} from "../../tests/support/markDone.ts";
-import { setPageVisibility } from "../../tests/autoRefreshJourney.ts";
+} from "../../test-support/support/markDone.ts";
+import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
 import {
   chooseProject,
   expectProjectChoice,
   sessionStateOf,
-} from "../../tests/dashboardPage.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/dashboardPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("Mark as done in the terminal asks by the session's current reading", () => {

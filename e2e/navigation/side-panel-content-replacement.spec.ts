@@ -6,15 +6,15 @@
 
 import { expect } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { keyStep } from "../../dashboard/tests/sidePanelWidthPage.ts";
-import { sidePanelPages } from "../../dashboard/tests/sidePanelPages.ts";
-import { holdReviewOf } from "../../dashboard/tests/support/holdReviewResponse.ts";
-import { test as base } from "../../dashboard/tests/support/preparationPage.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { keyStep } from "../../dashboard/test-support/sidePanelWidthPage.ts";
+import { sidePanelPages } from "../../dashboard/test-support/sidePanelPages.ts";
+import { holdReviewOf } from "../../dashboard/test-support/support/holdReviewResponse.ts";
+import { test as base } from "../../dashboard/test-support/support/preparationPage.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   keptSession,
   retiredCodexSession,
@@ -22,12 +22,12 @@ import {
   storyBReport,
   storyBWorktree,
   storyReviewReads,
-} from "../../dashboard/tests/support/sidePanelContents.ts";
+} from "../../dashboard/test-support/support/sidePanelContents.ts";
 import {
   branch,
   storyWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 
 // The Board with Story A's review worktree and Story B's worktree, Story B's
 // session a Codex one whose saved workspace is gone so its final report is

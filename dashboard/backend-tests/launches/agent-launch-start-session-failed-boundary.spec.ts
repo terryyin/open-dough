@@ -11,10 +11,10 @@ import {
   continued,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { keptSessionStarts } from "../../tests/support/keptSessionStart.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { keptSessionStarts } from "../../test-support/support/keptSessionStart.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
   isolatedStart,
@@ -23,7 +23,7 @@ import {
   sessionBlock,
   worktree,
   worktrees,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 const request = makeMe.aLaunchRequest.adHoc().please();
 type Answer = {

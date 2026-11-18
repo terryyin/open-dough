@@ -5,9 +5,12 @@ import path from "node:path";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { expect, test } from "../support/fakeGhInProcess.ts";
 
 const revision = "ab".repeat(20);

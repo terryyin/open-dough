@@ -1,6 +1,6 @@
 import { observeQueuedOrigins } from "../support/queuedOriginsProof.ts";
-import { expect, test as base } from "../../tests/support/pageTest.ts";
-import { coldInputPreparation } from "../../tests/support/publishedMainWorkerFixtures.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
+import { coldInputPreparation } from "../../test-support/support/publishedMainWorkerFixtures.ts";
 
 const test = base.extend<
   object,

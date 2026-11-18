@@ -5,9 +5,9 @@ import {
   requestedCohort,
   usageTokenIndexEndpoint,
 } from "../src/usageTokenIndex.ts";
-import { expect } from "../tests/dashboardTest.ts";
-import { test } from "../tests/support/frontendApp.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+import { expect } from "../test-support/dashboardTest.ts";
+import { test } from "../test-support/support/frontendApp.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 
 const sol = { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" },
   astra = { id: "gpt-6-astra", name: "GPT-6 Astra" },

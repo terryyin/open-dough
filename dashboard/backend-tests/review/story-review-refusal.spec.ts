@@ -1,5 +1,5 @@
 // Review requests the launch boundary does not admit, against Story A's
-// admission worktree and kept launch record (../../tests/support/storyReviewWorktree.ts),
+// admission worktree and kept launch record (../../test-support/support/storyReviewWorktree.ts),
 // are refused before any Git runs: trunk is not fetched, no file is written,
 // and the worktree's own index and status stay as they were.
 
@@ -9,15 +9,15 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../../src/storyReviewContract.ts";
-import { getReview } from "../../tests/support/completedReviewRequests.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   admissionWorktree,
   git,
   observed,
-} from "../../tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../tests/support/storyLaunchRecord.ts";
+} from "../../test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

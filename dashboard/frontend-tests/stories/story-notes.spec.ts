@@ -1,33 +1,39 @@
-// Built frontend, explicit notes service substitute. The real store's keeping
-// and refusals are proved in ../../backend-tests/review/story-notes-*.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+// Real store persistence/refusals: ../../backend-tests/review/story-notes-*.spec.ts.
+import type { Page } from "@playwright/test";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendBoardReview,
   storyA,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { parts } from "../../tests/dashboardParts.ts";
-import { showColumn } from "../../tests/boardPage.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 import {
   readyIdentity,
   readyStory,
   takenIdentity,
   takenStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendTerminalSubstitute.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendTerminalSubstitute.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import {
   expectTerminalText,
   terminalPanel,
   terminalScreenParts,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import {
   storyNoteSentToFollowUp,
   storyNoteWaitingForFollowUp,
 } from "../../src/storyNote.ts";
+
+const reviewedStoryCard = (page: Page) =>
+  parts(page).recentlyDone.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
 
 test("all card kinds offer general notes, blank is unsaved, newest first", async ({
   page,
@@ -36,10 +42,7 @@ test("all card kinds offer general notes, blank is unsaved, newest first", async
   const service = await installFrontendStoryNotes(page);
   await openFrontendBoardReview(page, frontendServices);
   const notes = storyNotesPage(page);
-  const done = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
-  });
+  const done = reviewedStoryCard(page);
   await notes.expectCount(done, 0);
   await notes.open(done);
   await notes.expectContext(storyA.title, storyA.identity);
@@ -87,24 +90,10 @@ test("all card kinds offer general notes, blank is unsaved, newest first", async
   await notes.close();
 });
 
-type NotesService = Awaited<ReturnType<typeof installFrontendStoryNotes>>;
-const saveFailures: readonly (readonly [
-  string,
-  (service: NotesService) => void,
-])[] = [
-  [
-    "a refused save",
-    (service) => {
-      service.failNextChange();
-    },
-  ],
-  [
-    "a save that cannot reach the dashboard",
-    (service) => {
-      service.loseNextChange();
-    },
-  ],
-];
+const saveFailures = [
+  ["a refused save", "failNextChange"],
+  ["a save that cannot reach the dashboard", "loseNextChange"],
+] as const;
 for (const [failure, failNext] of saveFailures)
   test(`${failure} keeps its draft and says so; saving again saves and clears it`, async ({
     page,
@@ -113,20 +102,17 @@ for (const [failure, failNext] of saveFailures)
     const service = await installFrontendStoryNotes(page);
     await openFrontendBoardReview(page, frontendServices);
     const notes = storyNotesPage(page);
-    const card = parts(page).recentlyDone.getByRole("article", {
-      name: storyA.title,
-      exact: true,
-    });
-    await notes.open(card);
+    await notes.open(reviewedStoryCard(page));
     await notes.add();
-    await notes.type("Keep the observation when saving fails.");
-    failNext(service);
+    const draft = "Keep the observation when saving fails.";
+    await notes.type(draft);
+    service[failNext]();
     await notes.save();
     await notes.expectProblem("The note could not be saved.");
-    await notes.expectComposing("Keep the observation when saving fails.");
+    await notes.expectComposing(draft);
     await notes.save();
     await notes.expectSaved();
-    await notes.expectNotes(["Keep the observation when saving fails."]);
+    await notes.expectNotes([draft]);
   });
 
 test("waiting and sent notes show their state; the card counts only waiting notes", async ({
@@ -152,10 +138,7 @@ test("waiting and sent notes show their state; the card counts only waiting note
   });
   await openFrontendBoardReview(page, frontendServices);
   const notes = storyNotesPage(page);
-  const done = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
-  });
+  const done = reviewedStoryCard(page);
   await notes.expectCount(done, 2);
   await notes.expectWaiting(done, 1);
   await notes.open(done);
@@ -193,10 +176,7 @@ test("next project read updates the count and open list; an older read cannot re
   const service = await installFrontendStoryNotes(page);
   await openFrontendBoardReview(page, frontendServices);
   const notes = storyNotesPage(page);
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
-  });
+  const card = reviewedStoryCard(page);
   await notes.open(card);
   await notes.expectNotes([]);
   const remote = makeMe.aStoryNote.withText("Saved on another page").please();
@@ -253,10 +233,7 @@ test("Story notes leaves an attached terminal mounted and connected", async ({
   const originalScreen =
     await terminalScreenParts(panel).screen.elementHandle();
   const notes = storyNotesPage(page);
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: storyA.title,
-    exact: true,
-  });
+  const card = reviewedStoryCard(page);
   await notes.open(card, "keyboard");
   await notes.expectContext(storyA.title, storyA.identity);
   print("Terminal while notes open\r\n");

@@ -1,20 +1,23 @@
 // Retained summaries, including by-file evidence, survive collection's lifecycle.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
-import { expectCollectedScopePoints } from "../../tests/support/collectedScopeReadProofs.ts";
+import { retainedHistory } from "../../test-support/support/collectedScopeHistory.ts";
+import { expectCollectedScopePoints } from "../../test-support/support/collectedScopeReadProofs.ts";
 import {
   keepLandedCiHistory,
   minutesAgo,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { publishedLanding } from "../../tests/support/landedCiTrunk.ts";
-import { serveCollectedTrunkRuns } from "../../tests/support/landedCiScopeProofs.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { isActionsRequest } from "../../tests/support/ghActionsRequest.ts";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
-import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { publishedLanding } from "../../test-support/support/landedCiTrunk.ts";
+import { serveCollectedTrunkRuns } from "../../test-support/support/landedCiScopeProofs.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { isActionsRequest } from "../../test-support/support/ghActionsRequest.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
+import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
 
 test.use({ serverMode: "boundary" });
 

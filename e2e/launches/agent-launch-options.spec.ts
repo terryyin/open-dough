@@ -1,5 +1,5 @@
 // Choosing options in the refinement dialog, on the launch journey's committed
-// origin (../../dashboard/tests/launchJourney.ts): the dialog offers one
+// origin (../../dashboard/test-support/launchJourney.ts): the dialog offers one
 // checkbox per entry of the definition the project's installed skill carries,
 // behind its closed Refinement options disclosure, with its label and summary,
 // and follows a changed definition with no code change; selecting entries
@@ -7,23 +7,23 @@
 // session with those flags, and nothing selected is today's dialog and
 // launch. That no other dialog offers options is
 // ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts.
-// The synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands
+// The synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands
 // in for the real one. How the boundary honors a selection is
 // ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
 import { writeFileSync } from "node:fs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   installRefinementSkill,
   openTakenBacklog,
   shippedRefinementDefinition,
   showOptions,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -2,14 +2,20 @@
 // (a direct verification request:
 // ../../dashboard/backend-tests/launches/agent-launch-codex-verify-boundary.spec.ts).
 import { agentVerifyEndpoint } from "../../dashboard/src/agentLaunch.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../dashboard/tests/launchJourney.ts";
-import { attempts, launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { test, expect } from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import {
+  attempts,
+  launch,
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

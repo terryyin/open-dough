@@ -10,8 +10,8 @@
 // readable while locations load, fail and recover, without another CI read.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { parts } from "../../tests/dashboardPage.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
 import {
   activateIntentHome,
   chooseCiStatus,
@@ -20,34 +20,34 @@ import {
   expectChecked,
   expectCiAnswer,
   expectCiScope,
-} from "../../tests/intentCiStatusPage.ts";
-import { browseSpec } from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCiStatusPage.ts";
+import { browseSpec } from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   filesColumn,
   intentModeTab,
   intentModeViews,
   intentPageFrame,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   judgedCiStatus,
   serveFrontendCiStatus,
-} from "../../tests/support/frontendCiStatusAnswers.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendCiStatusAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   publishUnconfiguredDoughnut,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 
 const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");
 

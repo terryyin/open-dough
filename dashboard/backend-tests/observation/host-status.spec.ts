@@ -6,12 +6,12 @@
 // reads unavailable on its own; and concurrent demand shares one sample,
 // after which nothing is sampled until the next demand.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import {
   HostStatusObservation,

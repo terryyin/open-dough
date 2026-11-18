@@ -1,7 +1,7 @@
 // Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) for landings the CI timing comparison's
 // Landed rule measures by their own build or a confirmed skip's equivalent
-// build, or not at all, on a real bare origin (../../dashboard/tests/support/startOrigin.ts)
+// build, or not at all, on a real bare origin (../../dashboard/test-support/support/startOrigin.ts)
 // whose dashboard collects the landings its launch records name, checking
 // them at a test's pace: an execution's exact build and the two
 // planning-only refinements that reuse it are one point naming all three,
@@ -35,24 +35,27 @@ import {
   expectLinksByKeyboard,
   publishTrunk,
   runLink,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   landedCiHistory,
   recheckingLandedCi,
   storyLandingRecord,
   untilKept,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
-import type { CiRunAnswer } from "../../dashboard/tests/support/baseCiActions.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
+import type { CiRunAnswer } from "../../dashboard/test-support/support/baseCiActions.ts";
 import {
   landedTrunk,
   passedBetween,
   trunkRun,
   usableProofOf,
-} from "../../dashboard/tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 test.use({ extraEnv: recheckingLandedCi });
 

@@ -5,38 +5,38 @@
 import { chmodSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   daysAgo,
   machineHome,
-} from "../../dashboard/tests/machineLaunchRecords.ts";
+} from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
-import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import {
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectProjectChoice,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   projectAddMachine,
   addedRepository,
   addedRevision,
   addedBranch,
   addedLocalPath,
-} from "../../dashboard/tests/support/projectAddMachine.ts";
+} from "../../dashboard/test-support/support/projectAddMachine.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

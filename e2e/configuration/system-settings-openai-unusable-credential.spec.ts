@@ -8,9 +8,9 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

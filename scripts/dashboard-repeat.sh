@@ -2,9 +2,8 @@
 # Runs one browser test group repeatedly on this machine and reports each run:
 #   bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]
 # Runs `npm run <group command> -- [spec…]`, where the group command is
-# test:e2e, test:dashboard:integrated, test:dashboard:frontend or
-# test:dashboard:backend, in the checkout it is started from, that many
-# times, one after another, at Playwright's local default worker count (CI's
+# test:e2e, test:dashboard:frontend or test:dashboard:backend. The runs use
+# the starting checkout and Playwright's local default worker count (CI's
 # settings are not passed on). With --load, one `yes > /dev/null`
 # burner per online core runs during each run, started just before it and
 # stopped just after, and always stopped when the script ends or is
@@ -38,8 +37,8 @@ usage() {
 readonly repetitions=$1
 shift
 (($# >= 1)) || usage 'Name the browser test group command.'
-[[ $1 =~ ^test:(e2e|dashboard:(integrated|frontend|backend))$ ]] \
-  || usage "The group command must be test:e2e or test:dashboard:integrated, frontend or backend, not \"$1\"."
+[[ $1 =~ ^test:(e2e|dashboard:(frontend|backend))$ ]] \
+  || usage "The group command must be test:e2e, test:dashboard:frontend, or test:dashboard:backend. Unknown group \"$1\"."
 readonly group=$1
 shift
 load=0 fresh=0
@@ -132,7 +131,6 @@ run_in() {
     cd -- "${directory}"
     exec env -u NODE_ENV -u npm_config_local_prefix -u CI \
       -u OPEN_DOUGH_E2E_SPLIT -u OPEN_DOUGH_E2E_DEADLINE_MS \
-      -u OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT -u OPEN_DOUGH_DASHBOARD_INTEGRATED_DEADLINE_MS \
       -u OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT -u OPEN_DOUGH_DASHBOARD_FRONTEND_DEADLINE_MS \
       -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u OPEN_DOUGH_DASHBOARD_BACKEND_DEADLINE_MS "$@"
   ) > "${log}" 2>&1 < /dev/null &

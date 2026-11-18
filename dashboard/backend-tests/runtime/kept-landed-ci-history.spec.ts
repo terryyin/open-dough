@@ -1,4 +1,4 @@
-// A landed CI history a case keeps (../../tests/support/landedCiHistory.ts)
+// A landed CI history a case keeps (../../test-support/support/landedCiHistory.ts)
 // on a machine whose dashboard server is collecting is the history that
 // machine keeps. A collector's replacement in flight
 // (../../server/machineJsonStore.ts) read the file before the case kept its
@@ -10,12 +10,12 @@ import path from "node:path";
 import { z } from "zod";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { replaceMachineJson } from "../../server/machineJsonStore.ts";
-import { historyFile } from "../../tests/support/collectedScopeHistory.ts";
+import { historyFile } from "../../test-support/support/collectedScopeHistory.ts";
 import {
   keepLandedCiHistory,
   keptLandedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 
 // One landing whose own build took `seconds`.
 function historyMeasuring(seconds: number) {

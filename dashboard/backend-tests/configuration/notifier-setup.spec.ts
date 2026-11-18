@@ -13,11 +13,11 @@ import {
   statSync,
 } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   machine,
   type Machine,
-} from "../../tests/support/notifierSetupMachine.ts";
+} from "../../test-support/support/notifierSetupMachine.ts";
 
 const macOS = process.platform === "darwin";
 const bundleIdentifier = "dev.opendough.dashboard-notifier";

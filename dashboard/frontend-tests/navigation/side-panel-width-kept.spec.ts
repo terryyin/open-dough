@@ -1,5 +1,5 @@
 // This browser keeps the side panel's one preferred width
-// (../../tests/sidePanelWidthPage.ts): chosen on the divider, a reload
+// (../../test-support/sidePanelWidthPage.ts): chosen on the divider, a reload
 // recovers it within the room there is now; a width the room or Maximize
 // imposes never replaces it. No kept value, a refused storage or an unusable
 // kept value starts at half the room, and the panel still resizes for the
@@ -9,17 +9,17 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendServiceSubstitutes } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { installFrontendStoryReview } from "../../tests/support/frontendStoryReview.ts";
-import { watchPageErrors } from "../../tests/pageErrors.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import { sidePanelWidthPage } from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendServiceSubstitutes } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
+import { watchPageErrors } from "../../test-support/pageErrors.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+import { sidePanelWidthPage } from "../../test-support/sidePanelWidthPage.ts";
 import {
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/sidePanelFrame.ts";
 import {
   expectHalfTheRoom,
   keptWidth,
@@ -27,7 +27,7 @@ import {
   reloadAndOpenReview,
   takenStoryWithReview,
   widthKey,
-} from "../../tests/support/frontendSidePanelWidth.ts";
+} from "../../test-support/support/frontendSidePanelWidth.ts";
 
 test("a chosen width is recovered after a reload, and neither less room nor Maximize replaces it", async ({
   page,

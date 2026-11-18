@@ -3,26 +3,26 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
   instructedCursorRequest,
   keptCursor,
   rewriteKeptCursor,
   startCursorDashboard,
   withCursorLaunch,
-} from "../../tests/support/keptCursorTurn.ts";
-import { messages } from "../../tests/support/sessionAlerts.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
+import { messages } from "../../test-support/support/sessionAlerts.ts";
 import {
   cursorQuestion,
   cursorState,
-} from "../../tests/support/cursorSessionReading.ts";
+} from "../../test-support/support/cursorSessionReading.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
 
 // Let the 100 ms alert loop observe re-arming before changing the screen again.
 async function awaitAlertPolls(): Promise<void> {

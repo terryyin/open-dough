@@ -2,20 +2,23 @@
 // GitHub Actions supplies the result; the dialog confirms failed revisions,
 // while a pass or an already kept start proceeds without another question.
 
-import { keptStarts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { publishLaterHead } from "../../dashboard/tests/support/publishLaterHead.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { publishLaterHead } from "../../dashboard/test-support/support/publishLaterHead.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   reachKeptStart,
   startAction,
-} from "../../dashboard/tests/keptStartJourney.ts";
-import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/keptStartJourney.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { actionsForRuns } from "../../dashboard/tests/support/baseCiActions.ts";
+import { actionsForRuns } from "../../dashboard/test-support/support/baseCiActions.ts";
 
 const baseCiFailedHeading = "Base CI failed";
 

@@ -1,14 +1,14 @@
 // Intent locations recover through the page's shared schedule while the
 // published observation keeps checking its own revision.
 
-import { setPageVisibility } from "../../tests/autoRefreshJourney.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { doughnut } from "../../tests/intentCodeBrowseFixtures.ts";
+import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { doughnut } from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   countLocationsReads,
   intentLocationName,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   advanceRecoveryClock,
   locationFiles,
@@ -16,20 +16,20 @@ import {
   opened,
   readFailure,
   readRetry,
-} from "../../tests/intentReadRecoveryPage.ts";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/intentReadRecoveryPage.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
 import {
   controlFrontendAuthenticatedRead,
   countAuthenticatedReads,
-} from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+} from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { noticedResumeTime } from "../../tests/limitNotice.ts";
+import { noticedResumeTime } from "../../test-support/limitNotice.ts";
 import {
   untilPageRequestsAnswered,
   whileNotingChecks,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 
 function putScriptIntentSources(services: FrontendServiceState): void {
   const location = makeMe.anIntentLocation

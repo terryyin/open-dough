@@ -4,43 +4,43 @@
 // the page. Assertions after release therefore need no arbitrary wait.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
   sharedStoryIdentity,
-} from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
 import {
   describedRevisions,
   publishedFile,
-} from "../../dashboard/tests/describedRevisions.ts";
+} from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   focusCanonicalRecord,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   backlogPath,
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
   type MovingOrigin,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 
 const revisionOpenDoughFirst = "a1".repeat(20);
 const revisionOpenDoughSecond = "a2".repeat(20);
 const revisionOpenDoughThird = "a3".repeat(20);
 
 // Doughnut's telling of the shared identity is in
-// ../../dashboard/tests/doughnutProject.ts; Open Dough's tellings differ, and
+// ../../dashboard/test-support/doughnutProject.ts; Open Dough's tellings differ, and
 // neither may appear under the other's label.
 const openDoughSharedTitleFirst =
   "Open Dough's first telling of the shared story";

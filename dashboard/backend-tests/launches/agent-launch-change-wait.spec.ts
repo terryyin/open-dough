@@ -13,7 +13,7 @@
 // ../../../e2e/launches/agent-launch-second-server.spec.ts.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   agentChangedEndpoint,
   type AttemptObservation,
@@ -22,16 +22,16 @@ import {
   accept,
   attempts,
   launchRequest,
-} from "../../tests/agentLaunchBoundary.ts";
-import { keepMoreAttemptsBesideServer } from "../../tests/acceptedAttempts.ts";
-import { request } from "../../tests/keptExecutionStart.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
+import { request } from "../../test-support/keptExecutionStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
 
 async function changedBody(server: DashboardServer, id: string, seen?: number) {
   const query =

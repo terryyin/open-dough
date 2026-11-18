@@ -5,7 +5,7 @@
 // discovered check no earlier share claims. A check two shares match, or a
 // pattern that matches no check, is refused. The command line selects for the
 // `distribution-tests` job; browser groups select through
-// dashboard/tests/support/testFiles.mjs.
+// dashboard/test-support/support/testFiles.mjs.
 //
 //   node scripts/test-share-matrix.mjs WORKFLOW [SPLIT]
 //     labels on stdin, NUL-separated; prints the labels of share i for SPLIT

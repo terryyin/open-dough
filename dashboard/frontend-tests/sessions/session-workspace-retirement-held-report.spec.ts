@@ -5,18 +5,18 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
-import { retainedMissingWorkspaceSession } from "../../tests/support/frontendFinalReportSession.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendFinalReport } from "../../test-support/support/frontendFinalReportSubstitutes.ts";
+import { retainedMissingWorkspaceSession } from "../../test-support/support/frontendFinalReportSession.ts";
 import {
   readFinalReport,
   readFinalReportControl,
-} from "../../tests/finalReportPages.ts";
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/finalReportPages.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { storyCardSessions } from "../../tests/dashboardPage.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+import { storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
 
 test("changing selection cancels a held report and never shows its text as the next session", async ({
   page,

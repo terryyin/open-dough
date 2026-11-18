@@ -3,33 +3,36 @@ import {
   scopeHistory,
   scopeHistoryReading,
   scopeHistoryChart,
-} from "../../dashboard/tests/intentScopeHistoryPage.ts";
+} from "../../dashboard/test-support/intentScopeHistoryPage.ts";
 // Real collected artifacts distinguish entry-only, partial and absent-unit
 // history while a Done file keeps earlier supported evidence in Proof.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   fileReadingTab,
   proofRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { childName } from "../../dashboard/tests/intentScopeProofPage.ts";
-import { collectedScopeFileSummary } from "../../dashboard/tests/support/scopeHistoryProofs.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { publishSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { childName } from "../../dashboard/test-support/intentScopeProofPage.ts";
+import { collectedScopeFileSummary } from "../../dashboard/test-support/support/scopeHistoryProofs.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import { publishSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
 import {
   collectingLandedCi,
   resultToLand,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { observeRetainedScopeOrder } from "../../dashboard/tests/support/scopeHistoryCollectedOrder.ts";
-import { openCollectedHistoryStory } from "../../dashboard/tests/support/scopeHistoryCollectedPage.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { observeRetainedScopeOrder } from "../../dashboard/test-support/support/scopeHistoryCollectedOrder.ts";
+import { openCollectedHistoryStory } from "../../dashboard/test-support/support/scopeHistoryCollectedPage.ts";
 import {
   recordScopeHistoryLandings,
   retainedProofs,
   serveCollectedScopeProofs,
-} from "../../dashboard/tests/support/scopeHistoryCollection.ts";
-import { openSummaryComparison } from "../../dashboard/tests/support/selectDoneStoryForSummaryComparison.ts";
-import { land } from "../../dashboard/tests/support/startSessionLandingContext.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/scopeHistoryCollection.ts";
+import { openSummaryComparison } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { land } from "../../dashboard/test-support/support/startSessionLandingContext.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test.use({ extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];

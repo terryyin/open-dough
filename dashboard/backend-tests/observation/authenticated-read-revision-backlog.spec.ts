@@ -6,16 +6,19 @@
 // at that commit only once per dashboard process. Revision checks:
 // ./authenticated-read-revision-check.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 

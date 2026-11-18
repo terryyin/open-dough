@@ -3,8 +3,8 @@
 import { randomUUID } from "node:crypto";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keepCursorClientAtPort } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
-import type { CursorTerminal } from "../../dashboard/tests/support/cursorTerminal.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import type { CursorTerminal } from "../../dashboard/test-support/support/cursorTerminal.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 
 export async function keepWatcherClient(
   home: string,

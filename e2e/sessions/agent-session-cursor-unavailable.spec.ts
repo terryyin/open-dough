@@ -1,5 +1,5 @@
 // An unavailable Cursor runner or session reports why its screen cannot be read.
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 
@@ -8,9 +8,9 @@ import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClie
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 
-import { occupyRunner } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
+import { occupyRunner } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
 import {
   agentCalls,
   cursorRecord,
@@ -18,14 +18,17 @@ import {
   expectReadingWithoutScreenLabel,
   openTakenCursorSession,
   projectedSessions,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   openStoppedCursorEntry,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test("a stopped runner says so, shows no screen label, and starts no agent", async ({
   page,

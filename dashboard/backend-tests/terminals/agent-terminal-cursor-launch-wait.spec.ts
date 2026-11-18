@@ -3,21 +3,21 @@
 // the client kept. Each case ends the launch wait once its kept state is
 // observed. Ordinary ready settlement is covered in
 // agent-terminal-cursor-launch.spec.ts.
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { instructionDeliveryTimedOutExplanation } from "../../server/hosts/cursor/instructionDelivery.ts";
-import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
   enteredInstruction,
   heldOnWorkspaceTrust,
   keptCursor,
   keptFirstInputState,
   withInstructedCursor,
-} from "../../tests/support/keptCursorTurn.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 import type { CursorSession } from "../../src/launchRecord.ts";
-import type { RawResponse } from "../../tests/support/rawHttp.ts";
-import { openCursorTerminal } from "../../tests/support/cursorTerminal.ts";
-import { shows } from "../../tests/agentTerminalBoundary.ts";
+import type { RawResponse } from "../../test-support/support/rawHttp.ts";
+import { openCursorTerminal } from "../../test-support/support/cursorTerminal.ts";
+import { shows } from "../../test-support/agentTerminalBoundary.ts";
 
 const instruction = "hold this launch";
 

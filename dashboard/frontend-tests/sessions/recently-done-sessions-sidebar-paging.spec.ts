@@ -13,29 +13,29 @@ import {
   chooseProject,
   standaloneSessionName,
   parts,
-} from "../../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { terminalPanel } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
 import {
   fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
-} from "../../tests/recentlyDoneSessionsSidebarPaging.ts";
+} from "../../test-support/recentlyDoneSessionsSidebarPaging.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectRecentlyDone,
   recentlyDoneHeightKey,
   showRecentlyDone,
-} from "../../tests/recentlyDoneSessionsSidebarPage.ts";
-import { wheelToEnd } from "../../tests/runningCursorSessionsPage.ts";
-import { watchRecordReads } from "../../tests/sessionStatePace.ts";
+} from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
+import { wheelToEnd } from "../../test-support/runningCursorSessionsPage.ts";
+import { watchRecordReads } from "../../test-support/sessionStatePace.ts";
 import {
   expectSessionsSidebar,
   openSessionsSidebar,
-} from "../../tests/sessionsSidebarPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
-import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
+import { openFrontendThreeProjects } from "../../test-support/support/frontendRecentlyDoneSidebar.ts";
 
 test("scrolling Recently done reaches all 45 retained sessions and refresh keeps the reached older range", async ({
   page,

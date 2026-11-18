@@ -1,7 +1,7 @@
 // Landed CI wall-time history collection (../../server/landedCiCollection.ts)
 // of a confirmed skip whose equivalent build's CI proof read GitHub does not
 // answer, with no page open, a real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`, each
+// (../../test-support/support/startOrigin.ts) and the synthetic `claude`, each
 // collecting server checking at a test's pace: the skip waits for that
 // proof, as CI proof not read yet, for as long as GitHub does not answer,
 // while collection goes on to the older landings past it, and is that
@@ -15,13 +15,16 @@
 // ./landed-ci-history-pending-sources.spec.ts.
 
 import path from "node:path";
-import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
+import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
 import {
   answeredLanding,
   landedCiHistory,
   untilKept,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   answeredRun,
   landingMinutesAgo,
@@ -34,7 +37,7 @@ import {
   trunkRun,
   usableProofOf,
   type TrunkProofs,
-} from "../../tests/support/landedCiTrunk.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

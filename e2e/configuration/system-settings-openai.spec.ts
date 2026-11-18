@@ -6,19 +6,19 @@ import {
   statSync,
 } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import {
   apiKey,
   save,
   status,
-} from "../../dashboard/tests/support/openAISettingsPage.ts";
+} from "../../dashboard/test-support/support/openAISettingsPage.ts";
 import {
   back,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { productionSeedProjects } from "../../dashboard/server/projectConfigurationSeed.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;

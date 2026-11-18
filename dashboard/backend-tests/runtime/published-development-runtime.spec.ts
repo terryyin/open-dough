@@ -6,9 +6,9 @@ import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { localPublishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { localPublishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 const exec = promisify(execFile);
 const runtimeScript = `node --input-type=module -e "import {version} from 'vite'; import React from 'react'; console.log(JSON.stringify({vite:version,react:React.version,cwd:process.cwd()}))"`;

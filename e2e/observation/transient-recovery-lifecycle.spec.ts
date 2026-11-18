@@ -8,31 +8,34 @@
 import {
   recordsAt,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expect,
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   expectSettledPage,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
-} from "../../dashboard/tests/doughnutProject.ts";
-import { failedAt, limitSaid } from "../../dashboard/tests/limitNotice.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
+import {
+  failedAt,
+  limitSaid,
+} from "../../dashboard/test-support/limitNotice.ts";
 import {
   isContent,
   limiting,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
 import {
   filesBesideUnreachable,
   opened as limitedOpened,
@@ -41,28 +44,28 @@ import {
   titlesBesideUnreachable,
   withheldSeed,
   withheldTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   httpErrorAnswer,
   pathsRead,
   publishMovingOrigin,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   backlogA,
   inspectDashboardStory,
   revisionA,
   titlesOfA,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   expectRecoversAfter,
   mainReads,
   transientRecovery,
-} from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 

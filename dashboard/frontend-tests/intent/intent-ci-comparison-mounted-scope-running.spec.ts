@@ -1,4 +1,4 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Real child navigation retains one provider for a running Landed fallback.
 // The fast request rule lives in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -6,8 +6,8 @@ import {
   test,
   expect,
   mountComparison,
-} from "../../tests/support/comparisonMountPage.ts";
-import { childName } from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
+import { childName } from "../../test-support/intentScopeProofPage.ts";
 
 const variants: readonly ("running" | "no proof")[] = ["running"];
 for (const landed of variants) {

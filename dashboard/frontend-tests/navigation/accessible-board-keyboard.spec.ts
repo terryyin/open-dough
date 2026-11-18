@@ -1,19 +1,23 @@
 import { type Locator } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
 import {
   expectFocusedAndIndicated,
   expectTabOrder,
   tabTo,
-} from "../../tests/accessibleReading.ts";
-import { parts, expectMembership } from "../../tests/dashboardPage.ts";
+} from "../../test-support/accessibleReading.ts";
+import { parts, expectMembership } from "../../test-support/dashboardPage.ts";
 import {
   canonicalRecord,
   enabledStoryCardLaunchActions,
   storyNotesControl,
-} from "../../tests/storyCardControls.ts";
-import { storyDetail } from "../../tests/storyCardSelection.ts";
-import { backlogB, revisionB, titlesOfB } from "../../tests/refreshJourney.ts";
+} from "../../test-support/storyCardControls.ts";
+import { storyDetail } from "../../test-support/storyCardSelection.ts";
+import {
+  backlogB,
+  revisionB,
+  titlesOfB,
+} from "../../test-support/refreshJourney.ts";
 
 test("accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
   page,

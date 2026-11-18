@@ -1,18 +1,21 @@
-import { doneWallTimeHistory } from "../../dashboard/tests/priorBuildReferencePage.ts";
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { doneWallTimeHistory } from "../../dashboard/test-support/priorBuildReferencePage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { publishSkippedPlanningLanding } from "../../dashboard/tests/support/storyCiComparisonSkippedFixture.ts";
-import { publishCodeLandedBeforeCompletion } from "../../dashboard/tests/support/storyCiComparisonEarlierLanding.ts";
-import { serveEarlierLandingWithLandedOutcome } from "../../dashboard/tests/support/storyCiComparisonLandedOutcome.ts";
-import { laterProof } from "../../dashboard/tests/support/storyCiComparisonCancelledLanding.ts";
-import { wall } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { keepDoneWallProvenanceHistory } from "../../dashboard/tests/support/doneWallProvenanceHistory.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { publishSkippedPlanningLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedFixture.ts";
+import { publishCodeLandedBeforeCompletion } from "../../dashboard/test-support/support/storyCiComparisonEarlierLanding.ts";
+import { serveEarlierLandingWithLandedOutcome } from "../../dashboard/test-support/support/storyCiComparisonLandedOutcome.ts";
+import { laterProof } from "../../dashboard/test-support/support/storyCiComparisonCancelledLanding.ts";
+import { wall } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { keepDoneWallProvenanceHistory } from "../../dashboard/test-support/support/doneWallProvenanceHistory.ts";
 
 for (const selection of ["equivalent", "later"] as const) {
   test(`a Done ${selection} measurement keeps the represented landing distinct from completion and its selected build`, async ({

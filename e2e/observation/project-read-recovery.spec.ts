@@ -1,5 +1,5 @@
 // A failed read of one project -- here Pygardon, published to the same fake
-// GitHub as Open Dough and Doughnut (../../dashboard/tests/publishedOrigin.ts) -- is recovered in
+// GitHub as Open Dough and Doughnut (../../dashboard/test-support/publishedOrigin.ts) -- is recovered in
 // the browser without losing project context: switching stays available,
 // reloading reads the project once access is restored, and a later failure keeps
 // only that project's previous snapshot. No real credentials change.
@@ -11,9 +11,9 @@ import { type Page } from "@playwright/test";
 import {
   passTimeUntilChecked,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   shortRevision,
   controlsBesideSessions,
@@ -21,19 +21,19 @@ import {
   expectProblemAndNoSnapshot,
   openDirection,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   describedRevision,
   publishedFile,
-} from "../../dashboard/tests/describedRevisions.ts";
-import type { PublishedRevision } from "../../dashboard/tests/publishedFiles.ts";
+} from "../../dashboard/test-support/describedRevisions.ts";
+import type { PublishedRevision } from "../../dashboard/test-support/publishedFiles.ts";
 import {
   backlogPath,
   notLoggedIn,
   publishMovingOrigin,
   type MovingOrigin,
   type OriginAnswer,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Backlog } from "../../Distribution/tests/support/repositoryTestData.mjs";
 

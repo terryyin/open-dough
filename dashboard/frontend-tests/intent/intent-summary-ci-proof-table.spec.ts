@@ -4,7 +4,7 @@
 // row, and outside only in that folder's own Summary; and the evidence
 // labels, the scope's own figures and the table fit a zoomed or narrow
 // window. The proof answer is controlled
-// (../../tests/support/frontendSummaryCiProof.ts); reading CI's collected
+// (../../test-support/support/frontendSummaryCiProof.ts); reading CI's collected
 // bytes into it: ../../backend-tests/intent/ci-proof-extraction.spec.ts and
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
@@ -13,27 +13,27 @@ import {
   evidenceLabels,
   expectEvidenceLabels,
   expectLabelInFull,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 import {
   childName,
   expectScopeRows,
   scopeFigures,
   scopeTable,
-} from "../../tests/intentScopeProofPage.ts";
+} from "../../test-support/intentScopeProofPage.ts";
 import {
   allParts,
   openSummary,
-} from "../../tests/intentSummaryCiProofFixtures.ts";
+} from "../../test-support/intentSummaryCiProofFixtures.ts";
 import {
   twiceZoomedWindow,
   zoomedWindow,
-} from "../../tests/accessibleReading.ts";
-import { wordsBrokenApart } from "../../tests/wholeWords.ts";
+} from "../../test-support/accessibleReading.ts";
+import { wordsBrokenApart } from "../../test-support/wholeWords.ts";
 import {
   bothEntries,
   openSummaryCiProof,
-} from "../../tests/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendSummaryCiProof.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 test("a CI file the tree does not list under a listed folder counts once, in that folder's row, and is outside only in that folder's own Summary", async ({
   page,

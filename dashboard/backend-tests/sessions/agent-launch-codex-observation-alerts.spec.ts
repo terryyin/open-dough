@@ -1,15 +1,15 @@
 // Actual background polling and notifier boundary with recorded native answers.
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { messages, notices } from "../../tests/support/sessionAlerts.ts";
-import { notRefinedStory } from "../../tests/launchJourney.ts";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { messages, notices } from "../../test-support/support/sessionAlerts.ts";
+import { notRefinedStory } from "../../test-support/launchJourney.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
   saveObservations as save,
   observed,
   afterFurtherReads,
   passive,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

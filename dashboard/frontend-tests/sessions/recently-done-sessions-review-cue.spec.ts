@@ -1,8 +1,8 @@
 // Shown Recently done rows expose their linked story's outstanding local review.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
-import { expectSessionReviewCue } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
+import { expectSessionReviewCue } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   adHoc,
   cueSession,
@@ -14,23 +14,23 @@ import {
   openFrontendReviewCueSessions,
   report,
   takenElsewhere,
-} from "../../tests/support/frontendRecentlyDoneReviewCue.ts";
-import { openFrontendSelectionPage } from "../../tests/support/frontendRecentlyDoneSelection.ts";
-import { isPygardonCatalog } from "../../tests/pygardonCatalogReads.ts";
-import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/support/frontendRecentlyDoneReviewCue.ts";
+import { openFrontendSelectionPage } from "../../test-support/support/frontendRecentlyDoneSelection.ts";
+import { isPygardonCatalog } from "../../test-support/pygardonCatalogReads.ts";
+import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   doneCard,
   expectReviewed,
   markAsReviewed,
   unreviewStory,
-} from "../../tests/doneStoryReviewPage.ts";
-import { box, tapWhereShown } from "../../tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { showColumn } from "../../tests/boardPage.ts";
+} from "../../test-support/doneStoryReviewPage.ts";
+import { box, tapWhereShown } from "../../test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 import {
   finalReportPanel,
   finalReportText,
-} from "../../tests/finalReportPages.ts";
+} from "../../test-support/finalReportPages.ts";
 
 test("an unselected cross-project done-story row exposes its review need while the Board stays put", async ({
   page,

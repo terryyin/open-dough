@@ -16,7 +16,7 @@
 // This spec covers the boundary's subprocess lifecycle. Its HTTP contract is
 // covered separately in ./authenticated-read-refusal.spec.ts and
 // ./authenticated-read-boundary.spec.ts, which share this suite's harness
-// (../../tests/support/dashboardServer.ts). Membership reads, extra-path reads, and
+// (../../test-support/support/dashboardServer.ts). Membership reads, extra-path reads, and
 // revision checks differ by URL shape and, for disconnect, by whether the
 // held work is the request itself or a shared listing. Every catalog source
 // reaches that ownership through the same code, so each read kind is
@@ -28,23 +28,29 @@
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
 // journeys' own servers.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   processAlive,
   processRunning,
-} from "../../tests/support/processGroup.ts";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/processGroup.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   authenticatedReadKinds,
   authenticatedReadUrl,
-} from "../../tests/support/authenticatedReadUrl.ts";
+} from "../../test-support/support/authenticatedReadUrl.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { abandonedRequest, rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import {
+  abandonedRequest,
+  rawRequest,
+} from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

@@ -8,21 +8,21 @@
 // ./auto-refresh-rate-limit.spec.ts. The page, its local authenticated read
 // boundary, the `gh` invocation, and the shared interpretation are the
 // production ones; the fake GitHub behind the synthetic `gh`
-// (../../dashboard/tests/support/fakeGitHub.ts) only publishes commits and fails answers. The
+// (../../dashboard/test-support/support/fakeGitHub.ts) only publishes commits and fails answers. The
 // page's clock is paused and advanced by the test.
 
 import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   expectSnapshotButtons,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   checksAskedWhilePassing,
@@ -32,21 +32,21 @@ import {
   passTimeUntilChecked,
   recordsAt,
   headsChecks,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   noConnection,
   type OriginAnswer,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   focusCanonicalRecord,
   slicePlanLink,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   detailRecovery,
   expectEarlierSnapshotKept,
-} from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/transientRecoveryPage.ts";
 import {
   backlogB,
   dashboardStory,
@@ -56,7 +56,7 @@ import {
   revisionC,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
 // `gh` fails in a way the boundary cannot put a category to.
 const unexplainedFailure: OriginAnswer = {
   exitCode: 1,

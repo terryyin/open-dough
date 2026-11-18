@@ -7,8 +7,11 @@ import { promisify } from "node:util";
 import {
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
 import { expect, test } from "../support/fakeGhInProcess.ts";
 
 test("an explicitly selected boundary server reaches the fast owner with its API executable poisoned", async ({
@@ -62,7 +65,7 @@ process.stdout.write(JSON.stringify({ auth: auth.stdout, body: answer.stdout.toS
 `,
   );
   const preload = new URL(
-    "../../tests/support/fakeGhPreload.mjs",
+    "../../test-support/support/fakeGhPreload.mjs",
     import.meta.url,
   ).href;
   const { stdout } = await promisify(execFile)(

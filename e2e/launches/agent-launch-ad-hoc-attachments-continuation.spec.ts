@@ -3,12 +3,12 @@
 // commitments 9a, 9c, 9d, 9e).
 
 import { existsSync, readFileSync } from "node:fs";
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   openTakenBacklog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expectCopiedAttachmentPath,
   launchAttachmentClaimsRoot,
@@ -17,12 +17,12 @@ import {
   pickImagesInDialog,
   pngA,
   writePickedImages,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 import {
   expect,
   stored,
   test,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

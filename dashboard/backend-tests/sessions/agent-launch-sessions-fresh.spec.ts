@@ -7,11 +7,15 @@ import {
   sessionsFreshHeader,
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
-import { test, expect, codexSkill } from "../../tests/support/codexLaunch.ts";
-import { sessionsRequest } from "../../tests/support/codexObservation.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import {
+  test,
+  expect,
+  codexSkill,
+} from "../../test-support/support/codexLaunch.ts";
+import { sessionsRequest } from "../../test-support/support/codexObservation.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

@@ -7,15 +7,15 @@
 // outstanding sharing and the zero-window case that asks again past it:
 // ./authenticated-read-shared.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { processAlive } from "../../tests/support/processGroup.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { processAlive } from "../../test-support/support/processGroup.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
 import {
   askedSince,
   heads,
@@ -24,7 +24,7 @@ import {
   refusedMarker,
   servedHolding,
   sharedReadsPublished,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
 

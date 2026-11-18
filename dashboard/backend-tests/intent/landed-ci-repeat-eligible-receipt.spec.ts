@@ -1,17 +1,20 @@
 // What a fresh collecting dashboard saves when a landing starts with its
 // kept unspent eligible receipt, for a published story, and the provider
 // answers its rerun request. No receipt journey is replayed here.
-import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts";
+import { keepRepeatLanding } from "../../test-support/support/ciFollowUpKeptLanding.ts";
 import {
   aWholePass,
   heldRequest,
   rerunRuns,
   savedRepeatRequest,
   waitingRequest,
-} from "../../tests/support/ciFollowUpSavedRequests.ts";
-import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
-import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/ciFollowUpSavedRequests.ts";
+import { followUpCards } from "../../test-support/support/ciFollowUpScenario.ts";
+import { startingFromKeptStory } from "../../test-support/support/keptPublishedStory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 
 const keptStoryTest = test.extend(startingFromKeptStory);
 keptStoryTest.use({ serverMode: "boundary" });

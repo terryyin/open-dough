@@ -2,18 +2,18 @@
 import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test as base } from "../../tests/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 export { expect };
-import { startFakeGitHub } from "../../tests/support/fakeGitHub.ts";
+import { startFakeGitHub } from "../../test-support/support/fakeGitHub.ts";
 import {
   endFakeGh,
   fakeGhEnv,
   installFakeGh,
-} from "../../tests/support/fakeGh.ts";
+} from "../../test-support/support/fakeGh.ts";
 import {
   endGroup,
   spawnGroupLeader,
-} from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/processGroup.ts";
 
 export async function clientFixture() {
   const root = mkdtempSync(path.join(tmpdir(), "dough-gh-client-"));

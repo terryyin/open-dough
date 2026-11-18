@@ -1,7 +1,7 @@
 import {
   expectCiAnswer,
   judged,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 // A version 1 CI proof summary, from before units, read through GitHub's
 // artifact or a ciAdapter, stays readable in Intent as legacy test results,
 // never as test cases or test files (SEED-281 example 38;
@@ -9,27 +9,27 @@ import {
 // ../../Distribution/tests/skills/dough-test-optimization/ci-proof-legacy-results.test.mjs,
 // ../../Distribution/tests/support/dashboard-ci-proof-units-read.test.mjs.
 
-import { test } from "../../dashboard/tests/dashboardTest.ts";
+import { test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   adapterProject,
   openAdapterProof,
   passed,
   uuid,
   verdict,
-} from "../../dashboard/tests/intentCiAdapterProofProject.ts";
+} from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 import {
   artifactId,
   expectProofRows,
   openFailedRun,
   run,
-} from "../../dashboard/tests/intentCiProofPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
 import {
   login,
   repository,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
 
-import { runArtifactsAnswer } from "../../dashboard/tests/support/ciProofArtifacts.ts";
-import { summaryTextZipAnswer } from "../../dashboard/tests/support/ciProofCollected.ts";
+import { runArtifactsAnswer } from "../../dashboard/test-support/support/ciProofArtifacts.ts";
+import { summaryTextZipAnswer } from "../../dashboard/test-support/support/ciProofCollected.ts";
 
 // A summary as the version 1 collector wrote it for REPOSITORY's attempt,
 // literally: Playwright's entry spelled `tests`, an outcomes entry `checks`.

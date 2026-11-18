@@ -8,11 +8,11 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
-import { sessionDetailsControl } from "../../tests/support/sessionEntryDisclosure.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
+import { sessionDetailsControl } from "../../test-support/support/sessionEntryDisclosure.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import {
   sessionsAudienceParameter,

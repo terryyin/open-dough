@@ -1,6 +1,6 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test("project list stays local and omits checkout paths", async () => {
   const server = await startDashboardServer({ mode: "boundary" });

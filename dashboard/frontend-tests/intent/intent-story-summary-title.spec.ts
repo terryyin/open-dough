@@ -1,8 +1,8 @@
-import { openStoryIntent } from "../../tests/intentModePage.ts";
+import { openStoryIntent } from "../../test-support/intentModePage.ts";
 import {
   putFrontendIntentStory,
   answerFrontendIntentChanges,
-} from "../../tests/support/frontendIntentStory.ts";
+} from "../../test-support/support/frontendIntentStory.ts";
 // A selected Taken story's long title in the story's persistent header
 // (../../src/IntentHeader.tsx) shows once, in full, wrapping rather
 // than shortened, and stays above the story's views whichever is chosen; its
@@ -11,16 +11,16 @@ import {
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { shortRevision } from "../../tests/dashboardParts.ts";
-import { expectStackedInOrder } from "../../tests/partArrangement.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
+import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   storyHeaderDetail,
   storyTab,
   storyTitle,
   storyHeaderReading,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 
 test("a long story title shows once in full above the story's views, whichever is chosen", async ({
   page,

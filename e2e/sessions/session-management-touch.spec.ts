@@ -2,53 +2,53 @@ import {
   deleteRecordQuestion,
   sessionAction,
   sessionActionsControl,
-} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+} from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   closeSidePanel,
   sidePanelNamesOf,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // Exact touch actions on real submitted reports and dashboard records.
 
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   expectMembership,
   expectSettledPage,
   parts,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { messagePartOf } from "../../dashboard/tests/support/sessionMessagePart.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { messagePartOf } from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import {
   briefDoneRenameWait,
   doneQuestion,
   keepOpen,
   markAsDone,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   launchedStory,
   shortIdOf,
-} from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   publishOrigin,
   test,
-} from "../../dashboard/tests/support/startOriginTest.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+} from "../../dashboard/test-support/support/startOriginTest.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 test.use({
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,

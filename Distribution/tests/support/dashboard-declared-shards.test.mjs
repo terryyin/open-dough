@@ -11,7 +11,7 @@ import { pathToFileURL } from "node:url";
 import {
   dashboardTestMatch,
   dashboardTestProjects,
-} from "../../../dashboard/tests/support/testFiles.mjs";
+} from "../../../dashboard/test-support/support/testFiles.mjs";
 
 const workflowFile = ".github/workflows/ci.yml";
 

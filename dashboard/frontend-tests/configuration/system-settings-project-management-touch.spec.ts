@@ -3,18 +3,18 @@
 // refused. That a failed write keeps the saved file byte for byte, and an Add
 // saves the repository's default branch, are
 // ../../../e2e/configuration/project-add.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
 import {
   projectAddEndpoint,
   projectRemoveEndpoint,
 } from "../../src/projectConfiguration.ts";
-import { tapWhereShown } from "../../tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { readSetting } from "../../tests/support/settingsTouchPage.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { readSetting } from "../../test-support/support/settingsTouchPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const { name, portrait, landscape } = phoneLaunchTouchViewport;

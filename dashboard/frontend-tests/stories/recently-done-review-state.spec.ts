@@ -12,22 +12,25 @@
 // Request refusals: ../../backend-tests/review/story-review-state-admission.spec.ts.
 
 import path from "node:path";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   doneStories,
   openFrontendBoardReview,
   storyA,
   storyB,
   storyC,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { parts, storyCardSessions } from "../../tests/dashboardParts.ts";
-import { readFinalReportControl } from "../../tests/finalReportPages.ts";
-import { doneStoryReview } from "../../tests/doneStoryReviewPage.ts";
-import { expectEntries } from "../../tests/recentlyDoneColumn.ts";
-import { sidePanelContents } from "../../tests/support/sidePanelContents.ts";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
-import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
+import { parts, storyCardSessions } from "../../test-support/dashboardParts.ts";
+import { readFinalReportControl } from "../../test-support/finalReportPages.ts";
+import { doneStoryReview } from "../../test-support/doneStoryReviewPage.ts";
+import { expectEntries } from "../../test-support/recentlyDoneColumn.ts";
+import { sidePanelContents } from "../../test-support/support/sidePanelContents.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
+import { installFrontendFinalReport } from "../../test-support/support/frontendFinalReportSubstitutes.ts";
 
 const titles = doneStories.map(({ title }) => title);
 

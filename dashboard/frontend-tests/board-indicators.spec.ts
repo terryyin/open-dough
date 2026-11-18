@@ -2,13 +2,13 @@ import {
   expect,
   test,
   openFrontendTakenBacklog,
-} from "../tests/support/frontendApp.ts";
+} from "../test-support/support/frontendApp.ts";
 import {
   activateColumnIndicator,
   expectColumnIndicatorFocused,
   focusColumnIndicator,
-} from "../tests/boardPage.ts";
-import { boardView } from "../tests/boardView.ts";
+} from "../test-support/boardPage.ts";
+import { boardView } from "../test-support/boardView.ts";
 
 test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 

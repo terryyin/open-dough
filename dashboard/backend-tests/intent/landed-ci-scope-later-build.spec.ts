@@ -4,27 +4,27 @@ import {
   collectedSummary,
   playwrightRecord,
   summaryTextZipAnswer,
-} from "../../tests/support/ciProofCollected.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/ciProofCollected.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   collectingLandedCi,
   restartAsLandedCiReader,
   resultToLand,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   retainedHistory,
   collectedScopeHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
-import { keepMoreLaunchRecords } from "../../tests/support/launchStore.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
-import { publishCodeLandedBeforeCompletion } from "../../tests/support/storyCiComparisonEarlierLanding.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
+import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
+import { publishCodeLandedBeforeCompletion } from "../../test-support/support/storyCiComparisonEarlierLanding.ts";
 import {
   laterTrunkRevisions,
   serveEarlierLandingWithLandedOutcome,
-} from "../../tests/support/storyCiComparisonLandedOutcome.ts";
+} from "../../test-support/support/storyCiComparisonLandedOutcome.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];

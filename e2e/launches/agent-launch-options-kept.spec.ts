@@ -1,10 +1,10 @@
 // A refused launch's selection in the refinement dialog, on the launch
-// journey's committed origin (../../dashboard/tests/launchJourney.ts): the
+// journey's committed origin (../../dashboard/test-support/launchJourney.ts): the
 // launch says "Launch failed:" naming the option and keeps the selection for
 // the next opening, naming in one quiet line the kept flags the project no
 // longer offers, which are not sent. That Cancel drops it is
 // ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts. The
-// synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands in for
+// synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands in for
 // the real one; the boundary's own rules are
 // ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
@@ -15,21 +15,21 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   untilPageRequestsAnswered,
   whileNotingChecks,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   groupedOptions,
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import { expect, test } from "../support/fakeGhClient.ts";
 
 test("records exact argv and prints binary bytes without curl configuration or proxy effects", async ({

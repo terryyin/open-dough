@@ -2,16 +2,19 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   legacyHistory,
   writeLegacyStore,
-} from "../../tests/usage-history/earlierStores.ts";
+} from "../../test-support/usage-history/earlierStores.ts";
 import {
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 const pluginWrapper = {

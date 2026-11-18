@@ -8,30 +8,30 @@ import type { Locator, Page } from "@playwright/test";
 import {
   closeTerminal,
   terminalPanel,
-} from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/terminalScreenPage.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
-import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import { parts, sessionEntriesIn } from "../../test-support/dashboardPage.ts";
 import {
   box,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollIn,
   tapWhereShown,
-} from "../../tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { lettersBrokenApart } from "../../tests/wholeWords.ts";
+} from "../../test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { lettersBrokenApart } from "../../test-support/wholeWords.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 type Viewport = { readonly width: number; readonly height: number };

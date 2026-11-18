@@ -1,5 +1,5 @@
 // All changes of a story's review can leave its uncommitted changes out, of
-// Story A's worktree (../../dashboard/tests/support/storyReviewWorktree.ts) with a committed
+// Story A's worktree (../../dashboard/test-support/support/storyReviewWorktree.ts) with a committed
 // file edited again: the check “Include uncommitted changes” is on at
 // opening over the whole snapshot. Off, the review lists the committed files
 // alone with their committed lines and counts, and says in words, as the
@@ -16,8 +16,11 @@ import {
   storyReviewEndpoint,
   storyReviewRangeEndpoint,
 } from "../../dashboard/src/storyReviewContract.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { reviewBody } from "../../dashboard/tests/support/reviewContextLine.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { reviewBody } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectFileSelected,
   expectLineCounts,
@@ -25,21 +28,21 @@ import {
   fileRow,
   changedFilesList,
   fileDiff,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
-import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   reviewRegion,
   uncommittedCheck as check,
   filesToggle,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   nestedWorktree,
   storyWorktree,
   unchangedWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 // Story A's worktree with its committed story file edited again, uncommitted.
 function storyWorktreeEditedAgain(origin: StartOrigin) {

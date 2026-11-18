@@ -2,7 +2,7 @@
 // cards: with GitHub's account of what changed since A still unanswered, the
 // page shows B's membership under B while the details that account decides
 // are still read, a card shown at A keeping A's details meanwhile. The fake GitHub only holds the comparison
-// (../../dashboard/tests/publishedFiles.ts); the local read boundary and the page decide what is
+// (../../dashboard/test-support/publishedFiles.ts); the local read boundary and the page decide what is
 // shown.
 
 import type { Page } from "@playwright/test";
@@ -10,18 +10,18 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishMovingFiles,
   type PublishedRevision,
-} from "../../dashboard/tests/publishedFiles.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/publishedFiles.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   atA,
   addedTitle,
@@ -38,7 +38,7 @@ import {
   revisionB,
   seedPath,
   takenTitle,
-} from "../../dashboard/tests/unchangedRecordsRefresh.ts";
+} from "../../dashboard/test-support/unchangedRecordsRefresh.ts";
 
 // Membership at B never waits on GitHub's account of what changed: with the
 // comparison held, B's cards show at once, under B; only a card new at B

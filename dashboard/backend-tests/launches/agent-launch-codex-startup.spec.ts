@@ -1,7 +1,7 @@
 // Saved conversations survive machine restart; startup restores only the daemon,
 // in the developer's shell environment when the dashboard starts as a
-// deployment's does (../../tests/support/launchEnvironment.ts).
-import { test, expect } from "../../tests/support/pageTest.ts";
+// deployment's does (../../test-support/support/launchEnvironment.ts).
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   mkdtempSync,
   rmSync,
@@ -15,8 +15,8 @@ import {
   codexEndpoint,
   fakeCodexHost,
   installFakeCodex,
-} from "../../tests/support/fakeCodex.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/fakeCodex.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   observationRecord,
   saveObservations,
@@ -25,21 +25,21 @@ import {
   passive,
   daemonStarts,
   codexEnvironments,
-} from "../../tests/support/codexObservation.ts";
+} from "../../test-support/support/codexObservation.ts";
 import {
   openCodexTerminal,
   codexAttaches,
-} from "../../tests/support/codexTerminal.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/support/codexTerminal.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
-} from "../../tests/support/launchEnvironment.ts";
+} from "../../test-support/support/launchEnvironment.ts";
 
 test(`saved Codex conversation reconnects after daemon loss at startup`, async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-codex-startup-"));

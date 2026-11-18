@@ -5,32 +5,35 @@
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch, machineSessions } from "../../tests/agentLaunchBoundary.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import {
+  launch,
+  machineSessions,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { replaceAttempts } from "../../server/launchAttemptStore.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedIdentity,
   queuedTitle,
-} from "../../tests/support/startOrigin.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   keepTrackedClosureEvidence,
   plantTrackedClosureRepository,
   save,
-} from "../../tests/support/retainedReport.ts";
+} from "../../test-support/support/retainedReport.ts";
 import {
   reportingChild,
   recordOperation,
   completionWriteFault,
   completionProxy,
-} from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/completionRecovery.ts";
 import {
   unacknowledgedCompletion,
   observeCompletionFaults,
-} from "../../tests/support/completionRecoveryFaults.ts";
-import { observeLaterCompletionIntent } from "../../tests/support/completionRecoveryIntent.ts";
+} from "../../test-support/support/completionRecoveryFaults.ts";
+import { observeLaterCompletionIntent } from "../../test-support/support/completionRecoveryIntent.ts";
 
 test.use({ serverMode: "boundary" });
 

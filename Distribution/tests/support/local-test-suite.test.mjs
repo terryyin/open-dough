@@ -11,7 +11,7 @@ import {
 import { availableParallelism } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { fullDashboardSuite } from "../../../dashboard/tests/support/fullSuiteSelection.mjs";
+import { fullDashboardSuite } from "../../../dashboard/test-support/support/fullSuiteSelection.mjs";
 import {
   dashboard,
   fixture,
@@ -212,7 +212,7 @@ test("independent repositories and copied non-Git runner fixtures remain usable"
 });
 
 test("only an unfiltered dashboard run takes admission, including explicit worker and reporter settings", () => {
-  const split = "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT";
+  const split = "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT";
   for (const args of [
     [],
     ["test"],

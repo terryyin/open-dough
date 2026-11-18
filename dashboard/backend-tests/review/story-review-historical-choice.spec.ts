@@ -9,12 +9,12 @@ import {
 import {
   completedPublishedStory,
   keepUnusableCompletedCapture,
-} from "../../tests/support/completedPublishedStory.ts";
+} from "../../test-support/support/completedPublishedStory.ts";
 import {
   completedReviewQuery,
   getReview,
-} from "../../tests/support/completedReviewRequests.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary" });
 

@@ -10,15 +10,18 @@
 // live in ../../../Distribution/tests/support/intent-ci-proof-sort.test.mjs.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { ciProofReading, proofTable } from "../../tests/intentCiProofPage.ts";
+import {
+  ciProofReading,
+  proofTable,
+} from "../../test-support/intentCiProofPage.ts";
 import {
   expectSortedBy,
   expectUnsortedRows,
   rowNames,
   sortButton,
-} from "../../tests/support/expectSortedColumns.ts";
-import { openFrontendRunProof } from "../../tests/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
+import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 // tests/a 12.5 s with 4 tests; tests/b 340 ms with 3 tests, 1 failed;
 // tests/c Part 2 untimed with 3 tests.

@@ -3,17 +3,17 @@ import {
   scopeHistoryChart,
   scopeHistoryReading,
   scopeHistoryUnit,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Supplemental receiving/presentation proof, including legacy evidence of
 // unknown unit (its normalization is observed at the store boundary). Actual
 // collection and retained unit projection belong to the collector-to-Summary
 // journey.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
-import { expect, test } from "../tests/support/comparisonMountPage.ts";
-import { openSummaryScopeHistory } from "../tests/support/summaryScopeHistory.ts";
-import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
+import { expectComparisonScopeRows } from "../test-support/intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
+import { expect, test } from "../test-support/support/comparisonMountPage.ts";
+import { openSummaryScopeHistory } from "../test-support/support/summaryScopeHistory.ts";
+import { entryComparisonRows } from "../test-support/support/summaryComparisonExpectedRows.ts";
 
 test("one collected attempt charts case and file timing one unit at a time, each with its own values and selected gap", async ({
   page,

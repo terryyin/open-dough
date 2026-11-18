@@ -1,13 +1,13 @@
-import { openStoryIntent } from "../../tests/intentModePage.ts";
+import { openStoryIntent } from "../../test-support/intentModePage.ts";
 import {
   putFrontendIntentStory,
   answerFrontendIntentChanges,
   frontendIntentChanges,
-} from "../../tests/support/frontendIntentStory.ts";
+} from "../../test-support/support/frontendIntentStory.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
-import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
-import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
+import { chooseStoryTab } from "../../test-support/support/intentStoryPage.ts";
 // Closing Review changes opened by keyboard from the selected story's header
 // in Intent keeps the selected story (ADR 0008): Intent still shows the story
 // on Changed tests with the same file's Proof, its Purpose at the same
@@ -15,20 +15,20 @@ import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
 // the review (../../src/keyboardReturn.ts). The header's count:
 // ../../../e2e/intent/intent-story-changes.spec.ts.
 
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
-import { fileBrowser } from "../../tests/support/reviewContextLine.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
+import { fileBrowser } from "../../test-support/support/reviewContextLine.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   fileReadingTab,
   proofRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../tests/intentReadingPlacePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { expectReviewRead } from "../../tests/support/reviewRead.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expectReviewRead } from "../../test-support/support/reviewRead.ts";
 import {
   expectOutsideCount,
   expectStoryTab,
@@ -36,8 +36,8 @@ import {
   outsideCount,
   storyTitle,
   intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
-import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { deepSpec } from "../../test-support/support/intentStoryWorktree.ts";
 
 // Opens Review changes from the header's count and closes it, both by keyboard.
 async function reviewByKeyboard(page: Page, intent: Locator) {

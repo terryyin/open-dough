@@ -1,8 +1,8 @@
 // Each uninterrupted run of a Default main session's commits is kept in its
 // final form and answers the session's review by its position, over raw HTTP
 // at the boundary server: a real bare origin and project checkout
-// (../../tests/support/startOrigin.ts) and plain Git in the checkout
-// (../../tests/support/sessionCheckoutWork.ts). Trunk work pulled, merged or
+// (../../test-support/support/startOrigin.ts) and plain Git in the checkout
+// (../../test-support/support/sessionCheckoutWork.ts). Trunk work pulled, merged or
 // rebased onto is in no run, an amended or rebased commit is kept as it ended,
 // and a file read names a kept run's pair. The single kept commit answers as
 // ./ad-hoc-session-commits.spec.ts states.
@@ -14,10 +14,10 @@ import {
 import {
   adHocReview,
   adHocSessionFileDiff,
-} from "../../tests/support/adHocReview.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/adHocReview.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

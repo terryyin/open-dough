@@ -2,15 +2,15 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
   expectSnapshotButtons,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   commitAnswer,
   noConnection,
@@ -21,15 +21,15 @@ import {
   rateLimitedAnswer,
   rawFileAnswer,
   type Origin,
-} from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   backlogA,
   inspectDashboardStory,
   revisionA,
   titlesOfA,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { BacklogEntry } from "../../Distribution/tests/support/makeMe.mjs";
 

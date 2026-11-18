@@ -4,38 +4,38 @@
 // tip onto fetched trunk in the launch's own worktree, and the real receiver
 // keeps the fetched trunk tip and the accepted revision on the launch record.
 // Raw HTTP against the real installed start and a real bare origin
-// (../../tests/support/startOrigin.ts) with the synthetic `claude`.
+// (../../test-support/support/startOrigin.ts) with the synthetic `claude`.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import path from "node:path";
 import { z } from "zod";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import {
   quote,
   reportingChild,
-} from "../../tests/support/completionRecovery.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/completionRecovery.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   commonGitDir,
   git,
   refs,
-} from "../../tests/support/launchLanding.ts";
-import { landingGitFault } from "../../tests/support/launchLandingFault.ts";
+} from "../../test-support/support/launchLanding.ts";
+import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
 import {
   restartBoundary,
   startBoundary,
-} from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../tests/support/storyBranchIntegration.ts";
+} from "../../test-support/support/storyBranchIntegration.ts";
 import { openFirstLandingExpectation } from "../../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.describe("a claimed Story Branch Mode launch's trunk integration", () => {

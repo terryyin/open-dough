@@ -24,7 +24,6 @@ readonly ubuntu_version=24.04
 readonly dashboard_install='npx playwright install --with-deps chromium'
 readonly dashboard_steps='npm run typecheck:dashboard
 npm run test:e2e
-npm run test:dashboard:integrated
 npm run test:dashboard:frontend
 npm run test:dashboard:backend'
 

@@ -1,5 +1,8 @@
-import { test, expect } from "../../dashboard/tests/support/voiceTest.ts";
-import { voiceBrowserOptions } from "../../dashboard/tests/support/voiceRecovery.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/voiceTest.ts";
+import { voiceBrowserOptions } from "../../dashboard/test-support/support/voiceRecovery.ts";
 import {
   closeTerminal,
   expectTerminalInputFocused,
@@ -7,7 +10,7 @@ import {
   focusTerminalInput,
   insertTerminalText,
   pressTerminalKey,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   observeMicrophone,
   seedVoiceKey,
@@ -15,7 +18,7 @@ import {
   voiceKey,
   holdMicrophonePermission,
   holdCompletedVoiceResponse,
-} from "../../dashboard/tests/support/voicePage.ts";
+} from "../../dashboard/test-support/support/voicePage.ts";
 import {
   beginTerminalClip,
   chooseTerminalDictation,
@@ -26,9 +29,9 @@ import {
   stopTerminalClip,
   voiceAlert,
   voiceSettingsControl,
-} from "../../dashboard/tests/support/terminalVoicePage.ts";
-import { noteTerminalTraffic } from "../../dashboard/tests/touchTerminalPage.ts";
-import { briefDoneRenameWait } from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/terminalVoicePage.ts";
+import { noteTerminalTraffic } from "../../dashboard/test-support/touchTerminalPage.ts";
+import { briefDoneRenameWait } from "../../dashboard/test-support/support/markDone.ts";
 import { instructionProblems } from "../../dashboard/src/instructionTranscription.ts";
 
 test.use(voiceBrowserOptions);

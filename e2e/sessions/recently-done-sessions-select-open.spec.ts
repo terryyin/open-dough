@@ -1,17 +1,17 @@
 // Open on a linked Recently done sessions row attaches the real terminal and
 // leaves Recently done for the open list. Intent Select UI lives in
 // dashboard/frontend-tests/sessions/recently-done-sessions-select.spec.ts.
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   linked,
   openSelectionPage,
-} from "../../dashboard/tests/recentlyDoneSelectionJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneSelectionJourney.ts";
 import {
   closeTerminal,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 

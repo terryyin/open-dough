@@ -1,6 +1,6 @@
 // Cancelled landing selection and its fixed bound through the real comparison read.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { isFinalCiComparisonAnswer } from "../../server/intentCiComparisonAnswers.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {

@@ -2,11 +2,14 @@ import { queuedReadyRepository } from "../../Distribution/tests/support/queued-r
 import {
   passTimeUntilChecked,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expectDependencyAccessibly } from "../../dashboard/tests/storyDependencyAccessible.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectDependencyAccessibly } from "../../dashboard/test-support/storyDependencyAccessible.ts";
 import {
   consumer,
   supplierB,
@@ -17,13 +20,13 @@ import {
   publishDependencies,
   secondInSeedB,
   suppliersInOneSeed,
-} from "../../dashboard/tests/storyDependencyFixture.ts";
+} from "../../dashboard/test-support/storyDependencyFixture.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   dependencyDisclosure,
   dependencyList,
@@ -31,16 +34,16 @@ import {
   followReference,
   openDependencies,
   storyReference,
-} from "../../dashboard/tests/storyReference.ts";
+} from "../../dashboard/test-support/storyReference.ts";
 import {
   hideDetail,
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   blockedByAnyDependency,
   expectBadges,
-} from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
 
 // The accessible disclosure check taps the dependencies summary. Story A
 // waits on Story B and needs a decision about Story C, and is not ready for

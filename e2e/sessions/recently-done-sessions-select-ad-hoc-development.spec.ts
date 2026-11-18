@@ -2,22 +2,25 @@
 // than the Board's default 30-day window (../../dashboard/src/recentlyDoneView.ts).
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { expectProjectChoice } from "../../dashboard/tests/projectChoice.ts";
-import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { expectProjectChoice } from "../../dashboard/test-support/projectChoice.ts";
+import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
+import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   commitAll,
   git,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { push } from "../../dashboard/tests/support/storyReviewTrunkCommits.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 

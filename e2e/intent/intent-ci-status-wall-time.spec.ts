@@ -6,7 +6,7 @@ import {
   publishProject,
   runUrl,
   trunkCi,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 // CI wall time of the attempt Intent's homepage shows
 // (../../dashboard/src/IntentCiProof.tsx, ../../dashboard/src/ciProofTimeWords.ts): a listed Actions run
 // 10:00→10:03 shows CI wall time 3 min with the attempt; a running result
@@ -14,7 +14,7 @@ import {
 // startedAt/completedAt shows CI wall time not recorded (SEED-239 examples
 // 2 and 7).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -22,24 +22,24 @@ import {
   expectInFull,
   expectLeadingEvidenceLabels,
   labelWords,
-} from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   adapterProject,
   openAdapterProof,
   passed,
   testsSummary,
   uuid,
-} from "../../dashboard/tests/intentCiAdapterProofProject.ts";
+} from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 import { measureHistoryTitleWords } from "../../dashboard/src/ciHistoryMeasureCapability.ts";
 import {
   buildHistoryReading,
   historyOf,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { proofOf } from "../../dashboard/tests/intentCiProofPage.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { proofOf } from "../../dashboard/test-support/intentCiProofPage.ts";
 
-import { openDough } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
-import { running } from "../../dashboard/tests/intentCiStoryBoard.ts";
+import { openDough } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
+import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   login,
   mainRun,
@@ -47,8 +47,8 @@ import {
   signup,
   started,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const wallTime = "CI wall time 3 min";

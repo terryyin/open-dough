@@ -1,15 +1,15 @@
 // The disposable origin receives exactly the path changes a test publishes.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { execFile } from "node:child_process";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { publishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { publishedMainSourceArtifact } from "../../tests/support/publishedMainSource.ts";
-import { startRunArtifacts } from "../../tests/support/runArtifacts.ts";
+import { publishedMainSourceArtifact } from "../../test-support/support/publishedMainSource.ts";
+import { startRunArtifacts } from "../../test-support/support/runArtifacts.ts";
 
 const exec = promisify(execFile);
 

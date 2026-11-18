@@ -3,13 +3,16 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
   writeClaudeSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const sessionId = "claude-split";
 const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";

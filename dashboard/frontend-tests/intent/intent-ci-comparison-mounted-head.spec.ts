@@ -1,11 +1,11 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // The actual evidence owner follows a Taken story's newly observed trunk head.
 import {
   test,
   expect,
   mountComparison,
   updateComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a Taken comparison keeps the same observed tip and reads again once that tip changes", async ({

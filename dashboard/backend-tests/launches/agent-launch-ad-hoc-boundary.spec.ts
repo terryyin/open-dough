@@ -6,20 +6,20 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // as typed or with no prompt at all, and keeps the label as the record's
 // title. Refused requests start no `claude`. Story launches are
 // ./agent-launch-boundary.spec.ts. The synthetic `claude`
-// (../../tests/fixtures/fake-claude) records every call.
+// (../../test-support/fixtures/fake-claude) records every call.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launch,
   launchRequest,
   machineSessions,
   openDoughFolder,
-} from "../../tests/agentLaunchBoundary.ts";
-import { claudeLaunch } from "../../tests/support/claudeLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { claudeLaunch } from "../../test-support/support/claudeLaunch.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;

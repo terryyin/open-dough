@@ -5,7 +5,7 @@
 // Start with the line of what Start does always in view. With Automatically
 // land chosen in either workspace, whose lines are the longest, and Command
 // details open, nothing scrolls sideways and every control is reachable at
-// 320 CSS pixels and at 200% zoom (../../tests/accessibleReading.ts's
+// 320 CSS pixels and at 200% zoom (../../test-support/accessibleReading.ts's
 // twiceZoomedWindow), where the choices of each group wrap under their legend
 // rather than widen the dialog. When the machine's read says the project's
 // installed skills establish a session, every choice is offered; without it
@@ -13,26 +13,26 @@
 // session is ../../../e2e/launches/agent-launch-ad-hoc.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
+import { twiceZoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
 import {
   box,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   openDoughSource,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const lands =

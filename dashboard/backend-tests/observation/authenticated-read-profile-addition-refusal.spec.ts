@@ -4,18 +4,21 @@
 // profile path of a catalog project, never an arbitrary record, a traversal,
 // a moving ref, a branch, or another repository. What it answers is
 // ./authenticated-read-profile-addition.spec.ts; the shared harness is
-// ../../tests/support/dashboardServer.ts.
+// ../../test-support/support/dashboardServer.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 

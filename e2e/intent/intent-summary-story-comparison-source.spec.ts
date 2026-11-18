@@ -1,26 +1,29 @@
-import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
-import { expectFileComparisonRow } from "../../dashboard/tests/intentFileProofPage.ts";
+import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
+import { expectFileComparisonRow } from "../../dashboard/test-support/intentFileProofPage.ts";
 // A completed story's unchanged file reads Purpose from its landed revision,
 // excluding later inventory, while Proof keeps the compact build comparison.
 // Changed-file Purpose and Proof journeys live in
 // ../../dashboard/frontend-tests/intent/intent-summary-story-comparison-file.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   fileReadingTab,
   proofRegion,
   purposeRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expectProofRowCues } from "../../dashboard/tests/support/expectCiComparisonCues.ts";
-import { publishSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { expectProofRowCues } from "../../dashboard/test-support/support/expectCiComparisonCues.ts";
+import { publishSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
 import {
   intentFile,
   intentDiffReading,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { selectDoneStoryForChangedTests } from "../../dashboard/tests/support/selectDoneStoryForSummaryComparison.ts";
-import { unchangedFileRow } from "../../dashboard/tests/support/summaryComparisonFileExpectedRows.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { selectDoneStoryForChangedTests } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { unchangedFileRow } from "../../dashboard/test-support/support/summaryComparisonFileExpectedRows.ts";
 
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a done story's unchanged file reads its landed source and compact Proof with ${variant ?? "clean merges"}`, async ({

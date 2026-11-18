@@ -12,32 +12,35 @@ import {
 import {
   completedReviewQuery,
   getReview,
-} from "../../dashboard/tests/support/completedReviewRequests.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expect, test } from "../../dashboard/tests/support/codexStart.ts";
+} from "../../dashboard/test-support/support/completedReviewRequests.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/codexStart.ts";
 import {
   chooseStoryTab,
   intentDiff,
   openReviewFromIntent,
   reviewDiff,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import {
   capturedPublicationSchema,
   scripts,
-} from "../../dashboard/tests/support/launchLanding.ts";
-import { selectDoneStoryInIntent } from "../../dashboard/tests/support/selectDoneStoryInIntent.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../dashboard/tests/support/storyBranchIntegration.ts";
+} from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import {
   commitAll,
   git,
   lines,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 

@@ -1,28 +1,28 @@
 // Older answers cannot replace the current row context or a saved review.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
 import {
   linked,
   openFrontendSelectionPage,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
-import { expectSessionReviewCue } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
+import { expectSessionReviewCue } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
-import { givePageItsTurns } from "../../tests/pageRequestNotes.ts";
+import { givePageItsTurns } from "../../test-support/pageRequestNotes.ts";
 import {
   chooseProject,
   expectProjectChoice,
-} from "../../tests/projectChoice.ts";
+} from "../../test-support/projectChoice.ts";
 import {
   doneCard,
   expectReviewed,
   markAsReviewed,
-} from "../../tests/doneStoryReviewPage.ts";
+} from "../../test-support/doneStoryReviewPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { showColumn } from "../../tests/boardPage.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 import {
   installFrontendCompletedStoryAssociation,
   installFrontendStoryReviewState,
-} from "../../tests/support/frontendServiceSubstitutes.ts";
+} from "../../test-support/support/frontendServiceSubstitutes.ts";
 
 test("pending local review evidence stays unknown and its pre-save answer cannot restore a cleared cue", async ({
   page,

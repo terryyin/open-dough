@@ -6,10 +6,10 @@
 // ./recently-done-review-state.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { doneStoryReview } from "../../tests/doneStoryReviewPage.ts";
-import { boardReviewRecords } from "../../tests/recentlyDoneReviewState.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+import { doneStoryReview } from "../../test-support/doneStoryReviewPage.ts";
+import { boardReviewRecords } from "../../test-support/recentlyDoneReviewState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 
 test("a card whose record could not be read offers Mark as reviewed", async ({
   page,

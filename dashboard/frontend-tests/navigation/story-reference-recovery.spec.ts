@@ -4,25 +4,28 @@
 // read failed; a retry after Story C is queued at a later revision reaches it.
 // Choosing another project or inspection while the retry is held wins.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
   shownProjectControl,
-} from "../../tests/projectChoice.ts";
-import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
-import { answerOwnPublications } from "../../tests/support/frontendCatalogProjects.ts";
-import { putFrontendRecoverableReference } from "../../tests/support/frontendStoryReferenceRecovery.ts";
-import { storyDetail } from "../../tests/storyCardSelection.ts";
-import { inspectionToggle, storyCard } from "../../tests/storyCardControls.ts";
+} from "../../test-support/projectChoice.ts";
+import { catalogPublications } from "../../test-support/catalogProjectRecords.ts";
+import { answerOwnPublications } from "../../test-support/support/frontendCatalogProjects.ts";
+import { putFrontendRecoverableReference } from "../../test-support/support/frontendStoryReferenceRecovery.ts";
+import { storyDetail } from "../../test-support/storyCardSelection.ts";
+import {
+  inspectionToggle,
+  storyCard,
+} from "../../test-support/storyCardControls.ts";
 import {
   followReference,
   openDependencies,
   referenceNotice,
   retryReference,
   storyReference,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 
 test.use({ hasTouch: true });
 

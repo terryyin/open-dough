@@ -5,24 +5,24 @@
 // still open; a session with a read `completed` report that comes to read
 // Ready for review is complete, so the question goes away and Mark as done is
 // back, marking it done in one click. The page reads again on becoming
-// visible (../../dashboard/tests/autoRefreshJourney.ts), so an open question or panel stays. Real
+// visible (../../dashboard/test-support/autoRefreshJourney.ts), so an open question or panel stays. Real
 // start, launch, installed reporting command, store and page; only the
 // synthetic `claude` and GitHub are fakes.
 
 import type { Locator, Page } from "@playwright/test";
-import { setPageVisibility } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   storyCardSessions,
   parts,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   doneQuestion,
   expectAsked,
@@ -31,20 +31,20 @@ import {
   markDone,
   stillWorking,
   waitingForInput,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   launchedStory,
   shortIdOf,
-} from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   queuedIdentity,
   type StartOrigin,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   publishOrigin,
   test,
-} from "../../dashboard/tests/support/startOriginTest.ts";
-import { markReportRead } from "../../dashboard/tests/support/sessionMessagePart.ts";
+} from "../../dashboard/test-support/support/startOriginTest.ts";
+import { markReportRead } from "../../dashboard/test-support/support/sessionMessagePart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 

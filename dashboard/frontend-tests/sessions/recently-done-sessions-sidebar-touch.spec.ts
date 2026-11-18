@@ -1,16 +1,16 @@
 // Coarse Session details for Done rows in Recently done sessions against a
 // controlled machine answer: completion identity, not launch age.
-import { tapWhereShown } from "../../tests/pageLayout.ts";
-import { browserLocaleString } from "../../tests/browserLocale.ts";
+import { tapWhereShown } from "../../test-support/pageLayout.ts";
+import { browserLocaleString } from "../../test-support/browserLocale.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { recentlyDoneParts } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+import { recentlyDoneParts } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   sessionsSidebarDetailsOf,
   sessionsSidebarElapsedOf,
-} from "../../tests/sessionsSidebarPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { openFrontendThreeProjects } from "../../test-support/support/frontendRecentlyDoneSidebar.ts";
 
 test.describe("touch Session details for Done entries", () => {
   const phone = phoneLaunchTouchViewport.portrait;

@@ -2,24 +2,24 @@ import {
   expect,
   test,
   openFrontendTakenBacklog,
-} from "../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../tests/support/frontendLaunchSubstitutes.ts";
-import { largeBacklog, queuedTitles } from "../tests/accessibleBoard.ts";
-import { expectSettledPage } from "../tests/dashboardPage.ts";
-import { readyStory } from "../tests/launchJourney.ts";
+} from "../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../test-support/support/frontendLaunchSubstitutes.ts";
+import { largeBacklog, queuedTitles } from "../test-support/accessibleBoard.ts";
+import { expectSettledPage } from "../test-support/dashboardPage.ts";
+import { readyStory } from "../test-support/launchJourney.ts";
 import {
   backlogLaunchers,
   expectNoLaunchDialog,
-} from "../tests/launchStoryCardPage.ts";
+} from "../test-support/launchStoryCardPage.ts";
 import {
   emptyArea,
   expectSelected,
   expectInspected,
   tapCardEmptyArea,
-} from "../tests/storyCardSelection.ts";
-import { boardView } from "../tests/boardView.ts";
-import { tapInspectStory } from "../tests/storyCardControls.ts";
-import { scrollByTouch } from "../tests/touchGestures.ts";
+} from "../test-support/storyCardSelection.ts";
+import { boardView } from "../test-support/boardView.ts";
+import { tapInspectStory } from "../test-support/storyCardControls.ts";
+import { scrollByTouch } from "../test-support/touchGestures.ts";
 
 test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 

@@ -4,9 +4,9 @@ import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../dashboard/server/usageHistory.ts";
-import { test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePage.ts";
+import { test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { visitUsage } from "../../dashboard/test-support/support/systemSettingsUsagePage.ts";
 
 test.use({ timezoneId: "America/New_York" });
 

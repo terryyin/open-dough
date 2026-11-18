@@ -1,5 +1,5 @@
 // Mark as done on a session its story's card lists, on the committed
-// story-columns origin (../../dashboard/tests/launchJourney.ts), through the
+// story-columns origin (../../dashboard/test-support/launchJourney.ts), through the
 // same page operation as the terminal's (./agent-terminal-done.spec.ts): on a
 // session Claude Code no longer lists, it leaves the card without being
 // stopped or attached, the rename fails as no longer running, and Recently
@@ -9,7 +9,7 @@
 // The page's own dashboard server drives the synthetic `claude`; the real one
 // is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -17,18 +17,18 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

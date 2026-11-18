@@ -4,7 +4,7 @@
 // judgment. Adapter attempts stay a distinct ListedRun field.
 
 /** Observed GitHub Actions run facts: the Actions listing answer shape. */
-/** @typedef {import("../../../dashboard/tests/support/baseCiActions.ts").CiRunAnswer} ObservedCiRun */
+/** @typedef {import("../../../dashboard/test-support/support/baseCiActions.ts").CiRunAnswer} ObservedCiRun */
 /** @typedef {import("../../../dashboard/server/baseCiNearest.ts").ListedRun} ListedRun */
 
 const incidentalCreatedAt = "2026-11-09T00:00:00.000Z";

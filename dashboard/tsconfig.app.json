@@ -8,5 +8,5 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src", "tests/comparison-mount"]
+  "include": ["src", "test-support/comparison-mount"]
 }

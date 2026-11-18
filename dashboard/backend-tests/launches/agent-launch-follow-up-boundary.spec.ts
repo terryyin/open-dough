@@ -1,5 +1,5 @@
 // A follow-up of a retained Done session over raw HTTP, with a real bare
-// origin (../../tests/support/startOrigin.ts) and the synthetic `claude`: the
+// origin (../../test-support/support/startOrigin.ts) and the synthetic `claude`: the
 // request names only its source, and the server resolves the context from the
 // kept record and sends it as its own first input block beside the request
 // and reporting context, keeping it on the request; the source record is
@@ -9,15 +9,15 @@
 
 import { realpathSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
   worktree,
-} from "../../tests/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/startSessionLanding.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,

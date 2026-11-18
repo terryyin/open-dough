@@ -10,35 +10,35 @@
 // are, and when each was done, is the done catalog published beside them; a
 // catalog that does not describe them is said with its `catalog-done` repair,
 // and only the records of the stories shown are read.
-// The fake GitHub only publishes the files ../../dashboard/tests/recentlyDoneRecords.ts
-// and ../../dashboard/tests/recentlyDoneReadFailures.ts declare and lists their directory; the
+// The fake GitHub only publishes the files ../../dashboard/test-support/recentlyDoneRecords.ts
+// and ../../dashboard/test-support/recentlyDoneReadFailures.ts declare and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
 // local read boundary, the shared done-record reader, and the page decide
 // everything shown. That a done card holds its story's sessions is
 // ../../dashboard/frontend-tests/sessions/recently-done-story-sessions.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   columnCountOf,
   expectMembership,
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishFiles,
   type ObservedRequest,
-} from "../../dashboard/tests/publishedOrigin.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { doneStories } from "../../dashboard/tests/recentlyDoneRecords.ts";
-import { doneStoryReadFailures } from "../../dashboard/tests/recentlyDoneReadFailures.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import { doneStories } from "../../dashboard/test-support/recentlyDoneRecords.ts";
+import { doneStoryReadFailures } from "../../dashboard/test-support/recentlyDoneReadFailures.ts";
 import { hostDescriptions } from "../../dashboard/src/hostDescription.ts";
 import {
   adHocEntry,
   expectEntries,
   sessionsOutsideDoneStories,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
 
 // The card's scan line: agent, developer, and the host's name, when recorded.
 function recordedCredit(story: {

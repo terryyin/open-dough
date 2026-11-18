@@ -1,11 +1,11 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A story's card lists its unclosed sessions in every column origin shows it,
 // beside Start actions that stay disabled, through reloads. A story in no list
 // keeps its open sessions in local Taken; Mark as done retains one in Recently
 // done. Start availability after Mark as done or Delete record is
 // ../launches/agent-launch-story-card-open-session.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -14,31 +14,31 @@ import {
   sessionEntryShowing,
   sessionIdLineOf,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expectSessionEntrySetOff } from "../../dashboard/tests/pageColours.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectSessionEntrySetOff } from "../../dashboard/test-support/pageColours.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectStartsBlocked,
   launchOnEachQueuedCard,
   describedBy,
   queuedStories as queued,
-} from "../../dashboard/tests/storyCardSessionListing.ts";
+} from "../../dashboard/test-support/storyCardSessionListing.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalFromEntry,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 
 // What every blocked Start says while its card has an open session.
 const openSessionNote =

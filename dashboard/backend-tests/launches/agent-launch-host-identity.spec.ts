@@ -7,8 +7,8 @@ import path from "node:path";
 import {
   expectUnchangedMachineRecords,
   snapshotMachineRecords,
-} from "../../tests/support/machineRecordNames.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
+} from "../../test-support/support/machineRecordNames.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   deleteRecord,
@@ -16,15 +16,15 @@ import {
   markDone,
   recordsOf,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { openCodexTerminal } from "../../tests/support/codexTerminal.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { openCodexTerminal } from "../../test-support/support/codexTerminal.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   keptLaunchStore,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 
 const sessionId = "same-native-conversation-id";
 

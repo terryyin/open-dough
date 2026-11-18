@@ -15,7 +15,7 @@ import { ciProofSchema } from "../../../dashboard/src/ciProof.ts";
 import {
   zipOf,
   proofSummaryForEntries,
-} from "../../../dashboard/tests/support/ciProofArtifacts.ts";
+} from "../../../dashboard/test-support/support/ciProofArtifacts.ts";
 import { makeMe } from "./makeMe.mjs";
 import { onlyZipEntry } from "../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs";
 import { checkedRetainedSummary } from "../../src/skills/dough-test-optimization/scripts/ci-proof-check.mjs";

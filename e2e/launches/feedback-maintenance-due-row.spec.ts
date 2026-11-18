@@ -12,15 +12,15 @@
 // except where a quiet report must be shown before the next check.
 
 import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
-import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { publishMovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
-import { dayFromToday } from "../../dashboard/tests/support/feedbackMaintenanceDue.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   invocation,
@@ -31,15 +31,15 @@ import {
   turnOn,
   watchListDue,
   watchListReads,
-} from "../../dashboard/tests/support/feedbackMaintenanceServer.ts";
-import { reportingThrough } from "../../dashboard/tests/support/reportedLaunch.ts";
-import { startOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/feedbackMaintenanceServer.ts";
+import { reportingThrough } from "../../dashboard/test-support/support/reportedLaunch.ts";
+import { startOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   row,
   settingsLine,
   openDashboard,
   openSettings,
-} from "../../dashboard/tests/feedbackMaintenanceDuePage.ts";
+} from "../../dashboard/test-support/feedbackMaintenanceDuePage.ts";
 
 test("the row says running while the automatic session is open and, once it ends without the date advancing, that it is still due; a developer's Start session with the invocation runs, and an advanced date clears both lines", async ({
   page,

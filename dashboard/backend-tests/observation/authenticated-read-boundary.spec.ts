@@ -22,30 +22,30 @@
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
 // -- in ./authenticated-read-subprocess-lifecycle.spec.ts; reads on a story
 // branch in ./authenticated-branch-read-boundary.spec.ts. All share this
-// suite's harness (../../tests/support/dashboardServer.ts).
+// suite's harness (../../test-support/support/dashboardServer.ts).
 //
 // This spec's servers are separate processes, each with its own PATH and its
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
 // journeys' own servers.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
   failsWith,
   publishes,
-} from "../../tests/support/fakeGitHub.ts";
-import { notLoggedIn } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { notLoggedIn } from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   describedRevision,
   withBacklogFallback,
-} from "../../tests/describedRevisions.ts";
+} from "../../test-support/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -158,6 +158,55 @@ test.describe("authenticated read boundary (development environment)", () => {
         "-H",
         "Accept: application/vnd.github.raw",
         `repos/${knownRepository}/contents/.planning/seeds/SEED-boundary.md?ref=${revision}`,
+      ],
+    ]);
+  });
+
+  test("encodes the space in a canonical path when asking GitHub for that record alone", async () => {
+    const revision = "ef".repeat(20);
+    const recordPath = "docs/release notes/2026.md";
+    const recordText = "# Release notes for 2026\n";
+    const story = makeMe.aBacklogEntry
+      .with({
+        title: "Read the release notes",
+        identity: "SEED-boundary#release-notes",
+        href: "/docs/release%20notes/2026.md",
+      })
+      .please();
+    const published = describedRevision(
+      makeMe.aRepository
+        .withRevision("release-notes", {
+          backlog: { queued: [story] },
+          files: { [recordPath]: recordText },
+        })
+        .please(),
+      revision,
+    );
+    server.github.serve(everyRepository, publishes(published));
+    const membership = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      headers: { Origin: server.origin },
+    });
+    expect(membership.status).toBe(200);
+
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(recordPath)}`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({
+      revision,
+      path: recordPath,
+      text: recordText,
+    });
+    expect(server.ghCalls().slice(callsBefore)).toEqual([
+      [
+        "api",
+        "--include",
+        "-H",
+        "Accept: application/vnd.github.raw",
+        `repos/${knownRepository}/contents/docs/release%20notes/2026.md?ref=${revision}`,
       ],
     ]);
   });

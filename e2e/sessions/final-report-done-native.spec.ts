@@ -4,39 +4,38 @@ import {
   closeSidePanel,
   control,
   expectTitleOnOneCutLine,
-} from "../../dashboard/tests/sidePanelFrame.ts";
-// Retained unfinished reports use the real page/store/native boundary. The
-// vendor fixture supplies history only; coordinates and finger strokes prove access.
+} from "../../dashboard/test-support/sidePanelFrame.ts";
+// The vendor fixture supplies history; touch exercises the real page and store.
 import { existsSync } from "node:fs";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   report,
   passive,
-} from "../../dashboard/tests/support/retainedReport.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
 import {
   openUnfinishedReport,
   title,
   sessionId,
-} from "../../dashboard/tests/support/reportTouchJourney.ts";
+} from "../../dashboard/test-support/support/reportTouchJourney.ts";
 import {
   readReportByTouch,
   reportGeometry,
-} from "../../dashboard/tests/support/reportTouchPage.ts";
+} from "../../dashboard/test-support/support/reportTouchPage.ts";
 import {
   expectTopBarsShareHeight,
   tapWhereShown,
   pressWhereShown,
-} from "../../dashboard/tests/pageLayout.ts";
-import { resizeUntilArranged } from "../../dashboard/tests/sidePanelWidthPage.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
+import { resizeUntilArranged } from "../../dashboard/test-support/sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -74,9 +73,8 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         underlying,
         reading,
       } = await openUnfinishedReport(page, dashboard, codexProtocol, journey);
-      await expect(
-        panel.getByRole("heading", { name: title }),
-      ).toHaveAccessibleName(title);
+      const reportHeading = panel.getByRole("heading", { name: title });
+      await expect(reportHeading).toHaveAccessibleName(title);
       await expect(sessionName).toHaveText(/ session$/);
       await expect(shownSessionId).toHaveCount(0);
       await resizeUntilArranged(panel, { width: 390, height });
@@ -108,9 +106,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       ]) {
         await resizeUntilArranged(panel, view);
         await expect(question).toHaveCount(1);
-        await expect(
-          panel.getByRole("heading", { name: title }),
-        ).toHaveAccessibleName(title);
+        await expect(reportHeading).toHaveAccessibleName(title);
         await expect(shownSessionId).toHaveCount(0);
         await readReportByTouch(panel, question.getByRole("paragraph").first());
         for (const answer of [markAnyway, keep]) {

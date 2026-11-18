@@ -6,13 +6,13 @@
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import {
   terminalThemeFile,
   themeChoice,
-} from "../../dashboard/tests/support/terminalThemeSettingsPage.ts";
+} from "../../dashboard/test-support/support/terminalThemeSettingsPage.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

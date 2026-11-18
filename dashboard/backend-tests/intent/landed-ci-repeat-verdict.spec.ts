@@ -2,13 +2,16 @@
 // requests, without a receipt journey. Raw conclusion fields are exact
 // provider input under test, not supplied outcomes.
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   rerunRuns,
   saveRepeatRequests,
   savedRepeatComparison,
   savedRepeatRequest,
-} from "../../tests/support/ciFollowUpSavedRequests.ts";
+} from "../../test-support/support/ciFollowUpSavedRequests.ts";
 
 test.use({ serverMode: "boundary" });
 

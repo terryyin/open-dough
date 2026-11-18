@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // The page's terminal shows the terminal theme chosen in System settings
 // (../configuration/system-settings-terminal-theme.spec.ts covers choosing and keeping it).
 // With no saved choice it shows today's white on black. A choice made in
@@ -6,31 +6,31 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // its earlier output and without re-attaching; the next attachment, also
 // after a reload, starts in it; Light leaves no black edge around it; and
 // Default restores today's colours. Each test's dashboard runs in its own
-// temporary HOME (../../dashboard/tests/support/dashboardServer.ts), so the saved theme never
+// temporary HOME (../../dashboard/test-support/support/dashboardServer.ts), so the saved theme never
 // leaves it. The synthetic `claude` (./fixtures/fake-claude) echoes what is
 // typed; the real one is never reached.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   back,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   computedPalettes,
   themeChoice,
   type ComputedPalette,
-} from "../../dashboard/tests/support/terminalThemeSettingsPage.ts";
+} from "../../dashboard/test-support/support/terminalThemeSettingsPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

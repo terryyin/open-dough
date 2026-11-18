@@ -1,24 +1,24 @@
 // A page outliving its dashboard process: one preview-mode page is reloaded
-// across a restart on the same machine (../../dashboard/tests/responsiveRecovery.ts), and shows
+// across a restart on the same machine (../../dashboard/test-support/responsiveRecovery.ts), and shows
 // the same cards, retrieved anew, from answers the first process retained
 // (../../dashboard/server/retainedAnswers.ts) after asking GitHub only for the configured
-// ref and the recorded story branch head (../../dashboard/tests/retainedAnswersJourney.ts).
+// ref and the recorded story branch head (../../dashboard/test-support/retainedAnswersJourney.ts).
 
 import {
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { restart } from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { restart } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   backlogPath,
   named,
-} from "../../dashboard/tests/revisionReuseOrigin.ts";
-import { described } from "../../dashboard/tests/revisionReuseCalls.ts";
+} from "../../dashboard/test-support/revisionReuseOrigin.ts";
+import { described } from "../../dashboard/test-support/revisionReuseCalls.ts";
 import {
   expect,
   published,
   test,
-} from "../../dashboard/tests/retainedAnswersJourney.ts";
+} from "../../dashboard/test-support/retainedAnswersJourney.ts";
 
 test.describe("a page outliving its dashboard process (preview launch mode)", () => {
   test("a reload after a restart on the same machine shows the same cards, retrieved anew, asking only the ref and the branch head", async ({

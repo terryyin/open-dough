@@ -8,28 +8,31 @@ import {
   expect,
   takenStoryCard,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { keepTakenReviewLaunch } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { installFrontendStoryReview } from "../../tests/support/frontendStoryReview.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
-import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
-import { expectRoute } from "../../tests/agentRosterRecords.ts";
-import { storyUrl } from "../../tests/notificationStoryJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { keepTakenReviewLaunch } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
+import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
+import { expectRoute } from "../../test-support/agentRosterRecords.ts";
+import { storyUrl } from "../../test-support/notificationStoryJourney.ts";
 import {
   inspectionToggle,
   reviewChanges,
-} from "../../tests/storyCardControls.ts";
-import { parts } from "../../tests/dashboardParts.ts";
-import { back, settings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/storyCardControls.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
+import {
+  back,
+  settings,
+} from "../../test-support/support/systemSettingsPage.ts";
 import {
   expectInspected,
   expectSelected,
-} from "../../tests/storyCardSelection.ts";
+} from "../../test-support/storyCardSelection.ts";
 import {
   expectCueEnds,
   expectDestinationCue,
-} from "../../tests/destinationCue.ts";
-import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/destinationCue.ts";
+import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
 
 test("asking again for the selected, inspected and reviewed destination cues it again and keeps its Highlight, detail and review", async ({
   page,

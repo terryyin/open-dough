@@ -1,20 +1,20 @@
-// The published backlog the source-navigation journey opens: one entry for
-// each recorded-link shape (./navigation/source-navigation.spec.ts), and how the journey
-// finds its cards, their link destinations, and what the page and the local
-// `gh` were asked for.
+// A published backlog with each recorded-link shape and the page objects
+// the Frontend journeys use to inspect and follow its source links.
 
 import type { Locator, Page } from "@playwright/test";
-import { expectProjectChoice, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./storyCardControls.ts";
-import { expect, githubFor } from "./dashboardTest.ts";
-import { describedBacklog } from "./describedRevisions.ts";
+import { expect } from "@playwright/test";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  commitAnswer,
-  publishOrigin,
-  rawFileAnswer,
-} from "./publishedOrigin.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
-import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+  expectProjectChoice,
+  expectSettledPage,
+  parts,
+} from "../dashboardPage.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { hideDetail, inspectedDetail } from "../storyCardControls.ts";
+import {
+  putFrontendBacklog,
+  type FrontendServiceState,
+} from "./frontendServiceState.ts";
 
 export const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
 export const snapshotRoot = `/terryyin/open-dough/blob/${revision}`;
@@ -64,7 +64,7 @@ const linkedBacklog = describedBacklog(
         queued: [
           linked(
             "Follow a record kept outside the planning directory",
-            "./seeds/../../docs/adrs/0001-ubiquitous-language-accepted.md#decision",
+            "../docs/adrs/0001-ubiquitous-language-accepted.md#decision",
           ),
           linked(
             "Follow a record named from the repository root",
@@ -97,30 +97,27 @@ const linkedBacklog = describedBacklog(
     .please(),
 );
 
-export async function openDashboard(page: Page) {
-  const requested: string[] = [];
+export async function openDashboard(
+  page: Page,
+  services: FrontendServiceState,
+) {
+  const requested: URL[] = [];
   page.on("request", (request) => {
-    requested.push(request.url());
+    requested.push(new URL(request.url()));
   });
-  // What the page asked of anywhere but its own dashboard server.
-  const leftTheServer = () =>
-    requested.filter(
-      (url) => new URL(url).origin !== new URL(page.url()).origin,
-    );
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(linkedBacklog) },
-  });
-  await openUntilRead(page);
+  putFrontendBacklog(services, { revision, backlog: linkedBacklog });
+  await page.goto("/");
+  await expectSettledPage(page);
+  const origin = new URL(page.url()).origin;
   const { board } = parts(page);
   await expect(board.getByRole("article")).toHaveCount(11);
-  // Every GitHub endpoint the local `gh` was asked for, as GitHub sees it.
-  const github = githubFor(page);
-  const askedOfGitHub = () =>
-    github.calls.map(
-      ({ argv }) => `/${argv.find((arg) => arg.startsWith("repos/")) ?? ""}`,
-    );
-  return { board, leftTheServer, askedOfGitHub };
+  return {
+    board,
+    requestedPaths: () =>
+      requested.flatMap((url) => url.searchParams.getAll("path")),
+    outsideDashboard: () =>
+      requested.filter((url) => url.origin !== origin).map((url) => url.href),
+  };
 }
 
 export function card(board: Locator, title: string | RegExp): Locator {
@@ -131,12 +128,22 @@ export function card(board: Locator, title: string | RegExp): Locator {
 // Inspect story reveals them, from the snapshot already read, in its detail,
 // read from the closed card even when its detail is already open.
 export async function inspectedSources(story: Locator): Promise<Locator> {
-  const hide = story.getByRole("button", { name: "Hide detail" });
-  if ((await hide.count()) > 0) await hide.click();
+  if ((await story.getByRole("button", { name: "Hide detail" }).count()) > 0) {
+    await hideDetail(story);
+  }
   await expect(story.getByRole("link")).toHaveCount(0);
   return (await inspectedDetail(story)).getByRole("list", {
     name: "Pinned source links",
   });
+}
+
+export async function clickRefusedTargets(
+  sources: Locator,
+  recordedTargets: readonly string[],
+) {
+  for (const target of recordedTargets) {
+    await sources.getByText(target).click();
+  }
 }
 
 // Each card's source links in turn, each read in its own detail, which is
@@ -147,7 +154,7 @@ export async function forEachStoryCardsSources(
 ) {
   for (const each of await board.getByRole("article").all()) {
     await read(await inspectedSources(each));
-    await each.getByRole("button", { name: "Hide detail" }).click();
+    await hideDetail(each);
   }
 }
 

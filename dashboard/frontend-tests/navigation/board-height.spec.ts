@@ -13,16 +13,19 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { hideDetail, inspectedDetail } from "../../tests/storyCardControls.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+} from "../../test-support/storyCardControls.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openDoughSource,
   putFrontendDoneRecords,
   putFrontendPublished,
   type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
-import { holdAnswer } from "../../tests/support/frontendSubstituteAnswers.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
+} from "../../test-support/support/frontendServiceState.ts";
+import { holdAnswer } from "../../test-support/support/frontendSubstituteAnswers.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
 import {
   expectEndsWithShown,
   expectLongerThanTheBoard,
@@ -31,20 +34,20 @@ import {
   rem,
   showColumn,
   wheelTo,
-} from "../../tests/boardPage.ts";
+} from "../../test-support/boardPage.ts";
 import {
   expectAtBoardBottom,
   expectPagingControlInSight,
-} from "../../tests/boardReading.ts";
-import { takenBacklogStories } from "../../tests/launchStoryCardPage.ts";
-import { revealAction } from "../../tests/recentlyDoneColumn.ts";
+} from "../../test-support/boardReading.ts";
+import { takenBacklogStories } from "../../test-support/launchStoryCardPage.ts";
+import { revealAction } from "../../test-support/recentlyDoneColumn.ts";
 import {
   at,
   publishedFiles,
   queuedTitle as inspectedTitle,
   revision,
   workspaceEntry,
-} from "../../tests/recentlyDoneRecords.ts";
+} from "../../test-support/recentlyDoneRecords.ts";
 
 const doneTitle = (place: number) => `Done work number ${place} is closed`;
 

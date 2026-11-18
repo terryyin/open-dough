@@ -7,14 +7,18 @@ import {
   launch,
   markDone,
   refinementRequest,
-} from "../../tests/agentLaunchBoundary.ts";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   observed,
   sessionsRequest,
-} from "../../tests/support/codexObservation.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/codexObservation.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

@@ -7,20 +7,20 @@
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { accept, launch } from "../../tests/agentLaunchBoundary.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
+import { accept, launch } from "../../test-support/agentLaunchBoundary.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
 import {
   fileFactsOf,
   publishedReviewOf,
   serveDoneAtTrunk,
-} from "../../tests/support/followUpCompletedFile.ts";
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { storyALaunch } from "../../tests/support/storyLaunchRecord.ts";
-import { doneStoryFiles } from "../../tests/support/followUpStories.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
+} from "../../test-support/support/followUpCompletedFile.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { storyALaunch } from "../../test-support/support/storyLaunchRecord.ts";
+import { doneStoryFiles } from "../../test-support/support/followUpStories.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { answerOf, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });

@@ -11,16 +11,16 @@ import {
   expect,
   githubFor,
   test as base,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
   shortRevision,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   passPageMs,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectLostFreshnessProblem,
   expectStreamOpenGapsAtLeastPace,
@@ -30,28 +30,28 @@ import {
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
-} from "../../dashboard/tests/revisionStreamJourney.ts";
+} from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
   backlogB,
   revisionA,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { openedSettled } from "../../dashboard/tests/branchRefreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
 import {
   onBranch,
   revision,
-} from "../../dashboard/tests/branchProgressRecords.ts";
+} from "../../dashboard/test-support/branchProgressRecords.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import type { FakeGitHub } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { signal } from "../../dashboard/tests/support/processGroup.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import type { FakeGitHub } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { signal } from "../../dashboard/test-support/support/processGroup.ts";
 
 const test = base.extend<{
   machine: string;

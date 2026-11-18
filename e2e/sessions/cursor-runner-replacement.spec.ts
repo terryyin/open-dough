@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Sessions a replaced runner held: observation of a stale-proof runner
 // starts or replaces nothing, a third launch replaces it when recorded
 // build proof differs, and unfinished sessions that runner last held are
@@ -14,49 +14,49 @@ import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/run
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   holdSession,
   showPageWithTaken,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
 import {
   expectContinuationThroughScope,
   recordedScope,
-} from "../../dashboard/tests/support/cursorScopeAssertions.ts";
-import { makeRecordedRunnerProofStale } from "../../dashboard/tests/support/cursorRunnerRecordedAddress.ts";
+} from "../../dashboard/test-support/support/cursorScopeAssertions.ts";
+import { makeRecordedRunnerProofStale } from "../../dashboard/test-support/support/cursorRunnerRecordedAddress.ts";
 import {
   expectNotAgentNotRunning,
   secondSessionId,
   thirdSessionId,
-} from "../../dashboard/tests/support/cursorRunnerReplacement.ts";
+} from "../../dashboard/test-support/support/cursorRunnerReplacement.ts";
 import {
   agentCalls,
   cursorRecord,
   projectedSessions,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   keptRecords,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
 import {
   expect,
   test,
   workingCursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { openHeldCursorExecutions } from "../../dashboard/tests/support/heldCursorExecutions.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { openHeldCursorExecutions } from "../../dashboard/test-support/support/heldCursorExecutions.ts";
 import {
   closeSessionDetails,
   sessionDetails,
-} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+} from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 
 workingCursorTest(
   "a stale-proof runner is read and joined for its held session, and observation starts or replaces nothing",

@@ -4,23 +4,23 @@
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   copyClipboardPng,
   phonePasteJourney,
   test,
-} from "../../dashboard/tests/terminalPastePage.ts";
-import { terminalStatus } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalPastePage.ts";
+import { terminalStatus } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   focusByTouch,
   tapTerminalKey,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 import { sessionAttachmentEndpoint } from "../../dashboard/src/agentTerminal.ts";
 import { launchAttachmentNameHeader } from "../../dashboard/src/launchAttachments.ts";
 import {
   pngA,
   pngB,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 
 const openPasteTerminal = phonePasteJourney();
 

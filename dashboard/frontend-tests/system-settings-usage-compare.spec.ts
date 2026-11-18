@@ -10,11 +10,11 @@ import {
   type TokenIndexAnswer,
   type UsageTool,
 } from "../src/usageTokenIndex.ts";
-import { narrowWindow } from "../tests/accessibleReading.ts";
-import { expect } from "../tests/dashboardTest.ts";
-import { test } from "../tests/support/frontendApp.ts";
-import { usageChart } from "../tests/support/usageChartPage.ts";
-import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
+import { narrowWindow } from "../test-support/accessibleReading.ts";
+import { expect } from "../test-support/dashboardTest.ts";
+import { test } from "../test-support/support/frontendApp.ts";
+import { usageChart } from "../test-support/support/usageChartPage.ts";
+import { visitUsage } from "../test-support/support/systemSettingsUsagePage.ts";
 import type { Page } from "@playwright/test";
 
 const at = (date: number, hour = 12) =>

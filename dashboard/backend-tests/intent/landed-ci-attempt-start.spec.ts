@@ -2,22 +2,25 @@
 // a newer rerun is listed; local history reads never acquire that evidence.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
   restartAsLandedCiReader,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   landedTrunk,
   recordedOnTrunk,
   trunkActions,
   trunkRun,
   usableProofOf,
-} from "../../tests/support/landedCiTrunk.ts";
-import { actionsRunsAnswer } from "../../tests/support/baseCiActions.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { notFoundAnswer } from "../../tests/originAnswers.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { actionsRunsAnswer } from "../../test-support/support/baseCiActions.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { notFoundAnswer } from "../../test-support/originAnswers.ts";
 
 // No page is opened during acquisition.
 test.use({ serverMode: "boundary" });

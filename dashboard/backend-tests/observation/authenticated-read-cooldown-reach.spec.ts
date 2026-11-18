@@ -1,7 +1,7 @@
 // What a rate limit GitHub directed reaches beyond reads of its own server
 // process (github-request-admission.mjs), and what starts no wait, at the local
 // authenticated read boundary over real HTTP with the synthetic `gh`
-// (../../tests/support/sharedReads.ts publishes the revision): a rate-limited setting
+// (../../test-support/support/sharedReads.ts publishes the revision): a rate-limited setting
 // file fails its read with the limit rather than being taken as absent; a
 // project added while the wait stands is held back like a read; and an unmarked
 // `403`, a `404`, a timeout, and an unreachable GitHub hold back nothing. How
@@ -10,31 +10,31 @@
 // ./shared-request-owner.spec.ts; actual login isolation belongs to
 // ../../../Distribution/tests/skills/dough-execute-plan/github-request-login.test.mjs.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
   hangs,
   type RepositoryAnswerer,
-} from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
-import { onServerOfItsOwn } from "../../tests/support/directedWait.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
+import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
 import {
   heldBackPattern,
   servedRefusing,
   timedRead,
-} from "../../tests/support/heldBackReads.ts";
-import { projectAddMachine } from "../../tests/support/projectAddMachine.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/heldBackReads.ts";
+import { projectAddMachine } from "../../test-support/support/projectAddMachine.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   noConnection,
   notFoundAnswer,
   rateLimitedAnswer,
-} from "../../tests/originAnswers.ts";
+} from "../../test-support/originAnswers.ts";
 import {
   askedSince,
   readAt,
@@ -42,7 +42,7 @@ import {
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 import { agentSettingsPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const revision = "c3".repeat(20);

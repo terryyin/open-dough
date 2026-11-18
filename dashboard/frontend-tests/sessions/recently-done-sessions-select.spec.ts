@@ -1,33 +1,36 @@
 // Choosing a Recently done sessions row selects without opening; Open uses a
 // terminal substitute. Real attach and reopen leave Recently done in
 // ../../../../e2e/sessions/recently-done-sessions-select-open.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
-import { box } from "../../tests/pageLayout.ts";
-import { showColumn } from "../../tests/boardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
+import { box } from "../../test-support/pageLayout.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 import {
   closeTerminal,
   terminalPanel,
-} from "../../tests/terminalScreenPage.ts";
-import { takenStory } from "../../tests/launchJourney.ts";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
+} from "../../test-support/terminalScreenPage.ts";
+import { takenStory } from "../../test-support/launchJourney.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
 import {
   chooseStoryTab,
   intentFile,
   storyTitle,
-} from "../../tests/support/intentStoryPage.ts";
-import { expandIntentGroup } from "../../tests/intentPerspectivePage.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { finalReportParts } from "../../tests/finalReportPages.ts";
-import { pygardonCatalogRead } from "../../tests/pygardonCatalogReads.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { expandIntentGroup } from "../../test-support/intentPerspectivePage.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { finalReportParts } from "../../test-support/finalReportPages.ts";
+import { pygardonCatalogRead } from "../../test-support/pygardonCatalogReads.ts";
 import {
   adHoc,
   linked,
   openFrontendSelectionPage,
   report,
   takenElsewhere,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
 
 const readSpec = "dashboard/tests/example.spec.ts";
 

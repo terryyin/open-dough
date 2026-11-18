@@ -1,30 +1,33 @@
 // Integration conflicts follow the same file through renames on both sides
 // of that integration, preserving the selected range's original old path.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
-import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { chooseCommit } from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   worktreeWithStoryCommits,
   sixth,
-} from "../../dashboard/tests/support/storyReviewTrunk.ts";
+} from "../../dashboard/test-support/support/storyReviewTrunk.ts";
 import {
   commitAll,
   git,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   expectTreeRows,
   changedFilesList,
   listedFile,
   fileLineCounts,
   fileDiff,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 
 test("a file renamed before and after conflicted integration stays flagged with its original old path and diff", async ({
   page,

@@ -3,17 +3,17 @@
 // to the view it was opened from with focus, and browser history keeps the
 // selected project. The settings facts endpoint's own answer and refusals are
 // ../../../e2e/configuration/system-settings-client-configuration.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
 import {
   back,
   projectRow,
   settings,
-} from "../../tests/support/systemSettingsPage.ts";
-import { expectFrameIconControl } from "../../tests/frameIconControl.ts";
+} from "../../test-support/support/systemSettingsPage.ts";
+import { expectFrameIconControl } from "../../test-support/frameIconControl.ts";
 
 test("global settings has narrow local facts, returns to roster with focus, and browser back/forward keeps project selection", async ({
   page,

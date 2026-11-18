@@ -1,18 +1,21 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Unique connection: real completed Trunk acquisition and the timing panel
 // reject an available later build. Fast selection/memory and production gap
 // rendering own their rules independently; this one read joins those owners.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   completedPublishedStory,
   advanceCompletedTrunk,
-} from "../../dashboard/tests/support/completedPublishedStory.ts";
-import { serveActionsFor } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
+} from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { serveActionsFor } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 
 test("a completed Trunk comparison shows No build without selecting the available later trunk build", async ({
   page,

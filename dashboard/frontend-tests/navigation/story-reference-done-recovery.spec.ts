@@ -5,15 +5,21 @@
 // catalog heals.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   columnCountOf,
   parts,
   shortRevision,
-} from "../../tests/dashboardParts.ts";
-import { expectEntries, shownEntries } from "../../tests/recentlyDoneColumn.ts";
-import { inspectionToggle, storyCard } from "../../tests/storyCardControls.ts";
-import { storyDetail } from "../../tests/storyCardSelection.ts";
+} from "../../test-support/dashboardParts.ts";
+import {
+  expectEntries,
+  shownEntries,
+} from "../../test-support/recentlyDoneColumn.ts";
+import {
+  inspectionToggle,
+  storyCard,
+} from "../../test-support/storyCardControls.ts";
+import { storyDetail } from "../../test-support/storyCardSelection.ts";
 import {
   dependencySummary,
   doneDestination,
@@ -22,17 +28,17 @@ import {
   referenceNotice,
   retryReference,
   storyReference,
-} from "../../tests/storyReference.ts";
-import { passTimeUntilChecked } from "../../tests/autoRefreshJourney.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { passTimeToRecovery } from "../../tests/transientRecoveryPage.ts";
-import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+} from "../../test-support/storyReference.ts";
+import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { passTimeToRecovery } from "../../test-support/transientRecoveryPage.ts";
+import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
 import {
   controlFrontendAuthenticatedRead,
   countAuthenticatedReads,
   isRevisionCheck,
-} from "../../tests/support/frontendAuthenticatedReadControl.ts";
+} from "../../test-support/support/frontendAuthenticatedReadControl.ts";
 import {
   donePathsWithSuppliersThrough,
   doneTitlesThrough,
@@ -41,12 +47,12 @@ import {
   putFrontendDoneReferences,
   putHealedFrontendDoneReferences,
   unlisted,
-} from "../../tests/support/frontendDoneReferences.ts";
+} from "../../test-support/support/frontendDoneReferences.ts";
 import {
   eachRecordOnce,
   recordDoneRecordsAsked,
-} from "../../tests/support/frontendDoneBodyReads.ts";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+} from "../../test-support/support/frontendDoneBodyReads.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
 
 test.use({ hasTouch: true });
 

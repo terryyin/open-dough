@@ -1,24 +1,31 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Actual HTTP/store launch decisions; the fixture only supplies native replies.
 import path from "node:path";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
-import { test as startTest } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { publishMovingOrigin } from "../../tests/publishedOrigin.ts";
-import { pushWatchList } from "../../tests/support/feedbackMaintenanceServer.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
+import { test as startTest } from "../../test-support/support/codexStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { publishMovingOrigin } from "../../test-support/publishedOrigin.ts";
+import { pushWatchList } from "../../test-support/support/feedbackMaintenanceServer.ts";
 import {
   authorizeFeedbackMaintenance,
   dayFromToday,
   dueWatchList,
-} from "../../tests/support/feedbackMaintenanceDue.ts";
-import type { FakeGitHub } from "../../tests/support/fakeGitHub.ts";
-import { dirty, status } from "../../tests/support/defaultCheckoutChanges.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
-import { launchWaitMs } from "../../tests/support/launchWait.ts";
+} from "../../test-support/support/feedbackMaintenanceDue.ts";
+import type { FakeGitHub } from "../../test-support/support/fakeGitHub.ts";
+import {
+  dirty,
+  status,
+} from "../../test-support/support/defaultCheckoutChanges.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+import { launchWaitMs } from "../../test-support/support/launchWait.ts";
 import {
   defaultMainSession,
   sessionBlock,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
@@ -65,7 +72,7 @@ test("HTTP text preserves exact bytes once; completed blank launches permit anot
   ).toHaveLength(1);
 });
 
-// With the real installed start (../../tests/support/codexStart.ts): existing changes
+// With the real installed start (../../test-support/support/codexStart.ts): existing changes
 // in default main are confirmed before anything is created, and a session
 // that lands automatically is handed its established session first.
 startTest(

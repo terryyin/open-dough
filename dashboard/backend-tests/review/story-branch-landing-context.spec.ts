@@ -1,25 +1,28 @@
 // A claimed Story Branch Mode execution launch carries the landing capture a
 // one-shot launch does (../../server/completionReporting.ts), over raw HTTP
 // against the real installed `execution-start.mjs` and a real bare origin
-// (../../tests/support/startOrigin.ts) with the synthetic `claude`: the kept record
+// (../../test-support/support/startOrigin.ts) with the synthetic `claude`: the kept record
 // names the landing context, the attempt holds the capture authority, and the
 // instruction's reporting block tells the session where to supply it.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { git } from "../../tests/support/launchLanding.ts";
-import { slug, startBoundary } from "../../tests/support/launchDashboard.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { git } from "../../test-support/support/launchLanding.ts";
+import {
+  slug,
+  startBoundary,
+} from "../../test-support/support/launchDashboard.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
-import { claimedStoryBranchLaunch } from "../../tests/support/storyBranchIntegration.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { claimedStoryBranchLaunch } from "../../test-support/support/storyBranchIntegration.ts";
 import {
   firstLandingExpectationPath,
   openFirstLandingExpectation,

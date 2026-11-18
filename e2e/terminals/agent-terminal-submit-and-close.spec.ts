@@ -6,7 +6,7 @@
 // session. The page's own dashboard server launches and attaches the synthetic
 // `claude` (./fixtures/fake-claude).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectTerminalText,
   focusTerminalInput,
@@ -15,31 +15,31 @@ import {
   terminalPanel,
   terminalScreenParts,
   terminalStatus,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   parts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { openTerminalControl } from "../../dashboard/tests/sessionEntryAccess.ts";
-import { watchCommandShortcut } from "../../dashboard/tests/pageShortcutsPage.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { noteTerminalTraffic } from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { openTerminalControl } from "../../dashboard/test-support/sessionEntryAccess.ts";
+import { watchCommandShortcut } from "../../dashboard/test-support/pageShortcutsPage.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { noteTerminalTraffic } from "../../dashboard/test-support/touchTerminalPage.ts";
 import {
   expectConfirmationUnavailable,
   sessionReadsOnPage,
   submitAndCloseKey,
-} from "../../dashboard/tests/submitAndCloseTerminalPage.ts";
+} from "../../dashboard/test-support/submitAndCloseTerminalPage.ts";
 import { submitAndCloseEnter } from "../../dashboard/src/submitAndCloseTerminal.ts";
 
 test.use({ projectFolders: ["open-dough"] });

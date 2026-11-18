@@ -1,23 +1,26 @@
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   getReview as get,
   completedStoryQuery as named,
   completedReviewQuery as completed,
-} from "../../tests/support/completedReviewRequests.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
 import {
   completedPublishedStory,
   keepUnusableCompletedCapture,
-} from "../../tests/support/completedPublishedStory.ts";
+} from "../../test-support/support/completedPublishedStory.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import { git, writeAt } from "../../tests/support/storyReviewWorktree.ts";
+import {
+  git,
+  writeAt,
+} from "../../test-support/support/storyReviewWorktree.ts";
 import {
   agentWorktree,
   claimWorktree,
-} from "../../tests/support/agentAuthoredWorktree.ts";
+} from "../../test-support/support/agentAuthoredWorktree.ts";
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 

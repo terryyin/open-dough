@@ -1,5 +1,5 @@
 // The same actual proof owner serves running, inactive and provisional contexts.
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciTargetOf } from "../../src/intentCiTarget.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";

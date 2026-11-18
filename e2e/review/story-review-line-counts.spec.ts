@@ -1,25 +1,28 @@
 // A story review's file browser shows how many lines each file's diff adds
-// and removes, of Story A's worktree (../../dashboard/tests/support/storyReviewWorktree.ts) with
+// and removes, of Story A's worktree (../../dashboard/test-support/support/storyReviewWorktree.ts) with
 // the merged trunk file's mode changed alone. Each counted file's row shows
 // its counts beside its name, and its control, still named by its kind and
 // path, is described by them in words. A file with no textual diff, the
 // image or the mode-only change, shows none, and a collapsed folder still
 // tells how many changed files it holds.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   treeFolder,
   fileLineCounts,
   changedFilesList,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openReview } from "../../dashboard/tests/support/reviewRead.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openReview } from "../../dashboard/test-support/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   changeModeOnly,
   storyWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test("each file's row shows the lines its diff adds and removes, in words to assistive technology", async ({
   page,

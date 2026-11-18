@@ -4,53 +4,53 @@
 import {
   test as voiceTest,
   expect,
-} from "../../dashboard/tests/support/voiceTest.ts";
-import { voiceBrowserOptions } from "../../dashboard/tests/support/voiceRecovery.ts";
+} from "../../dashboard/test-support/support/voiceTest.ts";
+import { voiceBrowserOptions } from "../../dashboard/test-support/support/voiceRecovery.ts";
 import {
   observeMicrophone,
   seedVoiceKey,
-} from "../../dashboard/tests/support/voicePage.ts";
+} from "../../dashboard/test-support/support/voicePage.ts";
 import {
   expectNoTerminalText,
   expectTerminalText,
   terminalPanel,
   terminalStatus,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   beginTerminalClip,
   expectNoUnsentTranscript,
   stopTerminalClip,
-} from "../../dashboard/tests/support/terminalVoicePage.ts";
+} from "../../dashboard/test-support/support/terminalVoicePage.ts";
 import {
   codexProtocol,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   codexAttaches,
   codexLines,
   codexTerminalMode,
-} from "../../dashboard/tests/support/codexTerminal.ts";
-import { pngA } from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
+} from "../../dashboard/test-support/support/codexTerminal.ts";
+import { pngA } from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 import {
   launch,
   refinementRequest,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   notRefinedIdentity,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { retainedDoneAt } from "../../dashboard/tests/machineLaunchRecords.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { retainedDoneAt } from "../../dashboard/test-support/machineLaunchRecords.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 import {
   copyClipboardText,
   copyClipboardPng,
-} from "../../dashboard/tests/terminalPastePage.ts";
+} from "../../dashboard/test-support/terminalPastePage.ts";
 import {
   focusByTouch,
   insertDraftButton,
@@ -58,7 +58,7 @@ import {
   openTerminalComposer,
   tapTerminalKey,
   terminalComposerDraft,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 const test = voiceTest.extend({ codexProtocol });
 

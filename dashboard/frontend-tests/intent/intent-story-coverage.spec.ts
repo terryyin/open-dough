@@ -1,4 +1,4 @@
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
 // Reports with incomplete evidence or no result reach the same Intent
 // coverage view as a Caught result (../../../e2e/intent/intent-story-completed.spec.ts),
 // from controlled published Done records. Real CLI completion is retained in
@@ -7,11 +7,11 @@ import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDon
 // say so apart, the failed read with the done record read's Retry
 // (../../src/doneDetails.ts). An active story's view:
 // ./intent-story-summary-title.spec.ts.
-import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
+import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
 import type { Locator } from "@playwright/test";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { chooseStoryTab } from "../../test-support/support/intentStoryPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 async function openCoverage(intent: Locator) {
   await chooseStoryTab(intent, "Intent coverage");

@@ -5,32 +5,35 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test as base } from "../../dashboard/tests/dashboardTest.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
+import {
+  expect,
+  test as base,
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalText,
   insertTerminalText,
   reconnectTerminal,
   terminalPanel,
   terminalStatus,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   noteTerminalTraffic,
   touchTerminal,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 const test = base.extend<{ machine: string }>({
   // Playwright's fixture API requires the empty destructuring pattern.

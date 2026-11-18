@@ -3,18 +3,21 @@ import { execFileSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch, accept } from "../../tests/agentLaunchBoundary.ts";
-import { oneShot } from "../../tests/support/oneShotLaunch.ts";
-import { requestFor } from "../../tests/support/launchDashboard.ts";
+import { test, expect, stored } from "../../test-support/support/codexStart.ts";
+import { launch, accept } from "../../test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../test-support/support/launchDashboard.ts";
 import {
   git,
   scripts,
   commit,
   capturedPublicationSchema,
-} from "../../tests/support/launchLanding.ts";
-import { keptAttempts, settledOutcome } from "../../tests/acceptedAttempts.ts";
-import { reportingChild } from "../../tests/support/completionRecovery.ts";
+} from "../../test-support/support/launchLanding.ts";
+import {
+  keptAttempts,
+  settledOutcome,
+} from "../../test-support/acceptedAttempts.ts";
+import { reportingChild } from "../../test-support/support/completionRecovery.ts";
 import {
   acceptanceSchema,
   launchResultSchema,

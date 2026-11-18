@@ -3,12 +3,12 @@
 // the near one in place, the far one by growing the range, asking only for
 // the shown records and the referenced suppliers.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
-import { expectEntries } from "../../tests/recentlyDoneColumn.ts";
-import { expectReadingTop } from "../../tests/readingPlace.ts";
-import { storyCard } from "../../tests/storyCardControls.ts";
-import { expectSelected } from "../../tests/storyCardSelection.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts, sessionEntriesIn } from "../../test-support/dashboardPage.ts";
+import { expectEntries } from "../../test-support/recentlyDoneColumn.ts";
+import { expectReadingTop } from "../../test-support/readingPlace.ts";
+import { storyCard } from "../../test-support/storyCardControls.ts";
+import { expectSelected } from "../../test-support/storyCardSelection.ts";
 import {
   dependencyDisclosure,
   dependencySummary,
@@ -17,16 +17,16 @@ import {
   openDependencies,
   referenceNotice,
   storyReference,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 import {
   passTimeUntilChecked,
   pausePageClock,
-} from "../../tests/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   expectCueEnds,
   expectDestinationCue,
-} from "../../tests/destinationCue.ts";
+} from "../../test-support/destinationCue.ts";
 import {
   donePathsThrough,
   donePathsWithSuppliersThrough,
@@ -36,15 +36,15 @@ import {
   nearDone,
   putFrontendDoneReferences,
   replacedStoryAAgreements,
-} from "../../tests/support/frontendDoneReferences.ts";
+} from "../../test-support/support/frontendDoneReferences.ts";
 import {
   eachRecordOnce,
   failDoneRecordReads,
   holdDoneRecordReads,
   recordDoneRecordsAsked,
-} from "../../tests/support/frontendDoneBodyReads.ts";
-import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+} from "../../test-support/support/frontendDoneBodyReads.ts";
+import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
 
 test.use({ hasTouch: true });
 

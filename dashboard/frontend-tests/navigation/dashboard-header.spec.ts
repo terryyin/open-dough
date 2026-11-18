@@ -9,46 +9,46 @@
 // reads on one line. Phone-width compact journeys are
 // ./dashboard-header-compact.spec.ts's.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { countProjectWorkReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { countProjectWorkReads } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   answerCatalogProjects,
   answerOwnPublications,
-} from "../../tests/support/frontendCatalogProjects.ts";
-import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
+} from "../../test-support/support/frontendCatalogProjects.ts";
+import { catalogPublications } from "../../test-support/catalogProjectRecords.ts";
 import {
   publishLargeBacklogWithRecords,
   queuedCount,
   queuedTitle,
-} from "../../tests/accessibleBoard.ts";
-import { zoomedWindow } from "../../tests/accessibleReading.ts";
+} from "../../test-support/accessibleBoard.ts";
+import { zoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   bannerStops,
   expectBannerRow,
   expectBelowBanner,
   expectPinnedShortBanner,
-} from "../../tests/bannerReading.ts";
+} from "../../test-support/bannerReading.ts";
 import {
   parts,
   expectCompactProjectSelect,
   expectProjectChoice,
   expectSettledPage,
   projectTab,
-} from "../../tests/dashboardPage.ts";
-import { expectFrameIconControl } from "../../tests/frameIconControl.ts";
+} from "../../test-support/dashboardPage.ts";
+import { expectFrameIconControl } from "../../test-support/frameIconControl.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import { settings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/pageLayout.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+import { settings } from "../../test-support/support/systemSettingsPage.ts";
 import {
   doughnutProject,
   expectCatalogStories,
   openDoughProject,
-} from "../../tests/projectKeyboardNavigationJourney.ts";
+} from "../../test-support/projectKeyboardNavigationJourney.ts";
 
 const layouts = [
   { width: 1280, height: 800, compact: false },

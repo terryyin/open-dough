@@ -1,7 +1,7 @@
 // Done owns what a Default main session's record keeps of its commits, over
 // raw HTTP at the boundary server with a real bare origin and project
-// checkout (../../tests/support/startOrigin.ts), the synthetic `claude`, and
-// plain Git in the checkout (../../tests/support/sessionCheckoutWork.ts):
+// checkout (../../test-support/support/startOrigin.ts), the synthetic `claude`, and
+// plain Git in the checkout (../../test-support/support/sessionCheckoutWork.ts):
 // reopening leaves the earlier capture until the next Done, which replaces
 // it. Later quiet reports keep the commits and shared-checkout observation
 // for the new Done regardless of native rename state. An abandoned rename
@@ -11,22 +11,22 @@
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { openTerminal } from "../../tests/agentTerminalBoundary.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { openTerminal } from "../../test-support/agentTerminalBoundary.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   adHocReview,
   keptAdHocRecord,
-} from "../../tests/support/adHocReview.ts";
+} from "../../test-support/support/adHocReview.ts";
 import {
   quote,
   reportingChild,
-} from "../../tests/support/completionRecovery.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import { startOrigin } from "../../tests/support/startOrigin.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/completionRecovery.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { keptLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

@@ -8,7 +8,7 @@ import {
   expect,
   test,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   keepRetainedLaunch,
@@ -16,7 +16,7 @@ import {
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("keeps independent responses through damaged files and reports unsupported, missing and incomplete native evidence", ({
   home,

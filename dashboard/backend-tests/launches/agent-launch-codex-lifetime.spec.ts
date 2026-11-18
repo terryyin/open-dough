@@ -1,6 +1,10 @@
 // Native connection ownership survives caller detachment and handles racing endings.
 import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../test-support/support/codexLaunch.ts";
 import {
   accept,
   attempts,
@@ -9,8 +13,8 @@ import {
   title,
   machineSessions,
   deleteRecord,
-} from "../../tests/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.

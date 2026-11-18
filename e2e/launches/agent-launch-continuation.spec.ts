@@ -10,16 +10,19 @@ import type { AttemptObservation } from "../../dashboard/src/agentLaunch.ts";
 import {
   accept,
   launchRequest,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { untilPublishedWorkRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { untilPublishedWorkRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectPreservedMachineRecordContents,
   machineRecordNames,
   snapshotMachineRecords,
-} from "../../dashboard/tests/support/machineRecordNames.ts";
-import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
-import { test, expect } from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/machineRecordNames.ts";
+import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

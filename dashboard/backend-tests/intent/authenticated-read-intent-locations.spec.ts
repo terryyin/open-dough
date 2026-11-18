@@ -2,7 +2,7 @@
 // authenticated read boundary. The selected Gherkin files are listed and
 // file-at requests outside that selection are refused.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   backlog,
   featurePath,
@@ -12,15 +12,18 @@ import {
   revisionOf,
   settings,
   settingsPath,
-} from "../../tests/intentLocationsBoundaryFixtures.ts";
+} from "../../test-support/intentLocationsBoundaryFixtures.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });

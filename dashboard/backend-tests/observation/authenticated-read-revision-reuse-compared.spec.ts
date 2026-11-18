@@ -9,14 +9,18 @@
 // the comparison is asked once however the reads coincide. Counts the `gh`
 // calls GitHub received (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { aheadByAnswer } from "../../tests/comparisonAnswers.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
-import { refusedMarker } from "../../tests/support/sharedReads.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { aheadByAnswer } from "../../test-support/comparisonAnswers.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import { refusedMarker } from "../../test-support/support/sharedReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { answerFrom } from "../../tests/revisionReuseAnswers.ts";
-import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
+import { answerFrom } from "../../test-support/revisionReuseAnswers.ts";
+import {
+  madeBy,
+  modified,
+  named,
+} from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 const origin = makeMe.aProjectRevision;

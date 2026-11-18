@@ -6,14 +6,14 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { loadavg, tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { installFakeCodex } from "../../tests/support/fakeCodex.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   replayProjectIds,
   seedReplayProjects,
-} from "../../tests/support/sessionsReplayProjects.ts";
-import { seedReplaySessions } from "../../tests/support/sessionsReplaySeed.ts";
+} from "../../test-support/support/sessionsReplayProjects.ts";
+import { seedReplaySessions } from "../../test-support/support/sessionsReplaySeed.ts";
 import {
   askSessions,
   loopTimes,
@@ -23,8 +23,8 @@ import {
   revisionOf,
   trivialTraffic,
   type Asked,
-} from "../../tests/support/sessionsReplayMeasures.ts";
-import { replayTable } from "../../tests/support/sessionsReplayTable.ts";
+} from "../../test-support/support/sessionsReplayMeasures.ts";
+import { replayTable } from "../../test-support/support/sessionsReplayTable.ts";
 
 const polls = 5;
 // Viewers asking for the full answer at once, and how many changes they see.

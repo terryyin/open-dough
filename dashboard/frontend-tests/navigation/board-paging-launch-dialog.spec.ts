@@ -9,16 +9,16 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
-import { expectView, showColumn } from "../../tests/boardPage.ts";
-import { takenIdentity, takenStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { expectView, showColumn } from "../../test-support/boardPage.ts";
+import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
-} from "../../tests/sessionsSidebarPage.ts";
-import { scrollsOnItsOwn } from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
+import { scrollsOnItsOwn } from "../../test-support/sidePanelWidthPage.ts";
 
 test.use({ viewport: { width: 1100, height: 900 } });
 

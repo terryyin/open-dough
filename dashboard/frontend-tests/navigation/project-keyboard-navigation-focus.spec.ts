@@ -1,29 +1,29 @@
 // Focus stays usable across keyboard project switches, and a held previous
 // read cannot leak into the destination project's observation.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerOnlyPublications } from "../../tests/support/frontendCatalogProjects.ts";
-import { holdProjectReads } from "../../tests/holdAuthenticatedReads.ts";
-import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerOnlyPublications } from "../../test-support/support/frontendCatalogProjects.ts";
+import { holdProjectReads } from "../../test-support/holdAuthenticatedReads.ts";
+import { countProjectReads } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
-import { describedRevision } from "../../tests/describedRevisions.ts";
+import { catalogPublications } from "../../test-support/catalogProjectRecords.ts";
+import { describedRevision } from "../../test-support/describedRevisions.ts";
 import {
   shortRevision,
   expectMembership,
   parts,
   projectTab,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   doughnutProject,
   expectFocusedRadio,
   expectSelectedProject,
   openDoughProject,
   pygardonProject,
-} from "../../tests/projectKeyboardNavigationJourney.ts";
-import { focusCanonicalRecord } from "../../tests/storyCardControls.ts";
-import { settings as systemSettings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/projectKeyboardNavigationJourney.ts";
+import { focusCanonicalRecord } from "../../test-support/storyCardControls.ts";
+import { settings as systemSettings } from "../../test-support/support/systemSettingsPage.ts";
 
 const nextOpenDoughRevision = "e2".repeat(20);
 const afterHeldSwitch = "Open Dough after held switch";

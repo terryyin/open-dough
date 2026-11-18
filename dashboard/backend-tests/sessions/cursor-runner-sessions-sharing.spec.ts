@@ -1,7 +1,7 @@
 // Running Cursor sessions lists in several browsers, and the sessions answer's
 // own Cursor observation, share the one runner read running while they ask
 // (../../server/hosts/cursor/heldSessions.ts), counted where the runner's address
-// forwards (../../tests/support/cursorRunnerHeldReads.ts). A settled read answers later
+// forwards (../../test-support/support/cursorRunnerHeldReads.ts). A settled read answers later
 // asks for about one second under the same home and machine documents; past
 // that window the next ask reads the runner again.
 import { setTimeout as delay } from "node:timers/promises";
@@ -9,11 +9,11 @@ import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts"
 import {
   holdSession,
   withRunningCursor,
-} from "../../tests/runningCursorSessionsPage.ts";
-import { holdRunnerSessionsReads } from "../../tests/support/cursorRunnerHeldReads.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { expect } from "../../tests/support/cursorStart.ts";
+} from "../../test-support/runningCursorSessionsPage.ts";
+import { holdRunnerSessionsReads } from "../../test-support/support/cursorRunnerHeldReads.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { expect } from "../../test-support/support/cursorStart.ts";
 
 const reuseMs = 1_000;
 

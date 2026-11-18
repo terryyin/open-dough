@@ -1,15 +1,15 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // Native entry header callbacks absent from static rendering.
 import {
   test,
   expect,
   mountComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectSortedBy,
   sortButton,
-} from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
 
 test("entry header bindings route Baseline, Counts, Branch and Landed with native Enter and Space", async ({
   page,

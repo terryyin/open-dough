@@ -3,25 +3,25 @@
 // list are ./agent-launch-attention-taken.spec.ts; which states need
 // attention is ../../dashboard/backend-tests/sessions/session-reading-rule.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { expectMembership } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expectMembership } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectNotReloaded,
   markNotReloaded,
-} from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   attentionCountsOn,
   publishedFactsOf,
-} from "../../dashboard/tests/storyCardAttention.ts";
-import { openWithOpenSessions } from "../../dashboard/tests/storyCardOpenSessions.ts";
-import { expectCursorRunnerStandIn } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
+} from "../../dashboard/test-support/storyCardAttention.ts";
+import { openWithOpenSessions } from "../../dashboard/test-support/storyCardOpenSessions.ts";
+import { expectCursorRunnerStandIn } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
 
 // Cursor operations are outside this journey's proof; the harness
 // stand-in skips an unused real runner while keeping the built preview.

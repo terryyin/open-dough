@@ -6,23 +6,26 @@
 // profile or unreached path is refused without asking for that path's content
 // or commit list, though refusal may still read Intent settings at the pinned
 // revision for containment. Shares this suite's harness
-// (../../tests/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
+// (../../test-support/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
 // approach. Profile addition (`committed=added`) is
 // ./authenticated-read-profile-addition.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   describedRevision,
   withBacklogFallback,
-} from "../../tests/describedRevisions.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/describedRevisions.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

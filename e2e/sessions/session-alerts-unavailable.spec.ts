@@ -14,20 +14,20 @@ import type { Page } from "@playwright/test";
 import {
   expect,
   test as base,
-} from "../../dashboard/tests/support/pageTest.ts";
+} from "../../dashboard/test-support/support/pageTest.ts";
 import {
   alertsAnswered,
   launch,
   launchRequest,
   machineSessions,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import type { FakeClaudeOptions } from "../../dashboard/tests/support/fakeClaude.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import type { FakeClaudeOptions } from "../../dashboard/test-support/support/fakeClaude.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 
 const test = base.extend<{
   notifier: FakeClaudeOptions["notifier"];

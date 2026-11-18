@@ -11,24 +11,24 @@
 // refusals: ../../dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   parts,
   standaloneSessionName,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
-import { listed } from "../../dashboard/tests/recentlyDoneColumn.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   publishedFiles,
   repository,
   revision,
-} from "../../dashboard/tests/recentlyDoneRecords.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/recentlyDoneRecords.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   doneStoryRecords,
   otherStory,
@@ -38,15 +38,15 @@ import {
   storyContextOf,
   storyItems,
   storyNameOf,
-} from "../../dashboard/tests/support/followUpStories.ts";
-import { radio } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/followUpStories.ts";
+import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
-import { attachStoryNotes } from "../../dashboard/tests/support/attachStoryNotesPage.ts";
-import { storyNotesPage } from "../../dashboard/tests/support/storyNotesPage.ts";
-import { seedStoryNotes } from "../../dashboard/tests/support/storyNotesStore.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { readFinalReportControl } from "../../dashboard/test-support/finalReportPages.ts";
+import { attachStoryNotes } from "../../dashboard/test-support/support/attachStoryNotesPage.ts";
+import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
+import { seedStoryNotes } from "../../dashboard/test-support/support/storyNotesStore.ts";
 import { storyNoteSentToFollowUp } from "../../dashboard/src/storyNote.ts";
 
 test.use({ projectFolders: ["open-dough"] });

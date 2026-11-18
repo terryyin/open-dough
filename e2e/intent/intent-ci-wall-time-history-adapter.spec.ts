@@ -1,7 +1,7 @@
 // Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) for a CI adapter project
-// (../../dashboard/tests/intentCiAdapterProofProject.ts), on a real bare origin
-// (../../dashboard/tests/support/startOrigin.ts) whose dashboard collects its recorded landings
+// (../../dashboard/test-support/intentCiAdapterProofProject.ts), on a real bare origin
+// (../../dashboard/test-support/support/startOrigin.ts) whose dashboard collects its recorded landings
 // through the adapter's discovery at a test's pace: an attempt with its start
 // and completion is a point measured the same way as a GitHub Actions run;
 // a planning-only landing whose equivalent attempt has its timing but no CI
@@ -15,7 +15,7 @@
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { adapterProject } from "../../dashboard/tests/intentCiAdapterProofProject.ts";
+import { adapterProject } from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
@@ -25,18 +25,21 @@ import {
   historyOf,
   expectLinksByKeyboard,
   publishTrunk,
-} from "../../dashboard/tests/intentCiHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentCiHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   landedCiHistory,
   recheckingLandedCi,
   storyLandingRecord,
   untilKept,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
-import { landedTrunk } from "../../dashboard/tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { landedTrunk } from "../../dashboard/test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 test.use({ extraEnv: recheckingLandedCi });
 

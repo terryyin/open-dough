@@ -1,40 +1,40 @@
 // Start session's optional text goes to the selected project's folder; the
 // session reads in Taken and the sidebar without a story card. The real
-// boundary launches synthetic Claude (../../dashboard/tests/fixtures/fake-claude);
+// boundary launches synthetic Claude (../../dashboard/test-support/fixtures/fake-claude);
 // naming is ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
 // Where Start session sits, its availability through read gaps and its dialog
 // are ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   chooseProject,
   expectMembership,
   parts,
   sessionNamedBy,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
   takenStory,
   type LaunchJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectTooltipLine,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expectNamedAdHocCall,
   expectNoSessionEstablishment,
-} from "../../dashboard/tests/support/unattachedLaunchAssertions.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 

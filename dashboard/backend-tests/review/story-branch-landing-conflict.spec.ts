@@ -4,26 +4,26 @@
 // in the launch's worktree the same command publishes it and the real receiver
 // records the fetched trunk tip and that merge on the launch record. Raw HTTP
 // against the real installed start and a real bare origin
-// (../../tests/support/startOrigin.ts) with the synthetic `claude`.
+// (../../test-support/support/startOrigin.ts) with the synthetic `claude`.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   git,
-} from "../../tests/support/launchLanding.ts";
-import { landingGitFault } from "../../tests/support/launchLandingFault.ts";
+} from "../../test-support/support/launchLanding.ts";
+import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
 import {
   restartBoundary,
   startBoundary,
-} from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import {
   anotherWriterClone,
   claimedLaunchWithStoryCommit,
@@ -32,7 +32,7 @@ import {
   resolveMerge,
   storyChangesShared,
   writeShared,
-} from "../../tests/support/storyBranchIntegration.ts";
+} from "../../test-support/support/storyBranchIntegration.ts";
 
 let origin: StartOrigin;
 let server: DashboardServer;

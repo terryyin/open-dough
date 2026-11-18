@@ -1,20 +1,23 @@
 // Unreadable base-CI judgments ask before a new execution start: rate-limited
 // or empty Actions answers ask without a CI result and start nothing unconfirmed.
 
-import { keptStarts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
   actionsForRuns,
   actionsWorkflowAnswer,
-} from "../../dashboard/tests/support/baseCiActions.ts";
-import { publishLaterHead } from "../../dashboard/tests/support/publishLaterHead.ts";
+} from "../../dashboard/test-support/support/baseCiActions.ts";
+import { publishLaterHead } from "../../dashboard/test-support/support/publishLaterHead.ts";
 const baseCiFailedHeading = "Base CI failed";
 const baseCiRunningHeading = "Base CI still running";
 const baseCiUnreadHeading = "Base CI could not be read";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { rateLimitedAnswer } from "../../dashboard/tests/originAnswers.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { rateLimitedAnswer } from "../../dashboard/test-support/originAnswers.ts";
 
 test("a rate-limited Actions answer asks without CI result and never shows a pass", async ({
   page,

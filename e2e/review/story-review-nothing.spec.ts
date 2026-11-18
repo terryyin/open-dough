@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import {
   reviewRefresh,
   reviewRegion,
@@ -7,29 +7,27 @@ import {
   filesToggle,
   toolbarComparison,
   showReviewDetails,
-} from "../../dashboard/tests/support/reviewControls.ts";
-// A story's review explains when there is nothing to review, beneath its
-// status and without the file browser or diff: a worktree straight off
-// trunk shows its context line and no changes against the named baseline,
-// the line staying in place while a short panel scrolls that explanation; a
-// worktree whose folder was removed with no landing captured explains that
-// evidence gap, still offering Refresh and Close, and no Git runs; a launch
-// with its worktree is no landed run until Refresh finds that worktree gone,
-// and a later opening reads the same gap; a trunk that cannot be fetched
-// names its remote and target, shows no file list, and Refresh reads the
-// review again once trunk is reachable; and a story whose kept launch record
-// names no workspace offers no review at all, which the launch boundary also
-// refuses.
+} from "../../dashboard/test-support/support/reviewControls.ts";
+// An empty review explains the matching baseline or missing evidence below
+// its status, with the context line fixed on scroll. A removed worktree with
+// no captured landing offers Refresh and Close without invoking Git.
+// Refresh can discover the removed worktree and a later opening shows the
+// same gap. An unreachable trunk names the remote and target, with file
+// discovery returning after Refresh when trunk is reachable. A kept launch
+// with no workspace is refused at the launch boundary.
 
-import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../../dashboard/src/storyReviewContract.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
-import { reviewAfter } from "../../dashboard/tests/support/launchLandingReview.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
+import { reviewAfter } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
@@ -37,24 +35,24 @@ import {
   expectFixedWhileScrolled,
   reviewBody,
   reviewFeedback,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   expectReviewRead,
   openReview,
-} from "../../dashboard/tests/support/reviewRead.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   branch,
   git,
   storyWorktree,
   unchangedWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   keepLaunchRecord,
   storyALaunch,
-} from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 const gapExplanation =

@@ -4,12 +4,12 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   checksAskedWhilePassing,
@@ -19,21 +19,21 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   setPageVisibility,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   givePageItsTurns,
   isCheck,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   isRevisionStream,
   openSecondStreamingAtA,
   openStreamingAtA,
   streamServerEnv,
   untilMatchingRefsSince,
-} from "../../dashboard/tests/revisionStreamJourney.ts";
-import { noConnection } from "../../dashboard/tests/publishedOrigin.ts";
-import { titlesOfA } from "../../dashboard/tests/refreshJourney.ts";
+} from "../../dashboard/test-support/revisionStreamJourney.ts";
+import { noConnection } from "../../dashboard/test-support/publishedOrigin.ts";
+import { titlesOfA } from "../../dashboard/test-support/refreshJourney.ts";
 import { ConnectionMark } from "./connectionMark.ts";
 
 test("fallback focus waits for an already outstanding response without adding a request", async ({

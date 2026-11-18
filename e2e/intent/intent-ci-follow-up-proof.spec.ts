@@ -2,20 +2,20 @@
 // (./intent-ci-follow-up.spec.ts), Changed tests navigates the proof of the
 // original attempt, which measured the landing, and offers none of the
 // repeat's: read from what the machine keeps, by a dashboard that collects
-// nothing (../../dashboard/tests/support/ciFollowUpSettledReading.ts).
+// nothing (../../dashboard/test-support/support/ciFollowUpSettledReading.ts).
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   actionsRequests,
   expect,
   keepSettledRepeat,
   test,
-} from "../../dashboard/tests/support/ciFollowUpSettledReading.ts";
+} from "../../dashboard/test-support/support/ciFollowUpSettledReading.ts";
 import {
   expectOriginalProofNavigation,
   gotoCiFollowUp,
   retainedCiFollowUpReading,
-} from "../../dashboard/tests/support/ciFollowUpReadingPage.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ viewport: { width: 390, height: 844 } });
 

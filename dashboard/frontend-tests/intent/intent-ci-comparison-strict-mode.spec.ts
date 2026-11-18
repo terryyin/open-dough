@@ -1,9 +1,9 @@
 // Real development StrictMode and hooks, with the external HTTP boundary replaced.
 import type { AddressInfo } from "node:net";
 import { fileURLToPath } from "node:url";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { StrictCiReadingFacts } from "../../tests/support/strictCiReadingTypes.ts";
+import type { StrictCiReadingFacts } from "../../test-support/support/strictCiReadingTypes.ts";
 
 test("StrictMode reattaches comparison and proof reads after effect cleanup", async ({
   page,
@@ -22,7 +22,7 @@ test("StrictMode reattaches comparison and proof reads after effect cleanup", as
     configFile: false,
     cacheDir: testInfo.outputPath("vite-cache"),
     root: fileURLToPath(
-      new URL("../../tests/comparison-mount/", import.meta.url),
+      new URL("../../test-support/comparison-mount/", import.meta.url),
     ),
     plugins: [react()],
     logLevel: "error",

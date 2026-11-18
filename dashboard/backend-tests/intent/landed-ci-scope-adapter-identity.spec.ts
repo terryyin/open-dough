@@ -1,19 +1,19 @@
 // Actual adapter acquisition keeps contextual attempts distinct and true repeats shared.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
-import { proofSummaryForEntry } from "../../tests/support/ciProofArtifacts.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { adapterProject } from "../../test-support/intentCiAdapterProofProject.ts";
+import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   collectingLandedCi,
   restartAsLandedCiReader,
   resultToLand,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   retainedHistory as retained,
   collectedScopeHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];

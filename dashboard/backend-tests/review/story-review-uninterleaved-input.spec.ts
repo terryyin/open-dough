@@ -1,8 +1,8 @@
 // Reader input simplification must never silently discard variant history.
-import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
-import type { CompletedStoryOptions } from "../../tests/support/completedStoryInput.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import type { CompletedStoryOptions } from "../../test-support/support/completedStoryInput.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test("ordinary trunk completion input rejects incompatible histories before changing the origin", async ({
   origin,

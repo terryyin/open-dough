@@ -1,19 +1,22 @@
 // Settled ledger facts compose with the real receipt/trigger backend proof.
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { keepFollowUpEntries } from "../../dashboard/tests/support/ciFollowUpScenario.ts";
-import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
-import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import { keepFollowUpEntries } from "../../dashboard/test-support/support/ciFollowUpScenario.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
+import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { attemptLink } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { buildKeyOf } from "../../dashboard/src/landedCiBuildKey.ts";
 import {
   ciFollowUpCard,
   openCiFollowUp,
   retainedCiFollowUpReading,
-} from "../../dashboard/tests/support/ciFollowUpReadingPage.ts";
+} from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
 
 test("both settled custom outcomes review exact attempts against the saved 100s average", async ({
   page,

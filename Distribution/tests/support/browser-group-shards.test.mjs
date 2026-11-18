@@ -1,5 +1,5 @@
 // Each browser test group's actual specs over the shards its CI job declares
-// in ci.yml (./browserGroupConfigs.mjs, dashboard/tests/support/testFiles.mjs):
+// in ci.yml (./browserGroupConfigs.mjs, dashboard/test-support/support/testFiles.mjs):
 // every spec in exactly one shard, E2E Test's production chains queued first
 // inside whichever shard holds them, a new spec landing where the
 // declaration says, and a broken declaration refused before any test is
@@ -21,7 +21,7 @@ import {
   dashboardSpecFiles,
   dashboardTestMatch,
   dashboardTestProjects,
-} from "../../../dashboard/tests/support/testFiles.mjs";
+} from "../../../dashboard/test-support/support/testFiles.mjs";
 import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
 
 const repository = new URL("../../../", import.meta.url);

@@ -1,28 +1,31 @@
 // Collection/classification is observed before reading fixtures or restart.
 import { writeFileSync } from "node:fs";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   followUpCards,
   followUpFile,
   prepareRepeatScenario,
   readFollowUpLedger,
-} from "../../tests/support/ciFollowUpScenario.ts";
+} from "../../test-support/support/ciFollowUpScenario.ts";
 import {
   landedCiHistory,
   restartAsLandedCiReader,
   keepLandedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   passedFrom,
   trunkRun,
   trunkActions,
   usableProofOf,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepMoreLaunchRecords } from "../../tests/support/launchStore.ts";
-import { pull } from "../../tests/support/storyReviewTrunkCommits.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { pull } from "../../test-support/support/storyReviewTrunkCommits.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 test.use({ serverMode: "boundary" });
 

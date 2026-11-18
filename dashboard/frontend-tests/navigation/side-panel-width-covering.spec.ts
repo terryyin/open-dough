@@ -5,37 +5,37 @@
 // the least room. The split beside the page, on the wide side, is
 // ./side-panel-width.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   narrowWindow,
   expectFocusedAndIndicated,
-} from "../../tests/accessibleReading.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+} from "../../test-support/accessibleReading.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   box,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
-} from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/sessionsSidebarPage.ts";
 import {
   scrollsOnItsOwn,
   sidePanelWidthPage,
-} from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sidePanelWidthPage.ts";
 import {
   closeSidePanel,
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/sidePanelFrame.ts";
 import {
   openReview,
   takenStoryWithReview,
-} from "../../tests/support/frontendSidePanelWidth.ts";
-import { takenStoryWorkingSession } from "../../tests/support/frontendCardSessions.ts";
-import { terminalScreenParts } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/support/frontendSidePanelWidth.ts";
+import { takenStoryWorkingSession } from "../../test-support/support/frontendCardSessions.ts";
+import { terminalScreenParts } from "../../test-support/terminalScreenPage.ts";
 
 test("at a narrow window the panel covers the page with no Maximize, and a wide window recovers the chosen width and Maximize choice", async ({
   page,

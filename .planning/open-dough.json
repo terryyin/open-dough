@@ -18,16 +18,6 @@
         "pageObjects": true
       },
       {
-        "path": "dashboard/tests",
-        "label": "Dashboard Integrated UI Test",
-        "kind": "typescript",
-        "include": [
-          "**/*.spec.ts"
-        ],
-        "makeMe": true,
-        "pageObjects": true
-      },
-      {
         "path": "dashboard/frontend-tests",
         "label": "Dashboard Frontend Test",
         "kind": "typescript",

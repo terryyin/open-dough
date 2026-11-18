@@ -2,8 +2,8 @@
 // another server is still serving to its page.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 test("one dev server's optimized module survives another server's cache write", async ({
   request,

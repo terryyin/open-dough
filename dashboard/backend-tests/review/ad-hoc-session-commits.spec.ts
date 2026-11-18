@@ -1,8 +1,8 @@
 // What a Default main session committed in its checkout is kept with its
 // launch record at Done and answers its review, over raw HTTP at the boundary
 // server: a real bare origin and project checkout
-// (../../tests/support/startOrigin.ts), the synthetic `claude`, and plain Git
-// in the checkout (../../tests/support/sessionCheckoutWork.ts). Work pulled
+// (../../test-support/support/startOrigin.ts), the synthetic `claude`, and plain Git
+// in the checkout (../../test-support/support/sessionCheckoutWork.ts). Work pulled
 // into the checkout is no session commit, and the kept comparison stays
 // readable from the saved repository alone after trunk advances and the
 // commit leaves every branch. A kept landing answers as
@@ -14,11 +14,11 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   adHocReview,
   keptAdHocRecord,
-} from "../../tests/support/adHocReview.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/adHocReview.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

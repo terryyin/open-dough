@@ -3,10 +3,13 @@
 // context do not. Styled composition and appearance live in the companion
 // composition spec.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { frontendReviewSnapshot } from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { frontendReviewSnapshot } from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
 import {
   largeWithSmall,
   limit,
@@ -15,10 +18,10 @@ import {
   rewrite,
   rewrap,
   splitCall,
-} from "../../tests/support/diffWordEmphasisFixtures.ts";
-import { openPlainWordEmphasisDiff } from "../../tests/support/diffWordEmphasisOpen.ts";
-import { storyReviewDiff } from "../../tests/support/reviewDiffSyntax.ts";
-import { diffHunk } from "../../tests/support/reviewPanes.ts";
+} from "../../test-support/support/diffWordEmphasisFixtures.ts";
+import { openPlainWordEmphasisDiff } from "../../test-support/support/diffWordEmphasisOpen.ts";
+import { storyReviewDiff } from "../../test-support/support/reviewDiffSyntax.ts";
+import { diffHunk } from "../../test-support/support/reviewPanes.ts";
 
 test("changed words in a block are deletions and insertions; copy stays plain", async ({
   page,

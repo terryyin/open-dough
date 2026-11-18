@@ -1,5 +1,5 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
 // An applied update that replaces the reading or must not cross projects:
 // an unusable latest settings file takes the reading's focus into its
 // explanation, and a held update of a project left behind never shows in
@@ -7,31 +7,34 @@ import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevis
 // ../../src/IntentRevisionNotice.tsx). Failed and unreadable updates that keep
 // the shown reading: ./intent-revision-update-outcomes.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { chooseProject } from "../../tests/dashboardPage.ts";
-import { shortRevision } from "../../tests/dashboardParts.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
-import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { chooseProject } from "../../test-support/dashboardPage.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
+import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
 import {
   browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { doughnut, pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import {
+  doughnut,
+  pygardon,
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   locationFiles,
   showLatestRevision,
-} from "../../tests/intentReadRecoveryPage.ts";
+} from "../../test-support/intentReadRecoveryPage.ts";
 import {
   featurePath,
   publishedFeature,
-} from "../../tests/intentJobsFeatureFixtures.ts";
+} from "../../test-support/intentJobsFeatureFixtures.ts";
 import {
   jobsFeatures,
   publishedFiles,
-} from "../../tests/intentRevisionJourney.ts";
+} from "../../test-support/intentRevisionJourney.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];

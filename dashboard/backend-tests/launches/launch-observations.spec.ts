@@ -1,11 +1,11 @@
 // The shared observation seam receives saved targets and isolates native errors.
 // Browser/HTTP journeys in the session, alert and terminal specs prove meanings.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { claudeHost } from "../../server/claudeHost.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { withStates } from "../../server/launchStates.ts";
-import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
+import { launchRequest } from "../../test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const folder = { path: "/unused", shown: "unused" };

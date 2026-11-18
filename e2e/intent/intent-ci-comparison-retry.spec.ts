@@ -1,29 +1,32 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Retained integration: real Git/provider acquisition reaches Check again and
 // process memory, and actual shallow claim history recovers after unshallowing.
 // Fast read/provider memory rules and mounted controls own the other variants.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { expectSourceCue } from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";
-import { publishComparedHistory } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
-import { startingFromKeptComparedStoryBranch } from "../../dashboard/tests/support/keptComparedStoryBranch.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
+import { expectSourceCue } from "../../dashboard/test-support/support/expectCiComparisonSourceCue.ts";
+import { publishComparedHistory } from "../../dashboard/test-support/support/storyCiComparisonDoneFixture.ts";
+import { startingFromKeptComparedStoryBranch } from "../../dashboard/test-support/support/keptComparedStoryBranch.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 import {
   checkAgainOf,
   checkComparisonAgain,
   listedHeadSha,
   watchComparisonReads,
-} from "../../dashboard/tests/support/storyCiComparisonRetry.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
-import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/support/storyCiComparisonRetry.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   commitAll,
   git,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { push } from "../../dashboard/tests/support/storyReviewTrunkCommits.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 
 // The completed history is the worker's; this case's origin is its copy.
 const historyTest = test.extend(startingFromKeptComparedStoryBranch);

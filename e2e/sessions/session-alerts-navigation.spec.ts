@@ -1,20 +1,20 @@
 // The sender's own URL, not a fixture-built destination, is opened in a real
 // page. Published files decide only membership; routing/focus stay production.
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { launchRequest } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expectProjectChoice } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expectProjectChoice } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notificationOrigins,
   notifiedIdentity,
   notifiedTitle,
   otherTitle,
-} from "../../dashboard/tests/notificationStoryJourney.ts";
+} from "../../dashboard/test-support/notificationStoryJourney.ts";
 import {
   afterFurtherListings,
   notificationUrls,
   start,
-} from "../../dashboard/tests/support/sessionAlerts.ts";
-import { dashboardServedIn } from "../../dashboard/tests/support/sessionAlertServers.ts";
+} from "../../dashboard/test-support/support/sessionAlerts.ts";
+import { dashboardServedIn } from "../../dashboard/test-support/support/sessionAlertServers.ts";
 
 for (const mode of ["dev", "preview"] as const) {
   test.describe(`${mode} on its own ephemeral port`, () => {

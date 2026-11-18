@@ -6,13 +6,13 @@
 // answers a later selection. The Backend's keeping and acquisition are
 // ../../backend-tests/intent/ and ../../../e2e/intent/intent-ci-status*.spec.ts.
 
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { failing, running } from "../../tests/intentCiStoryBoard.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { failing, running } from "../../test-support/intentCiStoryBoard.ts";
 import {
   expectKeptStoryCi,
   toggleOnDevelopment,
-} from "../../tests/intentCiStoryRecords.ts";
+} from "../../test-support/intentCiStoryRecords.ts";
 import {
   chooseCiStatus,
   ciStatusReading,
@@ -20,19 +20,19 @@ import {
   expectCiAnswer,
   expectCiScope,
   expectKeptCiAnswer,
-} from "../../tests/intentCiStatusPage.ts";
+} from "../../test-support/intentCiStatusPage.ts";
 import {
   givePageItsTurns,
   openUntilRead,
   untilPageReadsAnswered,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   judgedCiStatus,
   serveFrontendCiStatus,
   storyBoardCiAnswers,
-} from "../../tests/support/frontendCiStatusAnswers.ts";
-import { publishCiStoryBoard } from "../../tests/support/frontendServiceState.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendCiStatusAnswers.ts";
+import { publishCiStoryBoard } from "../../test-support/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
 const mainAt = (state: "pass" | "failed") =>
   judgedCiStatus("main", state, "a1b2c3d", "Add login");

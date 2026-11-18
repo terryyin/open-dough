@@ -1,5 +1,5 @@
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../tests/support/cursorStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/cursorStart.ts";
 
 test.use({ serverMode: "boundary" });
 

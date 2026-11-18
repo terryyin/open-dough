@@ -4,13 +4,16 @@ import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
-import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 const injectedAt = "2026-11-14T09:00:00.000Z";
 const wrapper =

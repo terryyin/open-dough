@@ -1,5 +1,5 @@
 // Mark as done in the page's one terminal, against a controlled machine read,
-// done boundary (../../tests/support/frontendSessionActions.ts) and attached
+// done boundary (../../test-support/support/frontendSessionActions.ts) and attached
 // terminal: a refused mark keeps the panel open and says so as a problem, as
 // an ended terminal does, and a mark answered after another session replaced
 // the panel leaves the keyboard in the new terminal. The real mark that
@@ -11,23 +11,26 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   cardSession,
   cardSessionEntry,
   openCardSessionTerminal,
-} from "../../tests/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
+} from "../../test-support/support/frontendCardSessions.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
+import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { directedApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
 import {
   markAsDone,
   markDoneAnyway,
   sendDoneMarkAnyway,
-} from "../../tests/support/markDone.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
-import { colourOf, tokenColour } from "../../tests/pageColours.ts";
-import { terminalScreenParts } from "../../tests/terminalScreenPage.ts";
+} from "../../test-support/support/markDone.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
+import { colourOf, tokenColour } from "../../test-support/pageColours.ts";
+import { terminalScreenParts } from "../../test-support/terminalScreenPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const working = makeMe.aSessionState.loaded("working").please();

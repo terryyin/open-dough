@@ -1,17 +1,17 @@
 // The same admitted comparison that serves a printed file diff can return
 // revision-consistent file text at those trees, or a typed unavailable
 // explanation, without changing the printed-diff answer. Story A's full
-// worktree (../../tests/support/storyReviewWorktree.ts) holds the rename, addition,
+// worktree (../../test-support/support/storyReviewWorktree.ts) holds the rename, addition,
 // deletion, image, and edit whose text each read returns.
 import { execFileSync } from "node:child_process";
-import { getReview } from "../../tests/support/completedReviewRequests.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   observed,
   storyWorktree,
-} from "../../tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../tests/support/storyLaunchRecord.ts";
+} from "../../test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,

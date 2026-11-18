@@ -1,45 +1,45 @@
 import {
   finalReportParts,
   readFinalReport,
-} from "../../dashboard/tests/finalReportPages.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/finalReportPages.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Recorded Claude workspace retirement uses the shared passive final report.
 import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
-import { test, expect } from "../../dashboard/tests/dashboardTest.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
+import { test, expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   openTerminalControl,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   recordedClaude as recorded,
   report,
   save,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   markAsDone,
   markDone,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import { workspaceMissing } from "../../dashboard/src/sessionAccess.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

@@ -1,19 +1,22 @@
 import { chmodSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../dashboard/tests/support/voiceTest.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/voiceTest.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   observeMicrophone,
   recordClip,
   voiceKey,
-} from "../../dashboard/tests/support/voicePage.ts";
+} from "../../dashboard/test-support/support/voicePage.ts";
 import {
   openVoiceDraft,
   recovered,
   typedStart,
   voiceBrowserOptions,
   originalDraft,
-} from "../../dashboard/tests/support/voiceRecovery.ts";
+} from "../../dashboard/test-support/support/voiceRecovery.ts";
 import {
   instructionProblems,
   instructionSetupRequired,

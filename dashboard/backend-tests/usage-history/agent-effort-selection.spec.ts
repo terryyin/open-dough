@@ -5,15 +5,15 @@ import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
-import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
-import { costReport } from "../../tests/usage-history/agentEffortCost.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
+import { costReport } from "../../test-support/usage-history/agentEffortCost.ts";
 import {
   effortCli,
   listedTasks,
@@ -21,7 +21,7 @@ import {
   reportedSelection,
   succeeded,
   type ListedTask,
-} from "../../tests/usage-history/agentEffortSelection.ts";
+} from "../../test-support/usage-history/agentEffortSelection.ts";
 
 const story = "SEED-358#reconstruct-codex-and-claude-code-usage-history";
 

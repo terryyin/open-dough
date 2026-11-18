@@ -1,8 +1,8 @@
 // Candidates recover from synthetic rate-limit and malformed answers using
 // explicit authenticated-read substitutes — no dashboardServer or FakeGitHub.
 
-import { expect, test } from "../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../tests/dashboardTest.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../test-support/dashboardTest.ts";
 import {
   advanceRecoveryClock,
   candidatesRequest,
@@ -11,15 +11,15 @@ import {
   opened,
   readFailure,
   readRetry,
-} from "../tests/intentReadRecoveryPage.ts";
-import { noticedResumeTime } from "../tests/limitNotice.ts";
-import { untilPageRequestsAnswered } from "../tests/pageRequestNotes.ts";
+} from "../test-support/intentReadRecoveryPage.ts";
+import { noticedResumeTime } from "../test-support/limitNotice.ts";
+import { untilPageRequestsAnswered } from "../test-support/pageRequestNotes.ts";
 import {
   frontendRevision,
   putFrontendCandidates,
   type FrontendServiceState,
-} from "../tests/support/frontendServiceState.ts";
-import { openDoughCandidatesRecord } from "../tests/intentCandidatesFixtures.ts";
+} from "../test-support/support/frontendServiceState.ts";
+import { openDoughCandidatesRecord } from "../test-support/intentCandidatesFixtures.ts";
 
 function presentCandidates(state: FrontendServiceState) {
   putFrontendCandidates(state, {

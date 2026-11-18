@@ -1,23 +1,23 @@
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
-import { fileBrowser } from "../../tests/support/reviewContextLine.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
-import { reviewChanges } from "../../tests/storyCardControls.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { prepareFrontendDoneReview } from "../../tests/support/frontendDoneReview.ts";
-import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
-import { readReview } from "../../tests/support/launchLandingReview.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { fileBrowser } from "../../test-support/support/reviewContextLine.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { prepareFrontendDoneReview } from "../../test-support/support/frontendDoneReview.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { readReview } from "../../test-support/support/launchLandingReview.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 
-import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
+import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
 import {
   chooseStoryTab,
   intentDiff,
   outsideCount,
   reviewDiff,
-} from "../../tests/support/intentStoryPage.ts";
+} from "../../test-support/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 

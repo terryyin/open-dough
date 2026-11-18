@@ -8,25 +8,25 @@
 import {
   expectFocusedAndIndicated,
   zoomedWindow,
-} from "../tests/accessibleReading.ts";
+} from "../test-support/accessibleReading.ts";
 import {
   expectMarksByTab,
   expectMarksPainted,
   historyChart,
   inspectMark,
-} from "../tests/historyChartPage.ts";
-import { parts } from "../tests/dashboardPage.ts";
-import { scopeHistory } from "../tests/intentScopeHistoryPage.ts";
-import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
-import { openUntilRead } from "../tests/pageRequestNotes.ts";
-import { expect, test } from "../tests/support/frontendApp.ts";
+} from "../test-support/historyChartPage.ts";
+import { parts } from "../test-support/dashboardPage.ts";
+import { scopeHistory } from "../test-support/intentScopeHistoryPage.ts";
+import { openSummary } from "../test-support/intentSummaryCiProofFixtures.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
+import { openUntilRead } from "../test-support/pageRequestNotes.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
 import {
   expectMarkedScopeHistoryDrawn,
   failedReadout,
   serveMarkedScopeHistory,
-} from "../tests/support/scopeHistoryMarksScenario.ts";
-import { setColorScheme } from "../tests/systemAppearanceReading.ts";
+} from "../test-support/support/scopeHistoryMarksScenario.ts";
+import { setColorScheme } from "../test-support/systemAppearanceReading.ts";
 import type { Page } from "@playwright/test";
 
 const endpoint = "Nov 8 · Endpoint · 1.5 s";

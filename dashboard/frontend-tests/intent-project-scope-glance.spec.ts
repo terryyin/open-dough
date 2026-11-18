@@ -6,26 +6,29 @@
 // ../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's; these
 // routes answer each scope's local history read.
 import { shortSha } from "../src/baseCiWording.ts";
-import { parts } from "../tests/dashboardPage.ts";
-import { fileReadingTab, proofRegion } from "../tests/intentPerspectivePage.ts";
+import { parts } from "../test-support/dashboardPage.ts";
+import {
+  fileReadingTab,
+  proofRegion,
+} from "../test-support/intentPerspectivePage.ts";
 import {
   chooseTimingUnit,
   expectScopeReadout,
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
-import { childName, scopeTable } from "../tests/intentScopeProofPage.ts";
-import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
-import { openUntilRead } from "../tests/pageRequestNotes.ts";
-import { expectStackedInOrder } from "../tests/partArrangement.ts";
-import { expectChangeCue } from "../tests/priorBuildReferencePage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
+import { childName, scopeTable } from "../test-support/intentScopeProofPage.ts";
+import { openSummary } from "../test-support/intentSummaryCiProofFixtures.ts";
+import { openUntilRead } from "../test-support/pageRequestNotes.ts";
+import { expectStackedInOrder } from "../test-support/partArrangement.ts";
+import { expectChangeCue } from "../test-support/priorBuildReferencePage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../tests/support/frontendApp.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
 import {
   scopeUnitsHistory,
   serveUnreadProjectCi,
-} from "../tests/support/projectScopeHistoryFacts.ts";
+} from "../test-support/support/projectScopeHistoryFacts.ts";
 
 test("Project Intent reads each scope's test execution time history before its table and switches a file's timing unit", async ({
   page,

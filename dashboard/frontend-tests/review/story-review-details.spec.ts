@@ -1,26 +1,26 @@
 // Review changes opens on the diff: the comparison choices, the context of
 // the comparison shown and the uncommitted check wait behind the toolbar's
 // eye, while reading progress, problems and Commits' own work stay in view.
-import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
-import { reviewChanges } from "../../tests/storyCardControls.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
+import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
   frontendReviewSnapshot,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
 import {
   openFrontendBoardReview,
   storyA,
   storyB,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import { doneCard } from "../../tests/doneStoryReviewPage.ts";
-import { openFrontendStoryReviewAsOpened } from "../../tests/support/frontendStoryReviewOpen.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
+import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   contextLine,
   fileBrowser,
-} from "../../tests/support/reviewContextLine.ts";
+} from "../../test-support/support/reviewContextLine.ts";
 import {
   comparisonChoice,
   expectShown,
@@ -29,7 +29,7 @@ import {
   reviewRegion,
   toolbarComparison,
   uncommittedCheck,
-} from "../../tests/support/reviewControls.ts";
+} from "../../test-support/support/reviewControls.ts";
 import {
   escapeDetailsFrom,
   expectDetailsCollapsed,
@@ -37,19 +37,19 @@ import {
   expectEyeBesideComparison,
   hideDetails,
   revealDetails,
-} from "../../tests/support/reviewDetails.ts";
+} from "../../test-support/support/reviewDetails.ts";
 import {
   codePane,
   scrollPane,
   scrollTopOf,
-} from "../../tests/support/reviewPanes.ts";
-import { refreshAndRead } from "../../tests/support/reviewRead.ts";
+} from "../../test-support/support/reviewPanes.ts";
+import { refreshAndRead } from "../../test-support/support/reviewRead.ts";
 import {
   changedFilesList,
   expectFileSelected,
   fileDiff,
   fileRow,
-} from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/reviewTreeRows.ts";
 
 const added = (path: string) => ({
   kind: "added" as const,

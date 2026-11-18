@@ -3,22 +3,25 @@
 import {
   changedFilesList,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   commitRangeHeading,
   chooseCommit,
-} from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+} from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../../dashboard/src/storyReviewContract.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
-import { openStoryReview } from "../../dashboard/tests/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   reviewRegion,
   comparisonChoice,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { storyWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 
 test("an earlier pending range cannot answer the later chosen range", async ({
   page,

@@ -1,25 +1,28 @@
 // Recover keep-wait expiry: when attach cannot settle before the shared
 // launch wait, Recover answers failed with Start's instruction-delivery
 // wording, leaves the client running, and does not hang it up.
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { instructionDeliveryTimedOutExplanation } from "../../dashboard/server/hosts/cursor/instructionDelivery.ts";
 import {
   expectReadingWithoutScreenLabel,
   instruction,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.describe("Recover keep-wait expiry", () => {
   // The first paint stays held, so keep cannot settle: Start and Recover

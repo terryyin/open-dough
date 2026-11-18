@@ -1,25 +1,25 @@
 // Shared Cursor held-session reads (../../server/hosts/cursor/heldSessions.ts)
 // join only under the same machine documents the read started from. Counted
-// where the runner's address forwards (../../tests/support/cursorRunnerHeldReads.ts):
+// where the runner's address forwards (../../test-support/support/cursorRunnerHeldReads.ts):
 // a launch record written while a held read is outstanding is labeled from a
 // read that includes it, and overlapping asks under unchanged documents still
 // share one runner read. A settled read answers later asks for about one
 // second under those documents; past that window the next ask reads again.
 import { setTimeout as delay } from "node:timers/promises";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
 import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
-import { holdRunnerSessionsReads } from "../../tests/support/cursorRunnerHeldReads.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
+import { holdRunnerSessionsReads } from "../../test-support/support/cursorRunnerHeldReads.ts";
 import {
   instructedCursorRequest,
   keptCursor,
   withCursorLaunch,
-} from "../../tests/support/keptCursorTurn.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/keptCursorTurn.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 const instruction = "hold this session";
 const reuseMs = 1_000;

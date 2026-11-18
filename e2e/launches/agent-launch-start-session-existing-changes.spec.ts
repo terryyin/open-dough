@@ -1,7 +1,7 @@
 // The project row's Start session runs in the project's folder on default
 // main, so it follows the default-checkout contract of the story dialogs
 // (./agent-launch-default-checkout-warning.spec.ts): with a real bare origin
-// (../../dashboard/tests/support/startOrigin.ts) and the synthetic `claude`, a default checkout
+// (../../dashboard/test-support/support/startOrigin.ts) and the synthetic `claude`, a default checkout
 // holding staged, changed, deleted, or untracked files shows them in the same
 // dialog (paths and count, never content) before anything starts. Back
 // returns to the text as typed, Cancel starts nothing, and Continue with
@@ -21,27 +21,30 @@ import {
   attempts,
   keptStarts,
   recordsOf,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   changedContent as content,
   changedPaths,
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/tests/support/defaultCheckoutChanges.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   openBacklog,
   originMain,
   radio,
-} from "../../dashboard/tests/support/sessionDialog.ts";
-import { recordStarts } from "../../dashboard/tests/support/startSessionLanding.ts";
-import { expectDefaultMainSessionLaunch } from "../../dashboard/tests/support/unattachedLaunchAssertions.ts";
+} from "../../dashboard/test-support/support/sessionDialog.ts";
+import { recordStarts } from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { expectDefaultMainSessionLaunch } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 
 const text = "Explain how launch records are stored";
 const autoLand = { workspace: "default-checkout", landing: "auto-land" };

@@ -1,8 +1,8 @@
-import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
-import { filesColumn } from "../../tests/intentModePage.ts";
+import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
+import { filesColumn } from "../../test-support/intentModePage.ts";
 // Intent's reading place is kept by the page for the project
 // (../../src/pageIntentReading.tsx): with a selected Taken story
-// (../../tests/support/frontendIntentVisits.ts) that also adds a long spec two folders
+// (../../test-support/support/frontendIntentVisits.ts) that also adds a long spec two folders
 // deep, that file selected, "Selected story only" on, a folder collapsed by
 // hand and Purpose scrolled show the same after the story's other views
 // (../../src/intentStoryTabs.tsx), and after Development and back on the same
@@ -17,18 +17,18 @@ import {
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
 } from "../../src/storyReviewContract.ts";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
-import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
+import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
 import {
   intentGroupToggle,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   intentReadingPane,
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../tests/intentReadingPlacePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   expectStoryComparisonRead,
@@ -37,8 +37,8 @@ import {
   intentFile,
   storyOnly,
   intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
-import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import { deepSpec } from "../../test-support/support/intentStoryWorktree.ts";
 
 // The page's reads, from now on, of Intent's locations, of published text in
 // a location, and of a story file's diff and texts.

@@ -2,14 +2,14 @@
 // `Server-Timing` (../../server/readTiming.ts), at the local authenticated read
 // boundary over real HTTP with the synthetic `gh`: its wait for a turn at
 // GitHub apart from its `gh` time, while GitHub holds every answer and
-// releases them one at a time (../../tests/support/turnReads.ts). Compared with this
+// releases them one at a time (../../test-support/support/turnReads.ts). Compared with this
 // machine's clock across events the test orders, never with a duration of
 // its own choosing. The turns themselves: ./authenticated-read-turns.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { onServerOfItsOwn } from "../../tests/support/directedWait.ts";
-import type { RawResponse } from "../../tests/support/rawHttp.ts";
-import { readAt } from "../../tests/support/sharedReads.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
+import type { RawResponse } from "../../test-support/support/rawHttp.ts";
+import { readAt } from "../../test-support/support/sharedReads.ts";
 import {
   arrived,
   revisionOf,
@@ -18,7 +18,7 @@ import {
   servedInTurn,
   turns,
   underWay,
-} from "../../tests/support/turnReads.ts";
+} from "../../test-support/support/turnReads.ts";
 
 // One answer's `Server-Timing` metrics by name: whole milliseconds, and the
 // description when it has one.

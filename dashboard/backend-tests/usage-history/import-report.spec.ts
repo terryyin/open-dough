@@ -6,7 +6,7 @@ import {
   expect,
   test,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   readImported,
@@ -14,8 +14,8 @@ import {
   keepOperationalLaunch,
   writeClaudeSession,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
-import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("reports configured in-window work separately from retained old launches, unknown projects and unassigned usage", async ({
   home,

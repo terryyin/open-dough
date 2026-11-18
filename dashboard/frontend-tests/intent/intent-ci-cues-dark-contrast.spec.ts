@@ -2,17 +2,17 @@
 // borders, duration tints, and row text stay distinguishable on composed
 // backgrounds without expanding the integrated cue journey.
 
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expectReadableContrast } from "../../tests/accessibleReading.ts";
+import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
 import {
   expectDarkSurface,
   setColorScheme,
-} from "../../tests/systemAppearanceReading.ts";
+} from "../../test-support/systemAppearanceReading.ts";
 import {
   expectScopeRowCues,
   summaryEntryComparisonCues,
-} from "../../tests/support/expectCiComparisonCues.ts";
+} from "../../test-support/support/expectCiComparisonCues.ts";
 
 test("composed CI cue variants stay readable on dark surfaces", async ({
   page,

@@ -7,12 +7,12 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
+} from "../test-support/support/frontendApp.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../tests/launchStoryCardPage.ts";
+} from "../test-support/launchStoryCardPage.ts";
 import {
   launchAttachmentLimitBytes,
   launchAttachmentMaxCount,
@@ -25,7 +25,7 @@ import {
   pngA,
   pngB,
   writePickedImages,
-} from "../tests/support/launchAttachmentFixtures.ts";
+} from "../test-support/support/launchAttachmentFixtures.ts";
 
 test("PDF, oversized PNG and a sixth image are refused with reasons while the draft stays", async ({
   page,

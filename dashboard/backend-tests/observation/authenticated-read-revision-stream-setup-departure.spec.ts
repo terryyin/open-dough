@@ -4,9 +4,9 @@
 // in-process through the Vite plugin hooks and a plain http.Server (as
 // ./authenticated-read-plugin-hooks.spec.ts) so closeServer() closes the
 // boundary while this process and the fake GitHub keep observing. The
-// synthetic `gh` hold is FAKE_GH_AUTH_HOLD on ../../tests/fixtures/fake-gh.
+// synthetic `gh` hold is FAKE_GH_AUTH_HOLD on ../../test-support/fixtures/fake-gh.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import http from "node:http";
 import path from "node:path";
@@ -14,13 +14,13 @@ import { setTimeout as delay } from "node:timers/promises";
 import {
   everyRepository,
   type FakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
-import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 import {
   abandonedRequest,
   openEventStream,
-} from "../../tests/support/rawHttp.ts";
-import { sharedReadsPublished } from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/rawHttp.ts";
+import { sharedReadsPublished } from "../../test-support/support/sharedReads.ts";
 import { revisionA } from "./revisionCheckBoundary.ts";
 
 const knownSourceId = "open-dough";

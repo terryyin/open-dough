@@ -5,7 +5,7 @@
 // counts. A pure reading of records; the page journey is
 // ../../../e2e/sessions/sessions-sidebar.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import {
   attentionCount,

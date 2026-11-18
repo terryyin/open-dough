@@ -8,14 +8,14 @@ import {
 import { finalGapReasons } from "../../src/landedCiHistory.ts";
 import { gapReasonWords } from "../../src/ciHistoryGapWords.ts";
 import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 import {
   landedCiHistorySchema as previousHistorySchema,
   measuredHistoryOf as previousMeasuredHistoryOf,
-} from "../../tests/support/previousCiHistoryReader/landedCiHistory.ts";
-import { gapReasonWords as previousGapReasonWords } from "../../tests/support/previousCiHistoryReader/ciHistoryGapWords.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/previousCiHistoryReader/landedCiHistory.ts";
+import { gapReasonWords as previousGapReasonWords } from "../../test-support/support/previousCiHistoryReader/ciHistoryGapWords.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
 
 test.use({ serverMode: "boundary" });

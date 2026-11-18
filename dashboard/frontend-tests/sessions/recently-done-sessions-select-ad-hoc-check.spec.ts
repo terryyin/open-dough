@@ -2,16 +2,16 @@
 // the controllable `/__agent-launch/completed-story` family. Real claim/
 // completion store stays in e2e/sessions/recently-done-sessions-select-ad-hoc*.spec.ts
 // and dashboard/backend-tests/sessions/completed-story-association*.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { storyTitle } from "../../tests/support/intentStoryPage.ts";
-import { installFrontendCompletedStoryAssociation } from "../../tests/support/frontendServiceSubstitutes.ts";
-import { putFrontendDonePublication } from "../../tests/support/frontendServiceState.ts";
-import { showRecentlyDone } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
-import { describedRevisions } from "../../tests/describedRevisions.ts";
+import { storyTitle } from "../../test-support/support/intentStoryPage.ts";
+import { installFrontendCompletedStoryAssociation } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { putFrontendDonePublication } from "../../test-support/support/frontendServiceState.ts";
+import { showRecentlyDone } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
+import { describedRevisions } from "../../test-support/describedRevisions.ts";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 const linkedTitle = "Ad hoc association check";

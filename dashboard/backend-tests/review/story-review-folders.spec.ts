@@ -7,7 +7,7 @@
 // kind is the shared change-kind model: an item without one is unchanged, and
 // each folder knows whether it contains a changed item at any depth.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   reviewContainsChanges,
   reviewFileTree,

@@ -1,4 +1,4 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { developerPart } from "../../src/launchAttachments.ts";
 
 test("developerPart is undefined when there is no text and no attachments", () => {

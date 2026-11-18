@@ -1,7 +1,7 @@
 // Intent settings problems retain classified transient eligibility, while
 // location-listing failures keep the common whole-read response.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   backlog,
   featurePath,
@@ -10,16 +10,22 @@ import {
   revisionOf,
   settings,
   settingsPath,
-} from "../../tests/intentLocationsBoundaryFixtures.ts";
-import { httpErrorAnswer, noConnection } from "../../tests/originAnswers.ts";
+} from "../../test-support/intentLocationsBoundaryFixtures.ts";
+import {
+  httpErrorAnswer,
+  noConnection,
+} from "../../test-support/originAnswers.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 
 test.describe.configure({ mode: "serial" });
 

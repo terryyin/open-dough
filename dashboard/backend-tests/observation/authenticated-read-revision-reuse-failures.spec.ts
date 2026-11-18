@@ -5,13 +5,20 @@
 // alone, and a burst of reads shares one comparison and one read of each
 // commit between (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { refusedMarker } from "../../tests/support/sharedReads.ts";
-import { noConnection, rateLimitedAnswer } from "../../tests/originAnswers.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { refusedMarker } from "../../test-support/support/sharedReads.ts";
+import {
+  noConnection,
+  rateLimitedAnswer,
+} from "../../test-support/originAnswers.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { answerFrom } from "../../tests/revisionReuseAnswers.ts";
-import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
+import { answerFrom } from "../../test-support/revisionReuseAnswers.ts";
+import {
+  madeBy,
+  modified,
+  named,
+} from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 const origin = makeMe.aProjectRevision;

@@ -1,7 +1,10 @@
-import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
-import { bytes } from "../../tests/usage-history/agentEffortHarness.ts";
-import { costViews } from "../../tests/usage-history/agentEffortCost.ts";
-import { writeWakeEvidence } from "../../tests/usage-history/agentEffortWakeFixtures.ts";
+import {
+  test,
+  expect,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
+import { costViews } from "../../test-support/usage-history/agentEffortCost.ts";
+import { writeWakeEvidence } from "../../test-support/usage-history/agentEffortWakeFixtures.ts";
 
 const flags = (host: string) => [
   "--host",

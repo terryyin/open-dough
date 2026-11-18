@@ -1,13 +1,13 @@
 // Native API calls are mocked, while the actual emitted command/source runs.
 // Browser UI and Notification Center clicks remain separate native acceptance.
-import { expect } from "../../tests/support/pageTest.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
 import {
   afterFurtherListings,
   start,
   test,
-} from "../../tests/support/sessionAlerts.ts";
-import { notificationActivation } from "../../tests/support/notificationActivation.ts";
-import { browserActivation } from "../../tests/support/browserActivation.ts";
+} from "../../test-support/support/sessionAlerts.ts";
+import { notificationActivation } from "../../test-support/support/notificationActivation.ts";
+import { browserActivation } from "../../test-support/support/browserActivation.ts";
 
 for (const bundle of ["com.apple.Safari", "com.google.Chrome"] as const) {
   test(`${bundle} notification reuses its existing dashboard tab and foregrounds its window`, async ({

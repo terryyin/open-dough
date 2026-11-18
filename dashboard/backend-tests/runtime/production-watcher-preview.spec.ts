@@ -2,14 +2,14 @@
 // watcher's owner of same-port replacement and restoration.
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { productionFailureFixture } from "../../tests/support/productionWatcherFixture.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { productionFailureFixture } from "../../test-support/support/productionWatcherFixture.ts";
 import {
   faultCause,
   faultGateChanges,
   ownCauseFault,
-} from "../../tests/support/productionFault.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/productionFault.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 import {
   resolvePublishedMain,
   stageDeployment,

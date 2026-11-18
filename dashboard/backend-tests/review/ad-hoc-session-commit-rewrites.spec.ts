@@ -5,10 +5,10 @@ import { reviewedFileTextSchema } from "../../src/storyReviewContract.ts";
 import {
   adHocReview,
   adHocSessionFileText,
-} from "../../tests/support/adHocReview.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/adHocReview.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 

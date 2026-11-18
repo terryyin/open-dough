@@ -3,19 +3,19 @@
 // arrows still choose projects from Intent's content, and the keyboard never
 // stays in content a perspective change hid.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
-import { parts, projectTab } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
+import { parts, projectTab } from "../../test-support/dashboardPage.ts";
 import {
   expectAddress,
   expectNotConfiguredIntent,
-} from "../../tests/intentPerspectivePage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   expectCatalogStories,
   openDoughProject,
-} from "../../tests/projectKeyboardNavigationJourney.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+} from "../../test-support/projectKeyboardNavigationJourney.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 
 test("perspective keys choose a perspective without choosing another project, and the keyboard never stays in content the change hid", async ({
   page,

@@ -1,5 +1,4 @@
-// Each runner owning one group (dashboard/integrated.playwright.config.ts,
-// dashboard/frontend.playwright.config.ts,
+// Each runner owning one group (dashboard/frontend.playwright.config.ts,
 // dashboard/backend.playwright.config.ts, e2e/playwright.config.ts) takes
 // the repository admission when unfiltered, and only then: its focused runs,
 // its listing and its own CI split stay independent, and another group's
@@ -8,7 +7,7 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { fullDashboardSuite } from "../../../dashboard/tests/support/fullSuiteSelection.mjs";
+import { fullDashboardSuite } from "../../../dashboard/test-support/support/fullSuiteSelection.mjs";
 import {
   dashboard,
   fixture,
@@ -18,11 +17,6 @@ import {
 } from "./local-test-suite-fixtures.mjs";
 
 const runners = [
-  {
-    name: "Dashboard Integrated UI Test",
-    config: "controlled-integrated.config.mts",
-    split: "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT",
-  },
   {
     name: "Dashboard Frontend Test",
     config: "controlled-frontend.config.mts",

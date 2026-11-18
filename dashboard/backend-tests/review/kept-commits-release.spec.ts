@@ -3,7 +3,7 @@
 // landing's comparison exist while the record is kept, and leave when the
 // record is deleted or expires after retention, while another kept record's
 // references in the same repository stay. Over raw HTTP at the boundary
-// server, on a real project checkout (../../tests/support/startOrigin.ts);
+// server, on a real project checkout (../../test-support/support/startOrigin.ts);
 // the write that drops an expired record is an ordinary launch, as
 // ../sessions/agent-launch-retention-scope.spec.ts drops one. Pin cleanup
 // that fails and retries is ./one-shot-landing-recovery-deletion.spec.ts.
@@ -11,17 +11,20 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { deleteRecord } from "../../tests/agentLaunchBoundary.ts";
-import { daysAgo, retainedDoneAt } from "../../tests/machineLaunchRecords.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { deleteRecord } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  daysAgo,
+  retainedDoneAt,
+} from "../../test-support/machineLaunchRecords.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   keepLaunchRecords,
   keptLaunchRecords,
-} from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import type { StartOrigin } from "../../tests/support/startOrigin.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/launchStore.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

@@ -1,5 +1,5 @@
 // Start session with typed text presents nothing once its session starts, on
-// the launch journey's committed origin (../../dashboard/tests/launchJourney.ts):
+// the launch journey's committed origin (../../dashboard/test-support/launchJourney.ts):
 // a final report open in the Side panel stays, no terminal is requested, and
 // the session is an entry in Taken and the Sessions sidebar whose Open
 // terminal shows it. With the Side panel closed it stays closed and the
@@ -8,37 +8,37 @@
 // A start with nothing typed:
 // ../terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
 // up: ./agent-launch-follow-up-session.spec.ts. The synthetic `claude`
-// (../../dashboard/tests/fixtures/fake-claude) stands for the real one.
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
+// (../../dashboard/test-support/fixtures/fake-claude) stands for the real one.
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   parts,
   sessionNamedBy,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalFromEntry,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   retiredSession,
   retiredTitle,
-} from "../../dashboard/tests/support/followUpSources.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { takenAdHocSession } from "../../dashboard/tests/support/startedAdHocSession.ts";
-import { watchTerminalSockets } from "../../dashboard/tests/support/terminalSockets.ts";
+} from "../../dashboard/test-support/support/followUpSources.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { takenAdHocSession } from "../../dashboard/test-support/support/startedAdHocSession.ts";
+import { watchTerminalSockets } from "../../dashboard/test-support/support/terminalSockets.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -9,21 +9,24 @@
 // fixtures used by subprocess-lifecycle and shared-waiters. The failures
 // kept across processes: ./authenticated-read-incident-record.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import {
   httpErrorAnswer,
   rateLimitedAnswer,
-} from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   readAt,
   refusedMarker,
   servedHolding,
   sharedSeedPath,
   sharedSeedRead,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 import {
   diagnosticsUrl,
   inspect,
@@ -32,7 +35,7 @@ import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 test.describe.configure({ mode: "serial" });
 

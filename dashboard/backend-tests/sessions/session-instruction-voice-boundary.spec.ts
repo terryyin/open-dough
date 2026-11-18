@@ -1,15 +1,21 @@
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import path from "node:path";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { voiceProvider } from "../../tests/support/voiceProvider.ts";
-import { abandonedRequest, rawRequest } from "../../tests/support/rawHttp.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { voiceProvider } from "../../test-support/support/voiceProvider.ts";
+import {
+  abandonedRequest,
+  rawRequest,
+} from "../../test-support/support/rawHttp.ts";
 import {
   instructionAudioLimitBytes,
   instructionProblems,
   instructionTranscriptionEndpoint,
   instructionTranscriptionFailed,
 } from "../../src/instructionTranscription.ts";
-import { seedVoiceKey, voiceKey } from "../../tests/support/voicePage.ts";
+import {
+  seedVoiceKey,
+  voiceKey,
+} from "../../test-support/support/voicePage.ts";
 
 test("the audio boundary refuses foreign origins, method, media, empty and oversized bodies before provider contact", async () => {
   const provider = await voiceProvider();

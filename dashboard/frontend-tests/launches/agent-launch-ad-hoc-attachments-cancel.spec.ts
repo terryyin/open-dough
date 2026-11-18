@@ -9,18 +9,18 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
 import {
   pickImagesInDialog,
   pngA,
   writePickedImages,
-} from "../../tests/support/launchAttachmentFixtures.ts";
+} from "../../test-support/support/launchAttachmentFixtures.ts";
 
 for (const [dismissal, dismiss] of [
   [

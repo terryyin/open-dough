@@ -1,24 +1,24 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Cursor reopen from Recently done sessions: held attach keeps membership;
 // successful attach clears the Done row; narrow overlay returns focus.
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   pageReadReopened,
   showRecentlyDone,
   showThreeProjectPage,
-} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { expectSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { rem } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { expectSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   expect,
   keptRecord,
   test,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
 
 test.use({

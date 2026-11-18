@@ -8,23 +8,23 @@ import path from "node:path";
 import {
   expectUnchangedMachineRecords,
   snapshotMachineRecords,
-} from "../../dashboard/tests/support/machineRecordNames.ts";
-import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
-import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
+} from "../../dashboard/test-support/support/machineRecordNames.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
+import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
 import {
   openUntilRead,
   untilPublishedWorkRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { openSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   back,
   confirmRemoval,
@@ -32,7 +32,7 @@ import {
   removeDialog,
   removeProject,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
   fixture = projectAddMachine();

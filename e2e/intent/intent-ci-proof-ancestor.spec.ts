@@ -5,14 +5,14 @@ import {
   proofCalls,
   proofOf,
   type ProofRow,
-} from "../../dashboard/tests/intentCiProofPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
 import {
   ciStatusReading,
   expectCiAnswer,
   activateIntentHome,
   chooseCiStatus,
   runUrl,
-} from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 // The CI proof of a running result in Intent's CI status tab
 // (../../dashboard/src/IntentCiProof.tsx): a running story branch shows its completed ancestor's run's proof,
 // naming that ancestor's revision and run, not the running commit's; and a
@@ -22,24 +22,24 @@ import {
 // ancestor evidence (../../dashboard/src/IntentScopeProof.tsx). Why no proof can be shown:
 // ./intent-ci-proof-reasons.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
-import { intentLocationName } from "../../dashboard/tests/intentPerspectivePage.ts";
-import { chooseStoryTab } from "../../dashboard/tests/support/intentStoryPage.ts";
+import { intentLocationName } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   scopeFigures,
   summaryRegion,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
 import {
   evidenceLabels,
   expectAttemptAt,
   expectAttemptLinked,
   expectLeadingEvidenceLabels,
   expectLabelInFull,
-} from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+} from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 
-import { running } from "../../dashboard/tests/intentCiStoryBoard.ts";
+import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   login,
   mainRun,
@@ -48,14 +48,14 @@ import {
   signup,
   started,
   toggleOnDevelopment,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
-} from "../../dashboard/tests/support/ciProofArtifacts.ts";
-import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
+} from "../../dashboard/test-support/support/ciProofArtifacts.ts";
+import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const checksRow: ProofRow = ["tests", "5 passed test files", "No timings"];

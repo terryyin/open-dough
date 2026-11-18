@@ -1,11 +1,14 @@
 // Real published completion, confirmed association and local review saves.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   doneCard,
   expectReviewed,
@@ -13,24 +16,24 @@ import {
   openRecentlyDone,
   reviewSaveFailure,
   unreviewStory,
-} from "../../dashboard/tests/doneStoryReviewPage.ts";
+} from "../../dashboard/test-support/doneStoryReviewPage.ts";
 import {
   expectSessionReviewCue,
   showRecentlyDone,
-} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   sessionsSidebarParts,
   unreadSessionReport,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { storyReviewStateEndpoint } from "../../dashboard/src/storyReviewState.ts";
 import {
   setColorScheme,
   expectFocusReadable,
-} from "../../dashboard/tests/systemAppearanceReading.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { expectReadableContrast } from "../../dashboard/tests/accessibleReading.ts";
-import { finalReportText } from "../../dashboard/tests/finalReportPages.ts";
+} from "../../dashboard/test-support/systemAppearanceReading.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { expectReadableContrast } from "../../dashboard/test-support/accessibleReading.ts";
+import { finalReportText } from "../../dashboard/test-support/finalReportPages.ts";
 
 test.use({ preparationHost: "codex" });
 

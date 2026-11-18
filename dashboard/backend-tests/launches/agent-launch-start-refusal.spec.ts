@@ -1,7 +1,7 @@
 // An execution launch whose start cannot be established launches nothing and
 // answers "Launch failed:" with why (../../server/startResult.ts `refusal`),
 // over raw HTTP against the real installed `execution-start.mjs` and a real
-// bare origin (../../tests/support/startOrigin.ts): the story Taken by another agent,
+// bare origin (../../test-support/support/startOrigin.ts): the story Taken by another agent,
 // the story not queued or still needing refinement, and an installed start
 // command that gives no readable result. A project whose origin differs is in
 // ./agent-launch-start.spec.ts; the table's mapping of the remaining stop
@@ -15,18 +15,18 @@ import {
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { launch, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

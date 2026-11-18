@@ -8,14 +8,17 @@
 // ./authenticated-read-revision-check.spec.ts and
 // ./authenticated-read-revision-check-failures.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { commitAnswer, rateLimitedAnswer } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import {
+  commitAnswer,
+  rateLimitedAnswer,
+} from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import {
   heads,
   sharedReadsPublished,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 import {
   gatewayTimeout,
   revisionA,

@@ -8,28 +8,31 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { credit, detailHuman } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  credit,
+  detailHuman,
+} from "../../dashboard/test-support/agentCredit.ts";
 import {
   askedSince,
   expectRecovered,
   isCommit,
   isYumaHistory,
   yumaAddition,
-} from "../../dashboard/tests/limitRecoveryCredit.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/limitRecoveryCredit.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   pathChange,
   type PathChange,
-} from "../../dashboard/tests/pathHistoryAnswers.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../dashboard/tests/support/ghRequest.ts";
+} from "../../dashboard/test-support/pathHistoryAnswers.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
 import {
   committed,
   files,
@@ -39,12 +42,12 @@ import {
   profilePath,
   revision,
   takes,
-} from "../../dashboard/tests/sliceClockRecords.ts";
-import { detailRecovery } from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
+import { detailRecovery } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 type Page = Parameters<typeof parts>[0];
 
-// Opens the clock records (../../dashboard/tests/limitRecoveryCredit.ts) with Yuma's profile
+// Opens the clock records (../../dashboard/test-support/limitRecoveryCredit.ts) with Yuma's profile
 // history `yumaHistory` and Sola's `solaHistory`; GitHub cannot be reached for
 // each request `refused` picks until `heal` is called. The page shows the
 // snapshot with Yuma's human and clock unknown, and says it reads them again.

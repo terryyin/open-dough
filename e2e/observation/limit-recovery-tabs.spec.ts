@@ -10,20 +10,20 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   expectSettledPage,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   isContent,
   limiting,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { untilReported } from "../../dashboard/tests/support/directedWait.ts";
-import { holdingAnswer } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { untilReported } from "../../dashboard/test-support/support/directedWait.ts";
+import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   files,
@@ -35,12 +35,12 @@ import {
   titles,
   withheldSeed,
   withheldTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 
 // A tab's read of which commit Open Dough's ref names.
 const isMembership = (request: Request) => {

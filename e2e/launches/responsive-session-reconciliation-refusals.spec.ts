@@ -8,27 +8,27 @@
 // Afterwards the card offers what the read story allows, with the launch's
 // answer kept on it.
 
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
 import { openSessionStartReason } from "../../dashboard/src/agentLaunch.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { commitAnswer } from "../../dashboard/tests/originAnswers.ts";
-import { removeQueuedStory } from "../../dashboard/tests/responsiveRecovery.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { commitAnswer } from "../../dashboard/test-support/originAnswers.ts";
+import { removeQueuedStory } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expectProtected,
   openStories,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
-import { radio } from "../../dashboard/tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
+import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   storyA,
   storyB,

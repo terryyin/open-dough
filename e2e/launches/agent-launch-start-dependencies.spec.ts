@@ -1,27 +1,27 @@
 // Stale-card race crosses the UI and actual source-installed start command.
 // Synthetic Claude observes native launch; it supplies no start refusal.
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   consumer,
   reason,
   condition,
   test,
   twoDependencies,
-} from "../../dashboard/tests/storyDependencyFixture.ts";
+} from "../../dashboard/test-support/storyDependencyFixture.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,
-} from "../../dashboard/tests/pageRequestNotes.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
-import { dependencyDisclosure } from "../../dashboard/tests/storyReference.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { dependencyDisclosure } from "../../dashboard/test-support/storyReference.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 
 test("a blocker published after the card rendered refuses real startup before claim or native launch", async ({
   page,

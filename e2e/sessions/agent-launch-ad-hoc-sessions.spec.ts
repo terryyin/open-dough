@@ -10,9 +10,9 @@ import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
@@ -20,31 +20,31 @@ import {
   parts,
   sessionNamedBy,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   notRefinedStory,
   readyStory,
   takenStory,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectRevealsSince,
   recordReveals,
   revealsOf,
-} from "../../dashboard/tests/sessionNavigationJourney.ts";
+} from "../../dashboard/test-support/sessionNavigationJourney.ts";
 import {
   expectTooltipLine,
   openSessionsSidebar,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   takenAdHocSession,
   startAdHocAndClose,
-} from "../../dashboard/tests/support/startedAdHocSession.ts";
+} from "../../dashboard/test-support/support/startedAdHocSession.ts";
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 const openDoughStories = {

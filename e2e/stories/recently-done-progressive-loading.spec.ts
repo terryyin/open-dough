@@ -18,37 +18,37 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   columnPagingControl,
   rem,
   showColumn,
   wheelToBoardEnd,
-} from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/boardPage.ts";
 import {
   columnCountOf,
   storyCardSessions,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectEntries,
   revealAction,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import {
   answeringFirst,
   holdingAnswer,
-} from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+} from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import {
   entryName,
   progressiveEntries,
-} from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   recordsAsked,
   standing,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 
 // 35 entries: seven ad hoc sessions marked done among 28 done stories; the
 // story fourth in the list holds three sessions marked done.

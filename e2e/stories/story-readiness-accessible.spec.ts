@@ -2,37 +2,37 @@
 // keyboard, narrow/zoomed reading, and color-independent badges. Extends the
 // shared accessibility helpers against the real CLI-committed fixture.
 
-import { expectQueuedPlanFocusDuringEnrichment } from "../../dashboard/tests/queuedPlanFocus.ts";
+import { expectQueuedPlanFocusDuringEnrichment } from "../../dashboard/test-support/queuedPlanFocus.ts";
 import {
   passTimeUntilChecked,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   expectMembership,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectBadgeTextContrastAndReducedMotion,
   expectKeyboardOpensAndClosesDetail,
   expectNarrowZoomKeepsLabelsEvidenceAndFailure,
   expectNewSnapshotPreservesOrAnnouncesIdentity,
-} from "../../dashboard/tests/storyReadinessAccessible.ts";
-import { expectScanToDetailAt420AndTwiceZoom } from "../../dashboard/tests/storyReadinessScan.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyReadinessAccessible.ts";
+import { expectScanToDetailAt420AndTwiceZoom } from "../../dashboard/test-support/storyReadinessScan.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
   unrefined,
-} from "../../dashboard/tests/storyReadinessFixture.ts";
+} from "../../dashboard/test-support/storyReadinessFixture.ts";
 import {
   publishAssessedContentChange,
   publishRestoreUnrefined,
-} from "../../dashboard/tests/storyReadinessPublications.ts";
+} from "../../dashboard/test-support/storyReadinessPublications.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 

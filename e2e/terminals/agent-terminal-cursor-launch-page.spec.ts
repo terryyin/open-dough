@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // An instructed Cursor session takes its instruction with no terminal joined.
 // Its entry's Open terminal then joins that same client: the page shows its
 // output and accepts typing. There is no launch-wait notice and no second
@@ -13,30 +13,30 @@ import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   terminalHandoffAttach,
   terminalHandoffHeader,
 } from "../../dashboard/src/agentTerminal.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   startSessionField,
   startedSession,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expect,
   workingCursorTest as test,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { keptCursor } from "../../dashboard/tests/support/keptCursorTurn.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { keptCursor } from "../../dashboard/test-support/support/keptCursorTurn.ts";
 import {
   expectCopiedAttachmentPath,
   pickImagesInDialog,
   pngA,
   writePickedImages,
-} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { watchTerminalSockets } from "../../dashboard/tests/support/terminalSockets.ts";
+} from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { watchTerminalSockets } from "../../dashboard/test-support/support/terminalSockets.ts";
 
 const instruction = "hold this launch";
 const notice =

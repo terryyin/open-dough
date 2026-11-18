@@ -1,10 +1,10 @@
 // Remove/corrupt accepted attempt evidence after native creation, before binding.
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
+import { keptLaunchRecords } from "../../test-support/support/launchStore.ts";
 import path from "node:path";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
-import { test, expect } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
+import { test, expect } from "../../test-support/support/codexStart.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 
 test.use({ serverMode: "boundary" });
 

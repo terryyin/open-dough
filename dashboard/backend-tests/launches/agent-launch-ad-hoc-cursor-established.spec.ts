@@ -1,5 +1,5 @@
 // An unattached Cursor session whose launch establishes its session, with
-// the real installed start (../../tests/support/cursorStart.ts) and the fixture
+// the real installed start (../../test-support/support/cursorStart.ts) and the fixture
 // `cursor-agent`: existing changes in default main are confirmed before
 // create-chat, and the first prompt is the "Established session" block, then
 // the reporting context, with no skill line and nothing of the developer's;
@@ -17,15 +17,18 @@ import {
   continued,
   launch,
   recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../tests/support/cursorStart.ts";
-import { dirty, status } from "../../tests/support/defaultCheckoutChanges.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/cursorStart.ts";
+import {
+  dirty,
+  status,
+} from "../../test-support/support/defaultCheckoutChanges.ts";
+import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import {
   defaultMainSession,
   isolatedSession,
   sessionBlock,
-} from "../../tests/support/startSessionLanding.ts";
+} from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

@@ -13,16 +13,16 @@ import {
   privateRequestOwner,
   withdrawRequestOwners,
 } from "../../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   everyRepository,
   failsWith,
   hangs,
   publishes,
   startFakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
-import { httpErrorAnswer } from "../../tests/originAnswers.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   incidentEntries,
   incidentFiles,
@@ -32,7 +32,7 @@ import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/readDiagnostics.ts";
+} from "../../test-support/support/readDiagnostics.ts";
 
 test("a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-incidents-"));

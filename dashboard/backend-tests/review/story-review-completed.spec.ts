@@ -1,16 +1,19 @@
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   getReview as get,
   completedStoryQuery as named,
   completedReviewQuery as completed,
-} from "../../tests/support/completedReviewRequests.ts";
+} from "../../test-support/support/completedReviewRequests.ts";
 import {
   completedPublishedStory,
   advanceCompletedTrunk,
-} from "../../tests/support/completedPublishedStory.ts";
-import { laterBranchMergesTrunkAndFastForwards } from "../../tests/support/laterStoryMergesTrunk.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
-import { git, writeAt } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/completedPublishedStory.ts";
+import { laterBranchMergesTrunkAndFastForwards } from "../../test-support/support/laterStoryMergesTrunk.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import {
+  git,
+  writeAt,
+} from "../../test-support/support/storyReviewWorktree.ts";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   storyReviewEndpoint,

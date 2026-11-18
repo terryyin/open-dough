@@ -2,9 +2,9 @@
 // picker and run facts wait behind the eye; choosing the older run updates
 // the details and the diff together, survives Refresh, and Escape returns
 // focus to the eye.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { reviewChanges } from "../../tests/storyCardControls.ts";
-import { doneCard } from "../../tests/doneStoryReviewPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
@@ -12,26 +12,26 @@ import {
   frontendFileDiff,
   frontendReviewIds,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
 import {
   openFrontendBoardReview,
   storyA,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import {
   expectShown,
   filesToggle,
   landedRunChoice,
   reviewRegion,
   toolbarComparison,
-} from "../../tests/support/reviewControls.ts";
+} from "../../test-support/support/reviewControls.ts";
 import {
   escapeDetailsFrom,
   expectDetailsCollapsed,
   expectDetailsRevealed,
   revealDetails,
-} from "../../tests/support/reviewDetails.ts";
-import { refreshAndRead } from "../../tests/support/reviewRead.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/reviewDetails.ts";
+import { refreshAndRead } from "../../test-support/support/reviewRead.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
 
 const ids = frontendReviewIds;
 const older = {

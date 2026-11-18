@@ -8,28 +8,28 @@ import {
   releaseWriteLock,
 } from "../../dashboard/server/machineJsonLock.ts";
 import type { Acceptance } from "../../dashboard/src/agentLaunch.ts";
-import { keptAttempts } from "../../dashboard/tests/acceptedAttempts.ts";
+import { keptAttempts } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   attempts,
   machineSessions,
-} from "../../dashboard/tests/agentLaunchSessions.ts";
+} from "../../dashboard/test-support/agentLaunchSessions.ts";
 import {
   settledAtFirstDrain,
   waitForLaunchAdmissionClosed,
-} from "../../dashboard/tests/support/launchAdmissionObservation.ts";
-import { expect } from "../../dashboard/tests/support/pageTest.ts";
+} from "../../dashboard/test-support/support/launchAdmissionObservation.ts";
+import { expect } from "../../dashboard/test-support/support/pageTest.ts";
 import {
   holdBuildPath,
   holdCompletedBuildPath,
   waitForBuild,
   waitForCompletedBuild,
-} from "../../dashboard/tests/support/productionBuildGate.ts";
+} from "../../dashboard/test-support/support/productionBuildGate.ts";
 import {
   deploymentCheckout,
   productionBoundary,
-} from "../../dashboard/tests/support/productionWatcher.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { waitForWatcherOutput } from "../../dashboard/tests/support/watcherEvents.ts";
+} from "../../dashboard/test-support/support/productionWatcher.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { waitForWatcherOutput } from "../../dashboard/test-support/support/watcherEvents.ts";
 import type { ProductionUpdateJourney } from "./productionUpdateJourney.ts";
 
 export async function replaceWhileStartDrains(

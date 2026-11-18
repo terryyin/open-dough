@@ -1,35 +1,38 @@
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts";
 // The full app keeps changed-tree filtering, expansion and reading across
 // story view switches, hidden selection and a Project Intent refresh.
 // Explicit service answers own presentation; the real Git overlay remains
 // observed in ../../../e2e/intent/intent-story-changes.spec.ts and its siblings.
 
 import type { Locator } from "@playwright/test";
-import { parts } from "../../tests/dashboardPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   intentGroupToggle,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { intentStory } from "../../tests/support/intentStoryPage.ts";
-import { changed } from "../../tests/support/intentStoryWorktree.ts";
-import { shortRevision } from "../../tests/dashboardParts.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { intentStory } from "../../test-support/support/intentStoryPage.ts";
+import { changed } from "../../test-support/support/intentStoryWorktree.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
 import {
   putFrontendIntentStory,
   answerFrontendIntentChanges,
-} from "../../tests/support/frontendIntentStory.ts";
+} from "../../test-support/support/frontendIntentStory.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
-import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
-import { passTimeUntilChecked } from "../../tests/autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
+import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
+import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   openProjectIntent,
   returnToStory,
   openStoryIntent,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 
 const changedInFirstLocation = [
   changed.modified,

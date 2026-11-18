@@ -9,24 +9,24 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { accept, attempts } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { accept, attempts } from "../../test-support/agentLaunchBoundary.ts";
 import {
   keptAttempts as keptOfMachine,
   ownedRunning,
-} from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/acceptedAttempts.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type PushHold,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

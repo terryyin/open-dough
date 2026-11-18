@@ -2,7 +2,7 @@
 // (../../dashboard/src/LaunchDialog.tsx, ../../dashboard/src/launchAttempts.ts,
 // ../../dashboard/src/StoryCard.tsx):
 // the real installed starts against a real bare origin
-// (../../dashboard/tests/support/startOrigin.ts) whose `pre-receive` hook holds the published
+// (../../dashboard/test-support/support/startOrigin.ts) whose `pre-receive` hook holds the published
 // assignment, with the synthetic `claude` holding the native launch
 // (Codex: ./responsive-session-start-codex.spec.ts). Pressing Start commits
 // the request at once: Cancel and Start are unavailable, Escape does nothing,
@@ -21,13 +21,13 @@
 // of the acceptance answer to the page is held here; the service's admission,
 // publication, and outcome are the real ones.
 
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectOthersWork,
   expectProtected,
@@ -36,8 +36,8 @@ import {
   instruction,
   openStories,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 

@@ -13,13 +13,13 @@ import {
   attempts,
   attemptsAttending,
   attemptsInHistory,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   commitAnswer,
   noConnection,
-} from "../../dashboard/tests/originAnswers.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/originAnswers.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectRecoveryOffered,
   expectStaticallyProtected,
@@ -27,13 +27,13 @@ import {
   recoveryOf,
   restart,
   startExecution,
-} from "../../dashboard/tests/responsiveRecovery.ts";
+} from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   commitOn,
   openStories,
   test,
-} from "../../dashboard/tests/responsiveStart.ts";
-import { reportingChild } from "../../dashboard/tests/support/completionRecovery.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
+import { reportingChild } from "../../dashboard/test-support/support/completionRecovery.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 

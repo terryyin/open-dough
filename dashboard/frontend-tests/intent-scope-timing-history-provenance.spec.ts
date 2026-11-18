@@ -5,10 +5,10 @@
 import {
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../tests/intentScopeHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
-import { expect, test } from "../tests/support/comparisonMountPage.ts";
-import { openSummaryScopeHistory } from "../tests/support/summaryScopeHistory.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
+import { expect, test } from "../test-support/support/comparisonMountPage.ts";
+import { openSummaryScopeHistory } from "../test-support/support/summaryScopeHistory.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
 

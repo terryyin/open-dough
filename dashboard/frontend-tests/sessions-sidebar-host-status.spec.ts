@@ -5,14 +5,14 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../tests/dashboardTest.ts";
-import { watchRecordReads } from "../tests/sessionStatePace.ts";
-import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
+} from "../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../test-support/dashboardTest.ts";
+import { watchRecordReads } from "../test-support/sessionStatePace.ts";
+import { sessionsSidebarParts } from "../test-support/sessionsSidebarPage.ts";
 import {
   expectFigure,
   sessionsSidebarFigures,
-} from "../tests/sessionsSidebarFigures.ts";
+} from "../test-support/sessionsSidebarFigures.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("the Sessions sidebar's title row status", () => {

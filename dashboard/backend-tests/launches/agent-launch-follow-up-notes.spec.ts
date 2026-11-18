@@ -1,5 +1,5 @@
 // A done story's follow-up with `notes: true` over raw HTTP, with a real bare
-// origin (../../tests/support/startOrigin.ts), a synthetic `gh` answering from
+// origin (../../test-support/support/startOrigin.ts), a synthetic `gh` answering from
 // the fake GitHub, and the synthetic `claude`: admission reads waiting notes
 // from the machine store, never the page, and puts them after the story's
 // context in the first input; without `notes: true` none are sent; a retried
@@ -10,13 +10,13 @@
 // agent-launch-follow-up-identity.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
+import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
 import {
   recoverStory,
   storyContextOf,
-} from "../../tests/support/followUpStories.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+} from "../../test-support/support/followUpStories.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { developerStoryNotesLabel } from "../../src/followUpStoryNotes.ts";
 import { storyNotesEndpoint, storyNoteVersion } from "../../src/storyNote.ts";
 import {

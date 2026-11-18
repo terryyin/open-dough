@@ -12,17 +12,17 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   takenStoryWorking,
   takenStoryWorkingSession,
-} from "../../tests/support/frontendCardSessions.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
-import { untilPageRequestsAnswered } from "../../tests/pageRequestNotes.ts";
-import { readyStory } from "../../tests/launchJourney.ts";
-import { columns, rem } from "../../tests/boardPage.ts";
+} from "../../test-support/support/frontendCardSessions.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
+import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
+import { readyStory } from "../../test-support/launchJourney.ts";
+import { columns, rem } from "../../test-support/boardPage.ts";
 
 // A 108rem window, which the side panel leaves a 54rem Board.
 test.use({ viewport: { width: 108 * rem, height: 900 } });

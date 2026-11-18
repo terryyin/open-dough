@@ -7,20 +7,23 @@
 // lists' saved sessions and runner answers are preconditions only; the held
 // client is real, and resizing asks it nothing.
 import type { Locator } from "@playwright/test";
-import { expectFocusedAndIndicated } from "../../dashboard/tests/accessibleReading.ts";
+import { expectFocusedAndIndicated } from "../../dashboard/test-support/accessibleReading.ts";
 import {
   expandCrowded,
   keyStep,
   runningCursorSplit,
   type RunningCursorSplit,
-} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
-import { box, expectInside } from "../../dashboard/tests/pageLayout.ts";
-import type { RunningCursorParts } from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/cursorSessionsSidebarResizePage.ts";
+import { box, expectInside } from "../../dashboard/test-support/pageLayout.ts";
+import type { RunningCursorParts } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   listFloor as floor,
   scrollTopOf,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
 

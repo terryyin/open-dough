@@ -2,24 +2,24 @@
 // separate touch controls. At phone width the sidebar overlays; once closed,
 // Development shows the selected done card while its catalog read finishes.
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   closeSidePanelToBoard,
   tapWhereShown,
-} from "../../tests/pageLayout.ts";
-import { expectProjectChoice } from "../../tests/projectChoice.ts";
-import { holdPygardonCatalog } from "../../tests/pygardonCatalogReads.ts";
-import { expectSelected } from "../../tests/storyCardSelection.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { finalReportParts } from "../../tests/finalReportPages.ts";
+} from "../../test-support/pageLayout.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
+import { holdPygardonCatalog } from "../../test-support/pygardonCatalogReads.ts";
+import { expectSelected } from "../../test-support/storyCardSelection.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { finalReportParts } from "../../test-support/finalReportPages.ts";
 import {
   adHoc,
   linked,
   openFrontendSelectionPage,
   report,
-} from "../../tests/support/frontendRecentlyDoneSelection.ts";
+} from "../../test-support/support/frontendRecentlyDoneSelection.ts";
 
 test.describe("on coarse input", () => {
   test.use({ viewport: phoneLaunchTouchViewport.portrait, hasTouch: true });

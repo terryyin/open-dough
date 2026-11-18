@@ -4,23 +4,26 @@
 // process, and closing the server ends it for every request. Tested
 // directly against real HTTP and the synthetic `gh`, with the requests made
 // to coincide on a held answer as ./authenticated-read-shared.spec.ts makes
-// them (../../tests/support/sharedReads.ts). A single request's disconnect, bound, and
+// them (../../test-support/support/sharedReads.ts). A single request's disconnect, bound, and
 // shutdown: ./authenticated-read-subprocess-lifecycle.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { waitUntil } from "../../test-support/support/waitUntil.ts";
+import {
+  everyRepository,
+  hangs,
+} from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import {
   processAlive,
   processRunning,
-} from "../../tests/support/processGroup.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/processGroup.ts";
+import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
 import {
   askedSince,
   readAt,
@@ -29,7 +32,7 @@ import {
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
-} from "../../tests/support/sharedReads.ts";
+} from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
 

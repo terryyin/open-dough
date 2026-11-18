@@ -1,23 +1,23 @@
 // What a phone reads of a settled automatic CI repeat from its Done card,
 // with no receipt journey and a dashboard that collects nothing
-// (../../dashboard/tests/support/ciFollowUpSettledReading.ts): both attempts and their frozen
+// (../../dashboard/test-support/support/ciFollowUpSettledReading.ts): both attempts and their frozen
 // reference. The original's proof is ./intent-ci-follow-up-proof.spec.ts, and
 // returning to the comparison ./intent-ci-follow-up-return.spec.ts.
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
+import { attemptLink } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
 import {
   actionsRequests,
   expect,
   keepSettledRepeat,
   test,
-} from "../../dashboard/tests/support/ciFollowUpSettledReading.ts";
+} from "../../dashboard/test-support/support/ciFollowUpSettledReading.ts";
 import {
   expectWholeOnPhone,
   openCiFollowUp,
   retainedCiFollowUpReading,
   shownCiFollowUpCard,
-} from "../../dashboard/tests/support/ciFollowUpReadingPage.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ viewport: { width: 390, height: 844 } });
 

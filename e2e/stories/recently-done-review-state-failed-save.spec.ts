@@ -8,13 +8,16 @@
 import { chmodSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { storyReviewStateEndpoint } from "../../dashboard/src/storyReviewState.ts";
-import { doneStoryReview } from "../../dashboard/tests/doneStoryReviewPage.ts";
+import { doneStoryReview } from "../../dashboard/test-support/doneStoryReviewPage.ts";
 import {
   boardReviewRecords,
   keptReviewStates,
   reviewStatesFile,
-} from "../../dashboard/tests/recentlyDoneReviewState.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/recentlyDoneReviewState.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 
 const notSaved = "The review state could not be saved.";
 

@@ -2,19 +2,19 @@
 // colours inside insertions/deletions, remain marked before tokens arrive, and
 // stay readable (token and underline contrast) in light and dark.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   colorBehind,
   contrastRatio,
   expectReadableContrast,
-} from "../../tests/accessibleReading.ts";
-import { setColorScheme } from "../../tests/systemAppearanceReading.ts";
-import { openLimitTsWordEmphasisDiff } from "../../tests/support/diffWordEmphasisOpen.ts";
+} from "../../test-support/accessibleReading.ts";
+import { setColorScheme } from "../../test-support/systemAppearanceReading.ts";
+import { openLimitTsWordEmphasisDiff } from "../../test-support/support/diffWordEmphasisOpen.ts";
 import {
   fileReads,
   tokenAppearance,
-} from "../../tests/support/reviewDiffSyntax.ts";
-import { holdGrammar } from "../../tests/support/syntaxGrammar.ts";
+} from "../../test-support/support/reviewDiffSyntax.ts";
+import { holdGrammar } from "../../test-support/support/syntaxGrammar.ts";
 
 test("styled changed words keep token colours inside insertions and deletions", async ({
   page,

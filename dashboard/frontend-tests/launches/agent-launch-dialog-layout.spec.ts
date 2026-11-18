@@ -9,27 +9,27 @@
 // body with every option selected, every control scrolls into view, with no
 // horizontal scrolling at 320 CSS pixels or at 200% zoom; Cancel returns the
 // keyboard to Start refinement. 200% zoom is emulated as
-// ../../tests/accessibleReading.ts's twiceZoomedWindow. Built frontend against
+// ../../test-support/accessibleReading.ts's twiceZoomedWindow. Built frontend against
 // controlled answers; which options a project's installed skill offers is
 // ../../../e2e/launches/agent-launch-options.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
+import { twiceZoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   box,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
-} from "../../tests/pageLayout.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/pageLayout.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   shippedRefinementDefinition,
   showOptions,
-} from "../../tests/launchStoryCardPage.ts";
-import { notRefinedIdentity } from "../../tests/launchJourney.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import { notRefinedIdentity } from "../../test-support/launchJourney.ts";
 import {
   longTitle,
   openLongTitleRefinement,
-} from "../../tests/longTitleLaunch.ts";
+} from "../../test-support/longTitleLaunch.ts";
 
 const optionsSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Refinement options" });

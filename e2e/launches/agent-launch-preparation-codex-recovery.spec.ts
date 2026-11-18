@@ -2,21 +2,24 @@
 import { readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   accept,
   attempts,
   continued,
   launch,
   keptStarts,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex" });

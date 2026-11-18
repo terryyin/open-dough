@@ -1,13 +1,16 @@
 // Only the exact accepted full comparable attempt can provide a verdict.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
-import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { prepareAdapterRepeatScenario } from "../../test-support/support/ciFollowUpAdapterScenario.ts";
+import { followUpCards } from "../../test-support/support/ciFollowUpScenario.ts";
 import {
   ingest,
   retained,
   requestOf,
   type Scenario,
-} from "../../tests/support/ciFollowUpAdapterAssertions.ts";
+} from "../../test-support/support/ciFollowUpAdapterAssertions.ts";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 

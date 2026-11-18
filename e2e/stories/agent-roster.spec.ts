@@ -4,7 +4,7 @@
 // publishes files (agentRosterRecords.ts); the local read boundary, the shared
 // profile reader, and the page decide everything shown.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   expectMembership,
@@ -12,12 +12,12 @@ import {
   parts,
   rosterParts,
   selectedProjectId,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   agentIdentity,
   agentNames,
@@ -33,11 +33,11 @@ import {
   publishRosterOrigins,
   queuedStory,
   takenStory,
-} from "../../dashboard/tests/agentRosterRecords.ts";
+} from "../../dashboard/test-support/agentRosterRecords.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 const everyAgent = agentNames.map((name) => agentIdentity(name).agent);
 

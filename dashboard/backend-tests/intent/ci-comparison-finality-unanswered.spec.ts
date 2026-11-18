@@ -17,7 +17,7 @@ import {
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import { finalityArtifacts } from "../support/finalityArtifacts.ts";
 import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
-import { capturedComparisonLanding } from "../../tests/support/capturedComparisonLanding.ts";
+import { capturedComparisonLanding } from "../../test-support/support/capturedComparisonLanding.ts";
 import {
   expect,
   test,

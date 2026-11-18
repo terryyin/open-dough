@@ -1,30 +1,30 @@
 // Mark as done on a Recently done entry of a recorded Claude session whose
 // workspace is retired: where a press finds it, and the rename it retries.
 
-import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { sessionActions } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { rmSync } from "node:fs";
-import { test, expect } from "../../dashboard/tests/dashboardTest.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
+import { test, expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   parts,
   sessionProblemOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   recordedClaude as recorded,
   save,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   markAsDone,
   markDone,
-} from "../../dashboard/tests/support/markDone.ts";
-import { holdAuthenticatedReadsWhere } from "../../dashboard/tests/holdAuthenticatedReads.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { holdAuthenticatedReadsWhere } from "../../dashboard/test-support/holdAuthenticatedReads.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {

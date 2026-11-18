@@ -2,33 +2,33 @@ import {
   fileSource,
   sourceLineText,
   sourceFile,
-} from "../../dashboard/tests/intentCodeBrowsePage.ts";
+} from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent code browse for locations declared by source entries with syntax
 // hints (../../dashboard/src/IntentPerspective.tsx): Doughnut's `scripts` holding Bash
 // `.test` and Node `.test.mjs` files in one tree, and files with no hint or
 // one Intent has no grammar for read as plain text. Companion to
 // ./intent-code-browse-projects.spec.ts for kind-declared locations.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentLocationName,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   colourOf,
   expectKeywordAndStringColours,
   sourceToken,
-} from "../../dashboard/tests/pageColours.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageColours.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   doughnut,
   nodeTest,
   publishIntentProject,
   shellCheck,
-} from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent lists sources locations' Bash, Node and Java files, opens each with its hint's styling, and reads unhinted or ungrammared files as plain text", async ({

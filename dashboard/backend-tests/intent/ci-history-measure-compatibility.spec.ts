@@ -8,15 +8,15 @@ import {
   landedCiHistorySchema,
   measuredHistoryOf,
 } from "../../src/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   landedCiHistorySchema as previousHistorySchema,
   measuredHistoryOf as previousMeasuredHistoryOf,
-} from "../../tests/support/previousCiHistoryReader/landedCiHistory.ts";
+} from "../../test-support/support/previousCiHistoryReader/landedCiHistory.ts";
 
 test.use({ serverMode: "boundary" });
 

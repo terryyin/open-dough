@@ -1,14 +1,14 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // The actual comparison renders prepared canonical proof answers.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   expectCiComparisonEntryRows,
   comparedStoryEntryRows,
   comparedStoryEntryCues,
-} from "../../tests/support/expectCiComparisonEntryRows.ts";
-import { expectEntryRowCues } from "../../tests/support/expectCiComparisonCues.ts";
-import { expectUnsortedRows } from "../../tests/support/expectSortedColumns.ts";
+} from "../../test-support/support/expectCiComparisonEntryRows.ts";
+import { expectEntryRowCues } from "../../test-support/support/expectCiComparisonCues.ts";
+import { expectUnsortedRows } from "../../test-support/support/expectSortedColumns.ts";
 
 test("expired entry proofs keep Branch and Landed wall times and explain absence of the table", async ({
   renderComparison,

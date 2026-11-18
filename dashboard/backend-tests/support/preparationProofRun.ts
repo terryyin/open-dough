@@ -3,19 +3,19 @@
 // artifact trace, every case's fixture steps (fixtureSteps.mjs) and what each
 // case reports (reportCase.ts).
 import path from "node:path";
-import { appendedFileRecords } from "../../tests/support/appendedRecords.ts";
-import { expect } from "../../tests/support/pageTest.ts";
+import { appendedFileRecords } from "../../test-support/support/appendedRecords.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
 import {
   proofDirectory,
   quietReporter,
   readProof,
   startProofRun,
-} from "../../tests/support/proofRecordRun.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/support/proofRecordRun.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 export const preparationFixtures = path.join(
   repoRoot,
-  "dashboard/tests/fixtures/test-preparation-budget",
+  "dashboard/test-support/fixtures/test-preparation-budget",
 );
 
 type Trace = { event: string; key: string; at: number };
@@ -42,7 +42,7 @@ type ReportedCase = {
 
 export function startPreparationProofRun(options: {
   spec: string;
-  // A global setup file in dashboard/tests/support.
+  // A global setup file in dashboard/test-support/support.
   setup: string;
   env?: Readonly<Record<string, string>>;
 }) {
@@ -58,7 +58,7 @@ export function startPreparationProofRun(options: {
       workers: 1,
       globalSetup: path.join(
         repoRoot,
-        "dashboard/tests/support",
+        "dashboard/test-support/support",
         options.setup,
       ),
       reporter: [

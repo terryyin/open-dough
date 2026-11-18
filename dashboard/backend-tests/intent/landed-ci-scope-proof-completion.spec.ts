@@ -6,19 +6,25 @@ import type { CompletionSubmission } from "../../server/completionAdmission.ts";
 import {
   collectedScopeHistory,
   retainedHistory,
-} from "../../tests/support/collectedScopeHistory.ts";
+} from "../../test-support/support/collectedScopeHistory.ts";
 import {
   collectingLandedCi,
   minutesAgo,
   restartAsLandedCiReader,
   resultToLand,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { passedFrom, trunkRun } from "../../tests/support/landedCiTrunk.ts";
-import { serveCollectedTrunkRuns } from "../../tests/support/landedCiScopeProofs.ts";
-import { postCompletion } from "../../tests/support/completionRecovery.ts";
-import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
-import { land } from "../../tests/support/startSessionLandingContext.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import {
+  passedFrom,
+  trunkRun,
+} from "../../test-support/support/landedCiTrunk.ts";
+import { serveCollectedTrunkRuns } from "../../test-support/support/landedCiScopeProofs.ts";
+import { postCompletion } from "../../test-support/support/completionRecovery.ts";
+import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
+import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 

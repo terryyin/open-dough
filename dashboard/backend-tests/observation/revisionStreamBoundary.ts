@@ -4,17 +4,20 @@
 // bound, matching-refs accounting and fixed failing answers against the
 // synthetic `gh`.
 
-import { expect } from "../../tests/support/pageTest.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
 import {
   sharedDashboardBuild,
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import type { OriginAnswer } from "../../tests/originAnswers.ts";
-import type { RepositoryAnswerer } from "../../tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../tests/support/ghRequest.ts";
-import { openEventStream, rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import type { OriginAnswer } from "../../test-support/originAnswers.ts";
+import type { RepositoryAnswerer } from "../../test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../test-support/support/ghRequest.ts";
+import {
+  openEventStream,
+  rawRequest,
+} from "../../test-support/support/rawHttp.ts";
 
 type StreamEndpoint = Pick<DashboardServer, "baseURL" | "origin">;
 

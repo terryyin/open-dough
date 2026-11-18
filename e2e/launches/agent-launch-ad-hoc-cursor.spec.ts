@@ -1,4 +1,4 @@
-import { expectAdHocReportingInput } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 // An unattached Cursor session has no story and no start. The fixture
 // `cursor-agent` on PATH prints the create-chat id and records argv. An
 // empty instruction is recorded with no prompt and no skill line. A present
@@ -11,27 +11,27 @@ import { expectAdHocReportingInput } from "../../dashboard/tests/support/reporti
 // screen would be hung up after its settle period and replaced. The server
 // starts as a deployment's does, and its Cursor runner, create-chat, and the
 // kept client run without its start-up additions
-// (../../dashboard/tests/support/launchEnvironment.ts).
+// (../../dashboard/test-support/support/launchEnvironment.ts).
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   startSessionField,
   startedSession,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   deploymentCursorTest as test,
   expect,
   keptRecord,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { runnerEnvironment } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
-import { fakeCursorHost } from "../../dashboard/tests/support/fakeCursor.ts";
-import { expectDeveloperShellEnvironment } from "../../dashboard/tests/support/launchEnvironment.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { runnerEnvironment } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
+import { fakeCursorHost } from "../../dashboard/test-support/support/fakeCursor.ts";
+import { expectDeveloperShellEnvironment } from "../../dashboard/test-support/support/launchEnvironment.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 

@@ -5,12 +5,12 @@
 // journey says.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { terminalPanel } from "../tests/terminalScreenPage.ts";
+import { terminalPanel } from "../test-support/terminalScreenPage.ts";
 import {
   pausePageClock,
   setPageVisibility,
-} from "../tests/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../tests/pageRequestNotes.ts";
+} from "../test-support/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../test-support/pageRequestNotes.ts";
 import {
   askGapMs,
   type RunningCursorSessions,
@@ -19,18 +19,18 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
-import type { FrontendServiceState } from "../tests/support/frontendServiceState.ts";
+} from "../test-support/support/frontendApp.ts";
+import type { FrontendServiceState } from "../test-support/support/frontendServiceState.ts";
 import {
   collapseRunningList,
   openRunningList,
-} from "../tests/runningCursorList.ts";
+} from "../test-support/runningCursorList.ts";
 import {
   countCursorSessionsAsks,
   holdCursorSessionsReads,
   trackCursorSessionsDemand,
-} from "../tests/support/cursorSessionsDemand.ts";
-import { parts, sessionEntriesIn } from "../tests/dashboardPage.ts";
+} from "../test-support/support/cursorSessionsDemand.ts";
+import { parts, sessionEntriesIn } from "../test-support/dashboardPage.ts";
 
 const instruction = "hold this session";
 const slowerThanAskGapMs = askGapMs + 200;

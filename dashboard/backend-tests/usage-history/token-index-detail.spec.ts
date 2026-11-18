@@ -1,15 +1,15 @@
 // Live launch outcomes determine which imported tasks the endpoint plots.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { retainedUsageTasks } from "../../server/retainedUsageTasks.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { keepRetainedLaunch } from "../../tests/usage-history/importHarness.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { keepRetainedLaunch } from "../../test-support/usage-history/importHarness.ts";
 import {
   day,
   expect,
   test,
   usageServer,
   writeTaskUsage,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const sol = "gpt-6.1-sol",
   astra = "gpt-6-astra";

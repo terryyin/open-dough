@@ -3,8 +3,8 @@
 import { createServer } from "node:http";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
-import { startOriginArtifactKey } from "../../tests/support/startOriginPreparation.ts";
+import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
+import { startOriginArtifactKey } from "../../test-support/support/startOriginPreparation.ts";
 import {
   preparationFixtures,
   startPreparationProofRun,

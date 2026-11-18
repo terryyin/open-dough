@@ -6,28 +6,28 @@
 // before, asking GitHub about the comparison or commits at most once
 // (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import {
   aheadBy,
   aheadByAnswer,
   compareAnswer,
-} from "../../tests/comparisonAnswers.ts";
+} from "../../test-support/comparisonAnswers.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { answerFrom } from "../../tests/revisionReuseAnswers.ts";
+import { answerFrom } from "../../test-support/revisionReuseAnswers.ts";
 import {
   madeBy,
   modified,
   named,
   type Publication,
-} from "../../tests/revisionReuseOrigin.ts";
-import { described } from "../../tests/revisionReuseCalls.ts";
+} from "../../test-support/revisionReuseOrigin.ts";
+import { described } from "../../test-support/revisionReuseCalls.ts";
 import { revisionReuseBoundary } from "./revisionReuseBoundary.ts";
 
 const origin = makeMe.aProjectRevision;

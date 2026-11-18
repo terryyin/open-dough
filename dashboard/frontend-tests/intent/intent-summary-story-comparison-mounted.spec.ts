@@ -1,24 +1,24 @@
 // Actual scope projections; live navigation and full-app acquisition stay separate.
-import { test, expect } from "../../tests/support/pageTest.ts";
-import { expectComparisonScopeRows } from "../../tests/intentScopeProofPage.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expectComparisonScopeRows } from "../../test-support/intentScopeProofPage.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
   nestedComparisonRows,
   mergeEditedNestedComparisonRows,
-} from "../../tests/support/summaryComparisonExpectedRows.ts";
+} from "../../test-support/support/summaryComparisonExpectedRows.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   comparisonLabels,
   expectEvidenceLabels,
   expectObservedNotAttributed,
   expectLabelInFull,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 import {
   expectScopeRowCues,
   summaryEntryComparisonCues,
   summaryFolderComparisonCues,
-} from "../../tests/support/expectCiComparisonCues.ts";
+} from "../../test-support/support/expectCiComparisonCues.ts";
 
 test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", async ({
   page,

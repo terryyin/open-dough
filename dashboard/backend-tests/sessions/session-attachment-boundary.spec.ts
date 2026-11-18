@@ -2,9 +2,12 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/codexLaunch.ts";
-import { launch, refinementRequest } from "../../tests/agentLaunchBoundary.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
+import { expect, test } from "../../test-support/support/codexLaunch.ts";
+import {
+  launch,
+  refinementRequest,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
 import { sessionAttachmentEndpoint } from "../../src/agentTerminal.ts";
 import {
   launchAttachmentEmpty,
@@ -12,13 +15,13 @@ import {
   launchAttachmentTooLarge,
   launchAttachmentUnsupportedType,
 } from "../../src/launchAttachments.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   listedMachineDirs,
   pngA,
   pngB,
-} from "../../tests/support/launchAttachmentFixtures.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/launchAttachmentFixtures.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.use({ projectFolders: ["open-dough"], serverMode: "boundary" });
 

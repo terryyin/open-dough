@@ -1,9 +1,9 @@
 // Corrupt and retry the actual local history reader; neither contacts Actions.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { withBrokenCollectedHistory } from "../../tests/support/collectedScopeHistory.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import { withBrokenCollectedHistory } from "../../test-support/support/collectedScopeHistory.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary" });
 

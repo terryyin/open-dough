@@ -3,22 +3,22 @@
 // shipped refinement options; Cancel restores focus and asks for no launch.
 // Built frontend against controlled answers.
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
   tapWhereShown,
-} from "../../tests/pageLayout.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/pageLayout.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
 import {
   longTitle,
   offerLongTitleRefinement,
-} from "../../tests/longTitleLaunch.ts";
+} from "../../test-support/longTitleLaunch.ts";
 import {
   phoneLaunchTouchViewport,
   typeInstructionLine,
-} from "../../tests/touchLaunchPage.ts";
+} from "../../test-support/touchLaunchPage.ts";
 
 const optionsSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Refinement options" });

@@ -2,18 +2,18 @@
 // project was open in the same checkout while it was: the commits read from
 // the checkout from its launch to Done may then include that session's work.
 // Over raw HTTP at the boundary server, with a real project checkout
-// (../../tests/support/startOrigin.ts) and plain Git in it
-// (../../tests/support/sessionCheckoutWork.ts). A session in an isolated
+// (../../test-support/support/startOrigin.ts) and plain Git in it
+// (../../test-support/support/sessionCheckoutWork.ts). A session in an isolated
 // workspace, or one done before this one launched, shared nothing.
 // ./ad-hoc-session-commits.spec.ts states what a session alone keeps.
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+import { adHocReview } from "../../test-support/support/adHocReview.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

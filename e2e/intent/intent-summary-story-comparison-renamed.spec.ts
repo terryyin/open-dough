@@ -2,13 +2,16 @@
 // and outside-location route to Review changes after trunk renames it again.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   publishSummaryComparisonStory,
   summaryComparisonChanges,
-} from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
-import { selectDoneStoryForSummaryComparison } from "../../dashboard/tests/support/selectDoneStoryForSummaryComparison.ts";
+} from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
+import { selectDoneStoryForSummaryComparison } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
 import {
   intentDiff,
   intentFile,
@@ -16,8 +19,8 @@ import {
   outsideCount,
   reviewDiff,
   storyOnly,
-} from "../../dashboard/tests/support/intentStoryPage.ts";
-import { lines } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test("a Done Story Branch rename keeps its original diff and Review changes after a later trunk rename", async ({
   page,

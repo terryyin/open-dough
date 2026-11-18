@@ -4,11 +4,11 @@
 // second claim, until a later launch opens a session. The Taken card's Start
 // that offer leads to: ../../../e2e/launches/agent-launch-start-taken.spec.ts.
 
-import { keptStarts, launch } from "../../tests/agentLaunchBoundary.ts";
-import { expect } from "../../tests/dashboardTest.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { keptStarts, launch } from "../../test-support/agentLaunchBoundary.ts";
+import { expect } from "../../test-support/dashboardTest.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, workspaceShown } from "../../tests/keptStartJourney.ts";
+import { test, workspaceShown } from "../../test-support/keptStartJourney.ts";
 
 test("a refused session launch after a published claim answers the Agent and workspace, the machine names the kept start until a session starts", async ({
   dashboard,

@@ -2,18 +2,18 @@
 // or deleting that record releases those refs through the dashboard API.
 import { renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { deleteRecord } from "../../tests/agentLaunchBoundary.ts";
-import { openTerminal } from "../../tests/agentTerminalBoundary.ts";
+import { deleteRecord } from "../../test-support/agentLaunchBoundary.ts";
+import { openTerminal } from "../../test-support/agentTerminalBoundary.ts";
 import {
   adHocReview,
   keptAdHocRecord,
-} from "../../tests/support/adHocReview.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { DefaultMainSessionWork } from "../../tests/support/sessionCheckoutWork.ts";
-import type { StartOrigin } from "../../tests/support/startOrigin.ts";
-import { git } from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/adHocReview.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { DefaultMainSessionWork } from "../../test-support/support/sessionCheckoutWork.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 

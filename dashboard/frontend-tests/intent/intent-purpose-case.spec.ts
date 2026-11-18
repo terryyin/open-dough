@@ -1,42 +1,45 @@
-import { filesToggle, expectFilesShown } from "../../tests/intentModePage.ts";
-import { sourceLineText } from "../../tests/intentCodeBrowsePage.ts";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
+import {
+  filesToggle,
+  expectFilesShown,
+} from "../../test-support/intentModePage.ts";
+import { sourceLineText } from "../../test-support/intentCodeBrowsePage.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
 // Opening a recorded file from Optimization Candidates shows Purpose
 // positioned on its case, and opening it again after reading away from the
 // case starts a fresh reading positioned on it once more
 // (../../src/IntentBrowser.tsx, ../../src/IntentFileReading.tsx). The case targets
 // themselves are `./intent-test-optimization-candidates-case.spec.ts`.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   candidateEntry,
   chooseOptimizationCandidates,
   intentModeTab,
-} from "../../tests/intentModePage.ts";
-import { purposeRegion } from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentModePage.ts";
+import { purposeRegion } from "../../test-support/intentPerspectivePage.ts";
 import {
   expectReadingOffset,
   intentReadingScroll,
   scrollIntentReadingToStart,
-} from "../../tests/intentReadingPlacePage.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
 import {
   expectSourceTargetLine,
   fileSource,
   sourceFile,
   sourceTargetLine,
-} from "../../tests/intentCodeBrowsePage.ts";
-import { doughnut } from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowsePage.ts";
+import { doughnut } from "../../test-support/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { holdGrammar } from "../../tests/support/syntaxGrammar.ts";
+import { holdGrammar } from "../../test-support/support/syntaxGrammar.ts";
 import {
   doughnutCaseFeaturePath,
   doughnutUniqueScenario,
   doughnutUniqueScenarioLine,
   doughnutCaseFeatureSource,
   doughnutCaseCandidatesRecord,
-} from "../../tests/intentCandidatesCasePositionFixtures.ts";
+} from "../../test-support/intentCandidatesCasePositionFixtures.ts";
 
 test("opening a recorded file shows Purpose on its case, reading it once, and opening it again after reading away returns to the case", async ({
   page,

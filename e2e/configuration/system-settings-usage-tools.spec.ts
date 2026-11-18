@@ -4,18 +4,18 @@
 // pricing variants belong to frontend and backend token-index tests.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePage.ts";
-import { usageChart } from "../../dashboard/tests/support/usageChartPage.ts";
-import { usageSpacing } from "../../dashboard/tests/support/usageSpacingPage.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { visitUsage } from "../../dashboard/test-support/support/systemSettingsUsagePage.ts";
+import { usageChart } from "../../dashboard/test-support/support/usageChartPage.ts";
+import { usageSpacing } from "../../dashboard/test-support/support/usageSpacingPage.ts";
 import {
   runImport,
   writeClaudeSession,
   writeCodexSession,
-} from "../../dashboard/tests/usage-history/importHarness.ts";
+} from "../../dashboard/test-support/usage-history/importHarness.ts";
 
 const day = (date: number) =>
   `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;

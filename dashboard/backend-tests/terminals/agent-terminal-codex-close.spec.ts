@@ -4,26 +4,32 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { installAgentLaunchMiddleware } from "../../server/launchBoundary.ts";
 import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
 import {
   ensureCursorRunner,
   stopCursorRunner,
 } from "../../server/hosts/cursor/runnerClient.ts";
-import { launch, refinementRequest } from "../../tests/agentLaunchBoundary.ts";
-import { shows, type Terminal } from "../../tests/agentTerminalBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { installFakeClaude } from "../../tests/support/fakeClaude.ts";
-import { installFakeCodex } from "../../tests/support/fakeCodex.ts";
+import {
+  launch,
+  refinementRequest,
+} from "../../test-support/agentLaunchBoundary.ts";
+import {
+  shows,
+  type Terminal,
+} from "../../test-support/agentTerminalBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
+import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   codexAttaches,
   expectCodexHungUp,
   openCodexTerminal,
-} from "../../tests/support/codexTerminal.ts";
-import { codexSkill } from "../../tests/support/codexLaunch.ts";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
-import { configureDevelopmentProjects } from "../../tests/support/projectConfiguration.ts";
+} from "../../test-support/support/codexTerminal.ts";
+import { codexSkill } from "../../test-support/support/codexLaunch.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
+import { configureDevelopmentProjects } from "../../test-support/support/projectConfiguration.ts";
 
 type StoredHandler = (
   req: http.IncomingMessage,

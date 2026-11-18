@@ -1,32 +1,35 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 // Real GitHub acquisition reaches the named, historical comparison and entry rows.
 // Fast presentation rules live in ../../frontend-tests/intent/intent-ci-comparison-mounted-*.spec.ts.
 
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { observedNotAttributedInFull } from "../../dashboard/src/storyCiComparisonWording.ts";
-import { comparisonWorkflowPath } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";
-import { serveObservedComparisonAttempts } from "../../dashboard/tests/support/storyCiObservedJobs.ts";
-import { publishComparedStoryBranch } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
+import { comparisonWorkflowPath } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
+import { serveObservedComparisonAttempts } from "../../dashboard/test-support/support/storyCiObservedJobs.ts";
+import { publishComparedStoryBranch } from "../../dashboard/test-support/support/storyCiComparisonDoneFixture.ts";
 import {
   expectCueState,
   expectEntryRowCues,
-} from "../../dashboard/tests/support/expectCiComparisonCues.ts";
+} from "../../dashboard/test-support/support/expectCiComparisonCues.ts";
 import {
   comparedStoryEntryCues,
   comparedStoryEntryRows,
   expectCiComparisonEntryRows,
-} from "../../dashboard/tests/support/expectCiComparisonEntryRows.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
+} from "../../dashboard/test-support/support/expectCiComparisonEntryRows.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 import {
   expectAncestorSourceCue,
   expectExactSourceCue,
   expectNoRunOrAttemptIds,
-} from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";
+} from "../../dashboard/test-support/support/expectCiComparisonSourceCue.ts";
 import {
   commitAll,
   writeAt,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 for (const variant of [undefined] as readonly (
   undefined | "own-conflict-extra" | "non-owning-story-file"

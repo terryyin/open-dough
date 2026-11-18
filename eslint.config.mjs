@@ -30,7 +30,7 @@ const unusedVars = ["error", { args: "all", caughtErrors: "all" }];
 
 // The modules whose `test` runs a Frontend spec against substitutes.
 const frontendTestModules =
-  "dashboard/tests/support/frontendApp.ts, dashboard/tests/support/pageTest.ts or dashboard/tests/support/comparisonMountPage.ts";
+  "dashboard/test-support/support/frontendApp.ts, dashboard/test-support/support/pageTest.ts or dashboard/test-support/support/comparisonMountPage.ts";
 
 export default defineConfig(
   globalIgnores(ignores),
@@ -69,17 +69,17 @@ export default defineConfig(
     // Dashboard and E2E specs run under the shared page-test base, whose
     // `page` finishes its intercepted reads before teardown.
     files: [
-      "dashboard/tests/**/*.{ts,mts,tsx}",
+      "dashboard/test-support/**/*.{ts,mts,tsx}",
       "dashboard/frontend-tests/**/*.{ts,mts,tsx}",
       "dashboard/backend-tests/**/*.{ts,mts,tsx}",
       "e2e/**/*.{ts,mts,tsx}",
     ],
     ignores: [
-      "dashboard/tests/support/pageTest.ts",
+      "dashboard/test-support/support/pageTest.ts",
       // Run by the quiet-reporter proof under their own configuration; the
       // case module registers tests for the proof spec that imports it.
-      "dashboard/tests/fixtures/quiet-reporter/**/*.proof.ts",
-      "dashboard/tests/fixtures/quiet-reporter/nested/cases.ts",
+      "dashboard/test-support/fixtures/quiet-reporter/**/*.proof.ts",
+      "dashboard/test-support/fixtures/quiet-reporter/nested/cases.ts",
     ],
     rules: {
       "no-restricted-imports": [
@@ -90,7 +90,7 @@ export default defineConfig(
               name: "@playwright/test",
               importNames: ["test", "default"],
               message:
-                "Import `test` from dashboard/tests/support/pageTest.ts (or a fixture module built on it) so the page drains its intercepted reads.",
+                "Import `test` from dashboard/test-support/support/pageTest.ts (or a fixture module built on it) so the page drains its intercepted reads.",
             },
           ],
         },
@@ -141,7 +141,7 @@ export default defineConfig(
     // Test code finds the repository from its own location, so checks run
     // from any directory.
     files: [
-      "dashboard/tests/**",
+      "dashboard/test-support/**",
       "dashboard/frontend-tests/**",
       "dashboard/backend-tests/**",
       "e2e/**",
@@ -155,7 +155,7 @@ export default defineConfig(
           selector:
             "CallExpression[callee.object.name='process'][callee.property.name='cwd']",
           message:
-            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/tests/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
+            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/test-support/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
         },
       ],
     },

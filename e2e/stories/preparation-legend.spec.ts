@@ -1,36 +1,36 @@
-import { scrollYOf } from "../../dashboard/tests/boardPage.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { scrollYOf } from "../../dashboard/test-support/boardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
   expectImmediateMotion,
   expectReadableContrast,
   zoomedWindow,
-} from "../../dashboard/tests/accessibleReading.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/accessibleReading.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   expectProjectChoice,
   expectSettledPage,
   parts,
   shownProjectControl,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expectFrameIconControl } from "../../dashboard/tests/frameIconControl.ts";
-import { publishMovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectFrameIconControl } from "../../dashboard/test-support/frameIconControl.ts";
+import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedReady,
   plannedBlocked,
   unrefined,
-} from "../../dashboard/tests/storyReadinessFixture.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
+} from "../../dashboard/test-support/storyReadinessFixture.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("touch preparation help", () => {

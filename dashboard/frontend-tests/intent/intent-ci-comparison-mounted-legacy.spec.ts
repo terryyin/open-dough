@@ -1,18 +1,18 @@
-import { expectFileComparisonRows } from "../../tests/intentFileProofPage.ts";
+import { expectFileComparisonRows } from "../../test-support/intentFileProofPage.ts";
 import {
   expectNamedScopeRows,
   expectNamedScopeFigures,
-} from "../../tests/intentScopeProofPage.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+} from "../../test-support/intentScopeProofPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   aSpec,
   dashboardTests,
   entry,
-} from "../../tests/support/ciComparisonUnitsJourney.ts";
-import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
-import { expectCiComparisonEntryRows } from "../../tests/support/expectCiComparisonEntryRows.ts";
+} from "../../test-support/support/ciComparisonUnitsJourney.ts";
+import { expectCueState } from "../../test-support/support/expectCiComparisonCues.ts";
+import { expectCiComparisonEntryRows } from "../../test-support/support/expectCiComparisonEntryRows.ts";
 
 // Legacy Baseline and Branch remain independent facts inside each case.
 function legacyAtBaselineAndBranch() {

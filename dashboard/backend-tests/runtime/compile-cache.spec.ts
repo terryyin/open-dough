@@ -12,11 +12,11 @@ import {
 import * as nodeModule from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   endGroup,
   spawnGroupLeader,
-} from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/processGroup.ts";
 
 function cacheEntries(directory: string) {
   return readdirSync(directory, { recursive: true, encoding: "utf8" })

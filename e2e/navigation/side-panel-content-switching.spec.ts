@@ -1,6 +1,6 @@
 // The page's one side panel switches between a story's review and a
 // session's terminal, of Story A's and Story B's real worktrees
-// (../../dashboard/tests/support/sidePanelContents.ts) and kept launch records: Story A's session is
+// (../../dashboard/test-support/support/sidePanelContents.ts) and kept launch records: Story A's session is
 // listed by the synthetic `claude` (./fixtures/fake-claude). Whatever opens,
 // by a card's or the Sessions sidebar's own controls, the panel shows exactly
 // one named item beside a Board that stays usable. A review replaces the
@@ -13,29 +13,32 @@
 // never reached.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expectSettledPage } from "../../dashboard/tests/dashboardPage.ts";
+import { expectSettledPage } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   type SidePanelPages,
   sidePanelPages,
-} from "../../dashboard/tests/sidePanelPages.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+} from "../../dashboard/test-support/sidePanelPages.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   keptSession,
   listed,
   storyBBranch,
   storyBWorktree,
   storyReviewReads,
-} from "../../dashboard/tests/support/sidePanelContents.ts";
+} from "../../dashboard/test-support/support/sidePanelContents.ts";
 import {
   branch,
   storyWorktree,
-} from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 
 // Intent reads the Selected story; the page then goes back to the Board.
 function intentReads(

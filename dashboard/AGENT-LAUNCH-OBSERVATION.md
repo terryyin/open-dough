@@ -91,17 +91,17 @@ The Sessions replay measures this observation at production's scale on
 done and five open sessions, 1,034 attempts, a 1,191-entry Claude listing,
 Codex threads answered by the fake app server, and six projects whose
 checkouts hold 44 linked worktrees
-([seed](tests/support/sessionsReplaySeed.ts),
-[projects](tests/support/sessionsReplayProjects.ts)). It prints one table:
+([seed](test-support/support/sessionsReplaySeed.ts),
+[projects](test-support/support/sessionsReplayProjects.ts)). It prints one table:
 startup, the first full answer cold and warm, the regular answer's size,
 unchanged polls past the one-second reuse window by wall and event-loop time,
 the history ask's first full answer and its unchanged asks the same way,
 one native state change, a trivial request's latency during polls and
 without them, and four viewers asking at once after each of five changes with
-trivial requests beside them ([measures](tests/support/sessionsReplayMeasures.ts)),
+trivial requests beside them ([measures](test-support/support/sessionsReplayMeasures.ts)),
 each beside the baseline three runs measured before this observation, or
 before the gzip encoding, was changed
-([table](tests/support/sessionsReplayTable.ts)). The normal
+([table](test-support/support/sessionsReplayTable.ts)). The normal
 suites skip it. Run it from the repository root, with the load average beside
 each run, and compare runs relative to that load:
 

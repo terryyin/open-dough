@@ -1,56 +1,56 @@
 // Destinations from Recently done sessions: Board reveal beyond the first ten
 // and a Codex final-report panel.
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
   standaloneSessionName,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
-import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   destination,
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   expectEntries,
   shownEntries,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { recordsAsked } from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
-import { placedAt } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
+import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   expectRevealsSince,
   recordReveals,
   revealsOf,
-} from "../../dashboard/tests/sessionNavigationJourney.ts";
-import { rem } from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/sessionNavigationJourney.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   test as codexTest,
   expect as codexExpect,
-} from "../../dashboard/tests/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   expect,
   keptRecord,
   test,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   retained,
   report,
   save,
-} from "../../dashboard/tests/support/retainedReport.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
-import { finalReportParts } from "../../dashboard/tests/finalReportPages.ts";
+} from "../../dashboard/test-support/support/retainedReport.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
+import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],

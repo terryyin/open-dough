@@ -193,3 +193,24 @@ export function abandonedRequest(options: RawRequestOptions): {
     },
   };
 }
+
+// Keep text responses as text so a page returned in place of JSON fails parity.
+export type BoundaryAnswer = {
+  readonly status: number;
+  readonly cacheControl: string | string[] | undefined;
+  readonly body: unknown;
+};
+
+export function boundaryAnswerOf(response: RawResponse): BoundaryAnswer {
+  let body: unknown = response.body;
+  try {
+    body = JSON.parse(response.body);
+  } catch {
+    // Not JSON: compared as the text it is.
+  }
+  return {
+    status: response.status,
+    cacheControl: response.headers["cache-control"],
+    body,
+  };
+}

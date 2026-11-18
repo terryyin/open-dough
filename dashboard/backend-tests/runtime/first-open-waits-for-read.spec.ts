@@ -1,36 +1,39 @@
 // A journey's first card check after an open waits for the page's
 // published-work read to answer or fail (`untilPublishedWorkRead` in
-// ../../tests/pageRequestNotes.ts, through `expectMembership` in ../../tests/dashboardPage.ts),
+// ../../test-support/pageRequestNotes.ts, through `expectMembership` in ../../test-support/dashboardPage.ts),
 // not for an `expect`'s own 5 s. The page, its local authenticated read
 // boundary, and the fake GitHub behind it are the usual ones; the test only
 // decides how GitHub answers the ref.
 
-import { expect, test } from "../../tests/dashboardTest.ts";
-import { test as machineTest } from "../../tests/support/pageTest.ts";
-import { expectMembership, parts } from "../../tests/dashboardPage.ts";
-import { recordsAt } from "../../tests/autoRefreshJourney.ts";
+import { expect, test } from "../../test-support/dashboardTest.ts";
+import { test as machineTest } from "../../test-support/support/pageTest.ts";
+import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
+import { recordsAt } from "../../test-support/autoRefreshJourney.ts";
 import {
   givePageItsTurns,
   untilPublishedWorkRead,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   commitAnswer,
   publishMovingOrigin,
   publishOrigin,
   rawFileAnswer,
-} from "../../tests/publishedOrigin.ts";
+} from "../../test-support/publishedOrigin.ts";
 import {
   backlogA,
   dashboardStory,
   revisionA,
   titlesOfA,
-} from "../../tests/refreshJourney.ts";
+} from "../../test-support/refreshJourney.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
 
 // Longer than an `expect` waits for a card (5 s, Playwright's default, which
 // playwright.config.ts leaves alone) and well inside a test's 30 s: how long
@@ -135,7 +138,7 @@ test("a held detail read does not hold a membership check back", async ({
 });
 
 // A journey that starts its own dashboard server, on the page every dashboard
-// spec runs under (../../tests/support/pageTest.ts), waits the same way.
+// spec runs under (../../test-support/support/pageTest.ts), waits the same way.
 machineTest(
   "a page of a journey that starts its own dashboard waits for its published-work read too",
   async ({ page }) => {

@@ -1,4 +1,4 @@
-import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 // Mark as done in the Final report, on a session placed 27th in
 // Recently done once done: a refinement session of a story no list shows,
 // whose prepared workspace is gone, so Taken offers only its final report.
@@ -11,25 +11,25 @@ import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
 
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   parts,
   standaloneSessionName,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { rem } from "../../dashboard/tests/boardPage.ts";
-import { placedAt } from "../../dashboard/tests/recentlyDoneProgressive.ts";
-import { recordsAsked } from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
+import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
+import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
   expectThroughDestination,
   expectThroughDestinationPending,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -1,37 +1,37 @@
 // A page whose detail read meets GitHub's rate limit keeps the snapshot,
 // revision, and retrieval time it shows, labels what the limit withheld one
 // way, naming what was withheld and the time the limit ends, says once when
-// reading resumes, and asks nothing until then (../../dashboard/tests/limitedReadingJourney.ts).
+// reading resumes, and asks nothing until then (../../dashboard/test-support/limitedReadingJourney.ts).
 
 import {
   expect,
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   isContent,
   limiting,
   openedBeside,
   waitSeconds,
   whileTheLimitStands,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
 import {
   expectSameResumeTime,
   limitedUntil,
   noticedResumeTime,
-} from "../../dashboard/tests/limitNotice.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/limitNotice.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   files,
   opened,
@@ -43,8 +43,8 @@ import {
   titles,
   withheldSeed,
   withheldTitle,
-} from "../../dashboard/tests/limitedReadingRecords.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+} from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 
 test("limiting a detail read keeps the snapshot, labels what the limit withheld, says once when reading resumes, and asks nothing until then", async ({
   page,

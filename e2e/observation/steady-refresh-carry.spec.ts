@@ -2,28 +2,28 @@
 // story it already shows keeps what it shows and where it stands until that
 // revision answers for it; membership and order are the new revision's at
 // once. The journey's commits and records are those of
-// ../../dashboard/tests/refreshJourney.ts and
-// ../../dashboard/tests/autoRefreshJourney.ts; one record's reads are held so
+// ../../dashboard/test-support/refreshJourney.ts and
+// ../../dashboard/test-support/autoRefreshJourney.ts; one record's reads are held so
 // the read stays under way to be seen. The page's clock is paused and advanced
 // by the test.
 // An open inspection and assignment credits: ./steady-refresh-inspection.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   shortRevision,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { inspectedDetail } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   contentReads,
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogA,
   backlogB,
@@ -32,14 +32,14 @@ import {
   titlesOfA,
   titlesOfB,
   workspaceStory,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
-import type { MovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
+import type { MovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   notePlaceholders,
   shownCards,
   type ShownCard,
-} from "../../dashboard/tests/retainedFacts.ts";
+} from "../../dashboard/test-support/retainedFacts.ts";
 
 const dashboardRecord = ".planning/seeds/SEED-021-progress.md";
 const syncRecord = ".planning/seeds/SEED-008-sync.md";

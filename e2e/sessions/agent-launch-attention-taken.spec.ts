@@ -2,39 +2,39 @@
 // (./agent-launch-attention.spec.ts); each project counts only its own, and a
 // story in no list keeps its affected session in local Taken.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   expectMembership,
   standaloneSessionName,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutSharedTitle,
   sharedStoryIdentity,
-} from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectNotReloaded,
   expectSessionShown,
   markNotReloaded,
-} from "../../dashboard/tests/sessionStatePace.ts";
+} from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   attentionCountsOn,
   publishedFactsOf,
-} from "../../dashboard/tests/storyCardAttention.ts";
+} from "../../dashboard/test-support/storyCardAttention.ts";
 import {
   openDoughWorkingSessions,
   openWithOpenSessions,
   type OpenSession,
-} from "../../dashboard/tests/storyCardOpenSessions.ts";
-import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/storyCardOpenSessions.ts";
+import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 // Cursor operations are outside this journey's proof; the harness
 // stand-in skips an unused real runner while keeping the built preview.

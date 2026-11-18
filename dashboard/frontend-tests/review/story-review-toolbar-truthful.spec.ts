@@ -2,38 +2,38 @@
 // only when details hold something — including while a held Refresh keeps a
 // prior answer, and not before the first answer or after a cleared failure.
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { reviewChanges } from "../../tests/storyCardControls.ts";
-import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
-import { doneCard } from "../../tests/doneStoryReviewPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
+import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendPublishedReview,
   frontendReviewIds,
   frontendReviewSnapshot,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
 import {
   openFrontendBoardReview,
   storyA,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import { openFrontendStoryReviewAsOpened } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { reviewFeedback } from "../../tests/support/reviewContextLine.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { reviewFeedback } from "../../test-support/support/reviewContextLine.ts";
 import {
   filesToggle,
   reviewRefresh,
   reviewRegion,
   toolbarComparison,
-} from "../../tests/support/reviewControls.ts";
+} from "../../test-support/support/reviewControls.ts";
 import {
   expectDetailsCollapsed,
   expectEyeBesideComparison,
   expectNoToolbarComparisonOrDetails,
-} from "../../tests/support/reviewDetails.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/reviewDetails.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
-import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
+import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
 
 const added = (path: string) => ({
   kind: "added" as const,

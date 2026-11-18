@@ -1,12 +1,12 @@
-import { scopeHistoryChart } from "../tests/intentScopeHistoryPage.ts";
+import { scopeHistoryChart } from "../test-support/intentScopeHistoryPage.ts";
 // Supplemental presentation of owning-entry segments in the locally collected
 // scope history. The collection-to-Summary journey owns actual retained
 // evidence; this substitute supplies one retained history.
 
-import { expect, test } from "../tests/support/comparisonMountPage.ts";
-import { openSummaryScopeHistory } from "../tests/support/summaryScopeHistory.ts";
+import { expect, test } from "../test-support/support/comparisonMountPage.ts";
+import { openSummaryScopeHistory } from "../test-support/support/summaryScopeHistory.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
 
 test("earlier supported owning-entry segments stay readable beside a selected proof gap and the line does not join incompatible segments", async ({
   page,

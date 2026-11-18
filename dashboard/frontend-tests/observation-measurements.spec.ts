@@ -1,14 +1,14 @@
 // Regression proof for DOM geometry observations that span browser turns.
 // These supply only real DOM geometry, never dashboard facts.
 
-import { expect, test } from "../tests/support/pageTest.ts";
+import { expect, test } from "../test-support/support/pageTest.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   expectInReadingOrder,
   expectInside,
   expectOnOneLine,
   expectStackedInOrder,
-} from "../tests/partArrangement.ts";
+} from "../test-support/partArrangement.ts";
 
 function scrollBetweenIndividualReads(
   page: Page,

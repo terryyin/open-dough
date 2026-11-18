@@ -72,7 +72,10 @@ export async function productionFailureFixture() {
     path.join(repoRoot, "node_modules/vite/bin/vite.js"),
   )}`;
   const config = shellArgument(
-    path.join(repoRoot, "dashboard/tests/support/productionWatcherVite.mts"),
+    path.join(
+      repoRoot,
+      "dashboard/test-support/support/productionWatcherVite.mts",
+    ),
   );
   const viteOptions = `dashboard --configLoader native --config ${config}`;
   const name = "watcher-deployment-fixture";

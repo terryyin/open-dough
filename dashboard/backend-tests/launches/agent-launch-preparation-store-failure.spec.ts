@@ -4,7 +4,7 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { chmodSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { started } from "../../server/launchStart.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import { keptStart } from "../../server/startStore.ts";
@@ -16,7 +16,7 @@ import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 for (const expired of [false, true]) {

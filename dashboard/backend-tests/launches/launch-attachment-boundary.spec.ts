@@ -5,9 +5,9 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   launchAttachmentEndpoint,
   launchAttachmentLimitBytes,
@@ -27,7 +27,7 @@ import {
   launchAttachmentsRoot,
   listedMachineDirs,
   pngA,
-} from "../../tests/support/launchAttachmentFixtures.ts";
+} from "../../test-support/support/launchAttachmentFixtures.ts";
 
 function withTempHome(prefix: string, run: (home: string) => void): void {
   const previousHome = process.env["HOME"];

@@ -1,31 +1,34 @@
 // A limited profile history leaves its human unknown in the scan view, while
 // its detail and the roster name the limit and its time, never a missing
 // addition or an unnamed committer; another profile's credit stays shown, and
-// the page asks nothing until the limit's time (../../dashboard/tests/limitedReadingJourney.ts).
+// the page asks nothing until the limit's time (../../dashboard/test-support/limitedReadingJourney.ts).
 
 import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
   rosterParts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { credit, detailHuman } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  credit,
+  detailHuman,
+} from "../../dashboard/test-support/agentCredit.ts";
 import {
   openedBeside,
   waitSeconds,
   whileTheLimitStands,
-} from "../../dashboard/tests/limitedReadingJourney.ts";
+} from "../../dashboard/test-support/limitedReadingJourney.ts";
 import {
   limitedUntil,
   noticedResumeTime,
-} from "../../dashboard/tests/limitNotice.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import type { GhRequest } from "../../dashboard/tests/support/ghRequest.ts";
+} from "../../dashboard/test-support/limitNotice.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
 import {
   committed as clockCommitted,
   files as clockFiles,
@@ -36,7 +39,7 @@ import {
   profilePath,
   revision as clockRevision,
   takes,
-} from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 
 test("limiting a profile's history leaves its human unknown in the scan view, names the limit and its time in the detail and the roster, keeps another profile's credit, and asks nothing until then", async ({
   page,

@@ -10,43 +10,43 @@
 
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   sessionsSidebarParts,
   unreadSessionReport,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   idleBetweenSteps,
   markDone,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
 import {
   doneNameOf,
   launchedStory,
   shortIdOf,
-} from "../../dashboard/tests/support/reportedLaunch.ts";
+} from "../../dashboard/test-support/support/reportedLaunch.ts";
 import {
   queuedIdentity,
   type StartOrigin,
-} from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   publishOrigin,
   test,
-} from "../../dashboard/tests/support/startOriginTest.ts";
-import { markReportRead } from "../../dashboard/tests/support/sessionMessagePart.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/support/startOriginTest.ts";
+import { markReportRead } from "../../dashboard/test-support/support/sessionMessagePart.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 

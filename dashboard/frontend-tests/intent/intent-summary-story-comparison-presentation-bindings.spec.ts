@@ -3,14 +3,14 @@ import {
   test,
   expect,
   mountComparison,
-} from "../../tests/support/comparisonMountPage.ts";
+} from "../../test-support/support/comparisonMountPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectSortedBy,
   sortButton,
-} from "../../tests/support/expectSortedColumns.ts";
-import { scopeTable } from "../../tests/intentScopeProofPage.ts";
-import { entry } from "../../tests/support/ciComparisonUnitsJourney.ts";
+} from "../../test-support/support/expectSortedColumns.ts";
+import { scopeTable } from "../../test-support/intentScopeProofPage.ts";
+import { entry } from "../../test-support/support/ciComparisonUnitsJourney.ts";
 
 test("Summary header bindings route Change, Baseline, Branch and Counts", async ({
   page,

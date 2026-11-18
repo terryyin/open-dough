@@ -1,10 +1,10 @@
 import {
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // A large story's review, of Story A's worktree changing more files than the
 // file browser holds and files longer than the diff shows
-// (../../dashboard/tests/support/storyReviewWorktree.ts). Beneath the review's
+// (../../dashboard/test-support/support/storyReviewWorktree.ts). Beneath the review's
 // status above the work area the file browser and the selected file's diff
 // fill the panel, and the body never scrolls as a whole. Each pane scrolls on
 // its own, down and sideways, leaving the other, what is above them, and the
@@ -17,24 +17,27 @@ import {
 import {
   filesToggle,
   reviewRefresh,
-} from "../../dashboard/tests/support/reviewControls.ts";
-import { treeFolder } from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { narrowWindow } from "../../dashboard/tests/accessibleReading.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
+import { treeFolder } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { narrowWindow } from "../../dashboard/test-support/accessibleReading.ts";
 import {
   box,
   expectTopBarsShareHeight,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   control,
   dragDivider,
   expectWidth,
-} from "../../dashboard/tests/sidePanelWidthPage.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+} from "../../dashboard/test-support/sidePanelWidthPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   contextLine,
   reviewBody,
   reviewFeedback,
-} from "../../dashboard/tests/support/reviewContextLine.ts";
+} from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   boxes,
   openLargeReview,
@@ -43,12 +46,12 @@ import {
   scrollPane,
   scrollTopOf,
   diffHeading,
-} from "../../dashboard/tests/support/reviewPanes.ts";
-import { expectReviewRead } from "../../dashboard/tests/support/reviewRead.ts";
+} from "../../dashboard/test-support/support/reviewPanes.ts";
+import { expectReviewRead } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   longA,
   longB,
-} from "../../dashboard/tests/support/largeReviewFiles.ts";
+} from "../../dashboard/test-support/support/largeReviewFiles.ts";
 
 test("a large review's browser and diff fill the panel and each scrolls on its own", async ({
   page,

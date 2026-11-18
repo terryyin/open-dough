@@ -1,9 +1,9 @@
 import {
   closeSidePanel,
   sidePanelNamesOf,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // A session launched from this dashboard opens in the page's one terminal,
-// on the committed origin from ../../dashboard/tests/launchJourney.ts:
+// on the committed origin from ../../dashboard/test-support/launchJourney.ts:
 // a card's session entry or a standalone Taken entry offers Open terminal, the page
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,
@@ -18,35 +18,35 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectTerminalIdentity,
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
-} from "../../dashboard/tests/support/launchEnvironment.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+} from "../../dashboard/test-support/support/launchEnvironment.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 
 // Named per worker at load; created before the page's server starts.
 const start = deploymentLikeStart(

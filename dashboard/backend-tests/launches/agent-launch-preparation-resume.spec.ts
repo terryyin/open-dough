@@ -2,23 +2,23 @@
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   attempts,
   launch,
   continueAttempt,
   accept,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   queuedIdentity,
   queuedTitle,
-} from "../../tests/support/startOrigin.ts";
-import { answerOf } from "../../tests/keptExecutionStart.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { answerOf } from "../../test-support/keptExecutionStart.ts";
 import {
   keptPreparation,
   preparationSlug as slug,
   type KeptPreparation,
-} from "../../tests/support/keptPreparation.ts";
+} from "../../test-support/support/keptPreparation.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("a kept preparation start", () => {

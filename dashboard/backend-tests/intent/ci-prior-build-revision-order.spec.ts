@@ -1,13 +1,13 @@
 // Measured builds that were not themselves dashboard landings still need
 // local revision order. No completion date can establish this boundary.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { commonGitDir } from "../../tests/support/launchLanding.ts";
+import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import {
   keepLandedCiHistory,
   landedCiHistory,
-} from "../../tests/support/landedCiHistory.ts";
-import { landedTrunk } from "../../tests/support/landedCiTrunk.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import { landedTrunk } from "../../test-support/support/landedCiTrunk.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 test.use({ serverMode: "boundary" });
 

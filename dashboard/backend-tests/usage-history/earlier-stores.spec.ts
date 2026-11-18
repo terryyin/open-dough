@@ -12,7 +12,7 @@ import {
   test,
   expect,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   nodeProcess,
@@ -20,7 +20,7 @@ import {
   responsesFile,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 const budget = 128 * 1024;
 const boundedCodec = `data:text/javascript,${encodeURIComponent(`

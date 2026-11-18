@@ -1,15 +1,15 @@
 // Built frontend with the notes service's unreadable answer; the real store's
 // refusal and preservation are proved in story-notes-admission.spec.ts.
-import { test } from "../../tests/support/frontendApp.ts";
+import { test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendBoardReview,
   storyA,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { parts } from "../../tests/dashboardParts.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { readyStory, takenStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { readyStory, takenStory } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 

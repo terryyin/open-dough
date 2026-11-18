@@ -7,36 +7,36 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   closeTerminal,
   openTerminalControl,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectMembership,
   parts,
   sessionNamedBy,
   standaloneSessionName,
   storyCardSessionOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTakenBacklog,
   takenBacklogStories,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   readyStory,
   type LaunchJourney,
-} from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectNotReloaded,
   expectSessionShown,
   markNotReloaded,
   watchRecordReads,
-} from "../../dashboard/tests/sessionStatePace.ts";
-import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
-import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/sessionStatePace.ts";
+import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
+import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

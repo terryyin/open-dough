@@ -1,12 +1,12 @@
 // Real built UI against the external notes boundary, with immutable line context.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendBoardReview,
   storyA,
-} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import { installFrontendStoryNotes } from "../../tests/support/frontendStoryNotes.ts";
-import { storyNotesPage } from "../../tests/support/storyNotesPage.ts";
-import { parts } from "../../tests/dashboardParts.ts";
+} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
+import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { parts } from "../../test-support/dashboardParts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   storyNoteSentToFollowUp,

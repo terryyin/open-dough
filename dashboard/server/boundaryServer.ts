@@ -1,6 +1,6 @@
 // This dashboard's local boundaries on a plain HTTP server, without Vite:
 // the server a backend test starts (`../backend-tests/`, through
-// `../tests/support/dashboardServer.ts` in boundary mode) in place of a dev
+// `../test-support/support/dashboardServer.ts` in boundary mode) in place of a dev
 // or built-preview server. It mounts this dashboard's local boundaries
 // (`./localBoundaries.ts`), the list `../vite.config.mts` mounts too, and
 // serves no page or asset: a request none of them answers is 404. Its
@@ -14,7 +14,7 @@
 // TypeScript needs, as `--port 0` for any free port or `--port <n>
 // --strictPort` for that port alone, on loopback only. It reports the address
 // it bound on stdout the way Vite does (`Local:   http://127.0.0.1:<port>/`),
-// so the same start helper reads it (`../tests/support/serverAddress.ts`), and
+// so the same start helper reads it (`../test-support/support/serverAddress.ts`), and
 // closes every boundary before it exits on SIGTERM or SIGINT, as Vite's
 // close hooks do (`./localBoundaryPlugin.ts`).
 

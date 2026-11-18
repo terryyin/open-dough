@@ -6,7 +6,7 @@ import {
   storyNotesAnswerSchema,
   storyNotesEndpoint,
 } from "../../src/storyNote.ts";
-import { expect, test } from "../../tests/dashboardTest.ts";
+import { expect, test } from "../../test-support/dashboardTest.ts";
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 const identity = "SEED-348#collect-notes-for-story-follow-ups";
 const notesFile = (home: string) =>

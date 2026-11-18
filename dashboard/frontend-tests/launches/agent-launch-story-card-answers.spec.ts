@@ -12,26 +12,29 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { openDoughSource } from "../../tests/support/frontendServiceState.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { openDoughSource } from "../../test-support/support/frontendServiceState.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
 import {
   expectMembership,
   parts,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { inspectionGroup, launchGroup } from "../../tests/storyCardControls.ts";
+} from "../../test-support/dashboardPage.ts";
+import {
+  inspectionGroup,
+  launchGroup,
+} from "../../test-support/storyCardControls.ts";
 import {
   expectOnOneLine,
   expectStackedInOrder,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   notRefinedStory,
   readyStory,
   takenStory,
-} from "../../tests/launchJourney.ts";
+} from "../../test-support/launchJourney.ts";
 
 test.describe("while the accepted start runs", () => {
   test("an execution card of a project whose installed skill cannot continue from a start reads Starting execution in Claude Code…", async ({

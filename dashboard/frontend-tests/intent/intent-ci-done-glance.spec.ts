@@ -1,22 +1,22 @@
-import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
-import { doneHistoryBuilder } from "../../tests/support/doneWallReferenceHistory.ts";
+import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
+import { doneHistoryBuilder } from "../../test-support/support/doneWallReferenceHistory.ts";
 import {
   mountedDoneTrunk,
   serveDoneWallTimeHistory,
-} from "../../tests/support/mountedDoneWallTime.ts";
+} from "../../test-support/support/mountedDoneWallTime.ts";
 // Controlled retained history renders through the full app. Real projection
 // and local-only reads remain in Backend ci-done-wall-reference.
 import { shortSha } from "../../src/baseCiWording.ts";
-import { inspectMark } from "../../tests/historyChartPage.ts";
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
-import { expectStackedInOrder } from "../../tests/partArrangement.ts";
+import { inspectMark } from "../../test-support/historyChartPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
+import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
 import {
   doneWallTimeHistory,
   expectChangeCue,
   priorBuildReferenceReading,
-} from "../../tests/priorBuildReferencePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
+} from "../../test-support/priorBuildReferencePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
 
 test("a Done landing's CI wall time reads against its recent builds between the endpoints and the entry table", async ({
   page,

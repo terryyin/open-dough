@@ -1,30 +1,33 @@
-import { readRetry } from "../../tests/intentReadRecoveryPage.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { readRetry } from "../../test-support/intentReadRecoveryPage.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent explains absent, unreadable, mismatched, and empty Test
 // Optimization Candidates records on its Optimization Candidates tab while
 // location browsing stays usable on the Intent tab (example 7;
 // ../../src/IntentCandidatesRecord.tsx).
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
-import { expandIntentGroup } from "../../tests/intentPerspectivePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
+import { expandIntentGroup } from "../../test-support/intentPerspectivePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 import {
   emptyCandidatesRecord,
   mismatchedCandidatesRecord,
   openDoughSources,
   testOptimizationCandidatesPath,
-} from "../../tests/intentCandidatesFixtures.ts";
+} from "../../test-support/intentCandidatesFixtures.ts";
 import {
   doughnut,
   doughnutSettings,
@@ -34,8 +37,8 @@ import {
   pygardon,
   pygardonSettings,
   pythonTest,
-} from "../../tests/intentCodeBrowseFixtures.ts";
-import { prepareCandidateProjects } from "../../tests/support/frontendIntentCandidates.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
+import { prepareCandidateProjects } from "../../test-support/support/frontendIntentCandidates.ts";
 
 test("Intent explains absent, unreadable, mismatched, and empty candidate records without disturbing location browsing", async ({
   page,

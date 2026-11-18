@@ -1,31 +1,34 @@
-import { prepareCandidateProjects } from "../../tests/support/frontendIntentCandidates.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { prepareCandidateProjects } from "../../test-support/support/frontendIntentCandidates.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent reads a project's live Test Optimization Candidates record
 // (../../src/IntentCandidatesRecord.tsx) on its Optimization Candidates tab:
 // each live candidate under Live candidates with its five facts, its affected
 // test opening in Purpose, and a live record holding `None.` as having no
 // live candidates.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-} from "../../tests/intentModePage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentModePage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 import {
   openDoughSources,
   openDoughSpecPaths,
   testOptimizationCandidatesPath,
-} from "../../tests/intentCandidatesFixtures.ts";
+} from "../../test-support/intentCandidatesFixtures.ts";
 import {
   openDough,
   openDoughSettings,
   pygardon,
   pygardonSettings,
   pythonTest,
-} from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent shows each live candidate with its five facts, and a live record without candidates as having none", async ({

@@ -1,24 +1,24 @@
 // Closed ad hoc story follow-ups move from Taken onto their source Recently
 // done card, share that card across anchors, and return to Taken when reopened.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   parts,
   sessionStateOf,
   storyCardSessions,
-} from "../../tests/dashboardPage.ts";
-import { markDoneAnyway } from "../../tests/support/markDone.ts";
-import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { doneCard } from "../../tests/doneStoryReviewPage.ts";
-import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
+} from "../../test-support/dashboardPage.ts";
+import { markDoneAnyway } from "../../test-support/support/markDone.ts";
+import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
+import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
+import { takenAdHocSession } from "../../test-support/support/startedAdHocSession.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { publishSourceCard } from "../../tests/support/followUpSourceCatalog.ts";
+import { publishSourceCard } from "../../test-support/support/followUpSourceCatalog.ts";
 import {
   adHocName,
   openBoard,
   sourceStory,
   storyFollowUp,
-} from "../../tests/support/recentlyDoneFollowUpGrouping.ts";
+} from "../../test-support/support/recentlyDoneFollowUpGrouping.ts";
 
 test("marking a follow-up Done moves it from Taken onto its source card", async ({
   page,

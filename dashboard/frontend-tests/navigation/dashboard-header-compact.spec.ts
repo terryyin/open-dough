@@ -5,12 +5,12 @@
 // compact control, and page-wide arrow cycling focuses the shown compact title
 // control. No separate panel icon or level-1 project title.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
 import {
   expectBannerRow,
   expectPinnedShortBanner,
-} from "../../tests/bannerReading.ts";
+} from "../../test-support/bannerReading.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
@@ -18,23 +18,23 @@ import {
   parts,
   pressProjectListKeys,
   projectTab,
-} from "../../tests/dashboardPage.ts";
-import { expectFrameIconControl } from "../../tests/frameIconControl.ts";
+} from "../../test-support/dashboardPage.ts";
+import { expectFrameIconControl } from "../../test-support/frameIconControl.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
-} from "../../tests/pageLayout.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
-import { settings } from "../../tests/support/systemSettingsPage.ts";
-import { focusCanonicalRecord } from "../../tests/storyCardControls.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+} from "../../test-support/pageLayout.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+import { settings } from "../../test-support/support/systemSettingsPage.ts";
+import { focusCanonicalRecord } from "../../test-support/storyCardControls.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
 import {
   doughnutProject,
   expectCatalogStories,
   openDoughProject,
   pygardonProject,
-} from "../../tests/projectKeyboardNavigationJourney.ts";
+} from "../../test-support/projectKeyboardNavigationJourney.ts";
 
 test.describe("compact project title select on a phone-width column", () => {
   const { portrait } = phoneLaunchTouchViewport;

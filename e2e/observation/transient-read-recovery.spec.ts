@@ -10,33 +10,33 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   expectWholeSnapshot,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   detailContentPaths,
   httpErrorAnswer,
   noConnection,
   pathsRead,
   publishMovingOrigin,
-} from "../../dashboard/tests/publishedOrigin.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/publishedOrigin.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   backlogA,
   inspectDashboardStory,
   revisionA,
   titlesOfA,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { failedAt } from "../../dashboard/tests/limitNotice.ts";
-import { headsChecks } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { failedAt } from "../../dashboard/test-support/limitNotice.ts";
+import { headsChecks } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectRecoversAfter,
   mainReads,
   transientRecovery,
-} from "../../dashboard/tests/transientRecoveryPage.ts";
+} from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 

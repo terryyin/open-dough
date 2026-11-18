@@ -2,23 +2,26 @@
 // its width is chosen, Maximized and narrowed by the Sessions sidebar; the
 // terminal's side of the same width is ./side-panel-width.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { fileDiff, listedFile } from "../../tests/support/reviewTreeRows.ts";
-import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
-import { box, expectSideBySideInOrder } from "../../tests/pageLayout.ts";
-import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import {
+  fileDiff,
+  listedFile,
+} from "../../test-support/support/reviewTreeRows.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { box, expectSideBySideInOrder } from "../../test-support/pageLayout.ts";
+import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import {
   recordReviewReads,
   sidePanelWidthPage,
-} from "../../tests/sidePanelWidthPage.ts";
+} from "../../test-support/sidePanelWidthPage.ts";
 import {
   maximizeSidePanel,
   restoreSidePanel,
-} from "../../tests/sidePanelFrame.ts";
+} from "../../test-support/sidePanelFrame.ts";
 import {
   openReview,
   takenStoryWithReview,
-} from "../../tests/support/frontendSidePanelWidth.ts";
+} from "../../test-support/support/frontendSidePanelWidth.ts";
 
 test("a review resized and maximized keeps its reads, and the open sidebar narrows the room without losing the chosen width", async ({
   page,

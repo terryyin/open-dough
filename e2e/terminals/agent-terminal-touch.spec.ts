@@ -3,16 +3,16 @@ import {
   control as frameControl,
   expectTitleOnOneCutLine,
   expectTitleWrapped,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // Ordinary page/xterm/WebSocket/PTY touch path; native stand-in supplies replies.
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expectRowRestsShowing,
   scrollYOf,
-} from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/boardPage.ts";
 import {
   expectNoTerminalText,
   expectTerminalText,
@@ -21,33 +21,33 @@ import {
   terminalPanel,
   terminalScreenParts,
   typeLine,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   box,
   expectTopBarsShareHeight,
   tapWhereShown,
-} from "../../dashboard/tests/pageLayout.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
 import {
   expectBoardUnreachableBehindCovering,
   expectCovering,
   expectCoveringFillsWindow,
   resizeUntilArranged,
-} from "../../dashboard/tests/sidePanelWidthPage.ts";
-import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+} from "../../dashboard/test-support/sidePanelWidthPage.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 import {
   expectFittedInput,
   focusByTouch,
   noteTerminalTraffic,
   scrollByTouch,
-} from "../../dashboard/tests/touchTerminalPage.ts";
+} from "../../dashboard/test-support/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

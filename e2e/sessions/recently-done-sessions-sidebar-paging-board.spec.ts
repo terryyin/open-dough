@@ -1,24 +1,27 @@
 // Scrolling Sessions-sidebar Recently done must not eagerly read older Board
 // done-story details; Board keeps its own progressive range.
-import { rem } from "../../dashboard/tests/boardPage.ts";
-import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
-import { recordsAsked } from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
+import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
-} from "../../dashboard/tests/recentlyDoneSessionsSidebarPaging.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionsSidebarPaging.ts";
 import {
   recentlyDoneHeightKey,
   showRecentlyDone,
-} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+} from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { recentlyDoneSessionsInitialLimit } from "../../dashboard/src/agentLaunch.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],

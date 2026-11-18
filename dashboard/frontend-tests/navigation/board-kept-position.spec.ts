@@ -8,20 +8,20 @@
 // Each case's browser context keeps its own real `localStorage`.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { chooseProject } from "../../tests/dashboardPage.ts";
-import { watchPageErrors } from "../../tests/pageErrors.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { chooseProject } from "../../test-support/dashboardPage.ts";
+import { watchPageErrors } from "../../test-support/pageErrors.ts";
 import {
   boardPositionKey,
   expectView,
   keptBoardPosition,
   rem,
   showColumn,
-} from "../../tests/boardPage.ts";
+} from "../../test-support/boardPage.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageRequestNotes.ts";
 
 // Room for two of the three columns, and for all three.
 const narrowWindow = { width: 54 * rem, height: 800 };

@@ -10,10 +10,13 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { openDoughSource } from "../../tests/support/frontendServiceState.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { openDoughSource } from "../../test-support/support/frontendServiceState.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const establishingSentence =

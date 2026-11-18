@@ -1,6 +1,6 @@
 // Start releases the dashboard while protecting its story, in Codex
 // (./responsive-session-start.spec.ts tells the shared promise): the real
-// installed starts against a real bare origin (../../dashboard/tests/support/startOrigin.ts)
+// installed starts against a real bare origin (../../dashboard/test-support/support/startOrigin.ts)
 // whose `pre-receive` hook holds the Take, with the Codex protocol fixture
 // holding the native conversation. A story's start and the continuation of
 // its kept start close at acceptance and protect only that story's card; a
@@ -11,13 +11,13 @@
 import {
   attempts,
   keptStarts,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   expectOthersWork,
   expectProtected,
@@ -25,8 +25,11 @@ import {
   holdAcceptanceAnswers,
   instruction,
   openStories,
-} from "../../dashboard/tests/responsiveStart.ts";
-import { expect, test } from "../../dashboard/tests/support/codexStart.ts";
+} from "../../dashboard/test-support/responsiveStart.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/codexStart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 

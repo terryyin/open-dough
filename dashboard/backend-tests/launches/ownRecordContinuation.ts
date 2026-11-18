@@ -13,18 +13,21 @@ import { expect } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
-import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import { keptStarts, runningStarts } from "../../tests/agentLaunchBoundary.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import {
+  keptStarts,
+  runningStarts,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/launchStore.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 export function ownRecordContinuation(
   dashboard: DashboardServer,

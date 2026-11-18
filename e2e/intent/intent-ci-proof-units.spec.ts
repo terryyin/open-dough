@@ -1,4 +1,4 @@
-import { expectFileProofRows } from "../../dashboard/tests/intentFileProofPage.ts";
+import { expectFileProofRows } from "../../dashboard/test-support/intentFileProofPage.ts";
 // CI proof results in their units through Intent (../../dashboard/src/IntentCiProof.tsx,
 // ../../dashboard/src/IntentScopeProof.tsx, ../../dashboard/src/IntentFileProof.tsx,
 // ../../dashboard/src/ciProofUnits.ts): raw runner reports go through the collector's
@@ -15,37 +15,37 @@ import { expectFileProofRows } from "../../dashboard/tests/intentFileProofPage.t
 // ../../Distribution/tests/skills/dough-test-optimization/ci-proof-units.test.mjs,
 // ../../Distribution/tests/support/dashboard-ci-proof-units-read.test.mjs.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectProofRows,
   proofOf,
   run,
-} from "../../dashboard/tests/intentCiProofPage.ts";
-import { openDoughSettings } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
+import { openDoughSettings } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   fileReadingTab,
   proofRegion,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   childName,
   expectScopeUnitFigures,
   expectScopeTableRows,
-} from "../../dashboard/tests/intentScopeProofPage.ts";
+} from "../../dashboard/test-support/intentScopeProofPage.ts";
 import {
   openIntent,
   openSummary,
   spec,
-} from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
+} from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
 import {
   collectedSummary,
   playwrightRecord,
   summaryTextZipAnswer,
   type RecordedTest,
-} from "../../dashboard/tests/support/ciProofCollected.ts";
-import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
-import { intentFile } from "../../dashboard/tests/support/intentStoryPage.ts";
+} from "../../dashboard/test-support/support/ciProofCollected.ts";
+import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
+import { intentFile } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 // A location whose `check.spec.ts` reports both five test cases and its own
 // file outcome, and whose folder holds two source files: `a.spec.ts`

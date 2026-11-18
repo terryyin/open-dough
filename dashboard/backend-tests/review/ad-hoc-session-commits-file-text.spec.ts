@@ -1,13 +1,13 @@
 // The panel reads a changed file's text beside its diff; a session's kept
 // pair admits that read as it admits the diff.
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { reviewedFileTextSchema } from "../../src/storyReviewContract.ts";
 import {
   adHocSessionFileText,
   keepSessionWithKeptRun,
-} from "../../tests/support/adHocReview.ts";
+} from "../../test-support/support/adHocReview.ts";
 
 test.use({ serverMode: "boundary" });
 

@@ -8,7 +8,7 @@
 // intent-ci-proof-adapter-reasons.spec.ts).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { zipOf } from "../../../../dashboard/tests/support/ciProofArtifacts.ts";
+import { zipOf } from "../../../../dashboard/test-support/support/ciProofArtifacts.ts";
 import { makeMe } from "../../support/makeMe.mjs";
 import { GitHubAcquisitionFailed } from "../../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";

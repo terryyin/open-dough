@@ -3,21 +3,21 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
-import { pausePageClockAt } from "../tests/dashboardTest.ts";
+} from "../test-support/support/frontendApp.ts";
+import { pausePageClockAt } from "../test-support/dashboardTest.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import { preholdRevisionStreamSlots } from "../tests/support/revisionStreamSlots.ts";
-import { givePageItsTurns, isCheck } from "../tests/pageRequestNotes.ts";
-import { setPageVisibility } from "../tests/autoRefreshJourney.ts";
+import { preholdRevisionStreamSlots } from "../test-support/support/revisionStreamSlots.ts";
+import { givePageItsTurns, isCheck } from "../test-support/pageRequestNotes.ts";
+import { setPageVisibility } from "../test-support/autoRefreshJourney.ts";
 import {
   dashboardConnectionIndicator,
   sessionsProductMark,
-} from "../tests/productMark.ts";
+} from "../test-support/productMark.ts";
 import {
   answerHeld,
   fulfillJson,
   holdAnswer,
-} from "../tests/support/frontendSubstituteAnswers.ts";
+} from "../test-support/support/frontendSubstituteAnswers.ts";
 
 test("the logo kneads once when the waiting dashboard receives updates", async ({
   page,

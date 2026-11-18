@@ -13,24 +13,24 @@ import {
   doneRecordFileName,
   renderDoneRecord,
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { rem } from "../../dashboard/tests/boardPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectEntries,
   revealAction,
-} from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { noConnection } from "../../dashboard/tests/originAnswers.ts";
-import { doneDirectory } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { doneDirectory } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   untilPageRests,
-} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   entries,
   entryAt,
   names,
-} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   laterStory,
   movingMain,
@@ -38,9 +38,9 @@ import {
   newest,
   recordsAskedAt,
   refreshedTo,
-} from "../../dashboard/tests/recentlyDoneRefresh.ts";
-import { answeringFirst } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
-import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/recentlyDoneRefresh.ts";
+import { answeringFirst } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

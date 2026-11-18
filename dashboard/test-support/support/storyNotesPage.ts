@@ -6,6 +6,7 @@ import {
   storyNotesWaitingDescription,
 } from "../../src/storyNote.ts";
 import { box, expectOnOneLine } from "../partArrangement.ts";
+import { diffNoteActions } from "./storyNotesDiffActions.ts";
 import { storyNotesControl } from "../storyCardControls.ts";
 const exactly = (text: string) =>
   new RegExp(`^${text.replace(/[.*+?^$|()[\]{}\\]/g, "\\$&")}$`);
@@ -21,18 +22,6 @@ export function storyNotesPage(page: Page) {
     entries.filter({
       has: page.locator(".story-note-text", { hasText: exactly(text) }),
     });
-  const lineMenu = page.getByRole("menu");
-  const lineNumber = (scope: Locator, side: "old" | "new", line: number) =>
-    scope.getByRole("button", {
-      name: `${side === "old" ? "Old" : "New"} line ${line}`,
-      exact: true,
-    });
-  const chooseAddNote = async () => {
-    await lineMenu
-      .getByRole("menuitem", { name: "Add note", exact: true })
-      .click();
-    await expect(dialog).toBeVisible();
-  };
   const saveButton = dialog.getByRole("button", {
     name: "Save note",
     exact: true,
@@ -44,21 +33,7 @@ export function storyNotesPage(page: Page) {
     ).toBeVisible();
   };
   return {
-    fromFile: async (scope: Locator) => {
-      await scope
-        .getByRole("button", { name: "Add note", exact: true })
-        .click();
-      await expect(dialog).toBeVisible();
-    },
-    lineActions: async (scope: Locator, side: "old" | "new", line: number) => {
-      await lineNumber(scope, side, line).click();
-      return lineMenu.getByRole("menuitem");
-    },
-    chooseAddNote,
-    fromLine: async (scope: Locator, side: "old" | "new", line: number) => {
-      await lineNumber(scope, side, line).click();
-      await chooseAddNote();
-    },
+    ...diffNoteActions(page, dialog),
     expectComposerAlone: async () => {
       await expect(field).toBeVisible();
       await expect(

@@ -10,12 +10,12 @@
 // naming no branch head, for that check only. Answers and GitHub's 304:
 // ./authenticated-read-revision-check.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   commitAnswer,
   notLoggedIn,
   rateLimitedAnswer,
-} from "../../tests/originAnswers.ts";
+} from "../../test-support/originAnswers.ts";
 import {
   checkArgv,
   gatewayTimeout,

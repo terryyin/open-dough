@@ -1,6 +1,6 @@
 # Dashboard Backend Test
 
-Focused dashboard server and test-runtime tests live here, beside `../tests/`
+Focused dashboard server and test-runtime tests live here, beside [Dashboard Test Support](../test-support/)
 and `../frontend-tests/`. They prove server behavior, its variants and
 failures at stable public boundaries: HTTP, WebSocket, stored-file, command
 and module boundaries, without a browser workflow. Use the shared
@@ -19,8 +19,8 @@ and a presentation case in `../frontend-tests/`.
 
 Prove the boundary the server mounts, in this process. Call that boundary's
 exported install, mounted on an HTTP server the test owns
-(`../tests/support/inProcessBoundaryHttp.ts`). The authenticated-read
-fixture (`../tests/support/inProcessAuthenticatedRead.ts`) is that mount
+(`../test-support/support/inProcessBoundaryHttp.ts`). The authenticated-read
+fixture (`../test-support/support/inProcessAuthenticatedRead.ts`) is that mount
 with a private `HOME` and a synthetic `gh`. The request stays a loopback
 HTTP request, so origin refusal, status, body, and response headers are the
 boundary's. Give the process the private `HOME` and the synthetic hosts the
@@ -28,7 +28,7 @@ case names. A case that needs a clean slate installs a new boundary. One
 install shared across cases is a choice, as one server shared across cases
 is today.
 
-Start the live server (`../tests/support/dashboardServer.ts`,
+Start the live server (`../test-support/support/dashboardServer.ts`,
 `startDashboardServer`) when the proof is a property that install does not
 have:
 
@@ -57,7 +57,7 @@ Bringing existing live-server cases across to this entry is
 
 The test runtime's own contracts are proved here too, in `runtime/`: the
 runners' reporter, selection, settings, output and cleanup, which run
-Playwright itself on substitute specs (`../tests/fixtures/`), and the shared
+Playwright itself on substitute specs (`../test-support/fixtures/`), and the shared
 page fixture's drain, settled-page wait and held-read observation, whose
 boundary is a page the harness opens rather than a product workflow.
 
@@ -65,7 +65,7 @@ boundary is a page the harness opens rather than a product workflow.
 
 `npm run test:dashboard:backend` runs only this group from its own
 configuration (`../backend.playwright.config.ts`). Its global setup
-(`../tests/support/backendGlobalSetup.ts`) runs the fixture executables once,
+(`../test-support/support/backendGlobalSetup.ts`) runs the fixture executables once,
 gives the run a GitHub request root that admits no owner, and registers only
 the artifacts backend specs request: the server bundle, the app build a
 preview or static server serves, the installed start origins, the published
@@ -86,13 +86,10 @@ CI runs this group as its own producer, the `dashboard-backend` job's shards
 ## Placement
 
 Every backend `*.spec.ts` and case-definition module belongs to one service
-feature folder. Harness fixtures that several groups share stay in
-`../tests/`. A check moved from an integrated journey keeps the feature
-folder it had there and links the journey that still shows it on the page;
-a module that registers cases moves with them. Choose the feature whose
-behavior the test proves, irrespective of an older filename prefix. The
-browser suite's feature folders reuse the same domain vocabulary where it
-still names protected service behavior.
+feature folder. Choose the feature whose behavior the test proves,
+irrespective of an older filename prefix. Harness fixtures that several
+groups share stay in Dashboard Test Support. The browser suite's feature folders reuse
+the same domain vocabulary where it still names protected service behavior.
 
 | Folder | Responsibility |
 | --- | --- |

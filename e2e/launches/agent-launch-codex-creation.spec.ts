@@ -10,31 +10,31 @@ import {
   startDashboardServer,
   sharedDashboardBuild,
   type DashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import type { FakeCodex } from "../../dashboard/tests/support/fakeCodex.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import type { FakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
 import {
   keepLaunchStoreText,
   launchStoreFile,
-} from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/support/launchStore.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   launch,
   machineSessions,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   test,
   expect,
   stored,
-} from "../../dashboard/tests/support/codexLaunch.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
   reloadUntilRead,
-} from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
   .refining({

@@ -6,17 +6,17 @@
 
 import { mkdirSync, rmSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { attempts, launch } from "../../tests/agentLaunchBoundary.ts";
+import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   expect,
   test as claudeTest,
-} from "../../tests/support/preparationPage.ts";
+} from "../../test-support/support/preparationPage.ts";
 import {
   expect as cursorExpect,
   test as cursorTest,
-} from "../../tests/support/cursorStart.ts";
-import { keptCursor } from "../../tests/support/keptCursorTurn.ts";
-import { recoverStory } from "../../tests/support/followUpStories.ts";
+} from "../../test-support/support/cursorStart.ts";
+import { keptCursor } from "../../test-support/support/keptCursorTurn.ts";
+import { recoverStory } from "../../test-support/support/followUpStories.ts";
 import {
   storyNoteIsWaiting,
   storyNotesEndpoint,

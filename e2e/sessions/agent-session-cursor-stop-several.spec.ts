@@ -1,25 +1,25 @@
 // Stopping one of several held Cursor sessions leaves the others
 // running under Running Cursor sessions. Single-session stop and
 // unconfirmed-stop journeys live in ./agent-session-cursor-stop.spec.ts.
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   closeTerminal,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   launchSecondHeldSession,
   startScopedCursorExecution,
-} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
+} from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
 import {
   expect,
   workingCursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 
 const stopOneSecondId = "f6a7b8c9-d0e1-4cdf-b012-3456789abcde";
 

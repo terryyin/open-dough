@@ -2,8 +2,8 @@ import {
   ciProofReading,
   expectNoProofRows,
   expectProofRows,
-} from "../../dashboard/tests/intentCiProofPage.ts";
-import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
+} from "../../dashboard/test-support/intentCiProofPage.ts";
+import { expectCiAnswer } from "../../dashboard/test-support/intentCiStatusPage.ts";
 // Why Intent's CI status tab shows no CI proof of a ciAdapter attempt
 // (../../dashboard/src/IntentCiProof.tsx, ../../dashboard/server/ciAdapterProof.ts): when the adapter
 // answers no proof read, gives its own reason, or answers what is not this
@@ -15,8 +15,8 @@ import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
 // ../../Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs.
 
 import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { expectAttemptAt } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expectAttemptAt } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
   type Answers,
@@ -26,14 +26,14 @@ import {
   testsRow,
   testsSummary,
   verdict,
-} from "../../dashboard/tests/intentCiAdapterProofProject.ts";
+} from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 
 import {
   login,
   repository,
   signup,
-} from "../../dashboard/tests/intentCiStoryRecords.ts";
-import { tokenColour } from "../../dashboard/tests/pageColours.ts";
+} from "../../dashboard/test-support/intentCiStoryRecords.ts";
+import { tokenColour } from "../../dashboard/test-support/pageColours.ts";
 
 const oversizedProofLine =
   "This attempt's CI proof is larger than the 1 MiB proof limit.";

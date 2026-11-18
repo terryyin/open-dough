@@ -3,13 +3,13 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   attempts,
   continued,
   launch,
   updateWorktreeRetried,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   answerOf,
   installHook,
@@ -19,26 +19,26 @@ import {
   slug,
   workspaceOf,
   type Problem,
-} from "../../tests/keptExecutionStart.ts";
+} from "../../test-support/keptExecutionStart.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
-import { settledOutcome } from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/support/startOrigin.ts";
+import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
 import {
   plantIncompleteInstall,
   scriptsOf,
-} from "../../tests/support/incompleteReportingInstall.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/support/incompleteReportingInstall.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 const fakeHelper = path.join(
   repoRoot,
-  "dashboard/tests/support/fakeReleaseApply.sh",
+  "dashboard/test-support/support/fakeReleaseApply.sh",
 );
 
 test.describe("Update worktree and retry", () => {

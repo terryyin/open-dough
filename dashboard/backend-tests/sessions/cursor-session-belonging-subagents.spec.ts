@@ -14,7 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { observeHeldCursorSession } from "../../server/hosts/cursor/sessions.ts";
 import type { HeldCursorSession } from "../../server/hosts/cursor/heldSessions.ts";
 import { cursorBelongingSubagentsDirectory } from "../../server/hosts/cursor/unfinishedSubagents.ts";

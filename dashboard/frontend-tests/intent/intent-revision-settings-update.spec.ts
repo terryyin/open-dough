@@ -1,28 +1,28 @@
-import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
 import {
   showLatestRevision,
   readRetry,
-} from "../../tests/intentReadRecoveryPage.ts";
+} from "../../test-support/intentReadRecoveryPage.ts";
 // An unreadable latest settings answer keeps the accepted Project Intent
 // source and Retry; successful retry moves the browser to that revision.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { shortRevision } from "../../tests/dashboardParts.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
-import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
+import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
+import { pygardon } from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   featurePath,
   publishedFeature,
-} from "../../tests/intentJobsFeatureFixtures.ts";
+} from "../../test-support/intentJobsFeatureFixtures.ts";
 import {
   browserRevision,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   jobsFeatures,
   publishedFiles,
-} from "../../tests/intentRevisionJourney.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/intentRevisionJourney.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 
 test("an unreadable settings answer at the latest revision keeps the shown reading with Retry, which applies the update", async ({
   page,

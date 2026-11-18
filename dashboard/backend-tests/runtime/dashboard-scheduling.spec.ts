@@ -1,17 +1,17 @@
 // Native Playwright dispatch proves local overlap and unchanged CI concurrency.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   proofDirectory,
   quietReporter,
   readProof,
   removeProofDirectories,
   startProofCommand,
-} from "../../tests/support/proofRecordRun.ts";
-import { runOutputs } from "../../tests/support/testFiles.mjs";
+} from "../../test-support/support/proofRecordRun.ts";
+import { runOutputs } from "../../test-support/support/testFiles.mjs";
 
 test.afterAll(removeProofDirectories);
 const chains = ["failures", "updates"] as const;
@@ -143,7 +143,7 @@ export default () => appendFileSync(${JSON.stringify(events)}, "global:setup\\n"
 `,
   );
   const projectModule = pathToFileURL(
-    path.join(repoRoot, "dashboard/tests/support/testFiles.mjs"),
+    path.join(repoRoot, "dashboard/test-support/support/testFiles.mjs"),
   ).href;
   const options = {
     testDir: directory,

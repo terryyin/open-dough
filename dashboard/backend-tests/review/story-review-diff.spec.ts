@@ -4,7 +4,7 @@
 // line before it, each line is numbered from its hunk's header in the old
 // and new file, and a binary or mode-only change has no hunks.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { parsedUnifiedDiff } from "../../src/unifiedDiff.ts";
 
 test("hunks keep their headers and lines with additions, removals, and unchanged lines", () => {

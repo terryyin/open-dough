@@ -1,9 +1,9 @@
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 import {
   doneHistoryRead,
   doneWallTimeHistory,
   expectChangeCue,
-} from "../../dashboard/tests/priorBuildReferencePage.ts";
+} from "../../dashboard/test-support/priorBuildReferencePage.ts";
 // The published execution endpoint, actual selected collection and retained
 // raw ancestors flow through the normal authenticated history reader. A
 // failed history refresh and its retry are the lifecycle journey's
@@ -11,24 +11,27 @@ import {
 // each history state's readout is the mounted one's
 // (../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts).
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { publishComparedStoryBranch } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
-import { defaultMixedProofs } from "../../dashboard/tests/support/storyCiComparisonEntryProofs.ts";
-import { wall } from "../../dashboard/tests/support/storyCiComparisonFixture.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { publishComparedStoryBranch } from "../../dashboard/test-support/support/storyCiComparisonDoneFixture.ts";
+import { defaultMixedProofs } from "../../dashboard/test-support/support/storyCiComparisonEntryProofs.ts";
+import { wall } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
 import {
   recordScopeHistoryLandings,
   retainedProofs,
-} from "../../dashboard/tests/support/scopeHistoryCollection.ts";
-import { doneWallReferenceHistory } from "../../dashboard/tests/support/doneWallReferenceHistory.ts";
+} from "../../dashboard/test-support/support/scopeHistoryCollection.ts";
+import { doneWallReferenceHistory } from "../../dashboard/test-support/support/doneWallReferenceHistory.ts";
 import {
   keepLandedCiHistory,
   recheckingLandedCi,
   restartAsLandedCiReader,
-} from "../../dashboard/tests/support/landedCiHistory.ts";
-import { retainedHistory } from "../../dashboard/tests/support/collectedScopeHistory.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/landedCiHistory.ts";
+import { retainedHistory } from "../../dashboard/test-support/support/collectedScopeHistory.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/test-support/pageLayout.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
 test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 const readers: DashboardServer[] = [];

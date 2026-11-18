@@ -5,7 +5,7 @@
 // ./auto-refresh-recovery.spec.ts. The page, its local authenticated read
 // boundary, the `gh` invocation, and the shared interpretation are the
 // production ones; the fake GitHub behind the synthetic `gh`
-// (../../dashboard/tests/support/fakeGitHub.ts) only publishes commits and holds answers. The
+// (../../dashboard/test-support/support/fakeGitHub.ts) only publishes commits and holds answers. The
 // page's clock is paused and advanced by the test.
 
 import type { Page } from "@playwright/test";
@@ -13,14 +13,14 @@ import {
   expect,
   githubFor,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -29,13 +29,13 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   recordsAt,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogB,
   revisionB,
   titlesOfB,
-} from "../../dashboard/tests/refreshJourney.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/refreshJourney.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 const claimsStory = "Publish shared backlog claims";
 const claimsRecord = ".planning/seeds/SEED-040-claims.md";

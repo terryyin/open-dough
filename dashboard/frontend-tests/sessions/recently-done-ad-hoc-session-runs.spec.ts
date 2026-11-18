@@ -1,21 +1,21 @@
 // A Default main session's kept runs of commits are the review's Comparison
 // switch, oldest first; a run whose commits leave no difference says so.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
 import {
   sidePanelPages,
   type SidePanelPages,
-} from "../../tests/sidePanelPages.ts";
+} from "../../test-support/sidePanelPages.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { browserLocaleString } from "../../tests/browserLocale.ts";
+import { browserLocaleString } from "../../test-support/browserLocale.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   frontendFileDiff,
   frontendReviewIds,
   frontendSessionCommitsReview,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 
 const launchedAt = "2026-01-02T12:00:00.000Z";
 const ids = frontendReviewIds;

@@ -4,30 +4,30 @@
 // A second commit records two of five slices done with accepted proof in plan
 // text; the shared reader interprets that outcome.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   contentPathsRead,
   publishCommittedOrigin,
-} from "../../dashboard/tests/committedOrigin.ts";
+} from "../../dashboard/test-support/committedOrigin.ts";
 import {
   chooseProject,
   shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { credit } from "../../dashboard/tests/agentCredit.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { credit } from "../../dashboard/test-support/agentCredit.ts";
 import {
   hideDetail,
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
-import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   expectPlanlessDetailAbsentPlan,
   expectReadyDetailTwoCompleteAfterPublish,
   expectReadyDetailZeroComplete,
-} from "../../dashboard/tests/storyReadinessDetail.ts";
+} from "../../dashboard/test-support/storyReadinessDetail.ts";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
@@ -38,14 +38,14 @@ import {
   plannedReady,
   planless,
   unrefined,
-} from "../../dashboard/tests/storyReadinessFixture.ts";
+} from "../../dashboard/test-support/storyReadinessFixture.ts";
 import {
   expectAgreeingFragment,
   expectQueuedPlanStoryCardAndDetail,
   expectPlanKeyboardDestination,
-} from "../../dashboard/tests/queuedPlanNavigation.ts";
-import { publishTwoSlicesDone } from "../../dashboard/tests/storyReadinessPublications.ts";
-import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/queuedPlanNavigation.ts";
+import { publishTwoSlicesDone } from "../../dashboard/test-support/storyReadinessPublications.ts";
+import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";

@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A same-build runner whose helper proof alone drifted keeps its held
 // sessions running when another Cursor session starts. Stale-build
 // observation and replacement recovery live in
@@ -11,18 +11,18 @@ import {
 } from "../../Distribution/tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import { cursorRunnerSpawnHelper } from "../../dashboard/server/hosts/cursor/runnerSpawnHelper.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
-import { makeRecordedHelperProofMissing } from "../../dashboard/tests/support/cursorRunnerRecordedAddress.ts";
-import { keptRecords } from "../../dashboard/tests/support/cursorSessionRecovery.ts";
-import { openHeldCursorExecutions } from "../../dashboard/tests/support/heldCursorExecutions.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
+import { makeRecordedHelperProofMissing } from "../../dashboard/test-support/support/cursorRunnerRecordedAddress.ts";
+import { keptRecords } from "../../dashboard/test-support/support/cursorSessionRecovery.ts";
+import { openHeldCursorExecutions } from "../../dashboard/test-support/support/heldCursorExecutions.ts";
 import {
   expect,
   workingCursorTest,
-} from "../../dashboard/tests/support/cursorStart.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const helperGoneSecondId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
 const helperGoneThirdId = "b2c3d4e5-f6a7-489a-bcde-f01234567890";

@@ -10,27 +10,33 @@ import {
   keyStep,
   runningCursorSplit,
   wide,
-} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
-import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/cursorSessionsSidebarResizePage.ts";
+import {
+  chooseProject,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
-} from "../../dashboard/tests/pageLayout.ts";
-import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+} from "../../dashboard/test-support/pageLayout.ts";
+import { openRunningList } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   changesAsked,
   expectLastInReach,
   listFloor as floor,
   showPage,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { sessionsSidebarTitleCut } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import { sessionsSidebarTitleCut } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
 import {
   back,
   settings,
-} from "../../dashboard/tests/support/systemSettingsPage.ts";
-import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+} from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 test.use({ cursorScreen: "working" });
 

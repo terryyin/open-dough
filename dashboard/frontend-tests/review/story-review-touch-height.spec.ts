@@ -1,25 +1,25 @@
 // On a short touch landscape, revealed details and status share one height
 // budget above the diff so the work area keeps a usable code pane.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
   frontendReviewSnapshot,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReviewAsOpened } from "../../tests/support/frontendStoryReviewOpen.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   aboveBodyTouchBudget,
   reviewFeedback,
-} from "../../tests/support/reviewContextLine.ts";
-import { codePane } from "../../tests/support/reviewPanes.ts";
+} from "../../test-support/support/reviewContextLine.ts";
+import { codePane } from "../../test-support/support/reviewPanes.ts";
 import {
   expectDetailsCollapsed,
   hideDetails,
   revealDetails,
-} from "../../tests/support/reviewDetails.ts";
-import { box } from "../../tests/pageLayout.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
-import { reachReviewControl } from "../../tests/support/reviewTouchReading.ts";
+} from "../../test-support/support/reviewDetails.ts";
+import { box } from "../../test-support/pageLayout.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { reachReviewControl } from "../../test-support/support/reviewTouchReading.ts";
 
 test.use({
   hasTouch: true,

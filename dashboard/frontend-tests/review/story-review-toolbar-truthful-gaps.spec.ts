@@ -1,19 +1,19 @@
 // Session commits, a selected landed evidence gap and a bare explanation each
 // name the toolbar only when the review on screen supplies a comparison.
-import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
-import { sidePanelPages } from "../../tests/sidePanelPages.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
+import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
   frontendSessionCommitsReview,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
-import { reviewRegion } from "../../tests/support/reviewControls.ts";
-import { revealDetails } from "../../tests/support/reviewDetails.ts";
-import { fileDiff } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
+import { reviewRegion } from "../../test-support/support/reviewControls.ts";
+import { revealDetails } from "../../test-support/support/reviewDetails.ts";
+import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 

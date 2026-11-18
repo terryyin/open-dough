@@ -5,29 +5,32 @@
 // sideways scrolling. Open Dough's mark leads the page's name at each width.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
-import { back, settings } from "../../tests/support/systemSettingsPage.ts";
-import { themeChoice } from "../../tests/support/terminalThemeSettingsPage.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
+import {
+  back,
+  settings,
+} from "../../test-support/support/systemSettingsPage.ts";
+import { themeChoice } from "../../test-support/support/terminalThemeSettingsPage.ts";
 import {
   expectControlContrast,
   expectReadableAndRecognisable,
   expectReadableContrast,
-} from "../../tests/accessibleReading.ts";
+} from "../../test-support/accessibleReading.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../../tests/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import { expectProductMark } from "../../tests/productMark.ts";
-import { expectProjectChoice } from "../../tests/dashboardPage.ts";
-import { readSetting } from "../../tests/support/settingsTouchPage.ts";
+} from "../../test-support/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+import { expectProductMark } from "../../test-support/productMark.ts";
+import { expectProjectChoice } from "../../test-support/dashboardPage.ts";
+import { readSetting } from "../../test-support/support/settingsTouchPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const settingGroups = ["Projects", "OpenAI", "Terminal theme"];

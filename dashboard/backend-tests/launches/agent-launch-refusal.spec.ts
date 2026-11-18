@@ -8,13 +8,13 @@
 // launch refusals prove neither host was called. What an admitted request answers is
 // ./agent-launch-boundary.spec.ts.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   identity,
   launch,
   launchRequest,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   agentAcceptEndpoint,
   agentChangedEndpoint,
@@ -23,8 +23,8 @@ import {
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe(`agent launch boundary refusal`, () => {
   test.describe.configure({ mode: "serial" });

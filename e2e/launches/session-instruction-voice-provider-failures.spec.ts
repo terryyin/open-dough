@@ -1,16 +1,19 @@
-import { test, expect } from "../../dashboard/tests/support/voiceTest.ts";
-import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/voiceTest.ts";
+import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   observeMicrophone,
   recordClip,
-} from "../../dashboard/tests/support/voicePage.ts";
+} from "../../dashboard/test-support/support/voicePage.ts";
 import {
   openVoiceDraft,
   recovered,
   typedStart,
   voiceBrowserOptions,
   originalDraft,
-} from "../../dashboard/tests/support/voiceRecovery.ts";
+} from "../../dashboard/test-support/support/voiceRecovery.ts";
 import { instructionProblems } from "../../dashboard/src/instructionTranscription.ts";
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {

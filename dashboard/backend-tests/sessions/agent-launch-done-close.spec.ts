@@ -3,18 +3,18 @@
 // directory survives shutdown so assertions read the resulting durable record.
 
 import { mkdtempSync, rmSync } from "node:fs";
-import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
+import { keptLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   markDone,
   openDoughFolder,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 
 const launchName = `Open Dough · Execution · ${title}`;
 

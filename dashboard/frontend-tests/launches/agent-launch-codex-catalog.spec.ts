@@ -10,15 +10,15 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
+} from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendLaunchBoundary,
   nativeCodexChoices,
-} from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { doughnutSource } from "../../tests/support/frontendServiceState.ts";
-import { chooseProject } from "../../tests/dashboardPage.ts";
-import { startSession } from "../../tests/launchStoryCardPage.ts";
-import { givePageItsTurns } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { doughnutSource } from "../../test-support/support/frontendServiceState.ts";
+import { chooseProject } from "../../test-support/dashboardPage.ts";
+import { startSession } from "../../test-support/launchStoryCardPage.ts";
+import { givePageItsTurns } from "../../test-support/pageRequestNotes.ts";
 
 test("slow/unavailable discovery retains focus, retry works, host changes and fresh openings reset; cancel creates nothing", async ({
   page,

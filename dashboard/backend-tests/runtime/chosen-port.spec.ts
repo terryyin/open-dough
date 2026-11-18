@@ -1,7 +1,7 @@
 // A Vite start that asked for any free port and lost Vite's own choice to
 // another listener starts again (../../server/chosenPort.mjs); every other
 // failure, and any failure on a named port, stands.
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { startOnChosenPort } from "../../server/chosenPort.mjs";
 
 const lost = (port: number) =>

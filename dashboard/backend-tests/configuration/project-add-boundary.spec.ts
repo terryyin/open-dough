@@ -1,14 +1,17 @@
 import http from "node:http";
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   projectAddMachine,
   addedRepository,
   addedLocalPath,
-} from "../../tests/support/projectAddMachine.ts";
-import { rawRequest, abandonedRequest } from "../../tests/support/rawHttp.ts";
-import { hangs } from "../../tests/support/fakeGitHub.ts";
-import { processRunning } from "../../tests/support/processGroup.ts";
+} from "../../test-support/support/projectAddMachine.ts";
+import {
+  rawRequest,
+  abandonedRequest,
+} from "../../test-support/support/rawHttp.ts";
+import { hangs } from "../../test-support/support/fakeGitHub.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

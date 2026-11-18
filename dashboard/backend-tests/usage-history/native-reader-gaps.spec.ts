@@ -14,13 +14,13 @@ import {
   runImport,
   writeClaudeSession,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+} from "../../test-support/usage-history/importHarness.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   expect,
   test,
   usageServer,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const sessionId = "01a1c000-84ab-7240-a940-8a72564202cd";
 const reference = "ca7430bd-0d52-499d-a1bd-000000000001";

@@ -7,18 +7,21 @@
 // ../intent/intent-ci-status-side-panel.spec.ts; several open details and
 // dependency references in ../../../e2e/stories/story-card-inspection.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { executed, queuedTitle } from "../../tests/recentlyDoneRecords.ts";
-import { openFrontendStoryCardSessions } from "../../tests/support/frontendRecentlyDoneStoryCards.ts";
-import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import {
+  executed,
+  queuedTitle,
+} from "../../test-support/recentlyDoneRecords.ts";
+import { openFrontendStoryCardSessions } from "../../test-support/support/frontendRecentlyDoneStoryCards.ts";
+import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
 import {
   emptyArea,
   expectInspected,
   expectSelected,
   storyDetail,
-} from "../../tests/storyCardSelection.ts";
-import { hideDetail, storyCard } from "../../tests/storyCardControls.ts";
+} from "../../test-support/storyCardSelection.ts";
+import { hideDetail, storyCard } from "../../test-support/storyCardControls.ts";
 
 test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,

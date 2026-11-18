@@ -8,15 +8,15 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
-import { sidePanelContents } from "../../tests/support/sidePanelContents.ts";
-import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import { sidePanelContents } from "../../test-support/support/sidePanelContents.ts";
+import { takenAdHocSession } from "../../test-support/support/startedAdHocSession.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const text = "summarize the open issues";

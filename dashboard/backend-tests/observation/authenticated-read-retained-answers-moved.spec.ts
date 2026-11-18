@@ -8,7 +8,7 @@
 // GitHub. A comparison that fails, or that names more commits than its
 // bound, reads B as a first visit does. Development-environment boundaries over real HTTP with the
 // synthetic `gh` count the `gh` calls each process made
-// (../../tests/retainedAnswersJourney.ts).
+// (../../test-support/retainedAnswersJourney.ts).
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,10 +16,14 @@ import path from "node:path";
 import {
   startFakeGitHub,
   type FakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
-import { noConnection } from "../../tests/originAnswers.ts";
+} from "../../test-support/support/fakeGitHub.ts";
+import { noConnection } from "../../test-support/originAnswers.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
+import {
+  madeBy,
+  modified,
+  named,
+} from "../../test-support/revisionReuseOrigin.ts";
 import {
   allAnswered,
   asked,
@@ -30,7 +34,7 @@ import {
   read,
   readProject,
   test,
-} from "../../tests/retainedAnswersJourney.ts";
+} from "../../test-support/retainedAnswersJourney.ts";
 
 const origin = makeMe.aProjectRevision;
 

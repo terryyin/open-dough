@@ -13,24 +13,24 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   deleteRecord,
   identity,
   recordsOf,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { launched } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
   keptLaunchRecords,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import {
   launchHistoryDirectory,
   readLaunchHistory,

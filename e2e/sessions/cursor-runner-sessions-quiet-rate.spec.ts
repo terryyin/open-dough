@@ -9,26 +9,26 @@ import { askGapMs } from "../../dashboard/src/cursorRunnerSessions.ts";
 import {
   passPageMsAnswered,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   collapseRunningList,
   openRunningList,
-} from "../../dashboard/tests/runningCursorList.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/runningCursorList.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   heldSessionsAnswer,
   holdSession,
   instruction,
   showPageWithTaken,
   withRunningCursor,
-} from "../../dashboard/tests/runningCursorSessionsPage.ts";
-import { trackCursorSessionsDemand } from "../../dashboard/tests/support/cursorSessionsDemand.ts";
-import { holdRunnerSessionsReads } from "../../dashboard/tests/support/cursorRunnerHeldReads.ts";
+} from "../../dashboard/test-support/runningCursorSessionsPage.ts";
+import { trackCursorSessionsDemand } from "../../dashboard/test-support/support/cursorSessionsDemand.ts";
+import { holdRunnerSessionsReads } from "../../dashboard/test-support/support/cursorRunnerHeldReads.ts";
 import {
   expect,
   keptRecord,
-} from "../../dashboard/tests/support/cursorStart.ts";
+} from "../../dashboard/test-support/support/cursorStart.ts";
 
 const quietWatchMs = 10_000;
 // Ten seconds of page time as a proxy for about one ask per second.

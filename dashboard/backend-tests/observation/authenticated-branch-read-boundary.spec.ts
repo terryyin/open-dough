@@ -7,24 +7,30 @@
 // branch; malformed branch parameters are covered in
 // ./authenticated-read-refusal.spec.ts, and what the page shows from branch
 // reads in ../../../e2e/stories/branch-slice-progress.spec.ts. Shares this suite's harness
-// (../../tests/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
+// (../../test-support/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
 // approach.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { branchRefAnswer, headsAnswer } from "../../tests/originAnswers.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
+import {
+  branchRefAnswer,
+  headsAnswer,
+} from "../../test-support/originAnswers.ts";
 import {
   describedRevision,
   withBacklogFallback,
-} from "../../tests/describedRevisions.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+} from "../../test-support/describedRevisions.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

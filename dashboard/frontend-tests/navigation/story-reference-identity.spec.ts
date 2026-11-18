@@ -5,27 +5,27 @@
 // reading of the shared seed is
 // ../../../e2e/stories/story-dependencies.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { chooseProject } from "../../tests/projectChoice.ts";
-import { expectRoute } from "../../tests/agentRosterRecords.ts";
-import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { chooseProject } from "../../test-support/projectChoice.ts";
+import { expectRoute } from "../../test-support/agentRosterRecords.ts";
+import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
 import {
   answerPygardonTelling,
   putFrontendSuppliersInOneSeed,
-} from "../../tests/support/frontendStoryIdentities.ts";
-import { storyDetail } from "../../tests/storyCardSelection.ts";
-import { storyCard } from "../../tests/storyCardControls.ts";
+} from "../../test-support/support/frontendStoryIdentities.ts";
+import { storyDetail } from "../../test-support/storyCardSelection.ts";
+import { storyCard } from "../../test-support/storyCardControls.ts";
 import {
   dependencySummary,
   followReference,
   openDependencies,
   storyReference,
-} from "../../tests/storyReference.ts";
+} from "../../test-support/storyReference.ts";
 import {
   recordReveals,
   revealsOf,
-} from "../../tests/sessionNavigationJourney.ts";
+} from "../../test-support/sessionNavigationJourney.ts";
 
 test.use({ hasTouch: true });
 

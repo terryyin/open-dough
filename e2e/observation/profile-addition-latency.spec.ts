@@ -13,18 +13,21 @@ import {
   githubFor,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
-import { credit, detailHuman } from "../../dashboard/tests/agentCredit.ts";
-import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
-import { holdingAnswer } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
-import { pathChange } from "../../dashboard/tests/pathHistoryAnswers.ts";
-import { describedFiles } from "../../dashboard/tests/describedRevisions.ts";
-import type { GhRequest } from "../../dashboard/tests/support/ghRequest.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  credit,
+  detailHuman,
+} from "../../dashboard/test-support/agentCredit.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
+import { pathChange } from "../../dashboard/test-support/pathHistoryAnswers.ts";
+import { describedFiles } from "../../dashboard/test-support/describedRevisions.ts";
+import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
 import {
   afterTake,
   clockedFacts,
@@ -37,11 +40,11 @@ import {
   revision,
   stories,
   takes,
-} from "../../dashboard/tests/sliceClockRecords.ts";
+} from "../../dashboard/test-support/sliceClockRecords.ts";
 import {
   credited,
   preparer,
-} from "../../dashboard/tests/agentAttributionRecords.ts";
+} from "../../dashboard/test-support/agentAttributionRecords.ts";
 
 // The slice clock records (sliceClockRecords.ts), where `credited` added the
 // Taken work's profile, beside a queued story `preparer` prepares. GitHub

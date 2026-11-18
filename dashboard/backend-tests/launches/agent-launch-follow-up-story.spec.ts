@@ -1,5 +1,5 @@
 // A follow-up of a done story over raw HTTP, with a real bare origin
-// (../../tests/support/startOrigin.ts), a synthetic `gh` answering from the
+// (../../test-support/support/startOrigin.ts), a synthetic `gh` answering from the
 // fake GitHub, and the synthetic `claude`: the request names the story and
 // the revision the page showed, and the server reads its published done
 // record at that revision and the Done sessions this machine keeps for it,
@@ -13,22 +13,26 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { attempts, launch, accept } from "../../tests/agentLaunchBoundary.ts";
-import { stored } from "../../tests/support/codexLaunch.ts";
-import { failsWith } from "../../tests/support/fakeGitHub.ts";
+import {
+  attempts,
+  launch,
+  accept,
+} from "../../test-support/agentLaunchBoundary.ts";
+import { stored } from "../../test-support/support/codexLaunch.ts";
+import { failsWith } from "../../test-support/support/fakeGitHub.ts";
 import {
   doneStoryFiles,
   otherStory,
   quietStorySessions,
   recoverStory,
   storyContextOf,
-} from "../../tests/support/followUpStories.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { publishes } from "../../tests/support/publishedRepository.ts";
-import { originMain } from "../../tests/support/sessionDialog.ts";
-import type { StartOrigin } from "../../tests/support/startOrigin.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/followUpStories.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,

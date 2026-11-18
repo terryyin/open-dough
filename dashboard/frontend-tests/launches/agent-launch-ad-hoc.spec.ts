@@ -10,22 +10,22 @@ import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
 import {
   openDoughSource,
   pygardonSource,
-} from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendServiceState.ts";
 import {
   authenticatedReadRoute,
   holdAuthenticatedReadsWhere,
-} from "../../tests/holdAuthenticatedReads.ts";
+} from "../../test-support/holdAuthenticatedReads.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../../tests/launchStoryCardPage.ts";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
+} from "../../test-support/launchStoryCardPage.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {

@@ -1,7 +1,7 @@
-import { askToDeleteRecord } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { askToDeleteRecord } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // Deleting the record of the session the page's one terminal shows
 // (../terminals/agent-terminal.spec.ts), on the committed story-columns origin
-// (../../dashboard/tests/launchJourney.ts): while the listing cannot be read the session is State
+// (../../dashboard/test-support/launchJourney.ts): while the listing cannot be read the session is State
 // unknown and still offers Open terminal; deleting its record from its card
 // entry closes the panel, as Mark as done does (./agent-terminal-done.spec.ts),
 // leaves no "Shown in terminal" mark, keeps the story selected (ADR 0008),
@@ -16,8 +16,8 @@ import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionOf,
   storyCardSessions,
@@ -25,15 +25,15 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   readyStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { attachesOf } from "../../dashboard/tests/sessionNavigationJourney.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { attachesOf } from "../../dashboard/test-support/sessionNavigationJourney.ts";
+import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

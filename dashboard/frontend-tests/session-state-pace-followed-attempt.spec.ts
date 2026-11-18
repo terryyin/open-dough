@@ -1,5 +1,5 @@
 // A steady pace of page time (`watchRecordReads` in
-// ../tests/sessionStatePace.ts) on a page that still follows a launch
+// ../test-support/sessionStatePace.ts) on a page that still follows a launch
 // attempt: the page's wait on that attempt's next change asks for a read of
 // the machine's sessions as soon as it is answered, so the pace has to begin
 // after that read. Synthetic machine answers only; no dashboard backend or
@@ -14,14 +14,14 @@ import {
   type MachineAnswer,
 } from "../src/agentLaunch.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import { pausePageClockAt } from "../tests/dashboardTest.ts";
-import { givePageItsTurns } from "../tests/pageRequestNotes.ts";
-import { watchRecordReads } from "../tests/sessionStatePace.ts";
+import { pausePageClockAt } from "../test-support/dashboardTest.ts";
+import { givePageItsTurns } from "../test-support/pageRequestNotes.ts";
+import { watchRecordReads } from "../test-support/sessionStatePace.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../tests/support/frontendApp.ts";
+} from "../test-support/support/frontendApp.ts";
 
 const pageTime = (page: Page) => page.evaluate(() => Date.now());
 

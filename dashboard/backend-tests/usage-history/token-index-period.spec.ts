@@ -6,7 +6,7 @@ import {
   test,
   usageServer,
   writeTaskUsage,
-} from "../../tests/usage-history/tokenIndexHarness.ts";
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 test("calendar bounds select tasks and unpriced counts after the historical rolling median", async ({
   machine,

@@ -12,33 +12,36 @@
 // publication and settling are
 // ../../../e2e/launches/responsive-session-start.spec.ts.
 
-import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../tests/dashboardTest.ts";
-import { tabTo } from "../../tests/accessibleReading.ts";
-import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
-import { passCheckPace } from "../../tests/pageRequestNotes.ts";
+import { parts, storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+import { tabTo } from "../../test-support/accessibleReading.ts";
+import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+} from "../../test-support/launchJourney.ts";
+import { passCheckPace } from "../../test-support/pageRequestNotes.ts";
 import {
   countMachineReads,
   indicatorOf,
   inspectByKeyboard,
   marksOf,
   recordAnnouncements,
-} from "../../tests/responsiveAccess.ts";
-import { startupUnavailable as unavailable } from "../../tests/responsiveStart.ts";
+} from "../../test-support/responsiveAccess.ts";
+import { startupUnavailable as unavailable } from "../../test-support/responsiveStart.ts";
 import {
   emptyArea,
   expectInspected,
   expectSelected,
-} from "../../tests/storyCardSelection.ts";
+} from "../../test-support/storyCardSelection.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
-} from "../../tests/support/frontendApp.ts";
-import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
-import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
+} from "../../test-support/support/frontendApp.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
 
 const reason = new RegExp(unavailable.replace(/[.]/g, "\\."));
 const inProgress = `${readyStory}: execution start, local startup in progress.`;

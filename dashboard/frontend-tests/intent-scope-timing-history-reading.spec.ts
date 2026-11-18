@@ -2,7 +2,7 @@ import {
   scopeHistory,
   scopeHistoryReading,
   scopeHistoryChart,
-} from "../tests/intentScopeHistoryPage.ts";
+} from "../test-support/intentScopeHistoryPage.ts";
 // Supplemental UI recovery proof for the locally collected scope history.
 // The collection-to-Summary journey owns actual retained evidence; this
 // substitute fails only the local history read beside an existing comparison.
@@ -11,15 +11,15 @@ import {
   expect,
   test,
   mountComparison,
-} from "../tests/support/comparisonMountPage.ts";
+} from "../test-support/support/comparisonMountPage.ts";
 import {
   expectComparisonScopeRows,
   scopeTable,
-} from "../tests/intentScopeProofPage.ts";
-import { expectStackedInOrder } from "../tests/partArrangement.ts";
-import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
+} from "../test-support/intentScopeProofPage.ts";
+import { expectStackedInOrder } from "../test-support/partArrangement.ts";
+import { entryComparisonRows } from "../test-support/support/summaryComparisonExpectedRows.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
+import { expectNoSidewaysScrollIn } from "../test-support/pageLayout.ts";
 
 test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async ({
   page,

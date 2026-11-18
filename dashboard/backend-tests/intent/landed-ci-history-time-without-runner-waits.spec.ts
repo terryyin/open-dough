@@ -11,22 +11,25 @@ import {
   measuredHistoryOf,
   landedCiHistorySchema,
 } from "../../src/landedCiHistory.ts";
-import type { GhCall } from "../../tests/support/fakeGitHub.ts";
+import type { GhCall } from "../../test-support/support/fakeGitHub.ts";
 import {
   landedCiHistory,
   minutesAgo,
   restartAsLandedCiReader,
   storyLandingRecord,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   passedBetween,
   serveTrunkRuns,
   timeAfter,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { listedAttemptJobPages } from "../../tests/support/storyCiComparisonRequests.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
+import { listedAttemptJobPages } from "../../test-support/support/storyCiComparisonRequests.ts";
 
 test.use({ serverMode: "boundary" });
 

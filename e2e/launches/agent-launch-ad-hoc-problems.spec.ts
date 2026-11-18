@@ -5,21 +5,21 @@
 // own dashboard server launches the synthetic `claude` (./fixtures/fake-claude);
 // the real one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectDirectionOpensAcrossRow,
   parts,
   sessionEntriesIn,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import type { Page } from "@playwright/test";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "../../dashboard/tests/launchStoryCardPage.ts";
-import { readyStory } from "../../dashboard/tests/launchJourney.ts";
+} from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

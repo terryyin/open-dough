@@ -1,9 +1,9 @@
 // A Default main session's review describes its kept commits, including when
 // no comparison can be shown.
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { columnCountOf } from "../../tests/dashboardParts.ts";
-import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
-import { sidePanelPages } from "../../tests/sidePanelPages.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { columnCountOf } from "../../test-support/dashboardParts.ts";
+import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
+import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
 import {
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
@@ -14,8 +14,8 @@ import {
   frontendReviewIds,
   frontendSessionCommitsReview,
   installFrontendStoryReview,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendBoardReview } from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 
 const launchedAt = "2026-01-02T12:00:00.000Z";
 const { baseline: base, tree: revision } = frontendReviewIds;

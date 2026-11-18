@@ -14,11 +14,11 @@ import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../dashboard/server/usageHistory.ts";
-import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
-import { test } from "../../dashboard/tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePage.ts";
-import { writeCodexSession } from "../../dashboard/tests/usage-history/importHarness.ts";
+import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { test } from "../../dashboard/test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { visitUsage } from "../../dashboard/test-support/support/systemSettingsUsagePage.ts";
+import { writeCodexSession } from "../../dashboard/test-support/usage-history/importHarness.ts";
 
 const sol = "gpt-6.1-sol";
 const day = (date: number) =>

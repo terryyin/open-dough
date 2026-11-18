@@ -10,24 +10,24 @@
 // copies are ./agent-terminal-touch-select-held.spec.ts; other screens are
 // ./agent-terminal-touch-select-screens.spec.ts.
 
-import { expect, test } from "../tests/support/frontendApp.ts";
+import { expect, test } from "../test-support/support/frontendApp.ts";
 import {
   openFrontendTerminalByMouse,
   openFrontendTerminalByTouch,
-} from "../tests/support/frontendTouchTerminal.ts";
+} from "../test-support/support/frontendTouchTerminal.ts";
 import {
   conversationLine,
   directedApplication,
   echoingApplication,
-} from "../tests/support/terminalSubstituteApplication.ts";
-import { box, tapWhereShown } from "../tests/pageLayout.ts";
-import { expectStillHolds } from "../tests/sidePanelWidthPage.ts";
+} from "../test-support/support/terminalSubstituteApplication.ts";
+import { box, tapWhereShown } from "../test-support/pageLayout.ts";
+import { expectStillHolds } from "../test-support/sidePanelWidthPage.ts";
 import {
   expectNoTerminalText,
   expectTerminalInputNotFocused,
   expectTerminalText,
   terminalStatus,
-} from "../tests/terminalScreenPage.ts";
+} from "../test-support/terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -37,13 +37,13 @@ import {
   pausedText,
   selectKey,
   selectPausedRange,
-} from "../tests/terminalSelectPage.ts";
-import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
+} from "../test-support/terminalSelectPage.ts";
+import { phoneLaunchTouchViewport } from "../test-support/touchLaunchPage.ts";
 import {
   focusByTouch,
   tapTerminalKey,
   terminalKeyToolbar,
-} from "../tests/touchTerminalPage.ts";
+} from "../test-support/touchTerminalPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const session = (title: string) =>

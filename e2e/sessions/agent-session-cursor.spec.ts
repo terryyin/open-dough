@@ -1,4 +1,4 @@
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // A launched Cursor session's entry reads the screen the runner holds as
 // the shared normalized activities: a proved clarifying question reads
 // Needs input with the question text, the follow-up prompt after a
@@ -14,12 +14,12 @@ import { cursorHeldLabel } from "../../dashboard/src/cursorHeldLabel.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { launchHost } from "../../dashboard/server/launchHosts.ts";
 
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 
 import {
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarParts,
-} from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/sessionsSidebarPage.ts";
 
 import {
   agentCalls,
@@ -33,12 +33,15 @@ import {
   openTakenCursorSession,
   projectedSessions,
   readLog,
-} from "../../dashboard/tests/support/cursorSessionReading.ts";
+} from "../../dashboard/test-support/support/cursorSessionReading.ts";
 
-import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
-import type { CursorScreen } from "../../dashboard/tests/support/fakeCursor.ts";
-import { expectAdHocReportingInput } from "../../dashboard/tests/support/reportingInputAssertions.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/cursorStart.ts";
+import type { CursorScreen } from "../../dashboard/test-support/support/fakeCursor.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 test("a held Cursor session at the follow-up prompt after its confirmed first instruction reads Ready for review, with stop and without rename", async ({
   page,

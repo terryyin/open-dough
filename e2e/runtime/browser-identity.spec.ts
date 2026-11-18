@@ -4,8 +4,8 @@
 // file's exact bytes. The dev server's same answer is proved beside the other
 // serving-mode facts (../../dashboard/backend-tests/runtime/serving-modes.spec.ts).
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { expectSuppliedIcon } from "../../dashboard/tests/support/brandIcons.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expectSuppliedIcon } from "../../dashboard/test-support/support/brandIcons.ts";
 
 test("the dashboard's tab, bookmark and touch icons are Open Dough's supplied exports", async ({
   page,

@@ -3,16 +3,20 @@
 // changes' confirmation, checks a request naming no policy as Default main,
 // refuses a tracking choice, starts nothing unconfirmed, and keeps no
 // confirmation in the launch's records. A real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`. The
+// (../../test-support/support/startOrigin.ts) and the synthetic `claude`. The
 // dialog's warning, Back, Cancel and Continue:
 // ../../../e2e/launches/agent-launch-start-session-existing-changes.spec.ts.
 
 import { realpathSync } from "node:fs";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
-import { accept, attempts, launch } from "../../tests/agentLaunchBoundary.ts";
+import {
+  accept,
+  attempts,
+  launch,
+} from "../../test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { dirty } from "../../tests/support/defaultCheckoutChanges.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
+import { dirty } from "../../test-support/support/defaultCheckoutChanges.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 const text = "Explain how launch records are stored";
 

@@ -1,18 +1,21 @@
-import { readFailure, readRetry } from "../../tests/intentReadRecoveryPage.ts";
+import {
+  readFailure,
+  readRetry,
+} from "../../test-support/intentReadRecoveryPage.ts";
 // Unreadable and malformed Intent settings stay distinct from not-configured,
 // and a failed Intent locations read names its cause
 // (../../src/IntentPerspective.tsx). Companion to ../../../e2e/intent/intent-gherkin-unusable.spec.ts
 // location-body explanations.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { chooseProject, parts } from "../../tests/dashboardPage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
-import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
-import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
+import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
 import {
   doughnut,
   pygardon,
-} from "../../tests/intentGherkinUnusableFixtures.ts";
+} from "../../test-support/intentGherkinUnusableFixtures.ts";
 
 test("unreadable and malformed Intent settings stay distinct from not-configured", async ({
   page,

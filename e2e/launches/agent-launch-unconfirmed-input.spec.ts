@@ -7,11 +7,11 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 // evidence is forged in this machine's records, as
 // ./agent-launch-codex-creation.spec.ts forges legacy evidence.
 
-import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
-import { changeLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
+import { changeLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 
 const request = makeMe.aLaunchRequest
   .adHoc({ instruction: "why is the CI slow on main?" })

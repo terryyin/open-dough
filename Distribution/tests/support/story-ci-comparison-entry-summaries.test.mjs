@@ -1,7 +1,7 @@
 // The browser comparison's served proof retains MakeMe's decisive evidence.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { entryProofs } from "../../../dashboard/tests/support/storyCiComparisonEntrySummaries.ts";
+import { entryProofs } from "../../../dashboard/test-support/support/storyCiComparisonEntrySummaries.ts";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import { makeMe } from "./makeMe.mjs";
 

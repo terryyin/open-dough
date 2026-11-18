@@ -1,5 +1,5 @@
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../tests/support/frontendServiceState.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
 import {
   longAddress,
   longBacklog,
@@ -8,17 +8,17 @@ import {
   longTitle,
   revision,
   unusableTarget,
-} from "../../tests/accessibleBoard.ts";
+} from "../../test-support/accessibleBoard.ts";
 import {
   shortRevision,
   openDirection,
   parts,
-} from "../../tests/dashboardPage.ts";
-import { showColumn } from "../../tests/boardPage.ts";
-import { inspectedDetail } from "../../tests/storyCardControls.ts";
-import { describedBacklog } from "../../tests/describedRevisions.ts";
+} from "../../test-support/dashboardPage.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { inspectedDetail } from "../../test-support/storyCardControls.ts";
+import { describedBacklog } from "../../test-support/describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { zoomedWindow } from "../../tests/accessibleReading.ts";
+import { zoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   box,
   compactProjectSelectCut,
@@ -26,8 +26,8 @@ import {
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
   expectStackedInOrder,
-} from "../../tests/pageLayout.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+} from "../../test-support/pageLayout.ts";
+import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
 
 const narrowWindow = { width: 360, height: 740 };
 

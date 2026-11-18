@@ -2,20 +2,20 @@
 // (./intent-ci-follow-up.spec.ts): opened at its own address, its own refresh
 // and a page reload read the same comparison; opened from the card, so does a
 // revisit from the card. Each reads what the machine keeps, by a dashboard
-// that collects nothing (../../dashboard/tests/support/ciFollowUpSettledReading.ts). A new
+// that collects nothing (../../dashboard/test-support/support/ciFollowUpSettledReading.ts). A new
 // selection in Development yields to normal Intent, and the card opens the
 // comparison again.
 import {
   backToStory,
   projectIntentLink,
-} from "../../dashboard/tests/intentModePage.ts";
-import { emptyArea } from "../../dashboard/tests/storyCardSelection.ts";
+} from "../../dashboard/test-support/intentModePage.ts";
+import { emptyArea } from "../../dashboard/test-support/storyCardSelection.ts";
 import {
   actionsRequests,
   expect,
   keepSettledRepeat,
   test,
-} from "../../dashboard/tests/support/ciFollowUpSettledReading.ts";
+} from "../../dashboard/test-support/support/ciFollowUpSettledReading.ts";
 import {
   ciFollowUpCard,
   gotoCiFollowUp,
@@ -24,9 +24,9 @@ import {
   reloadCiFollowUp,
   retainedCiFollowUpReading,
   shownCiFollowUpCard,
-} from "../../dashboard/tests/support/ciFollowUpReadingPage.ts";
-import { chooseStoryTab } from "../../dashboard/tests/support/intentStoryPage.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
+import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ viewport: { width: 390, height: 844 } });
 

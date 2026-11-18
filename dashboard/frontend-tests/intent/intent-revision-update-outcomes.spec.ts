@@ -1,10 +1,13 @@
-import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
 import {
   showLatestRevision,
   readFailure,
   readRetry,
-} from "../../tests/intentReadRecoveryPage.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+} from "../../test-support/intentReadRecoveryPage.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry, including after Development →
 // Intent. Unreadable settings: ./intent-revision-settings-update.spec.ts
@@ -12,28 +15,28 @@ import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // ../../src/IntentRevisionNotice.tsx). Malformed settings and held updates
 // across projects: ./intent-revision-update-boundaries.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { parts } from "../../tests/dashboardPage.ts";
-import { shortRevision } from "../../tests/dashboardParts.ts";
-import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
+import { shortRevision } from "../../test-support/dashboardParts.ts";
+import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
-} from "../../tests/intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
-import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
+} from "../../test-support/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { pygardon } from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   featurePath,
   otherPath,
   publishedFeature,
-} from "../../tests/intentJobsFeatureFixtures.ts";
+} from "../../test-support/intentJobsFeatureFixtures.ts";
 import {
   intentReads,
   jobsFeatures,
   publishedFiles,
-} from "../../tests/intentRevisionJourney.ts";
+} from "../../test-support/intentRevisionJourney.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];

@@ -1,16 +1,16 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { readWorkflowJobs } from "../../server/ciWorkflowJobs.ts";
-import { comparisonWorkflow } from "../../tests/support/storyCiComparisonFixture.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { comparisonWorkflow } from "../../test-support/support/storyCiComparisonFixture.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   observedBaselineJobs,
   observedBranchJobs,
   observedRerunJobs,
-} from "../../tests/support/storyCiObservedJobs.ts";
+} from "../../test-support/support/storyCiObservedJobs.ts";
 
 test("the observed builds count the longest dependency chain despite different runner waits", () => {
   expect(

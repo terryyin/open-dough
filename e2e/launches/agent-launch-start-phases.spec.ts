@@ -4,9 +4,12 @@
 // handoff and retry progress are ./agent-launch-start-codex.spec.ts. A start kept
 // with no running process: ../../dashboard/backend-tests/launches/agent-launch-start-kept-not-running.spec.ts.
 import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { changedReviewRevision } from "../../dashboard/tests/support/startOrigin.ts";
-import { expectStartProgress } from "../../dashboard/tests/support/startProgressPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { changedReviewRevision } from "../../dashboard/test-support/support/startOrigin.ts";
+import { expectStartProgress } from "../../dashboard/test-support/support/startProgressPage.ts";
 
 // Story A's seed changed after its readiness review.
 test.use({

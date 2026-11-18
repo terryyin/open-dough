@@ -6,9 +6,9 @@
 // Dough's default `medium` when none is chosen, goes as `--effort <level>`
 // after the model and is kept in the record; one outside Claude Code's levels
 // is refused the same way. A refused launch names the model asked for. The
-// synthetic `claude` (../../tests/fixtures/fake-claude) records every call.
+// synthetic `claude` (../../test-support/fixtures/fake-claude) records every call.
 
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launch,
   identity,
@@ -16,13 +16,13 @@ import {
   machineSessions,
   openDoughFolder,
   title,
-} from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
-import { claudeLaunch } from "../../tests/support/claudeLaunch.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
+import { claudeLaunch } from "../../test-support/support/claudeLaunch.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const adHocRequest = makeMe.aLaunchRequest.adHoc().please();

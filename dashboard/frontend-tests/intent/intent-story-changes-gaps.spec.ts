@@ -12,15 +12,15 @@
 // to selected story returns to Changed tests. The highlighted journey:
 // ../../../e2e/intent/intent-story-changes.spec.ts.
 
-import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
+import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { parts } from "../../tests/dashboardPage.ts";
+import { parts } from "../../test-support/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   backToStory,
   chooseOptimizationCandidates,
@@ -29,15 +29,18 @@ import {
   returnToStory,
   intentPageFrame,
   openStoryIntent,
-} from "../../tests/intentModePage.ts";
-import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { intentStory } from "../../tests/support/intentStoryPage.ts";
-import { changed } from "../../tests/support/intentStoryWorktree.ts";
+} from "../../test-support/intentModePage.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../test-support/storyCardSelection.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { intentStory } from "../../test-support/support/intentStoryPage.ts";
+import { changed } from "../../test-support/support/intentStoryWorktree.ts";
 import {
   putFrontendIntentStory,
   answerFrontendIntentChanges,
-} from "../../tests/support/frontendIntentStory.ts";
+} from "../../test-support/support/frontendIntentStory.ts";
 
 // The published tree shows as without a story: no change marks, no outside
 // count, no toggle, no claim that nothing changed, and a file reads its

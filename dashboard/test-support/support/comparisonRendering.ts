@@ -58,10 +58,13 @@ export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
       logLevel: "error",
     });
     const loaded = await compiler.ssrLoadModule(
-      path.join(repoRoot, "dashboard/tests/comparison-mount/render.tsx"),
+      path.join(repoRoot, "dashboard/test-support/comparison-mount/render.tsx"),
     );
     const tree = await compiler.ssrLoadModule(
-      path.join(repoRoot, "dashboard/tests/comparison-mount/tree-render.tsx"),
+      path.join(
+        repoRoot,
+        "dashboard/test-support/comparison-mount/tree-render.tsx",
+      ),
     );
     const built = await sharedDashboardBuild();
     const index = readFileSync(path.join(built, "index.html"), "utf8");

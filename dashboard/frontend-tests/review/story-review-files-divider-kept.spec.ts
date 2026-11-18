@@ -6,20 +6,20 @@
 // (./story-review-files-divider.spec.ts first step). The divider's own
 // resizing is ./story-review-files-divider.spec.ts.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   filesDividerOf,
   keepFilesWidth,
   rem,
-} from "../../tests/filesDividerPage.ts";
-import { watchPageErrors } from "../../tests/pageErrors.ts";
+} from "../../test-support/filesDividerPage.ts";
+import { watchPageErrors } from "../../test-support/pageErrors.ts";
 import {
   anotherStoryWithReview,
   openAnotherStoryReview,
   openReview,
   reloadAndOpenReview,
   takenStoryWithReview,
-} from "../../tests/support/frontendSidePanelWidth.ts";
+} from "../../test-support/support/frontendSidePanelWidth.ts";
 
 test("the chosen file sidebar width serves another story's review and a reload", async ({
   page,

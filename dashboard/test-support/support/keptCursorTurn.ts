@@ -13,7 +13,8 @@ import {
   type DashboardServerOptions,
 } from "./dashboardServer.ts";
 import { waitUntil } from "./waitUntil.ts";
-import type { FakeCursor } from "./fakeCursor.ts";
+import { installFakeCursor, type FakeCursor } from "./fakeCursor.ts";
+import { test } from "./pageTest.ts";
 import type { CursorTerminal } from "./cursorTerminal.ts";
 import type { RawResponse } from "./rawHttp.ts";
 import {
@@ -214,3 +215,12 @@ export async function stayedUp(
     cursor.attaches().filter((attach) => processRunning(attach.pid)),
   ).toEqual([expect.objectContaining({ pid })]);
 }
+
+export const workingKeptCursorTest = test.extend<{ cursor: FakeCursor }>({
+  // eslint-disable-next-line no-empty-pattern
+  cursor: async ({}, use) => {
+    const cursor = installFakeCursor({ working: true });
+    await use(cursor);
+    cursor.cleanup();
+  },
+});

@@ -9,10 +9,14 @@
 // directly against real HTTP and the synthetic `gh`, counting the `gh` calls
 // GitHub received (./revisionReuseBoundary.ts).
 
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { aheadBy } from "../../tests/comparisonAnswers.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { aheadBy } from "../../test-support/comparisonAnswers.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { madeBy, modified, named } from "../../tests/revisionReuseOrigin.ts";
+import {
+  madeBy,
+  modified,
+  named,
+} from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 const origin = makeMe.aProjectRevision;

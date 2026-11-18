@@ -1,6 +1,6 @@
 // A story's review shows its changed files under their folders, of Story A's
 // worktree changing nested files, a chain of single folders, a root file, and
-// a rename across folders (../../dashboard/tests/support/storyReviewWorktree.ts). Every folder
+// a rename across folders (../../dashboard/test-support/support/storyReviewWorktree.ts). Every folder
 // shows expanded; a chain is one folder row; the rename sits once under its
 // new folder and its old folder is absent. Each file shows by its name alone,
 // its kind told by the name's style, a modified one's distinct from plain;
@@ -13,15 +13,18 @@
 import {
   diffHeading,
   diffLines,
-} from "../../dashboard/tests/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/support/reviewPanes.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { storyReviewWaitMs } from "../../dashboard/src/storyReviewContract.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   kindStyles,
   nameStyle,
-} from "../../dashboard/tests/support/changeKindStyle.ts";
+} from "../../dashboard/test-support/support/changeKindStyle.ts";
 import {
   expectTreeRows,
   nestedTreeRows,
@@ -29,10 +32,10 @@ import {
   changedFilesList,
   listedFile,
   fileDiff,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
-import { nestedWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { nestedWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test("a story's changed files show by name under their folders", async ({
   page,

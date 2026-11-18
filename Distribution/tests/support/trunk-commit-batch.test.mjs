@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { commitTrunkChanges } from "../../../dashboard/tests/support/trunkCommitBatch.ts";
+import { commitTrunkChanges } from "../../../dashboard/test-support/support/trunkCommitBatch.ts";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { makeMe } from "./makeMe.mjs";
 

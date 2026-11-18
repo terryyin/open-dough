@@ -5,23 +5,23 @@ import {
   keyStep,
   sidebarListDivider,
   wide,
-} from "../../tests/cursorSessionsSidebarResizePage.ts";
+} from "../../test-support/cursorSessionsSidebarResizePage.ts";
 import {
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
-} from "../../tests/pageLayout.ts";
+} from "../../test-support/pageLayout.ts";
 import {
   crowd,
   listFloor as floor,
   scrollTopOf,
   wheelToEnd,
-} from "../../tests/runningCursorSessionsPage.ts";
-import { roomOfThree } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
-import { sessionsSidebarTitleCut } from "../../tests/sessionsSidebarPage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { expandThreeCrowdedFrontend } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+} from "../../test-support/runningCursorSessionsPage.ts";
+import { roomOfThree } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
+import { sessionsSidebarTitleCut } from "../../test-support/sessionsSidebarPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expandThreeCrowdedFrontend } from "../../test-support/support/frontendRecentlyDoneSidebar.ts";
 
 test("both optional sections share one room: expand, resize, scroll, short window, and reload preference", async ({
   page,

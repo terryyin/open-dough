@@ -5,15 +5,18 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { responseKey } from "../../server/usageRecords.ts";
 import { taskUsage } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   nodeProcess,
   readImported,
   runImport,
   writeClaudeSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test("keeps explicit resumed launch boundaries separate, permits evidenced follow-up, and retains conflicting messages without double charge", ({
   home,

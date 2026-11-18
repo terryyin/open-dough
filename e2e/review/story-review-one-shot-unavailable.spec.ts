@@ -1,25 +1,28 @@
 // Honest empty and unavailable captured comparisons never substitute current trunk.
-import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   reviewRegion,
   toolbarComparison,
-} from "../../dashboard/tests/support/reviewControls.ts";
+} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   expectDetailsCollapsed,
   revealDetails,
-} from "../../dashboard/tests/support/reviewDetails.ts";
+} from "../../dashboard/test-support/support/reviewDetails.ts";
 import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../dashboard/tests/support/codexStart.ts";
-import { commit } from "../../dashboard/tests/support/launchLanding.ts";
+import {
+  test,
+  expect,
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { commit } from "../../dashboard/test-support/support/launchLanding.ts";
 import {
   startReviewRun,
   captureReviewRun,
   retireReviewRun,
   openCapturedReview,
   openCapturedReviewAsOpened,
-} from "../../dashboard/tests/support/oneShotReview.ts";
-import { refreshReview } from "../../dashboard/tests/support/launchLandingReview.ts";
+} from "../../dashboard/test-support/support/oneShotReview.ts";
+import { refreshReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
 
 for (const captured of [true, false]) {
   test(

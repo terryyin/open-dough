@@ -10,14 +10,14 @@ import {
   expect,
   test,
   launch,
-} from "../../tests/usage-history/retainedUsageTest.ts";
+} from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   nodeProcess,
   readImported,
   runImport,
   writeCodexSession,
-} from "../../tests/usage-history/importHarness.ts";
+} from "../../test-support/usage-history/importHarness.ts";
 
 test.describe("response usage reconciliation", () => {
   test("enriches partial measurements, counts a session written again once and leaves conflicting counters unknown without increasing totals", async ({

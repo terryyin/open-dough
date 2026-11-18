@@ -2,12 +2,15 @@
 // linked to its field with both inputs kept, and dismissal posts nothing.
 // What the server refuses, and that a refusal writes nothing and reads no
 // GitHub repository, is ../../backend-tests/configuration/project-add-validation.spec.ts.
-import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   installFrontendSettingsSubstitutes,
   productionSeedProjects,
-} from "../../tests/support/frontendSettingsSubstitutes.ts";
-import { back, settings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/support/frontendSettingsSubstitutes.ts";
+import {
+  back,
+  settings,
+} from "../../test-support/support/systemSettingsPage.ts";
 import { projectAddEndpoint } from "../../src/projectConfiguration.ts";
 
 const githubUrl = "https://github.com/example/sample-app";

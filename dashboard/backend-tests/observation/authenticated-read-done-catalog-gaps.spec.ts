@@ -5,17 +5,20 @@
 // and none of them is read; and a record name the agreeing catalog does not
 // list takes no read. Tested directly against real HTTP and a synthetic `gh`
 // answering from the fake GitHub, observing the `gh` calls that reach it
-// (../../tests/support/doneCatalogReads.ts).
+// (../../test-support/support/doneCatalogReads.ts).
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
+} from "../../test-support/support/dashboardServer.ts";
+import {
+  everyRepository,
+  publishes,
+} from "../../test-support/support/fakeGitHub.ts";
 import {
   answerOf,
   catalogPath,
@@ -26,7 +29,7 @@ import {
   pathOf,
   publishedDone,
   revisionOf,
-} from "../../tests/support/doneCatalogReads.ts";
+} from "../../test-support/support/doneCatalogReads.ts";
 import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 test.describe.configure({ mode: "serial" });

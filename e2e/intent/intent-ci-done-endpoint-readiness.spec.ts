@@ -1,6 +1,6 @@
-import { storySummary } from "../../dashboard/tests/intentModePage.ts";
-import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
-import { doneWallTimeHistory } from "../../dashboard/tests/priorBuildReferencePage.ts";
+import { storySummary } from "../../dashboard/test-support/intentModePage.ts";
+import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
+import { doneWallTimeHistory } from "../../dashboard/test-support/priorBuildReferencePage.ts";
 // Pending, absent protocol ownership, and real unavailable published history
 // stay distinct; no endpoint is invented from completion or the measured run.
 import type { Route } from "@playwright/test";
@@ -9,10 +9,13 @@ import {
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { publishComparedStoryBranch } from "../../dashboard/tests/support/storyCiComparisonDoneFixture.ts";
-import { selectDoneStoryForCiComparison } from "../../dashboard/tests/support/selectDoneStoryForCiComparison.ts";
-import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { publishComparedStoryBranch } from "../../dashboard/test-support/support/storyCiComparisonDoneFixture.ts";
+import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test("a Done reference waits for pending publication evidence, explains a settled missing or unavailable owner, and recovers the existing review failure without losing the comparison", async ({
   page,

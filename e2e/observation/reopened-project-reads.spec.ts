@@ -5,7 +5,7 @@
 // process already read at those commits are not asked again, while a record
 // GitHub answered as missing there is. After a new commit is published, the
 // same reload reads only the records GitHub's account of that commit says it
-// changed. The fake GitHub only publishes the commits (../../dashboard/tests/publishedFiles.ts);
+// changed. The fake GitHub only publishes the commits (../../dashboard/test-support/publishedFiles.ts);
 // the local read boundary, its memo, and the page decide what is asked.
 
 import type { Page } from "@playwright/test";
@@ -13,34 +13,34 @@ import {
   expect,
   pausePageClockAt,
   test,
-} from "../../dashboard/tests/dashboardTest.ts";
+} from "../../dashboard/test-support/dashboardTest.ts";
 import {
   shortRevision,
   expectSettledPage,
   parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishMovingFiles,
   type MovingFiles,
-} from "../../dashboard/tests/publishedFiles.ts";
-import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
-import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+} from "../../dashboard/test-support/publishedFiles.ts";
+import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
+import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   canonicalRecord,
   inspectedDetail,
   storyCard,
-} from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   sliceBar,
   sliceProgress,
-} from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
-} from "../../dashboard/tests/doughnutProject.ts";
+} from "../../dashboard/test-support/doughnutProject.ts";
 import {
   atA,
   atB,
@@ -59,7 +59,7 @@ import {
   revisionB,
   seedPath,
   takenTitle,
-} from "../../dashboard/tests/reopenedProject.ts";
+} from "../../dashboard/test-support/reopenedProject.ts";
 
 // What Open Dough's repository was asked since its `before`th observed call,
 // revision checks aside: they keep their own pace.

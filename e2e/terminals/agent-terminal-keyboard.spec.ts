@@ -1,7 +1,7 @@
 import {
   control as frameControl,
   maximizeSidePanel,
-} from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/sidePanelFrame.ts";
 // Command+Shift+Escape closes the terminal page-wide, from inside the
 // terminal and maximized too, as its Close control does: the panel hides, the
 // session keeps running and is not marked done, the keyboard returns to the
@@ -14,28 +14,28 @@ import {
 // `claude` (./fixtures/fake-claude), which records each line entered in its
 // terminal; the real one is never reached.
 
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
-import { terminalScreen } from "../../dashboard/tests/terminalScreen.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   parts,
   sessionNamedBy,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../../dashboard/tests/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
-import { tooltipOf } from "../../dashboard/tests/frameIconControl.ts";
-import { watchCommandShortcut } from "../../dashboard/tests/pageShortcutsPage.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { tooltipOf } from "../../dashboard/test-support/frameIconControl.ts";
+import { watchCommandShortcut } from "../../dashboard/test-support/pageShortcutsPage.ts";
+import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

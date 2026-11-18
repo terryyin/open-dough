@@ -1,6 +1,6 @@
 // A launch's acceptance by the local launch owner (../../server/agentLaunches.ts),
 // over raw HTTP against the real installed `execution-start.mjs` and a real
-// bare origin (../../tests/support/startOrigin.ts) whose `pre-receive` hook holds the
+// bare origin (../../test-support/support/startOrigin.ts) whose `pre-receive` hook holds the
 // Take, with the synthetic `claude` holding the session launch: acceptance
 // answers before publication with the exact request kept on this machine;
 // the launch settles after its caller is gone, its publication receipt and
@@ -16,7 +16,7 @@
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import {
   accept,
@@ -26,22 +26,22 @@ import {
   launch,
   recordsOf,
   runningStarts,
-} from "../../tests/agentLaunchBoundary.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   keptAttempts as keptOfMachine,
   ownedRunning,
-} from "../../tests/acceptedAttempts.ts";
+} from "../../test-support/acceptedAttempts.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type PushHold,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest

@@ -1,5 +1,8 @@
-import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
-import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
+import {
+  fileSource,
+  sourceFile,
+} from "../../test-support/intentCodeBrowsePage.ts";
 // Project Intent visits (../../src/IntentPerspective.tsx, ../../src/IntentPage.tsx)
 // keep the selected story and each context's file, Proof/Purpose and scroll.
 // Project tests read published text and trunk CI; returning restores the
@@ -9,8 +12,8 @@ import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // No-story landing: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { ciPanel } from "../../tests/intentCiStatusPage.ts";
-import { projectReads } from "../../tests/intentProjectVisitPage.ts";
+import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
+import { projectReads } from "../../test-support/intentProjectVisitPage.ts";
 import {
   backToStory,
   candidatesRecord,
@@ -21,22 +24,25 @@ import {
   returnToStory,
   filesColumn,
   intentPageFrame,
-} from "../../tests/intentModePage.ts";
+} from "../../test-support/intentModePage.ts";
 import {
   fileReadingTab,
   proofRegion,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../test-support/intentPerspectivePage.ts";
 import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../tests/intentReadingPlacePage.ts";
-import { expect, test } from "../../tests/support/frontendApp.ts";
+} from "../../test-support/intentReadingPlacePage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   expectStoryTab,
   intentFile,
   intentDiffReading,
-} from "../../tests/support/intentStoryPage.ts";
-import { changed, deepSpec } from "../../tests/support/intentStoryWorktree.ts";
+} from "../../test-support/support/intentStoryPage.ts";
+import {
+  changed,
+  deepSpec,
+} from "../../test-support/support/intentStoryWorktree.ts";
 
 // The spec the story modifies, which the trunk's record names as a candidate.
 const candidatePath = "dashboard/tests/a.spec.ts";

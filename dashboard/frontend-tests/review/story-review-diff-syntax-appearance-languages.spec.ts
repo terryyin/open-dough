@@ -2,25 +2,28 @@
 // while markers, backgrounds and 4.5:1 contrast stay as story-review already
 // promises for TypeScript.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { expectReadableContrast } from "../../tests/accessibleReading.ts";
-import { setColorScheme } from "../../tests/systemAppearanceReading.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
+import { setColorScheme } from "../../test-support/systemAppearanceReading.ts";
 import {
   frontendFileDiff,
   frontendReviewSnapshot,
-} from "../../tests/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../tests/support/frontendStoryReviewOpen.ts";
-import { fileDiff, fileRow } from "../../tests/support/reviewTreeRows.ts";
+} from "../../test-support/support/frontendStoryReview.ts";
+import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  fileDiff,
+  fileRow,
+} from "../../test-support/support/reviewTreeRows.ts";
 import {
   readmeDiff,
   readmeText,
   stylesheetDiff,
   stylesheetText,
-} from "../../tests/support/diffSyntaxFixtures.ts";
+} from "../../test-support/support/diffSyntaxFixtures.ts";
 import {
   storyReviewDiff,
   tokenAppearance,
-} from "../../tests/support/reviewDiffSyntax.ts";
+} from "../../test-support/support/reviewDiffSyntax.ts";
 
 const schemes = ["dark", "light"] as const;
 

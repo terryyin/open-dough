@@ -4,14 +4,17 @@
 import {
   fileDiff,
   listedFile,
-} from "../../dashboard/tests/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/tests/support/reviewControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { showColumn } from "../../dashboard/tests/boardPage.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { readReview } from "../../dashboard/tests/support/launchLandingReview.ts";
-import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";
+} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
 
 test("a completed story's integration edits open with their diffs beside its mixed conflict file", async ({
   page,

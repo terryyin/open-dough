@@ -1,25 +1,25 @@
 // What a production dashboard reads after an accepted rerun request for a
 // published completion, with no receipt journey: the origin starts from the
-// kept published story (../../tests/support/keptPublishedStory.ts), the
+// kept published story (../../test-support/support/keptPublishedStory.ts), the
 // machine keeps the landing with that request
-// (../../tests/support/ciFollowUpKeptLanding.ts),
+// (../../test-support/support/ciFollowUpKeptLanding.ts),
 // a fresh server collects, and each read follows what collection saved of
 // the provider's repeat.
-import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts";
+import { keepRepeatLanding } from "../../test-support/support/ciFollowUpKeptLanding.ts";
 import {
   aWholePass,
   heldRequest,
   rerunRuns,
   savedRepeatRequest,
   waitingRequest,
-} from "../../tests/support/ciFollowUpSavedRequests.ts";
-import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
-import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
-import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/ciFollowUpSavedRequests.ts";
+import { followUpCards } from "../../test-support/support/ciFollowUpScenario.ts";
+import { startingFromKeptStory } from "../../test-support/support/keptPublishedStory.ts";
+import { landedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 import {
   expect,
   test as base,
-} from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistoryTest.ts";
 
 const test = base.extend(startingFromKeptStory);
 test.use({ serverMode: "boundary" });

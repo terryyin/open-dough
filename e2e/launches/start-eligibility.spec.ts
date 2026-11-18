@@ -6,10 +6,13 @@ import path from "node:path";
 import {
   passTimeUntilChecked,
   pausePageClock,
-} from "../../dashboard/tests/autoRefreshJourney.ts";
-import { expect } from "../../dashboard/tests/dashboardTest.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import {
+  shortRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import {
   consumer,
   supplierB,
@@ -17,14 +20,14 @@ import {
   recordDependency,
   publishDependencies,
   takeConsumer,
-} from "../../dashboard/tests/storyDependencyFixture.ts";
-import { recordAssessed } from "../../dashboard/tests/storyReadinessCli.ts";
-import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+} from "../../dashboard/test-support/storyDependencyFixture.ts";
+import { recordAssessed } from "../../dashboard/test-support/storyReadinessCli.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   blockedByAnyDependency,
   expectBadges,
-} from "../../dashboard/tests/storyCardFacts.ts";
+} from "../../dashboard/test-support/storyCardFacts.ts";
 
 // The story-state record of the consumer's canonical home, as published.
 function storyStateRecord(project: string): string {

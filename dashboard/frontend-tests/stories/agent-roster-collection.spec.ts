@@ -7,18 +7,18 @@
 // the shared rotation reader and the page decide everything shown.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { publishExecutingRoster } from "../../tests/support/frontendExecutingRoster.ts";
-import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
-import { rosterParts } from "../../tests/dashboardPage.ts";
-import { avatarPng } from "../../tests/avatarAnswers.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { publishExecutingRoster } from "../../test-support/support/frontendExecutingRoster.ts";
+import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
+import { rosterParts } from "../../test-support/dashboardPage.ts";
+import { avatarPng } from "../../test-support/avatarAnswers.ts";
 import {
   agentIdentity,
   agentNames,
   nerdAgentNames,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { credit } from "../../tests/agentCredit.ts";
-import { takenStory as story } from "../../tests/agentRosterRecords.ts";
+import { credit } from "../../test-support/agentCredit.ts";
+import { takenStory as story } from "../../test-support/agentRosterRecords.ts";
 
 const settingsPath = ".planning/open-dough.json";
 const agentsOf = (names: readonly string[]) =>

@@ -4,13 +4,13 @@
 // creation whose host lacks recovery, on the page:
 // ../../../e2e/launches/agent-launch-creation-gates.spec.ts.
 import { readFileSync } from "node:fs";
-import { test, expect } from "../../tests/support/codexLaunch.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStoreText,
   launchStoreFile,
-} from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/launchStore.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });

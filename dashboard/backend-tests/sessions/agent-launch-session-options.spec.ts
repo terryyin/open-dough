@@ -1,7 +1,7 @@
 // A story launch's session policy reaches its session through one
 // established context, over raw HTTP against the project's real installed
 // start (`execution-start.mjs start --one-shot`, `preparation-assignment.mjs
-// start --one-shot`) and a real bare origin (../../tests/support/startOrigin.ts), with
+// start --one-shot`) and a real bare origin (../../test-support/support/startOrigin.ts), with
 // the synthetic `claude` and Codex protocol boundaries. Every one-shot
 // combination of workspace (isolated or default main) and landing (review or
 // automatic) is started for both workflows: the session opens where the start
@@ -12,26 +12,26 @@
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { realpathSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   installFakeCodex,
   type FakeCodex,
-} from "../../tests/support/fakeCodex.ts";
+} from "../../test-support/support/fakeCodex.ts";
 import {
   expectEstablishedOneShot,
   oneShot,
   originState,
-} from "../../tests/support/oneShotLaunch.ts";
+} from "../../test-support/support/oneShotLaunch.ts";
 import {
   requestFor,
   startBoundary,
-} from "../../tests/support/launchDashboard.ts";
+} from "../../test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../tests/support/startOrigin.ts";
+} from "../../test-support/support/startOrigin.ts";
 
 for (const workflow of ["execution", "refinement"] as const) {
   for (const workspace of ["isolated", "default-checkout"] as const) {

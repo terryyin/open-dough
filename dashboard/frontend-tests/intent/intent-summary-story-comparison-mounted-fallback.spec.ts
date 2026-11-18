@@ -1,11 +1,11 @@
-import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // The actual scope owners share endpoint choice and fallback explanation.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../tests/support/pageTest.ts";
+import { test, expect } from "../../test-support/support/pageTest.ts";
 import {
   comparisonLabels,
   expectLeadingEvidenceLabels,
-} from "../../tests/ciEvidenceLabelsPage.ts";
+} from "../../test-support/ciEvidenceLabelsPage.ts";
 
 test("Taken Trunk Summary and file Proof name the same Provisional endpoint and unused Landed explanation", async ({
   page,

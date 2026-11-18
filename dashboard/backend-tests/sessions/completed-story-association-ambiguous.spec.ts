@@ -11,22 +11,25 @@ import {
   storyPlanPath,
   takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import {
   associationOf,
   queuedIdentity,
-} from "../../tests/support/adHocCompletedAssociation.ts";
-import { installedBacklogScript } from "../../tests/support/completedStoryPublication.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { dashboardDeveloper } from "../../tests/support/startOriginPreparation.ts";
-import { otherQueuedIdentity } from "../../tests/support/queuedStories.ts";
+} from "../../test-support/support/adHocCompletedAssociation.ts";
+import { installedBacklogScript } from "../../test-support/support/completedStoryPublication.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { dashboardDeveloper } from "../../test-support/support/startOriginPreparation.ts";
+import { otherQueuedIdentity } from "../../test-support/support/queuedStories.ts";
 import {
   commitAll,
   git,
   lines,
   writeAt,
-} from "../../tests/support/storyReviewWorktree.ts";
-import { pull, push } from "../../tests/support/storyReviewTrunkCommits.ts";
+} from "../../test-support/support/storyReviewWorktree.ts";
+import {
+  pull,
+  push,
+} from "../../test-support/support/storyReviewTrunkCommits.ts";
 
 test.use({ serverMode: "boundary" });
 

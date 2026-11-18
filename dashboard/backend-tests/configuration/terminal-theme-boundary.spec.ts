@@ -4,10 +4,10 @@
 // wrong content type; none changes the saved theme. The page's recovery from
 // a saved theme it cannot use is ../../../e2e/configuration/system-settings-terminal-theme-recovery.spec.ts.
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { terminalThemeFile } from "../../tests/support/terminalThemeSettingsPage.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
+import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { terminalThemeFile } from "../../test-support/support/terminalThemeSettingsPage.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {

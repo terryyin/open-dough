@@ -1,16 +1,16 @@
 // Range admission accepts object points and exact optional integration evidence,
 // while preserving the review's read-only story-workspace boundary, against
-// Story A's admission worktree (../../tests/support/storyReviewWorktree.ts).
+// Story A's admission worktree (../../test-support/support/storyReviewWorktree.ts).
 import { storyReviewRangeEndpoint } from "../../src/storyReviewContract.ts";
-import { getReview } from "../../tests/support/completedReviewRequests.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import { queuedIdentity } from "../../tests/support/startOrigin.ts";
-import { keepLaunchRecord } from "../../tests/support/storyLaunchRecord.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { keepLaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
 import {
   admissionWorktree,
   git,
   observed,
-} from "../../tests/support/storyReviewWorktree.ts";
+} from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

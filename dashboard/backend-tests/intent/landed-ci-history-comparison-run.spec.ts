@@ -2,20 +2,26 @@
 // observations and comparison's production read/memory, with no page open.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   keptLandedCiHistory,
   landedCiHistory,
   observedKinds,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../test-support/support/landedCiHistory.ts";
 import {
   capturedComparisonLanding,
   missingLandedRun,
-} from "../../tests/support/missingLandedRun.ts";
-import { readLandedComparison } from "../../tests/support/pendingLandedComparison.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { serveTrunkRuns, trunkRun } from "../../tests/support/landedCiTrunk.ts";
-import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
+} from "../../test-support/support/missingLandedRun.ts";
+import { readLandedComparison } from "../../test-support/support/pendingLandedComparison.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import {
+  serveTrunkRuns,
+  trunkRun,
+} from "../../test-support/support/landedCiTrunk.ts";
+import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
 
 test.use({ serverMode: "boundary" });
 

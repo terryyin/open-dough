@@ -11,20 +11,20 @@ import { cpSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { OptionsDefinition } from "../../src/commandOptions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/pageTest.ts";
+import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   launch,
   launchRequest,
   machineSessions,
   openDoughFolder,
   refinementRequest,
-} from "../../tests/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+} from "../../test-support/agentLaunchBoundary.ts";
+import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
+} from "../../test-support/support/dashboardServer.ts";
 
 const skill = "dough-story-refinement";
 const [a, b, c] = ["--a", "--b", "--c"];

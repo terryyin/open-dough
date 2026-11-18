@@ -1,7 +1,7 @@
 // The bound of this machine's landed CI history
 // (../../server/landedCiHistoryStore.ts) under collection
 // (../../server/landedCiCollection.ts), with no page open, a real bare origin
-// (../../tests/support/startOrigin.ts) and the synthetic `claude`: a pass
+// (../../test-support/support/startOrigin.ts) and the synthetic `claude`: a pass
 // walks a project's landings newest first until it holds 20 measured builds,
 // resolving only landings not yet final, and the history keeps only that
 // window -- its landings' own references, though no launch record names them
@@ -13,22 +13,25 @@
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { GhCall } from "../../tests/support/fakeGitHub.ts";
+import type { GhCall } from "../../test-support/support/fakeGitHub.ts";
 import {
   keepLandedCiHistory,
   keptLandedCiHistory,
   landedCiHistory,
   minutesAgo,
   storyLandingRecord,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   passedBetween,
   publishedLanding,
   serveTrunkRuns,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

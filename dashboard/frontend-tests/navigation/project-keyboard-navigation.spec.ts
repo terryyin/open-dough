@@ -3,15 +3,15 @@
 // project's own publication; key handling, routing and UI updates stay
 // production.
 
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../tests/support/frontendCatalogProjects.ts";
-import { expectRoute } from "../../tests/agentRosterRecords.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
+import { expectRoute } from "../../test-support/agentRosterRecords.ts";
 import {
   openDirection,
   parts,
   projectTab,
   rosterParts,
-} from "../../tests/dashboardPage.ts";
+} from "../../test-support/dashboardPage.ts";
 import {
   doughnutProject,
   expectCatalogStories,
@@ -20,8 +20,8 @@ import {
   openDoughProject,
   pygardonProject,
   terryTalksProject,
-} from "../../tests/projectKeyboardNavigationJourney.ts";
-import { settings as systemSettings } from "../../tests/support/systemSettingsPage.ts";
+} from "../../test-support/projectKeyboardNavigationJourney.ts";
+import { settings as systemSettings } from "../../test-support/support/systemSettingsPage.ts";
 
 test("unmodified Left and Right cycle catalog projects with wrap without selector focus", async ({
   page,

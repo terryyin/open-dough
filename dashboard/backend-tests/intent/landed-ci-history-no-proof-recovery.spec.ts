@@ -8,15 +8,18 @@
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   answeredLanding,
   keepLandedCiHistory,
   landedCiHistory,
   minutesAgo,
   storyLandingRecord,
-} from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+} from "../../test-support/support/landedCiHistory.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/landedCiHistoryTest.ts";
 import {
   answeredRun,
   passedFrom,
@@ -26,8 +29,8 @@ import {
   serveTrunkRuns,
   timeAfter,
   trunkRun,
-} from "../../tests/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
 test.use({ serverMode: "boundary" });
 

@@ -8,14 +8,17 @@
 import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
-import { expectMembership, parts } from "../../tests/dashboardPage.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { putFrontendPublished } from "../../test-support/support/frontendServiceState.ts";
+import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
 import {
   backlogApart,
   describedRevision,
-} from "../../tests/describedRevisions.ts";
-import { inspectedDetail, storyCard } from "../../tests/storyCardControls.ts";
+} from "../../test-support/describedRevisions.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../test-support/storyCardControls.ts";
 
 const revision = "c3".repeat(20);
 

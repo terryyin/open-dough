@@ -1,28 +1,28 @@
 import {
   askToDeleteRecord,
   sessionAction,
-} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+} from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   openTerminalControl,
   terminalPanel,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+} from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   localEntries,
   publishMembership,
   queuedStoryTaken,
   savedLocalSessionRecords as savedRecords,
-} from "../../dashboard/tests/localTakenSessions.ts";
+} from "../../dashboard/test-support/localTakenSessions.ts";
 import {
   columnPagingControl,
   rem,
   showColumn,
-} from "../../dashboard/tests/boardPage.ts";
+} from "../../dashboard/test-support/boardPage.ts";
 import {
   columnCountOf,
   expectMembership,
@@ -32,23 +32,23 @@ import {
   sessionEntryShowing,
   sessionNamedBy,
   sessionStateOf,
-} from "../../dashboard/tests/dashboardPage.ts";
-import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
-} from "../../dashboard/tests/support/markDone.ts";
-import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+} from "../../dashboard/test-support/support/markDone.ts";
+import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   at,
   placed,
   queuedIdentity,
   queuedTitle,
-} from "../../dashboard/tests/recentlyDoneRecords.ts";
-import { keptSessions } from "../../dashboard/tests/recentlyDoneSessions.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { startAdHocAndClose } from "../../dashboard/tests/support/startedAdHocSession.ts";
+} from "../../dashboard/test-support/recentlyDoneRecords.ts";
+import { keptSessions } from "../../dashboard/test-support/recentlyDoneSessions.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { startAdHocAndClose } from "../../dashboard/test-support/support/startedAdHocSession.ts";
 test.use({
   projectFolders: ["open-dough", "doughnut"],
   extraEnv: briefDoneRenameWait,

@@ -1,4 +1,4 @@
-import { expectPreparationInput } from "../../dashboard/tests/support/codexPreparationAssertions.ts";
+import { expectPreparationInput } from "../../dashboard/test-support/support/codexPreparationAssertions.ts";
 import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -6,25 +6,28 @@ import {
   keptStarts,
   launch,
   launchRequest,
-} from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { expectCodexRetryProgress } from "../../dashboard/tests/support/codexRetryPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { expectStartNote } from "../../dashboard/tests/storyCardControls.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
-import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
-import { showOptions } from "../../dashboard/tests/launchStoryCardPage.ts";
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { expectCodexRetryProgress } from "../../dashboard/test-support/support/codexRetryPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
+import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { showOptions } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../../dashboard/tests/support/dashboardServer.ts";
-import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/dashboardServer.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import type { EstablishedPreparation } from "../../dashboard/src/agentLaunch.ts";
-import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 
 test.use({ preparationHost: "codex" });
 test("Codex refusal retains its published preparation; the page resumes the same assignment after server restart", async ({

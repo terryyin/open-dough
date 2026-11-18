@@ -8,20 +8,20 @@ import {
   storyA,
   storyB,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../tests/support/codexStart.ts";
+import { expect, test } from "../../test-support/support/codexStart.ts";
 import {
   associationOf,
   queuedIdentity,
-} from "../../tests/support/adHocCompletedAssociation.ts";
-import { publishCompletedStory } from "../../tests/support/completedStoryPublication.ts";
-import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+} from "../../test-support/support/adHocCompletedAssociation.ts";
+import { publishCompletedStory } from "../../test-support/support/completedStoryPublication.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   commitAll,
   git,
   lines,
   writeAt,
-} from "../../tests/support/storyReviewWorktree.ts";
-import { push } from "../../tests/support/storyReviewTrunkCommits.ts";
+} from "../../test-support/support/storyReviewWorktree.ts";
+import { push } from "../../test-support/support/storyReviewTrunkCommits.ts";
 
 test.use({ serverMode: "boundary" });
 
