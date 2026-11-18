@@ -47,8 +47,8 @@ interface LogEntry {
 }
 
 const committing =
-  /^(?:commit(?: \((?:amend|initial)\))?|cherry-pick|revert): /;
-const replaying = /\((?:pick|continue)\): /;
+  /^(?:commit(?: \((?:amend|initial|cherry-pick)\))?|cherry-pick|revert): /;
+const replaying = /\((?:pick|continue|fixup|squash)\): /;
 
 // The checkout's `HEAD` log, newest first: each entry's commit and parents,
 // its time, the action that wrote it, and the commit's author time and subject.

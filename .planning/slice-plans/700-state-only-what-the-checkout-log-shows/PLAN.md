@@ -231,7 +231,7 @@ directory.
 
 ### 3. Keep continued cherry-picks and autosquashed commits
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in a sibling spec
 `backend-tests/review/ad-hoc-session-commit-rewrites.spec.ts`, with a
 continued cherry-pick and an autosquash added to
@@ -243,6 +243,14 @@ Behavior: a session cherry-picks a commit with a conflict and continues →
 Done → the picked commit is in its run. A session commits, commits a fixup
 of it and autosquashes → Done → one run holding the commit in its squashed
 form, with the fixup's change.
+
+Proof: the deliberate omission of the fixup replay kind caused its real
+Git and HTTP case to return an unavailable review (exit 1). After
+restoration, the continued cherry-pick kept its conflict resolution and
+both autosquash cases kept both files in one rewritten commit. All 20
+selected backend specs and dashboard typecheck passed. Exact run records
+and dispositions are in `slice-3-return.md` and `slice-3-consumer-trace.md`
+in the Git evidence directory.
 
 ### 4. Say not captured when the log does not settle the session's commits
 Type: Behavior
