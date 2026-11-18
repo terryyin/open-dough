@@ -11,34 +11,6 @@ scope: Two independently evaluable pilots in Doughnut and Pygardon
 
 Doughnut and Pygardon developers write findings, and project and Open Dough maintainers spend time matching, triaging and revisiting them. The two pilots ask different questions of the same execution history. Each can be judged against current practice in both projects.
 
-<a id="pilot-new-retrospective-findings"></a>
-
-### Freeze the first-report trial wording against historical findings
-
-**Identity:** SEED-401#pilot-new-retrospective-findings
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/706-pilot-new-retrospective-findings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d464a1d025db39ae3efbc989004d966618e5ff24745cba932bf33c6e767eb0d5","plan":"9de24b44e4d011e62fcf3ab5d0410abdf05a2adab229a4a366ab0a2ab2ca6c96"}}
-```
-
-**Goal.** Give Doughnut and Pygardon reviewers a pinned candidate question for first observations. On historical evidence it should still bring a consequential first incident, a reusable practice or evidence bearing on an open question to the maintainer who can use it, while routine control evidence stays with the execution proof. Freeze the wording with its baseline and criteria so the [ordinary-work assessment](#assess-new-retrospective-findings-pilot) can expose it unchanged.
-
-**Scope**
-
-- At an enabled process review, ask “What future decision could this observation change?” before allocating a new finding ID or assembling occurrence metadata. Name the choice beyond accepting this execution’s own proof, and the evidence that bears on it. A concrete effect, an identifiable path to harm, a technique with a credible use elsewhere, or evidence that narrows a live question can qualify on first sight. Cause, remedy, recurrence and measured cost can remain unknown.
-- When the only evidence is a control doing its expected job, leave it with the execution proof. When a first report qualifies, use the ordinary recording and ownership rules. For an existing match, use current occurrence rules. The [repeat pilot](#pilot-repeat-retrospective-findings) owns proposed changes to them. ID recovery and evidence storage belong to [SEED-402](SEED-402-stable-client-finding-records.md).
-- Compare current and candidate decisions on the same historical evidence under the [shared comparison](#pilot-comparison), and label that replay exploratory. Correct the wording on a consequential miss, then freeze the wording, baseline, sampling rule and criteria before any fresh run. Whether the candidate reduces routine entries and combined work in ordinary use belongs to the [ordinary-work assessment](#assess-new-retrospective-findings-pilot). Release and adoption beyond the pilot are separate decisions.
-
-**Key examples**
-
-| Evidence available at review | First-report decision |
-| --- | --- |
-| Doughnut’s new MCP tool was unknown until the reviewer rebuilt the local bundle. An existing bundle could hide a change. | Record DD-250 on the first run. The failed run and rebuild are observed. A false pass against old code is a credible risk. The later repair and its two 7/7 runs are evidence for judging the decision afterwards. [First report](https://github.com/nerds-odd-e/doughnut/blob/d337519f79c3e5c16d6cdb36997572b188aef505/DonutRetrospectiveFindings.md) · [Retirement](https://github.com/nerds-odd-e/doughnut/commit/9e98f0874d9519997be4579a5fe4edde8997f496) |
-| One Pygardon execution restored pinned scripts four times. In another, a fixture mounted a pre-existing volume before checking ownership. | Record the formatter finding as one execution. Record the wrong mount with possible writes explicitly unassessed. Both observations can change how the next operator verifies a resource. [Formatter occurrence](https://github.com/terryyin/pygardon/blob/a474360463af0e5a5576475f703bf562e37b9965/DearDough.md) · [Mount incident](https://github.com/terryyin/pygardon/blob/d8290341524dd058f0ddde88b230cbe76e7cc29f/.planning/slice-plans/382-production-native-crash-monitoring/REPLACEMENT-INCIDENT.md) · [Later repairs](https://github.com/terryyin/pygardon/blob/53a61a9acba2dbb8a5cdda41ae04728d8c71738c/docs/project-findings/adopted-responses.md) |
-| Doughnut DD-443 shows that deliberate breaks tripped the intended assertions. In Terry Talks, phone-size review revealed a trace hidden despite passing state assertions, and the author repositioned it. | The break results suffice as execution proof unless the reviewer can name a distinct future use. The render supports using a phone-size composite when layering carries meaning. Later triage pruned DD-443. Terry Talks supplies historical examples only. [Break checks](https://github.com/nerds-odd-e/doughnut/blob/d3eb0ef73aca13a5ed229738f92dbe44ee12bf95/DearDough.md) · [Triage](https://github.com/nerds-odd-e/doughnut/commit/e461c372d9524f2d89a3e273fd5caf62d5fa59d3) · [Rendered review](https://github.com/terryyin/terry-talks/blob/33bb07f5a6cdd38c8c478f609de9cdc1ba47d52d/DearDough.md) |
-| A Terry Talks whitespace check failed and the commit still ran. A different execution exported 990 frames twice after a placement change. | The first observation can change how a required check gates a commit. Its observed effect was confined to planning text. The second can inform when to inspect the final still before export. The duplicate work is known and the alternative’s saving remains unmeasured. These reports and the render above reused DD-001, so identify each by revision. [Whitespace](https://github.com/terryyin/terry-talks/blob/276b222da4a5fd360b4c64efb77d999fffe90b1a/DearDough.md) · [Exports](https://github.com/terryyin/terry-talks/blob/fc30efe109b5456656b68de74a3f927534ff09cb/DearDough.md) |
-
-**Decision.** Revise the wording before exposure if the replay loses a serious one-off, a transferable practice or a supported question solely because the remedy or cost is unknown.
-
 <a id="assess-new-retrospective-findings-pilot"></a>
 
 ### Assess the first-report trial in ordinary Doughnut and Pygardon work
