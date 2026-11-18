@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review ([plan](slice-plans/693-keep-default-main-session-changes-for-review/PLAN.md))
-- [Carry dashboard test knowledge in test code and remove its Markdown](seeds/SEED-334-product-wide-end-to-end-tests.md#carry-dashboard-test-knowledge-in-code) — SEED-334#carry-dashboard-test-knowledge-in-code ([plan](slice-plans/691-carry-dashboard-test-knowledge-in-code/PLAN.md))
 
 ## Backlog list
 

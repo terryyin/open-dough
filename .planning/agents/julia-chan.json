@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Julia-chan",
-  "email": "julia-chan@example.org",
-  "identity": "SEED-334#carry-dashboard-test-knowledge-in-code",
-  "mode": "story-branch",
-  "branch": "claude/carry-dashboard-test-knowledge-in-test-code-and",
-  "host": "claude"
-}

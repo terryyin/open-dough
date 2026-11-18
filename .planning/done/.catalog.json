@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_carry-dashboard-test-knowledge-in-code.json",
+      "identity": "SEED-334#carry-dashboard-test-knowledge-in-code",
+      "completedAt": "2026-11-18T08:17:46.499Z",
+      "blob": "c71187106ae001f9b28c33eed6b2509dfa1798c6"
+    },
+    {
       "fileName": "SEED-334_move-story-reference-checks.json",
       "identity": "SEED-334#move-story-reference-checks",
       "completedAt": "2026-11-18T06:35:15.275Z",
