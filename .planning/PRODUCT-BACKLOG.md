@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review ([plan](slice-plans/705-keep-own-branch-session-results-for-review/PLAN.md))
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories ([plan](slice-plans/643-declare-intent-comparison-histories/PLAN.md))
 - [Pilot which new retrospective findings to record](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings ([plan](slice-plans/706-pilot-new-retrospective-findings/PLAN.md))
+- [Run the story-notes frontend checks at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md))
 
 ## Backlog list
 
-- [Run the story-notes frontend checks at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
 - [Run the other frontend families at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) — SEED-404#run-the-other-frontend-families-at-the-mounted-boundary
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings
