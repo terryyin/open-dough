@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-384#keep-review-toolbar-truthful-while-reading
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d690dae7ee982a9812db67420439347b4aceb385630d0f9f42d1d5d9086daa73","plan":"31fd6811b14b8fe1b7f478b89c992610e5e3dc67ac217af0d63850794cf3af7f"}}
 ```
 
 Correction from the execution retrospective of Keep Review changes focused
@@ -39,3 +39,18 @@ touch screen the revealed details and status leave the diff its room.
   height budget the status had before the details existed.
 - The two-run landed opening is proved collapsed at the layer that owns it,
   and the end-to-end runs journey keeps only what needs real launches.
+
+#### Key examples
+
+- A developer opens a Done story while its first read is pending. They see
+  the reading status, with no comparison name or details button. A published
+  answer brings **Published completion** and its eye. If the first read fails,
+  the problem stays visible and Refresh can try again. During a refresh that
+  still shows a previous answer, its name and details remain available.
+- A Done story opens on the newer of two captured runs. The developer can
+  read its diff before opening the details. Choosing the older run shows its
+  facts and diff, Refresh keeps that choice, and Escape from the picker
+  returns focus to the eye.
+- On a short landscape touch screen, the developer reveals workspace details
+  while a status is present. They can reach both within the existing height
+  budget and still read the selected file's diff.
