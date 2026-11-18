@@ -45,12 +45,10 @@ export const toolbarComparisonName = (
   review: StoryReview | undefined,
   shown: ComparisonChoice,
 ) => {
+  // An opening request alone supplies no name; an unavailable read that
+  // never answered likewise. A returned landing or session-commits gap
+  // still names the comparison it describes.
   if (review === undefined || review.kind === "unavailable") return "";
-  if (review.kind === "landing-unavailable") {
-    return (review.runs?.length ?? 0) > 0 || review.selectedRun !== undefined
-      ? comparisonName("landed")
-      : "";
-  }
   if (reviewsSessionCommits(review)) return sessionCommitsName;
   return comparisonName(reviewsLanding(review) ? "landed" : shown);
 };

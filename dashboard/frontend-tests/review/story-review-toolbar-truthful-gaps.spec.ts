@@ -124,7 +124,7 @@ test("a selected landed gap offers Landed runs and the eye", async ({
   ).toBeVisible();
 });
 
-test("a bare explanation offers no comparison name or eye", async ({
+test("a bare landing gap names Landed runs without an eye", async ({
   page,
   frontendServices,
 }) => {
@@ -137,11 +137,14 @@ test("a bare explanation offers no comparison name or eye", async ({
     explanation: "This session's changes were not captured.",
   });
   await sessionReviewChanges(recent, bareTitle).click();
-  await journey.phase("bare explanation offers no name or eye", (pages) => {
-    pages.storyReview.expectFeedback(
-      "This session's changes were not captured.",
-    );
-    pages.reviewToolbar.expectNoName();
-    pages.reviewToolbar.expectNoDetails();
-  });
+  await journey.phase(
+    "bare landing gap names Landed runs without an eye",
+    (pages) => {
+      pages.storyReview.expectFeedback(
+        "This session's changes were not captured.",
+      );
+      pages.reviewToolbar.expectName("Landed runs");
+      pages.reviewToolbar.expectNoDetails();
+    },
+  );
 });
