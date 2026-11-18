@@ -1,35 +1,24 @@
 # Finding names and current follow-up
 
-## Combined maintenance — 2026-11-15 (Asia/Singapore)
+## Combined maintenance — 2026-11-18 (Asia/Singapore)
 
-Six projects received a local assessment. Open Dough, Doughnut, Pygardon,
-Lizard and Clipboard supplied shared logs. Terry Talks has process
-retrospective off and has no active local findings record. Prior decisions,
-watch history and earlier recovery links remain in the
-[preceding catalog revision](https://github.com/terryyin/open-dough/blob/face6fd05b3f5c4f20159db9b41480afbe90d592/docs/maintainer/finding-names.md).
+Open Dough, Doughnut, Pygardon, Lizard and Clipboard supplied shared logs.
+Terry Talks has process retrospective off and has no project findings record.
+Local maintenance concentrated on shorter client records and preserved active
+observations. [Prior review and decisions](https://github.com/terryyin/open-dough/blob/5da5acc11ab3aa58fba24425a5d41213d23ad7b1/docs/maintainer/finding-names.md).
 
-[ODF-150](findings/ODF-150.md) now leads. Recent Open Dough executions
-published slices whose omitted static, history and layout proof then
-failed in CI. Another coordinator ran affected proof before accepting and
-contained the omission. [ODF-481](findings/ODF-481.md) remains second. A
-Pygardon execution independently records 55 source-review rows, including 30
-qualifying wording rows. Its response remains queued. ODF-074's untested
-premises also caused follow-up work, and ODF-329's formatter refusals caused
-retries. The prior ODF-074 response still needs a bounded effectiveness
-decision, while the formatter evidence shows delivery guards containing its
-errors. Existing Taken work and the relative order of other queue entries
-were preserved.
+[ODF-482](findings/ODF-482.md) leads the queue. Open Dough and Lizard each
+had a valid Take rejected by single-base selection and recovered through
+accepted-target integration. The current check still selects a single base.
+[ODF-121](findings/ODF-121.md) caused longer historical coverage gaps.
+Its current observer already retries several error paths, and the observed
+request failures need current-path verification before another response.
+[ODF-150](findings/ODF-150.md) gained Pygardon static-proof evidence;
+use of its newest response remains unverified. [ODF-481](findings/ODF-481.md)
+shipped in v0.3.102 and still needs ordinary-use evidence. Neither requires
+another implementation story on this evidence.
 
-[ODF-259](findings/ODF-259.md)'s recovery first shipped in v0.3.99. Relevant
-later recovery after verified budget expiry is still unobserved.
-[ODF-097](findings/ODF-097.md) and [ODF-323](findings/ODF-323.md) gained
-ordinary-use guard and retry evidence. [ODF-059](findings/ODF-059.md) gained
-bounded interruption-recovery outcomes. The observations at
-[ODF-418](findings/ODF-418.md) and [ODF-378](findings/ODF-378.md) carry
-missing command or launch provenance explicitly. No execution qualified
-for the scope-restriction watch.
-
-Codes are permanent. Highest allocated is ODF-514.
+Codes are permanent. Highest allocated is ODF-518.
 
 ## Retained evidence
 
@@ -388,3 +377,7 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-512 — [A migration sizing probe samples only light cases and misses context overruns](findings/ODF-512.md) <a id="odf-512"></a>
 ## ODF-513 — [Live acceptance depends on an uncontrolled qualifying event](findings/ODF-513.md) <a id="odf-513"></a>
 ## ODF-514 — [Updating a shared obligation discards existing reverse links](findings/ODF-514.md) <a id="odf-514"></a>
+## ODF-515 — [Records-only planned completion lacks a documented guarded context](findings/ODF-515.md) <a id="odf-515"></a>
+## ODF-516 — [Planning omits size decisions for files a slice will edit](findings/ODF-516.md) <a id="odf-516"></a>
+## ODF-517 — [A resplit hands execution uncheckable obligations and review ownership](findings/ODF-517.md) <a id="odf-517"></a>
+## ODF-518 — [Formatted-line planning samples miss construction shapes that wrap](findings/ODF-518.md) <a id="odf-518"></a>

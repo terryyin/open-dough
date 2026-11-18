@@ -1,13 +1,15 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{ "schemaVersion": 1, "reviewed": "2026-11-15", "reviewAfter": "2026-11-22" }
+{ "schemaVersion": 1, "reviewed": "2026-11-18", "reviewAfter": "2026-11-25" }
 ```
 
-Reviewed 2026-11-15 (Asia/Singapore). Open Dough, Doughnut, Pygardon, Lizard
-and Clipboard supplied shared logs. Terry Talks has process retrospective off.
-The reviewed executions supplied no verified scope-restriction use that meets
-the observation condition below. The watch remains unstarted.
+Reviewed 2026-11-18 (Asia/Singapore): Open Dough, Doughnut, Pygardon,
+Lizard and Clipboard supplied logs. Terry Talks has process retrospective off.
+The examined executions contain no verified use meeting the watch condition.
+Doughnut's wrap-up scope note records what remained outside the story. It
+does not record a decision applying a restriction to planned or executed
+work. The watch remains unstarted.
 
 <a id="scope-limits-and-required-restrictions"></a>
 

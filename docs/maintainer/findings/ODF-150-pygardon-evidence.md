@@ -154,3 +154,22 @@ Related performance evidence: a broad fixture change reached an already-measured
   - Evidence: plan `522-host-docker-test-entry` at `e3d44336f` (Learnings, slices 2 and 4); fix in `81894a8f1` (`copy_stub_check_source`)
   - Observed effect: slice 2 moved `tests/conftest.py` to the repository root and was accepted on `--setup-plan` equality and the ordinary suite; slice 4's serial `host_docker_tests` run found 11 CI fault cases failing because stub checkouts with a truncated recipe now loaded the root conftest. Fixed before integration.
   - Inference: the plan deliberately deferred the host-Docker run to its last slice and used `--setup-plan` as the interim proof; fixture equality cannot show what a conftest does inside a copied checkout.
+
+### Pygardon / DD-529
+
+[Source at the reviewed revision](https://github.com/terryyin/pygardon/blob/ef988e251b32f764b2c9852ccd78c956b8e08d73/DearDough.md#dd-529--builder-changing-slices-proved-with-vitest-alone-published-a-type-error).
+
+The installed guidance at the accepted failing increment is 0.3.105. The retained plan at `fe273e781^:.planning/slice-plans/547-makeme-auto-trading-entry-rounds/PLAN.md` confirms that Vitest’s behavioral pass omitted static proof and that slice 2 recovered it. This is post-release evidence of the same proof-mode gap as Open Dough plan 609. Whether the trace or newer acceptance response was exercised was not established.
+
+The slice proof for a TypeScript test-builder change ran only Vitest, which
+does not type-check. A builder signature that the generated types rejected
+passed every focused run and was published. CI's frontend type-check caught it.
+
+- Execution: SEED-20261097#makeme-auto-trading-holding-round-signal-rows
+  - Timestamp: 2026-11-18T09:47:14+08:00 (publication of the failing slice)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.105
+  - Evidence: commit `41422a75`; CI failed on `infrastructure/tests/ci/test_ci_test_output.py::test_frontend_project_typecheck_succeeds` with TS2322 at `AutoTradingEntryRoundSection.spec.helpers.tsx` (`unknownSince(read: string)`). The slice-2 implementer found the error with `tsc -b --noEmit` and fixed it in `44a53352`. The plan's slice-3 proof then added tsc.
+  - Observed effect: One red CI run on the execution branch. The repair rode along with the next slice, so no separate repair cycle was needed.
+  - Inference: Planned proof for a slice that changes typed test helpers should include the project type-check, not only the test runner. The plan's proof rules named Vitest commands only.
