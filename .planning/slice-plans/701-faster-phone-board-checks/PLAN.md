@@ -45,11 +45,13 @@ Add the bounded frontend producer adapter that slice 2 needs to publish one time
 ### 2. Select the right browser runner from the normal frontend command
 
 Type: Behavior
-Status: planned
+Status: done
 
 With mounted and retained specs in an isolated runner fixture, a developer runs the frontend command with a file, title, mixed filter or no filter. Start only the necessary runners, honor the existing group limits, and collect the combined result. Pin the Vitest browser provider and reuse the existing Chromium installation. All current product cases still run under Playwright in this increment.
 
 **Proof.** Exercise the command in the runner fixture for both owners, one owner, no matches, list-only and a failing case. Compare selected and executed titles, process status and the report from slice 1. Exercise the existing local admission, deadline and output-directory consumers across the new entry point. Verify the ordinary retained-only run in this checkout.
+
+**Observed.** The ordinary command in a disposable locked checkout executed mixed, single-owner and unfiltered selections, printed disjoint shard and list-only inventories, and returned the established no-match verdict without a browser. The retained-only run stayed quiet. The mounted assertion control kept the retained pass and mounted failure once each in the CI-format report. A 6.500 s deadline stopped the mounted run at 6.555 s and retained the incomplete record. Held repository admission blocked both engines until release. All seven existing phone-board cases passed in Playwright, and full discovery matched 697 cases in 293 files. The existing runner-ownership scenario, 18 focused admission and CI consumer checks, and dashboard typecheck passed after using the required Bash 5 on this Mac. Evidence is in `slice2-return.md` in the checkout's Git evidence directory. Mounted specs keep the same group and shard selection using a `.mounted` suffix, and the command accepts the original filename filter.
 
 ### 3. Mount a fresh phone board in the open browser
 

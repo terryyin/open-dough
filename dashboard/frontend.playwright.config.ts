@@ -1,8 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 import { prepareFocusedRun } from "./tests/support/runnerConfig.mjs";
+import {
+  frontendGroup,
+  isMountedSpec,
+} from "./tests/support/frontendSelection.mjs";
 
-// Dashboard Frontend Test (`npm run test:dashboard:frontend`): only the specs
-// under `frontend-tests/`, with their own OPEN_DOUGH_DASHBOARD_FRONTEND_*
+// Retained Playwright specs for Dashboard Frontend Test. The npm command also
+// runs mounted specs. Both owners share OPEN_DOUGH_DASHBOARD_FRONTEND_*
 // split, times, proof record and deadline, the shards its
 // `dashboard-frontend` job declares in ../.github/workflows/ci.yml and their
 // own run directories under
@@ -10,10 +14,11 @@ import { prepareFocusedRun } from "./tests/support/runnerConfig.mjs";
 // and a setup that prepares only the app and comparison mount builds
 // (./tests/support/frontendGlobalSetup.ts).
 const run = await prepareFocusedRun(
-  "OPEN_DOUGH_DASHBOARD_FRONTEND",
+  frontendGroup.prefix,
   new URL("./", import.meta.url),
-  "frontend-tests",
-  "dashboard-frontend",
+  frontendGroup.root,
+  frontendGroup.job,
+  (file) => !isMountedSpec(file),
 );
 
 export default defineConfig({

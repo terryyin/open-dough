@@ -12,6 +12,7 @@
     "vite.config.mts",
     "integrated.playwright.config.ts",
     "frontend.playwright.config.ts",
+    "frontend.vitest.config.mts",
     "backend.playwright.config.ts",
     "server",
     "tests",

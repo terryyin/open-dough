@@ -28,7 +28,7 @@ import { relative, sep } from "node:path";
  * }} MountedRun
  */
 
-const mountedProject = "mounted-chromium";
+export const mountedProject = "mounted-chromium";
 const outcome = {
   passed: "expected",
   failed: "unexpected",

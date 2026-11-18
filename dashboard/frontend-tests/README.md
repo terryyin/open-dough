@@ -32,16 +32,21 @@ A spec moved from an integrated feature folder keeps that folder name here
 registers cases for a spec moves with it. Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).
 
-`npm run test:dashboard:frontend` runs only this group from its own
-configuration (`../frontend.playwright.config.ts`): its global setup prepares
-only the app and comparison mount builds (`../tests/support/frontendGlobalSetup.ts`),
-it reads its own `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`,
-`_PROOF_RECORD` and `_DEADLINE_MS`, keeps a failed run in
-`test-results/<start time>/` here, and takes local full-suite admission only
-when unfiltered. Select files or tests as with any group, for example
-`npm run test:dashboard:frontend -- intent/ --grep 'wording'`; a direct
+`npm run test:dashboard:frontend` runs the full group. Specs named
+`*.mounted.spec.ts` use Vitest browser mode with Playwright Chromium.
+Retained specs use Playwright, whose setup prepares the app and comparison
+mount builds on demand. Both engines share the group's admission, worker limit
+and `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`, `_PROOF_RECORD` and
+`_DEADLINE_MS` settings. Failed runs keep their output under `test-results/`.
+
+Select by file, `--grep`, or both, for example
+`npm run test:dashboard:frontend -- intent/ --grep 'wording'`. A mounted
+spec matches its physical filename and the filename without `.mounted`, so a
+file filter continues to work as its cases move. Use `--list --reporter=line`
+to see the selection. The direct command
 `npx playwright test --config <repository>/dashboard/frontend.playwright.config.ts`
-behaves the same from any working directory.
+runs retained specs from any working directory and accepts Playwright-specific
+options.
 
 CI runs this group as its own producer, the `dashboard-frontend` job, and
 publishes its cases under the **Dashboard Frontend Test** entry and the frontend test proof
