@@ -13,9 +13,9 @@ The baseline is the current seven-case selection at **22.07 s elapsed with two w
 | P03 | The seven cases use real mounted React. Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | |
 | P04 | The seven cases use production CSS. Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | |
 | P05 | Cases within a file reuse the browser. Scope. | slice 7 | |
-| P06 | Every case receives fresh answers at the service boundary, including a later case using the reused browser. Scope and example 3. | slice 3 | |
-| P07 | React is unmounted after each case. Scope. | slice 3 | |
-| P08 | A later case starts with its own board preference. Scope’s state-isolation requirement and example 3. | slice 3 | |
+| P06 | Every case receives fresh answers at the service boundary, including a later case using the reused browser. Scope and example 3. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts, the second mount observes the independently changed MakeMe title in the same Document; slice3-mounted-held.log recorded both passes. |
+| P07 | React is unmounted after each case. Scope. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts checks both detached roots for empty children, the removed root and restored browser state, with a held HTTP reply released in teardown; slice3-mounted-held.log. |
+| P08 | A later case starts with its own board preference. Scope’s state-isolation requirement and example 3. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts observes Recently done and position 2 in case one, then Backlog, native Enter, Taken and focused Recently done in the next case; slice3-mounted-held.log. |
 | P09 | The journeys preserve native input. Scope and examples 1–3. Includes the indicator tap, keyboard activation, swipe cases, ordinary taps, and real vertical stroke. | slice 7 | |
 | P10 | The viewport changes in the browser during the viewport-dependent journeys. Scope and examples 1–2. Includes the 390 × 844 setting and rotation to landscape and back. | slice 6 | |
 | P11 | Geometry assertions use actual measured dimensions. Scope and example 1. Includes both indicators, the view, and the story card. | slice 4 | |

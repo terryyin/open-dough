@@ -160,7 +160,7 @@ export async function swipeBoard(
 // The developer explicitly trades indicator width for story reading room.
 // This Board-only operation retains native hit testing for the thin target.
 export async function tapColumnIndicator(page: Page, column: ColumnName) {
-  await tapNarrowControlWhereShown(columnPagingControl(page, column));
+  await tapNarrowControlWhereShown(columnPagingControl(page, column), page);
 }
 
 export async function focusColumnIndicator(page: Page, column: ColumnName) {

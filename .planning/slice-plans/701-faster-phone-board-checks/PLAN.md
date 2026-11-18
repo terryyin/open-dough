@@ -56,11 +56,13 @@ With mounted and retained specs in an isolated runner fixture, a developer runs 
 ### 3. Mount a fresh phone board in the open browser
 
 Type: Structure
-Status: planned
+Status: done
 
 Prepare the test-side mount that the two indicator cases in slice 4 need. Reuse the real screen's providers, CSS, MakeMe data and frontend service answers. Establish the initial column, viewport and input profile per case, unmount, release pending replies and restore the affected browser state. Keep the seven originals running until their own transfers.
 
 **Proof.** In a disposable smoke selection, run the same sequence that failed during preparation: leave the board at Recently done, tear down, remount with the next case's starting state, and use Enter from Backlog to Taken. Observe the named focused indicator and real width. Run the existing indicator selection to protect unchanged Playwright callers if the service answer code moves.
+
+**Observed.** Two cases reused one Chromium Document. The first read the actual 12 px controls and 390/366/366 px board, view and card, then reached Recently done by native touch. The second observed the empty detached root, a held HTTP reply released during teardown, restored history, storage and viewport, and its own changed MakeMe publication. It began in Backlog, opened Taken with Enter and focused the Recently done indicator. The last teardown again emptied its detached root. A mixed normal-command gate recorded 18 passes across both smoke cases and the retained indicator, swipe, accessible board and control reachability cases. Dashboard typecheck passed. The disposable proof and raw results are in `slice3-return.md` and its referenced artifacts in the checkout's Git evidence directory.
 
 ### 4. Give the developer faster phone-indicator feedback
 
@@ -109,3 +111,5 @@ Move the remaining long-backlog case. A real vertical stroke scrolls the reading
 Maki-chan resumed the published Take at `b14434bb1bf4413f690fa31a9981fa203bd8d39e` in Story Branch Mode on `codex/get-faster-feedback-on-the-seven-phone-board-che`. Increments publish to the branch on `origin`, with `origin/main` as the integration target. Checkout-local locked install, dashboard typecheck and native Chromium validation passed. CI uses GitHub Actions `ci.yml`, Codex coordinator `maki-701`, mailbox `/tmp/dough-ci-501/watch-6Xu1JK`, yielded cell `g41:11`, session 6872, PID 94203. The Take on trunk is unobserved by this branch observer.
 
 At the Take revision, guarded Playwright list-only discovery found 697 cases in 293 files, with 360 in 155 files on shard 1 and 337 in 138 files on shard 2. The checkout's Git evidence directory retains all three inventories as `baseline-*.log`. Use these inventories for the migration comparison and account for separately accepted later changes.
+
+The seed's [hosted baseline, run 44267762058 attempt 1](https://github.com/terryyin/open-dough/actions/runs/44267762058), attributed 5.726 s to the two indicator cases and 15.649 s to the five swipe cases, 21.375 s summed. With the wrapper in place and the seven cases still in Playwright, [run 44294037209 attempt 1](https://github.com/terryyin/open-dough/actions/runs/44294037209) attributed 4.637 s and 12.069 s, 16.706 s summed. Its frontend test steps took 197 s and 149 s, with 360 and 337 cases respectively. The Git evidence directory retains both original reports and the recent steps. Keep CI case times and job steps separate from locally measured elapsed time.

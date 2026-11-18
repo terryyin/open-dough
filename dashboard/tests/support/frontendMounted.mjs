@@ -24,6 +24,9 @@ export async function prepareMounted({
   const { createVitest } = await import("vitest/node");
   const vitest = await createVitest({
     config,
+    // Browser commands use the same test-support modules as Playwright.
+    // The module runner preserves their top-level awaits.
+    configLoader: "runner",
     run: true,
     watch: false,
     maxWorkers: workers,
