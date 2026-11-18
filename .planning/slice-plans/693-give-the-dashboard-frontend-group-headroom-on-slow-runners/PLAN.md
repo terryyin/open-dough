@@ -97,6 +97,12 @@ successful `main` run; record the two shard times in Learnings. A shard above
 changes the patterns through the balance script's proposal before the story
 closes.
 
+## Execution complete
+
+Product advice: no change. The following `main` runs' frontend job times
+(`bash scripts/ci-job-times.sh`) are the check the story names. Branch run
+44218814549 read 238 s and 165 s for the two shards.
+
 ## Current decisions
 
 - Trunk or Story Branch Mode as the executor chooses; one slice.

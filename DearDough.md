@@ -78,6 +78,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: an unchanged repository-wide stream validator was omitted from the selected consumer proof, causing one CI failure and repair cycle before integration.
   - Inference: matches the existing global-validator form of ODF-150. Earlier guard selection could expose the defect before CI; isolated time or token saving is unmeasured.
 
+- Execution: SEED-382#give-the-frontend-group-headroom-on-slow-runners (first implementation `389b28dfc8380a49cd134c7d67d1ad8861f4a157`)
+  - Timestamp: unknown (2026-11-18; the coordinator's spec run started 2026-11-18T01:48:53Z, after the refactor return)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `3d4487126`)
+  - Evidence: slice 1 changed the `dashboard-frontend` job's `shards` in `ci.yml`. The implementer's trace (terms `dashboard/frontend-tests=`, `dashboard-frontend`) selected the plan's six checks plus five more `ci.yml`-reading support checks, all passing, and did not name `splitExcluding` (`dashboard/tests/support/proofRecordRun.ts`), which reads that job's shards for `dashboard/backend-tests/runtime/runner-ownership.spec.ts`. The refactor pass named it; the coordinator ran the spec (5 tests, pass) before publication, and branch run 44218814549/1 passed.
+  - Observed effect: a browser-spec consumer of the changed declaration was missing from the implementation return and found one stage later, before publication; no failure or repair cycle.
+  - Inference: the same missed-consumer form, here through a TypeScript reader of the workflow file that neither search term names by path; the support-check selection the earlier rows recommend was applied and held. Cost was one extra local spec run.
+
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
