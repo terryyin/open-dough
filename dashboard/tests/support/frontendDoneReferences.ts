@@ -1,8 +1,9 @@
 // Done references (../../frontend-tests/navigation/story-reference-done.spec.ts):
 // 35 retained Done stories and one completed outside the retained window,
 // placed before `now`, with Story A waiting on a near, a far, the expired and
-// an unlisted story. Published Done facts and semantic references only: the
-// real range decides what is shown and read. The interim
+// an unlisted story, whose agreements later revisions can replace. Published
+// Done facts and semantic references only: the real range decides what is
+// shown and read. The interim
 // ../storyReferenceDone.ts publishes the same facts through Git.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -12,13 +13,19 @@ import {
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { backlogApart, describedRevisions } from "../describedRevisions.ts";
 import { placedAt, progressiveEntries } from "../recentlyDoneProgressive.ts";
 import { agreement, consumer } from "../storyDependencyFixture.ts";
 import {
   putFrontendDoneRecords,
+  putFrontendPublished,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
-import { putFrontendDependencies } from "./frontendStoryDependencies.ts";
+import {
+  dependenciesRepository,
+  dependenciesRevisions,
+  putFrontendDependencies,
+} from "./frontendStoryDependencies.ts";
 
 const doneEntries = progressiveEntries(35, []).map((entry) => {
   if (entry.kind !== "story") throw new Error("Expected only Done stories");
@@ -54,17 +61,24 @@ export const doneTitlesThrough = (count: number) =>
 
 export type DoneReferenceOptions = { omitDestination?: boolean };
 
+const storyAPath = ".planning/seeds/A.md";
+
+// The backlog entry Story A's agreement names for a referenced story.
+const referencedStory = ({
+  identity,
+  title,
+}: {
+  readonly identity: string;
+  readonly title: string;
+}) =>
+  makeMe.aBacklogEntry
+    .with({ identity, title, href: `seeds/${identity.replace("#", ".md#")}` })
+    .please();
+
 // A seed for each referenced story and Story A waiting on each of them.
 export function doneReferenceSeeds(): RevisionFacts {
   const referenced = [farDone, nearDone, expiredDone, unlisted].map(
-    ({ identity, title }) =>
-      makeMe.aBacklogEntry
-        .with({
-          identity,
-          title,
-          href: `seeds/${identity.replace("#", ".md#")}`,
-        })
-        .please(),
+    referencedStory,
   );
   return {
     message: "Publish story dependency facts",
@@ -75,7 +89,7 @@ export function doneReferenceSeeds(): RevisionFacts {
           storySeed(story, "Published completed outcome."),
         ]),
       ),
-      ".planning/seeds/A.md": queuedSeedWithDependencies(
+      [storyAPath]: queuedSeedWithDependencies(
         consumer,
         referenced.map((supplier) => agreement({ supplier, state: "waiting" })),
       ),
@@ -115,4 +129,43 @@ export function putFrontendDoneReferences(
     "open-dough",
     doneReferenceRecords(Date.now(), options),
   );
+}
+
+// Story A's agreements replaced after the Done references at later
+// revisions: first no longer readable, then waiting on the later Done story
+// alone. Publish each in turn.
+export function replacedStoryAAgreements(services: FrontendServiceState) {
+  const laterSupplier = queuedSeedWithDependencies(consumer, [
+    agreement({ supplier: referencedStory(laterDone), state: "waiting" }),
+  ]);
+  const { unreadable, replaced } = describedRevisions(
+    dependenciesRepository(doneReferenceSeeds())
+      .withRevision("unreadable", {
+        message: "Break Story A's agreements",
+        files: {
+          [storyAPath]: laterSupplier.replace(
+            /```json dough-story-dependencies\n[^\n]+/,
+            "```json dough-story-dependencies\n{broken",
+          ),
+        },
+      })
+      .withRevision("replaced", {
+        message: "Wait on the later Done story alone",
+        files: { [storyAPath]: laterSupplier },
+      })
+      .please(),
+    {
+      ...dependenciesRevisions(services),
+      unreadable: "c1".repeat(20),
+      replaced: "c2".repeat(20),
+    },
+  );
+  return {
+    publishUnreadable: () => {
+      putFrontendPublished(services, backlogApart(unreadable));
+    },
+    publishReplaced: () => {
+      putFrontendPublished(services, backlogApart(replaced));
+    },
+  };
 }

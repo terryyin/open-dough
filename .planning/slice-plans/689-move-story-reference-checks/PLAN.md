@@ -194,7 +194,7 @@ with the far record held at 390×740 and reduced motion the destination reads
 
 ### 6. Show a Done reference's gap and read a replaced disclosure when opened
 Type: Behavior
-Status: planned
+Status: done
 Proof: the other two `story-reference-done` tests ("a failed Done detail…",
 "a dependency disclosure replaced…") in the same Frontend spec; then delete
 the interim spec. Scratch break: read supplier titles before the disclosure

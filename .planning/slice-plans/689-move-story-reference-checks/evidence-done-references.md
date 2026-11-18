@@ -53,3 +53,50 @@ reference to a later Done story keeps ten shown). Command
 found), case 2 at "Reading done story…" (destination not found). Restored
 from a copy in the evidence dir (deleted), `git diff -- dashboard/src | wc -c`
 → 0; same command with `--repeat-each=3` → exit 0 (6 passed).
+
+## Slice 6. Show a Done reference's gap and read a replaced disclosure when opened
+
+Assertion map (interim tests 3–4 → the same Frontend spec, same names; it is
+now 231 lines, so no second spec). Interim spec deleted.
+
+- Setup `serveDoneReferences`/`openUntilRead` → `putFrontendDoneReferences`
+  and `page.goto("/")`; `recordsAsked(githubFor(page))` →
+  `recordDoneRecordsAsked(page)` (page-side asks).
+- Case 3 (12d): `published.answerWith(farDone.path, noConnection)` → new
+  `failDoneRecordReads(page, file)` in `frontendDoneBodyReads.ts` (every ask
+  naming the far file aborts until `restore`; `failed()` counts them). Poll
+  far reads = 1 plus `untilPageRequestsAnswered` → poll `failed()` = 1 (the
+  failed title ask finished). Identity reference visible; follow; "This done
+  story could not be read.", accessible name = identity, focused, in view 0.5,
+  notice empty — kept. Far reads = 2 → `failed()` = 2. Restore, "Retry done
+  stories", 27 entries, no "could not be read" — kept. "No path outside 27 +
+  suppliers" → distinct asked set equals 27 + suppliers (stronger); far asked
+  3 times by the page — kept; refollow focused — kept.
+- Case 4: `serveDoneReferences({ follows: true })` + `origin.publishRevision`
+  → `putFrontendDoneReferences`, `preholdRevisionStreamSlots` (so the page
+  checks on its own clock; without it the second `passTimeUntilChecked` saw no
+  check, run `s6-first.log`) and `replacedStoryAAgreements(services)`
+  (described later revisions; `publishUnreadable`, `publishReplaced`) in
+  `frontendDoneReferences.ts`. Far title visible; "Dependency facts
+  unavailable", no disclosure; "Dependencies · 1 blocking", not open; later
+  record not asked before opening; title after opening; asked once by the page
+  — kept. Whether the server reads GitHub once is Backend's
+  (`authenticated-read-listed-records.spec.ts`, see slice 5).
+
+Support removal: re-exports `donePathsThrough`, `laterDone`, `nearDone` in
+`dashboard/tests/storyReferenceDone.ts` lost their last consumer and were
+removed. Every other export of `storyReferenceDone.ts`, `storyReference.ts`,
+`storyDependencyFixture.ts`, `destinationCue.ts`, `recentlyDoneProgressivePage.ts`,
+`pageRequestNotes.ts` keeps a consumer in `dashboard`, `e2e` or
+`Distribution/tests`. `originAnswers.ts` `CliAnswer`/`commitEtag` had no outside
+consumer before this slice either (not from the deleted spec); left.
+
+Scratch break (2026-11-18): fault — `dashboard/src/StoryCardDependencies.tsx`
+`useDoneDetails(..., needed, open)` → `..., needed, true)` (supplier titles read
+before the disclosure opens). Command
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-reference-done --workers=2`
+→ exit 1: case 4 failed at `expect(recordsAsked()).not.toContain(laterDone.path)`
+(received list ends with `SEED-231_progressive-31.json`); case 1 also failed
+(asked set had 2 extra). Restored from a copy in the evidence dir (deleted),
+`git diff -- dashboard/src | wc -c` → 0; same command with
+`--repeat-each=3` → exit 0 (12 passed).

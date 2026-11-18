@@ -11,13 +11,10 @@ import {
 } from "./support/frontendDoneReferences.ts";
 
 export {
-  donePathsThrough,
   donePathsWithSuppliersThrough,
   doneTitlesThrough,
   expiredDone,
   farDone,
-  laterDone,
-  nearDone,
   unlisted,
 } from "./support/frontendDoneReferences.ts";
 

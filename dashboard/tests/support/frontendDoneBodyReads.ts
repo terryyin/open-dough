@@ -1,7 +1,8 @@
 // Controllable done-record body answers for frontend-only Recently done
 // journeys: hold or fail the next authenticated `done=bodies` ask that names
-// a given file, while other files answer from `services.doneBySource`; and
-// record which records the page asked for.
+// a given file, while other files answer from `services.doneBySource`; fail
+// every ask naming a file until restored; and record which records the page
+// asked for.
 
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -81,4 +82,31 @@ export function recordDoneRecordsAsked(page: Page) {
       asked.push(`.planning/done/${file}`);
   });
   return () => asked;
+}
+
+// Every `done=bodies` ask naming `fileName` fails as unreachable until
+// `restore`; `failed` counts the asks failed so far.
+export async function failDoneRecordReads(page: Page, fileName: string) {
+  let failing = true;
+  let failed = 0;
+  await page.route(
+    (url) =>
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("done") === "bodies" &&
+      url.searchParams.getAll("file").includes(fileName),
+    async (route) => {
+      if (!failing) {
+        await route.fallback();
+        return;
+      }
+      failed += 1;
+      await route.abort("failed");
+    },
+  );
+  return {
+    failed: () => failed,
+    restore: () => {
+      failing = false;
+    },
+  };
 }
