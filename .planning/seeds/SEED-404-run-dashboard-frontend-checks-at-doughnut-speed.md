@@ -193,6 +193,29 @@ its phases, cues and controls once. No Accepted decision conflicts.
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 requires the comparison basis above before the observed run.
 
+<a id="hold-and-settle-mounted-frontend-cases-by-one-rule"></a>
+
+### Hold and settle mounted frontend cases by one rule
+
+**Identity:** SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md"}
+```
+
+Correction from the execution retrospective of
+[the story-notes story](#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed),
+2026-11-19.
+
+**Goal.** A developer writing a mounted frontend case can rely on the mounted
+support's held answers, settling and remounting to behave as its isolation case
+and README say, so a held answer cannot leak into the next case and an
+unsettled page fails by name instead of being read outside act.
+
+**Scope.** Test support under `dashboard/test-support/mounted-dashboard/`, its
+isolation spec and the mounted support section of
+`dashboard/frontend-tests/README.md`. The story-notes cases keep every
+observation; product code is unchanged. [Plan](../slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md)
+
 <a id="run-the-story-notes-checks-in-a-third-of-their-time"></a>
 
 ### Run the story-notes checks in a third of their time

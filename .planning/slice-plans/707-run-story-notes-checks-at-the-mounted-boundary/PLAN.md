@@ -144,6 +144,16 @@ Local gate on awake macOS uses `caffeinate -s -i` on AC power for the whole-grou
 
 Slice-plan refinement ran in planning: the first mounted notes case was split so the shared notes rule lands as its own Structure slice before the mounted page object and arrangement command. The slices share one mounted fixture, one notes rule and one page-object vocabulary, and each moves an independently observable group of cases. Typing, keyboard activation and focus return on the mounted app are first reached in slice 4; a failure there returns under learning escalation. Review found no remaining slice-specific concern.
 
+## Execution complete
+
+Product advice:
+- Run the correction [Hold and settle mounted frontend cases by one rule](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#hold-and-settle-mounted-frontend-cases-by-one-rule) ([plan](../711-hold-and-settle-mounted-frontend-cases/PLAN.md)) before the speed story and the other families, which build on the same holds, settling and remounts.
+- The speed story [Run the story-notes checks in a third of their time](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) carries the measured levers. When it touches the mounted page objects, it should also:
+  - align the cues that share a name but behave differently in the two engines (`closeSidePanel`, keyboard `open`, `expectComposerContext`);
+  - break the import cycle between `mountedDashboardCommands.ts` and `mountedRetainedNoteCommands.ts`;
+  - capture the real fetch once per case.
+- SEED-404 serves test feedback cost, not the near-future direction of intent review. It earns its place only while each family's measured gain is recorded under ADR 0010, as this story did.
+
 ## Learnings
 
 **Slice 1 baseline** (at `e8e01643a`, 2026-11-18/19, Node 24.21.0, two workers, AC power under `caffeinate -s -i`, 16-core machine, proof records `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` in the checkout's `open-dough/evidence`):
