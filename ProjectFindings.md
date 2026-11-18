@@ -454,6 +454,6 @@ The behavior review asks for one representative walk of a changed skill. An impl
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.106 (installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: slice 1 implementer proof was its own `walk.py` applying the new collector section; the coordinator then sent a fresh agent only the guidance and rebuilt fixtures. That agent reached the same six outcomes and raised two wording gaps, both fixed before commit. The slice 2 brief required an independent walker from the start. That walker raised five open questions about how a recreated log represents recovered content (plan 704 slice 2 accepted proof).
+  - Evidence: slice 1 implementer proof was its own `walk.py` applying the new collector section; the coordinator then sent a fresh agent only the guidance and rebuilt fixtures. That agent reached the same six outcomes and raised two wording gaps, both fixed before commit. The slice 2 brief required an independent walker from the start. That walker raised five open questions about how a recreated log represents recovered content (`bdcf715a2e826926a00b551498596e7a3ca6279c:.planning/slice-plans/704-stable-client-finding-records/PLAN.md` slice 2 accepted proof).
   - Observed effect: one extra walker run (~76 s) in slice 1; no rework of accepted behavior.
   - Inference: `.agents/skills/author-open-dough-skills/SKILL.md#behavior-review` could ask that the walk be performed by an agent that did not write the change, given only the guidance and the situation.
