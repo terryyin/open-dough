@@ -107,7 +107,9 @@ type WorkerPreparationFixtures = PublishedMainWorkerFixtures &
   };
 
 // Every input the pool prepares once per worker, each in cold preparation's
-// own worker allowance, beside the options that select among them.
+// own worker allowance, beside the options that select among them. A new
+// worker input preparation joins this record, whose every registration
+// ../../backend-tests/runtime/kept-history-worker.spec.ts checks.
 export const workerPreparationFixtures: Fixtures<
   object,
   WorkerPreparationFixtures

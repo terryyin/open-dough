@@ -19,9 +19,7 @@ async function expectBundleOnly(spec: string, fixture: string) {
   try {
     await run.passed();
 
-    expect(
-      run.trace().filter(({ key }) => key === dashboardAppArtifactKey),
-    ).toEqual([]);
+    expect(run.requestedArtifacts()).not.toContain(dashboardAppArtifactKey);
     run.expectPreparedBefore(serverBundleArtifactKey, fixture);
   } finally {
     await run.stop();

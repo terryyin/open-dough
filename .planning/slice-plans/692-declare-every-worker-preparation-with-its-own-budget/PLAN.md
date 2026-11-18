@@ -170,7 +170,7 @@ failed naming it.
 ### 7. Development notifications serve source with zero build requests
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Share the existing `dashboardServedIn` fixture from
 `session-alerts-navigation.spec.ts` with one minimal nested consumer through
 `startPreparationProofRun`. Open the development server, verify it serves
@@ -180,6 +180,15 @@ fail the new assertion. Restore and run the strict nested proof and the
 original dev and preview notification cases, including the actual serving
 URL and absence of extra host actions. Keep the common boundary and frontend
 proofs with their existing owners.
+Accepted proof: `dashboardServedIn` lives in `support/sessionAlertServers.ts`
+for the E2E notification spec (dev and preview 2/2) and the nested
+`dev-notifications.proof.ts`. Backend
+`runtime/test-preparation-dev-notifications.spec.ts`, under the E2E setup,
+fetches the Vite client and finds no app or bundle among
+`requestedArtifacts()`; preview readiness in the dev fixture failed it. The
+runtime preparation proofs passed 8/8. Learning: slice 2's guidance sentence
+grew the already oversize `dashboard/tests/README.md`; it moved into the
+`workerPreparationFixtures` comment instead.
 
 ## Execution gates and readiness review
 

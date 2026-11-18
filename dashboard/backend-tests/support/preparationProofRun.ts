@@ -92,7 +92,8 @@ export function startPreparationProofRun(options: {
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       expect(readProof(recordPath).terminal?.strictStatus).toBe("passed");
     },
-    trace,
+    // Every run artifact key the run requested, once each, in request order.
+    requestedArtifacts: () => [...new Set(trace().map(({ key }) => key))],
     // When the run artifact `key` completed preparing.
     completedAt,
     steps,
