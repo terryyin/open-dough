@@ -117,7 +117,7 @@ assertions for reads that still show their previous answer.
 
 ### 3. Touch details and status share room above the diff
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: when a touch user reveals details above a review with status, both
 fit in one scrollable area bounded by the larger of 30% of the panel height

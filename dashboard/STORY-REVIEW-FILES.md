@@ -110,4 +110,7 @@ revealed state lasts while the panel stays open, across comparison and run
 choices and Refresh. Reading progress, problems, and an empty or unavailable
 comparison's explanation stay outside the details, as do Commits' range
 heading and commit list. With touch input both toggles keep the shared 44px
-control size, and a narrow panel keeps the files above the diff.
+control size; revealed details and the status above the work area share one
+scrollable height budget — the larger of 30% of the panel height and the
+control size plus 1 rem — so the work area keeps the remaining height; and a
+narrow panel keeps the files above the diff.

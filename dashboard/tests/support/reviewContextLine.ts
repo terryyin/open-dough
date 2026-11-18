@@ -1,7 +1,7 @@
 // A story review's context and feedback as the developer meets them: the
 // context line in the review details, activated by its values and read by
-// its name, and the feedback in the review's fixed top, both kept in place
-// while what is beneath them scrolls.
+// its name, and the feedback in the review's top above the work area, both
+// kept in place while the panes beneath them scroll.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 
@@ -14,8 +14,8 @@ export const contextValues = (review: Locator) =>
 export const contextLine = (review: Locator) =>
   review.locator(".story-review-context-line");
 
-// The review's body beneath its fixed top, which holds the file browser and
-// the diff, or the review's explanation.
+// The review's body beneath details and status, which holds the file browser
+// and the diff, or the review's explanation.
 export const reviewBody = (review: Locator) =>
   review.locator(".story-review-body");
 
@@ -23,10 +23,31 @@ export const reviewBody = (review: Locator) =>
 export const shownComparisonDescription = (review: Locator) =>
   review.locator(".story-review-details > div").first();
 
-// The review's feedback, announced from its fixed top: reading, refreshing,
-// refreshed, and problem messages. A file's diff has its own.
+// The review's feedback, announced from its top above the work area: reading,
+// refreshing, refreshed, and problem messages. A file's diff has its own.
 export const reviewFeedback = (review: Locator) =>
   review.locator(".story-review-top").getByRole("status");
+
+// Visible height from the toolbar's bottom to the work area's top, and the
+// panel-derived touch budget those two share (30% of panel height, at least
+// the control size plus 1 rem).
+export async function aboveBodyTouchBudget(review: Locator) {
+  return review.evaluate((root) => {
+    const toolbar = root.querySelector(".story-review-toolbar");
+    const body = root.querySelector(".story-review-body");
+    const above = root.querySelector(".story-review-above");
+    if (toolbar === null || body === null || above === null)
+      throw new Error("The review's toolbar, above region or body is missing.");
+    const budget = parseFloat(getComputedStyle(above).maxHeight);
+    const bar = toolbar.getBoundingClientRect();
+    const work = body.getBoundingClientRect();
+    return {
+      visible: work.top - bar.bottom,
+      budget,
+      aboveHeight: above.getBoundingClientRect().height,
+    };
+  });
+}
 
 // What the context line's values read aloud in either state: every value in
 // full, the baseline less the story's published commits when it says how
@@ -48,9 +69,9 @@ export const contextWords = ({
 export const fileBrowser = (review: Locator) =>
   review.locator(".story-review-files");
 
-// Shortens the window until a part beneath the review's fixed top holds less
-// than its content, scrolls that part to its end, and expects each fixed
-// element to keep its box; the window then takes its earlier size again.
+// Shortens the window until a part beneath the review's top holds less than
+// its content, scrolls that part to its end, and expects each fixed element
+// to keep its box; the window then takes its earlier size again.
 export async function expectFixedWhileScrolled(
   page: Page,
   scrolled: Locator,

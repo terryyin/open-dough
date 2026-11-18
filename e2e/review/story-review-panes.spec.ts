@@ -4,15 +4,15 @@ import {
 } from "../../dashboard/tests/sidePanelFrame.ts";
 // A large story's review, of Story A's worktree changing more files than the
 // file browser holds and files longer than the diff shows
-// (../../dashboard/tests/support/storyReviewWorktree.ts). Beneath the review's fixed top the
-// file browser and the selected file's diff fill the panel, and the body
-// never scrolls as a whole. Each pane scrolls on its own, down and sideways,
-// leaving the other, the top, and the diff's heading in place; the code
-// scrolls by keyboard. Selecting another file shows its diff from the top
-// and leaves the browser where it was; Refresh, Maximize/Restore, and
-// using the Panel divider keep both panes' places. In a narrow panel
-// the browser sits above the diff with a bounded share of the height, and
-// Hide files gives the diff the whole work area.
+// (../../dashboard/tests/support/storyReviewWorktree.ts). Beneath the review's
+// status above the work area the file browser and the selected file's diff
+// fill the panel, and the body never scrolls as a whole. Each pane scrolls on
+// its own, down and sideways, leaving the other, what is above them, and the
+// diff's heading in place; the code scrolls by keyboard. Selecting another
+// file shows its diff from the top and leaves the browser where it was;
+// Refresh, Maximize/Restore, and using the Panel divider keep both panes'
+// places. In a narrow panel the browser sits above the diff with a bounded
+// share of the height, and Hide files gives the diff the whole work area.
 
 import {
   filesToggle,
@@ -69,7 +69,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   // What stays in place while either pane scrolls.
   const fixed = [header, top, contextLine(review), headingOf(nameA)];
 
-  await test.step("the browser and the diff fill the panel beneath its fixed top, and the body does not scroll", async () => {
+  await test.step("the browser and the diff fill the panel beneath its status, and the body does not scroll", async () => {
     const [panel, bodyBox, shownBrowser, shownDiff, shownTop] =
       await Promise.all([
         box(review),

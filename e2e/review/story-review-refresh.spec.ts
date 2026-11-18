@@ -11,12 +11,12 @@ import {
 // list nor the open diff, even when another file is selected and the first
 // reopened. Refresh takes a new snapshot that lists the new file and shows
 // the edit in the still selected file's diff, leaves the keyboard on Refresh,
-// and announces that it is done in the review's fixed top, beneath the
-// context line, where it stays while the file browser scrolls. Closing the
-// review and editing the worktree meanwhile, reopening it reads a fresh
-// snapshot with that edit, opened on the first file in the browser's order.
-// Once the selected file is reverted in the worktree, Refresh selects the
-// first file.
+// and announces that it is done in the review's status above the work area,
+// beneath the context line, where it stays while the file browser scrolls.
+// Closing the review and editing the worktree meanwhile, reopening it reads
+// a fresh snapshot with that edit, opened on the first file in the browser's
+// order. Once the selected file is reverted in the worktree, Refresh selects
+// the first file.
 
 import { diffLines } from "../../dashboard/tests/support/reviewPanes.ts";
 

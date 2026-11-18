@@ -166,41 +166,43 @@ export function StoryReview({
         onShowBrowser={setBrowserShown}
         details={holdsDetails ? details : undefined}
       />
-      <StoryReviewDetailsSection
-        details={details}
-        review={review}
-        runs={runs}
-        items={items}
-        sessionRuns={sessionRuns}
-        selectedRun={selectedRun}
-        runKey={runKey}
-        shownComparison={shownComparison}
-        workspace={workspace}
-        availablePublished={availablePublished}
-        committed={committed}
-        includeUncommitted={includeUncommitted}
-        onWorkspace={onWorkspace}
-        onRun={onRun}
-        setIncludeUncommitted={setIncludeUncommitted}
-      />
-      <div className="story-review-top">
-        <ReviewFeedback
+      <div className="story-review-above">
+        <StoryReviewDetailsSection
+          details={details}
           review={review}
-          reading={reading}
-          problem={problem}
-          range={range}
-          shown={selectedRun === undefined ? shown : "all"}
-          comparison={comparison}
-          round={round}
+          runs={runs}
+          items={items}
+          sessionRuns={sessionRuns}
+          selectedRun={selectedRun}
+          runKey={runKey}
+          shownComparison={shownComparison}
+          workspace={workspace}
+          availablePublished={availablePublished}
+          committed={committed}
+          includeUncommitted={includeUncommitted}
+          onWorkspace={onWorkspace}
+          onRun={onRun}
+          setIncludeUncommitted={setIncludeUncommitted}
         />
-        {review?.kind === "snapshot" &&
-          shown === "commits" &&
-          selectedItems.length > 0 && (
-            <CommitRangeHeading
-              selected={selectedItems}
-              trunkIntegrated={trunkIntegrated}
-            />
-          )}
+        <div className="story-review-top">
+          <ReviewFeedback
+            review={review}
+            reading={reading}
+            problem={problem}
+            range={range}
+            shown={selectedRun === undefined ? shown : "all"}
+            comparison={comparison}
+            round={round}
+          />
+          {review?.kind === "snapshot" &&
+            shown === "commits" &&
+            selectedItems.length > 0 && (
+              <CommitRangeHeading
+                selected={selectedItems}
+                trunkIntegrated={trunkIntegrated}
+              />
+            )}
+        </div>
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
         <ReviewBody
