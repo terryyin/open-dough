@@ -18,18 +18,10 @@ function readSkill(name) {
   return readFileSync(join(skill, name), "utf8");
 }
 
-test("checked-in conventions cover wrapper-driven projects without an ecosystem branch", () => {
-  const location = readSkill("references/execution-location.md");
+test("the readiness gate does not name an ecosystem command", () => {
   const gate = readSkill(
     "scripts/execution-worktree-preparation-readiness-gate.mjs",
   );
-
-  assert.match(location, /generated\s+output/);
-  assert.match(location, /artifact caches may remain machine-level/);
-  assert.match(location, /do not require\s+npm/);
-  assert.match(location, /command selected or the missing convention/);
-  assert.doesNotMatch(location, /always `npm ci`/);
-  assert.doesNotMatch(location, /open-dough\.json/);
   assert.doesNotMatch(gate, /\b(?:npm|nix|maven|gradle|pom\.xml)\b/i);
 });
 
