@@ -1,6 +1,7 @@
 # Assess the first-report trial in ordinary work
 
 **Source:** [Ordinary-work assessment, including its decision criteria](../../seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot)
+**Source review:** [Source-only review](source-review.md)
 **Identity:** SEED-401#assess-new-retrospective-findings-pilot
 **Split from:** SEED-401#pilot-new-retrospective-findings, whose plan 706 froze and replayed the wording in its slice 1 (`d6190e523`). Its slices 2–4 are this plan’s slices 1–3.
 
@@ -20,6 +21,50 @@ Use the [shared comparison](../../seeds/SEED-401-retrospective-finding-pilots.md
 - **Route.** Both clients install the base blob. Doughnut installs it under `.agents/skills/`. Pygardon installs it under both `.agents/skills/` and `.claude/skills/`. In the developer's authorized session, the developer gives one instruction for that review only: apply the pinned trial wording in place of the sentence it names. The instruction goes at `dough-execution-retrospective` when process review runs there. When process review is deferred, it goes at `dough-story-wrap-up` "Complete a deferred process review", before that review's recording decision. Paste the wording, or cite it by this blob from the landed Open Dough trunk. Confirm exposure from the executing reviewer's transcript.
 - **Replay result.** [Replay evidence](replay-evidence.md). Exploratory, on one model with 18 isolated reviewers. Both arms made the same decision in all nine packets: the six seed incidents and practices recorded, the quiet control unchanged, the matched control given one row under DD-246. Writer effort: current arm 474,280 tokens, 43 tool calls and 429.5 s; candidate arm 470,635 tokens, 41 tool calls and 452.2 s. Neither difference exceeds run-to-run noise. Six packets carry neutral notes rebuilt from the original entries’ evidence lines, and the wrong-mount packet had no execution identity, so neither arm could write a countable row.
 - **Replay limit.** The candidate admitted the break checks under a use the reviewer named, which bears on the ODF-147 response. A routine entry was therefore not avoided. Slice 3 weighs this.
+
+## Delegated pilot operation
+
+- Terry delegated both client routes, this assessment and its follow-ups to the
+  Codex thread that owns the [Taken claim](https://github.com/terryyin/open-dough/commit/e2fc81fd43727f4d3ee44a0dba0ff481c5bdf9de).
+  The assessment runs from `.worktrees/seed-401-first-report-assessment`, on
+  `codex/seed-401-first-report-assessment`. Its `ci.yml` observer is
+  `seed401-assessment` at `/tmp/dough-ci-501/watch-PzNHTn`.
+- The window starts at integration `211360795b04901fca1eefd95e1b4256d411024c`
+  on 18 November 2026 at 23:43:11 Singapore time. It closes on 25 November
+  at 23:43:11 Singapore time. The client first-parent revisions immediately
+  before that start are Doughnut `1d5aace35c3890daad54fc736c540d0546c01d66`
+  and Pygardon `7da34fc73a4993ea6008e0966d42920476b79a4c`.
+- Each client has a temporary project instruction that supplies the same
+  pinned wording at the single review step above. Its availability starts at
+  its own client trunk publication. The original window, cohort order and
+  cutoff apply even to executions that did not see the notice. Confirm actual
+  use and route from the transcript. Record whether the separate repeat pilot
+  applied and hold that choice fixed within each comparison.
+- Client deployment and removal belong to the Codex-owned backlog stories
+  [Doughnut SEED-132](https://github.com/nerds-odd-e/doughnut/blob/main/.planning/seeds/SEED-132-route-first-report-trial.md#route-first-report-trial)
+  and [Pygardon SEED-20261115](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261115-route-first-report-trial.md#route-first-report-trial).
+  Exclude both client pilot stories from the ordinary cohort. Their notices
+  became available on origin/main on 19 November 2026 at 07:46:52 Singapore
+  time in [Doughnut](https://github.com/nerds-odd-e/doughnut/commit/1ed33fda63fbcb70fb9346a4f0b2045da6ab7083)
+  and at 07:47:27 in [Pygardon](https://github.com/terryyin/pygardon/commit/823d385bdce30368f19e4f3b0b7c06118d0c0d5d).
+  Each contains the canonical temporary `AGENTS.md` notice and a `CLAUDE.md`
+  pointer. Earlier sessions and branches may miss the notice. Client story
+  slice 2 removes its two additions when its enrollment ends.
+- The Codex heartbeat `complete-the-seed-401-first-report-pilot` resumes the
+  work every six hours, checks for ordinary completions and closes the pilot
+  at the cutoff. Stop the heartbeat after verified client cleanup and a landed
+  disposition. The owner queues any follow-up justified by the disposition.
+
+### Cohort recovery
+
+In each client, fetch `origin/main` and list first-parent additions of
+`.planning/done/*.json` at or after the pinned start and before the cutoff, in
+oldest-first order. Use `--diff-merges=first-parent` with the path filter and
+exclude `.planning/done/.catalog.json`. Read each added record at the adding
+revision, preserving its identity, completed time and trunk revision. Ignore
+pilot administration and deduplicate by execution identity before taking the
+first two ordinary completion records. On 19 November at the first checkpoint,
+neither project had added an eligible completion in the window.
 
 ## Basis for the trial
 
