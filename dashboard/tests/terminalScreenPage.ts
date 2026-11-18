@@ -1,6 +1,8 @@
 // One session's Terminal screen, identity, keyboard input and recovery as
 // ordinary observations. Fluent Terminal (./terminalPages.ts) and support
-// owners reuse these parts; modality-specific protocols keep their own owners.
+// owners reuse these parts; a scenario holds one screen (./terminalScreen.ts)
+// instead of naming the parts. Modality-specific protocols keep their own
+// owners.
 // Opening and closing compose the existing session-entry Open terminal control
 // (./support/startedSessionTerminal.ts) and Side panel Close (./pageLayout.ts).
 // typeLine types then Enter; insertTerminalText never submits.

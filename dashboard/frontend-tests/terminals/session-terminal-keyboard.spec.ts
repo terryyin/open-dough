@@ -1,32 +1,16 @@
 // Keyboard access to terminal actions and the quick-reply menu.
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
-import {
-  dismissTerminalPrompts,
-  expectTerminalActionFocused,
-  expectTerminalActionsFocused,
-  expectTerminalInputDescription,
-  expectTerminalInputFocused,
-  expectTerminalPromptChoices,
-  expectTerminalPromptFocused,
-  expectTerminalPromptsClosed,
-  focusTerminalActions,
-  focusTerminalDictation,
-  openTerminalPrompts,
-  pressTerminalKey,
-  returnToTerminalDictation,
-  writeTerminalInput,
-} from "../../tests/terminalScreenPage.ts";
+import { terminalScreen } from "../../tests/terminalScreen.ts";
 
 test("terminal Tab remains input", async ({ page, frontendServices }) => {
-  const { panel, sent } = await openFrontendTerminalVoice(
-    page,
-    frontendServices,
-    { withTranscription: false },
-  );
-  await writeTerminalInput(panel, "Review ");
-  await expectTerminalInputFocused(panel);
-  await pressTerminalKey(page, "Tab");
+  const { sent } = await openFrontendTerminalVoice(page, frontendServices, {
+    withTranscription: false,
+  });
+  const terminal = terminalScreen(page);
+  await terminal.writeInput("Review ");
+  await terminal.expectInputFocused();
+  await terminal.pressKey("Tab");
   await expect.poll(() => sent).toContain("\t");
 });
 
@@ -34,11 +18,11 @@ test("terminal input describes the keyboard shortcut to dictation", async ({
   page,
   frontendServices,
 }) => {
-  const { panel } = await openFrontendTerminalVoice(page, frontendServices, {
+  await openFrontendTerminalVoice(page, frontendServices, {
     withTranscription: false,
   });
-  await expectTerminalInputDescription(
-    panel,
+  const terminal = terminalScreen(page);
+  await terminal.expectInputDescription(
     /Alt\+F10.*Tab to Dictate into terminal/,
   );
 });
@@ -47,31 +31,33 @@ test("keyboard action access reaches dictation and quick replies, and Escape res
   page,
   frontendServices,
 }) => {
-  const { panel } = await openFrontendTerminalVoice(page, frontendServices, {
+  await openFrontendTerminalVoice(page, frontendServices, {
     withTranscription: false,
   });
-  await focusTerminalActions(panel);
-  await expectTerminalActionsFocused(panel);
-  await focusTerminalDictation(panel);
-  await expectTerminalActionFocused(panel, "Dictate into terminal");
-  await openTerminalPrompts(panel, { using: "keyboard" });
-  await expectTerminalPromptFocused(panel, "OK");
-  await dismissTerminalPrompts(panel);
-  await expectTerminalPromptsClosed(panel);
-  await expectTerminalActionFocused(panel, "Prompts");
-  await returnToTerminalDictation(panel);
-  await expectTerminalActionFocused(panel, "Dictate into terminal");
+  const terminal = terminalScreen(page);
+  await terminal.focusActions();
+  await terminal.expectActionsFocused();
+  await terminal.focusDictation();
+  await terminal.expectActionFocused("Dictate into terminal");
+  await terminal.openPrompts({ using: "keyboard" });
+  await terminal.expectPromptFocused("OK");
+  await terminal.dismissPrompts();
+  await terminal.expectPromptsClosed();
+  await terminal.expectActionFocused("Prompts");
+  await terminal.returnToDictation();
+  await terminal.expectActionFocused("Dictate into terminal");
 });
 
 test("quick replies contain only the fixed phrases", async ({
   page,
   frontendServices,
 }) => {
-  const { panel } = await openFrontendTerminalVoice(page, frontendServices, {
+  await openFrontendTerminalVoice(page, frontendServices, {
     withTranscription: false,
   });
-  await openTerminalPrompts(panel);
-  await expectTerminalPromptChoices(panel, [
+  const terminal = terminalScreen(page);
+  await terminal.openPrompts();
+  await terminal.expectPromptChoices([
     "OK",
     "as recommended",
     "Try again",

@@ -4,16 +4,7 @@ import type { Locator } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
 import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
-import {
-  chooseTerminalPrompt,
-  expectTerminalInputFocused,
-  expectTerminalText,
-  openTerminalAgain,
-  replaceLastTerminalCharacter,
-  submitTerminalInput,
-  terminalStatus,
-  writeTerminalInput,
-} from "../../tests/terminalScreenPage.ts";
+import { terminalScreen } from "../../tests/terminalScreen.ts";
 import { unfocusedPromptButtons } from "../../tests/support/terminalVoicePage.ts";
 import { tapWhereShown } from "../../tests/pageLayout.ts";
 
@@ -52,7 +43,7 @@ for (const { name, using, viewport, hasTouch, press } of variants) {
         page,
         frontendServices,
       }) => {
-        const { panel, sent } = await openFrontendTerminalVoice(
+        const { sent } = await openFrontendTerminalVoice(
           page,
           frontendServices,
           {
@@ -61,17 +52,18 @@ for (const { name, using, viewport, hasTouch, press } of variants) {
             press,
           },
         );
-        await writeTerminalInput(panel, prefix);
-        await chooseTerminalPrompt(panel, phrase, { using });
+        const terminal = terminalScreen(page);
+        await terminal.writeInput(prefix);
+        await terminal.choosePrompt(phrase, { using });
         await expect
           .poll(() => sent.filter((text) => text === phrase))
           .toEqual([phrase]);
-        await expectTerminalInputFocused(panel);
-        await expectTerminalText(panel, `${prefix}${phrase}`);
+        await terminal.expectInputFocused();
+        await terminal.expectText(`${prefix}${phrase}`);
         expect(sent.some((text) => /[\r\n]/.test(text))).toBe(false);
         const beforeEdit = sent.length;
-        await replaceLastTerminalCharacter(panel, "!");
-        await submitTerminalInput(panel);
+        await terminal.replaceLastCharacter("!");
+        await terminal.submitInput();
         await expect
           .poll(() => sent.slice(beforeEdit).join(""))
           .toBe("\u007f!\r");
@@ -85,27 +77,23 @@ for (const { name, using, viewport, hasTouch, press } of variants) {
       const program = directedApplication(
         "attached voicea01\r\nClaude Code\r\n",
       );
-      const { panel, sent } = await openFrontendTerminalVoice(
-        page,
-        frontendServices,
-        {
-          application: program.application,
-          twoSessions: false,
-          withTranscription: false,
-          press,
-        },
-      );
+      const { sent } = await openFrontendTerminalVoice(page, frontendServices, {
+        application: program.application,
+        twoSessions: false,
+        withTranscription: false,
+        press,
+      });
+      const terminal = terminalScreen(page);
       program.end();
-      const status = terminalStatus(panel);
-      await expect(status).toContainText("The terminal ended");
-      await chooseTerminalPrompt(panel, "OK", { using });
-      await expect(status).toContainText(
+      await terminal.expectStatus("The terminal ended");
+      await terminal.choosePrompt("OK", { using });
+      await terminal.expectStatus(
         "Choose Open again, then open Prompts again.",
       );
       expect(sent).toEqual([]);
-      await openTerminalAgain(panel);
-      await expectTerminalText(panel, "Claude Code");
-      await chooseTerminalPrompt(panel, "as recommended", { using });
+      await terminal.openAgain();
+      await terminal.expectText("Claude Code");
+      await terminal.choosePrompt("as recommended", { using });
       await expect.poll(() => sent).toEqual(["as recommended"]);
     });
   });

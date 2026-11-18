@@ -15,16 +15,8 @@ import {
 // terminal; the real one is never reached.
 
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
-import {
-  openTerminalControl,
-  closeTerminal,
-  expectTerminalText,
-  focusTerminalInput,
-  insertTerminalText,
-  pressTerminalKey,
-  terminalPanel,
-  terminalScreenParts,
-} from "../../dashboard/tests/terminalScreenPage.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+import { terminalScreen } from "../../dashboard/tests/terminalScreen.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -73,11 +65,12 @@ test.describe("Command+Shift+Escape and the terminal", () => {
       columnsJourney,
     );
     const { banner } = parts(page);
-    const panel = terminalPanel(page);
-    const { input } = terminalScreenParts(panel);
-    const control = (name: string) => frameControl(panel, name);
+    const terminal = terminalScreen(page);
+    const control = (name: string) => frameControl(terminal.panel, name);
     const keyboardInTerminal = () =>
-      panel.evaluate((element) => element.contains(document.activeElement));
+      terminal.panel.evaluate((element) =>
+        element.contains(document.activeElement),
+      );
     await expectMembership(page, queued);
     await settled();
     await launch(readyStory, "Execution");
@@ -103,23 +96,25 @@ test.describe("Command+Shift+Escape and the terminal", () => {
       });
     });
     await opener.click();
-    await expectTerminalText(panel, `attached ${session.slice(0, 8)}`);
+    await terminal.expectText(`attached ${session.slice(0, 8)}`);
     const closeKeyTaken = await watchCommandShortcut(page, closeKey);
 
     await test.step("Close's tooltip names the shortcut while its accessible name stays Close", async () => {
       await expect(tooltipOf(control("Close"), "Close (⌘⇧Esc)")).toHaveCount(1);
-      await expect(panel.getByRole("button", { name: "Close" })).toHaveCount(1);
+      await expect(
+        terminal.panel.getByRole("button", { name: "Close" }),
+      ).toHaveCount(1);
     });
 
     await test.step("plain Escape in the terminal reaches the session and the panel stays", async () => {
       expect(await keyboardInTerminal()).toBe(true);
-      await insertTerminalText(page, "x");
-      await pressTerminalKey(page, "Escape");
-      await insertTerminalText(page, "y");
-      await pressTerminalKey(page, "Enter");
+      await terminal.insertText("x");
+      await terminal.pressKey("Escape");
+      await terminal.insertText("y");
+      await terminal.pressKey("Enter");
       await expect.poll(() => attaches()[0]?.lines).toEqual(["x\u001by"]);
       expect(sent).toContain("\u001b");
-      await expect(panel).toBeVisible();
+      await expect(terminal.panel).toBeVisible();
     });
 
     await test.step("with the launch dialog open, Command+Shift+Escape leaves the panel shown", async () => {
@@ -128,26 +123,26 @@ test.describe("Command+Shift+Escape and the terminal", () => {
       });
       await action(notRefinedStory, "Execution").click();
       await expect(dialog).toBeVisible();
-      await pressTerminalKey(page, closeKey);
-      await expect(panel).toBeVisible();
+      await terminal.pressKey(closeKey);
+      await expect(terminal.panel).toBeVisible();
       expect(await closeKeyTaken()).toEqual([false]);
       if (await dialog.isVisible()) {
-        await pressTerminalKey(page, "Escape");
+        await terminal.pressKey("Escape");
       }
       await expect(dialog).toBeHidden();
-      await expect(panel).toBeVisible();
+      await expect(terminal.panel).toBeVisible();
     });
 
     await test.step("maximized with the keyboard in the terminal, Command+Shift+Escape closes the panel as Close does and returns the keyboard to its opener", async () => {
-      await maximizeSidePanel(panel);
+      await maximizeSidePanel(terminal.panel);
       await expect(control("Restore")).toBeVisible();
       await expect(banner).toBeHidden();
-      await focusTerminalInput(panel);
+      await terminal.focusInput();
       expect(await keyboardInTerminal()).toBe(true);
       const sentBefore = sent.length;
       // Whether the key reached the terminal's input, where xterm would turn
       // it into ESC for the session.
-      await input.evaluate((element) => {
+      await terminal.input.evaluate((element) => {
         (window as unknown as { terminalGotKey: boolean }).terminalGotKey =
           false;
         element.addEventListener("keydown", (event) => {
@@ -159,8 +154,8 @@ test.describe("Command+Shift+Escape and the terminal", () => {
         });
       });
 
-      await pressTerminalKey(page, closeKey);
-      await expect(panel).toHaveCount(0);
+      await terminal.pressKey(closeKey);
+      await expect(terminal.panel).toHaveCount(0);
       await expect(banner).toBeVisible();
       await expect(opener).toBeFocused();
       expect(await closeKeyTaken()).toEqual([false, true]);
@@ -195,8 +190,8 @@ test.describe("Command+Shift+Escape and the terminal", () => {
 
     await test.step("with no panel, Command+Shift+Escape changes nothing", async () => {
       const attachedBefore = attaches().length;
-      await pressTerminalKey(page, closeKey);
-      await expect(panel).toHaveCount(0);
+      await terminal.pressKey(closeKey);
+      await expect(terminal.panel).toHaveCount(0);
       await expect(opener).toBeFocused();
       await expect(banner).toBeVisible();
       expect(attaches()).toHaveLength(attachedBefore);
@@ -205,24 +200,24 @@ test.describe("Command+Shift+Escape and the terminal", () => {
 
     await test.step("reopening shows the session in the split", async () => {
       await opener.click();
-      await expectTerminalText(panel, `attached ${session.slice(0, 8)}`);
+      await terminal.expectText(`attached ${session.slice(0, 8)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
     });
 
     await test.step("with its opener gone, Command+Shift+Escape returns the keyboard to the session in its current story card", async () => {
       const sidebar = sessionsSidebarParts(page);
-      await closeTerminal(panel);
-      await expect(panel).toHaveCount(0);
+      await terminal.close();
+      await expect(terminal.panel).toHaveCount(0);
       await sidebar.button.click();
       await sidebar.entry(readyStory).click();
-      await expectTerminalText(panel, `attached ${session.slice(0, 8)}`);
+      await terminal.expectText(`attached ${session.slice(0, 8)}`);
       // Command+B hides the sidebar, and the entry that opened the panel
       // with it.
-      await pressTerminalKey(page, "Meta+B");
+      await terminal.pressKey("Meta+B");
       await expect(sidebar.sidebar).toBeHidden();
-      await pressTerminalKey(page, closeKey);
-      await expect(panel).toHaveCount(0);
+      await terminal.pressKey(closeKey);
+      await expect(terminal.panel).toHaveCount(0);
       const home = storyCardSessionOf(card(readyStory), "Execution");
       await expect(home).toBeFocused();
       await expect(home).toBeInViewport();
