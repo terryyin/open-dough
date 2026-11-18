@@ -92,40 +92,63 @@ evidence). Linked ad hoc rows still open their published Done story.
 {"schemaVersion":1,"identity":"SEED-379#keep-own-branch-session-results-for-review","dependencies":[{"supplier":{"identity":"SEED-379#review-changes-from-completed-ad-hoc-sessions","href":"seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions"},"implementation":"The supplier adds Review changes to a completed ad hoc session entry and admits a review that names the session.","rationale":"This story's retained evidence is observable only through that action and admission; shared direction alone would have this story build the supplier's outcome.","condition":"A completed standalone ad hoc session entry in Recently done opens its retained comparison through Review changes.","state":"satisfied","resolution":{"revision":"7bf273f3951c4e03d74f851b8166c6944adb0f87","path":".planning/seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions","summary":"Directly satisfied: standalone ad hoc Recently done entries offer Review changes and open the retained landing (or explain absent, unreadable, and empty comparisons) through session-subject admission; proof in recently-done-ad-hoc-review.spec.ts and ad-hoc-review.spec.ts at the supplier before-cleanup revision.\nCondition satisfied: A completed standalone ad hoc session entry in Recently done opens its retained comparison through Review changes.\nAccepted integration: 4796a7876b91b32231b6b90ff81e7bbb93c1a055 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/705-keep-own-branch-session-results-for-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7915d0d7c2e2d6fd854037e64fa3d7da335c4b245c3c906fdb9ef068404121af","plan":"e08f6784643acf2b5ac7431d27d4eca5fa980a308f4d744626d7016526478714"}}
 ```
 
 #### Goal
 
-A developer can review what a future ad hoc session working on its own branch
-left or delivered, when it waited for review or was integrated into trunk
-manually.
+A developer opening **Review changes** on a standalone Recently done entry can
+see what the session left for review on its branch and, when it lands, what
+actually reached trunk. A merge resolution can make those two answers different.
 
 #### Scope
 
-- A session that leaves its result on its branch retains that result against
-  its starting point, including working-tree changes that are part of what it
-  leaves for review. Earlier branch work and changes brought in from trunk are
-  left out.
-- A session whose branch is integrated into trunk manually retains the change
-  delivered to trunk, including edits made during the merge.
-- The evidence stays readable after a later trunk advance or the worktree's
-  removal, while the launch record is kept.
+- Keep the branch result at Done for future isolated ad hoc launches and for a
+  Default main session that identifies a branch or worktree it has taken up.
+  That handoff associates this launch with the checkout and its starting state.
+  A successful capture includes the session's commits and the working-tree
+  changes it leaves for review. Exclude earlier branch work and changes brought
+  in from trunk. Keep any evidenced Default main commit runs available.
+- Keep a verified delivery to the authorized remote trunk, including the
+  actual merge resolution. This covers manual integration and Dough Land
+  from a session-identified worktree. A delivery discovered after Done can
+  add to the same review while the launch record is kept.
+- In **Recently done → Review changes**, show what the branch held at Done
+  and what reached trunk as distinct comparisons when both exist. Keep their
+  file lists and diffs readable across later trunk advances, dashboard restart
+  and worktree removal. The launch record's deletion or expiry releases its
+  evidence.
+- When the session association or exact delivered change cannot be established,
+  explain the gap and keep any captured branch result usable. A verified empty
+  comparison says there were no changes. A reviewer identifying a rewritten
+  delivery, automatic guessing of workspace ownership, and retroactive capture
+  for older launches are outside this increment.
 
 #### Key examples
 
-- A session launched with Isolated workspace · Wait for review commits on its
-  branch, leaves one file edited and uncommitted, and is marked done →
-  **Review changes** → its commits and that edit against its starting point.
-- That branch is then merged into trunk by hand with one conflict resolved,
-  and the worktree is removed → **Review changes** → the change delivered to
-  trunk, with the resolution.
+- An isolated session commits a file, incorporates a trunk-only file and leaves
+  a further edit uncommitted. At Done the review shows the committed work and
+  the edit as left. The trunk-only file stays out of the list and file diffs.
+- A Default main session identifies its own branch or linked worktree at entry.
+  A pre-existing branch file and another session's similarly named worktree
+  stay out of its branch result. When it subsequently uses Dough Land, its own
+  Recently done entry can show the verified landing.
+- After Done a reviewer merges the committed branch by hand, resolves a conflict
+  differently, pushes to trunk and removes the worktree. After a later trunk
+  advance the delivered comparison shows the resolution against its trunk
+  parent. The reviewer can still select the branch result with its uncommitted
+  edit. A squash with matching files but no link to the session leaves the
+  branch result available with an explanation of the missing delivery evidence.
 
-#### Open for refinement
+#### Architecture
 
-- Whether a session that started in the Default main checkout and created
-  its own branch or worktree is covered here, including its landing through
-  Dough from that worktree.
+The launch record owns local session evidence. The authorized remote target
+establishes delivery. Capture retains the branch's starting state, its result
+at Done and the evidence of a later integration as each becomes available.
+Historical review reads the selected fixed comparison and its literal changed
+paths from the saved repository. Terry selected session identification at
+branch entry and automatic verified delivery on 2026-11-18.
+[ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
 
 <a id="bound-capture-to-done"></a>
 
