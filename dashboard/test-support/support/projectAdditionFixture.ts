@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
-  initializeProjectConfiguration,
+  mountProjectConfiguration,
   projectConfigurationFile,
 } from "../../server/projectConfiguration.ts";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
@@ -21,10 +21,21 @@ export async function projectAdditionFixture() {
   const gh = installFakeGh(home);
   const next = { HOME: home, ...fakeGhEnv(gh, github.url) };
   const restoreEnv = withRestoredEnv(next);
-  initializeProjectConfiguration("development");
   const checkout = path.join(home, "checkout");
-  mkdirSync(checkout);
-  execFileSync("git", ["init", "--quiet", "--initial-branch=local", checkout]);
+  let releaseConfiguration: (() => void) | undefined;
+  const close = async () => {
+    try {
+      await endFakeGh(gh);
+    } finally {
+      try {
+        await github.close();
+      } finally {
+        releaseConfiguration?.();
+        restoreEnv();
+        rmSync(home, { recursive: true, force: true });
+      }
+    }
+  };
   const setOrigin = (origin: string) =>
     execFileSync("git", [
       "-C",
@@ -34,14 +45,35 @@ export async function projectAdditionFixture() {
       "origin",
       origin,
     ]);
-  execFileSync("git", [
-    "-C",
-    checkout,
-    "remote",
-    "add",
-    "origin",
-    `git@github.com:${validationRepository}.git`,
-  ]);
+  try {
+    mkdirSync(checkout);
+    execFileSync("git", [
+      "init",
+      "--quiet",
+      "--initial-branch=local",
+      checkout,
+    ]);
+    execFileSync("git", [
+      "-C",
+      checkout,
+      "remote",
+      "add",
+      "origin",
+      `git@github.com:${validationRepository}.git`,
+    ]);
+    releaseConfiguration = mountProjectConfiguration("development");
+  } catch (error) {
+    try {
+      await close();
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        "Could not start the project addition fixture",
+        { cause: cleanupError },
+      );
+    }
+    throw error;
+  }
   return {
     home,
     github,
@@ -52,11 +84,6 @@ export async function projectAdditionFixture() {
       githubUrl: `https://github.com/${validationRepository}`,
       localPath: checkout,
     },
-    async close() {
-      await endFakeGh(gh);
-      await github.close();
-      restoreEnv();
-      rmSync(home, { recursive: true, force: true });
-    },
+    close,
   };
 }

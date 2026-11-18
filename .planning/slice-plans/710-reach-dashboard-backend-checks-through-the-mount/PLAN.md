@@ -2,6 +2,7 @@
 
 **Identity:** SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 **Source:** [Reach dashboard backend checks through the mounted boundary](../../seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -65,7 +66,7 @@ machine (load average 7 to 16). Scratch edits were reverted.
 ### 1. A closed server releases its project environment
 
 Type: Structure
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 `dashboard/server/projectConfiguration.ts` holds the environment until the
@@ -82,6 +83,21 @@ Scratch fault: skip the release; the production mount fails with that
 message. `configuration/`, `observation/authenticated-read-plugin-hooks.spec.ts`,
 `runtime/fake-gh-in-process.spec.ts` and `runtime/serving-modes.spec.ts`
 stay green.
+
+Observed the sequential development-to-production mount and the active-mount
+refusal through the project-list HTTP endpoint. Omitting release reproduced
+the second-environment error at the production start. The focused selection
+passed across 57 tests in 17 files. The revision-stream, setup-departure, and
+shared-listing-failure specs also passed on the existing in-process read
+fixture and dashboard typecheck passed. Run records and the consumer trace
+are in this worktree's Git evidence directory under `slice-1-`.
+Independent refactoring unified project-add fixture startup and teardown
+cleanup. All nine project-add validation cases and typecheck passed again.
+
+The project-addition fixture also owns a scoped configuration, so its worker
+can later mount production. The authenticated-read hook proofs close the
+actual Vite boundary hook while HTTP stays open. Slice 2 needs to preserve
+that independent hook and HTTP lifetime.
 
 ### 2. A boundary-mode start can mount in the test process
 
@@ -238,6 +254,20 @@ use the maintained open-lid `caffeinate -i` procedure and sleep-log read
 under [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 Other sessions load this machine: classify a local failure by rerunning its
 spec alone before reading it as a defect of the change.
+
+## Execution context
+
+- Maria-chan in Story Branch Mode, publisher `dashboard-territory.local-open-dough`.
+  Take `0424a7f92c5b86b25c7ed76e0c41bcf03eb26928` was accepted on
+  `origin/main` and on `origin/codex/reach-dashboard-backend-checks-through-the-mount`.
+  Starting revision `4dfda22b9fd5bb324099e58494f505251185c343`.
+- Execution checkout `.worktrees/reach-dashboard-backend-checks-through-the-mount`.
+  Integration checkout `/Users/terryyin/git/open-dough`.
+- Story branch CI uses GitHub Actions `ci.yml` (workflow 351271804).
+  Codex coordinator `Maria-403`, mailbox `/tmp/dough-ci-501/watch-PslrGt`,
+  PID 27345, stream session 7526, cell `g149:11`.
+- Checkout preparation passed the locked npm install, Chromium prerequisite
+  check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
 
 ## Plan review
 

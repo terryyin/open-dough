@@ -7,6 +7,10 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import type { LocalBoundary } from "../../server/localBoundary.ts";
 import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
+import {
+  mountProjectConfiguration,
+  type ProjectEnvironment,
+} from "../../server/projectConfiguration.ts";
 
 type StoredHandler = (
   req: http.IncomingMessage,
@@ -22,6 +26,7 @@ export type InProcessBoundaryHttp = {
 
 export async function startInProcessBoundaryHttp(
   boundary: LocalBoundary,
+  environment: ProjectEnvironment = "development",
 ): Promise<InProcessBoundaryHttp> {
   let storedHandler: StoredHandler | undefined;
   const connectStub = {
@@ -31,11 +36,15 @@ export async function startInProcessBoundaryHttp(
   };
 
   const plugin = localBoundaryPlugin(boundary);
-  const configureServer = plugin.configureServer as unknown as (server: {
+  const development = environment === "development";
+  const configureServer = (development
+    ? plugin.configureServer
+    : plugin.configurePreviewServer) as unknown as (server: {
     middlewares: typeof connectStub;
   }) => void | Promise<void>;
-  const closeServer =
-    plugin.closeServer as unknown as () => void | Promise<void>;
+  const closeServer = (development
+    ? plugin.closeServer
+    : plugin.closePreviewServer) as unknown as () => void | Promise<void>;
 
   const rawServer = http.createServer((req, res) => {
     storedHandler?.(req, res, () => {
@@ -43,6 +52,7 @@ export async function startInProcessBoundaryHttp(
       res.end();
     });
   });
+  const releaseConfiguration = mountProjectConfiguration(environment);
   try {
     await configureServer({ middlewares: connectStub });
     const listening = once(rawServer, "listening");
@@ -57,6 +67,8 @@ export async function startInProcessBoundaryHttp(
         "Could not start the in-process boundary HTTP fixture",
         { cause: cleanupError },
       );
+    } finally {
+      releaseConfiguration();
     }
     throw error;
   }
@@ -72,6 +84,7 @@ export async function startInProcessBoundaryHttp(
           resolve();
         });
       });
+      releaseConfiguration();
     },
   };
 }
