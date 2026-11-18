@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-379_bound-capture-to-done.json",
+      "identity": "SEED-379#bound-capture-to-done",
+      "completedAt": "2026-11-18T15:14:59.624Z",
+      "blob": "c1ed7922a2a86afecc153e20dbcba488eaa412d0"
+    },
+    {
       "fileName": "SEED-334_retire-emptied-integrated-ui-test-group.json",
       "identity": "SEED-334#retire-emptied-integrated-ui-test-group",
       "completedAt": "2026-11-18T14:17:44.578Z",

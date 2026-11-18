@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-379#bound-capture-to-done",
+  "title": "Bound a session's kept commits to its Done",
+  "completedAt": "2026-11-18T15:14:59.624Z",
+  "developer": "Terry Yin",
+  "agent": "Rina-chan",
+  "host": "cursor",
+  "model": "auto"
+}

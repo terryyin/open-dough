@@ -127,36 +127,6 @@ manually.
   its own branch or worktree is covered here, including its landing through
   Dough from that worktree.
 
-<a id="bound-capture-to-done"></a>
-
-### Bound a session's kept commits to its Done
-
-**Identity:** SEED-379#bound-capture-to-done
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/703-bound-session-capture-to-done/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"daa2e142eb8382dbc69c0c289bc85a9525f486ea0728766f4965cb39960f4488","plan":"fff6fa0ab818d6f50f884fdcd8c842f84091a98f49feddaa804bfe2b132ca751"}}
-```
-
-Correction of State only what the checkout's log shows in a session's review.
-Its source is recoverable at
-`9585267d1731891222ba2bc881bf1806b4c5608c:.planning/seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md`
-(section `state-only-what-the-checkout-log-shows`). The correction is planned in
-[plan 703](../slice-plans/703-bound-session-capture-to-done/PLAN.md).
-
-#### Goal
-
-A developer opening a Default main session's review sees only the
-commits through the Done shown there, even when the checkout read starts
-later or waits for another read.
-
-#### Scope
-
-Use the Done being captured to bound which checkout evidence can contribute
-to its comparison. Another commit made after that Done belongs to a later
-capture. When the available checkout evidence cannot settle this boundary,
-retain the existing not-captured explanation. Keep the completion receipt,
-native Done handling, immutable retry rules, and existing comparison and
-reference lifecycles.
-
 <a id="review-deferred-default-main-session-changes"></a>
 
 ### Review what Default main session reviews left deferred
