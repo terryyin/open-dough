@@ -181,3 +181,10 @@ changed behavior and stays in slice 2. The touch geometry and the transfer
 of two-run proof each have their own observation. Each slice is sized for
 15 active minutes on the observed routes. No remaining slice-specific
 concern was identified.
+
+## Execution complete
+
+Product advice: No follow-up story from this review. Goal/Scope/Key examples
+are delivered: toolbar/eye stay silent until an answer; touch details and
+status share one above-diff budget; two-run opening proved collapsed on the
+frontend. Queue priorities unchanged.

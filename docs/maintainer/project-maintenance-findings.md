@@ -29,6 +29,13 @@ cover Markdown, so the defect reached the first guarded delivery.
   - Evidence: coordinator transcript `3bd97cc2-93e0-4e61-bca4-b477e0d7b5f4` — after writing/updating `source-review.md` and running `npm run format`, first `execution-increment-delivery.mjs fresh` failed; repair removed trailing hard-break spaces on the Launch/Input/Reviewer header lines; retry published `cd30010`. Distinct from ODF-329 (implementer ESLint under a lint-forbidden delegation brief).
   - Observed effect: one refused fresh-delivery attempt and a mechanical coordinator repair before the accepted publish.
   - Inference: qualified one-off. Coordinator Markdown artifacts need a pre-delivery whitespace check or must avoid hard-break trailing spaces; format alone does not cover them.
+- Execution: SEED-384#keep-review-toolbar-truthful-while-reading (plan 702; first related implementation `97fa4134b`)
+  - Timestamp: 2026-11-18T19:56:18+08:00 (accepted slice-1 publish after whitespace repair)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout VERSION 0.3.106 at Take `b34318530`; no guidance release inferred)
+  - Evidence: coordinator transcript `26fe99b1-d319-4499-894f-3be1078e76f7` L29–32 — `cat -A` on `source-review.md` showed Markdown hard-break trailing spaces; first fresh delivery refused; StrReplace removed the hard-breaks; retry published `97fa4134b`. Later the same run stripped diagnosis Markdown whitespace before a repair delivery (L84).
+  - Observed effect: one refused fresh delivery and a mechanical coordinator repair before the first slice publish.
+  - Inference: recurrence of the source-review hard-break gap; format still does not cover these Markdown artifacts.
 
 <a id="dd-365"></a>
 
