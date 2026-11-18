@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034,SC2154,SC2312 # Platform wrappers and sourced helpers consume these globals.
 
-delivery_source_dir=
 delivery_fixture=
 delivery_host_name=
 delivery_host_upper=
@@ -91,7 +90,6 @@ delivery_require_output() {
 }
 
 delivery_check_fixture() {
-  [[ -n ${delivery_source_dir} ]]
   [[ -n ${delivery_fixture} ]]
   [[ -n ${delivery_host_name} ]]
   [[ -n ${delivery_host_upper} ]]

@@ -10,7 +10,6 @@ fi
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
 # shellcheck source=Distribution/evaluation/src/native-codex.sh
 source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
-delivery_source_dir=${source_dir}
 delivery_fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout"
 delivery_host_name='Codex'
 delivery_host_upper='CODEX'
@@ -18,8 +17,6 @@ delivery_platform='codex'
 delivery_skill_root='.agents/skills'
 
 delivery_check_fixture
-grep -Fq 'danger-full-access' "$0"
-grep -Fq 'PROTECTED_WORKTREES' "$0"
 delivery_parse_native_case_args "$@"
 
 command -v codex > /dev/null

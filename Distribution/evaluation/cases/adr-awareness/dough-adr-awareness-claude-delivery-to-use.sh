@@ -8,7 +8,6 @@ if [[ $# == 0 ]]; then
 fi
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
-delivery_source_dir=${source_dir}
 delivery_fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout"
 delivery_host_name='Claude Code'
 delivery_host_upper='CLAUDE CODE'
@@ -16,7 +15,6 @@ delivery_platform='claude'
 delivery_skill_root='.claude/skills'
 
 delivery_check_fixture
-grep -Fq 'claude --print --dangerously-skip-permissions --no-session-persistence' "$0"
 delivery_parse_native_case_args "$@"
 
 command -v claude > /dev/null

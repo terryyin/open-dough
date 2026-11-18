@@ -6,7 +6,6 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
 source "${source_dir}/Distribution/tests/support/adr-awareness-delivery-checks.sh"
 
-delivery_source_dir=${source_dir}
 delivery_fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout"
 delivery_host_name='Claude Code'
 delivery_host_upper='CLAUDE CODE'
