@@ -7,6 +7,7 @@ import {
   adHocSessionFileText,
   keptAdHocRecord,
   launchIsolatedReview,
+  retireAdHocBranch,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
 import {
@@ -75,10 +76,9 @@ test("retains the working tree of the reported Done before delayed validation an
     "Local done mark retained. Native done mark is pending.",
   );
 
-  git(origin.project, "worktree", "remove", "--force", workspace);
-  git(origin.project, "branch", "-D", branch);
-  git(origin.project, "reflog", "expire", "--expire=now", "--all");
-  git(origin.project, "gc", "--quiet", "--prune=now");
+  retireAdHocBranch(origin.project, workspace, branch, {
+    discardWorkingChanges: true,
+  });
 
   const review = await adHocReview(request, dashboard, session);
   expect(review).toMatchObject({ kind: "branch-result", baseline });

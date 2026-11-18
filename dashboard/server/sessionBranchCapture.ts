@@ -16,6 +16,11 @@ import {
 import { resolvedCheckout } from "./sessionCommitsCapture.ts";
 import { writeWorkingTree } from "./workingTreeSnapshot.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { configuredProject } from "./projectConfiguration.ts";
+import {
+  attributeBranchResult,
+  branchTrunk,
+} from "./sessionBranchAttribution.ts";
 
 const gitCall = (cwd: string) => ({
   cwd,
@@ -102,7 +107,24 @@ async function readBranchResult(
     ["merge-base", "--is-ancestor", baseTip, committedTip],
     gitCall(start.workspace),
   );
-  return { repository, doneAt, base, revision, committedTip };
+  const established = record.establishedSession;
+  const source = configuredProject(record.request.source);
+  const trunk =
+    entry === undefined && established !== undefined
+      ? {
+          ...branchTrunk(established.remote, established.target),
+          revision: established.fetched ?? baseTip,
+        }
+      : (entry?.trunk ??
+        (source === undefined ? undefined : branchTrunk("origin", source.ref)));
+  const attribution = await attributeBranchResult(
+    base,
+    baseTip,
+    committedTip,
+    trunk,
+    gitCall(repository),
+  );
+  return { repository, doneAt, revision, committedTip, ...attribution };
 }
 
 // Read before publishing the mark, then admit and pin the result within the

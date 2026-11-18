@@ -91,11 +91,15 @@ The independent pass split explicit deletion and retention expiry into separate 
 ### 5. Exclude earlier branch work and imported trunk from the same comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 The branch carries work that predates session entry, later incorporates a changed trunk and then changes a file itself. Use the recorded entry and the trunk incorporated into this branch to identify the attributable difference. Preserve the session's own changes to a file brought in from trunk. If available evidence cannot separate a change, explain that limit. Never silently list earlier work as a session edit.
 
 Proof: create all three histories in the real repository. Assert the exact list and per-file patch, including the session's edit to an imported line, through review after retirement. Diffing from entry alone must admit the trunk-only file. Diffing from trunk alone must admit the earlier branch file. Include a conflicting baseline where a clean composition cannot be assumed and assert the supported comparison or its explicit evidence gap.
+
+`dashboard/backend-tests/review/ad-hoc-branch-attribution.spec.ts` proves the declared and isolated comparisons after real trunk imports and retirement. The patch starts from the imported line and includes the session's change. Direct file admission refuses the omitted trunk-only path. The existing `restatedPoint` composes the dirty entry tree with the incorporated trunk commit. Target first-parent history excludes a branch delivered as a merge's side parent. Cases that cannot separate competing histories return a gap while keeping the committed tip. The eight-spec backend gate, final attribution cases, existing Taken adapter E2E, and dashboard typecheck passed. See `slice-5-implementation.md` in the Git evidence directory.
+
+The independent pass consolidated real Done and fixture retirement setup. The three affected backend specs, dashboard typecheck, and whitespace checks passed. See `slice-5-refactor.md` in the Git evidence directory.
 
 ### 6. Switch between the saved branch result and a captured delivery
 
@@ -153,7 +157,7 @@ Disposition: proved by slice 2: ad-hoc-branch-worktree-result.spec.ts holds vali
 
 Reported: slice 1 — "The comparison shows the committed branch at Done against its starting revision."
 Story clause: "Exclude earlier branch work and changes brought in from trunk."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: ad-hoc-branch-attribution.spec.ts verifies exact file list, patch and text, refused trunk-only path, and explicit conflicting attribution after retirement.
 
 ### G3. Keep branch evidence selectable with a verified delivery
 

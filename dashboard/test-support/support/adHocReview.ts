@@ -8,7 +8,7 @@ import {
 } from "../../src/storyReviewContract.ts";
 import { reviewedWorkQuery } from "../../src/reviewedWorkSubject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { recordsOf } from "../agentLaunchBoundary.ts";
+import { markDone, recordsOf } from "../agentLaunchBoundary.ts";
 import { getReview } from "./completedReviewRequests.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
 import { launched } from "./startSessionLandingCapture.ts";
@@ -38,6 +38,32 @@ export async function launchIsolatedReview(
     session: session.sessionId,
     sent,
   };
+}
+
+export async function markAdHocDone(
+  dashboard: DashboardServer,
+  session: string,
+) {
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
+}
+
+export function retireAdHocBranch(
+  checkout: string,
+  workspace: string,
+  branch: string,
+  { discardWorkingChanges = false } = {},
+) {
+  git(
+    checkout,
+    "worktree",
+    "remove",
+    ...(discardWorkingChanges ? ["--force"] : []),
+    workspace,
+  );
+  git(checkout, "branch", "--quiet", "-D", branch);
+  git(checkout, "reflog", "expire", "--expire=now", "--all");
+  git(checkout, "gc", "--quiet", "--prune=now");
 }
 
 export function sessionBranchPins(checkout: string, session: string): string[] {

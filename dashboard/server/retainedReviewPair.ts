@@ -22,6 +22,8 @@ export function retainedBranchPairFiles(
   pair: SessionBranchResult,
   signal: AbortSignal,
 ) {
+  if (pair.attributionGap !== undefined)
+    return Promise.resolve({ attributionGap: pair.attributionGap });
   return retainedPairFiles(pair, signal, ["commit", "tree"]);
 }
 

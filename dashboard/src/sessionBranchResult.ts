@@ -8,6 +8,13 @@ import {
 
 export const sessionBranchEntryEndpoint = "/__agent-launch/branch-entry";
 
+const branchTrunkSchema = z.object({
+  remote: z.string().min(1),
+  target: z.string().startsWith("refs/heads/"),
+  revision: commitIdSchema.optional(),
+});
+export type BranchTrunk = z.infer<typeof branchTrunkSchema>;
+
 export const sessionBranchEntrySchema = z.object({
   repository: z.string().min(1),
   workspace: z.string().min(1),
@@ -15,6 +22,7 @@ export const sessionBranchEntrySchema = z.object({
   committedTip: commitIdSchema,
   tree: commitIdSchema,
   defaultTip: commitIdSchema.optional(),
+  trunk: branchTrunkSchema.optional(),
 });
 export type SessionBranchEntry = z.infer<typeof sessionBranchEntrySchema>;
 
@@ -24,6 +32,7 @@ export const sessionBranchResultSchema = z.object({
   base: commitIdSchema,
   revision: commitIdSchema,
   committedTip: commitIdSchema,
+  attributionGap: z.string().min(1).optional(),
 });
 export type SessionBranchResult = z.infer<typeof sessionBranchResultSchema>;
 

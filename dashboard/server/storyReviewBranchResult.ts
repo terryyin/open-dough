@@ -7,6 +7,8 @@ export async function branchResultReview(
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const read = await retainedBranchPairFiles(result, signal);
+  if ("attributionGap" in read)
+    return { kind: "unavailable", explanation: read.attributionGap };
   if ("missing" in read)
     return {
       kind: "unavailable",

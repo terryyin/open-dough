@@ -26,6 +26,7 @@ import {
   noSuchSession,
 } from "./sessionAdmission.ts";
 import { readBranchWorkspace } from "./sessionBranchCapture.ts";
+import { branchTrunk, observeBranchTrunk } from "./sessionBranchAttribution.ts";
 import { resolvedCheckout } from "./sessionCommitsCapture.ts";
 
 const branchRequest = z.strictObject({
@@ -155,11 +156,17 @@ async function recordEntry(
   let proposed: SessionBranchEntry;
   try {
     await verifyRegisteredWorkspace(repository, workspace, branch);
-    const [{ committedTip, tree }, defaultTip] = await Promise.all([
+    const trunk = branchTrunk("origin", source.ref);
+    const [{ committedTip, tree }, defaultTip, observed] = await Promise.all([
       readBranchWorkspace(place),
       defaultTipOf(record, repository),
+      observeBranchTrunk(trunk, {
+        cwd: repository,
+        maxBuffer: defaultGitOutputLimit,
+        signal: AbortSignal.timeout(30_000),
+      }).catch(() => trunk),
     ]);
-    proposed = { ...place, committedTip, tree, defaultTip };
+    proposed = { ...place, committedTip, tree, defaultTip, trunk: observed };
   } catch {
     throw new RefusedRequest(
       409,

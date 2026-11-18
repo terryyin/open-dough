@@ -203,6 +203,7 @@ export async function admitSessionComparisonFile(
     !pair ||
     !read ||
     "missing" in read ||
+    "attributionGap" in read ||
     !belongsOnRetainedPair(read.files, file)
   )
     throw new RefusedRequest(

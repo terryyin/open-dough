@@ -1,22 +1,20 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import {
-  deleteRecord,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { deleteRecord } from "../../test-support/agentLaunchBoundary.ts";
 import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
 import {
   adHocReview,
   adHocSessionFileDiff,
   adHocSessionFileText,
   launchIsolatedReview,
+  markAdHocDone,
+  retireAdHocBranch,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
 import {
   quote,
   reportingChild,
 } from "../../test-support/support/completionRecovery.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { commit } from "../../test-support/support/launchLanding.ts";
 import {
   keepLaunchRecords,
@@ -27,11 +25,6 @@ import { reportingThrough } from "../../test-support/support/reportedLaunch.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
-
-async function done(dashboard: DashboardServer, session: string) {
-  const response = await markDone(dashboard, { source: "open-dough", session });
-  expect(response.status, response.body).toBe(200);
-}
 
 test("the branch comparison at Done and its files survive worktree and branch removal and pruning", async ({
   dashboard,
@@ -44,12 +37,8 @@ test("the branch comparison at Done and its files survive worktree and branch re
   );
   const file = "draft.txt";
   const tree = commit(workspace, file);
-  await done(dashboard, session);
-
-  git(origin.project, "worktree", "remove", workspace);
-  git(origin.project, "branch", "-D", branch);
-  git(origin.project, "reflog", "expire", "--expire=now", "--all");
-  git(origin.project, "gc", "--quiet", "--prune=now");
+  await markAdHocDone(dashboard, session);
+  retireAdHocBranch(origin.project, workspace, branch);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
     kind: "branch-result",
@@ -133,8 +122,8 @@ test("Done distinguishes an empty branch result from a missing checkout", async 
   const missing = await launchIsolatedReview(dashboard, "A missing workspace");
   git(origin.project, "worktree", "remove", missing.workspace);
 
-  await done(dashboard, empty.session);
-  await done(dashboard, missing.session);
+  await markAdHocDone(dashboard, empty.session);
+  await markAdHocDone(dashboard, missing.session);
 
   expect(await adHocReview(request, dashboard, empty.session)).toMatchObject({
     kind: "branch-result",
@@ -161,8 +150,8 @@ for (const reason of ["deletion", "expiry"]) {
       path.join(leaving.workspace, "draft.txt"),
       "A draft to keep.\n",
     );
-    await done(dashboard, leaving.session);
-    await done(dashboard, staying.session);
+    await markAdHocDone(dashboard, leaving.session);
+    await markAdHocDone(dashboard, staying.session);
     expect(sessionBranchPins(origin.project, leaving.session)).toContain(first);
     expect(sessionBranchPins(origin.project, leaving.session)).toHaveLength(3);
     const stayingPins = sessionBranchPins(origin.project, staying.session);
