@@ -13,18 +13,7 @@ import {
 import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
 import { doneStorySessions } from "../../dashboard/tests/recentlyDoneSessions.ts";
-import {
-  executed,
-  expired,
-  lastWeek,
-  placed,
-  publishedFiles,
-  queuedTitle,
-  removedQueued,
-  repository,
-  revision,
-  withLastWeekRecord,
-} from "../../dashboard/tests/recentlyDoneRecords.ts";
+import { doneStories } from "../../dashboard/tests/recentlyDoneRecords.ts";
 import {
   adHocEntry,
   expectEntries,
@@ -46,34 +35,45 @@ test("a session of a done record past the window is its own Recently done entry 
       ...doneStorySessions(now, {
         executedDone: "0e5c2d7a-done-session-of-card-shows-avatar",
         executedOpen: listedAs(
-          executed.title,
-          placed.executedOpenSessionLaunched,
+          doneStories.executed.title,
+          doneStories.executed.openSessionBefore,
         ),
-        lastWeek: listedAs(lastWeek.title, placed.lastWeekSessionLaunched),
-        expired: listedAs(expired.title, placed.expiredSessionLaunched),
+        lastWeek: listedAs(
+          doneStories.lastWeek.title,
+          doneStories.lastWeek.sessionBefore,
+        ),
+        expired: listedAs(
+          doneStories.expired.title,
+          doneStories.expired.sessionBefore,
+        ),
       }),
     ].sort(
       (one, other) => Date.parse(one.launchedAt) - Date.parse(other.launchedAt),
     ),
   );
-  await publishFiles(page, {
-    repository,
-    revision,
-    files: publishedFiles(withLastWeekRecord(now)),
-  });
+  await publishFiles(page, doneStories.publishedWithLastWeek(now));
   await page.goto("/");
-  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+  await expectMembership(page, {
+    taken: [],
+    backlog: [doneStories.queued.title],
+  });
   const { recentlyDone: recent } = parts(page);
-  const expiredSession = standaloneSessionName("Execution", expired.title);
+  const expiredSession = standaloneSessionName(
+    "Execution",
+    doneStories.expired.title,
+  );
   await expectEntries(recent, [
     adHocEntry,
-    executed.title,
-    removedQueued.title,
-    lastWeek.title,
+    doneStories.executed.title,
+    doneStories.removed.title,
+    doneStories.lastWeek.title,
     expiredSession,
   ]);
   await expect(
-    recent.getByRole("article", { name: expired.title, exact: true }),
+    recent.getByRole("article", {
+      name: doneStories.expired.title,
+      exact: true,
+    }),
   ).toHaveCount(0);
   await expect(
     recent.getByRole("article", { name: expiredSession }),

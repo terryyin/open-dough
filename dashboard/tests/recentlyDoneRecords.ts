@@ -2,27 +2,23 @@
 // frontend-tests/sessions/recently-done-story-sessions.spec.ts, and
 // e2e/sessions/recently-done-story-sessions-expired.spec.ts) publish: a backlog
 // with one queued story, and done records beside it at times before the journey
-// starts, with the done catalog completion publishes beside them. What this
-// machine keeps for them is ./recentlyDoneSessions.ts.
+// starts, with the done catalog completion publishes beside them. `doneStories`
+// names each story and publishes that scenario. Catalog and malformed
+// publications of the same records are ./recentlyDoneReadFailures.ts.
+// What this machine keeps for the journeys is ./recentlyDoneSessions.ts.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import { catalogFile } from "../../Distribution/tests/support/revision-done-catalog.mjs";
-import {
-  doneRecordPath,
-  renderDoneRecord,
-} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { basename } from "node:path";
 import {
   backlogApart,
   describedBacklog,
   describedRevision,
-  publishedFile,
 } from "./describedRevisions.ts";
 
 export const repository = "terryyin/open-dough";
 export const revision = "d0".repeat(20);
-// Another revision, whose reads the local boundary has not yet remembered.
-export const otherRevision = "d1".repeat(20);
 
 export const queuedTitle = "Prepare stories in a clear workspace";
 export const queuedIdentity = "SEED-008#planning-workspace-procedure";
@@ -45,6 +41,7 @@ export const backlog = describedBacklog(
 
 const hour = 60 * 60 * 1000;
 const day = 24 * hour;
+const developer = "Terry Yin";
 
 // Times before `now` the journey's records are placed at: with "now" past
 // 11:00, an ad hoc session launched at 11:00, a story done at 10:00, and the
@@ -67,21 +64,48 @@ export const placed = {
   expiredSessionLaunched: 32 * day,
 };
 
-export const executed = {
+// Who completed each story, and the title and identity the cards name.
+const cardShowsAvatar = {
   identity: "SEED-038#card-shows-avatar",
   title: "Card shows avatar",
+  developer,
+  agent: "Yui-chan",
+  host: "claude" as const,
+  model: "claude-opus-5-5",
 };
-export const removedQueued = {
+const queuedThenRemoved = {
   identity: "SEED-042#queued-and-removed",
   title: "Remove a story nobody executed",
+  developer,
 };
-export const lastWeek = {
+const finishedLastWeek = {
   identity: "SEED-039#done-last-week",
   title: "Finish something last week",
+  developer,
 };
-export const expired = {
+const finishedLongAgo = {
   identity: "SEED-011#done-long-ago",
   title: "Finish something a month ago",
+  developer,
+  agent: "Akiho-chan",
+  host: "codex" as const,
+};
+
+export const executed = {
+  identity: cardShowsAvatar.identity,
+  title: cardShowsAvatar.title,
+};
+export const removedQueued = {
+  identity: queuedThenRemoved.identity,
+  title: queuedThenRemoved.title,
+};
+export const lastWeek = {
+  identity: finishedLastWeek.identity,
+  title: finishedLastWeek.title,
+};
+export const expired = {
+  identity: finishedLongAgo.identity,
+  title: finishedLongAgo.title,
 };
 
 // The time `before` `now`.
@@ -95,48 +119,49 @@ export const doneRecordAt = (identity: string) =>
 // Where `complete` publishes done records and their catalog.
 export const doneDirectory = ".planning/done";
 
+const recordFile = (identity: string) => basename(doneRecordPath(identity));
+
+type RecordedStory = {
+  readonly identity: string;
+  readonly title: string;
+  readonly developer: string;
+  readonly agent?: string;
+  readonly host?: "claude" | "codex";
+  readonly model?: string;
+};
+
+// One done record of `story`, completed `before` `now`.
+function doneRecord(now: number, story: RecordedStory, before: number) {
+  return makeMe.aDoneRecord
+    .with({
+      identity: story.identity,
+      title: story.title,
+      completedAt: at(now, before),
+      developer: story.developer,
+      ...(story.agent === undefined
+        ? {}
+        : {
+            agent: story.agent,
+            ...(story.host === undefined ? {} : { host: story.host }),
+            ...(story.model === undefined ? {} : { model: story.model }),
+          }),
+    })
+    .please();
+}
+
 // The done records `complete` published, completed `placed` before `now`.
 function doneRecords(now: number) {
   return [
-    makeMe.aDoneRecord
-      .with({
-        ...executed,
-        completedAt: at(now, placed.executedDone),
-        developer: "Terry Yin",
-        agent: "Yui-chan",
-        host: "claude",
-        model: "claude-opus-5-5",
-      })
-      .please(),
+    doneRecord(now, cardShowsAvatar, placed.executedDone),
     // A queued story removed with no execution agent profile.
-    makeMe.aDoneRecord
-      .with({
-        ...removedQueued,
-        completedAt: at(now, placed.queuedRemovedDone),
-        developer: "Terry Yin",
-      })
-      .please(),
-    makeMe.aDoneRecord
-      .with({
-        ...expired,
-        completedAt: at(now, placed.expiredDone),
-        developer: "Terry Yin",
-        agent: "Akiho-chan",
-        host: "codex",
-      })
-      .please(),
+    doneRecord(now, queuedThenRemoved, placed.queuedRemovedDone),
+    doneRecord(now, finishedLongAgo, placed.expiredDone),
   ];
 }
 
 // The story done last week's record.
 const lastWeekRecord = (now: number) =>
-  makeMe.aDoneRecord
-    .with({
-      ...lastWeek,
-      completedAt: at(now, placed.lastWeekDone),
-      developer: "Terry Yin",
-    })
-    .please();
+  doneRecord(now, finishedLastWeek, placed.lastWeekDone);
 
 // Done records for story-card nesting journeys: today's cards plus last week's.
 export const recentlyDoneNestingRecords = (now: number) => [
@@ -162,80 +187,64 @@ export const publishedFiles = (facts: RevisionFacts = {}) =>
   publishedAt(facts).files;
 
 // The done records, beside the catalog completion rebuilds from them.
-export const doneRecordFacts = (now: number): RevisionFacts => ({
-  doneRecords: doneRecords(now),
-  files: notARecord,
-});
+function doneRecordFacts(now: number): RevisionFacts {
+  return {
+    doneRecords: doneRecords(now),
+    files: notARecord,
+  };
+}
 
 // The done records and their catalog alone, for a journey with its own backlog.
 export const doneRecordFiles = (now: number) =>
   backlogApart(publishedAt(doneRecordFacts(now))).files;
 
 // The done records, with the story done last week's beside them.
-export const withLastWeekRecord = (now: number): RevisionFacts => ({
-  doneRecords: recentlyDoneNestingRecords(now),
-  files: notARecord,
+function withLastWeekRecord(now: number): RevisionFacts {
+  return {
+    doneRecords: recentlyDoneNestingRecords(now),
+    files: notARecord,
+  };
+}
+
+export const doneStoryPublication = (
+  revisionId: string,
+  facts?: RevisionFacts,
+  unanswered?: readonly string[],
+) => ({
+  repository,
+  revision: revisionId,
+  files: publishedFiles(facts),
+  ...(unanswered === undefined ? {} : { unanswered }),
 });
 
-// The done catalog, listed among the done records, whose read fails.
-export const unanswered = catalogFile;
+export const doneStoryRevisionFacts = (now: number) => doneRecordFacts(now);
 
-// Another revision, whose done records are published without a catalog, as
-// a writer from before catalogs would leave them.
-export const uncataloguedRevision = "d3".repeat(20);
-
-// Another revision still, whose reads the local boundary has not remembered.
-export const malformedRevision = "d2".repeat(20);
-
-// Another revision, whose catalog was published before the story done last
-// week's record was added beside it, as a merge outside the backlog's Git
-// adapters would leave it.
-export const staleCatalogRevision = "d5".repeat(20);
-export const uncataloguedFile = basename(doneRecordPath(lastWeek.identity));
-
-// The done records published without their catalog.
-export const withoutCatalog = (now: number): RevisionFacts => ({
-  ...doneRecordFacts(now),
-  remove: [catalogFile],
-});
-
-// The done records with the story done last week's beside them, and the
-// catalog of the others alone.
-export const withUncataloguedRecord = (now: number): RevisionFacts => ({
-  doneRecords: [...doneRecords(now), lastWeekRecord(now)],
-  files: {
-    ...notARecord,
-    [catalogFile]: publishedFile(
-      publishedAt(doneRecordFacts(now)),
-      catalogFile,
-    ),
+export const doneStories = {
+  queued: { identity: queuedIdentity, title: queuedTitle },
+  executed: {
+    ...cardShowsAvatar,
+    completedBefore: placed.executedDone,
+    recordPath: doneRecordAt(cardShowsAvatar.identity),
+    openSessionBefore: placed.executedOpenSessionLaunched,
   },
-});
-
-// Done record files the shared reader refuses, by file name: one in a later
-// format, and one whose text names another identity than its file. Their
-// exact bytes are what the column's problems name.
-const futureFormat = "SEED-050#future-format";
-const misnamed = "SEED-051#misnamed";
-export const futureFormatFile = basename(doneRecordPath(futureFormat));
-export const misnamedFile = basename(doneRecordPath(misnamed));
-
-// The done records with the refused ones beside them, all catalogued.
-export const withMalformedRecords = (now: number): RevisionFacts => ({
-  doneRecords: doneRecords(now),
-  files: {
-    ...notARecord,
-    [doneRecordAt(futureFormat)]: `${JSON.stringify({
-      schemaVersion: 2,
-      identity: futureFormat,
-      title: "Written in a later format",
-      completedAt: at(now, placed.executedDone),
-    })}\n`,
-    [doneRecordAt(misnamed)]: renderDoneRecord({
-      identity: "SEED-052#named-inside",
-      title: "Named for another identity",
-      completedAt: at(now, placed.executedDone),
-      developer: "Terry Yin",
-    }),
+  removed: {
+    ...queuedThenRemoved,
+    recordPath: doneRecordAt(queuedThenRemoved.identity),
   },
-});
+  lastWeek: {
+    ...finishedLastWeek,
+    file: recordFile(finishedLastWeek.identity),
+    sessionBefore: placed.lastWeekSessionLaunched,
+  },
+  expired: {
+    ...finishedLongAgo,
+    sessionBefore: placed.expiredSessionLaunched,
+  },
+  doneDirectory,
+  catalogPath: catalogFile,
+  published: (now: number) =>
+    doneStoryPublication(revision, doneRecordFacts(now)),
+  publishedWithLastWeek: (now: number) =>
+    doneStoryPublication(revision, withLastWeekRecord(now)),
+  publishedWithoutRecords: () => doneStoryPublication(revision),
+};

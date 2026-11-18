@@ -10,8 +10,8 @@
 // are, and when each was done, is the done catalog published beside them; a
 // catalog that does not describe them is said with its `catalog-done` repair,
 // and only the records of the stories shown are read.
-// The fake GitHub only publishes the files ../../dashboard/tests/recentlyDoneRecords.ts declares
-// and lists their directory; the
+// The fake GitHub only publishes the files ../../dashboard/tests/recentlyDoneRecords.ts
+// and ../../dashboard/tests/recentlyDoneReadFailures.ts declare and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
 // local read boundary, the shared done-record reader, and the page decide
 // everything shown. That a done card holds its story's sessions is
@@ -31,41 +31,35 @@ import {
 } from "../../dashboard/tests/publishedOrigin.ts";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
 import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import {
-  doneDirectory,
-  doneRecordAt,
-  doneRecordFacts,
-  executed,
-  expired,
-  futureFormatFile,
-  malformedRevision,
-  misnamedFile,
-  otherRevision,
-  placed,
-  publishedFiles,
-  queuedTitle,
-  removedQueued,
-  repository,
-  revision,
-  staleCatalogRevision,
-  uncataloguedFile,
-  uncataloguedRevision,
-  unanswered,
-  withMalformedRecords,
-  withoutCatalog,
-  withUncataloguedRecord,
-} from "../../dashboard/tests/recentlyDoneRecords.ts";
+import { doneStories } from "../../dashboard/tests/recentlyDoneRecords.ts";
+import { doneStoryReadFailures } from "../../dashboard/tests/recentlyDoneReadFailures.ts";
+import { hostDescriptions } from "../../dashboard/src/hostDescription.ts";
 import {
   adHocEntry,
   expectEntries,
   sessionsOutsideDoneStories,
 } from "../../dashboard/tests/recentlyDoneColumn.ts";
 
+// The card's scan line: agent, developer, and the host's name, when recorded.
+function recordedCredit(story: {
+  readonly agent?: string;
+  readonly developer: string;
+  readonly host?: keyof typeof hostDescriptions;
+}): string {
+  return [
+    story.agent,
+    story.developer,
+    story.host === undefined ? undefined : hostDescriptions[story.host].name,
+  ]
+    .filter((part): part is string => part !== undefined)
+    .join(" · ");
+}
+
 // The done record files read, apart from their catalog.
 function doneRecordsRead(requests: readonly ObservedRequest[]): string[] {
   return requests.flatMap(({ request }) =>
     request.kind === "content" &&
-    request.path.startsWith(`${doneDirectory}/`) &&
+    request.path.startsWith(`${doneStories.doneDirectory}/`) &&
     !request.path.endsWith("/.catalog.json")
       ? [request.path]
       : [],
@@ -86,13 +80,12 @@ test("Recently done lists published done stories among the sessions, newest firs
 }) => {
   const now = Date.now();
   keepSessions(dashboard, now);
-  const requests = await publishFiles(page, {
-    repository,
-    revision,
-    files: publishedFiles(doneRecordFacts(now)),
-  });
+  const requests = await publishFiles(page, doneStories.published(now));
   await page.goto("/");
-  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+  await expectMembership(page, {
+    taken: [],
+    backlog: [doneStories.queued.title],
+  });
   const { recentlyDone: recent } = parts(page);
   const card = (title: string) =>
     recent.getByRole("article", { name: title, exact: true });
@@ -100,48 +93,51 @@ test("Recently done lists published done stories among the sessions, newest firs
   await test.step("a done story at 10:00 follows an ad hoc session launched at 11:00; the queued story's open session stays on its card", async () => {
     await expectEntries(recent, [
       adHocEntry,
-      executed.title,
-      removedQueued.title,
+      doneStories.executed.title,
+      doneStories.removed.title,
     ]);
     await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
   });
 
   await test.step("a done card names its title, completion time, developer, and agent with host", async () => {
-    const done = card(executed.title);
+    const done = card(doneStories.executed.title);
     await expect(done.getByRole("heading", { level: 3 })).toHaveText(
-      executed.title,
+      doneStories.executed.title,
     );
-    await expect(done).toContainText(executed.identity);
+    await expect(done).toContainText(doneStories.executed.identity);
     await expect(credit(done).line).toHaveText(
-      "Yui-chan · Terry Yin · Claude Code",
+      recordedCredit(doneStories.executed),
     );
     await expect(credit(done).portrait).toHaveCount(1);
     await expect(done).toContainText("Done");
     expect(
       Date.parse((await done.locator("time").getAttribute("datetime")) ?? ""),
-    ).toBe(now - placed.executedDone);
+    ).toBe(now - doneStories.executed.completedBefore);
   });
 
   await test.step("a card whose record names no agent shows its developer and no agent", async () => {
-    const done = card(removedQueued.title);
-    await expect(credit(done).line).toHaveText("Terry Yin");
+    const done = card(doneStories.removed.title);
+    await expect(credit(done).line).toHaveText(
+      recordedCredit(doneStories.removed),
+    );
     await expect(credit(done).portrait).toHaveCount(0);
     await expect(done).not.toContainText(/-chan|Claude Code|Codex|Cursor/);
   });
 
   await test.step("a record completed 31 days before is not shown or read: only the done catalog and the shown stories' records are read", async () => {
-    await expect(recent).not.toContainText(expired.title);
+    await expect(recent).not.toContainText(doneStories.expired.title);
     await expect(recent).not.toContainText(/could not be read|unreadable/);
     const read = requests.flatMap(({ request }) =>
-      request.kind === "content" && request.path.startsWith(".planning/done/")
+      request.kind === "content" &&
+      request.path.startsWith(`${doneStories.doneDirectory}/`)
         ? [request.path]
         : [],
     );
     expect(read.toSorted()).toEqual(
       [
-        ".planning/done/.catalog.json",
-        doneRecordAt(executed.identity),
-        doneRecordAt(removedQueued.identity),
+        doneStories.catalogPath,
+        doneStories.executed.recordPath,
+        doneStories.removed.recordPath,
       ].toSorted(),
     );
   });
@@ -156,13 +152,12 @@ test("a revision with no done records lists the sessions as before, and one whos
   const { recentlyDone: recent } = parts(page);
 
   await test.step("no done-record directory: only the sessions, with no error", async () => {
-    await publishFiles(page, {
-      repository,
-      revision,
-      files: publishedFiles(),
-    });
+    await publishFiles(page, doneStories.publishedWithoutRecords());
     await page.goto("/");
-    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expectMembership(page, {
+      taken: [],
+      backlog: [doneStories.queued.title],
+    });
     await expectEntries(recent, [adHocEntry]);
     await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
@@ -170,14 +165,12 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("a done catalog read that fails: the column says done stories could not be read and still lists the sessions, with its count incomplete", async () => {
-    await publishFiles(page, {
-      repository,
-      revision: otherRevision,
-      files: publishedFiles(doneRecordFacts(now)),
-      unanswered: [unanswered],
-    });
+    await publishFiles(page, doneStoryReadFailures.unansweredCatalog(now));
     await page.reload();
-    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expectMembership(page, {
+      taken: [],
+      backlog: [doneStories.queued.title],
+    });
     await expect(recent).toContainText("Done stories could not be read.");
     await expect(recent).not.toContainText("catalog-done");
     await expectEntries(recent, [adHocEntry]);
@@ -187,13 +180,15 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("done records published without a catalog: the column names the gap and its repair, reads no record, and still lists the sessions", async () => {
-    const requests = await publishFiles(page, {
-      repository,
-      revision: uncataloguedRevision,
-      files: publishedFiles(withoutCatalog(now)),
-    });
+    const requests = await publishFiles(
+      page,
+      doneStoryReadFailures.withoutCatalog(now),
+    );
     await page.reload();
-    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expectMembership(page, {
+      taken: [],
+      backlog: [doneStories.queued.title],
+    });
     await expect(recent).toContainText(
       "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records. Run the product backlog's `catalog-done` to rebuild it from the done records, then publish the rebuilt catalog.",
     );
@@ -203,15 +198,17 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("a done record published beside a catalog that does not list it: the column names the stale catalog and the same repair, reads no record, and still lists the sessions", async () => {
-    const requests = await publishFiles(page, {
-      repository,
-      revision: staleCatalogRevision,
-      files: publishedFiles(withUncataloguedRecord(now)),
-    });
+    const requests = await publishFiles(
+      page,
+      doneStoryReadFailures.staleCatalog(now),
+    );
     await page.reload();
-    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expectMembership(page, {
+      taken: [],
+      backlog: [doneStories.queued.title],
+    });
     await expect(recent).toContainText(
-      `Done stories could not be read. The done catalog does not describe the published done records: done catalog does not list done/${uncataloguedFile}. Run the product backlog's \`catalog-done\` to rebuild it from the done records, then publish the rebuilt catalog.`,
+      `Done stories could not be read. The done catalog does not describe the published done records: done catalog does not list done/${doneStories.lastWeek.file}. Run the product backlog's \`catalog-done\` to rebuild it from the done records, then publish the rebuilt catalog.`,
     );
     await expectEntries(recent, [adHocEntry]);
     await expect(recent.locator(".done-story")).toHaveCount(0);
@@ -219,25 +216,24 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards and the sessions", async () => {
-    await publishFiles(page, {
-      repository,
-      revision: malformedRevision,
-      files: publishedFiles(withMalformedRecords(now)),
-    });
+    await publishFiles(page, doneStoryReadFailures.malformed.published(now));
     await page.reload();
-    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expectMembership(page, {
+      taken: [],
+      backlog: [doneStories.queued.title],
+    });
     await expect(
       recent
         .getByRole("list", { name: "Unreadable done records" })
         .getByRole("listitem"),
     ).toHaveText([
-      `Done record ${futureFormatFile} is unreadable: done record schemaVersion must be 1.`,
-      `Done record ${misnamedFile} is unreadable: done record names another identity.`,
+      `Done record ${doneStoryReadFailures.malformed.futureFile} is unreadable: done record schemaVersion must be 1.`,
+      `Done record ${doneStoryReadFailures.malformed.misnamedFile} is unreadable: done record names another identity.`,
     ]);
     await expectEntries(recent, [
       adHocEntry,
-      executed.title,
-      removedQueued.title,
+      doneStories.executed.title,
+      doneStories.removed.title,
     ]);
     await expect(recent).not.toContainText("Done stories could not be read.");
   });
