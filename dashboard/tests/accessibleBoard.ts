@@ -105,7 +105,7 @@ const largeEntries = {
 };
 
 // The backlog too long for one screen, with any `files` published beside it.
-const largeRepository = (files?: Record<string, string>) =>
+export const largeBacklogRepository = (files?: Record<string, string>) =>
   makeMe.aRepository
     .withRevision("large", {
       backlog: largeEntries,
@@ -113,7 +113,7 @@ const largeRepository = (files?: Record<string, string>) =>
     })
     .please();
 
-export const largeBacklog = describedBacklog(largeRepository());
+export const largeBacklog = describedBacklog(largeBacklogRepository());
 
 // The substitute project publishes the backlog too long for one screen.
 export function publishLargeBacklog(services: FrontendServiceState) {
@@ -129,7 +129,10 @@ export function publishLargeBacklogWithRecords(services: FrontendServiceState) {
   putFrontendPublished(
     services,
     backlogApart(
-      describedRevision(largeRepository(Object.fromEntries(records)), revision),
+      describedRevision(
+        largeBacklogRepository(Object.fromEntries(records)),
+        revision,
+      ),
     ),
   );
 }

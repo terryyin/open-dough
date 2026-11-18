@@ -23,7 +23,6 @@ export {
   columnPagingControl,
   columnPagingControls,
   showColumn,
-  swipeBoard,
   tapColumnIndicator,
   focusColumnIndicator,
   activateColumnIndicator,

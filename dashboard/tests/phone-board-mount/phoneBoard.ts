@@ -1,94 +1,134 @@
-import { onTestFinished } from "vitest";
+import { act, createElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { onTestFinished, vi } from "vitest";
 import { commands, page } from "vitest/browser";
-import { mountDashboard } from "../../src/mountDashboard.tsx";
-import type { PhoneBoardOptions } from "../support/mountedPhoneBoardCommands.ts";
+import { App } from "../../src/App.tsx";
+import "../../src/dashboardStyles.ts";
+import { answerPhoneBoardServices } from "./phoneBoardServices.ts";
+import { phoneBoardPage } from "./phoneBoardPage.ts";
 
+const portrait = { width: 390, height: 844 };
 const viewport = () => ({
   width: window.innerWidth,
   height: window.innerHeight,
 });
 
-async function resize(width: number, height: number) {
-  const browser = await commands.phoneBoardResize({ width, height });
-  await page.viewport(width, height);
-  return { browser, frame: viewport() };
-}
+function controlResize() {
+  const observers = new Set<ControlledResizeObserver>();
+  class ControlledResizeObserver implements ResizeObserver {
+    private readonly targets = new Set<Element>();
 
-function storyCard(title: string) {
-  return {
-    swipeFromCard: (direction: "left" | "right") =>
-      commands.phoneBoardSwipe(direction, { from: { title, target: "card" } }),
-    swipeFromStart: (direction: "left" | "right") =>
-      commands.phoneBoardSwipe(direction, { from: { title, target: "start" } }),
-    showsSelected: (selected: boolean) =>
-      commands.phoneBoardStorySelected(title, selected),
-    showsInspected: (inspected: boolean) =>
-      commands.phoneBoardStoryInspected(title, inspected),
-    tapInspect: () => commands.phoneBoardTapInspectStory(title),
-    tapEmptyArea: () => commands.phoneBoardTapStoryCard(title),
+    constructor(private readonly changed: ResizeObserverCallback) {}
+    observe(element: Element) {
+      this.targets.add(element);
+      observers.add(this);
+    }
+    unobserve(element: Element) {
+      this.targets.delete(element);
+      if (this.targets.size === 0) observers.delete(this);
+    }
+    disconnect() {
+      this.targets.clear();
+      observers.delete(this);
+    }
+    measure() {
+      this.changed([], this);
+    }
+  }
+  vi.stubGlobal("ResizeObserver", ControlledResizeObserver);
+  return () => {
+    for (const observer of [...observers]) observer.measure();
   };
 }
 
-const board = {
-  showsPublishedStories: commands.phoneBoardPublishedStories,
-  showsPhoneColumn: commands.phoneBoardShowsColumn,
-  showsPhone: commands.phoneBoardShowsColumns,
-  columnReadingRoom: commands.phoneBoardReadingRoom,
-  swipe: commands.phoneBoardSwipe,
-  tapIndicator: commands.phoneBoardTapIndicator,
-  focusIndicator: commands.phoneBoardFocusIndicator,
-  activateIndicator: commands.phoneBoardActivateIndicator,
-  indicatorFocused: commands.phoneBoardIndicatorFocused,
-  showsNoLaunchDialog: commands.phoneBoardShowsNoLaunchDialog,
-  launchAcceptances: commands.phoneBoardLaunchAcceptances,
-  countSlides: commands.phoneBoardCountSlides,
-  slides: commands.phoneBoardSlides,
-  prefersReducedMotion: () =>
-    matchMedia("(prefers-reduced-motion: reduce)").matches,
-  storyCard,
-  resize,
-  viewport,
-};
+export async function mountPhoneBoard(
+  options: {
+    backlog?: "long";
+    reducedMotion?: "reduce";
+  } = {},
+) {
+  const original = viewport();
+  if (
+    original.width !== portrait.width ||
+    original.height !== portrait.height
+  ) {
+    await page.viewport(portrait.width, portrait.height);
+  }
+  const publication = await commands.phoneBoardPublication(
+    options.backlog === "long",
+  );
+  const { boardPositionKey } = publication;
+  const storage = Object.entries<string>(localStorage);
+  localStorage.clear();
+  localStorage.setItem(boardPositionKey, "0");
+  const url = location.href;
+  const historyState: unknown = history.state;
+  history.replaceState(null, "", "/");
 
-export async function mountPhoneBoard(options: PhoneBoardOptions = {}) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  const location = window.location.href;
-  const historyState: unknown = window.history.state;
-  const storage = Object.entries<string>(window.localStorage);
-  const { boardPositionKey, startingPosition, phoneBoardViewport, readyStory } =
-    await commands.preparePhoneBoard(options);
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"],
+  });
+  vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+  const browserMedia = window.matchMedia.bind(window);
+  const media = vi.spyOn(window, "matchMedia").mockImplementation((query) => {
+    const answer = browserMedia(query);
+    return query === "(prefers-reduced-motion: reduce)"
+      ? (Object.create(answer, {
+          matches: { value: options.reducedMotion === "reduce" },
+        }) as MediaQueryList)
+      : answer;
+  });
+  const measure = controlResize();
+  const launchAcceptances = answerPhoneBoardServices(publication.answers);
+
   const container = document.createElement("div");
   container.id = "root";
-  let unmount = (): void => undefined;
+  const animationClock = document.createElement("style");
+  animationClock.textContent =
+    "#root .board-row { transition-duration: 0s !important; }";
+  document.body.append(animationClock, container);
+  let root: Root | undefined;
   onTestFinished(async () => {
     try {
-      unmount();
+      act(() => root?.unmount());
     } finally {
       container.remove();
-      try {
-        await commands.releasePhoneBoard();
-      } finally {
-        window.history.replaceState(historyState, "", location);
-        window.localStorage.clear();
-        for (const [key, value] of storage) {
-          window.localStorage.setItem(key, value);
-        }
-        await page.viewport(width, height);
+      animationClock.remove();
+      media.mockRestore();
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+      localStorage.clear();
+      for (const [key, value] of storage) localStorage.setItem(key, value);
+      history.replaceState(historyState, "", url);
+      if (
+        viewport().width !== original.width ||
+        viewport().height !== original.height
+      ) {
+        await page.viewport(original.width, original.height);
       }
     }
   });
-
-  window.history.replaceState(null, "", "/");
-  window.localStorage.clear();
-  // Supply the starting preference explicitly even when the previous case
-  // left the production module's in-memory column preference at the far end.
-  window.localStorage.setItem(boardPositionKey, startingPosition);
-  await page.viewport(phoneBoardViewport.width, phoneBoardViewport.height);
-  document.body.append(container);
-  const root = mountDashboard(container);
-  unmount = () => {
-    root.unmount();
+  await act(() => {
+    root = createRoot(container);
+    root.render(createElement(App));
+    return Promise.resolve();
+  });
+  if (!container.querySelector(".board-row"))
+    throw new Error(
+      `Expected the mounted board: ${container.textContent.trim()}`,
+    );
+  const resize = async (width: number, height: number) => {
+    await act(async () => {
+      await page.viewport(width, height);
+      measure();
+    });
+    return viewport();
   };
-  return { ...board, readyStory };
+  return {
+    ...phoneBoardPage(container, publication.titles),
+    readyStory: publication.readyStory,
+    launchAcceptances,
+    resize,
+    viewport,
+  };
 }

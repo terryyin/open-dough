@@ -6,6 +6,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { compactProjectSelectCut } from "./pageLayout.ts";
+import { dispatchBoardTouch } from "./phoneBoardTouch.ts";
 import {
   boardScroll,
   columnReadingRoom,
@@ -22,7 +23,6 @@ import {
   columns,
   columnPagingControl,
   showColumn as revealColumn,
-  swipeBoard,
   tapColumnIndicator,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
@@ -127,12 +127,16 @@ export class BoardView {
     return this;
   }
 
-  async swipe(
-    direction: "left" | "right",
-    options?: Parameters<typeof swipeBoard>[2],
-  ): Promise<this> {
-    await swipeBoard(this.page, direction, options);
-    return this;
+  touchStroke(stroke: Parameters<typeof dispatchBoardTouch>[1]) {
+    return this.page
+      .locator(".board-view")
+      .evaluate(dispatchBoardTouch, stroke);
+  }
+
+  touchAction() {
+    return this.page
+      .locator(".board-view")
+      .evaluate((view) => getComputedStyle(view).touchAction);
   }
 
   async tapIndicator(column: ColumnName): Promise<this> {

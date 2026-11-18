@@ -4,29 +4,38 @@ A fresh general-purpose reviewer (`/root/source_review`, no conversation inherit
 
 The baseline is the current seven-case selection at **22.07 s elapsed with two workers, including startup**. Compare the new elapsed time under comparable conditions. Geometry gains use the former layout with two 44 px controls as the baseline. The remaining suite and its roughly one-minute target belong to the second story.
 
+## Revised proof for slice 7
+
+The developer replaced the native-input requirement for the fast cases with
+direct event delivery and controlled time. The historical observations below
+record what earlier slices proved. The active layout, focus and card outcomes
+survive in the seven mounted cases. The published-project phone-board E2E
+proves actual app wiring, vertical scrolling and the narrow indicator's hit
+target. The existing built-app keyboard case exercises Enter.
+
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| P01 | The ordinary Dashboard Frontend Test command returns the seven-case selection in less than 22.07 s elapsed. Goal and Scope. Comparable conditions include two workers and startup. | slice 7 | |
-| P02 | All seven cases retain their original assertions and observations. Goal and Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | |
-| P03 | The seven cases use real mounted React. Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | |
-| P04 | The seven cases use production CSS. Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | |
-| P05 | Cases within a file reuse the browser. Scope. | slice 7 | |
+| P01 | The ordinary Dashboard Frontend Test command returns the seven-case selection in less than 22.07 s elapsed. Goal and Scope. Comparable conditions include two workers and startup. |  | G1 |
+| P02 | All seven cases retain their original assertions and observations. Goal and Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | observed: Slices 4–6 preserve the six indicator, travel, cancel, card and rotation sequences. The mounted vertical case preserves the original long-backlog setup, 240 px stroke, measured scroll advancement and whole-column/control checks. All seven original titles passed in the final split run. |
+| P03 | The seven cases use real mounted React. Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | observed: Each phone case calls mountPhoneBoard, which renders the production App once with prepared answers. The final seven-case records are passing. |
+| P04 | The seven cases use production CSS. Scope. Both phone-indicator cases and all five board-swipe cases. | slice 7 | observed: The normal and mounted entries import the same ordered dashboard styles. The 44 px CSS control failed the width assertion. Exact restoration passed. |
+| P05 | Cases within a file reuse the browser. Scope. | slice 7 | observed: Slice 3 smoke verified the same Chromium Document across two mounts with explicit teardown. Final mounted specs use the same per-file isolated Vitest browser fixture, and slice 6 verified the new case runs after changed preference within that file. |
 | P06 | Every case receives fresh answers at the service boundary, including a later case using the reused browser. Scope and example 3. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts, the second mount observes the independently changed MakeMe title in the same Document; slice3-mounted-held.log recorded both passes. |
 | P07 | React is unmounted after each case. Scope. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts checks both detached roots for empty children, the removed root and restored browser state, with a held HTTP reply released in teardown; slice3-mounted-held.log. |
 | P08 | A later case starts with its own board preference. Scope’s state-isolation requirement and example 3. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts observes Recently done and position 2 in case one, then Backlog, native Enter, Taken and focused Recently done in the next case; slice3-mounted-held.log. |
-| P09 | The journeys preserve native input. Scope and examples 1–3. Includes the indicator tap, keyboard activation, swipe cases, ordinary taps, and real vertical stroke. | slice 7 | |
+| P09 | The journeys preserve native input. Scope and examples 1–3. Includes the indicator tap, keyboard activation, swipe cases, ordinary taps, and real vertical stroke. | slice 7 | observed: The original mounted BoardView observes native touchscreen taps, keyboard presses and Chrome touch strokes, including the real vertical stroke and scrollend. Final seven passed and the incomplete-travel control retained Backlog. |
 | P10 | The viewport changes in the browser during the viewport-dependent journeys. Scope and examples 1–2. Includes the 390 × 844 setting and rotation to landscape and back. | slice 6 | observed: Mounted rotation verifies frame 390 × 844 under reduced motion, then actual Chromium and frame at 844 × 390 and 390 × 844 with whole-column geometry. Slice6 verification and paired records passed. |
 | P11 | Geometry assertions use actual measured dimensions. Scope and example 1. Includes both indicators, the view, and the story card. | slice 4 | observed: board-indicators.mounted.spec.ts records rendered control widths, board, view and card through BoardView.columnReadingRoom. Slice4-final-pair.log records 12/12 and 390/366/366, while the 44 px control records 44/44 and 390/302/302. |
-| P12 | The normal focused command selects each of the seven cases once. Scope and example 4. A developer runs the two phone specs together. | slice 7 | |
-| P13 | The focused run displays each of the seven results once. Example 4. The developer runs the two phone specs together. | slice 7 | |
-| P14 | The unfiltered frontend group selects each of the seven moved cases once. Scope. | slice 7 | |
+| P12 | The normal focused command selects each of the seven cases once. Scope and example 4. A developer runs the two phone specs together. | slice 7 | observed: The two original filename filters select seven cases once under the mounted project in the mixed local gate. |
+| P13 | The focused run displays each of the seven results once. Example 4. The developer runs the two phone specs together. | slice 7 | observed: Three one-worker and two two-worker focused runs display all seven results once. |
+| P14 | The unfiltered frontend group selects each of the seven moved cases once. Scope. | slice 7 | observed: The unfiltered listing matches 697 baseline cases with the two mounted aliases and three updated titles. The two shards have 360 and 337 cases. |
 | P15 | Frontend CI selects each of the seven moved cases once. Scope. | slice 7 | |
 | P16 | Each moved case appears once as an identifiable case in the frontend CI summary in an ordinary run. Goal and example 4. | slice 7 | |
 | P17 | Each retained case appears once in the frontend CI summary in an ordinary run. Example 4. | slice 7 | |
-| P18 | Each moved case, including the failing case, appears once as an identifiable case in the frontend CI summary when a moved assertion fails. Goal and example 4. | slice 7 | |
-| P19 | Each retained case appears once in the frontend CI summary when a moved assertion fails. Example 4. | slice 7 | |
+| P18 | Each moved case, including the failing case, appears once as an identifiable case in the frontend CI summary when a moved assertion fails. Goal and example 4. | slice 7 | observed: Final mixed 44 px control through normal npm and the CI-format collector preserves the original width failure and the other six phone passes with physical file attribution. The combined record contains each selected mounted title once. |
+| P19 | Each retained case appears once in the frontend CI summary when a moved assertion fails. Example 4. | slice 7 | observed: The retained Playwright deep-link pass survives the final mixed mounted-width failure in the one combined record and CI-format fragment, with the retained test and its timing attributed once. The collector preserves every native entry regardless of the mounted case verdict. |
 | P20 | A completed swipe from a column with an available neighbor moves exactly one column. Examples 1–2. Includes the 390 × 844 Backlog-to-Taken swipe. | slice 5 | observed: board-swipe.mounted.spec.ts verifies each completed Backlog → Taken → Recently done and reverse whole-column step and its named controls, using actual board boxes. Slice5-completed.json and the restored pair passed. |
 | P21 | One of the two indicators measures at most 16 px wide. Example 1. The 390 × 844 Backlog-to-Taken journey. | slice 4 | observed: The Backlog-to-Taken width case measured the first rendered control at 12 px and passed its 16 px limit in slice4-final-pair.log. |
 | P22 | The other indicator measures at most 16 px wide. Example 1. The same journey. | slice 4 | observed: The same case measured the other rendered control at 12 px and checks each width against 16 px in board-indicators.mounted.spec.ts. |
@@ -48,5 +57,5 @@ The baseline is the current seven-case selection at **22.07 s elapsed with two w
 | P38 | Ordinary taps still select. Example 2. | slice 6 | observed: The card-origin scenario natively taps the empty area in Backlog and the existing expectSelected checks selected class, inset ring and accent fill. Slice6 card isolation and predecessor run passed. |
 | P39 | The open detail survives rotation to landscape and back. Example 2. Reduced motion is enabled. | slice 6 | observed: The reduced-motion mounted rotation observes zero transform slides, keeps an open detail across measured landscape and portrait layouts, and verifies it remains inspected after returning to Backlog. Slice6 rotation isolation and predecessor run passed. |
 | P40 | The selection survives rotation to landscape and back. Example 2. Reduced motion is enabled. | slice 6 | observed: The reduced-motion rotation checks selected styling before the swipe and after real landscape and portrait viewport changes and return to Backlog. Slice6 rotation isolation and predecessor run passed. |
-| P41 | A real vertical stroke advances the scroll region. Example 3. Backlog is long. | slice 7 | |
-| P42 | Backlog remains visible during the real vertical stroke. Example 3. Backlog is long. | slice 7 | |
+| P41 | A real vertical stroke advances the scroll region. Example 3. Backlog is long. | slice 7 | observed: The final native long-backlog case advances the reading region from scrollY 0 to 225 px after the browser's scrollend. Final split proof and seven-case pass. |
+| P42 | Backlog remains visible during the real vertical stroke. Example 3. Backlog is long. | slice 7 | observed: After that same native vertical stroke, the original showsPhoneColumn checks the entire Backlog and the exact Taken 1 entry control. Final split proof passed. |

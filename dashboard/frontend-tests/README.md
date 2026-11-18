@@ -16,6 +16,13 @@ explicit route/WebSocket service substitutes, without starting
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
+The two mounted phone-board specs render the production app with prepared
+service answers in the browser. They deliver touch events directly, control
+the transition and click-suppression clocks, and measure the real layout.
+[`e2e/navigation/phone-board.spec.ts`](../../e2e/navigation/phone-board.spec.ts)
+covers the published-project load, board gesture wiring, vertical reading and
+the thin indicator's real hit target through the built app.
+
 Each backend service family a built-app spec talks to has one substitute
 module beside `frontendServiceSubstitutes.ts` in `../tests/support/`
 (settings, launches and attempts, transcription, session actions). It keeps

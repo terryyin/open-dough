@@ -6,13 +6,13 @@
 
 ## Goal and scope
 
-Move the two [indicator cases](../../../dashboard/frontend-tests/board-indicators.spec.ts) and five [swipe cases](../../../dashboard/frontend-tests/board-swipe.spec.ts) to a production React screen mounted with production CSS in Vitest browser mode. Playwright supplies touch Chromium. The developer gets a repeatably shorter wait for these same seven cases through `npm run test:dashboard:frontend`. CI reports each once under Dashboard Frontend Test. The other 685 cases at the preparation baseline keep their existing owners. The [follow-up](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) owns the full-suite speed target.
+Move the two [indicator cases](../../../dashboard/frontend-tests/board-indicators.mounted.spec.ts) and five [swipe cases](../../../dashboard/frontend-tests/board-swipe.mounted.spec.ts) to a production React screen mounted with production CSS in Vitest browser mode. Playwright supplies touch Chromium. The developer runs the same seven behaviors through `npm run test:dashboard:frontend`, with under 0.5 s combined case time across repeated comparable runs. Measure startup and full command elapsed time separately. CI reports each once under Dashboard Frontend Test. The other 685 cases at the preparation baseline keep their existing owners. The [follow-up](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) owns the full-suite speed target.
 
 ## Current decisions and proof boundaries
 
 - Use the existing frontend group, its configured Intent location, its two CI shards and its normal file/title selection. Share selection, admission, worker budget, deadline and output ownership across the engines. A phone-only invocation can skip Playwright's static builds. A filter that matches only retained cases should start only Playwright. Exercise list-only, empty, mixed and failed selections. Preserve the supported direct runner entry for retained journeys and describe precisely which command covers the entire group. [Frontend runner](../../../dashboard/frontend.playwright.config.ts), [group selection](../../../dashboard/tests/support/testFiles.mjs), [local resource contract](../../../Distribution/tests/local-test-resources.md)
 - Keep per-file isolation. Within a file, mount and unmount a real screen for each case. Give each case its own service answers and starting view. Reuse the existing [published facts](../../../dashboard/tests/support/frontendPublishedFixtures.ts) and [authenticated answer logic](../../../dashboard/tests/support/frontendAuthenticatedReadSubstitute.ts) at the browser fetch boundary. If building domain data requires Node, pass the prepared data into the browser. The capture used for the rehearsal was disposable. Keep live data, the dashboard backend and production navigation in their existing proof owners.
-- Start from [BoardView](../../../dashboard/tests/boardView.ts), [column navigation](../../../dashboard/tests/boardColumnNavigation.ts), [native touch](../../../dashboard/tests/touchGestures.ts) and the current geometry, focus, selection and inspection observations. Use the Vitest test frame for hit testing. Provider operations can send native input in page coordinates. Keep launch acceptance observable at the service boundary. A DOM click, a synthesized DOM touch event or an assigned scroll offset cannot demonstrate native hit testing or scrolling.
+- Dispatch touch events directly to the mounted board and deliver transition completion without progressing real time. Keep the production components and observe real DOM, focus, CSS and viewport changes. The published-project [phone-board E2E](../../../e2e/navigation/phone-board.spec.ts) retains full-page routing, gesture wiring, vertical reading and native hit testing of the thin indicator. Existing keyboard paging coverage exercises Enter through the built page. [Keyboard and paging cases](../../../dashboard/frontend-tests/navigation/board-paging.spec.ts)
 - The [CI producer](../../../.github/workflows/browser-test-group.yml), [fragment reader](../../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-fragments.mjs) and [frontend report](../../../scripts/frontend-test-proof.mjs) already support timed case counts by file. Combine the disjoint selections once per shard. Preserve failed, skipped, unfinished and load-error evidence and the group exit status. Two same-part case fragments would overwrite one another. Keep case identities in runner output and file attribution in the report.
 - [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md) leaves tool selection open. Apply [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md) to the seven-case developer wait and the cost of supporting both runners. The established [North Star](../../NORTH-STAR.md) requires no production architecture change for this test boundary.
 
@@ -97,25 +97,78 @@ Move the two story-card cases. A swipe beginning on card content or on Start exe
 
 **Observed.** Both native swipe origins reached Taken while selection, inspection and launch observations stayed clear. Native Inspect and empty-area taps then expanded and selected the story. With reduced motion active, the first swipe recorded zero slides. Chromium and the test frame both reached 844 × 390 and returned to 390 × 844. Whole-column geometry, open detail and selected styling passed. Each moved case passed alone and after the short/cancel case ended in Taken in the same file. The mixed run passed six mounted phone cases and the retained vertical-scroll case. Two retained slide consumers, six touch-reachability checks, dashboard typecheck and a disposable media/viewport/slide-recorder teardown probe passed. Evidence is in `slice6-return.md` in the checkout's Git evidence directory.
 
-### 7. Keep native vertical scrolling and verify the seven-case gain
+### 7. Make the seven phone-board cases complete without elapsed-time waits
 
 Type: Behavior
 Status: planned
 
-Move the remaining long-backlog case. A real vertical stroke scrolls the reading region and leaves the same whole column visible. With both files transferred, remove their superseded Playwright setup and time the complete selection as a developer runs it.
+The native mounted and retained Playwright runs took about the same time.
+Single-worker profiling attributed 85–87% of the bodies to horizontal input
+and destination/layout checks. A minimal native Chromium stroke still took
+about 600 ms. The developer authorized direct event delivery and controlled
+time in the seven mounted cases. Use one mounted indicator file and one
+mounted swipe file under their existing logical filename selection.
 
-**Proof.** Check the native scroll position after the stroke settles and all original column assertions. Verify all seven original titles locally, in their shard and in the frontend artifact, with exactly one execution each. Compare the full before/after inventories across both runners for omissions or duplicates. Verify a real-URL journey remains in Playwright. For timing, alternate three runs per version on the same awake machine with two workers, the same seven-case filter and comparable load/cache state. Count setup and both engines' actual work. Report wall-time range and median alongside the observed change in summed CI case time, any added group startup, and the maintenance cost. A repeatable gain requires the same proof and a shorter developer wait outside the measured variation. If runs overlap, repeat the controlled comparison or record the result as inconclusive before extending the migration.
+**Proof.** The seven cases still exercise direction, end stops, short and
+cancelled input, click suppression, selection, inspection, focus handoff,
+indicator widths and reduced motion through rotation. A vertical touch is
+unconsumed and the same Backlog stays visible. One published-project E2E
+covers the full wiring, actual vertical reachability and native indicator
+hit target. Deliberately break the swipe response or click suppression and
+observe the relevant checks fail before restoring production bytes.
+Measure combined case time under one worker and measure the whole command
+under the normal two-worker selection. Where possible, compare against the
+kept native baseline. Verify both logical file selections, the complete
+inventory and the two shards, and check hosted frontend proof once accepted.
+
+**Prior approach.** The same seven titles passed in their native mounted
+form. Three paired two-worker runs measured 10.36–10.90 s with Playwright
+and 10.09–11.06 s mounted; the ranges overlapped. The final split mounted
+run retained all 697 logical cases and reported a controlled indicator
+failure alongside a retained deep-link pass. The active Git evidence
+directory retains `slice7-return.md`, `slice7-timing-split/` and
+`profile-phone-board/`.
+
+**Observed locally.** After mounting the production App once per case and
+keeping real geometry checks for each distinct layout, three consecutive
+final one-worker runs recorded 314.9, 323.5 and 350.7 ms combined across the
+seven cases. Full command elapsed time was 2.26–2.42 s. The final two-worker
+selection took 2.27 and 2.34 s including startup, with about 458 and 446 ms
+of summed case time respectively. Earlier matched two-worker
+runs compared the direct-event candidate at 3.14 and 3.26 s against 18.31
+and 16.54 s for the native Playwright baseline. Use the serial sum for the
+case-time target and two-worker elapsed time for developer feedback.
+
+The gesture and compatibility-click controls each failed their intended
+assertion after a deliberate product regression, as did widening the
+indicator to 44 px. Exact restoration passed. The published-project E2E
+passed three consecutive checks and the final typecheck and mixed-run gate.
+The mixed local CI-format report includes all seven mounted cases and one
+retained deep-link case. The unfiltered and sharded inventories match the
+697 original logical cases, accounting for three updated phone titles.
+The physical shard counts remain 360 and 337. The Git evidence directory
+`phone-board-event-optimization/` retains the commands, runner records,
+controls, consumer trace and report. Hosted results are still pending.
 
 ## Verification and review
 
 - **Local gates.** Follow [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos). Fully awake on AC, use `caffeinate -s -i`; on battery use the lid-open `caffeinate -i` procedure and inspect the sleep log. Run the affected case/title selections through `npm run test:dashboard:frontend -- board-indicators.spec.ts board-swipe.spec.ts --workers=2`, the [runner ownership](../../../dashboard/backend-tests/runtime/runner-ownership.spec.ts) and [focused resource](../../../Distribution/tests/support/local-test-suite-focused-runners.test.mjs) consumers touched by selection changes, and the [CI fragment checks](../../../Distribution/tests/skills/dough-test-optimization/ci-proof-fragments.test.mjs) for any changed proof boundary. For partial transfers include any temporary file owners in selection. Run typecheck and affected lint. Compare unfiltered discovery and both declared shard selections with the starting inventory. Hosted CI owns the actual shard run and upload. Verify the resulting artifact.
 - Use the [test-entry selector](../../../.agents/skills/dough-execute-plan/references/test-entry-rules.md) before changing sources. Both original specs select MakeMe and page objects. Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md) as written at every gate.
-- Plan refinement split mixed-result reporting from command selection, and isolated the fresh board mount immediately before its first case transfer. The seven slices use the same mount and selection rules throughout. No remaining slice-specific concern was identified. The measured seven-case improvement is the delivery criterion.
+- Plan refinement split mixed-result reporting from command selection, and isolated the fresh board mount immediately before its first case transfer. The last slice revises the event and timing boundary after profiling. The measured case time and preserved proof are the delivery criteria.
 
 ## Execution context
 
-Maki-chan resumed the published Take at `b14434bb1bf4413f690fa31a9981fa203bd8d39e` in Story Branch Mode on `codex/get-faster-feedback-on-the-seven-phone-board-che`. Increments publish to the branch on `origin`, with `origin/main` as the integration target. Checkout-local locked install, dashboard typecheck and native Chromium validation passed. CI uses GitHub Actions `ci.yml`, Codex coordinator `maki-701`, mailbox `/tmp/dough-ci-501/watch-6Xu1JK`, yielded cell `g41:11`, session 6872, PID 94203. The Take on trunk is unobserved by this branch observer.
+Maki-chan resumed the published Take at `b14434bb1bf4413f690fa31a9981fa203bd8d39e` in Story Branch Mode on `codex/get-faster-feedback-on-the-seven-phone-board-che`. Increments publish to the branch on `origin`, with `origin/main` as the integration target. Checkout-local locked install, dashboard typecheck and native Chromium validation passed. CI uses GitHub Actions `ci.yml`, Codex coordinator `maki-701`, mailbox `/tmp/dough-ci-501/watch-nVMtXI`, yielded cell `g86:66`, session 86736, PID 34336. The Take on trunk is unobserved by this branch observer.
 
 At the Take revision, guarded Playwright list-only discovery found 697 cases in 293 files, with 360 in 155 files on shard 1 and 337 in 138 files on shard 2. The checkout's Git evidence directory retains all three inventories as `baseline-*.log`. Use these inventories for the migration comparison and account for separately accepted later changes.
 
 The seed's [hosted baseline, run 44267762058 attempt 1](https://github.com/terryyin/open-dough/actions/runs/44267762058), attributed 5.726 s to the two indicator cases and 15.649 s to the five swipe cases, 21.375 s summed. With the wrapper in place and the seven cases still in Playwright, [run 44294037209 attempt 1](https://github.com/terryyin/open-dough/actions/runs/44294037209) attributed 4.637 s and 12.069 s, 16.706 s summed. Its frontend test steps took 197 s and 149 s, with 360 and 337 cases respectively. The Git evidence directory retains both original reports and the recent steps. Keep CI case times and job steps separate from locally measured elapsed time.
+
+
+## Story obligations
+
+### G1. The seven-case selection must meet the revised speed target
+Reported: slice 7 — "The split mounted median was 10.43 s versus 10.85 s for Playwright. The ranges overlapped, so the comparison did not establish a repeatable speedup."
+Story clause: "combined recorded case time is under 0.5 seconds in repeated comparable runs"
+Disposition: proved by slice 7: phone-board-event-optimization/event-publish-{1,2,3}.json and two-worker-comparison.log in Git evidence
+Commitment: P01

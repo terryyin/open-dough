@@ -1,113 +1,107 @@
 import { expect, test } from "vitest";
 import { mountPhoneBoard } from "../tests/phone-board-mount/phoneBoard.ts";
 
-test("completed native swipes traverse one whole column and stop at both ends", async () => {
+test("completed swipes traverse one whole column and stop at both ends", async () => {
   const board = await mountPhoneBoard();
-  await board.showsPublishedStories();
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("right");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Taken", [
+  board.showsPublishedStories();
+  board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  board.swipe("right");
+  board.showsColumn("Backlog", ["Taken 1 entry"]);
+  board.swipe("left", { finish: false });
+  board.showsSlidingColumn();
+  board.finishSlide();
+  board.showsPhoneColumn("Taken", [
     "Backlog 2 entries",
     "Recently done 0 entries",
   ]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
-  await board.swipe("right");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
-  await board.swipe("right");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  board.swipe("left");
+  board.showsPhoneColumn("Recently done", ["Taken 1 entry"]);
+  board.swipe("left");
+  board.showsColumn("Recently done", ["Taken 1 entry"]);
+  board.swipe("right");
+  board.showsColumn("Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
+  board.swipe("right");
+  board.showsColumn("Backlog", ["Taken 1 entry"]);
 });
 
 test("short and cancelled gestures leave the view alone, and the next swipe works", async () => {
   const board = await mountPhoneBoard();
-  await board.showsPublishedStories();
-  await board.swipe("left", { distance: 24 });
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("left", { cancel: true });
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await board.swipe("left");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
+  board.showsPublishedStories();
+  board.swipe("left", { distance: 24 });
+  board.showsColumn("Backlog", ["Taken 1 entry"]);
+  board.swipe("left", { cancel: true });
+  board.showsColumn("Backlog", ["Taken 1 entry"]);
+  board.swipe("left");
+  board.showsColumn("Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
 });
 
 test("swiping from a card or action does not select, inspect or launch it; taps still work", async () => {
-  const board = await mountPhoneBoard({ observeLaunch: true });
-  await board.showsPublishedStories();
+  const board = await mountPhoneBoard();
+  board.showsPublishedStories();
   const story = board.storyCard(board.readyStory);
-  await story.swipeFromCard("left");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
-  await story.showsSelected(false);
-  await story.showsInspected(false);
-  await board.showsNoLaunchDialog();
-  expect(await board.launchAcceptances()).toEqual([]);
-  await board.tapIndicator("Backlog");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await story.swipeFromStart("left");
-  await board.showsPhoneColumn("Taken", [
-    "Backlog 2 entries",
-    "Recently done 0 entries",
-  ]);
-  await story.showsSelected(false);
-  await story.showsInspected(false);
-  await board.showsNoLaunchDialog();
-  expect(await board.launchAcceptances()).toEqual([]);
-  await board.tapIndicator("Backlog");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await story.tapInspect();
-  await story.showsInspected(true);
-  await story.tapEmptyArea();
-  await story.showsSelected(true);
+  story.swipeFromCard("left");
+  board.showsColumn("Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
+  story.showsSelected(false);
+  story.showsInspected(false);
+  board.showsNoLaunchDialog();
+  expect(board.launchAcceptances).toEqual([]);
+  board.tapIndicator("Backlog");
+  board.showsColumn("Backlog", ["Taken 1 entry"]);
+  story.swipeFromStart("left");
+  board.showsColumn("Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
+  story.showsSelected(false);
+  story.showsInspected(false);
+  board.showsNoLaunchDialog();
+  expect(board.launchAcceptances).toEqual([]);
+  board.tapIndicator("Backlog");
+  board.showsColumn("Backlog", ["Taken 1 entry"]);
+  story.tapInspect();
+  story.showsInspected(true);
+  story.tapEmptyArea();
+  story.showsSelected(true);
+});
+
+test("the board leaves vertical touch available for native reading without paging", async () => {
+  const board = await mountPhoneBoard({ backlog: "long" });
+  board.showsPublishedStories();
+  const before = board.scrollY();
+  board.readVertically(240);
+  expect(board.scrollY()).toBeGreaterThan(before);
+  board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
 });
 
 test("swipes share the controls' chosen column and preserve open detail through rotation with reduced motion", async () => {
   const board = await mountPhoneBoard({ reducedMotion: "reduce" });
-  await board.showsPublishedStories();
+  board.showsPublishedStories();
   const story = board.storyCard(board.readyStory);
   const portrait = { width: 390, height: 844 };
   const landscape = { width: 844, height: 390 };
   expect(board.viewport()).toEqual(portrait);
   expect(board.prefersReducedMotion()).toBe(true);
-  await story.tapInspect();
-  await story.tapEmptyArea();
-  await story.showsSelected(true);
-  await board.countSlides();
-  await board.swipe("left");
-  await board.showsPhoneColumn("Taken", [
+  story.tapInspect();
+  story.tapEmptyArea();
+  story.showsSelected(true);
+  board.swipe("left", { finish: false });
+  expect(board.isSliding()).toBe(false);
+  board.showsPhoneColumn("Taken", [
     "Backlog 2 entries",
     "Recently done 0 entries",
   ]);
-  expect(await board.slides()).toBe(0);
-  await board.tapIndicator("Backlog");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await story.showsInspected(true);
-  await board.swipe("left");
-  expect(await board.resize(landscape.width, landscape.height)).toEqual({
-    browser: landscape,
-    frame: landscape,
-  });
-  await board.showsPhone(["Taken", "Recently done"], ["Backlog 2 entries"]);
-  expect(await board.resize(portrait.width, portrait.height)).toEqual({
-    browser: portrait,
-    frame: portrait,
-  });
-  await board.showsPhoneColumn("Taken", [
+  board.tapIndicator("Backlog");
+  board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  story.showsInspected(true);
+  board.swipe("left");
+  expect(await board.resize(landscape.width, landscape.height)).toEqual(
+    landscape,
+  );
+  board.showsPhone(["Taken", "Recently done"], ["Backlog 2 entries"]);
+  expect(await board.resize(portrait.width, portrait.height)).toEqual(portrait);
+  board.showsPhoneColumn("Taken", [
     "Backlog 2 entries",
     "Recently done 0 entries",
   ]);
-  await board.tapIndicator("Backlog");
-  await board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
-  await story.showsInspected(true);
-  await story.showsSelected(true);
+  board.tapIndicator("Backlog");
+  board.showsPhoneColumn("Backlog", ["Taken 1 entry"]);
+  story.showsInspected(true);
+  story.showsSelected(true);
 });
