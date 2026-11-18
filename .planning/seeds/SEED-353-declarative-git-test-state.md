@@ -110,17 +110,66 @@ need not migrate first. No open human decision or blocking dependency.
 
 **Identity:** SEED-353#declare-local-worktree-review-state
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/707-declare-local-worktree-review-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cffb7b699d1c187da31581ca092b05d70242b0cad5c0cbec274ce619ef2a84f2","plan":"3331b56127df796c6da7c11c9bc42d3c8e9539bebd7fa3a0fc7e983bdade9df3"}}
 ```
 
-**For / why.** A developer sees which local files/index/workspace facts explain
-review and refresh. Include uncommitted, nested/large/context, rename, mode and
-binary starting state in `storyReviewWorktree.ts` and its callers across tiers.
-**Evaluation.** Declared committed, staged, unstaged, untracked and ignored bytes
-produce the same review and independent Git status/index results. A later edit,
-stage or commit being observed stays explicit in the scenario.
-**Safe stopping point.** Local-content review fixtures are declarative and isolated;
-no trunk-attribution or completed-history migration is required for their value.
+**Goal.** A developer reads the committed, staged, unstaged, untracked and
+ignored facts that explain a story review and its refresh directly, without
+reconstructing worktree Git setup. Review cases become easier to read and
+change together with the local-snapshot behavior they prove.
+
+**Scope.** Migrate the starting worktrees in
+`dashboard/test-support/support/storyReviewWorktree.ts` — Story A's full,
+admission, unchanged, landed, nested, large and expand-context worktrees and
+the mode-only change — with their direct and indirect callers across backend,
+E2E and Frontend-group tests, including `largeReviewFiles.ts`,
+`reviewPanes.ts`, `storyReviewTouchJourney.ts`, `expandContextDiff.ts` and
+spec-local starting edits such as the uncommitted check's edited-again story
+file. Declare Story A's `claude/story-a` workspace at `.worktrees/story-a`,
+its named trunk and workspace revisions, the other developer's merged trunk
+revision and later unfetched trunk revision, renames, deletions, binary bytes,
+file modes and the uncommitted index and file state through the shared MakeMe
+repository description and existing start-origin owners. Extend those owners
+for these demonstrated needs; preserve deferred, prepared-prefix reuse and each
+test's private mutable worktree. Named revision results replace incidental
+`rev-parse` setup.
+
+An edit, stage, revert or commit made after the review opened, and a trunk
+publication observed by a refresh, stay visible scenario actions. `observed`
+and other Git status/index reads stay independent of the description's
+renderer. Update the test-data architecture guide and compare representative
+construction before and after under ADR 0010. No production behavior change or
+speedup promise. The shared `git`, `commitAll`, `writeAt` and `lines` helpers
+stay while other families import them; story-branch commit/range and
+admission-topology helpers (`storyReviewTrunk.ts`), trunk-mode authorship and
+completed-story histories remain with their receiving siblings.
+
+**Key examples.**
+
+- Given Story A's declared worktree — committed rename with a small edit,
+  added story file, deleted file and redrawn image, merged trunk from another
+  developer with a later unfetched trunk, a staged edit, an unstaged edit with
+  a wide line, an untracked nested file and an ignored log — opening the review
+  shows the same seven changed files, baseline, counts and wide-line diff, and
+  Git reports the same porcelain status and staged names before and after.
+- Given that worktree with its committed story file edited again before
+  opening, turning “Include uncommitted changes” off lists the four committed
+  files with committed counts; a worktree declared with nothing uncommitted
+  offers no check.
+- Given the declared worktree already open in review, a further commit and a
+  new file written by the scenario do not change the snapshot until Refresh,
+  which shows them; the edit and commit remain written in the scenario.
+- Given nested trunk files and a cross-folder rename, a mode-only change, a
+  large single-commit comparison, or two distant edits in one long file, the
+  tree rows, mode-change counts, pane scrolling and expandable context stay as
+  today.
+- Given the admission worktree whose trunk later moved without a fetch, or a
+  landed first slice with a later local commit and edit, admission, refusal
+  and landed-review results stay the same.
+
+**Safe stopping point.** Local-content review fixtures are declarative and
+isolated; no trunk-attribution or completed-history migration is required for
+their value. No open human decision or blocking dependency.
 
 <a id="declare-merged-review-histories"></a>
 
