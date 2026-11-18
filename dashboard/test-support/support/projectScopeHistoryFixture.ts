@@ -68,7 +68,7 @@ export async function readKeptProjectHistory(
   const setup = await serveSummaryComparisonStory(
     page,
     origin,
-    declaredSummaryComparisonEndpointsIn(origin.project),
+    declaredSummaryComparisonEndpointsIn(origin),
     {},
   );
   const latest = await originMain(origin);

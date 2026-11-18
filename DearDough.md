@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 580. Removed numbers are never reused.
-- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows.
+- Highest allocated local number: 581. Removed numbers are never reused.
+- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -209,13 +209,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: the slice 2 implementation and refactor briefs forbade lint. Guarded fresh delivery's `npm run --silent format` refused on six ESLint errors (`no-param-reassign`, `no-return-assign`) in `slice-clock.mjs`, `slice-clock-record.mjs` and `slice-clock-fixture.mjs`. The coordinator repaired them, reran the spec and retried. Briefs for slices 3–5 named the two rules and allowed a read-only `npx eslint`; their four deliveries formatted clean.
   - Observed effect: one failed delivery attempt and a coordinator-side repair after the refactor pass had reported complete.
   - Inference: same gap as ODF-329, for JavaScript sources. Naming the project's strict rules and allowing a read-only lint in the brief removed it for the rest of the execution.
-- Execution: SEED-367#discard-time-after-an-ended-session (plan 668; first implementation `66ce0a60d6b5ae2f172667c174b0c1154ef6ba97`)
-  - Timestamp: unknown (2026-11-16, first slice delivery before `66ce0a60d6`)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance at Take `ad2e6f733dc41b7177bd39ab20fb7b0846f41146`)
-  - Evidence: implementation and refactor briefs forbade hook-owned lint. Guarded fresh delivery refused formatting on six `no-param-reassign` errors in `slice-clock.mjs` and `slice-clock-slices.mjs`, after the independent refactor and 29-test proof. The coordinator used the existing `Object.assign` pattern, reran the 29 clock tests, and retried delivery successfully.
-  - Observed effect: one withheld delivery and coordinator repair after the refactor reported complete; no failed candidate was committed or published.
-  - Inference: another occurrence of ODF-329. Carrying the strict rule into the brief may avoid this rework; the installed workflow reserved lint for the coordinator. Extra cost was not measured.
 - Execution: SEED-367#bound-diagnosis-in-evidence-rounds (plan 669; first implementation `cce82241194e3f8f5e58b84342dfcd92c51d63c8`)
   - Timestamp: unknown (2026-11-16 +08:00; slice 1 delivery, before commit `cce82241` at 19:02:58)
   - Tool: Claude Code
@@ -225,13 +218,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: one withheld delivery and a coordinator repair after the refactor pass reported complete; nothing failed was committed.
   - Inference: the remedy recorded for plan 667 lived only in that execution's briefs, so it did not carry to the next execution on the same files.
 
-- Execution: SEED-388#replace-native-reader-gaps-on-reread (first implementation `8e62635e227962d87359188b00f8a21f9c54aba1`)
-  - Timestamp: unknown (2026-11-17, first delivery before implementation publication)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance at established claim `bd2e79cd90df5d7481fcecc0dcf3703e55e82529`)
-  - Evidence: implementation/refactor briefs reserved hook-owned lint for coordinator without a read-only authored-file check. Independent refactor returned `usageServer(...).refresh` as an unbound method; guarded fresh formatter refused on `@typescript-eslint/unbound-method` (`eb800c`). Coordinator retained the receiver in an arrow callback, reran all eight focused cases (7.3s), and retried successfully.
-  - Observed effect: one preparation refusal and repair after refactor completion; no failing candidate was committed or published.
-  - Inference: same concrete gap as ODF-329. The existing check prevented escape; extra agent effort was not measured.
 - Execution: SEED-393#guidance-check-participants-run-owning-proof (plan 676; first implementation `80ecc810a8de71bbdb448479ebae58e79b0880b2`)
   - Timestamp: unknown (2026-11-17 +08:00; slice 1 delivery, before commit `80ecc810a` at 20:54:57)
   - Tool: Claude Code
@@ -995,3 +981,18 @@ The plan's slices 2–3 sampled ordinary Doughnut and Pygardon work in the seven
   - Evidence: plan 706 at `d6190e523` ("Ordinary-work protocol" and "Frozen trial", where the window starts at landing); the dashboard unfinished report; Terry: "split at slice 1 and land it"; split commit `834cad999`, which moves slices 2–4 to plan 709 behind a blocking dependency.
   - Observed effect: delivered slice 1 waited on an unfinished stop and a developer decision, followed by a mid-execution split, a second source-only review and backlog changes.
   - Inference: deciding at planning that time-gated observation of ordinary work is a separate dependent story would avoid the stop. Matching uncertainty with DD-572: both hold completion on a condition no agent controls, but DD-572 is a proof criterion on machine load, and here the plan structure itself is the cause.
+
+## DD-581 — Delivery lint checks only changed files, so a narrowed shared type fails CI in unchanged consumers <a id="dd-581"></a>
+
+A refactor narrowed a shared test-support return type. Guarded delivery's formatter and the staged-file hook passed because they lint only changed files; unchanged consumer specs then failed CI's full lint on now-unnecessary `??` fallbacks and guards.
+
+### Occurrences
+
+- Execution: SEED-353#declare-intent-comparison-histories (plan 643; first implementation `f52db9a6756441116edf76fd7930b275e12e7b1f`)
+  - Timestamp: 2026-11-18T15:48:59Z (CI lint failure, run 44339614749)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim `525013d95dd4d501e07a7e9c2169e087ae851177`)
+  - Evidence: slice 2's refactor made `publishCodeLandedBeforeCompletion` return `Required<Pick<…>>`; delivery `11239b2` passed formatting and the hook; CI "Lint and type-check" failed with four `no-unnecessary-condition` errors in three unedited specs; repair `eea3134`. Later briefs required full `npm run lint` after shared type or export changes, and no further lint failure reached CI.
+  - Observed effect: one red CI run, a writer pause and stash of slice 3's work, a delegated repair and an extra publication.
+  - Inference: a full check-only lint at delivery when a shared export or type changes would catch this before publication; the repair cycle cost about 10 minutes, not precisely measured.

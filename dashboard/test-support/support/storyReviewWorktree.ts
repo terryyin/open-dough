@@ -20,9 +20,11 @@ export const branch = "claude/story-a";
 export const git = (cwd: string, ...args: string[]) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 
+// Commits every change and answers the commit it made.
 export function commitAll(cwd: string, message: string) {
   git(cwd, "add", "--all");
   git(cwd, "commit", "--quiet", "-m", message);
+  return git(cwd, "rev-parse", "HEAD");
 }
 
 // Lines enough for a small edit to stay a rename.

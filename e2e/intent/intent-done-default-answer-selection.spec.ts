@@ -1,7 +1,6 @@
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 // A default comparison is not a remembered run choice. Switching from one
 // story's valid captured fallback to another story must use its server default.
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { storyB } from "../../Distribution/tests/support/queued-repository.mjs";
@@ -23,7 +22,10 @@ import {
   stored,
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { publishCompletedStory } from "../../dashboard/test-support/support/completedStoryPublication.ts";
+import {
+  commitBacklogCompletion,
+  publishCompletedStory,
+} from "../../dashboard/test-support/support/completedStoryPublication.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
   chooseStoryTab,
@@ -32,10 +34,7 @@ import {
   storySummary,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
-import {
-  capturedPublicationSchema,
-  scripts,
-} from "../../dashboard/test-support/support/launchLanding.ts";
+import { capturedPublicationSchema } from "../../dashboard/test-support/support/launchLanding.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
@@ -70,20 +69,7 @@ test("selecting another Done story follows its published default instead of reta
     host: "codex",
     storyWork(workspace) {
       writeRevisionFiles(workspace, firstFacts);
-      execFileSync(
-        process.execPath,
-        [
-          path.join(
-            scripts(workspace, "dough-product-backlog"),
-            "product-backlog.mjs",
-          ),
-          "complete",
-          "--identity",
-          queuedIdentity,
-        ],
-        { cwd: workspace, stdio: "pipe" },
-      );
-      commitAll(workspace, "complete the first captured story");
+      commitBacklogCompletion(workspace, "complete the first captured story");
     },
   });
   const firstCapture = capturedPublicationSchema.parse(await first.integrated())
@@ -129,9 +115,8 @@ test("selecting another Done story follows its published default instead of reta
     })
     .please().revisions[0];
   writeRevisionFiles(origin.project, later);
-  commitAll(origin.project, "later trunk after both stories");
+  const current = commitAll(origin.project, "later trunk after both stories");
   git(origin.project, "push", "--quiet", "origin", "main");
-  const current = git(origin.project, "rev-parse", "HEAD");
   const legacy = makeMe.aLaunchRecord
     .executing({ identity: storyB.identity, title: storyB.title })
     .onStoryBranch({

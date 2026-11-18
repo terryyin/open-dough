@@ -5,23 +5,42 @@
 // ./storyCiComparisonFixture.ts.
 
 import type { Page } from "@playwright/test";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   storyA,
   storyB,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
+import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 import { observedFirstAttempts } from "./storyCiObservedJobs.ts";
 import {
-  claimOf,
   precedeClaimWithPlanning,
-  revList,
   serveActionsFor,
 } from "./storyCiComparisonFixture.ts";
+
+// The agent both Taken shapes declare.
+const takenAgent = "Yui";
+
+// The taken agent's implementation in its workspace: authored by the agent,
+// committed by the developer, as the agent's checkout commits it.
+function commitAgentWork(
+  workspace: string,
+  revision: RevisionFacts,
+): Promise<string> {
+  const { agent: name, email } = agentIdentity(takenAgent);
+  return commitDeclaredRevision(workspace, {
+    ...revision,
+    author: { name, email },
+    committer: dashboardDeveloper,
+  });
+}
 
 // Taken Story Branch with a completed branch tip build and the same
 // pre-story baseline as done journeys. Leaves the story Taken (no wrap-up).
@@ -33,7 +52,6 @@ export async function publishTakenComparedStoryBranch(
   readonly title: string;
   readonly baseline: string;
   readonly branchTip: string;
-  readonly laterWithoutBuild: number;
   readonly agent: string;
   readonly branch: string;
   readonly restoreActions: () => void;
@@ -44,27 +62,22 @@ export async function publishTakenComparedStoryBranch(
   readonly serveJobs: ReturnType<typeof serveActionsFor>["serveJobs"];
 }> {
   const baseline = await precedeClaimWithPlanning(origin);
-  const { agent, workspace, branch } = await origin.publishTake({
-    agent: "Yui",
+  const { agent, workspace, branch, claim } = await origin.publishTake({
+    agent: takenAgent,
     story: storyA,
     queued: [storyB],
     mode: "story-branch",
   });
-  writeAt(workspace, "src/story.ts", "taken story work\n");
-  commitAll(workspace, "story implementation on the branch");
+  const branchTip = await commitAgentWork(workspace, {
+    message: "story implementation on the branch",
+    files: { "src/story.ts": "taken story work\n" },
+  });
   git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
-  const branchTip = git(workspace, "rev-parse", "HEAD");
-  const claim = claimOf(origin.project, agent);
-  const storyStart = git(origin.project, "rev-parse", `${claim}^`);
-  const fromStart = revList(origin.project, storyStart, 20);
-  const baselineIndex = fromStart.indexOf(baseline);
-  const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
 
   pull(origin.project);
-  const published = git(origin.origin, "rev-parse", "main");
   const committed = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: published,
+    revision: claim,
     repository: "terryyin/open-dough",
     follows: true,
     realHistory: true,
@@ -77,7 +90,6 @@ export async function publishTakenComparedStoryBranch(
     title: "Story A",
     baseline,
     branchTip,
-    laterWithoutBuild,
     agent,
     branch,
     initialRuns: firstAttempts.runs,
@@ -95,27 +107,22 @@ export async function publishTakenComparedTrunk(
   readonly title: string;
   readonly baseline: string;
   readonly trunkTip: string;
-  readonly laterWithoutBuild: number;
   readonly agent: string;
   readonly restoreActions: () => void;
 }> {
   const baseline = await precedeClaimWithPlanning(origin);
   const { agent, workspace } = await origin.publishTake({
-    agent: "Yui",
+    agent: takenAgent,
     story: storyA,
     queued: [storyB],
     mode: "trunk",
     slug: "taken-trunk-ci",
   });
-  writeAt(workspace, "src/trunk-story.ts", "taken trunk work\n");
-  commitAll(workspace, "story implementation on trunk");
+  const trunkTip = await commitAgentWork(workspace, {
+    message: "story implementation on trunk",
+    files: { "src/trunk-story.ts": "taken trunk work\n" },
+  });
   push(workspace);
-  const trunkTip = git(origin.origin, "rev-parse", "main");
-  const claim = claimOf(origin.project, agent);
-  const storyStart = git(origin.project, "rev-parse", `${claim}^`);
-  const fromStart = revList(origin.project, storyStart, 20);
-  const baselineIndex = fromStart.indexOf(baseline);
-  const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
 
   pull(origin.project);
   const committed = await publishCommittedOrigin(page, {
@@ -133,7 +140,6 @@ export async function publishTakenComparedTrunk(
     title: "Story A",
     baseline,
     trunkTip,
-    laterWithoutBuild,
     agent,
     ...actions,
   };

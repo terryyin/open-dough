@@ -8,7 +8,7 @@ import {
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { readWaitLimitMs } from "../../dashboard/src/authenticatedReadRules.ts";
 import { expectCiComparisonEntryRows } from "../../dashboard/test-support/support/expectCiComparisonEntryRows.ts";
-import { publishSkippedLandingWithoutProof } from "../../dashboard/test-support/support/storyCiComparisonSkippedFixture.ts";
+import { publishSkippedLandingWithoutProof } from "../../dashboard/test-support/support/storyCiComparisonSkippedLandingFixture.ts";
 import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 
 test("Landed reuses equivalent wall time when that build published no proof, walks no further, and keeps entry comparison on Branch", async ({

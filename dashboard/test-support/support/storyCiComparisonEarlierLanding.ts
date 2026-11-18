@@ -6,7 +6,6 @@
 // outcomes are served by ./storyCiComparisonLandedOutcome.ts; shared helpers
 // come from ./storyCiComparisonFixture.ts.
 
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
 import type { Page } from "@playwright/test";
@@ -17,6 +16,8 @@ import {
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
+import { writeCompletedStoryImplementation } from "./completedStoryInput.ts";
+import { completeBacklogStory } from "./completedStoryPublication.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
@@ -33,7 +34,18 @@ export async function publishCodeLandedBeforeCompletion(
   page: Page,
   origin: StartOrigin,
   workflowRemovedBeforeLanding = false,
-): Promise<StoryCiComparisonSetup> {
+): Promise<
+  StoryCiComparisonSetup &
+    Required<
+      Pick<
+        StoryCiComparisonSetup,
+        "landingMerge" | "trunkSide" | "branchAncestor"
+      >
+    > & {
+      // The trunk advance after completion, parent of the later trunk build.
+      readonly advanced: string;
+    }
+> {
   const baseline = await precedeClaimWithPlanning(origin);
   writeAt(origin.project, "shared.txt", lines("line"));
   commitAll(origin.project, "initial shared file");
@@ -47,19 +59,12 @@ export async function publishCodeLandedBeforeCompletion(
     mode: "story-branch",
   });
 
-  writeAt(
-    workspace,
-    "shared.txt",
-    lines("line").replace("line 0\n", "story first\n"),
-  );
-  writeAt(workspace, "[literal]*.txt", "delivered on another machine\n");
-  commitAll(workspace, "story implementation");
-  const branchAncestor = git(workspace, "rev-parse", "HEAD");
+  writeCompletedStoryImplementation(workspace);
+  const branchAncestor = commitAll(workspace, "story implementation");
   // Planning-only tip: CI ignores .planning/**, so the merge's branch side
   // has no build.
   writeAt(workspace, ".planning/branch-wrap.md", "wrap on branch\n");
-  commitAll(workspace, "planning tip before landing");
-  const branchSide = git(workspace, "rev-parse", "HEAD");
+  const branchSide = commitAll(workspace, "planning tip before landing");
   git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
 
   pull(origin.project);
@@ -67,15 +72,15 @@ export async function publishCodeLandedBeforeCompletion(
   if (workflowRemovedBeforeLanding) {
     rmSync(path.join(origin.project, comparisonWorkflowPath));
   }
-  commitAll(origin.project, "another writer interleaves");
+  const trunkSide = commitAll(origin.project, "another writer interleaves");
   push(origin.project);
 
   // Take already published the claim on trunk. An agent-authored landing
-  // merge whose first parent still claims is recovered as owning.
+  // merge whose first parent still claims is recovered as owning; the later
+  // single-parent completion on trunk only adds the done record.
   git(origin.project, "fetch", "--quiet", "origin", branch);
   git(origin.project, "config", "user.name", identity.agent);
   git(origin.project, "config", "user.email", identity.email);
-  const trunkSide = git(origin.project, "rev-parse", "HEAD");
   git(
     origin.project,
     "merge",
@@ -86,56 +91,27 @@ export async function publishCodeLandedBeforeCompletion(
   );
   const landingMerge = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);
-
-  // Later single-parent completion on trunk (done record only).
-  execFileSync(
-    process.execPath,
-    [
-      path.join(
-        origin.project,
-        ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
-      ),
-      "complete",
-      "--file",
-      ".planning/PRODUCT-BACKLOG.md",
-      "--identity",
-      queuedIdentity,
-    ],
-    { cwd: origin.project },
+  completeBacklogStory(origin.project);
+  // The profile may already be gone after complete.
+  rmSync(path.join(origin.project, ".planning", identity.path), {
+    force: true,
+  });
+  const completion = commitAll(
+    origin.project,
+    "complete the story through CLI",
   );
-  try {
-    rmSync(path.join(origin.project, ".planning", identity.path));
-  } catch {
-    // Profile may already be gone after complete.
-  }
-  commitAll(origin.project, "complete the story through CLI");
-  const completion = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);
   git(origin.project, "push", "--quiet", "--delete", "origin", branch);
   git(origin.project, "worktree", "remove", "--force", workspace);
   git(origin.project, "branch", "--delete", "--force", branch);
 
-  const parents = git(
-    origin.project,
-    "rev-list",
-    "--parents",
-    "-1",
-    landingMerge,
-  )
-    .trim()
-    .split(" ");
-  expectBranchSide(parents[2] ?? "", branchSide);
-  if ((parents[1] ?? "") !== trunkSide) {
-    throw new Error(
-      `landing trunk side ${parents[1] ?? ""} does not match ${trunkSide}`,
-    );
-  }
-
-  advanceCompletedTrunk(origin);
+  const advanced = advanceCompletedTrunk(origin);
   // A later trunk build that must not stand in for Branch or Landed.
   writeAt(origin.project, "later-ci.txt", "later built trunk\n");
-  commitAll(origin.project, "later trunk build after completion");
-  const laterTrunk = git(origin.project, "rev-parse", "HEAD");
+  const laterTrunk = commitAll(
+    origin.project,
+    "later trunk build after completion",
+  );
   push(origin.project);
 
   const published = git(origin.origin, "rev-parse", "main");
@@ -177,17 +153,10 @@ export async function publishCodeLandedBeforeCompletion(
     baseline,
     branchSide,
     branchAncestor,
+    advanced,
     laterWithoutBuild: 1,
     agent,
     branch,
     ...actions,
   };
-}
-
-function expectBranchSide(actual: string, expected: string) {
-  if (actual !== expected) {
-    throw new Error(
-      `landing branch side ${actual} does not match tip ${expected}`,
-    );
-  }
 }

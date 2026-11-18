@@ -16,7 +16,6 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];
@@ -66,7 +65,7 @@ test("one true adapter attempt shared by two exact landing receipts contributes 
             .forLaunch(receipt)
             .deliveredAs({ delivery: receipt, receipt })
             .comparing({
-              base: git(origin.project, "rev-parse", `${revision}^`),
+              base: origin.revision("base"),
               revision,
             })
             .receivedAt(at)

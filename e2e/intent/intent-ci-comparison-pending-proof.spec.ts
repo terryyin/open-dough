@@ -8,7 +8,7 @@ import {
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import { parseRequest } from "../../dashboard/test-support/support/ghRequest.ts";
-import { publishSkippedPlanningLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedFixture.ts";
+import { publishSkippedPlanningLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedLandingFixture.ts";
 import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 import { checkComparisonAgain } from "../../dashboard/test-support/support/storyCiComparisonRetry.ts";
 

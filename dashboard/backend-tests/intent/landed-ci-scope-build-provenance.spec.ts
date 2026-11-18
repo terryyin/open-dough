@@ -20,7 +20,6 @@ import { land } from "../../test-support/support/startSessionLandingContext.ts";
 import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { publishSkippedPlanningLanding } from "../../test-support/support/storyCiComparisonSkippedLandingFixture.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];
@@ -47,18 +46,20 @@ test("an exact landing and a skipped landing share one collected attempt and ret
   const recorded = [
     {
       revision: setup.trunkSide,
+      base: setup.claim,
       receipt: "20000000-0000-4000-8000-000000000001",
       at: "2026-11-05T13:35:00.000Z",
     },
     {
       revision: setup.landingMerge,
+      base: setup.trunkSide,
       receipt: "20000000-0000-4000-8000-000000000002",
       at: "2026-11-05T14:00:00.000Z",
     },
   ];
   keepMoreLaunchRecords(
     dashboard,
-    recorded.map(({ revision, receipt, at }) =>
+    recorded.map(({ revision, base, receipt, at }) =>
       makeMe.aLaunchRecord
         .executing({ identity: setup.identity, title: "Story A" })
         .inClaudeSession({ sessionId: receipt })
@@ -74,7 +75,7 @@ test("an exact landing and a skipped landing share one collected attempt and ret
             .forLaunch(receipt)
             .deliveredAs({ delivery: receipt, receipt })
             .comparing({
-              base: git(origin.project, "rev-parse", `${revision}^`),
+              base,
               revision,
             })
             .receivedAt(at)

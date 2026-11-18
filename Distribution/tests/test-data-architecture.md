@@ -80,6 +80,16 @@ workers, prepare it with `prepareRepositorySnapshot` and register it with
 the same author, committer and message defaults.
 [Revision commit](support/repository-revision-commit.mjs)
 
+Intent comparison setups read their endpoints from these named results.
+Publish the built baseline with `precedeClaimWithPlanning`, or compose
+`withPlanningBeforeClaim` into a CI trunk declared with `aComparisonCiTrunk`;
+`publishDeclaredTrunk` pushes it once and answers each SHA by name. `publishTake` answers its `claim`, and
+`completedPublishedStory` its `claim`, `completion` and owning `branchSide`.
+`completeBacklogStory` runs the real backlog completion; `commitAll` and
+`advanceCompletedTrunk` answer the commit they made.
+[Baseline and trunk](../../dashboard/test-support/support/storyCiComparisonBaseline.ts) ·
+[Completion](../../dashboard/test-support/support/completedStoryPublication.ts)
+
 A revision can also carry one `release`, built with
 `makeMe.aRelease.with({ version, taggedAt, marker }).please()` and, where
 its payload differs, the managed path prefixes it `withheld` from its

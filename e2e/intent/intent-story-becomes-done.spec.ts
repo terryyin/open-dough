@@ -27,7 +27,6 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { claimOf } from "../../dashboard/test-support/support/storyCiComparisonHistory.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
@@ -58,10 +57,9 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
   keepUnusableCompletedCapture(dashboard, origin, story);
   // Show the actual earlier claim first, then advance that same publication
   // to its actual completed result without navigating or reselecting.
-  const active = claimOf(origin.project, story.agent);
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: active,
+    revision: story.claim,
     repository: "terryyin/open-dough",
     realHistory: true,
   });
