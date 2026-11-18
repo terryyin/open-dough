@@ -40,6 +40,7 @@ export const resolvedCheckout = (workspace: string) =>
 
 interface LogEntry {
   readonly commit: string;
+  readonly parents: readonly string[];
   readonly at: number;
   readonly action: string;
   readonly made: string;
@@ -49,32 +50,44 @@ const committing =
   /^(?:commit(?: \((?:amend|initial)\))?|cherry-pick|revert): /;
 const replaying = /\((?:pick|continue)\): /;
 
-// The checkout's `HEAD` log, newest first: each entry's commit, its time, the
-// action that wrote it, and the commit's author time and subject.
+// The checkout's `HEAD` log, newest first: each entry's commit and parents,
+// its time, the action that wrote it, and the commit's author time and subject.
 async function headLog(checkout: string): Promise<readonly LogEntry[]> {
   const read = await git(checkout, [
     "log",
     "-g",
     "--date=unix",
-    "--format=%H%x00%gd%x00%gs%x00%at %s",
+    "--format=%H%x00%P%x00%gd%x00%gs%x00%at %s",
     "HEAD",
   ]);
   return read.split("\n").flatMap((line) => {
-    const [commit, selector, action, made] = line.split("\0");
+    const [commit, parents, selector, action, made] = line.split("\0");
     const at = Number(/@\{(\d+)\}$/.exec(selector ?? "")?.[1]);
     return commit === undefined ||
+      parents === undefined ||
       action === undefined ||
       made === undefined ||
       !Number.isFinite(at)
       ? []
-      : [{ commit, at, action, made }];
+      : [
+          {
+            commit,
+            parents: parents === "" ? [] : parents.split(" "),
+            at,
+            action,
+            made,
+          },
+        ];
   });
 }
 
 // The commits the log says were made in the checkout at or after `since`,
-// oldest first, each once: a commit, or a replay of one made there.
+// oldest first, each once: a commit, or a replay of one made there. An
+// entry for a merge has multiple parents even if its action says amend.
 function madeSince(log: readonly LogEntry[], since: number): string[] {
-  const entries = log.filter(({ at }) => at >= since).reverse();
+  const entries = log
+    .filter(({ at, parents }) => at >= since && parents.length <= 1)
+    .reverse();
   const made = new Set(
     entries.filter(({ action }) => committing.test(action)).map((e) => e.made),
   );

@@ -141,6 +141,35 @@ test("commits either side of merged trunk work are two runs without the merge or
   expect(paths(next)).toEqual(["second.txt"]);
 });
 
+test("commits either side of an amended merge stay separate without the merge's files", async ({
+  dashboard,
+  origin,
+  request,
+}) => {
+  establishDefaultMainSession(dashboard, origin, sessionId);
+  const checkout = origin.project;
+  const start = git(checkout, "rev-parse", "HEAD");
+  const first = await commitInCheckout(checkout, firstAt, "first.txt");
+  await pullPublishedWork(origin, secondAt, "story.txt", { how: "merge" });
+  const amended = amendInCheckout(checkout, thirdAt, "amended.txt");
+  const second = await commitInCheckout(checkout, fourthAt, "second.txt");
+  await markAdHocDone(dashboard, sessionId);
+
+  const opened = await adHocReview(request, dashboard, sessionId);
+  expect(paths(opened)).toEqual(["first.txt"]);
+  expect(opened).toMatchObject({
+    commitRuns: [
+      { commits: 1, baseline: start, tree: first },
+      { commits: 1, baseline: amended, tree: second },
+    ],
+    baseline: start,
+    tree: first,
+  });
+  const next = await adHocReview(request, dashboard, sessionId, 1);
+  expect(paths(next)).toEqual(["second.txt"]);
+  expect(next).toMatchObject({ baseline: amended, tree: second });
+});
+
 test("two commits, the second amended, rebased onto pulled trunk and pushed are one run of the two as pushed", async ({
   dashboard,
   origin,

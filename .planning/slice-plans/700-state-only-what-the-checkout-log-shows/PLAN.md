@@ -210,7 +210,7 @@ slice on full lint and the commit hook's staged checks.
 
 ### 2. Leave a merge commit out of a session's runs
 Type: Behavior
-Status: planned
+Status: done
 Proof: case in `backend-tests/review/ad-hoc-session-commit-runs.spec.ts`
 (210 lines). Scratch break: place a two-parent commit by its entry kind
 alone; the case fails on the merged file.
@@ -220,6 +220,14 @@ amends the merge commit, then commits again → Done → the runs hold the
 session's commits either side of the merge and neither holds the merged
 file or the amended merge. The placing rule reads each written commit's
 parents.
+
+Proof: with the parent filter disabled, the amended-merge case returned
+the merged and amended files in the first run (exit 1). After restoration,
+the amended-merge, ordinary merge, pulled-landing, rewrite, Done and review
+cases in the selected 18 backend specs passed. Dashboard typecheck passed.
+Run and file observations, terminal records and consumer dispositions are
+in `slice-2-return.md` and `slice-2-consumer-trace.md` in the Git evidence
+directory.
 
 ### 3. Keep continued cherry-picks and autosquashed commits
 Type: Behavior
