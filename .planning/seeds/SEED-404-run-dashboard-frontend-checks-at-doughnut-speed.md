@@ -4,75 +4,126 @@ status: active
 planted: 2026-11-18
 planted_during: Terry asked to queue Dashboard Frontend Test at Doughnut's speed, using Doughnut's long-lived browser
 trigger_when: selected from the backlog
-scope: one story
+scope: two stories
 ---
 
 # SEED-404 — Dashboard Frontend Test runs at Doughnut's speed
 
+A developer currently waits about 29 minutes for a local two-worker frontend
+run. Doughnut reported 2,573 frontend cases in 65 seconds. Terry selected the
+phone board as the first delivery. Its seven cases put real navigation
+controls, native gestures and CSS to work in a fixture typical of the expensive
+part of this suite. A developer can keep the faster focused feedback even if
+the wider migration stops.
+
+[CI run 44267762058, attempt 1](https://github.com/terryyin/open-dough/actions/runs/44267762058)
+passed 692 cases across 291 files. The two parallel frontend test steps took
+200 s and 197 s. The 1,427.141 s summed across cases measure a different cost.
+At preparation revision `b6a759be6`, discovery again found 692 cases in 291 files.
+
+| Files grouped by the fixture they use | Files | CI cases | Summed case-seconds |
+| --- | ---: | ---: | ---: |
+| Built-app fixture | 247 | 564 | 1,353.3 |
+| Live comparison mount | 20 | 32 | 31.3 |
+| Comparison markup renderer | 20 | 84 | 36.1 |
+| Other | 4 | 12 | 6.5 |
+
+### Architecture and alternatives
+
+Vitest browser mode reuses Chromium, supplied by Playwright. Each case mounts
+the production component or screen with real CSS and fresh service answers in
+the browser. Sharing a static server per worker would still incur a page and
+bundle load per built-app case. More CI shards would leave the two-worker local
+wait intact. Classify each case by the product behavior it observes. A real URL
+load, browser history, the production page or an integrated service keeps its
+Playwright journey. A setup call to `goto("/")` alone tells us little about
+which boundary the assertion needs.
+
+The useful analogy is a calibrated instrument reused across samples. Here
+each case also needs a clean starting state. Unmounting leaves some preferences
+in memory, and clearing storage alone can reveal their last values. Doughnut
+retains per-file isolation after 216 of 339 files failed with isolation
+disabled. ADR 0008 leaves the choice of test tools open. ADR 0010 calls for
+equivalent useful proof and a measured gain worth the cost of migration and
+maintaining both runners. [Doughnut configuration](https://github.com/nerds-odd-e/doughnut/blob/a23441f741486ea5bde7e892038ba33b408d78a4/frontend/vitest.config.ts),
+[built-app fixture](../../dashboard/tests/support/frontendApp.ts),
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
+
 <a id="run-dashboard-frontend-checks-at-doughnut-speed"></a>
 
-### Run Dashboard Frontend Test at Doughnut's speed
+### Get faster feedback on the seven phone-board checks
 
 **Identity:** SEED-404#run-dashboard-frontend-checks-at-doughnut-speed
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/701-faster-phone-board-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1f2b0e2ee5376e375713aff766a4853178014dfadb5770a5170e588ebdd60d1","plan":"7848e7deb9bc248f9fc73850204fdf67e444a3bf20e35f7caf5477a606807aec"}}
+```
+
+**Goal.** A developer checking the phone board gets results sooner through the
+ordinary Dashboard Frontend Test command. All seven cases retain their
+original assertions and remain identifiable in the frontend CI proof. The current
+two-worker selection passed in 22.07 s elapsed, including startup.
+
+**Scope.** Move both phone-indicator cases and all five board-swipe cases onto
+real mounted React and production CSS. Within a file, reuse the browser, supply
+fresh answers at the service boundary, and unmount after each case. Preserve
+native input, viewport changes, measured geometry, state isolation and the
+existing observations. The normal focused command, unfiltered group and CI
+must select each case once. Measure the seven-case selection under comparable
+conditions. The remaining suite and its roughly one-minute target belong to
+the [second story](#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed).
+
+**Key examples**
+
+- At 390 × 844, swipe from Backlog to Taken. The two indicators are each at
+  most 16 px wide. Both the view and story card gain more than 44 px against
+  the former layout with two 44 px controls. A native tap reaches the named
+  column. Keyboard activation hands focus to the surviving indicator.
+- A short or cancelled swipe keeps the current column. A completed swipe moves
+  one column and stops at either end. A swipe starting on a card or its launch
+  action leaves selection, inspection and launch untouched. Ordinary taps still
+  inspect and select. With reduced motion, the open detail and selection
+  survive a rotation to landscape and back.
+- With a long backlog, a native vertical stroke advances the scroll region
+  and keeps Backlog visible. A later case starts again with its own board
+  preference and service answers.
+- A developer runs the two phone specs together → all seven results appear
+  once. The frontend CI summary includes those seven and the retained cases
+  once each, including when a moved assertion fails.
+
+[Indicator cases](../../dashboard/frontend-tests/board-indicators.spec.ts)
+and [swipe cases](../../dashboard/frontend-tests/board-swipe.spec.ts)
+
+<a id="run-the-remaining-dashboard-frontend-checks-at-doughnut-speed"></a>
+
+### Run the remaining Dashboard Frontend Test checks at Doughnut's speed
+
+**Identity:** SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed","dependencies":[{"supplier":{"identity":"SEED-404#run-dashboard-frontend-checks-at-doughnut-speed","href":"seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed"},"implementation":"Apply the measured phone-board mount and its frontend command and CI proof path to the remaining eligible cases.","rationale":"The wider migration uses the gain and proof fidelity delivered by the first seven cases to justify extending the approach across the suite. Shared helper code alone would not establish that result.","condition":"All seven phone-board cases run once through the normal frontend command and CI, preserve their native assertions, and deliver a repeatable reduction in focused elapsed time.","state":"waiting"}]}
+```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Goal:** A developer waiting for Dashboard Frontend Test gets that suite's
-answer in about the time Doughnut's frontend unit tests take: thousands of
-cases in roughly a minute. A case mounts the real component, with the real
-CSS, in one long-lived Chromium and unmounts it when the case ends. Vitest
-browser mode holds that browser, and Playwright only supplies it. A case
-whose proof is a real URL load, the production page, or the integrated
-server stays a Playwright journey. Service substitutes stay at the service
-boundary, as answers inside that browser.
+**Goal.** A developer running the complete frontend group gets its answer in
+roughly a minute at the usual two-worker local budget, including setup, with
+the original product assertions accounted for.
 
-Judge the gain against the cost of the move under
-[ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md):
-the same visible proof, with the per-case browser, static server, and full
-app load removed.
+**Scope.** Starting from the phone-board delivery, classify the remaining
+cases by the proof each needs (685 at the baseline). Move eligible rendered,
+layout, keyboard and touch checks to the proven mount. Preserve journeys
+whose assertions require a real URL load, the production page or the integrated
+server in Playwright. For example, comparison retry should still disable the
+button while its read is held and recover the Landed endpoints. Opening,
+reloading and traversing an encoded story URL must exercise real browser
+history. Measure time and selection size for the normal command and report
+the cost and destination of any cases moved elsewhere. A change of group
+alone cannot deliver the original feedback sooner.
 
-**Scope:**
-
-- Move a Dashboard Frontend Test case that asserts a rendered component,
-  layout, keyboard, or touch result onto a mount in the long-lived browser.
-- Leave a case on Playwright when its proof is a real navigation, the
-  production `index.html`, or the integrated server. Those journeys stay in
-  E2E Test or the retained Playwright group.
-- Keep each case's product assertion. A browser workflow that needs the live
-  server stays in E2E Test.
-- This is one story until refinement. Refinement may split it. The split
-  still follows the mount-or-journey rule above, and a later story dropped
-  leaves the cases already moved on the long-lived browser.
-
-#### Starting evidence
-
-CI run 44267762058, an ancestor of the revision that queued this story,
-summed 692 Dashboard Frontend Test cases to 1,427.1 seconds, about 2.1
-seconds each. Every folder mean sat between 1.6 and 2.3 seconds, and the
-slowest file was 1.8% of the sum. Locally the same group, with two workers,
-was observed at about 700 cases in 29 minutes. The frontend app fixture
-starts a static server for each case, and the case then opens the built app.
-
-Doughnut's frontend suite, Vitest browser mode with Playwright as the
-browser provider, ran 2,573 cases in 1 minute 5 seconds. Its configuration
-records per-file browser isolation at about 190–280 milliseconds; the cases
-inside a file mount and unmount in the page that is already open.
-
-The proposed dashboard technology note says the first board adds no Vitest
-layer. No accepted ADR requires this group to stay on Playwright Test.
-
-**Key examples:**
-
-- A comparison component asks for one story's proof → the real component
-  mounts in the open browser with the real stylesheet and an in-browser
-  service answer → the same rows, sort, and wording appear, and no static
-  server starts and no full app load runs.
-- A phone board indicator is tapped → the real board screen is mounted at
-  the phone viewport → the indicator width and the story's gained room
-  match the current assertion.
-- A case loads the production page or follows a real URL → it stays a
-  Playwright journey → the navigation and the bundle remain observable.
-- The developer's wait for Dashboard Frontend Test falls from tens of
-  minutes toward about a minute for a suite of this size, and each moved
-  case still catches the visible change it catches now.
+A comparison retry rehearsal passed its three cases in 4.08 s in Vitest
+versus 5.51 s on Playwright. Showing Branch in place of Landed made all three
+fail, and restoration passed in 4.41 s. This was one file on 2026-11-18, using
+Doughnut's installed runner. Full-suite speed awaits measurement.
+[Comparison retry](../../dashboard/frontend-tests/intent/intent-ci-comparison-mounted-retry.spec.ts)
+and [story URL journeys](../../dashboard/frontend-tests/navigation/story-url-destination.spec.ts)
