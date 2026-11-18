@@ -175,6 +175,12 @@ Proof: 56 cases across Usage and shared-chart consumers, then 32 Usage cases
 after refactoring. Learning: under zsh, pass several Playwright spec filters as
 an array, or Playwright reports "No tests found".
 
+## Execution complete
+
+Product advice: no change. The review found no defect in the delivered
+correction; the narrow/touch case overlap noted below remains the developer's
+optional test-cost saving.
+
 ## Proof ownership
 
 | Promise | Slice |
