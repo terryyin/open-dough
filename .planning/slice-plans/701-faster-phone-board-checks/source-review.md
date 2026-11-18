@@ -18,7 +18,7 @@ The baseline is the current seven-case selection at **22.07 s elapsed with two w
 | P08 | A later case starts with its own board preference. Scope’s state-isolation requirement and example 3. | slice 3 | observed: Git evidence slice3-held-smoke.mounted.spec.ts observes Recently done and position 2 in case one, then Backlog, native Enter, Taken and focused Recently done in the next case; slice3-mounted-held.log. |
 | P09 | The journeys preserve native input. Scope and examples 1–3. Includes the indicator tap, keyboard activation, swipe cases, ordinary taps, and real vertical stroke. | slice 7 | |
 | P10 | The viewport changes in the browser during the viewport-dependent journeys. Scope and examples 1–2. Includes the 390 × 844 setting and rotation to landscape and back. | slice 6 | |
-| P11 | Geometry assertions use actual measured dimensions. Scope and example 1. Includes both indicators, the view, and the story card. | slice 4 | |
+| P11 | Geometry assertions use actual measured dimensions. Scope and example 1. Includes both indicators, the view, and the story card. | slice 4 | observed: board-indicators.mounted.spec.ts records rendered control widths, board, view and card through BoardView.columnReadingRoom. Slice4-final-pair.log records 12/12 and 390/366/366, while the 44 px control records 44/44 and 390/302/302. |
 | P12 | The normal focused command selects each of the seven cases once. Scope and example 4. A developer runs the two phone specs together. | slice 7 | |
 | P13 | The focused run displays each of the seven results once. Example 4. The developer runs the two phone specs together. | slice 7 | |
 | P14 | The unfiltered frontend group selects each of the seven moved cases once. Scope. | slice 7 | |
@@ -28,12 +28,12 @@ The baseline is the current seven-case selection at **22.07 s elapsed with two w
 | P18 | Each moved case, including the failing case, appears once as an identifiable case in the frontend CI summary when a moved assertion fails. Goal and example 4. | slice 7 | |
 | P19 | Each retained case appears once in the frontend CI summary when a moved assertion fails. Example 4. | slice 7 | |
 | P20 | A completed swipe from a column with an available neighbor moves exactly one column. Examples 1–2. Includes the 390 × 844 Backlog-to-Taken swipe. | slice 5 | |
-| P21 | One of the two indicators measures at most 16 px wide. Example 1. The 390 × 844 Backlog-to-Taken journey. | slice 4 | |
-| P22 | The other indicator measures at most 16 px wide. Example 1. The same journey. | slice 4 | |
-| P23 | The view gains more than 44 px of width. Example 1. The same journey, measured against the former layout. | slice 4 | |
-| P24 | The story card gains more than 44 px of width. Example 1. The same journey, measured against the former layout. | slice 4 | |
-| P25 | A native tap on an indicator reaches the column it names. Example 1. | slice 4 | |
-| P26 | Keyboard activation transfers focus to the surviving indicator. Example 1. | slice 4 | |
+| P21 | One of the two indicators measures at most 16 px wide. Example 1. The 390 × 844 Backlog-to-Taken journey. | slice 4 | observed: The Backlog-to-Taken width case measured the first rendered control at 12 px and passed its 16 px limit in slice4-final-pair.log. |
+| P22 | The other indicator measures at most 16 px wide. Example 1. The same journey. | slice 4 | observed: The same case measured the other rendered control at 12 px and checks each width against 16 px in board-indicators.mounted.spec.ts. |
+| P23 | The view gains more than 44 px of width. Example 1. The same journey, measured against the former layout. | slice 4 | observed: The mounted case compares the 366 px rendered view to 390 - 2 × 44 = 302 px, a 64 px gain. Slice4-final-pair.log recorded the passing width case. |
+| P24 | The story card gains more than 44 px of width. Example 1. The same journey, measured against the former layout. | slice 4 | observed: The mounted case compares the 366 px rendered story card to the former 302 px view, a 64 px gain. Slice4-final-pair.log recorded the passing assertion. |
+| P25 | A native tap on an indicator reaches the column it names. Example 1. | slice 4 | observed: The first title in board-indicators.mounted.spec.ts verifies Recently done and Backlog after the two native taps, through the frame hit-target and named column checks. The isolated title and the paired run passed. |
+| P26 | Keyboard activation transfers focus to the surviving indicator. Example 1. | slice 4 | observed: The second title in board-indicators.mounted.spec.ts checks Taken focus, then Recently done focus after Enter, then Taken focus on returning. Slice4-focus-title.log and slice4-final-pair.log passed. |
 | P27 | A short swipe leaves the current column unchanged. Example 2. | slice 5 | |
 | P28 | A cancelled swipe leaves the current column unchanged. Example 2. | slice 5 | |
 | P29 | A completed outward swipe at the first column stops there. Example 2. | slice 5 | |

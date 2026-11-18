@@ -67,11 +67,13 @@ Prepare the test-side mount that the two indicator cases in slice 4 need. Reuse 
 ### 4. Give the developer faster phone-indicator feedback
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a phone board with the original published stories and service answers, running the indicator selection mounts the real screen and styles in long-lived touch Chromium. The two existing cases exercise native swipes and taps, control names, actual story/view geometry, visible focus and keyboard handoff. Transfer their ownership atomically in the focused command, full selection and CI.
 
 **Proof.** Run the indicator file and its title selections via the normal npm command. Exercise each in isolation and both in succession. Widen the indicators in a disposable negative control and observe the original geometry assertion fail, then pass after restoration. Read the resulting CI-format artifact for both cases. A mixed selection still runs a retained Playwright file. The other five phone cases remain in Playwright until their individual transfers below.
+
+**Observed.** The saved filename and both exact title filters reached the mounted cases through the normal command. Both cases also passed in succession. In their actual board, both controls measured 12 px, and the rendered view and card each gained 64 px over the former 302 px viewing width. The 44 px CSS control measured 44/44 px and 390/302/302 px for board, view and card. It failed the original width assertion. Restoring the exact CSS restored both passes. The mixed shard-2 selection kept one retained case alongside two mounted passes and published the three timed cases in one local CI-format artifact. Full list discovery counted 697, including both mounted indicators and the five retained swipes. Dashboard typecheck passed. The Git evidence directory retains `slice4-return.md` and the report and control artifacts.
 
 ### 5. Check completed, short and cancelled swipes on the mounted board
 

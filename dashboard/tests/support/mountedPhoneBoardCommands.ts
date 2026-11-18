@@ -11,6 +11,7 @@ import {
 } from "../boardPage.ts";
 import { boardView } from "../boardView.ts";
 import { expectSettledPage } from "../dashboardPage.ts";
+import { takenBacklogStories } from "../launchStoryCardPage.ts";
 import { installFrontendServiceSubstitutes } from "./frontendServiceSubstitutes.ts";
 import {
   defaultFrontendServiceState,
@@ -92,7 +93,7 @@ export const phoneBoardCommands = {
     restorePhoneBoard(page),
   phoneBoardPublishedStories: (
     { page }: BrowserCommandContext,
-    membership?: Parameters<typeof expectSettledPage>[1],
+    membership: Parameters<typeof expectSettledPage>[1] = takenBacklogStories,
   ) => expectSettledPage(mountedPage(page), membership),
   phoneBoardShowsColumn: (
     { page }: BrowserCommandContext,
