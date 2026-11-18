@@ -1,0 +1,19 @@
+/* Usage's chart key (./UsageLegend.tsx): each entry's mark, drawn by the
+   chart's own classes (./history-chart.css), beside its words. */
+.usage-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
+
+.usage-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}

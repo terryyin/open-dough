@@ -5,7 +5,8 @@
 // rolling median above dots, independent of their scale; ↑ labels and dated
 // values identify median overflow. Each tool's summary
 // (`./UsageToolSummary.tsx`) counts its tasks and names the reference unit
-// its values are in; the values stay tool-relative, never one cost unit.
+// its values are in; the values stay tool-relative, never one cost unit. The
+// key (`./UsageLegend.tsx`) shows each shown tool's marks under its name.
 // Selecting a point by pointer or keyboard shows that task's detail
 // (`./UsageTaskDetail.tsx`), its tool kept with it since task IDs may repeat
 // across tools; a new answer, as a Refresh brings, keeps it while the task's
@@ -21,6 +22,7 @@ import type {
 } from "./historyChartSeries.ts";
 import { HistoryChart } from "./HistoryChart.tsx";
 import { usageToolName } from "./usageComparison.ts";
+import { UsageLegend } from "./UsageLegend.tsx";
 import { partialWords, UsageTaskDetail } from "./UsageTaskDetail.tsx";
 import { rollingMedianWords, UsageToolSummary } from "./UsageToolSummary.tsx";
 import {
@@ -174,18 +176,7 @@ export function TokenIndexTrend({
           × {largeTaskWords}; labels show actual values. Partial coverage
           remains marked.
         </p>
-        <p className="usage-legend">
-          <span>
-            <i className="usage-swatch" /> Task
-          </span>
-          <span>
-            <i className="usage-swatch usage-swatch-partial" /> {partialWords}
-          </span>
-          <span>
-            <i className="usage-swatch usage-swatch-median" /> Rolling median (↑
-            above scale)
-          </span>
-        </p>
+        <UsageLegend tools={answers.map(({ cohort }) => cohort.tool)} />
       </section>
       {selected !== undefined && (
         <UsageTaskDetail

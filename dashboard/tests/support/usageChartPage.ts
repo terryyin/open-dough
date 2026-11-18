@@ -10,7 +10,7 @@ import { expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
 import { tokenColour } from "../pageColours.ts";
 
 // A drawn mark's shape: a circle, or how many corners its outline turns.
-const shapeOf = (mark: Locator) =>
+export const shapeOf = (mark: Locator) =>
   mark.evaluate((element) => {
     if (element.tagName === "circle") return "circle";
     const outline =

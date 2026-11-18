@@ -147,7 +147,7 @@ Sizing: 12 active minutes, medium confidence.
 ### 3. Match the legend to the shown tools and align the contract text
 
 Type: Behavior
-Status: planned
+Status: done
 
 The legend lists each shown tool's task mark, partial mark and median line
 (dashed for Claude Code) with the tool's name, and each tool summary's swatch
@@ -165,6 +165,15 @@ and that hiding Codex leaves only Claude Code's entries; phone and narrowest
 window fit stay green. Run all `system-settings-usage*` frontend cases.
 
 Sizing: 12 active minutes, medium confidence.
+
+Delivered: `historyChartShapes.tsx` draws every mark shape for the chart and
+its key; `UsageLegend.tsx` lists each shown tool's task, partial and median
+marks; summary headings show the task mark; `usageToolSlot` lives in
+`usageComparison.ts`. Legend proof sits in its own
+`system-settings-usage-legend.spec.ts` because the compare spec had no room.
+Proof: 56 cases across Usage and shared-chart consumers, then 32 Usage cases
+after refactoring. Learning: under zsh, pass several Playwright spec filters as
+an array, or Playwright reports "No tests found".
 
 ## Proof ownership
 

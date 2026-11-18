@@ -110,7 +110,7 @@ export type UsageTaskOutcome = {
 // response usage; a response it may own that could not be attributed to one
 // task; a response missing token counts; or no attributable response at all.
 // Claude's background work that never reaches transcripts
-// (`auxiliary-usage-not-covered`) is one cohort note (`./TokenIndexTrend.tsx`),
+// (`auxiliary-usage-not-covered`) is one cohort note (`./UsageToolSummary.tsx`),
 // not a task's gap. A spawn whose worker cannot be told apart from others
 // (`ambiguous-` or `unresolved-worker-evidence`) shows no usage missing: the
 // worker's responses still join the task through their own lineage.

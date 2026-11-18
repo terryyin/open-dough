@@ -153,3 +153,4 @@
   stroke: var(--history-chart-trace-1-trend);
 }
 .history-chart-trend.history-chart-trace-1 { stroke-dasharray: 6 3; }
+.history-chart-key { flex: none; overflow: visible; }

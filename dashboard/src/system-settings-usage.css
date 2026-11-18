@@ -2,8 +2,8 @@
    of pressed buttons under the bar, and Usage's Token index
    (./SystemSettingsUsage.tsx): its heading with Refresh, its tool choices and
    filters, each selected tool's summary with its median and tariff
-   (./UsageToolSummary.tsx), the shared chart (./history-chart.css) and its
-   legend, and the selected task's detail (./UsageTaskDetail.tsx). */
+   (./UsageToolSummary.tsx), the shared chart (./history-chart.css), and the
+   selected task's detail (./UsageTaskDetail.tsx). */
 .settings-views {
   box-sizing: border-box;
   display: flex;
@@ -140,22 +140,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.usage-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1) var(--space-3);
-  margin: 0;
-  color: var(--quiet);
-  font-size: var(--text-sm);
-}
-
-.usage-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
 .usage-swatch {
   display: inline-block;
   width: 8px;
@@ -164,22 +148,8 @@
   background: var(--history-chart-mark);
 }
 
-.usage-swatch-partial {
-  border: 1.5px solid var(--history-chart-partial);
-  border-radius: 1px;
-  background: var(--raised-surface);
-  transform: rotate(45deg);
-}
-
 .usage-partial {
   color: var(--caution);
-}
-
-.usage-swatch-median {
-  background: var(--history-chart-trend);
-  width: 15px;
-  height: 2px;
-  border-radius: 0;
 }
 
 .usage-detail {

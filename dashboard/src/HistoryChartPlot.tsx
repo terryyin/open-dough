@@ -5,21 +5,10 @@
 // or a hollow mark per other build without timing. A selected build without
 // timing is also marked across the plot. A named trace after the first adds
 // its slot's class (`history-chart-trace-N`) to its points, trend and ↑ marks;
-// the second trace's unselected points are triangles, filled or hollow alike.
+// unselected points take their trace's shape (`./historyChartShapes.tsx`).
 import type { ChartLayout, ChartMark } from "./historyChartLayout.ts";
 import { dateBaseline, plotBottom, plotTop } from "./historyChartLayout.ts";
-
-// The extra class of trace style slot `slot`; the first trace needs none.
-const traceClass = (slot: number) =>
-  slot === 0 ? "" : ` history-chart-trace-${String(slot)}`;
-
-// A diamond centred on (x, y), `reach` from its centre to each corner.
-const diamond = (x: number, y: number, reach: number) =>
-  `M${String(x)} ${String(y - reach)} l${String(reach)} ${String(reach)} l${String(-reach)} ${String(reach)} l${String(-reach)} ${String(-reach)} Z`;
-
-// An upward triangle centred on (x, y), for the second trace's points.
-const triangle = (x: number, y: number) =>
-  `${String(x)},${String(y - 6)} ${String(x + 6)},${String(y + 4)} ${String(x - 6)},${String(y + 4)}`;
+import { diamond, PointShape, traceClass } from "./historyChartShapes.tsx";
 
 function Mark({
   mark,
@@ -77,25 +66,17 @@ function Mark({
         )}
       </g>
     );
-  if (entry.selected !== true) {
-    const className = `history-chart-${entry.partial === undefined ? "point" : "partial"}${trace}`;
-    const title = <title>{entry.description}</title>;
-    if (mark.slot === 1)
-      return (
-        <polygon className={className} points={triangle(x, y)}>
-          {title}
-        </polygon>
-      );
-    return entry.partial === undefined ? (
-      <circle className={className} cx={x} cy={y} r={4}>
-        {title}
-      </circle>
-    ) : (
-      <path className={className} d={diamond(x, y, 5)}>
-        {title}
-      </path>
+  if (entry.selected !== true)
+    return (
+      <PointShape
+        slot={mark.slot}
+        partial={entry.partial !== undefined}
+        x={x}
+        y={y}
+      >
+        <title>{entry.description}</title>
+      </PointShape>
     );
-  }
   return (
     <g>
       <path
