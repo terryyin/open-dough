@@ -72,6 +72,15 @@ cost, through fewer larger files or shared file isolation. The per-file figure
 comes from copies of one small spec; measure it on a real family before
 relying on it.
 
+Measured on the real family, 2026-11-19, at `e3398ed26`, two workers, load
+5.1 to 6.0: the five mounted story-notes files (10 cases) ran in 5.0 to
+6.6 s of Vitest time and 9.1 to 11.7 worker-seconds, about 1.8 to 2.3
+worker-seconds a file. Import was 14 to 17%, about 0.3 worker-seconds a file;
+the cases were 77 to 81%, 0.5 to 1.5 s each under `actSettled`. The
+`stories/story-notes` command took 8.9 and 10.8 s against 13.5 and 10.4 s at
+`e8e01643a` in alternating runs, with one built-app case and Playwright
+startup still in it.
+
 Mounted specs run in the browser, and the data the built-app specs arrange
 runs in Node. Importing `makeMe.mjs` in a mounted spec failed on `node:fs`;
 importing `frontendServiceState.ts` failed inside `@playwright/test`. Eight of

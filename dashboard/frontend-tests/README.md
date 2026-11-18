@@ -32,6 +32,33 @@ observe recovery. Held answers go through `frontendSubstituteAnswers.ts`,
 which releases any still held when the page's case ends. Arrange the project's
 stories and machine reads through `frontendServiceState.ts`.
 
+## Mounted dashboard support
+
+Mounted board specs, such as the `stories/story-notes-*.mounted.spec.ts`
+family, mount the production app through
+[`mounted-dashboard/`](../test-support/mounted-dashboard/):
+`mountAnsweredDashboard` answers the board's service requests from prepared
+answers, and `mountDefaultDashboard` mounts the default board. Any unanswered
+`/__` request fails the case by name, so a family answers every service its
+board reads.
+
+- Arrange data in Node through a command in
+  `../test-support/support/mountedDashboardCommands.ts` (MakeMe and the
+  service state import Node modules), and pass the result to the mount.
+- Each service rule both engines answer from lives once, free of Playwright
+  and Node, such as `frontendStoryNotesRule.ts` and
+  `frontendStoryReviewRule.ts`; control and region names live once in
+  `../test-support/*Names.ts`.
+- Run every mount, input, `runFor` and held-answer release through
+  `actSettled` in `mountedActInput.ts`, which settles React before the case
+  observes the page. Hold an answer to observe pending and recovery states.
+- A case that needs a later page can mount again and carry an earlier mount's
+  services, such as its notes rule; one cleanup tears all mounts down.
+
+A case stays on a built-app page only when its behavior needs the real page:
+a real page load or reload, native input the mount cannot deliver, or a live
+socket, such as the attached terminal that Story notes must leave connected.
+
 Dashboard harness helpers and fixtures stay in Dashboard Test Support. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 Keep specs and the modules that register their cases in the feature folder

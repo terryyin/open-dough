@@ -173,4 +173,20 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 
 **Slice 7:** opening Review changes and saving a line note from the diff worked on the mounted board with direct clicks and fill inside act. Mounted services answer story-review requests through `answerStoryReview`, and a later mount can carry an earlier mount's `StoryNotesRule` (`notes` option). The first mount of a case saves viewport, storage and history and one cleanup tears every mount down newest first, then restores the page once (`mounted-dashboard.mounted.spec.ts` "a case that mounts the board twice leaves the page as it found it"). Review region and toolbar names live once in `dashboard/test-support/storyReviewNames.ts`; line-number names come from the product's `lineNumberLabel`.
 
+**Slice 8 comparison** (2026-11-19, `e3398ed26` against `e8e01643a` in a scratch worktree, two workers, `caffeinate -s -i`, AC power, load 5–6, ABBA for story-notes; evidence `s8-*` in the checkout's `open-dough/evidence`):
+
+| Command | Pair | Base | New | New / base |
+| --- | --- | ---: | ---: | ---: |
+| `npm run test:dashboard:frontend -- stories/story-notes` | 1 | 13.5 s | 10.8 s | 0.80 |
+| same | 2 | 10.4 s | 8.9 s | 0.86 |
+| `npm run test:dashboard:frontend`, from admission | 1 (base then new) | 424.6 s, 715 cases, 812 s summed | 399.6 s, 718 cases, 770 s summed | no slower |
+
+Story-notes summed case time fell from 16.5 and 16.1 s to 10.5 and 7.7 s. In a 10.8 s run: runner start about 1.2 s, the Playwright phase 2.7 s (startup plus the 1.0 s attached-terminal case), then the Vitest phase 6.6 s, run one after the other. Mounted cases take 0.5–1.5 s each; import is about 0.31–0.33 worker-s per file, and whole-file cost 1.8–2.3 worker-s against the seed's 0.8 probe, so case bodies, not import, dominate. The ratio 0.83 misses the third: the Vitest phase alone is 0.49–0.63 of the baseline, so a third needs both the Playwright phase out of this command (the attached-terminal case on a mounted socket substitute, or elsewhere) and mounted cases about 2–3× faster, where slice 5's `actSettled` settling is the main lever. Only one alternating whole-group pair ran. Slice 8 stays planned and the story is unfinished pending Terry's decision.
+
 ## Story obligations
+
+### G1. Story-notes command at 0.83 of its matched baseline
+Reported: slice 8 — "The story-notes command ran at 0.80 and 0.86 of its matched baseline (mean 0.83). Under the plan's decision rule that leaves the story unfinished."
+Story clause: "gets their answer in at most a third of today's time at the usual two-worker local budget"
+Disposition: return
+Commitment: 1
