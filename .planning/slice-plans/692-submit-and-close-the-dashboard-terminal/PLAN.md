@@ -138,3 +138,7 @@ identified. This review identified no remaining slice-specific concern.
 - `npm run typecheck:dashboard` (pass; unchanged through refactor).
 - Source commitments 1–7 observed in `source-review.md`.
 - Refactor: reuse `noteTerminalTraffic` and assert `submitAndCloseEnter` in the new e2e only; product seams already clean after `TerminalStatus` extract.
+
+## Execution complete
+
+Product advice: no change — deferred seed promises stay for wrap-up; no correction or priority change from this execution.
