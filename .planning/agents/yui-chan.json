@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yui-chan",
-  "email": "yui-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-385#submit-and-close-the-dashboard-terminal",
-  "host": "cursor",
-  "model": "auto"
-}
