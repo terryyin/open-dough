@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Anri-chan",
-  "email": "anri-chan@example.org",
-  "identity": "SEED-383#tell-compared-usage-tools-apart",
-  "mode": "story-branch",
-  "branch": "claude/tell-compared-usage-tools-apart-and-drop-stale-r",
-  "host": "claude"
-}

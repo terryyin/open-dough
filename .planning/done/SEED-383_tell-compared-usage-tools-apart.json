@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-383#tell-compared-usage-tools-apart",
+  "title": "Tell compared Usage tools apart and drop stale read errors",
+  "completedAt": "2026-11-18T03:53:03.940Z",
+  "developer": "Terry Yin",
+  "agent": "Anri-chan",
+  "host": "claude"
+}
