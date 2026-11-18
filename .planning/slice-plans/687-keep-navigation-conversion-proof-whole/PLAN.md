@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#keep-navigation-conversion-proof-whole
 **Source:** [Converted navigation proof correction](../../seeds/SEED-334-product-wide-end-to-end-tests.md#keep-navigation-conversion-proof-whole)
+**Source review:** [source-review.md](source-review.md)
 
 ## Correction input
 
@@ -89,7 +90,7 @@ as written and carry that link into every delegation and repair handoff.
 
 ### 1. Make the converted read counts independent of time
 Type: Structure
-Status: planned
+Status: done
 Proof: `dashboard-header.spec.ts` (four layout journeys and project switch)
 and `project-keyboard-navigation-focus.spec.ts`. Scratch breaks: one extra
 published-work read during the walk fails the layout count, and one extra on
@@ -105,6 +106,14 @@ journeys count the project's reads other than its revision check, 20 and
 `heldDoughnut.release()` and reword the closing comment to finding 4.
 
 Behavior: a slow or fast journey → the same pinned read counts.
+
+Accepted proof: both specs `--repeat-each=2` passed; breaks (a) and (b) failed
+21 and 6; break (c), 17 s before the walk and switch counts, held 20 and 5/5;
+the 23 traced consumer specs and the refactor's 10 board consumers passed.
+`publishLargeBacklogWithRecords` and `countProjectWorkReads` (excluding
+`revisionStreamAtParameter`) carry the arrangement. Follow-up named by the
+refactor, outside this correction: `intent-project-scope-history-refresh.spec.ts:33`
+still matches the literal `"at"`.
 
 ### 2. Restore the paging step beside a newly started session and the stale link
 Type: Structure

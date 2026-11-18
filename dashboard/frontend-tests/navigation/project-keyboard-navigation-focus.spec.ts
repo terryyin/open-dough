@@ -5,6 +5,7 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import { answerOnlyPublications } from "../../tests/support/frontendCatalogProjects.ts";
 import { holdProjectReads } from "../../tests/holdAuthenticatedReads.ts";
 import { countProjectReads } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { catalogPublications } from "../../tests/catalogProjectRecords.ts";
 import { describedRevision } from "../../tests/describedRevisions.ts";
@@ -101,12 +102,15 @@ test("focus stays useful across switches and held previous reads stay isolated",
     await expect(body).not.toContainText(doughnutProject.queued);
     await expect(settings).toBeFocused();
     heldDoughnut.release();
+    await untilPageReadsAnswered(page);
     await expect(body).not.toContainText(doughnutProject.queued);
     await expect(projectTab(page, "Open Dough")).toBeChecked();
     await expect(readRevision).toContainText(
       shortRevision(nextOpenDoughRevision),
     );
-    // Released, the held answer started no further Doughnut read.
+    // Leaving Doughnut already cancelled its held read, so release brings no
+    // answer back: with the page's reads answered, the destination still shows
+    // no Doughnut story and no further Doughnut read was asked.
     expect(doughnutReads()).toBe(heldReads);
   });
 });
