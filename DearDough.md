@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 573. Removed numbers are never reused.
+- Highest allocated local number: 575. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -926,3 +926,39 @@ callers under `e2e/` and `dashboard/backend-tests/` and restored the files.
   - Evidence: slice 3 refactor return: it removed `storyWorktree` and un-exported `openStoryReview` after the deletion of `dashboard/tests/navigation/story-destination-repeat-cue.spec.ts`, then restored both with `git show HEAD:<path> > <path>` once e2e and Backend callers turned up; `git status` clean afterwards. Slice 4's brief then required a whole-checkout grep, and its return complied.
   - Observed effect: no change reached a commit; one wasted edit-and-restore round inside the pass.
   - Inference: the dead-code check names no search scope; a test-folder search looks sufficient for test support but is not. Overlaps DD-568 (agents replace the scripted trace with their own search). Cost not measured.
+
+## DD-574 — A planned scratch break cannot fail at the step's own position <a id="dd-574"></a>
+
+The plan named a scratch break, "a paging reset on session arrival", for a
+step that sits on Backlog, the Board's first position, where a reset changes
+nothing. Planning settled the step's premise but never checked that the break
+could fail there.
+
+### Occurrences
+
+- Execution: SEED-334#keep-navigation-conversion-proof-whole (plan 687; first implementation `41d93d114`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `46aa7f7c0`)
+  - Evidence: slice 2 report `s2-report.md` (story-branch evidence dir): runs `s2-break-a` to `s2-break-a10`; a–a3 crashed at startup, a5/a6 watched an attribute the cards lack, a4/a9 forward moves passed, a7 a 300 ms late move passed, only a10 with a fixed 1 s wait failed. Plan 687 slice 2 learning records the limit; P4 observed only the passing step.
+  - Observed effect: ten break runs to establish that the break could not bite; the slice accepted the step with a recorded limitation.
+  - Inference: checking a planned break's ability to fail, at the asserted state, while settling premises would have reworded or dropped it before execution. Run time sat outside the slice clock; slice active time was 5.8 min.
+
+## DD-575 — A plan prescribes a new promise as a step of another behaviour's test <a id="dd-575"></a>
+
+The plan said an existing paging test "gains its final step" for a separate
+promise. The implementer followed it and lengthened the test's title; the
+refactor checks forbid widening another behaviour's test, so the refactor pass
+split it into its own test and renewed its proof.
+
+### Occurrences
+
+- Execution: SEED-334#keep-navigation-conversion-proof-whole (plan 687; first implementation `41d93d114`)
+  - Timestamp: unknown (2026-11-18 +08:00, slice 2 refactor pass)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `46aa7f7c0`)
+  - Evidence: plan 687 slice 2 Proof ("`board-paging-side-panel.spec.ts` gains its final step"); slice 2 refactor return: new test in `board-paging-side-panel.spec.ts` at `251c507ae`, reruns `s2-refactor-specs` and `s2-refactor-break-b`.
+  - Observed effect: one restructure and two renewed proof runs inside the refactor pass, which used its full 15 active minutes.
+  - Inference: slice planning applied the interim journey's shape without the test-boundary check the refactor pass later applied. Cost beyond those reruns not measured.

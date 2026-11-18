@@ -142,6 +142,16 @@ left Backlog/Taken shown, and only a move timed after the page's requests
 settle escapes the step, as in the interim journey. No settled
 "session arrival processed" signal exists to assert after.
 
+## Execution complete
+
+Product advice: no change. The converted header counts, focus check, paging
+step and E2E comment now hold as the correction promised. Two small test-only
+leftovers named by the refactor passes need no story of their own:
+`intent-project-scope-history-refresh.spec.ts:33` matches the literal `"at"`
+instead of `revisionStreamAtParameter`, and three navigation specs build the
+Taken story's working session by hand instead of `takenStoryWorking()`. Process
+findings: DearDough DD-574, DD-575.
+
 ## Decisive premises and observations
 
 All observed in this plan's workspace at `8d4b66d32`, 2026-11-18, with the
