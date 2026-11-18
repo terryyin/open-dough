@@ -22,11 +22,11 @@ settings leaves the others' selection, settings and timing untouched
 | --- | --- | --- | --- |
 | `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | 6 |
 | `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | 2 |
-| `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | 1 |
+| `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | 2 |
 | `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | 3 |
 
-These counts make 17 jobs: 12 browser jobs, three Distribution shares, one
-`lint` job and one proof job, 16 of them at once before the proof job against
+These counts make 18 jobs: 13 browser jobs, three Distribution shares, one
+`lint` job and one proof job, 17 of them at once before the proof job against
 the account's 20. Lint and the dashboard type-check run in `ci.yml`'s `lint`
 job, each as its own step with its own outcome, under that job's own setup
 deadline and 6 minutes; no group's shard runs them, and `ci-proof` does not
@@ -85,6 +85,22 @@ Decision, 2026-11-16: lint and the type-check leave the frontend shard for the
 `lint` job, making 19 jobs. On a slow runner they took 150 of the frontend
 shard's 450 seconds and its suite was ended by the deadline two spec files
 short; the group counts stay as they were.
+
+Decision, 2026-11-18: the frontend group gets a second shard, not faster
+specs, making 18 jobs, 17 of them at once before the proof job; the layout
+had fallen from 19 to 17 as integrated went from four shards to two.
+[Run 44200560069](https://github.com/terryyin/open-dough/actions/runs/44200560069)
+on `700b3e546b67b9edb6e04747dedb105b89a169e8` ran every frontend file at a
+median 1.31 times its usual time and reached the 450-second deadline with 8
+cases unfinished; the same code passed in 343 seconds. The 10 successful
+`main` runs 2026-11-17T13:54Z to 2026-11-18T00:51Z ran the one frontend job in
+288 to 390 seconds; 1.3 times the slowest is 507 seconds, and the headroom
+needs a usual job of at most 346 seconds. One shard has no pattern to move,
+and `node scripts/ci-shard-balance.mjs dashboard-frontend` names no slow file:
+the test step is nearly all of the job (275 to 367 seconds in six of those
+runs) and carries 1,089 test-seconds over 272 files with none above 109
+seconds, so reaching 346 seconds through faster specs would take about an
+eighth of the test-seconds off evenly spread files.
 
 ## The split
 

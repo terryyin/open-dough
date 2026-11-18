@@ -3,7 +3,7 @@ import { prepareFocusedRun } from "./tests/support/runnerConfig.mjs";
 
 // Dashboard Frontend Test (`npm run test:dashboard:frontend`): only the specs
 // under `frontend-tests/`, with their own OPEN_DOUGH_DASHBOARD_FRONTEND_*
-// split, times, proof record and deadline, the one shard its
+// split, times, proof record and deadline, the shards its
 // `dashboard-frontend` job declares in ../.github/workflows/ci.yml and their
 // own run directories under
 // `frontend-tests/test-results/` (./tests/support/runnerConfig.mjs),

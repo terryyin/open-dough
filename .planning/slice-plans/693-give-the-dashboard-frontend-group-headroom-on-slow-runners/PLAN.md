@@ -2,6 +2,7 @@
 
 **Identity:** SEED-382#give-the-frontend-group-headroom-on-slow-runners
 **Source:** [Give the Dashboard Frontend group headroom on slow runners](../../seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#give-the-frontend-group-headroom-on-slow-runners)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -108,3 +109,18 @@ Refinement was not needed: one slice, one declaration change with its record.
 This review identified no remaining slice-specific concern.
 
 ## Learnings
+
+- Slice 1, local (2026-11-18, on `3d4487126` plus the change): the frontend
+  listing is 337 tests in 147 files for shard 1, 326 in 135 for shard 2 and
+  663 in 282 unset, with no file in both; the Premises counts were read on an
+  older tree, 11 tests and 5 files short in shard 1's folders. The balance
+  script on the new declaration reads shard 1 580 s and shard 2 537 s of an
+  even 558 s over 5 `main` runs to 2026-11-18T01:12Z: balanced, no proposal.
+- `dashboard/backend-tests/runtime/runner-ownership.spec.ts` reads the
+  frontend job's shards through `splitExcluding`; its 5 tests pass on the
+  change (`npm run --silent test:dashboard:backend -- backend-tests/runtime/runner-ownership.spec.ts`).
+- The 2026-11-15 (18) and 2026-11-16 (19) job totals in `shards.md` were
+  right when written, with integrated at four shards; the new decision states
+  the fall to 17 since, so they stay as written.
+- `.github/workflows/ci.yml` is at the 250-line file-size limit after this
+  change.
