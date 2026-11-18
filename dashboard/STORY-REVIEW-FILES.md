@@ -87,18 +87,21 @@ lists files, an icon button at its far left, named **Hide files** or **Show
 files** in its accessible name and tooltip, hides or shows the file browser
 from the same place; hiding gives the diff the freed width and showing returns
 the browser with the current file selected. The name of the comparison shown
-follows: **All changes**, **Commits**, **Landed runs**, **Published
-completion** or **Session commits**, never the selected run. Beside it, an eye
-icon button named **Show review details** or **Hide review details**, which
-states its expanded state, reveals or hides the review details: one inline
-section between the toolbar and the work area holding the Comparison switch
-(a session's runs of commits, when it kept more than one), the **Landed run**
-listbox when a run is selected, the context of the comparison shown (the
-workspace context line, the landed run's facts, the published completion's
-facts or the session commits' facts) and **Include uncommitted changes**.
-Revealing or hiding keeps the comparison, the selected file and the diff's
-reading place, and a choice made in the details updates the toolbar's name,
-the details and the diff together.
+follows once a review answer supplies it: **All changes**, **Commits**,
+**Landed runs**, **Published completion** or **Session commits**, never the
+selected run; before that answer, and when a bare unavailable or
+landing-unavailable reply holds no comparison, the toolbar names none. Beside
+it, an eye icon button named **Show review details** or **Hide review
+details**, offered only when the details hold a choice, run picker, context or
+uncommitted check (`src/StoryReviewDetailsSection.tsx`), states its expanded
+state and reveals or hides the review details: one inline section between the
+toolbar and the work area holding the Comparison switch (a session's runs of
+commits, when it kept more than one), the **Landed run** listbox when a run is
+selected, the context of the comparison shown (the workspace context line, the
+landed run's facts, the published completion's facts or the session commits'
+facts) and **Include uncommitted changes**. Revealing or hiding keeps the
+comparison, the selected file and the diff's reading place, and a choice made
+in the details updates the toolbar's name, the details and the diff together.
 Escape pressed inside the details hides them and returns the keyboard to the
 eye.
 

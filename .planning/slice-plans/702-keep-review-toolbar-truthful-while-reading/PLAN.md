@@ -97,7 +97,7 @@ and UI observations, including the selected mode after the held read.
 
 ### 2. The toolbar reflects the review the developer can read
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: open a Done story or standalone ad hoc landing before the first
 answer. Show progress with no comparison name or eye. On a failed read

@@ -36,6 +36,15 @@ export async function expectDetailsCollapsed(review: Locator) {
   ).toHaveCount(0);
 }
 
+// No comparison name and no eye: before an answer or after a cleared failure.
+export async function expectNoToolbarComparisonOrDetails(review: Locator) {
+  await expect(toolbarComparison(review)).toHaveCount(0);
+  await expect(detailsToggle(review)).toHaveCount(0);
+  await expect(
+    review.getByRole("group", { name: "Review details" }),
+  ).toHaveCount(0);
+}
+
 // The details are revealed in one section between the toolbar and the work
 // area, and the eye says so. Answers that section.
 export async function expectDetailsRevealed(review: Locator) {

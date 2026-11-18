@@ -5,24 +5,23 @@ import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { SidePanelControls } from "./SidePanelControls.tsx";
-import { ReviewContext, reviewDescription } from "./StoryReviewContext.tsx";
+import { reviewDescription } from "./StoryReviewContext.tsx";
 import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
-import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
-import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
-import { SessionRunSwitch } from "./StoryReviewSessionRuns.tsx";
 import {
-  ReviewDetails,
   ReviewToolbar,
   reviewListsFiles,
   toolbarComparisonName,
 } from "./StoryReviewToolbar.tsx";
+import {
+  StoryReviewDetailsSection,
+  reviewHoldsDetails,
+} from "./StoryReviewDetailsSection.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
-import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
   StoryReviewHeading,
   storyReviewPanelLabel,
@@ -109,6 +108,13 @@ export function StoryReview({
       : published === undefined
         ? shown
         : "published";
+  const holdsDetails = reviewHoldsDetails({
+    review,
+    runs,
+    workspaceChoices: items.length > 0,
+    sessionRuns,
+    selectedRun,
+  });
   useEffect(() => {
     body.current?.focus();
   }, [request]);
@@ -158,55 +164,25 @@ export function StoryReview({
         name={toolbarComparisonName(review, shownComparison)}
         browser={reviewListsFiles(review, comparison) ? browser : undefined}
         onShowBrowser={setBrowserShown}
-        details={details}
+        details={holdsDetails ? details : undefined}
       />
-      <ReviewDetails details={details}>
-        {(runs.length > 0 || items.length > 0) && (
-          <ComparisonSwitch
-            shown={shownComparison}
-            onSwitch={(choice) => {
-              if (choice === "published") onWorkspace("all");
-              else if (choice !== "landed") onWorkspace(choice);
-              else {
-                const newest = preferredReviewRun(
-                  runs,
-                  (run) => run.comparison,
-                );
-                if (newest !== undefined) onRun(newest.key);
-              }
-            }}
-            workspace={workspace !== undefined}
-            commits={workspace !== undefined && items.length > 0}
-            landed={runs.length > 0}
-            published={availablePublished !== undefined}
-          />
-        )}
-        {sessionRuns.length > 1 && (
-          <SessionRunSwitch
-            runs={sessionRuns}
-            selected={runKey}
-            onSelect={onRun}
-          />
-        )}
-        {selectedRun !== undefined && (
-          <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
-        )}
-        <ReviewContext review={review} />
-        {review?.kind === "snapshot" && committed !== undefined && (
-          <div className="story-review-uncommitted">
-            <label>
-              <input
-                type="checkbox"
-                checked={includeUncommitted}
-                onChange={(event) => {
-                  setIncludeUncommitted(event.target.checked);
-                }}
-              />{" "}
-              Include uncommitted changes
-            </label>
-          </div>
-        )}
-      </ReviewDetails>
+      <StoryReviewDetailsSection
+        details={details}
+        review={review}
+        runs={runs}
+        items={items}
+        sessionRuns={sessionRuns}
+        selectedRun={selectedRun}
+        runKey={runKey}
+        shownComparison={shownComparison}
+        workspace={workspace}
+        availablePublished={availablePublished}
+        committed={committed}
+        includeUncommitted={includeUncommitted}
+        onWorkspace={onWorkspace}
+        onRun={onRun}
+        setIncludeUncommitted={setIncludeUncommitted}
+      />
       <div className="story-review-top">
         <ReviewFeedback
           review={review}

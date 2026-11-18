@@ -1,0 +1,166 @@
+// Review details and whether they hold anything to reveal: choices, run
+// pickers, context and the uncommitted check, independently of file count.
+import type { ReactNode } from "react";
+import {
+  ComparisonSwitch,
+  type ComparisonChoice,
+  type ShownComparison,
+} from "./StoryReviewComparison.tsx";
+import { ReviewContext } from "./StoryReviewContext.tsx";
+import { RunChoice } from "./StoryReviewRunChoice.tsx";
+import { SessionRunSwitch } from "./StoryReviewSessionRuns.tsx";
+import type { SessionRunChoice } from "./sessionCommits.ts";
+import type {
+  ReviewItem,
+  StoryReview,
+  TakenStoryReview,
+} from "./storyReviewContract.ts";
+import {
+  preferredReviewRun,
+  type ReviewRunChoice,
+} from "./storyReviewLandedRun.ts";
+import type { ReviewDetailsPlace } from "./StoryReviewToolbar.tsx";
+
+export function reviewHoldsDetails({
+  review,
+  runs,
+  workspaceChoices,
+  sessionRuns,
+  selectedRun,
+}: {
+  readonly review: StoryReview | undefined;
+  readonly runs: readonly ReviewRunChoice[];
+  readonly workspaceChoices: boolean;
+  readonly sessionRuns: readonly SessionRunChoice[];
+  readonly selectedRun: ReviewRunChoice | undefined;
+}) {
+  if (runs.length > 0 || workspaceChoices) return true;
+  if (sessionRuns.length > 1) return true;
+  if (selectedRun !== undefined) return true;
+  return (
+    review?.kind === "landed" ||
+    review?.kind === "session-commits" ||
+    review?.kind === "snapshot" ||
+    review?.kind === "published"
+  );
+}
+
+// The details the eye reveals: the comparison choices, the run picker, the
+// context of the comparison shown and the uncommitted check. Escape from
+// inside hides them and returns the keyboard to the eye.
+function ReviewDetails({
+  details,
+  children,
+}: {
+  readonly details: ReviewDetailsPlace;
+  readonly children: ReactNode;
+}) {
+  return (
+    <div
+      id={details.id}
+      className="story-review-details"
+      role="group"
+      aria-label="Review details"
+      hidden={!details.shown}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        event.stopPropagation();
+        details.onShow(false, true);
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function StoryReviewDetailsSection({
+  details,
+  review,
+  runs,
+  items,
+  sessionRuns,
+  selectedRun,
+  runKey,
+  shownComparison,
+  workspace,
+  availablePublished,
+  committed,
+  includeUncommitted,
+  onWorkspace,
+  onRun,
+  setIncludeUncommitted,
+}: {
+  readonly details: ReviewDetailsPlace;
+  readonly review: StoryReview | undefined;
+  readonly runs: readonly ReviewRunChoice[];
+  readonly items: readonly ReviewItem[];
+  readonly sessionRuns: readonly SessionRunChoice[];
+  readonly selectedRun: ReviewRunChoice | undefined;
+  readonly runKey: string | undefined;
+  readonly shownComparison: ComparisonChoice;
+  readonly workspace: TakenStoryReview | undefined;
+  readonly availablePublished: StoryReview | undefined;
+  readonly committed: TakenStoryReview["committed"];
+  readonly includeUncommitted: boolean;
+  readonly onWorkspace: (choice: ShownComparison) => void;
+  readonly onRun: (run: string) => void;
+  readonly setIncludeUncommitted: (include: boolean) => void;
+}) {
+  if (
+    !reviewHoldsDetails({
+      review,
+      runs,
+      workspaceChoices: items.length > 0,
+      sessionRuns,
+      selectedRun,
+    })
+  )
+    return undefined;
+  return (
+    <ReviewDetails details={details}>
+      {(runs.length > 0 || items.length > 0) && (
+        <ComparisonSwitch
+          shown={shownComparison}
+          onSwitch={(choice) => {
+            if (choice === "published") onWorkspace("all");
+            else if (choice !== "landed") onWorkspace(choice);
+            else {
+              const newest = preferredReviewRun(runs, (run) => run.comparison);
+              if (newest !== undefined) onRun(newest.key);
+            }
+          }}
+          workspace={workspace !== undefined}
+          commits={workspace !== undefined && items.length > 0}
+          landed={runs.length > 0}
+          published={availablePublished !== undefined}
+        />
+      )}
+      {sessionRuns.length > 1 && (
+        <SessionRunSwitch
+          runs={sessionRuns}
+          selected={runKey}
+          onSelect={onRun}
+        />
+      )}
+      {selectedRun !== undefined && (
+        <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
+      )}
+      <ReviewContext review={review} />
+      {review?.kind === "snapshot" && committed !== undefined && (
+        <div className="story-review-uncommitted">
+          <label>
+            <input
+              type="checkbox"
+              checked={includeUncommitted}
+              onChange={(event) => {
+                setIncludeUncommitted(event.target.checked);
+              }}
+            />{" "}
+            Include uncommitted changes
+          </label>
+        </div>
+      )}
+    </ReviewDetails>
+  );
+}

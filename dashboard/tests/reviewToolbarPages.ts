@@ -24,6 +24,13 @@ export class ReviewToolbar extends PageObject {
     );
   }
 
+  // No comparison name yet — before an answer or on a bare explanation.
+  expectNoName() {
+    return this.cueHere("Review toolbar: names no comparison", () =>
+      expect(toolbarComparison(this.#review)).toHaveCount(0),
+    );
+  }
+
   // Whether the toolbar offers Hide files for the shown file sidebar.
   expectFilesToggle(offered: boolean) {
     const toggle = filesToggle(this.#review);
@@ -45,6 +52,19 @@ export class ReviewToolbar extends PageObject {
         await expect(
           this.#review.getByRole("group", { name: "Review details" }),
         ).toBeHidden();
+      },
+    );
+  }
+
+  // No eye and no details group: the details hold nothing to reveal.
+  expectNoDetails() {
+    return this.cueHere(
+      "Review toolbar: offers no review details",
+      async () => {
+        await expect(detailsToggle(this.#review)).toHaveCount(0);
+        await expect(
+          this.#review.getByRole("group", { name: "Review details" }),
+        ).toHaveCount(0);
       },
     );
   }

@@ -1,9 +1,9 @@
 // Review changes' toolbar (`./StoryReview.tsx`), under the panel's header and
 // above the work area: the file sidebar's toggle at its far left while the
 // comparison shown lists files, then that comparison's name beside the eye
-// that reveals the review details, an inline section under the toolbar.
+// that reveals the review details (`./StoryReviewDetailsSection.tsx`).
 
-import type { ReactNode, Ref } from "react";
+import type { Ref } from "react";
 import { Eye, EyeOff, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import {
@@ -36,15 +36,22 @@ export function reviewListsFiles(
   );
 }
 
-// The toolbar's name for the comparison shown: a session's commits by their
-// context's heading, every landing as Landed runs, else the switch's words.
+// The toolbar's name for the comparison shown: empty until a review answer
+// supplies one, a session's commits by their context's heading, every landing
+// (including a selected evidence gap) as Landed runs, else the switch's words.
 export const toolbarComparisonName = (
   review: StoryReview | undefined,
   shown: ComparisonChoice,
-) =>
-  review?.kind === "session-commits"
-    ? "Session commits"
-    : comparisonName(reviewsLanding(review) ? "landed" : shown);
+) => {
+  if (review === undefined || review.kind === "unavailable") return "";
+  if (review.kind === "landing-unavailable") {
+    return (review.runs?.length ?? 0) > 0 || review.selectedRun !== undefined
+      ? comparisonName("landed")
+      : "";
+  }
+  if (review.kind === "session-commits") return "Session commits";
+  return comparisonName(reviewsLanding(review) ? "landed" : shown);
+};
 
 // The review details as the review places them: the section's id, whether
 // the developer reveals them, and the eye that takes the keyboard back.
@@ -55,43 +62,16 @@ export type ReviewDetailsPlace = {
   readonly onShow: (shown: boolean, focusEye?: boolean) => void;
 };
 
-// The details the eye reveals: the comparison choices, the run picker, the
-// context of the comparison shown and the uncommitted check. Escape from
-// inside hides them and returns the keyboard to the eye.
-export function ReviewDetails({
-  details,
-  children,
-}: {
-  readonly details: ReviewDetailsPlace;
-  readonly children: ReactNode;
-}) {
-  return (
-    <div
-      id={details.id}
-      className="story-review-details"
-      role="group"
-      aria-label="Review details"
-      hidden={!details.shown}
-      onKeyDown={(event) => {
-        if (event.key !== "Escape") return;
-        event.preventDefault();
-        event.stopPropagation();
-        details.onShow(false, true);
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 export function ReviewToolbar({
   name,
   browser,
   onShowBrowser,
   details,
 }: {
-  readonly details: ReviewDetailsPlace;
-  // The comparison shown, in the Comparison switch's words.
+  // Absent when the details hold nothing to reveal.
+  readonly details: ReviewDetailsPlace | undefined;
+  // The comparison shown, in the Comparison switch's words; empty before an
+  // answer supplies one.
   readonly name: string;
   // The file sidebar, while the comparison shown lists files.
   readonly browser: FileBrowserPlace | undefined;
@@ -110,17 +90,19 @@ export function ReviewToolbar({
           align="start"
         />
       )}
-      <span className="story-review-toolbar-name">{name}</span>
-      <IconButton
-        ref={details.eye}
-        label={details.shown ? "Hide review details" : "Show review details"}
-        icon={details.shown ? EyeOff : Eye}
-        aria-controls={details.id}
-        aria-expanded={details.shown}
-        onClick={() => {
-          details.onShow(!details.shown);
-        }}
-      />
+      {name !== "" && <span className="story-review-toolbar-name">{name}</span>}
+      {details !== undefined && (
+        <IconButton
+          ref={details.eye}
+          label={details.shown ? "Hide review details" : "Show review details"}
+          icon={details.shown ? EyeOff : Eye}
+          aria-controls={details.id}
+          aria-expanded={details.shown}
+          onClick={() => {
+            details.onShow(!details.shown);
+          }}
+        />
+      )}
     </div>
   );
 }
