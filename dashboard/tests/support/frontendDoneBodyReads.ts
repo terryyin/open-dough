@@ -1,11 +1,12 @@
 // Controllable done-record body answers for frontend-only Recently done
 // journeys: hold or fail the next authenticated `done=bodies` ask that names
-// a given file, while other files answer from `services.doneBySource`; fail
-// every ask naming a file until restored; and record which records the page
-// asked for.
+// a given file, while other files answer from `services.doneBySource`; hold
+// every ask naming a record until released, or fail it until restored; and
+// record which records the page asked for.
 
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import {
   answerHeld,
@@ -14,6 +15,8 @@ import {
   type AnswerHold,
   type HeldAnswer,
 } from "./frontendSubstituteAnswers.ts";
+
+const doneFolder = ".planning/done/";
 
 export type FrontendDoneBodyReads = {
   readonly hold: (fileName: string) => HeldAnswer;
@@ -48,7 +51,7 @@ export async function installFrontendDoneBodyReads(
         await fulfillJson(route, {
           revision,
           records: files.map((fileName) => ({
-            path: `.planning/done/${fileName}`,
+            path: `${doneFolder}${fileName}`,
             text: bodies[fileName] ?? "",
           })),
         });
@@ -79,7 +82,7 @@ export function recordDoneRecordsAsked(page: Page) {
     )
       return;
     for (const file of url.searchParams.getAll("file"))
-      asked.push(`.planning/done/${file}`);
+      asked.push(`${doneFolder}${file}`);
   });
   return () => asked;
 }
@@ -90,16 +93,35 @@ export function recordDoneRecordsAsked(page: Page) {
 export const eachRecordOnce = (paths: readonly string[]) =>
   [...new Set(paths)].toSorted();
 
-// Every `done=bodies` ask naming `fileName` fails as unreachable until
-// `restore`; `failed` counts the asks failed so far.
-export async function failDoneRecordReads(page: Page, fileName: string) {
+// Whether a `done=bodies` ask names the record at `path`.
+const asksForRecord = (params: URLSearchParams, path: string) =>
+  params.get("done") === "bodies" &&
+  params.getAll("file").includes(path.replace(doneFolder, ""));
+
+// Every `done=bodies` ask naming the record at `path` waits until the returned
+// release. Push the release onto `releases` so afterEach can free a held
+// journey that failed.
+export function holdDoneRecordReads(
+  page: Page,
+  path: string,
+  releases: (() => void)[],
+) {
+  return holdAuthenticatedReadsWhere(
+    page,
+    (params) => asksForRecord(params, path),
+    releases,
+  );
+}
+
+// Every `done=bodies` ask naming the record at `path` fails as unreachable
+// until `restore`; `failed` counts the asks failed so far.
+export async function failDoneRecordReads(page: Page, path: string) {
   let failing = true;
   let failed = 0;
   await page.route(
     (url) =>
       url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("done") === "bodies" &&
-      url.searchParams.getAll("file").includes(fileName),
+      asksForRecord(url.searchParams, path),
     async (route) => {
       if (!failing) {
         await route.fallback();

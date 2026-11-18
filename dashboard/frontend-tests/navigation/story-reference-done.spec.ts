@@ -27,7 +27,6 @@ import {
   expectCueEnds,
   expectDestinationCue,
 } from "../../tests/destinationCue.ts";
-import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
 import {
   donePathsThrough,
   donePathsWithSuppliersThrough,
@@ -41,6 +40,7 @@ import {
 import {
   eachRecordOnce,
   failDoneRecordReads,
+  holdDoneRecordReads,
   recordDoneRecordsAsked,
 } from "../../tests/support/frontendDoneBodyReads.ts";
 import { recordHostRequests } from "../../tests/support/frontendHostRequests.ts";
@@ -54,8 +54,6 @@ test.afterEach(() => {
     release();
   });
 });
-
-const fileName = (path: string) => path.replace(".planning/done/", "");
 
 test("a Done reference without sessions reveals exactly through its existing destination and keeps a longer range", async ({
   page,
@@ -113,13 +111,7 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
   await pausePageClock(page);
   putFrontendDoneReferences(frontendServices);
   // Every ask naming the far record waits: its supplier title and its card.
-  const held = await holdAuthenticatedReadsWhere(
-    page,
-    (params) =>
-      params.get("done") === "bodies" &&
-      params.getAll("file").includes(fileName(farDone.path)),
-    releases,
-  );
+  const held = await holdDoneRecordReads(page, farDone.path, releases);
   const recordsAsked = recordDoneRecordsAsked(page);
   await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);
@@ -159,7 +151,7 @@ test("a failed Done detail reveals its identified gap and the existing Done retr
   frontendServices,
 }) => {
   putFrontendDoneReferences(frontendServices);
-  const unreachable = await failDoneRecordReads(page, fileName(farDone.path));
+  const unreachable = await failDoneRecordReads(page, farDone.path);
   const recordsAsked = recordDoneRecordsAsked(page);
   await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);

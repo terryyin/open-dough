@@ -1,11 +1,11 @@
 // Done references (../../frontend-tests/navigation/story-reference-done.spec.ts,
-// ../../frontend-tests/navigation/story-reference-done-recovery.spec.ts):
+// ../../frontend-tests/navigation/story-reference-done-recovery.spec.ts,
+// ../../frontend-tests/navigation/story-reference-done-cancellation.spec.ts):
 // 35 retained Done stories and one completed outside the retained window,
 // placed before `now`, with Story A waiting on a near, a far, the expired and
 // an unlisted story, whose agreements later revisions can replace. Published
 // Done facts and semantic references only: the real range decides what is
-// shown and read. The interim
-// ../storyReferenceDone.ts publishes the same facts through Git.
+// shown and read.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -82,7 +82,7 @@ const referencedStory = ({
     .please();
 
 // A seed for each referenced story and Story A waiting on each of them.
-export function doneReferenceSeeds(): RevisionFacts {
+function doneReferenceSeeds(): RevisionFacts {
   const referenced = [farDone, nearDone, expiredDone, unlisted].map(
     referencedStory,
   );
@@ -105,7 +105,7 @@ export function doneReferenceSeeds(): RevisionFacts {
 
 // Done records for the retained stories and the expired one, placed before
 // `now`. With `omitDestination`, the far story's record is not published.
-export function doneReferenceRecords(
+function doneReferenceRecords(
   now: number,
   { omitDestination = false }: DoneReferenceOptions = {},
 ) {

@@ -12,7 +12,8 @@ import {
   shortRevision,
 } from "../../tests/dashboardParts.ts";
 import { expectEntries, shownEntries } from "../../tests/recentlyDoneColumn.ts";
-import { storyCard } from "../../tests/storyCardControls.ts";
+import { inspectionToggle, storyCard } from "../../tests/storyCardControls.ts";
+import { storyDetail } from "../../tests/storyCardSelection.ts";
 import {
   dependencySummary,
   doneDestination,
@@ -88,10 +89,8 @@ test("expired and unlisted references remain unavailable without fabricated bloc
   expect(eachRecordOnce(recordsAsked())).toEqual(
     donePathsWithSuppliersThrough(10),
   );
-  await consumer.getByRole("button", { name: "Inspect story" }).click();
-  await expect(
-    consumer.getByRole("region", { name: "Detail for Story A" }),
-  ).toBeVisible();
+  await inspectionToggle(consumer).click();
+  await expect(storyDetail(consumer)).toBeVisible();
 });
 
 test("Done catalog loading and failure stay distinct from absence and story retry reaches the recovered catalog", async ({
@@ -153,8 +152,8 @@ async function inspectAfterFarReference(page: Page, reads: string) {
   await followReference(consumer, farDone.identity);
   const notice = referenceNotice(page);
   await expect(notice).toContainText(reads);
-  await consumer.getByRole("button", { name: "Inspect story" }).click();
-  const ownChoice = consumer.getByRole("button", { name: "Hide detail" });
+  const ownChoice = inspectionToggle(consumer);
+  await ownChoice.click();
   await expect(ownChoice).toBeFocused();
   await expect(notice).toBeEmpty();
   return { consumer, recent, notice, ownChoice };
@@ -171,9 +170,7 @@ async function expectInspectionKeptOverHealedCatalog({
   await expect(columnCountOf(recent)).toHaveText("35 entries");
   await expect(shownEntries(recent)).toHaveCount(10);
   await expect(doneDestination(recent, farDone.identity)).toHaveCount(0);
-  await expect(
-    consumer.getByRole("region", { name: "Detail for Story A" }),
-  ).toBeVisible();
+  await expect(storyDetail(consumer)).toBeVisible();
   await expect(ownChoice).toBeFocused();
   await expect(notice).toBeEmpty();
 }

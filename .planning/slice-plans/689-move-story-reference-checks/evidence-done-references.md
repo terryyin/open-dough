@@ -40,8 +40,8 @@ same test names; arrangement `dashboard/tests/support/frontendDoneReferences.ts`
   title reference, accessible name, focused, in view, motionless cue, no
   selected card, cue ends, not selected, notice empty, asked unchanged (12c,
   12b) — kept. `published.hold(farDone.path)` (held every GitHub read of the
-  record) → `holdAuthenticatedReadsWhere` on every `done=bodies` ask naming the
-  far file. `installFrontendDoneBodyReads.hold` holds only the next ask and
+  record) → `holdDoneRecordReads` (`frontendDoneBodyReads.ts`), holding every
+  `done=bodies` ask naming the far record. `installFrontendDoneBodyReads.hold` holds only the next ask and
   flaked (the range ask answered the card while the supplier ask was held;
   run `s5-restored.log`), so it is not used.
 
@@ -63,7 +63,7 @@ now 231 lines, so no second spec). Interim spec deleted.
   and `page.goto("/")`; `recordsAsked(githubFor(page))` →
   `recordDoneRecordsAsked(page)` (page-side asks).
 - Case 3 (12d): `published.answerWith(farDone.path, noConnection)` → new
-  `failDoneRecordReads(page, file)` in `frontendDoneBodyReads.ts` (every ask
+  `failDoneRecordReads(page, path)` in `frontendDoneBodyReads.ts` (every ask
   naming the far file aborts until `restore`; `failed()` counts them). Poll
   far reads = 1 plus `untilPageRequestsAnswered` → poll `failed()` = 1 (the
   failed title ask finished). Identity reference visible; follow; "This done
@@ -147,3 +147,55 @@ Scratch break (2026-11-18): fault — `dashboard/src/storyReferenceJourney.tsx`
 received "SEED-227#progressive-27 is unavailable in Open Dough's dashboard.".
 Restored from a copy in the evidence dir (deleted); `git diff -- dashboard/src | wc -c`
 → 0; focused group `--repeat-each=3` → exit 0.
+
+## Slice 8. Cancel a pending Done reference
+
+`dashboard/frontend-tests/navigation/story-reference-done-cancellation.spec.ts`
+three cases, names kept. Interim spec and `dashboard/tests/storyReferenceDone.ts`
+deleted (`git rm`).
+
+- Setup: `serveDoneReferences` + `published.hold(farDone.path)` + `openUntilRead`
+  → `putFrontendDoneReferences`, `holdDoneRecordReads` (every `done=bodies`
+  ask naming the far record held) and `page.goto("/")`. No clock
+  pause needed. Ten shown, Story A's far reference followed, "Reading done
+  story…" in the destination — kept.
+- Case 1 (13a, 13b): Inspect → "Hide detail" focused, notice empty — kept.
+  Repeat reference → "Reading Open Dough"; "Show latest 10" → ten shown;
+  release; `untilPageRests` → `untilPageRequestsAnswered`; ten titles, no
+  destination, no latest action, notice empty, detail visible — kept.
+- Case 2 (13c): `pointerDownOn(Inspect)`, release, destination named, not
+  focused, Inspect focused, then `page.mouse.up()` → detail visible, "Hide
+  detail" focused, notice empty — kept, split visible.
+- Case 3 (13d): focus Dismiss, Tab, focused element not BODY, release,
+  destination named, focus unchanged, destination not focused, notice empty —
+  kept.
+
+Support removal: `storyReferenceDone.ts` (last importer gone);
+`doneReferenceSeeds`/`doneReferenceRecords` lose `export` (only
+`frontendDoneReferences.ts` uses them). `pointerDownOn` and `showLatestAction`
+keep this spec; `untilPageRests`, `openUntilRead` keep E2E/dashboard
+consumers. No ci.yml or shards.md entry names a removed path.
+
+Interim group (6a/2): `npx playwright test --config dashboard/integrated.playwright.config.ts --list --reporter=json`
+→ 3 tests in 1 file (`tests/navigation/source-navigation.spec.ts`); the
+`--workers=2` run → exit 0. Shard tests (`browser-group-shards`,
+`ci-browser-groups`) → exit 0.
+
+Scratch break (2026-11-18): first fault — `storyReferenceJourney.tsx`
+`giveUp` returning on `pointerdown` — did not reach the jump (the range's
+own-move wait already gave the destination up); case 2 passed, case 1 failed
+(27 shown after "Show latest 10"). Restored. Fault used —
+`dashboard/src/recentlyDoneRange.ts` `givenUpOnOwnMove`: `if (event.type ===
+"pointerdown") return;` (a pointer down neither gives the destination up nor
+stops the jump). `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-reference-done-cancellation --workers=2`
+→ exit 1: case 2 failed at `expect(destination).not.toBeFocused()` (received
+focused); case 1 at `toBeEmpty()` on the notice after Inspect. Restored from
+copies in the plan dir (deleted); `git diff -- dashboard/src | wc -c` → 0;
+focused story-reference group `--repeat-each=2` → exit 0.
+
+Scratch break rerun after the refactor pass (which moved the pointer case to
+`inspectionToggle`, `storyDetail` and `expectInspected`): the same
+`givenUpOnOwnMove` fault → `navigation/story-reference-done-cancellation.spec.ts`
+exit 1 (case 1 at the notice `toBeEmpty`, the pointer case at
+`expect(destination).not.toBeFocused()`); restored (`git diff -- dashboard/src`
+empty) → exit 0 (evidence `c8-break`, `c8-restored`).

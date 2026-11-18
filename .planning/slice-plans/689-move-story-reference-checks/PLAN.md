@@ -223,14 +223,12 @@ failed reference stays when the catalog heals, with ten shown of 35.
 
 ### 8. Cancel a pending Done reference and leave source navigation alone in the group
 Type: Behavior
-Status: planned
+Status: done
 Proof: the three `story-reference-done-cancellation` tests (touch) in
 `story-reference-done-cancellation.spec.ts`; then delete the interim spec and
-`storyReferenceDone.ts`, set `dashboard-integrated` to `shards: "[1]"` with no
-`specs` in `.github/workflows/ci.yml`, point the "pattern matching no spec"
-case of `Distribution/tests/support/browser-group-shards.test.mjs` at the
-Backend group, and set the group's shard count to 1 in
-`dashboard/tests/shards.md`. Scratch break: move focus to a Done destination
+`storyReferenceDone.ts`. The group's one-shard declaration (`ci.yml`,
+`shards.md`, the shard checks) already landed with SEED-382 before this
+execution; the listing and shard checks verify it. Scratch break: move focus to a Done destination
 that arrives after a pointer down; the second case fails.
 
 Behavior: with the far Done record held and its reference followed → Inspect,
