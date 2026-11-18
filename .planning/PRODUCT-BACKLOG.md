@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Declare every worker preparation with its own budget](seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget) — SEED-340#declare-every-worker-preparation-with-its-own-budget ([plan](slice-plans/692-declare-every-worker-preparation-with-its-own-budget/PLAN.md))
+- [Run the Dashboard Integrated group as one CI job](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#run-the-integrated-group-as-one-ci-job) — SEED-382#run-the-integrated-group-as-one-ci-job
 
 ## Backlog list
 
