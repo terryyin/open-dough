@@ -169,6 +169,14 @@ collapsed. Replaces slice 1's interim layout.
   `toolbarComparison`, `filesToggle` in `reviewControls.ts`.
 - `e2e/review/story-review.spec.ts` is at 250 lines: later slices put new
   assertions in support or new specs.
+- Slice 1 repair on 2026-11-18: hosted CI run 44257937459 on `1b33fda6a`
+  failed `frontend-tests/navigation/side-panel-width-covering.spec.ts:49`
+  (“not read whole: SPAN: All changes”) because the toolbar name was styled
+  to truncate; slice 1's local proof had not run `frontend-tests/navigation`.
+  The name no longer truncates. Slices 2 and 3 run the frontend suite whole.
+- Trunk amended the story's first scope limit to “Resizing the file sidebar
+  and remembering its width, delivered separately.” (`ced05e258`), absorbed
+  here; no numbered commitment's source text changed.
 - Flaky under load, not caused by this story:
   `e2e/review/story-review-one-shot-choice.spec.ts:23` timed out once at 30 s
   at load about 32; its trace shows about 23 s in the fixture's three real

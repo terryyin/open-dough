@@ -12,10 +12,8 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* The name is one of four short fixed phrases, so it is always read whole. */
 .story-review-toolbar-name {
-  min-width: 0;
-  overflow: hidden;
   font-weight: 600;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }

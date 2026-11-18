@@ -75,8 +75,7 @@ landed run, a published completion, an ad hoc session's landing):
 
 Scope limits:
 
-- Resizing the file sidebar and remembering its width is
-  [Resize and remember the Review changes file sidebar](#resize-and-remember-the-review-file-sidebar).
+- Resizing the file sidebar and remembering its width, delivered separately.
 - Naming the selected landed run in the collapsed toolbar was considered and
   deferred: the newest captured run opens by default, so the name can mislead
   only after the reviewer chose another run in this opening.

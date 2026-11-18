@@ -13,6 +13,12 @@ intent; “choosing commits is that comparison's work” is the reason for 28;
 baseline that 6–11 and 24 preserve; the four scope limits and the
 Architecture paragraph stay context.
 
+Amendment on trunk `ced05e2587ddb8b8c91f8bc820d4b2fb53ed02d2` (2026-11-18)
+reworded only the first scope limit, to “Resizing the file sidebar and
+remembering its width, delivered separately.” The reviewer's input already
+gave that limit without its link, as a separate delivery, and returned it as
+unnumbered context, so this review is reused unchanged.
+
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
