@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group ([plan](slice-plans/690-retire-emptied-integrated-ui-test-group/PLAN.md))
 - [State only what the checkout's log shows in a session's review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#state-only-what-the-checkout-log-shows) — SEED-379#state-only-what-the-checkout-log-shows ([plan](slice-plans/700-state-only-what-the-checkout-log-shows/PLAN.md))
 - [Get faster feedback on the seven phone-board checks](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/701-faster-phone-board-checks/PLAN.md))
+- [Keep the Review changes toolbar truthful while it reads](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-toolbar-truthful-while-reading) — SEED-384#keep-review-toolbar-truthful-while-reading ([plan](slice-plans/702-keep-review-toolbar-truthful-while-reading/PLAN.md))
 
 ## Backlog list
 
-- [Keep the Review changes toolbar truthful while it reads](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-toolbar-truthful-while-reading) — SEED-384#keep-review-toolbar-truthful-while-reading
 - [Run the remaining Dashboard Frontend Test checks at Doughnut's speed](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable
