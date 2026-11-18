@@ -173,7 +173,6 @@
 }
 
 .story-review-files {
-  flex: 0 1 16rem;
   min-width: 0;
   min-height: 0;
   overflow: auto;
@@ -208,12 +207,6 @@
 @container story-review-body (width < 34.75rem) {
   .story-review-workarea {
     flex-direction: column;
-  }
-
-  .story-review-files {
-    flex: none;
-    box-sizing: border-box;
-    max-height: 40%;
   }
 
   .story-review-diff {

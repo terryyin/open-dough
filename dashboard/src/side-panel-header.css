@@ -1,0 +1,111 @@
+/* The panel's header: the shown session's or story's title and identity on
+   the left, and the frame's icon controls (./icon-control.css) on the right:
+   the content's own operations, then the panel's (./SidePanelControls.tsx).
+   Its height is the frame's top bars' (./styles.css): the title and identity
+   lines together, and the controls, each sit centered in the bar's one row
+   (`--row-slack` is the room the two lines leave in it), and stay at its top
+   when an expanded title wraps. */
+.side-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  --title-line: calc(1.35 * var(--text-md));
+  --identity-line: calc(1.45 * var(--text-xs));
+  --row-slack: calc(
+    (var(--top-bar-row) - var(--title-line) - var(--identity-line)) / 2
+  );
+
+  gap: var(--space-3);
+  padding-inline: var(--space-3);
+}
+
+.side-panel-names {
+  min-width: 0;
+  padding-block: var(--row-slack);
+}
+
+.side-panel-names h2 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  line-height: var(--title-line);
+}
+
+/* Truncating title with disclosure (`./SidePanelTitle.tsx`): one ellipsis
+   line by default; activating the toggle wraps the full title. Touch gets
+   the bar's whole row as its activation surface, so the title remains
+   tappable without a taller header. */
+.side-panel-title-toggle {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.side-panel-title-expanded .side-panel-title-toggle {
+  overflow: visible;
+  white-space: normal;
+  text-overflow: unset;
+}
+
+@media (any-pointer: coarse) {
+  /* The tap surface reaches over the names' padding and identity line, by
+     padding its own margins give back, so the lines stay where they are and
+     the surface stays inside the names, where nothing clips it. */
+  .side-panel-title-toggle {
+    --below-title: calc(var(--row-slack) + var(--identity-line));
+
+    padding-block: var(--row-slack) var(--below-title);
+    margin-block: calc(-1 * var(--row-slack)) calc(-1 * var(--below-title));
+  }
+
+  .side-panel-names p {
+    pointer-events: none;
+  }
+}
+
+.side-panel-names p {
+  font-size: var(--text-xs);
+  line-height: var(--identity-line);
+  color: var(--quiet);
+}
+
+/* An identity's own font keeps to the identity line's height. */
+.side-panel-names code {
+  font-size: inherit;
+  line-height: 1;
+}
+
+.side-panel-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--top-bar-row);
+}
+
+/* Mark as done's question, between the header and what the panel keeps
+   showing. */
+.side-panel-question {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+.side-panel-question > p:first-child {
+  margin: 0;
+}

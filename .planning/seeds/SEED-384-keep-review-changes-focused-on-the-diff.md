@@ -121,35 +121,3 @@ Scope limits:
 No new consequential concern. The panel keeps its one multi-purpose side-panel
 region and read-only review boundary; only where the existing controls sit
 changes.
-
-<a id="one-owner-for-the-review-file-sidebar-sizing"></a>
-
-### Give the review file sidebar's sizing one owner
-
-**Identity:** SEED-384#one-owner-for-the-review-file-sidebar-sizing
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ccf7e73c3c03a4372e476f089ded6243526976181ef5168b8ac061d32e69185","plan":"849ba1b9d2b364735292deb88f7350a6cb19b180fd216f5f5f8763a6596c4716"}}
-```
-
-Correction from the retrospective of
-Resize and remember the Review changes file sidebar
-(`88a7f2348:.planning/seeds/SEED-384-keep-review-changes-focused-on-the-diff.md`, section `resize-and-remember-the-review-file-sidebar`).
-
-#### Goal
-
-Dashboard maintainers change the review file sidebar's width, its default or
-its divider's grip in one place each, and its tests prove only what the review
-adds to the shared kept preference, with the review's behavior unchanged.
-
-#### Scope
-
-- The review file sidebar's side-by-side and stacked sizing, and its 16rem
-  default, each have one owner; the Panel divider and the Files divider share
-  one vertical grip.
-- The Files divider specs keep proof of the review's own rules and stop
-  repeating the shared kept-preference proof; reaching the divider's upper
-  bound is explicit.
-- No product behavior changes, and no new product promise. Intent's locations
-  column keeps its width.
-
-Plan: [699-one-owner-for-the-review-file-sidebar-sizing](../slice-plans/699-one-owner-for-the-review-file-sidebar-sizing/PLAN.md)
