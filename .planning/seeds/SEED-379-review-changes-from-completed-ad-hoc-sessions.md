@@ -275,3 +275,36 @@ tests and guides without residue from its first delivery.
 
 The reviewed story's promises, scope limits and deferred promises stay as
 they are.
+
+<a id="review-deferred-default-main-session-changes"></a>
+
+### Review what Default main session reviews left deferred
+
+**Identity:** SEED-379#review-deferred-default-main-session-changes
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+#### Goal
+
+A developer reviewing a done ad hoc session that worked in the shared Default
+main checkout can also see what its review of session commits leaves out.
+
+#### Scope
+
+The promises deferred when session commits became reviewable, each with the
+decision recorded then:
+
+- Changes a session leaves uncommitted in the shared checkout. They cannot be
+  told apart from a person's or another session's edits (Terry, 2026-11-18).
+- A separately captured Dough landing for a default launch. A landing
+  published from the checkout is already among the session's commits there
+  (Terry, 2026-11-18); a landing from a worktree the session created belongs
+  to the [own-branch story](#keep-own-branch-session-results-for-review).
+- One combined view of interrupted runs (Terry, 2026-11-18: one comparison
+  per run).
+
+#### Open for refinement
+
+- Whether any of these is still wanted: each was set aside for the stated
+  reason, and none has a way forward or an example yet.

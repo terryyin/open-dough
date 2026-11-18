@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [State only what the checkout's log shows in a session's review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#state-only-what-the-checkout-log-shows) — SEED-379#state-only-what-the-checkout-log-shows
 - [Keep source-freshness checks usable after a contributor merge](seeds/SEED-400-source-freshness-with-a-valid-take.md#keep-freshness-with-a-valid-take) — SEED-400#keep-freshness-with-a-valid-take
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
 - [Let a long Codex wait run without model requests](seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests) — SEED-399#let-a-long-codex-wait-run-without-model-requests
@@ -89,3 +90,4 @@ intent introduced or affected by a newly developed story.
 - [Offer more syntax styling choices beyond Off and Default](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#more-syntax-styling-choices) — SEED-387#more-syntax-styling-choices
 - [Further word-emphasis follow-ups](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#further-word-emphasis-follow-ups) — SEED-387#further-word-emphasis-follow-ups
 - [Deferred submit-and-close follow-ups](seeds/SEED-398-deferred-submit-and-close-follow-ups.md#deferred-submit-and-close-follow-ups) — SEED-398#deferred-submit-and-close-follow-ups
+- [Review what Default main session reviews left deferred](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-deferred-default-main-session-changes) — SEED-379#review-deferred-default-main-session-changes
