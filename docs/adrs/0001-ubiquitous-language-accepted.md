@@ -2,17 +2,6 @@
 
 **Status:** Accepted
 
-**Accepted:** 2026-09-11, by Terry Yin.
-
-**Date:** 2026-09-06
-
-**Revised:** 2026-10-27, at Terry Yin's direction, to reference the dashboard UI concepts.
-2026-10-29, at Terry Yin's direction, to define scope limits and required restrictions.
-2026-11-14, at Terry Yin's direction, to name Open Dough Distribution.
-2026-11-15, at Terry Yin's direction, to name its maintainer evaluation tooling home.
-
-**Decision makers:** Terry Yin
-
 ## Context
 
 Open Dough needs consistent names for producing and delivering shared guidance.
