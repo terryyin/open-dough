@@ -5,10 +5,12 @@
 // share the same session prefix.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionCommits } from "../src/sessionCommits.ts";
-import type {
-  SessionBranchEntry,
-  SessionBranchResult,
+import {
+  branchPinOwner,
+  type SessionBranchEntry,
+  type SessionBranchResult,
 } from "../src/sessionBranchResult.ts";
+import type { SessionReference } from "../src/sessionReference.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGitUntilClosed } from "./gitRunner.ts";
 import { pinPair, removeLandingPins, removePins } from "./launchLandingGit.ts";
@@ -17,16 +19,16 @@ import { defaultMainStart, resolvedCheckout } from "./sessionCommitsCapture.ts";
 const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
   `refs/open-dough/session-commits/${session.host}/${session.sessionId}/`;
 
-const sessionBranchRefPrefix = (session: LaunchRecord["session"]) =>
+const sessionBranchRefPrefix = (session: SessionReference) =>
   `refs/open-dough/session-branch/${session.host}/${session.sessionId}/`;
 
 const branchResultRefPrefix = (
-  session: LaunchRecord["session"],
+  session: SessionReference,
   result: SessionBranchResult,
 ) =>
   `${sessionBranchRefPrefix(session)}${result.doneAt.replace(/[.:]/g, "-")}/`;
 
-const branchEntryRefPrefix = (session: LaunchRecord["session"]) =>
+const branchEntryRefPrefix = (session: SessionReference) =>
   `${sessionBranchRefPrefix(session)}entry/`;
 
 async function keepTipRef(
@@ -42,7 +44,7 @@ async function keepTipRef(
 }
 
 export async function keepBranchEntryRefs(
-  session: LaunchRecord["session"],
+  session: SessionReference,
   entry: SessionBranchEntry,
 ): Promise<void> {
   const prefix = branchEntryRefPrefix(session);
@@ -59,14 +61,14 @@ export async function keepBranchEntryRefs(
 }
 
 export function releaseBranchEntryRefs(
-  session: LaunchRecord["session"],
+  session: SessionReference,
   entry: SessionBranchEntry,
 ): Promise<void> {
   return removePins(entry.repository, branchEntryRefPrefix(session));
 }
 
 export async function keepBranchResultRefs(
-  session: LaunchRecord["session"],
+  session: SessionReference,
   result: SessionBranchResult,
 ): Promise<void> {
   const prefix = branchResultRefPrefix(session, result);
@@ -76,7 +78,7 @@ export async function keepBranchResultRefs(
 }
 
 export async function releaseBranchResultRefs(
-  session: LaunchRecord["session"],
+  session: SessionReference,
   result: SessionBranchResult | undefined,
 ): Promise<void> {
   if (result !== undefined)
@@ -93,7 +95,7 @@ export async function releaseSessionBranchRefs(
   if (result !== undefined)
     await removePins(
       result.repository,
-      sessionBranchRefPrefix(record.session),
+      sessionBranchRefPrefix(branchPinOwner(record)),
     ).catch(() => undefined);
 }
 

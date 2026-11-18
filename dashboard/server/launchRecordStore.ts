@@ -1,6 +1,10 @@
 // Public launch/creation record operations use one machine document and retention rule.
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
+import {
+  branchPinOwner,
+  keptBranchEvidence,
+} from "../src/sessionBranchResult.ts";
 import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
 import {
   readStoredRecords,
@@ -163,8 +167,15 @@ export async function replaceKeptSession(
 ): Promise<LaunchRecord | undefined> {
   return changeSessionRecord(sourceId, previous, (record) => ({
     ...next,
+    ...keptBranchEvidence(record),
+    ...(record.branchEntry !== undefined || record.branchResult !== undefined
+      ? { branchEvidenceOwner: branchPinOwner(record) }
+      : {}),
     landing: record.landing ?? next.landing,
     landingReporting: record.landingReporting ?? next.landingReporting,
+    dispositionChangedAt: record.dispositionChangedAt,
+    doneAt: record.doneAt,
+    doneProblem: record.doneProblem,
   }));
 }
 
@@ -193,9 +204,7 @@ export async function updateRecord(
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
-        branchEntry: entry.branchEntry,
-        branchResult: entry.branchResult,
-        branchResultFailedAt: entry.branchResultFailedAt,
+        ...keptBranchEvidence(entry),
         stopUnconfirmed: entry.stopUnconfirmed,
         reportRead: entry.reportRead,
       };

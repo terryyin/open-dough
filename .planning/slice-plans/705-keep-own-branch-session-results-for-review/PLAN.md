@@ -78,11 +78,15 @@ The independent pass consolidated the optional branch pin writes and test parsin
 ### 4. Preserve branch evidence when a native session is replaced
 
 Type: Behavior
-Status: planned
+Status: done
 
 A Cursor session identifies its branch, then Recover replaces a native chat that cannot be loaded. The launch keeps the branch association and its pinned entry and any earlier branch result through the replacement. A later Done can still use the fixed entry. Deletion or expiry releases the same evidence under the retained launch, including when the native session ID changed.
 
 Exercise the real Dashboard branch-entry and Cursor cannot-load recovery boundaries with the existing native host fixture. Identify a branch and keep its prior evidence, replace the native session, confirm the same launch's entry in the new record and drive Done and review with the new session ID. Delete that record and inspect its original pin namespace and a separate launch's pins. Use the existing retention owner for the aged-out outcome and protect a branch entry made while binding or rekey waits. Reuse unaffected slice 3 evidence.
+
+`dashboard/backend-tests/review/ad-hoc-branch-cursor-recovery.spec.ts` observes the fixed entry and earlier result on the new native ID, a second Done with exact file text, and both pin release paths. It also passes a native record read before handoff into the real replacement and binding operations and confirms the current branch evidence survives. The eight-spec backend gate, two existing Cursor recovery E2E cases, dashboard typecheck, and whitespace checks passed. See `slice-4-implementation.md` in the Git evidence directory.
+
+The independent pass split explicit deletion and retention expiry into separate tests with common recovery setup. The scoped backend spec, dashboard typecheck, and whitespace checks passed. See `slice-4-refactor.md` in the Git evidence directory.
 
 ### 5. Exclude earlier branch work and imported trunk from the same comparison
 
@@ -161,4 +165,4 @@ Disposition: receiving slice 6
 
 Reported: slice 3 — "Its Git entry refs are keyed by its old native ID, but releaseSessionBranchRefs later keys cleanup by the new ID."
 Story clause: "The launch record's deletion or expiry releases its evidence."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: ad-hoc-branch-cursor-recovery.spec.ts exercises real Cursor replacement, another Done and exact historical review, deletion and expiry under the old evidence owner, and independent pins.

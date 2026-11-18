@@ -7,7 +7,10 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
-import type { SessionBranchEntry } from "../src/sessionBranchResult.ts";
+import {
+  branchPinOwner,
+  type SessionBranchEntry,
+} from "../src/sessionBranchResult.ts";
 import { isReportingRecord } from "./completionAdmission.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
@@ -163,6 +166,7 @@ async function recordEntry(
       "This checkout does not hold the named branch in the launch's registered repository, or its entry state could not be captured.",
     );
   }
+  const owner = branchPinOwner(record);
   const evidence = { pinning: false };
   try {
     const written = await changeSessionRecord(
@@ -178,7 +182,7 @@ async function recordEntry(
             "This launch no longer names that repository.",
           );
         evidence.pinning = true;
-        await keepBranchEntryRefs(current.session, proposed);
+        await keepBranchEntryRefs(owner, proposed);
         return { ...current, branchEntry: proposed };
       },
     );
@@ -186,9 +190,7 @@ async function recordEntry(
     return written.branchEntry;
   } catch (error) {
     if (evidence.pinning)
-      await releaseBranchEntryRefs(record.session, proposed).catch(
-        () => undefined,
-      );
+      await releaseBranchEntryRefs(owner, proposed).catch(() => undefined);
     throw error;
   }
 }

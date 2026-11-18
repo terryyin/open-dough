@@ -1,6 +1,10 @@
-// Branch evidence belongs to one Done on the launch record.
+// A launch records its branch entry and the branch result for a particular Done.
 import { z } from "zod";
 import { commitIdSchema } from "./launchLanding.ts";
+import {
+  sessionHostSchema,
+  type SessionReference,
+} from "./sessionReference.ts";
 
 export const sessionBranchEntryEndpoint = "/__agent-launch/branch-entry";
 
@@ -28,7 +32,32 @@ export const sessionBranchEvidenceSchema = z.object({
   branchEntry: sessionBranchEntrySchema.optional(),
   branchResult: sessionBranchResultSchema.optional(),
   branchResultFailedAt: z.iso.datetime().optional(),
+  // Existing pins keep their owner when recovery replaces the native session.
+  branchEvidenceOwner: z
+    .object({
+      host: sessionHostSchema,
+      sessionId: z.string().min(1),
+    })
+    .optional(),
 });
+
+type BranchEvidence = z.infer<typeof sessionBranchEvidenceSchema>;
+
+export function keptBranchEvidence(record: BranchEvidence) {
+  return {
+    branchEntry: record.branchEntry,
+    branchResult: record.branchResult,
+    branchResultFailedAt: record.branchResultFailedAt,
+    branchEvidenceOwner: record.branchEvidenceOwner,
+  };
+}
+
+export function branchPinOwner(
+  record: BranchEvidence & { readonly session: SessionReference },
+): SessionReference {
+  const { host, sessionId } = record.branchEvidenceOwner ?? record.session;
+  return { host, sessionId };
+}
 
 export function branchResultAtDone({
   branchResult,

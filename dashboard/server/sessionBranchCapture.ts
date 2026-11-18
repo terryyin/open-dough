@@ -2,9 +2,10 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
-import type {
-  SessionBranchEntry,
-  SessionBranchResult,
+import {
+  branchPinOwner,
+  type SessionBranchEntry,
+  type SessionBranchResult,
 } from "../src/sessionBranchResult.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
@@ -132,6 +133,7 @@ export async function withBranchResultAtDone<T>(
       return Promise.resolve(marked);
     });
 
+  const owner = branchPinOwner(candidate);
   const read = await readBranchResult(candidate, doneAt).catch(() => undefined);
   let previous: SessionBranchResult | undefined;
   let pinned: SessionBranchResult | undefined;
@@ -148,9 +150,9 @@ export async function withBranchResultAtDone<T>(
       if (read === undefined)
         return { ...marked, branchResultFailedAt: doneAt };
       try {
-        await keepBranchResultRefs(marked.session, read);
+        await keepBranchResultRefs(owner, read);
       } catch {
-        await releaseBranchResultRefs(marked.session, read);
+        await releaseBranchResultRefs(owner, read);
         return { ...marked, branchResultFailedAt: doneAt };
       }
       previous = marked.branchResult;
@@ -159,11 +161,10 @@ export async function withBranchResultAtDone<T>(
       delete next.branchResultFailedAt;
       return next;
     });
-    if (pinned !== undefined)
-      await releaseBranchResultRefs(candidate.session, previous);
+    if (pinned !== undefined) await releaseBranchResultRefs(owner, previous);
     return saved;
   } catch (error) {
-    await releaseBranchResultRefs(candidate.session, pinned);
+    await releaseBranchResultRefs(owner, pinned);
     throw error;
   }
 }
