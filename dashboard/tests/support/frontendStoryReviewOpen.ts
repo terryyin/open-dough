@@ -22,7 +22,7 @@ import {
   openFrontendBoardReview,
   storyA,
 } from "./frontendRecentlyDoneBoardReview.ts";
-import { doneCard } from "../recentlyDoneReviewState.ts";
+import { doneCard } from "../doneStoryReviewPage.ts";
 
 // The Taken story's kept story-branch launch, which offers Review changes.
 export function keepTakenReviewLaunch(services: FrontendServiceState): void {

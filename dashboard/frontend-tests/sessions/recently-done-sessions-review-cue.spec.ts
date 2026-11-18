@@ -23,7 +23,7 @@ import {
   expectReviewed,
   markAsReviewed,
   unreviewStory,
-} from "../../tests/recentlyDoneReviewState.ts";
+} from "../../tests/doneStoryReviewPage.ts";
 import { box, tapWhereShown } from "../../tests/pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
 import { showColumn } from "../../tests/boardPage.ts";

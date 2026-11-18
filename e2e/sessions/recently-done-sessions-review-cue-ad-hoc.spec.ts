@@ -13,7 +13,7 @@ import {
   openRecentlyDone,
   reviewSaveFailure,
   unreviewStory,
-} from "../../dashboard/tests/recentlyDoneReviewState.ts";
+} from "../../dashboard/tests/doneStoryReviewPage.ts";
 import {
   expectSessionReviewCue,
   showRecentlyDone,

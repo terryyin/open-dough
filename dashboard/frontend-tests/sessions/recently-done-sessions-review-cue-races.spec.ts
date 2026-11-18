@@ -16,7 +16,7 @@ import {
   doneCard,
   expectReviewed,
   markAsReviewed,
-} from "../../tests/recentlyDoneReviewState.ts";
+} from "../../tests/doneStoryReviewPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { showColumn } from "../../tests/boardPage.ts";
 import {

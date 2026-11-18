@@ -23,17 +23,8 @@ import {
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { parts, storyCardSessions } from "../../tests/dashboardParts.ts";
 import { readFinalReportControl } from "../../tests/finalReportPages.ts";
+import { doneStoryReview } from "../../tests/doneStoryReviewPage.ts";
 import { expectEntries } from "../../tests/recentlyDoneColumn.ts";
-import {
-  cancelUnreview,
-  doneCard,
-  expectReviewed,
-  markAsReviewed,
-  reviewedButton,
-  storyActions,
-  unreviewQuestion,
-  unreviewStory,
-} from "../../tests/recentlyDoneReviewState.ts";
 import { sidePanelContents } from "../../tests/support/sidePanelContents.ts";
 import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
 import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
@@ -48,14 +39,15 @@ test("Mark as reviewed keeps the card, selection and announcement as they were",
     page,
     frontendServices,
   );
-  const a = doneCard(page, storyA.title);
-  const b = doneCard(page, storyB.title);
-  const c = doneCard(page, storyC.title);
+  const cards = doneStoryReview(page);
+  const a = cards.card(storyA.title);
+  const b = cards.card(storyB.title);
+  const c = cards.card(storyC.title);
   const count = recent.getByText("3 entries", { exact: true });
 
   await test.step("stories completed elsewhere are all unreviewed", async () => {
     await expectEntries(recent, titles);
-    for (const card of [a, b, c]) await expectReviewed(card, false);
+    for (const card of [a, b, c]) await card.expectReviewed(false);
     expect(review.reviewed("open-dough")).toEqual([]);
     await expect(parts(page).backlog.getByRole("article")).not.toHaveCount(0);
     await expect(
@@ -64,57 +56,55 @@ test("Mark as reviewed keeps the card, selection and announcement as they were",
   });
 
   await test.step("Mark as reviewed on A, by keyboard, with C selected: A says Reviewed with focus on Reviewed, once announced; B, the order, the count, the selection and the Side panel stay", async () => {
-    await emptyArea(c).click();
-    await expectSelected(c, true);
+    await emptyArea(c.article).click();
+    await expectSelected(c.article, true);
     await expect(sidePanelContents(page)).toHaveCount(0);
-    const actionsOfA = await storyActions(a)
-      .getByRole("button")
-      .allTextContents();
-    await markAsReviewed(a).focus();
+    const actionsOfA = await a.actions.getByRole("button").allTextContents();
+    await a.markAsReviewed.focus();
     await page.keyboard.press("Enter");
-    await expectReviewed(a, true);
-    await expect(reviewedButton(a)).toBeFocused();
-    await expect(storyActions(a).getByRole("status")).toHaveText(
+    await a.expectReviewed(true);
+    await expect(a.reviewedButton).toBeFocused();
+    await expect(a.actions.getByRole("status")).toHaveText(
       "Marked as reviewed.",
     );
     await expect(page.getByText("Marked as reviewed.")).toHaveCount(1);
-    expect(await storyActions(a).getByRole("button").allTextContents()).toEqual(
+    expect(await a.actions.getByRole("button").allTextContents()).toEqual(
       actionsOfA.map((name) =>
         name === "Mark as reviewed" ? "Reviewed" : name,
       ),
     );
-    await expectReviewed(b, false);
-    await expectReviewed(c, false);
+    await b.expectReviewed(false);
+    await c.expectReviewed(false);
     await expectEntries(recent, titles);
     await expect(count).toBeVisible();
-    await expectSelected(c, true);
-    await expectSelected(a, false);
+    await expectSelected(c.article, true);
+    await expectSelected(a.article, false);
     await expect(sidePanelContents(page)).toHaveCount(0);
     expect(review.reviewed("open-dough")).toEqual([storyA.identity]);
   });
 
   await test.step("Cancel leaves A reviewed, with focus on Reviewed and C still selected", async () => {
-    await reviewedButton(a).click();
-    const question = unreviewQuestion(a, "Unreview this story?");
-    await expect(cancelUnreview(question)).toBeFocused();
+    await a.reviewedButton.click();
+    const question = a.unreviewQuestion("Unreview this story?");
+    await expect(question.cancel).toBeFocused();
     const saved = review.reviewed("open-dough");
-    await cancelUnreview(question).click();
-    await expect(question).toHaveCount(0);
-    await expectReviewed(a, true);
-    await expect(reviewedButton(a)).toBeFocused();
-    await expectSelected(c, true);
-    await expectSelected(a, false);
+    await question.cancel.click();
+    await expect(question.group).toHaveCount(0);
+    await a.expectReviewed(true);
+    await expect(a.reviewedButton).toBeFocused();
+    await expectSelected(c.article, true);
+    await expectSelected(a.article, false);
     expect(review.reviewed("open-dough")).toEqual(saved);
   });
 
   await test.step("Escape closes the prompt and leaves A reviewed", async () => {
-    await reviewedButton(a).press("Enter");
-    const question = unreviewQuestion(a, "Unreview this story?");
-    await expect(cancelUnreview(question)).toBeFocused();
-    await cancelUnreview(question).press("Escape");
-    await expect(question).toHaveCount(0);
-    await expectReviewed(a, true);
-    await expect(reviewedButton(a)).toBeFocused();
+    await a.reviewedButton.press("Enter");
+    const question = a.unreviewQuestion("Unreview this story?");
+    await expect(question.cancel).toBeFocused();
+    await question.cancel.press("Escape");
+    await expect(question.group).toHaveCount(0);
+    await a.expectReviewed(true);
+    await expect(a.reviewedButton).toBeFocused();
   });
 });
 
@@ -174,8 +164,8 @@ test("Marking and unreviewing a story keep the card's sessions as they were", as
         .please(),
     ),
   });
-  const a = doneCard(page, storyA.title);
-  const nested = storyCardSessions(a);
+  const a = doneStoryReview(page).card(storyA.title);
+  const nested = storyCardSessions(a.article);
   const names = [
     `Execution session for ${storyA.title}`,
     `Refinement session for ${storyA.title}`,
@@ -184,14 +174,16 @@ test("Marking and unreviewing a story keep the card's sessions as they were", as
     await expect(nested).toHaveCount(names.length);
     for (const name of names)
       await expect(
-        readFinalReportControl(a.getByRole("article", { name, exact: true })),
+        readFinalReportControl(
+          a.article.getByRole("article", { name, exact: true }),
+        ),
       ).toBeVisible();
   };
   await expectSessions();
-  await markAsReviewed(a).click();
-  await expectReviewed(a, true);
+  await a.markAsReviewed.click();
+  await a.expectReviewed(true);
   await expectSessions();
-  await unreviewStory(a, "Unreview this story?", "mouse");
-  await expectReviewed(a, false);
+  await a.unreview("Unreview this story?", "mouse");
+  await a.expectReviewed(false);
   await expectSessions();
 });

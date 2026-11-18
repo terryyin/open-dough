@@ -6,14 +6,16 @@
 
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { parts } from "../../dashboard/tests/dashboardParts.ts";
-import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
-import { refreshedTo } from "../../dashboard/tests/recentlyDoneRefresh.ts";
 import {
   doneCard,
-  doneStories,
   expectReviewed,
   markAsReviewed,
   openRecentlyDone,
+} from "../../dashboard/tests/doneStoryReviewPage.ts";
+import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { refreshedTo } from "../../dashboard/tests/recentlyDoneRefresh.ts";
+import {
+  doneStories,
   publishDoneStories,
   storyA,
 } from "../../dashboard/tests/recentlyDoneReviewState.ts";

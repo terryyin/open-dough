@@ -9,7 +9,7 @@ import {
 } from "../../tests/dashboardPage.ts";
 import { markDoneAnyway } from "../../tests/support/markDone.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { doneCard } from "../../tests/recentlyDoneReviewState.ts";
+import { doneCard } from "../../tests/doneStoryReviewPage.ts";
 import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishSourceCard } from "../../tests/support/followUpSourceCatalog.ts";

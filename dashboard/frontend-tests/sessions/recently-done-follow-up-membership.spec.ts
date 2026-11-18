@@ -13,7 +13,7 @@ import {
   fileFollowUpDialog,
   followUpContextList,
 } from "../../tests/support/fileFollowUpPage.ts";
-import { doneCard } from "../../tests/recentlyDoneReviewState.ts";
+import { doneCard } from "../../tests/doneStoryReviewPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishSourceCard } from "../../tests/support/followUpSourceCatalog.ts";
 import {

@@ -7,36 +7,26 @@
 
 import { chmodSync, mkdirSync } from "node:fs";
 import path from "node:path";
-import type { Locator } from "@playwright/test";
 import { storyReviewStateEndpoint } from "../../dashboard/src/storyReviewState.ts";
+import { doneStoryReview } from "../../dashboard/tests/doneStoryReviewPage.ts";
 import {
-  doneCard,
-  expectReviewed,
+  boardReviewRecords,
   keptReviewStates,
-  markAsReviewed,
-  openRecentlyDone,
-  publishDoneStories,
   reviewStatesFile,
-  reviewSaveFailure,
-  storyA,
-  reviewedButton,
-  unreviewStory,
 } from "../../dashboard/tests/recentlyDoneReviewState.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 
 const notSaved = "The review state could not be saved.";
-
-const saidOf = (card: Locator) => reviewSaveFailure(card, notSaved);
 
 test("a change that could not be saved keeps the state last saved and says so until the action is used again and saved", async ({
   page,
   dashboard,
   origin,
 }) => {
-  await publishDoneStories(page, origin);
-  await openRecentlyDone(page);
-  const a = doneCard(page, storyA.title);
-  await expectReviewed(a, false);
+  await boardReviewRecords.publish(page, origin);
+  const review = await doneStoryReview(page).open();
+  const a = review.card(boardReviewRecords.storyA.title);
+  await a.expectReviewed(false);
   // The directory holding this machine's local records, made read-only so no
   // record in it can be written.
   const records = path.dirname(reviewStatesFile(dashboard));
@@ -45,25 +35,25 @@ test("a change that could not be saved keeps the state last saved and says so un
   await test.step("Mark as reviewed while this machine cannot write its local records: still Mark as reviewed, focused, saying it could not be saved", async () => {
     chmodSync(records, 0o555);
     try {
-      await markAsReviewed(a).focus();
+      await a.markAsReviewed.focus();
       await page.keyboard.press("Enter");
-      await expect(saidOf(a)).toBeVisible();
+      await expect(a.saveFailure(notSaved)).toBeVisible();
     } finally {
       chmodSync(records, 0o755);
     }
-    await expectReviewed(a, false);
-    await expect(markAsReviewed(a)).toBeFocused();
+    await a.expectReviewed(false);
+    await expect(a.markAsReviewed).toBeFocused();
     expect(keptReviewStates(dashboard)).toBeUndefined();
   });
 
   await test.step("Mark as reviewed again once writing works: saved, and the message is gone", async () => {
     await page.keyboard.press("Enter");
-    await expectReviewed(a, true);
-    await expect(saidOf(a)).toHaveCount(0);
-    await expect(reviewedButton(a)).toBeFocused();
+    await a.expectReviewed(true);
+    await expect(a.saveFailure(notSaved)).toHaveCount(0);
+    await expect(a.reviewedButton).toBeFocused();
     expect(
       Object.keys(keptReviewStates(dashboard)?.["open-dough"] ?? {}),
-    ).toEqual([storyA.identity]);
+    ).toEqual([boardReviewRecords.storyA.identity]);
   });
 
   await test.step("Unreview while the dashboard cannot be reached: still Reviewed, focused, saying it could not be saved", async () => {
@@ -71,18 +61,18 @@ test("a change that could not be saved keeps the state last saved and says so un
     await page.route(endpoint, (route) =>
       route.request().method() === "POST" ? route.abort() : route.fallback(),
     );
-    await unreviewStory(a, "Unreview this story?", "keyboard");
-    await expect(saidOf(a)).toBeVisible();
-    await expectReviewed(a, true);
-    await expect(reviewedButton(a)).toBeFocused();
+    await a.unreview("Unreview this story?", "keyboard");
+    await expect(a.saveFailure(notSaved)).toBeVisible();
+    await a.expectReviewed(true);
+    await expect(a.reviewedButton).toBeFocused();
     await page.unroute(endpoint);
   });
 
   await test.step("Unreview again once the dashboard is reached: not reviewed, and the message is gone", async () => {
-    await unreviewStory(a, "Unreview this story?", "keyboard");
-    await expectReviewed(a, false);
-    await expect(saidOf(a)).toHaveCount(0);
-    await expect(markAsReviewed(a)).toBeFocused();
+    await a.unreview("Unreview this story?", "keyboard");
+    await a.expectReviewed(false);
+    await expect(a.saveFailure(notSaved)).toHaveCount(0);
+    await expect(a.markAsReviewed).toBeFocused();
     expect(keptReviewStates(dashboard)?.["open-dough"]).toEqual({});
   });
 });

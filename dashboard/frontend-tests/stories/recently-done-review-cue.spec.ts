@@ -15,7 +15,7 @@ import {
   markAsReviewed,
   reviewedButton,
   unreviewStory,
-} from "../../tests/recentlyDoneReviewState.ts";
+} from "../../tests/doneStoryReviewPage.ts";
 import {
   expectFocusReadable,
   setColorScheme,
