@@ -39,6 +39,7 @@ import {
   replacedStoryAAgreements,
 } from "../../tests/support/frontendDoneReferences.ts";
 import {
+  eachRecordOnce,
   failDoneRecordReads,
   recordDoneRecordsAsked,
 } from "../../tests/support/frontendDoneBodyReads.ts";
@@ -54,11 +55,6 @@ test.afterEach(() => {
   });
 });
 
-// The records the page asked, each once: asking a record again is spared by
-// the server (Backend "a later revision asks GitHub only for the record whose
-// blob changed", authenticated-read-listed-records.spec.ts).
-const asked = (paths: readonly string[]) => [...new Set(paths)].toSorted();
-const sorted = (paths: readonly string[]) => paths.toSorted();
 const fileName = (path: string) => path.replace(".planning/done/", "");
 
 test("a Done reference without sessions reveals exactly through its existing destination and keeps a longer range", async ({
@@ -71,7 +67,7 @@ test("a Done reference without sessions reveals exactly through its existing des
   await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);
   await expectEntries(recent, doneTitlesThrough(10));
-  expect(asked(recordsAsked())).toEqual(sorted(donePathsThrough(10)));
+  expect(eachRecordOnce(recordsAsked())).toEqual(donePathsThrough(10));
   const consumer = storyCard(backlog, "Story A");
   await openDependencies(consumer);
   await expect(storyReference(consumer, farDone.title)).toBeVisible();
@@ -81,8 +77,8 @@ test("a Done reference without sessions reveals exactly through its existing des
   await expect(near).toBeInViewport({ ratio: 0.5 });
   await expectReadingTop(near);
   await expectEntries(recent, doneTitlesThrough(10));
-  expect(asked(recordsAsked())).toEqual(
-    sorted(donePathsWithSuppliersThrough(10)),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(10),
   );
   await followReference(consumer, farDone.title);
   const destination = storyCard(recent, farDone.title);
@@ -90,8 +86,8 @@ test("a Done reference without sessions reveals exactly through its existing des
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expectEntries(recent, doneTitlesThrough(27));
   await expect(recent).toContainText("Showing 27 of 35 entries.");
-  expect(asked(recordsAsked())).toEqual(
-    sorted(donePathsWithSuppliersThrough(27)),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
   await followReference(consumer, farDone.title);
   await expect(destination).toBeFocused();
@@ -99,8 +95,8 @@ test("a Done reference without sessions reveals exactly through its existing des
   await followReference(consumer, nearDone.title);
   await expect(near).toBeFocused();
   await expect(recent).toContainText("Showing 27 of 35 entries.");
-  expect(asked(recordsAsked())).toEqual(
-    sorted(donePathsWithSuppliersThrough(27)),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
   await expect(sessionEntriesIn(recent)).toHaveCount(0);
   await expect(referenceNotice(page)).toBeEmpty();
@@ -141,8 +137,8 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
   );
   await expect(notice).not.toContainText("unavailable");
   await expect
-    .poll(() => asked(recordsAsked()))
-    .toEqual(sorted(donePathsWithSuppliersThrough(27)));
+    .poll(() => eachRecordOnce(recordsAsked()))
+    .toEqual(donePathsWithSuppliersThrough(27));
   held.release();
   await expect(storyReference(consumer, farDone.title)).toBeVisible();
   await expect(destination).toHaveAccessibleName(farDone.title);
@@ -153,8 +149,8 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
   await expectCueEnds(page, destination);
   await expectSelected(destination, false);
   await expect(notice).toBeEmpty();
-  expect(asked(recordsAsked())).toEqual(
-    sorted(donePathsWithSuppliersThrough(27)),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
 });
 
@@ -185,8 +181,8 @@ test("a failed Done detail reveals its identified gap and the existing Done retr
   await recent.getByRole("button", { name: "Retry done stories" }).click();
   await expectEntries(recent, doneTitlesThrough(27));
   await expect(recent).not.toContainText("could not be read");
-  expect(asked(recordsAsked())).toEqual(
-    sorted(donePathsWithSuppliersThrough(27)),
+  expect(eachRecordOnce(recordsAsked())).toEqual(
+    donePathsWithSuppliersThrough(27),
   );
   expect(recordsAsked().filter((path) => path === farDone.path)).toHaveLength(
     3,

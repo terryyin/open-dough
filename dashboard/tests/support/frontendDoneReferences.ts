@@ -1,4 +1,5 @@
-// Done references (../../frontend-tests/navigation/story-reference-done.spec.ts):
+// Done references (../../frontend-tests/navigation/story-reference-done.spec.ts,
+// ../../frontend-tests/navigation/story-reference-done-recovery.spec.ts):
 // 35 retained Done stories and one completed outside the retained window,
 // placed before `now`, with Story A waiting on a near, a far, the expired and
 // an unlisted story, whose agreements later revisions can replace. Published
@@ -50,16 +51,21 @@ export const unlisted = {
   identity: "SEED-298#unlisted",
   title: "An unlisted story",
 };
+// Record paths, in path order, of the latest `count` Done stories.
 export const donePathsThrough = (count: number) =>
-  doneEntries.slice(0, count).map(({ path }) => path);
+  doneEntries
+    .slice(0, count)
+    .map(({ path }) => path)
+    .toSorted();
 // Opening Dependencies also asks for the catalogued suppliers beyond the shown range.
-export const donePathsWithSuppliersThrough = (count: number) => [
-  ...new Set([...donePathsThrough(count), farDone.path, expiredDone.path]),
-];
+export const donePathsWithSuppliersThrough = (count: number) =>
+  [
+    ...new Set([...donePathsThrough(count), farDone.path, expiredDone.path]),
+  ].toSorted();
 export const doneTitlesThrough = (count: number) =>
   doneEntries.slice(0, count).map(({ title }) => title);
 
-export type DoneReferenceOptions = { omitDestination?: boolean };
+type DoneReferenceOptions = { omitDestination?: boolean };
 
 const storyAPath = ".planning/seeds/A.md";
 
@@ -168,4 +174,15 @@ export function replacedStoryAAgreements(services: FrontendServiceState) {
       putFrontendPublished(services, backlogApart(replaced));
     },
   };
+}
+
+// Publishes the Done references again, the far story's record included, at a
+// later revision, and returns that revision.
+export function putHealedFrontendDoneReferences(
+  services: FrontendServiceState,
+): string {
+  const revision = "c3".repeat(20);
+  Object.assign(services, { revision });
+  putFrontendDoneReferences(services);
+  return revision;
 }

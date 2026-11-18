@@ -84,6 +84,12 @@ export function recordDoneRecordsAsked(page: Page) {
   return () => asked;
 }
 
+// Each record in `paths` once, in path order: asking a record again is spared
+// by the server (Backend "a later revision asks GitHub only for the record
+// whose blob changed", authenticated-read-listed-records.spec.ts).
+export const eachRecordOnce = (paths: readonly string[]) =>
+  [...new Set(paths)].toSorted();
+
 // Every `done=bodies` ask naming `fileName` fails as unreachable until
 // `restore`; `failed` counts the asks failed so far.
 export async function failDoneRecordReads(page: Page, fileName: string) {

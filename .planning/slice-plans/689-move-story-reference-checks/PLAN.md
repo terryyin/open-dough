@@ -208,7 +208,7 @@ and its supplier record is asked once, only after opening.
 
 ### 7. Recover a Done reference
 Type: Behavior
-Status: planned
+Status: done
 Proof: the four `story-reference-done-recovery` tests in
 `story-reference-done-recovery.spec.ts`, holding and failing the `done=catalog`
 read and passing page time with `passTimeToRecovery`; then delete the interim

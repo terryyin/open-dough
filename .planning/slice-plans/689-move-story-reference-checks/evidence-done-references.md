@@ -100,3 +100,50 @@ before the disclosure opens). Command
 (asked set had 2 extra). Restored from a copy in the evidence dir (deleted),
 `git diff -- dashboard/src | wc -c` → 0; same command with
 `--repeat-each=3` → exit 0 (12 passed).
+
+## Slice 7. Recover a Done reference
+
+`dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts`
+four cases (the unavailable and failed inspections as two named tests), names kept. Interim spec deleted (`git rm`).
+
+- Setup: `serveDoneReferences`/`openUntilRead` → `putFrontendDoneReferences`
+  and `page.goto("/")`; `pausePageClockAt(page, new Date())` kept (the
+  `opened` clock showed 36 entries: records sit before real `now`).
+- GitHub catalog `hold`/`answerWith(noConnection)` → `holdAuthenticatedReadsWhere`
+  (`done=catalog`, every ask held, aborted on release) over
+  `controlFrontendAuthenticatedRead` (`unreachable` until `pass`).
+- Case 1 (14a): unavailable notice and no destination for expired and
+  unlisted — kept. 4a: `githubFor(page).calls.slice(before)` = [] → per
+  reference, `countAuthenticatedReads(done=*)` = 0 after
+  `untilPageRequestsAnswered` (`${identity} asks no Done read`, each observed).
+  4a: `recordsAsked(github)` = 10 + suppliers → distinct page asks
+  (`recordDoneRecordsAsked`). Inspect → detail — kept.
+- Case 2 (14b): "Reading Open Dough to find…", not "unavailable" — kept. 4a:
+  `recordsAsked(github)` = [] while held → page asked no record. "Could not
+  read…", "Done stories could not be read.", retry, "Reading unanswered detail
+  again", `passTimeToRecovery`, focused, in view, notice empty — kept. 4a: 27 +
+  suppliers at GitHub → distinct page asks.
+- Cases 3–4 (14c): `follows: true` + `publishDoneReferences` → new
+  `putHealedFrontendDoneReferences` (`frontendDoneReferences.ts`, far record at
+  a later revision) with `preholdRevisionStreamSlots`; failed: `catalog.pass()`.
+  Notice, Inspect focus, notice cleared, revision shown, "35 entries", ten
+  shown, no far destination, detail and focus kept — all kept.
+- 4b: whether GitHub is asked again for a record the page re-asks is the
+  server's cache — Backend "a later revision asks GitHub only for the record
+  whose blob changed" (`authenticated-read-listed-records.spec.ts`,
+  `expect(contentReads(server.github.calls, doneDirectory, second)).toEqual([...])`).
+  No interim count needed a new Backend case.
+
+Support removal: `storyReferenceDone.ts` lost `donePathsWithSuppliersThrough`,
+`expiredDone`, `unlisted` re-exports, the `publishDoneReferences` export and
+the `options`/`follows` parameter (cancellation spec calls it bare);
+`DoneReferenceOptions` no longer exported. `retryReference` and
+`passTimeToRecovery` keep Frontend consumers.
+
+Scratch break (2026-11-18): fault — `dashboard/src/storyReferenceJourney.tsx`
+`: pending` → `: false && pending` ("unavailable" while the catalog is read).
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-reference-done-recovery --workers=2`
+→ exit 1: only case 2 failed at `toContainText("Reading Open Dough to find SEED-227#progressive-27")`,
+received "SEED-227#progressive-27 is unavailable in Open Dough's dashboard.".
+Restored from a copy in the evidence dir (deleted); `git diff -- dashboard/src | wc -c`
+→ 0; focused group `--repeat-each=3` → exit 0.

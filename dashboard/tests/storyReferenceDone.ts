@@ -7,38 +7,22 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import {
   doneReferenceRecords,
   doneReferenceSeeds,
-  type DoneReferenceOptions,
 } from "./support/frontendDoneReferences.ts";
 
 export {
-  donePathsWithSuppliersThrough,
   doneTitlesThrough,
-  expiredDone,
   farDone,
-  unlisted,
 } from "./support/frontendDoneReferences.ts";
-
-export function publishDoneReferences(
-  origin: StartOrigin,
-  options: DoneReferenceOptions = {},
-) {
-  return origin.publishRevision({
-    ...doneReferenceSeeds(),
-    doneRecords: doneReferenceRecords(Date.now(), options),
-  });
-}
 
 // Publishes the Done references and serves them as Open Dough's committed
 // origin; holds and substitute answers stay with the caller.
-export async function serveDoneReferences(
-  page: Page,
-  origin: StartOrigin,
-  options: DoneReferenceOptions & { follows?: boolean } = {},
-) {
+export async function serveDoneReferences(page: Page, origin: StartOrigin) {
   return publishCommittedOrigin(page, {
     repoDir: origin.project,
-    revision: await publishDoneReferences(origin, options),
+    revision: await origin.publishRevision({
+      ...doneReferenceSeeds(),
+      doneRecords: doneReferenceRecords(Date.now()),
+    }),
     repository: "terryyin/open-dough",
-    follows: options.follows === true,
   });
 }

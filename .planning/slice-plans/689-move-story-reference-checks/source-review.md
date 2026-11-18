@@ -22,8 +22,8 @@ stopping point (active-reference or Done-reference specs alone are complete).
 | 3a | Every distinct assertion in the six specs is kept; Frontend-boundary assertions go under `dashboard/frontend-tests/navigation/` | slice 8 | |
 | 3b | An assertion gets a Backend or representative E2E home only when its rule needs the real server | slice 8 | |
 | 3c | Where an existing maintained case already makes the same assertion, that case is named as its home | slice 8 | |
-| 4a | A read the interim case counted at GitHub becomes a count of the page's own reads | slice 7 | |
-| 4b | A count only the server decides (e.g. what its cache spares) keeps a Backend home | slice 7 | |
+| 4a | A read the interim case counted at GitHub becomes a count of the page's own reads | slice 7 | observed: page-side read counts replace every interim GitHub count: recordDoneRecordsAsked / countAuthenticatedReads in story-reference-done.spec.ts (slices 5–6) and dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts (slice 7); map in evidence-done-references.md slices 5–7 |
+| 4b | A count only the server decides (e.g. what its cache spares) keeps a Backend home | slice 7 | observed: dashboard/backend-tests/observation/authenticated-read-listed-records.spec.ts 'a later revision asks GitHub only for the record whose blob changed' (contentReads(server.github.calls, …) assertion), named in evidence-done-references.md slices 5–7 |
 | 5a | The real Take behind a starting story stays protected by E2E `launches/agent-launch-start-dependencies.spec.ts` |  | G1 |
 | 5b | A Frontend case observes the protected Inspect while the page's start is unanswered | slice 2 | observed: dashboard/frontend-tests/navigation/story-reference-navigation.spec.ts 'a reference reveals a starting story without opening its protected inspection or starting another host action': inspectionToggle disabled while the accepted start is unlaunched; enabled after attempt.launch + tellChanged |
 | 6a | The interim group stays runnable with `source-navigation` alone | slice 8 | |
@@ -52,6 +52,6 @@ stopping point (active-reference or Done-reference specs alone are complete).
 | 13b | Same as 13a with "Show latest 10" | slice 8 | |
 | 13c | Same as 13a with a pointer down | slice 8 | |
 | 13d | Same as 13a with Tab away | slice 8 | |
-| 14a | An expired or unlisted reference reads "unavailable" and triggers no further read | slice 7 | |
-| 14b | A loading or failed Done catalog reads differently from absence | slice 7 | |
-| 14c | An inspection chosen while the catalog is loading or failed stays when the catalog heals | slice 7 | |
+| 14a | An expired or unlisted reference reads "unavailable" and triggers no further read | slice 7 | observed: dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts case 1: expired and unlisted each → 'unavailable' notice, no destination, countAuthenticatedReads of done=* reads 0 after untilPageRequestsAnswered |
+| 14b | A loading or failed Done catalog reads differently from absence | slice 7 | observed: dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts case 2: catalog held → 'Reading Open Dough to find…'; failed → 'Could not read…' and 'Done stories could not be read.'; retry waits out 'Reading unanswered detail again', then reaches the far story focused |
+| 14c | An inspection chosen while the catalog is loading or failed stays when the catalog heals | slice 7 | observed: dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts cases 3 and 4: Inspect chosen after an unavailable / failed reference stays focused when the catalog heals, 35 entries with ten shown |
