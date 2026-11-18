@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 - [Keep source-freshness checks usable after a contributor merge](seeds/SEED-400-source-freshness-with-a-valid-take.md#keep-freshness-with-a-valid-take) — SEED-400#keep-freshness-with-a-valid-take
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
+- [Resize and remember the Review changes file sidebar](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#resize-and-remember-the-review-file-sidebar) — SEED-384#resize-and-remember-the-review-file-sidebar
 - [Let a long Codex wait run without model requests](seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests) — SEED-399#let-a-long-codex-wait-run-without-model-requests
 - [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
