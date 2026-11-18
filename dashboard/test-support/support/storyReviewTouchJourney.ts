@@ -6,8 +6,6 @@
 // journey; any other viewport repeats only what its own arrangement changes.
 import { changedFilesList, treeFolder } from "./reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import { expectSettledPage } from "../dashboardPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -44,7 +42,8 @@ import {
   comparisonChoice,
   comparisonLabel,
 } from "./reviewControls.ts";
-import { largeWorktree } from "./storyReviewWorktree.ts";
+import { largeRepository, storyWorktree } from "./storyReviewWorktree.ts";
+import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 
 // The comparison holds what the touch assertions distinguish, as the phone
 // and the tablet arrange it in portrait, with a margin for another machine's
@@ -57,21 +56,26 @@ const filesInFolder = 15;
 const longLines = 50;
 const wideLine = `more ${"wide ".repeat(14)}`;
 
-// Opens story A's real comparison by touch, its review focused.
-export async function openReviewByTouch(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-) {
-  const { workspace } = largeWorktree(
-    origin,
+// The comparison, with one untracked file left uncommitted.
+export const touchReviewRepository = withLocalState(
+  largeRepository(
     largeReviewRevision({
       filesPerFolder: { many: filesInFolder },
       longLines,
       wideLine,
     }),
-  );
-  writeFileSync(path.join(workspace, "touch-uncommitted.txt"), "uncommitted\n");
+  ),
+  { untracked: { "touch-uncommitted.txt": "uncommitted\n" } },
+);
+
+// Opens story A's real comparison by touch, from an origin started with
+// touchReviewRepository, its review focused.
+export async function openReviewByTouch(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
+  const { workspace } = storyWorktree(origin);
   // The folder's files, both long files and the uncommitted one.
   const changedFiles = filesInFolder + 3;
   keepLaunchRecord(dashboard, workspace);

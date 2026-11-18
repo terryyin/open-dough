@@ -12,7 +12,11 @@ import { expectOpenedWithKeyboard, openReviewAsOpened } from "./reviewRead.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
-import { largeWorktree, wideLine } from "./storyReviewWorktree.ts";
+import {
+  largeRepository,
+  storyWorktree,
+  wideLine,
+} from "./storyReviewWorktree.ts";
 
 // The selected diff's independently scrollable code and rendered lines.
 export const codePane = (diff: Locator) => diff.locator(".story-review-code");
@@ -89,23 +93,25 @@ export async function shownInPane(pane: Locator, row: Locator) {
 export const boxes = (parts: readonly Locator[]) =>
   Promise.all(parts.map((part) => box(part)));
 
-// The large story's review, open on the first long file, selected from the
-// end of the browser's list, which the selection leaves scrolled there. Many
-// files, a name wider than the browser and long diffs.
+// The large story: many files, a name wider than the browser and long diffs.
+export const largeReviewRepository = largeRepository(
+  largeReviewRevision({
+    filesPerFolder: { many: 30, more: 30 },
+    wideName: `a-file-named-${"at-length-".repeat(6)}.txt`,
+    longLines: 200,
+    wideLine,
+  }),
+);
+
+// The review of an origin started from largeReviewRepository, open on the
+// first long file, selected from the end of the browser's list, which the
+// selection leaves scrolled there.
 export async function openLargeReview(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
 ) {
-  const { workspace } = largeWorktree(
-    origin,
-    largeReviewRevision({
-      filesPerFolder: { many: 30, more: 30 },
-      wideName: `a-file-named-${"at-length-".repeat(6)}.txt`,
-      longLines: 200,
-      wideLine,
-    }),
-  );
+  const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReviewAsOpened(page, card);

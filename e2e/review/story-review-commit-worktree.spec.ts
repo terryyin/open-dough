@@ -18,8 +18,7 @@ import {
 import {
   observed,
   storyWorktree,
-  unchangedWorktree,
-  writeAt,
+  unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   showCommits,
@@ -31,6 +30,14 @@ import {
   listedFile,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+import { withLocalState } from "../../Distribution/tests/support/repository-local-state.mjs";
+
+// Story A's worktree straight off trunk with one untracked file.
+test.use({
+  originRepository: withLocalState(unchangedRepository, {
+    untracked: { "only.txt": "only uncommitted\n" },
+  }),
+});
 
 test.describe("from Story A's declared history", () => {
   test.use({ originRepository: storyARepository });
@@ -113,8 +120,7 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
   dashboard,
   origin,
 }) => {
-  const { workspace } = unchangedWorktree(origin);
-  writeAt(workspace, "only.txt", "only uncommitted\n");
+  const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);

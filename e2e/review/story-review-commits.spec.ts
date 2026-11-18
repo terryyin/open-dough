@@ -29,10 +29,13 @@ import {
 import {
   git,
   observed,
+  storyFromBase,
   storyWorktree,
-  unchangedWorktree,
+  unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+
+test.use({ originRepository: unchangedRepository });
 
 test.describe("from Story A's declared history", () => {
   test.use({ originRepository: storyARepository });
@@ -166,7 +169,7 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   dashboard,
   origin,
 }) => {
-  const { workspace } = unchangedWorktree(origin);
+  const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const snapshot = await openStoryReview(page, card);
@@ -180,29 +183,28 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   ).toHaveCount(0);
 });
 
-test("an empty plain commit names its range and lists no files", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = unchangedWorktree(origin);
-  git(
-    workspace,
-    "commit",
-    "--quiet",
-    "--allow-empty",
-    "-m",
-    "empty story commit",
-  );
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  await showCommits(review);
-  await expect(
-    review.getByRole("heading", { name: "Changes in 1 commit" }),
-  ).toBeVisible();
-  await expect(review).toContainText("The chosen commits changed nothing.");
-  await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
-  await expect(filesToggle(review)).toHaveCount(0);
+test.describe("with one empty story commit", () => {
+  test.use({
+    originRepository: storyFromBase()
+      .withUnpublishedRevision("empty story commit")
+      .please(),
+  });
+  test("an empty plain commit names its range and lists no files", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openBacklog(page, origin);
+    await openStoryReview(page, card);
+    const review = reviewRegion(page);
+    await showCommits(review);
+    await expect(
+      review.getByRole("heading", { name: "Changes in 1 commit" }),
+    ).toBeVisible();
+    await expect(review).toContainText("The chosen commits changed nothing.");
+    await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
+    await expect(filesToggle(review)).toHaveCount(0);
+  });
 });

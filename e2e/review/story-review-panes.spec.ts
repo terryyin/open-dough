@@ -40,6 +40,7 @@ import {
 } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import {
   boxes,
+  largeReviewRepository,
   openLargeReview,
   pageFits,
   overflows,
@@ -52,6 +53,8 @@ import {
   longA,
   longB,
 } from "../../dashboard/test-support/support/largeReviewFiles.ts";
+
+test.use({ originRepository: largeReviewRepository });
 
 test("a large review's browser and diff fill the panel and each scrolls on its own", async ({
   page,

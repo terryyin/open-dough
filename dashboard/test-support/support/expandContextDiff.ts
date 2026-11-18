@@ -1,5 +1,5 @@
 // Locators for the expand-context story-review file after opening Review
-// changes on a card prepared with expandContextWorktree.
+// changes on a card prepared from expandContextRepository.
 
 import { diffLines } from "./reviewPanes.ts";
 import { fileDiff } from "./reviewTreeRows.ts";

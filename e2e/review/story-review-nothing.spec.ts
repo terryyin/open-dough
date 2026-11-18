@@ -17,7 +17,6 @@ import {
 // with no workspace is refused at the launch boundary.
 
 import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
@@ -46,7 +45,7 @@ import {
   branch,
   git,
   storyWorktree,
-  unchangedWorktree,
+  unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
@@ -58,13 +57,14 @@ import { storyARepository } from "../../dashboard/test-support/support/storyARev
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 const gapExplanation =
   "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.";
+test.use({ originRepository: unchangedRepository });
 
 test("a worktree straight off trunk has no changes against the named baseline", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const { workspace, trunk } = unchangedWorktree(origin);
+  const { workspace, base: trunk } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReview(page, card);

@@ -17,8 +17,8 @@ import {
 import {
   commitAll,
   git,
+  storyFromBase,
   storyWorktree,
-  unchangedWorktree,
   writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
@@ -35,14 +35,21 @@ import { holdNextReviewResponse } from "../../dashboard/test-support/support/hol
 import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 
+// Story A's worktree off trunk with its first story commit.
+test.use({
+  originRepository: storyFromBase()
+    .withUnpublishedRevision("first story commit", {
+      files: { "first.txt": "first\n" },
+    })
+    .please(),
+});
+
 test("the first Commits default uses the current snapshot, then new commits and switching keep its anchored ends", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const { workspace } = unchangedWorktree(origin);
-  writeAt(workspace, "first.txt", "first\n");
-  commitAll(workspace, "first story commit");
+  const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);

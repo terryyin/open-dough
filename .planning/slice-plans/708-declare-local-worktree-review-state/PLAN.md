@@ -162,7 +162,7 @@ Focused Playwright proof runs through `npx playwright test --config …`.
 
 ### 3. Read nested, large and context worktrees from declared revisions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Nested/large/context row.
 
 Behavior: Given declared unchanged, nested cross-folder rename, large
@@ -172,6 +172,13 @@ expandable context and the nothing-changed review stay as today. Migrate
 `largeReviewFiles.ts`) and `expandContextWorktree` (with
 `expandContextDiff.ts`). One committed-content loop; 15 active minutes,
 commands excluded.
+
+Accepted: `unchangedRepository`, `nestedRepository`, `largeRepository`,
+`expandContextRepository` and `storyFromBase()` declare the off-trunk
+worktrees; `storyWorktree(origin)` is the one reader (named `base`, `merged`,
+`later`). Pre-opening starting edits in commits, commit-worktree,
+commit-refresh and uncommitted-check are declared; post-opening actions stay
+in scenarios. Frontend proof records use `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 
 ### 4. Read admission and landed worktrees from declared revisions
 Type: Behavior

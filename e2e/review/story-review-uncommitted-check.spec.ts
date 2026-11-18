@@ -9,8 +9,6 @@
 // file is. A worktree without uncommitted changes offers no check; one with
 // nothing committed says so while the check is off and keeps the check.
 
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
@@ -38,9 +36,9 @@ import {
   filesToggle,
 } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
-  nestedWorktree,
+  nestedRepository,
   storyWorktree,
-  unchangedWorktree,
+  unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { withLocalState } from "../../Distribution/tests/support/repository-local-state.mjs";
@@ -142,44 +140,53 @@ test.describe("from Story A's declared history", () => {
   });
 });
 
-test("a worktree without uncommitted changes offers no check", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = nestedWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  const snapshot = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  await expect(changedFilesList(review, "6 changed files")).toBeVisible();
-  await expect(review.getByRole("checkbox")).toHaveCount(0);
-  expect(snapshot.committed).toBeUndefined();
+test.describe("from nested changes", () => {
+  test.use({ originRepository: nestedRepository });
+  test("a worktree without uncommitted changes offers no check", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openBacklog(page, origin);
+    const snapshot = await openStoryReview(page, card);
+    const review = reviewRegion(page);
+    await expect(changedFilesList(review, "6 changed files")).toBeVisible();
+    await expect(review.getByRole("checkbox")).toHaveCount(0);
+    expect(snapshot.committed).toBeUndefined();
+  });
 });
 
-test("with nothing committed, the check off says so, lists no files, and stays to turn back on", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = unchangedWorktree(origin);
-  writeFileSync(path.join(workspace, "wip.txt"), "work in progress\n");
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  const whole = changedFilesList(review, "1 changed file");
-  await expect(whole).toBeVisible();
-  await expect(check(review)).toBeChecked();
+test.describe("straight off trunk", () => {
+  test.use({
+    originRepository: withLocalState(unchangedRepository, {
+      untracked: { "wip.txt": "work in progress\n" },
+    }),
+  });
+  test("with nothing committed, the check off says so, lists no files, and stays to turn back on", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openBacklog(page, origin);
+    await openStoryReview(page, card);
+    const review = reviewRegion(page);
+    const whole = changedFilesList(review, "1 changed file");
+    await expect(whole).toBeVisible();
+    await expect(check(review)).toBeChecked();
 
-  await check(review).uncheck();
-  await expect(reviewBody(review)).toHaveText(
-    "Nothing is committed yet: every change in this worktree is uncommitted.",
-  );
-  await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(filesToggle(review)).toHaveCount(0);
-  await expect(check(review)).not.toBeChecked();
+    await check(review).uncheck();
+    await expect(reviewBody(review)).toHaveText(
+      "Nothing is committed yet: every change in this worktree is uncommitted.",
+    );
+    await expect(review.getByRole("list")).toHaveCount(0);
+    await expect(filesToggle(review)).toHaveCount(0);
+    await expect(check(review)).not.toBeChecked();
 
-  await check(review).check();
-  await expect(whole).toBeVisible();
+    await check(review).check();
+    await expect(whole).toBeVisible();
+  });
 });
