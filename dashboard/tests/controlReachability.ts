@@ -18,8 +18,8 @@ const controls = "button, input, select, textarea, summary";
 // and that same point is touched; where the touch then lands is observed, so
 // a control that moves or is covered in between fails rather than being
 // silently missed.
-export async function tapWhereShown(control: Locator) {
-  await tapShownControl(control, 44);
+export async function tapWhereShown(control: Locator, page = control.page()) {
+  await tapShownControl(control, 44, page);
 }
 
 // The Board's explicitly narrow column indicators retain the same clipping,
@@ -31,7 +31,7 @@ export async function tapNarrowControlWhereShown(control: Locator, page: Page) {
 async function tapShownControl(
   control: Locator,
   minimumWidth: number,
-  page = control.page(),
+  page: Page,
 ) {
   expect(
     await control.evaluate(clipped, { within: "touch" } as const),

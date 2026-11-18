@@ -3,15 +3,51 @@ import { commands, page } from "vitest/browser";
 import { mountDashboard } from "../../src/mountDashboard.tsx";
 import type { PhoneBoardOptions } from "../support/mountedPhoneBoardCommands.ts";
 
+const viewport = () => ({
+  width: window.innerWidth,
+  height: window.innerHeight,
+});
+
+async function resize(width: number, height: number) {
+  const browser = await commands.phoneBoardResize({ width, height });
+  await page.viewport(width, height);
+  return { browser, frame: viewport() };
+}
+
+function storyCard(title: string) {
+  return {
+    swipeFromCard: (direction: "left" | "right") =>
+      commands.phoneBoardSwipe(direction, { from: { title, target: "card" } }),
+    swipeFromStart: (direction: "left" | "right") =>
+      commands.phoneBoardSwipe(direction, { from: { title, target: "start" } }),
+    showsSelected: (selected: boolean) =>
+      commands.phoneBoardStorySelected(title, selected),
+    showsInspected: (inspected: boolean) =>
+      commands.phoneBoardStoryInspected(title, inspected),
+    tapInspect: () => commands.phoneBoardTapInspectStory(title),
+    tapEmptyArea: () => commands.phoneBoardTapStoryCard(title),
+  };
+}
+
 const board = {
   showsPublishedStories: commands.phoneBoardPublishedStories,
   showsPhoneColumn: commands.phoneBoardShowsColumn,
+  showsPhone: commands.phoneBoardShowsColumns,
   columnReadingRoom: commands.phoneBoardReadingRoom,
   swipe: commands.phoneBoardSwipe,
   tapIndicator: commands.phoneBoardTapIndicator,
   focusIndicator: commands.phoneBoardFocusIndicator,
   activateIndicator: commands.phoneBoardActivateIndicator,
   indicatorFocused: commands.phoneBoardIndicatorFocused,
+  showsNoLaunchDialog: commands.phoneBoardShowsNoLaunchDialog,
+  launchAcceptances: commands.phoneBoardLaunchAcceptances,
+  countSlides: commands.phoneBoardCountSlides,
+  slides: commands.phoneBoardSlides,
+  prefersReducedMotion: () =>
+    matchMedia("(prefers-reduced-motion: reduce)").matches,
+  storyCard,
+  resize,
+  viewport,
 };
 
 export async function mountPhoneBoard(options: PhoneBoardOptions = {}) {
@@ -20,7 +56,7 @@ export async function mountPhoneBoard(options: PhoneBoardOptions = {}) {
   const location = window.location.href;
   const historyState: unknown = window.history.state;
   const storage = Object.entries<string>(window.localStorage);
-  const { boardPositionKey, startingPosition, phoneBoardViewport } =
+  const { boardPositionKey, startingPosition, phoneBoardViewport, readyStory } =
     await commands.preparePhoneBoard(options);
   const container = document.createElement("div");
   container.id = "root";
@@ -54,5 +90,5 @@ export async function mountPhoneBoard(options: PhoneBoardOptions = {}) {
   unmount = () => {
     root.unmount();
   };
-  return board;
+  return { ...board, readyStory };
 }

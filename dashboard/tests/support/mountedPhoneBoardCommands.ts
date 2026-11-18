@@ -1,90 +1,60 @@
-import type { Page } from "@playwright/test";
+import type { Page, ViewportSize } from "@playwright/test";
 import type {} from "@vitest/browser-playwright";
 import type { BrowserCommandContext } from "vitest/node";
 import {
   activateColumnIndicator,
-  boardPositionKey,
-  columns,
   expectColumnIndicatorFocused,
   focusColumnIndicator,
   type ColumnName,
 } from "../boardPage.ts";
 import { boardView } from "../boardView.ts";
 import { expectSettledPage } from "../dashboardPage.ts";
-import { takenBacklogStories } from "../launchStoryCardPage.ts";
-import { installFrontendServiceSubstitutes } from "./frontendServiceSubstitutes.ts";
 import {
-  defaultFrontendServiceState,
-  putFrontendStories,
-  type FrontendStories,
-} from "./frontendServiceState.ts";
-import { mountedPhoneBoardPage } from "./mountedPhoneBoardPage.ts";
+  backlogLaunchers,
+  expectNoLaunchDialog,
+  takenBacklogStories,
+} from "../launchStoryCardPage.ts";
+import { tapInspectStory } from "../storyCardControls.ts";
+import {
+  emptyArea,
+  expectInspected,
+  expectSelected,
+  tapCardEmptyArea,
+} from "../storyCardSelection.ts";
+import {
+  mountedBoard,
+  preparePhoneBoard,
+  restorePhoneBoard,
+} from "./mountedPhoneBoard.ts";
 
-const phoneBoardViewport = { width: 390, height: 844 };
+export type { PhoneBoardOptions } from "./mountedPhoneBoard.ts";
 
-export type PhoneBoardOptions = Readonly<{
-  column?: ColumnName;
-  stories?: FrontendStories;
-}>;
+const mountedPage = (page: Page) => mountedBoard(page).framedPage;
+const storyCard = (page: Page, title: string) =>
+  backlogLaunchers(mountedPage(page)).card(title);
 
-const openBoards = new WeakMap<
-  Page,
-  ReturnType<typeof mountedPhoneBoardPage> & {
-    readonly viewport: NonNullable<ReturnType<Page["viewportSize"]>>;
-  }
->();
+type SwipeOptions = {
+  distance?: number;
+  cancel?: boolean;
+  from?: { title: string; target: "card" | "start" };
+};
 
-function mountedPage(page: Page): Page {
-  const board = openBoards.get(page);
-  if (board === undefined) {
-    throw new Error("Mount the phone board first.");
-  }
-  return board.framedPage;
-}
-
-async function preparePhoneBoard(
-  context: BrowserCommandContext,
-  options: PhoneBoardOptions,
+async function swipe(
+  { page }: BrowserCommandContext,
+  direction: "left" | "right",
+  { from, ...stroke }: SwipeOptions = {},
 ) {
-  const { page } = context;
-  if (openBoards.has(page)) {
-    throw new Error("A phone board is already mounted.");
-  }
-  const viewport = page.viewportSize();
-  if (viewport === null) {
-    throw new Error("The phone board requires a Chromium viewport.");
-  }
-  const board = mountedPhoneBoardPage(page, await context.frame());
-  openBoards.set(page, { ...board, viewport });
-  try {
-    const services = defaultFrontendServiceState();
-    if (options.stories) {
-      putFrontendStories(services, options.stories);
-    }
-    await installFrontendServiceSubstitutes(board.framedPage, services);
-    await page.setViewportSize(phoneBoardViewport);
-    return {
-      boardPositionKey,
-      startingPosition: String(columns.indexOf(options.column ?? "Backlog")),
-      phoneBoardViewport,
-    };
-  } catch (error) {
-    await restorePhoneBoard(page);
-    throw error;
-  }
-}
-
-async function restorePhoneBoard(page: Page) {
-  const board = openBoards.get(page);
-  if (board === undefined) {
+  const framedPage = mountedPage(page);
+  if (from === undefined) {
+    await boardView(framedPage).swipe(direction, stroke);
     return;
   }
-  openBoards.delete(page);
-  try {
-    await board.release();
-  } finally {
-    await page.setViewportSize(board.viewport);
-  }
+  const launchers = backlogLaunchers(framedPage);
+  const target =
+    from.target === "card"
+      ? emptyArea(launchers.card(from.title))
+      : launchers.start(from.title);
+  await boardView(framedPage).swipe(direction, { ...stroke, from: target });
 }
 
 export const phoneBoardCommands = {
@@ -105,14 +75,7 @@ export const phoneBoardCommands = {
       .then(() => undefined),
   phoneBoardReadingRoom: ({ page }: BrowserCommandContext, shown: ColumnName) =>
     boardView(mountedPage(page)).columnReadingRoom(shown),
-  phoneBoardSwipe: (
-    { page }: BrowserCommandContext,
-    direction: "left" | "right",
-    options?: { distance?: number; cancel?: boolean },
-  ) =>
-    boardView(mountedPage(page))
-      .swipe(direction, options)
-      .then(() => undefined),
+  phoneBoardSwipe: swipe,
   phoneBoardTapIndicator: (
     { page }: BrowserCommandContext,
     column: ColumnName,
@@ -132,6 +95,50 @@ export const phoneBoardCommands = {
     { page }: BrowserCommandContext,
     column: ColumnName,
   ) => expectColumnIndicatorFocused(mountedPage(page), column),
+  phoneBoardShowsColumns: async (
+    { page }: BrowserCommandContext,
+    shown: readonly ColumnName[],
+    controls: readonly string[],
+  ) => {
+    await boardView(mountedPage(page)).showsPhone(shown, controls);
+  },
+  phoneBoardResize: async (
+    { page }: BrowserCommandContext,
+    viewport: ViewportSize,
+  ) => {
+    await page.setViewportSize(viewport);
+    return page.viewportSize();
+  },
+  phoneBoardCountSlides: async ({ page }: BrowserCommandContext) => {
+    const board = mountedBoard(page);
+    board.recordingSlides = true;
+    await boardView(board.framedPage).countSlides();
+  },
+  phoneBoardSlides: ({ page }: BrowserCommandContext) =>
+    boardView(mountedPage(page)).slides(),
+  phoneBoardStorySelected: (
+    { page }: BrowserCommandContext,
+    title: string,
+    selected: boolean,
+  ) => expectSelected(storyCard(page, title), selected),
+  phoneBoardStoryInspected: (
+    { page }: BrowserCommandContext,
+    title: string,
+    inspected: boolean,
+  ) => expectInspected(storyCard(page, title), inspected),
+  phoneBoardTapInspectStory: ({ page }: BrowserCommandContext, title: string) =>
+    tapInspectStory(storyCard(page, title), mountedPage(page)),
+  phoneBoardTapStoryCard: ({ page }: BrowserCommandContext, title: string) =>
+    tapCardEmptyArea(storyCard(page, title)),
+  phoneBoardShowsNoLaunchDialog: ({ page }: BrowserCommandContext) =>
+    expectNoLaunchDialog(mountedPage(page)),
+  phoneBoardLaunchAcceptances: ({ page }: BrowserCommandContext) => {
+    const launch = mountedBoard(page).launch;
+    if (launch === undefined) {
+      throw new Error("Observe launch requests when mounting the phone board.");
+    }
+    return launch.acceptances;
+  },
 };
 
 type CommandCall<T> = T extends (

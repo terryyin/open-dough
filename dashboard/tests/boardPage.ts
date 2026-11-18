@@ -120,18 +120,31 @@ export async function expectStoryCardsKeepTheirShare(
   expect(card.width).toBeGreaterThanOrEqual(share - 0.5);
 }
 
+type SlideRecording = { slides: number; stopCountingSlides?: () => void };
+
 // Each move by a column paging control slides the row, or moves it at once.
 export async function recordSlides(page: Page) {
   await page.evaluate(() => {
-    const counted = window as unknown as { slides: number };
+    const counted = window as unknown as SlideRecording;
+    counted.stopCountingSlides?.();
     counted.slides = 0;
-    document.addEventListener("transitionrun", (event) => {
+    const count = (event: TransitionEvent) => {
       if (event.propertyName === "transform") counted.slides += 1;
-    });
+    };
+    document.addEventListener("transitionrun", count);
+    counted.stopCountingSlides = () => {
+      document.removeEventListener("transitionrun", count);
+      Reflect.deleteProperty(counted, "slides");
+      delete counted.stopCountingSlides;
+    };
   });
 }
+export const stopRecordingSlides = (page: Page) =>
+  page.evaluate(() =>
+    (window as unknown as SlideRecording).stopCountingSlides?.(),
+  );
 export const slidesOf = (page: Page) =>
-  page.evaluate(() => (window as unknown as { slides: number }).slides);
+  page.evaluate(() => (window as unknown as SlideRecording).slides);
 
 // How long the Board is against the columns it shows: as far as it
 // scrolls, read with the wheel as a developer reads, and whether it ends

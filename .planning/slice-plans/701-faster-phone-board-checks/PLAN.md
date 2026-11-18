@@ -89,11 +89,13 @@ A completed finger stroke pages exactly one whole column and clamps at either en
 ### 6. Preserve story interaction while paging and rotating
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the two story-card cases. A swipe beginning on card content or on Start execution must page without selecting, inspecting or accepting a launch. An ordinary tap still selects or inspects. In reduced motion, the controls and swipes agree on the column, trigger zero slides and retain detail and selection through rotation.
 
 **Proof.** Run the two existing case sequences, including empty-area and action hit tests, no dialog or accepted launch, selected styling, expanded detail, zero recorded slides and the portrait/landscape/portrait column geometry. Repeat them after another case has changed the board preference.
+
+**Observed.** Both native swipe origins reached Taken while selection, inspection and launch observations stayed clear. Native Inspect and empty-area taps then expanded and selected the story. With reduced motion active, the first swipe recorded zero slides. Chromium and the test frame both reached 844 × 390 and returned to 390 × 844. Whole-column geometry, open detail and selected styling passed. Each moved case passed alone and after the short/cancel case ended in Taken in the same file. The mixed run passed six mounted phone cases and the retained vertical-scroll case. Two retained slide consumers, six touch-reachability checks, dashboard typecheck and a disposable media/viewport/slide-recorder teardown probe passed. Evidence is in `slice6-return.md` in the checkout's Git evidence directory.
 
 ### 7. Keep native vertical scrolling and verify the seven-case gain
 
