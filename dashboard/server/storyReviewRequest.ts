@@ -85,7 +85,12 @@ export type AdmittedStoryReview =
     };
 
 async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
-  requireExactQuery(url, ["source", "host", "session"], "review");
+  const named = url.searchParams.get("run");
+  requireExactQuery(
+    url,
+    ["source", "host", "session", ...(named === null ? [] : ["run"])],
+    "review",
+  );
   const { source, host, session } = queriedReviewedSessionSubject(url);
   const record = await namedKeptSession(source, {
     host,
@@ -97,7 +102,7 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
       "This session belongs to a story launch and is reviewed by its story.",
     );
   if (record.landing === undefined) {
-    const sessionRun = keptSessionRun(record);
+    const sessionRun = keptSessionRun(record, named);
     if (sessionRun !== undefined)
       return { kind: "story-review", sessionRun, runs: [] };
     return {

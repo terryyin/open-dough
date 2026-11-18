@@ -11,13 +11,13 @@
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import {
-  launch,
-  markDone,
-  recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
+import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
+import {
+  adHocReview,
+  establishDefaultMainSession,
+  markAdHocDone,
+} from "../../tests/support/adHocReview.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import {
@@ -59,16 +59,21 @@ test("a default launch's commit is kept at Done and stays reviewable after trunk
   git(origin.project, "push", "--quiet", "origin", "main");
   dashboard.claudeSessionBecomes(sessionId, "working-idle");
 
-  const done = await markDone(dashboard, {
-    source: "open-dough",
-    session: sessionId,
-  });
+  const doneAt = await markAdHocDone(dashboard, sessionId);
 
-  expect(done.status).toBe(200);
-  const { doneAt } = (JSON.parse(done.body) as { record: LaunchRecord }).record;
   const kept = {
     kind: "session-commits",
     session: { launchedAt: record.launchedAt, doneAt },
+    commitRuns: [
+      {
+        commits: 1,
+        subject: "Add typo.txt",
+        committedAt: new Date(committedAt).toISOString(),
+        baseline: pulled,
+        tree: committed,
+      },
+    ],
+    commitRun: 0,
     baseline: pulled,
     tree: committed,
     files: [expect.objectContaining({ path: "typo.txt", kind: "added" })],
@@ -129,34 +134,16 @@ test("a session established in the Default main checkout without a landing answe
   request,
 }) => {
   const start = git(origin.project, "rev-parse", "HEAD");
-  const launchedAt = new Date().toISOString();
-  dashboard.claudeScenario("launched");
   const sessionId = "established-default-main";
-  keepLaunchRecords(dashboard, [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Established in Default main" })
-      .inDefaultCheckout({
-        workspace: origin.project,
-        landing: "review",
-        revision: start,
-      })
-      .inClaudeSession({ sessionId })
-      .launchedAt(launchedAt)
-      .please(),
-  ]);
+  const launchedAt = establishDefaultMainSession(dashboard, origin, sessionId);
   const committed = await commitInCheckout(
     origin.project,
     committedAt,
     "typo.txt",
   );
 
-  const done = await markDone(dashboard, {
-    source: "open-dough",
-    session: sessionId,
-  });
+  const doneAt = await markAdHocDone(dashboard, sessionId);
 
-  expect(done.status).toBe(200);
-  const { doneAt } = (JSON.parse(done.body) as { record: LaunchRecord }).record;
   expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
     kind: "session-commits",
     session: { launchedAt, doneAt },

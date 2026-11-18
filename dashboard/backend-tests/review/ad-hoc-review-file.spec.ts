@@ -13,7 +13,10 @@ import {
 import { getReview } from "../../tests/support/completedReviewRequests.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { lines } from "../../tests/support/storyReviewWorktree.ts";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
+import {
+  adHocReview,
+  adHocSessionFileDiff,
+} from "../../tests/support/adHocReview.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -172,6 +175,57 @@ for (const [subject, endpoint, field] of [
     }
   });
 }
+
+test("a file read naming a kept run's pair of a session's commits is answered, and any other pair or path refused", async ({
+  request,
+  dashboard,
+}) => {
+  const repository = await renameRevisionRepo();
+  try {
+    const { base, result } = repository.revisions;
+    const sessionId = "session-commits-file";
+    keepLaunchRecords(dashboard, [
+      makeMe.aLaunchRecord
+        .adHoc({ title: "Session commits file" })
+        .inDefaultCheckout({
+          workspace: repository.integration,
+          landing: "review",
+          revision: base,
+        })
+        .inClaudeSession({ sessionId })
+        .keptSessionCommits({
+          repository: repository.integration,
+          runs: [{ base, revision: result }],
+        })
+        .markedDone()
+        .please(),
+    ]);
+    const read = (named: object) =>
+      adHocSessionFileDiff(request, dashboard, sessionId, {
+        baseline: base,
+        tree: result,
+        path: "new.txt",
+        oldPath: "old.txt",
+        ...named,
+      });
+    const kept = await read({});
+    expect(kept.status()).toBe(200);
+    expect(reviewedFileDiffSchema.parse(await kept.json())).toEqual({
+      kind: "diff",
+      printed: expect.stringContaining("renamed"),
+    });
+    for (const other of [{ baseline: result }, { path: "missing.txt" }]) {
+      const refused = await read(other);
+      expect(refused.status()).toBe(409);
+      expect(await refused.json()).toEqual({
+        error:
+          "The file or comparison does not belong to this session's kept commits.",
+      });
+    }
+  } finally {
+    await repository.cleanup();
+  }
+});
 
 // Enough identical lines that a small edit stays a rename under Git -M.
 async function renameRevisionRepo() {

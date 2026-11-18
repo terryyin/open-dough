@@ -13,6 +13,7 @@ import {
   reviewRunChoiceSchema,
 } from "./storyReviewLandedRun.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
+import { sessionRunChoiceSchema } from "./sessionCommits.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
 // The file diff reads the same comparison as the file list. The query names
@@ -116,13 +117,16 @@ export const storyReviewSchema = z
       files: z.array(reviewedFileSchema),
     }),
     // The commits a Default main session made in its checkout
-    // (`./sessionCommits.ts`): one kept run's comparison.
+    // (`./sessionCommits.ts`): one kept run's comparison, with the kept runs
+    // oldest first and the answered run's position among them.
     z.object({
       kind: z.literal("session-commits"),
       session: z.object({
         launchedAt: z.iso.datetime(),
         doneAt: z.iso.datetime(),
       }),
+      commitRuns: z.array(sessionRunChoiceSchema).min(1),
+      commitRun: z.number().int().nonnegative(),
       baseline: objectIdSchema,
       tree: objectIdSchema,
       files: z.array(reviewedFileSchema),

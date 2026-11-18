@@ -1,8 +1,9 @@
-// One field-based rule for a historical review file: a Published completion
-// or a landed run's captured pair and literal file list. URL adapters and
-// follow-up admission share this check; callers name source, a reviewed-work
-// subject (story identity or session) and either completion or reference —
-// never a repository path.
+// One field-based rule for a historical review file: a Published completion,
+// or the retained pair and literal file list of a landed run or of a done
+// session's kept commits. URL adapters and follow-up admission share this
+// check; callers name source, a reviewed-work subject (story identity or
+// session) and a completion, a reference or a session's kept pair — never a
+// repository path.
 import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { establishedPlace } from "../src/establishedPlace.ts";
@@ -18,7 +19,8 @@ import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
-import { landedStoryReview } from "./storyReviewLanded.ts";
+import { landedStoryReview, retainedPairFiles } from "./storyReviewLanded.ts";
+import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import type { ReviewLandedRun } from "../src/storyReviewLandedRun.ts";
 
@@ -74,7 +76,7 @@ function belongsOnPublished(
   );
 }
 
-function belongsOnLanded(
+function belongsOnRetainedPair(
   files: readonly ReviewedFile[],
   fields: HistoricalReviewedFileFields,
 ): boolean {
@@ -162,13 +164,39 @@ async function admitLandedRun(
   if (
     file.baseline !== review.baseline ||
     file.tree !== review.tree ||
-    !belongsOnLanded(review.files, file)
+    !belongsOnRetainedPair(review.files, file)
   )
     throw notOnCapturedRun();
   return {
     repository: run.record.landing?.repository ?? run.established.workspace,
     ...file,
   };
+}
+
+// Admit a file against the kept run of a done session's commits its
+// comparison names (`../src/sessionCommits.ts`).
+export async function admitSessionRunFile(
+  subject: PublishedReviewedSubject<ReviewedSessionSubject>,
+  file: HistoricalReviewedFileFields,
+): Promise<AdmittedHistoricalReviewedFile> {
+  const record = await namedKeptSession(subject.source, {
+    host: subject.host,
+    sessionId: subject.session,
+  });
+  const pair = keptSessionPair(record, file);
+  const read =
+    pair && (await retainedPairFiles(pair, AbortSignal.timeout(30_000)));
+  if (
+    !pair ||
+    !read ||
+    "missing" in read ||
+    !belongsOnRetainedPair(read.files, file)
+  )
+    throw new RefusedRequest(
+      409,
+      "The file or comparison does not belong to this session's kept commits.",
+    );
+  return { repository: pair.repository, ...file };
 }
 
 // Admit a historical file against a Published completion or landed run.

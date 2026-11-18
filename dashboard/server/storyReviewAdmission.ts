@@ -21,7 +21,10 @@ import {
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
-import { admitHistoricalReviewedFile } from "./storyReviewHistoricalFileAdmission.ts";
+import {
+  admitHistoricalReviewedFile,
+  admitSessionRunFile,
+} from "./storyReviewHistoricalFileAdmission.ts";
 import { queriedReviewIdentity } from "./storyReviewRunAdmission.ts";
 import {
   queriedReviewedSessionSubject,
@@ -109,8 +112,6 @@ async function admitReviewedFile(
   label: "file diff" | "file text",
 ): Promise<AdmittedReviewedFile> {
   const subject = reviewedWorkSubjectQuery(url);
-  if (subject.kind === "session" && !url.searchParams.has("reference"))
-    throw new RefusedRequest(400, `The ${label} request is malformed.`);
   requireExactQuery(
     url,
     [
@@ -167,6 +168,11 @@ async function admitReviewedFile(
     });
     return { kind, ...admitted };
   }
+  if (subject.kind === "session")
+    return {
+      kind,
+      ...(await admitSessionRunFile(queriedReviewedSessionSubject(url), file)),
+    };
   return {
     kind,
     repository: (await queriedWorkspace(url)).workspace,

@@ -197,7 +197,7 @@ slice 4 with G2 and G5; `src/launchRecord.ts` is at 249 lines.
 
 ### 3. Keep each uninterrupted run in its final form
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in `ad-hoc-session-commits.spec.ts` and a run-naming case in
 `ad-hoc-review-file.spec.ts`. Scratch break: keep every creating entry
 without the ancestor check; the amend case fails on a third run.
@@ -210,6 +210,25 @@ any other pair. Commit, commit amended, both rebased onto pulled trunk, push
 `git rebase --onto` fetched trunk and a push, the publication's shape, is
 kept as its rebased commit. A commit made before the launch and
 rebased during it is not kept.
+
+Delivered: the capture rule needed no change. The `session-commits` answer
+carries `commitRuns` (oldest first, each `{commits, subject, committedAt,
+baseline, tree}`) and `commitRun` (the position answered); a session subject
+takes `run=<position>`, and a file read without a reference is admitted
+against the record's kept pairs
+(`server/storyReviewHistoricalFileAdmission.ts`). The landed run list was
+not reused: its runs carry a key, workflow, remote and target a session's
+runs lack. Scratch break: with the ancestor check removed the amend case
+failed on three runs (`s3-break`, exit 1); restored, `s3-refactor-backend-3`
+exit 0. Learnings for later slices: zero runs still answers not captured
+(slice 4 branches on an empty `runs`); the panel reads `commitRuns` and
+`commitRun`, asks `run=<position>` and reads files by the selected run's
+`baseline` and `tree` (slices 6–7; the landed `runs`/`selectedRun` stay
+absent); two runs can share a subject and then differ by time; shared spec
+support is in `tests/support/adHocReview.ts` (`establishDefaultMainSession`,
+`markAdHocDone`, `adHocSessionFileDiff`) and
+`tests/support/sessionCheckoutWork.ts` (`pullPublishedWork` with `how`,
+`amendInCheckout`); `ad-hoc-review-file.spec.ts` is at 247 lines.
 
 ### 4. Say when a session made no commits
 Type: Behavior
@@ -293,7 +312,7 @@ Disposition: receiving slice 4
 ### G3. File reads of a session-commits pair are not admitted
 Reported: slice 2 — "File diff reads for a session-commits pair are not admitted (`storyReviewHistoricalFileAdmission.ts` matches a landing reference only)."
 Story clause: "Each uninterrupted run of those commits is one retained comparison, from the commit before the run to its last commit."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/backend-tests/review/ad-hoc-review-file.spec.ts` "a file read naming a kept run's pair of a session's commits is answered, and any other pair or path refused" (kept pair 200 with its diff; another pair and a path outside the pair 409), admitted by `server/storyReviewHistoricalFileAdmission.ts` against the record's kept runs
 
 ### G4. The panel shows session commits with worktree wording
 Reported: slice 2 — "Until slice 6 the panel receives kind `session-commits` and shows it with worktree wording and no file diffs; these sessions previously said not captured."
@@ -309,3 +328,18 @@ Disposition: receiving slice 4
 Reported: slice 2 — "A root commit makes the whole capture fail."
 Story clause: "a session whose checkout log cannot be read at Done, keep the not-captured explanation."
 Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": a root commit needs an orphan history in a checkout that had a HEAD at launch (`defaultLaunchStartFacts` keeps a start only when HEAD resolves), which trunk work in Default main does not make; the failed read keeps Done (`keptWithSessionCommits` in `server/recordDoneAt.ts`) and the review keeps the not-captured explanation.
+
+### G7. File text, follow-up and note context of a session-commits pair are unobserved
+Reported: slice 3 — "The file text endpoint for a session-commits pair is not observed; only the diff endpoint is, through the same admission function. Follow-up and note file context for a session-commits pair is not admitted, because that path requires a completion or reference."
+Story clause: "The review's context names the comparison as commits made in the Default main checkout while the session was open, with its exact two revisions."
+Disposition: receiving slice 6
+
+### G8. A session's own merge-resolution commit is not a session commit
+Reported: slice 3 — "A session commit that is itself a conflicted-merge resolution (`commit (merge):` log entry) is not treated as a session commit by the rule and is not observed."
+Story clause: "Trunk work pulled or merged in is left out, including where it changed another part of a file the session changed."
+Disposition: no user cost "with other people's and other sessions' trunk work left out": a merge commit's comparison against its first parent is the trunk work merged in, which the story leaves out, so keeping it would bring that work into the review; the session's commits either side of it are kept as their own runs (`ad-hoc-session-commit-runs.spec.ts` merged-trunk case), and the capture rule in `server/sessionCommitsCapture.ts` reads only the log's entry kinds.
+
+### G9. Run-position refusals and a run whose objects are gone are unobserved
+Reported: slice 3 — "The `run` refusals (400 malformed, 404 past the end) are implemented but have no test. Run labels are read from the saved repository at answer time. If any run's objects are gone, the whole answer fails rather than answering unavailable; not observed."
+Story clause: "otherwise the Comparison switch lists the runs, oldest first, and the review opens on the first."
+Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": the panel asks only for positions the answer listed (`commitRuns`), so a refusal is reached only by a hand-written request; every run's two commits are pinned at capture (`pinPair` in `server/sessionCommitsCapture.ts`) and stay until the record is released, so a kept run's objects leave the saved repository only with the record itself.
