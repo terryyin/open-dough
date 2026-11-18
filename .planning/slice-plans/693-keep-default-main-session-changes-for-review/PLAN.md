@@ -1,0 +1,245 @@
+# Keep Default main ad hoc session changes for review
+
+**Identity:** SEED-379#keep-default-main-session-changes-for-review
+**Source:** [Keep Default main ad hoc session changes for review](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review)
+
+## Goal and scope
+
+When an ad hoc session that worked in the Default main checkout is marked
+done, the dashboard keeps the commits made in that checkout while the session
+was open, and **Review changes** on its Recently done entry shows them: one
+exact comparison per uninterrupted run, without trunk work pulled in. The
+source owns scope, deferred promises and examples. Excluded here: uncommitted
+changes, a separate landing capture for default launches, a combined view of
+interrupted runs, own-branch sessions, and capture before Done.
+
+## Existing solutions and current decisions
+
+Paths are under `dashboard/`.
+
+- **Reuse the retained pair.** A run is a fixed `{base, revision}` in the
+  checkout's common Git repository, kept by references as a landing is
+  (`server/launchLandingGit.ts` `pinLanding`, `removeLandingPins`) and read by
+  the pair read of `server/storyReviewLanded.ts` (`cat-file -t`, then
+  `changedFrom`). Expose that pair read for a session run; add no second
+  reader and no fetch.
+- **Reuse session admission.** `sessionReviewRequest`
+  (`server/storyReviewRequest.ts`) already admits project, host and session.
+  A run is chosen by its position among the record's kept runs; file reads
+  (`backend-tests/review/ad-hoc-review-file.spec.ts`) name a kept pair.
+- **New fact, new home.** The record gains one optional fact for kept session
+  commits (the common repository, the kept runs, whether the checkout was
+  shared, when it was read) and, for a default launch, the checkout and
+  revision it started from. `src/launchRecord.ts` is 244 lines,
+  `server/launchRecordStore.ts` 249, `server/doneMarks.ts` 241,
+  `server/launchRun.ts` 234 and `src/StoryReviewDiffLines.tsx` 237: schemas
+  and capture go in their own modules, and no edited file passes 250 lines.
+- **An established Default main session already holds its start**
+  (`establishedSession` with role `default-checkout`, `startingRevision`).
+  Only a default launch needs the new start; both feed one capture.
+- **Capture rule.** From the checkout's `HEAD` log, take entries at or after
+  the launch whose kind made a commit there: `commit`, `commit (amend)`,
+  `commit (initial)`, `cherry-pick`, `revert`, and a rebase `(pick)` or
+  `(continue)` whose subject and author time are those of such an entry. Keep
+  the ones that are ancestors of the checkout's `HEAD` at Done: an amended or
+  rebased commit survives only in its final form. Pulls, fast-forwards and
+  merges make no session commit. A run grows while a session commit's first
+  parent is the previous session commit; its pair is the first commit's first
+  parent and its last commit. Runs are kept oldest first.
+- **Shared checkout.** At capture, another kept record of the same project in
+  the same checkout whose launch-to-Done time (or launch to now, while open)
+  meets this session's marks the capture shared. A Claude default record
+  names no workspace today (`src/establishedPlace.ts`); the retained start
+  supplies it.
+- **Done owns capture.** Every Done passes `setRecordDoneAt`
+  (`server/doneSessionRecord.ts`, `server/doneMarks.ts`); capture follows a
+  set Done there, replaces an earlier capture of the same record, and a
+  failed read keeps Done and leaves no capture. Clearing Done
+  (`server/joinedSockets.ts`) leaves the capture until the next Done.
+- **One reflog reader exists** (`usageRevisionAt`,
+  `server/historicalUsageStory.ts`) for usage recovery by revision; its
+  meaning differs (which revision at a time), so capture gets its own read.
+- **Retention.** Explicit deletion removes pins (`server/launchRecordDeletion.ts`);
+  a record expiring 30 days after Done removes none today, landing pins
+  included. Slice 8 releases a record's pins on both paths through one rule.
+- Accepted [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+  governs: machine-local evidence supplements the published view and claims
+  no unobserved activity, which the shared-checkout note states. No conflict,
+  no North Star topic.
+
+## Decisive premises
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| The checkout's `HEAD` log separates commits made there from pulled work, keeps amend and rebase rewrites, and takes its times from `GIT_COMMITTER_DATE` | Slices 2–3 capture and their fixtures | 2026-11-18, scratch clone outside the workspace: `git reflog --date=iso-strict --format='%H %gd %gs'` and `git log --first-parent` after commit, ff pull, commit, amend, commit, `pull --rebase`, push | Entries `commit:`, `commit (amend):`, `pull … (pick):`, `pull …: Fast-forward` with the supplied times; creating entries ∩ ancestors of `HEAD` gave the three final commits in two runs; pulled commits never appeared as a creating entry |
+| The real Default main checkout logs the same kinds | Same rule on a developer machine | 2026-11-18, `/Users/terryyin/git/open-dough`, `git reflog show HEAD --date=iso -n 400`, read-only | 267 `merge origin/main`, 84 `commit`, 12 `rebase (pick)`, 2 `commit (amend)`, 1 `revert`; `core.logAllRefUpdates=true` |
+| A default launch keeps no start, workspace or landing; its review says not captured | Slices 1, 2, 4 | `src/unattachedSession.ts:25-37`, `server/unattachedStart.ts:118`, `server/storyReviewRequest.ts:83-88`; `backend-tests/review/ad-hoc-review-unavailable.spec.ts` case 1 | As stated at `591902853` |
+| The server already reads the default checkout's `HEAD` at launch | Slice 1 | `server/defaultCheckoutChanges.ts:51-58` via `unconfirmedStart` (`server/launchStart.ts:105-113`) | Read, not kept |
+| A Dough publication from the checkout leaves creating entries there | Key example 5, slice 3 | The publication commits with `git commit` (`Distribution/src/skills/dough-execute-plan/scripts/execution-increment-preparation.mjs:199`) and reconciles with `git rebase --onto` (`owned-suffix-reconciliation.mjs:81`) in its workspace. Proxy: the entries those two Git commands write were observed above (`commit:` and `(pick):` in the scratch clone; `commit:` then `rebase (start)`, `rebase (pick)`, `rebase (finish)` with one subject at 12:49:31–12:50:05 on 2026-11-18 in the real checkout). The rule reads only entry kinds, which Git writes whatever invokes it | Settled by proxy; the publication command itself was not run |
+
+## Outside-in proof ownership and gates
+
+Server behavior is proved in `backend-tests/review/` with
+`serverMode: "boundary"`: a real fixture checkout
+(`materializeLocalCheckout`), a default ad hoc launch through the fake host
+(as `backend-tests/launches/agent-launch-ad-hoc-sessions.spec.ts`), commits
+and pulls made with fixed `GIT_COMMITTER_DATE`, Mark as done through the
+server (as `backend-tests/sessions/agent-launch-done-prompt.spec.ts`), then
+`adHocReview` (`tests/support/adHocReview.ts`). Panel behavior is proved in
+`frontend-tests/sessions/` beside `recently-done-ad-hoc-review.spec.ts`, with
+`installFrontendStoryReview`. Before authoring a test apply
+[dough-makeme](../../../.agents/skills/dough-makeme/SKILL.md) and, for the
+Frontend specs,
+[dough-page-objects](../../../.agents/skills/dough-page-objects/SKILL.md):
+kept session commits and a checkout history with pulled work are builder
+steps on `makeMe.aLaunchRecord` and `makeMe.aRepository`, not spec helpers.
+
+Each Behavior slice proves discrimination once: a scratch break of its rule
+fails its new case and the restore passes; record the fault and results here.
+Each slice runs its changed specs with
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/backend.playwright.config.ts <paths>`
+(or `dashboard/frontend.playwright.config.ts`; the configured strict
+reporter, exit code is the verdict), the existing
+`backend-tests/review/ad-hoc-review*.spec.ts`,
+`frontend-tests/sessions/recently-done-ad-hoc-review*.spec.ts` and
+`backend-tests/sessions/agent-launch-done-*.spec.ts` as readers of the
+changed record and review answer, `npm run lint`,
+`npm run --silent typecheck:dashboard`, and the consumers from the
+[consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+with `--term` for the review answer kind and the not-captured sentence. Local
+gate: `caffeinate -s -i` on awake macOS on AC power; on battery the
+maintained open-lid `caffeinate -i` procedure with the sleep log read, under
+[machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Default timeouts and retries stay; never `test.slow()`. Follow the
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+as written and carry that link into every delegation and repair handoff.
+
+| Promise (source) | Owning slice |
+| --- | --- |
+| Starting point retained at launch, blank launches included | 1 |
+| Key example 1: one commit, plain push, trunk advances; readable after the commit leaves every branch | 2 |
+| Key example 2: pulled work interrupts; two runs, neither with the story | 3 |
+| Key example 3: amend and rebase kept in final form | 3 |
+| Key example 5: lands through Dough from the checkout | 3 (the publication's Git shape) |
+| Key example 6: no commits; unreadable log stays not captured | 4 |
+| Key example 7: a session done before this story stays not captured | 4 |
+| Key example 4: shared-checkout note | 5 (server), 6 (panel) |
+| Context names session commits and the two revisions | 6 |
+| Comparison switch lists runs oldest first, opens on the first | 7 |
+| Kept for the record's lifetime and released with it | 8 |
+| Review reads only the saved repository and writes nothing | 2 (HEAD and index unchanged, as `ad-hoc-review.spec.ts`) |
+
+## Ordered slices
+
+Each slice has 15 active minutes excluding command time.
+
+### 1. Keep where a default launch started
+Type: Structure
+Status: planned
+Proof: `backend-tests/launches/agent-launch-ad-hoc-sessions.spec.ts` gains
+the kept record's checkout and starting revision for a default launch with an
+instruction and for a blank one; existing launch and review specs stay green.
+
+A default launch in the Default main checkout keeps that checkout's path and
+`HEAD` on its launch record, in a schema module of its own. No review or card
+changes. Enables slice 2's capture.
+
+### 2. Review the commit a Default main session made
+Type: Behavior
+Status: planned
+Proof: new `backend-tests/review/ad-hoc-session-commits.spec.ts`. Scratch
+break: treat a fast-forward entry as a commit; the case fails on the pulled
+file.
+
+Behavior: a default launch commits once in the checkout and pushes → Mark as
+done → the session's review answers that commit's comparison (its parent to
+it), named as session commits with its launch and Done times and no run
+choice. After trunk advances, the checkout is reset to another commit and
+the session commit is on no branch, the same answer is read, with the
+checkout's `HEAD` and index unchanged. An established Default main session
+answers the same way when it holds no landing; one holding a landing keeps
+answering its landing. Update `STORY-REVIEW-LANDED-RUNS.md` and
+`AGENT-LAUNCH-COMPLETION.md` for the capture at Done.
+
+### 3. Keep each uninterrupted run in its final form
+Type: Behavior
+Status: planned
+Proof: cases in `ad-hoc-session-commits.spec.ts` and a run-naming case in
+`ad-hoc-review-file.spec.ts`. Scratch break: keep every creating entry
+without the ancestor check; the amend case fails on a third run.
+
+Behavior: commit, story landing pulled, commit → two runs, oldest first,
+neither holding the story's file; the review opens the first and a named run
+answers the second; a file read names a kept run's pair and is refused for
+any other pair. Commit, commit amended, both rebased onto pulled trunk, push
+→ one run of the two commits as pushed. A commit followed by
+`git rebase --onto` fetched trunk and a push, the publication's shape, is
+kept as its rebased commit. A commit made before the launch and
+rebased during it is not kept.
+
+### 4. Say when a session made no commits
+Type: Behavior
+Status: planned
+Proof: cases in `backend-tests/review/ad-hoc-review-unavailable.spec.ts`.
+Scratch break: answer the no-commit capture as not captured; the case fails
+on its sentence.
+
+Behavior: a session that edited files and committed nothing → Done → “This
+session made no commits in the Default main checkout.” A checkout whose log
+cannot be read at Done, and a record done without any capture, keep “This
+session's changes were not captured.”; Done itself succeeds.
+
+### 5. Mark a capture from a shared checkout
+Type: Behavior
+Status: planned
+Proof: cases in `ad-hoc-session-commits.spec.ts`. Scratch break: ignore
+records still open; the open-session case fails.
+
+Behavior: two default launches open in one checkout both commit; either is
+marked done → its answer holds the commits made while it was open and is
+marked shared, whether the other is done or still open. A session in an
+isolated workspace, or one done before this one launched, does not mark it.
+
+### 6. Show session commits in the review panel
+Type: Behavior
+Status: planned
+Proof: new `frontend-tests/sessions/recently-done-ad-hoc-session-commits.spec.ts`.
+Scratch break: drop the shared sentence; the case fails.
+
+Behavior: Recently done → **Review changes** on a session with one kept run →
+the panel's context is headed for session commits, says they were made in the
+Default main checkout while the session was open, names the two revisions,
+and, when shared, says in its own sentence that the comparison may include
+another session's work; the file browser, counts and Close with focus return
+behave as for a landing. The no-commit explanation is shown as the review's
+explanation. Keep wording consistent with the landed context.
+
+### 7. Switch between a session's runs
+Type: Behavior
+Status: planned
+Proof: case in `recently-done-ad-hoc-session-commits.spec.ts`. Scratch break:
+open on the newest run; the case fails.
+
+Behavior: a session with two kept runs opens on the oldest; the Comparison
+switch lists the runs oldest first, each named by commit count, last commit's
+subject and time; choosing the second shows its files and revisions, Refresh
+keeps the choice, and a delayed reply for the first cannot replace it. A
+session with one run shows no switch.
+
+### 8. Release kept commits with the launch record
+Type: Behavior
+Status: planned
+Proof: cases beside the existing record-deletion spec for deletion and for
+expiry. Scratch break: skip removal on expiry; the case fails on a remaining
+reference.
+
+Behavior: a kept record's run references exist while the record is kept;
+deleting the record, or its expiry after retention, removes that record's
+references, session runs and landing alike, from the saved repository and
+leaves other records' references.
+
+## Concerns and refinement
+
+Refinement was not needed: each slice holds one outcome and proof loop, and
+the eight slices are at the limit without exceeding it. This review
+identified no remaining slice-specific concern.
