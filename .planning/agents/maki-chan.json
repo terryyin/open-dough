@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "identity": "SEED-334#keep-navigation-conversion-proof-whole",
+  "mode": "story-branch",
+  "branch": "claude/keep-the-converted-navigation-proof-whole-and-ti",
+  "host": "claude"
+}
