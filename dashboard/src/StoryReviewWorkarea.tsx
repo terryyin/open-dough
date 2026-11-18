@@ -9,7 +9,10 @@
 
 import { useRef, type CSSProperties, type ReactNode } from "react";
 import { ResizeDivider } from "./ResizeDivider.tsx";
-import { useFileSidebarWidth } from "./reviewFileSidebarWidth.ts";
+import {
+  defaultFileSidebarWidthRem,
+  useFileSidebarWidth,
+} from "./reviewFileSidebarWidth.ts";
 import "./story-review-workarea.css";
 
 export function StoryReviewWorkarea({
@@ -23,12 +26,12 @@ export function StoryReviewWorkarea({
 }) {
   const workarea = useRef<HTMLDivElement>(null);
   const { width, range } = useFileSidebarWidth(workarea, sidebarShown);
-  const style =
-    width === undefined
-      ? undefined
-      : ({
-          "--story-review-files-width": `${String(width)}px`,
-        } as CSSProperties);
+  const style = {
+    "--story-review-files-width":
+      width === undefined
+        ? `${String(defaultFileSidebarWidthRem)}rem`
+        : `${String(width)}px`,
+  } as CSSProperties;
   return (
     <div ref={workarea} className="story-review-workarea" style={style}>
       {sidebar}

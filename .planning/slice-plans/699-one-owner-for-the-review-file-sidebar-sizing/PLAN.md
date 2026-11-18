@@ -1,6 +1,7 @@
 # Give the review file sidebar's sizing one owner
 
 **Source:** [Give the review file sidebar's sizing one owner](../../seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#one-owner-for-the-review-file-sidebar-sizing)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-384#one-owner-for-the-review-file-sidebar-sizing
 
 ## Provenance and findings
@@ -94,7 +95,7 @@ was applied through the CSSOM of the loaded, bundled style sheets.
 
 ### 1. The review file sidebar's sizing and the vertical grip each have one owner
 Type: Structure
-Status: planned
+Status: done
 Proof: the slice 1 rows above; `npm run typecheck:dashboard`; staged lint.
 
 Structure: removes finding 1 and 2's split ownership, with the computed
@@ -171,3 +172,10 @@ P1–P21 observation kept.
 - Slice-plan refinement was not needed: two slices, each one correction and
   one proof loop, with the shared-CSS consumers observed rather than assumed.
   This review identified no remaining slice-specific concern.
+- Slice 1 settled reorganization: extract side-panel header/title/actions and
+  `.side-panel-question` into `dashboard/src/side-panel-header.css` with
+  `@import` from `side-panel.css` (was 258 lines). Delivered 143 / 111.
+- Slice 1 accepted proof (evidence `slice1-20261118T164915`): frontend review,
+  intent, side-panel-width, e2e panes/touch, and `typecheck:dashboard` all
+  exitStatus 0 under `caffeinate -s -i`. Source-review P1–P4, P8, P9 observed.
+  Post-change refactor: none — already clean.

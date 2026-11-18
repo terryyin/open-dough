@@ -23,7 +23,8 @@ import type { DividerRange } from "./ResizeDivider.tsx";
 // rem.
 const sidebarMinimum = 12;
 const diffMinimum = 18;
-const defaultWidth = 16;
+/** The sidebar's width until a preference is chosen, in rem. */
+export const defaultFileSidebarWidthRem = 16;
 // How far one Left or Right key moves the divider, in rem.
 const keyStep = 1;
 
@@ -48,11 +49,15 @@ export function useFileSidebarWidth(
   const room = useMeasuredRoom(workarea, shown, readRoom);
   const share =
     room &&
-    shareOfRoom(room.width, preferred ?? defaultWidth * room.rem, {
-      floor: sidebarMinimum * room.rem,
-      otherFloor: diffMinimum * room.rem,
-      step: keyStep * room.rem,
-    });
+    shareOfRoom(
+      room.width,
+      preferred ?? defaultFileSidebarWidthRem * room.rem,
+      {
+        floor: sidebarMinimum * room.rem,
+        otherFloor: diffMinimum * room.rem,
+        step: keyStep * room.rem,
+      },
+    );
   // The reviewer's choice, within the bounds the room sets now.
   const choose = useChoiceWithin(share, prefer);
   return { width: share?.size, range: share && { ...share, choose } };
