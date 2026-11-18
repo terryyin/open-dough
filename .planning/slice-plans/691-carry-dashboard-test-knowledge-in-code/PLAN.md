@@ -131,7 +131,7 @@ version), the manual report.
 
 ### 3. Remove the fixture-origin and proof-record documents
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in commands; `npm run lint`.
 
 Behavior: a workflow comment and `ciProofCollected.ts` cite `proof-record.md`
@@ -252,6 +252,13 @@ Dropped: the interim-group notes and everything else not listed in slice 7.
   three at 246–250 lines gain no line. SEED-300 (401 lines) and SEED-301 are
   planning records: their link replacements add no line, and their sections
   belong to their own stories.
+
+## Learnings
+
+- Slice 3: the outside-in greps miss bare relative links between the
+  documents under `dashboard/tests/` (`(proof-record.md)` in the README).
+  Until slice 8 removes the README, each deletion also repoints its bare
+  links there to the carrying code.
 
 ## Concern evidence
 

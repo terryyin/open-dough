@@ -142,7 +142,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 90
       # This shard's test cases of the group's proof entry, from its own
-      # proof record (dashboard/tests/proof-record.md).
+      # proof record (dashboard/tests/support/proofRecordTypes.ts).
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments

@@ -38,11 +38,15 @@ export type DashboardProofRecord = {
     argv: string[];
     listing: boolean;
   };
+  // "listed" (`--list`) records selection only, never an executed pass.
   phase: "running" | "listed" | "completed";
   selectedCount: number;
   tests: Selection[];
+  // Absent from a run that never finished: no executed pass.
   terminal?: {
+    // Playwright's verdict, before the strict reporter checks output.
     runnerStatus: FullResult["status"];
+    // The run's verdict.
     strictStatus: FullResult["status"];
     finishedAt: string;
     durationMs: number;

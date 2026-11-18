@@ -11,7 +11,7 @@ perform them (`pageRequestNotes.ts`, `autoRefreshJourney.ts`,
 `sessionStatePace.ts`, `support/serverTimeControls.ts`,
 `support/productionWatcher.ts`, `support/fakeGh.ts`). See
 [native-host fixtures](native-host-fixtures.md) for synthetic hosts, the
-per-run [proof record](proof-record.md), the caller-owned transcript CI's
+per-run [proof record](support/proofRecordTypes.ts), the caller-owned transcript CI's
 proof fragments are written from, and [CI shards](shards.md) for shard
 membership, recorded times and deadlines.
 
@@ -108,7 +108,7 @@ Put a check where it is cheapest to prove, and prove it once:
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
   `launchTimeoutMs`, viewport and usually launch or mark done.
 
-[Shared fixture origins](fixture-origins.md) describes installed-start MakeMe
+[Shared fixture origins](support/startOriginPreparation.ts) describes installed-start MakeMe
 histories, per-run preparation and independent worker copies.
 
 ## Synchronization
@@ -247,5 +247,5 @@ when every run passed.
 ## Measuring and process cleanup
 
 Retain a strict JSON selection with the group's `<prefix>_PROOF_RECORD`; see
-[proof record](proof-record.md). Pass no `--reporter`. Worker and run process
+[proof record](support/proofRecordTypes.ts). Pass no `--reporter`. Worker and run process
 ownership is in `support/runProcesses.ts`.
