@@ -411,7 +411,7 @@ retains the literal commands, run records, observations and consumer trace.
 
 ### 7. Move shared test support to its own named directory
 Type: Structure
-Status: planned
+Status: done
 Proof: tracked support moves to `dashboard/test-support/`, no first-party
 live path still requires `dashboard/tests/`, historical proof fixtures
 and records keep the old path, and all three browser group listings and
@@ -505,6 +505,21 @@ mutation and guard. Focused Prettier, ESLint, Backend execution and
 typecheck passed, and each owned implementation source is within 250
 lines after formatting. Full project lint follows without repeating the
 already applied bulk fixes.
+
+Full project lint and the commit hook passed on rename revision
+`accbd94b0dc739b22204ecbbf95764bfb16e53e8`. Exact GitHub Actions run
+44319119958 attempt 1 passed. Its `ci-proof-summary-attempt-1` names that
+revision and all four expected entries with every part present and zero
+failures. The artifact reports 797 E2E, 695 Frontend, 1,710 Backend and
+651 hosted Distribution job results. Local listings retain a 652nd job,
+as they did before the move.
+
+A merge survey against `origin/main` at `821690bc` found 64 content
+overlaps, 11 incoming files within the moved directory and one incoming
+file deletion. In a read-only rehearsal, normalizing live support-path
+spelling and formatting in the merge ancestor and the incoming versions
+resolved all 76 locations with no unresolved content. The exact Git
+inputs and results are in the Git evidence directory for integration.
 
 Slice 6 hosted run 44310084055 attempt 1 had exactly one failed job:
 E2E shard 6's checkout could not connect to GitHub on port 443 after
