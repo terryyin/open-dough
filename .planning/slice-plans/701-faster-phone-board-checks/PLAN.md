@@ -2,6 +2,7 @@
 
 **Identity:** SEED-404#run-dashboard-frontend-checks-at-doughnut-speed
 **Source:** [Get faster feedback on the seven phone-board checks](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed)
+**Source review:** [Independent story commitments](source-review.md)
 
 ## Goal and scope
 
@@ -33,11 +34,13 @@ Local macOS observations used the owned preparation checkout on AC power on 2026
 ### 1. Preserve case outcomes from a mixed frontend selection
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the bounded frontend producer adapter that slice 2 needs to publish one timed case result per selected case. Feed the existing fragment and report readers. Keep the current shard declarations and Playwright-only results valid.
 
 **Proof.** Replay real runner output through the frontend producer with a passing case from each engine, a failed mounted assertion, an unfinished run and a file that cannot load. Read the group verdict and final frontend report. A failed or absent result stays distinguishable from a pass, and the per-file counts and timings add up. The local replay above establishes the existing collector input.
+
+**Observed.** Nine real-report replay scenarios passed through the existing case fragment and Markdown report commands. The mixed assertion failure recorded four passes, one failure and one other case. An interrupted Playwright run retained two other cases. A missing report, missing selected title, failed import and empty mounted collection left the part missing. The replay checked every file duration and the total against recorded case times. The retained-only record preserved its original contents and unassigned case evidence. The 16 fragment, action and report consumer checks and dashboard typecheck passed. Commands and artifacts are in `slice1-return.md` and `slice1-complete-reports/` in the checkout's Git evidence directory. Slice 2 supplies the normal command and CI wiring.
 
 ### 2. Select the right browser runner from the normal frontend command
 
@@ -98,3 +101,9 @@ Move the remaining long-backlog case. A real vertical stroke scrolls the reading
 - **Local gates.** Follow [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos). Fully awake on AC, use `caffeinate -s -i`; on battery use the lid-open `caffeinate -i` procedure and inspect the sleep log. Run the affected case/title selections through `npm run test:dashboard:frontend -- board-indicators.spec.ts board-swipe.spec.ts --workers=2`, the [runner ownership](../../../dashboard/backend-tests/runtime/runner-ownership.spec.ts) and [focused resource](../../../Distribution/tests/support/local-test-suite-focused-runners.test.mjs) consumers touched by selection changes, and the [CI fragment checks](../../../Distribution/tests/skills/dough-test-optimization/ci-proof-fragments.test.mjs) for any changed proof boundary. For partial transfers include any temporary file owners in selection. Run typecheck and affected lint. Compare unfiltered discovery and both declared shard selections with the starting inventory. Hosted CI owns the actual shard run and upload. Verify the resulting artifact.
 - Use the [test-entry selector](../../../.agents/skills/dough-execute-plan/references/test-entry-rules.md) before changing sources. Both original specs select MakeMe and page objects. Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md) as written at every gate.
 - Plan refinement split mixed-result reporting from command selection, and isolated the fresh board mount immediately before its first case transfer. The seven slices use the same mount and selection rules throughout. No remaining slice-specific concern was identified. The measured seven-case improvement is the delivery criterion.
+
+## Execution context
+
+Maki-chan resumed the published Take at `b14434bb1bf4413f690fa31a9981fa203bd8d39e` in Story Branch Mode on `codex/get-faster-feedback-on-the-seven-phone-board-che`. Increments publish to the branch on `origin`, with `origin/main` as the integration target. Checkout-local locked install, dashboard typecheck and native Chromium validation passed. CI uses GitHub Actions `ci.yml`, Codex coordinator `maki-701`, mailbox `/tmp/dough-ci-501/watch-6Xu1JK`, yielded cell `g41:11`, session 6872, PID 94203. The Take on trunk is unobserved by this branch observer.
+
+At the Take revision, guarded Playwright list-only discovery found 697 cases in 293 files, with 360 in 155 files on shard 1 and 337 in 138 files on shard 2. The checkout's Git evidence directory retains all three inventories as `baseline-*.log`. Use these inventories for the migration comparison and account for separately accepted later changes.

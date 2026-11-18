@@ -8,7 +8,8 @@ export type Attempt = {
   testId: string;
   repeatEachIndex: number;
   retry: number;
-  startedAt: string;
+  // The mounted runner reports case durations without a per-attempt start.
+  startedAt?: string;
   status?: TestResult["status"];
   durationMs?: number;
 };
@@ -38,8 +39,9 @@ export type DashboardProofRecord = {
     argv: string[];
     listing: boolean;
   };
-  // "listed" (`--list`) records selection only, never an executed pass.
-  phase: "running" | "listed" | "completed";
+  // "listed" records selection only. A combined run whose evidence could not
+  // account for a selected runner or file leaves its part "incomplete".
+  phase: "running" | "listed" | "completed" | "incomplete";
   selectedCount: number;
   tests: Selection[];
   // Absent from a run that never finished: no executed pass.
