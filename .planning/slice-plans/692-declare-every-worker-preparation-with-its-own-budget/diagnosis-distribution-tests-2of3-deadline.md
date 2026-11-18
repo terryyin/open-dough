@@ -163,3 +163,38 @@ paused-supplier case basis and saved baselines stay untouched.
   (7 files; load 12.5 -> 8.4), after 181 s (3 files; load 8.4 -> 11.3);
   all passed. Saving ~85 local job-s; CI test-times keys of the 4 removed
   files disappear, their cost moves to the 3 kept keys.
+
+## Repair: git-publication pass (slice `repair-share2-git-publication`)
+
+- Hypothesis: the git-publication checks (221 job-s on run 44213987087;
+  `git-publication-native.sh` 39.5, one-shot workspaces/results/reviews
+  28.0/22.3/18.0, owned-context 25.7, substitutes 19.3, admission four
+  wrappers 38.3, fixture-identity 12.3) repeat test-only setup (fixture
+  repositories, identical substitute journeys or assessor setup) across
+  wrappers or sections, removable without losing an observation.
+- Trial limit: the slice's 15 active minutes; one discovery profile, then at
+  most one edit-and-measure trial.
+- Decision criterion: keep a change only if it projects at least ~30 share-2
+  job-s and every behavioral observation still runs; otherwise stop with no
+  edit and report findings.
+- Local profile (Homebrew bash 5, scratch timing wrappers through the slice
+  clock, load 2.7 -> 3.0): `git-publication-native.sh` 22 s in 19 assessor and
+  observer counterexample groups (story-closure observer 5.1, assessor 4.8,
+  harness 2.3, CI-completion observer 2.1, the rest <= 2.1), each rejected case
+  a distinct signal. Suite groups: one-shot workspaces 33.9 (5 journeys 15 s,
+  their state counterexamples 19 s), results 33.5 (4 runs 17 s), reviews 20.2
+  (4 runs 11 s), owned-context 27.9, substitutes 16.3 (15 runs of ~1 s).
+- Every substitute run is a distinct journey, host stream shape or variant
+  (unobserved CI, pushes, truncated, skip-push, exit-after-complete); each
+  builds and installs its own fixture inside the case runner
+  (`git_publication_run_journey`, evaluation case basis, out of scope). No
+  check repeats another's journey, fixture or capture; real-state
+  counterexamples already share each journey's kept fixture and restore it.
+- Remaining test-only candidates: the story-closure observer's second fresh
+  fixture (~2.5 s), the review and refinement `pushes` whole-run variants
+  (~6 s; turning them into state mutations changes the proof form, a design
+  judgment) and per-file wrapper overhead of the four admission jobs (<1 s
+  each). Together ~10 local, ~15-18 CI job-s on a fast runner.
+- Decision: stop below the ~30 job-s criterion; no edit made. The
+  git-publication cost lives in per-journey fixture construction in the case
+  runner and in distinct counterexamples.

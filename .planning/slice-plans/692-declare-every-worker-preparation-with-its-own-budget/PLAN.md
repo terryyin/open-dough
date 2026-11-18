@@ -51,7 +51,8 @@ slow runners (run 44214090643, also main 44201614131). Per Terry's decision,
 after slice 7 and before landing, cut that share's cost through a bounded
 test-optimization repair; see [the diagnosis](diagnosis-distribution-tests-2of3-deadline.md).
 The first repair merges the baseline and launch-command checks' duplicate
-setup (local 266 s to 181 s); a bounded git-publication pass follows.
+setup (local 266 s to 181 s). The bounded git-publication pass found no
+test-only redundancy worth its criterion and changed nothing.
 
 ## Ordered slices
 
