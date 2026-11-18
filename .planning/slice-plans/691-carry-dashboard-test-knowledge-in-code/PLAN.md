@@ -242,6 +242,13 @@ header (usage), `support/quietReporter.ts` (silence and kept runs),
 `runnerConfig.mjs` (`retries: 0`, browser arguments), the failure policy.
 Dropped: the interim-group notes and everything else not listed in slice 7.
 
+## Execution complete
+
+Product advice: no change. When plan 617
+(SEED-334#keep-one-browser-test-group-roster) is prepared, its
+`dashboard/tests/README.md` wording slice ends with the file, as the story
+states.
+
 ## Current decisions
 
 - The Frontend rule is name-level, not module-level: 30 Frontend specs import
