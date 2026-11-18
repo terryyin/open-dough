@@ -52,11 +52,15 @@ At the acceptance freshness check, trunk included the sibling Default main Done 
 ### 2. Preserve work left uncommitted at Done
 
 Type: Behavior
-Status: planned
+Status: done
 
 Capture the working-tree result as part of the same Done, using the established workspace-review treatment of staged, unstaged, deleted and nonignored untracked files. Preserve the real index, HEAD and checkout. Store this result and its committed tip separately so a later delivery cannot inherit an uncommitted edit. A delayed continuation must use the tree captured for its mark.
 
 Proof: leave a committed file with a further edit, a deletion, an untracked file and an ignored file. Mark Done, change the live file again before a delayed read, retire the worktree, then open the retained list and individual diffs. Assert the exact saved text, absence of the later edit and ignored file, and unchanged real index/HEAD at capture. A commit-only endpoint loses the further edit. Reuse slice 1's pin cleanup for tree endpoints.
+
+The real quiet-report journey in `dashboard/backend-tests/review/ad-hoc-branch-worktree-result.spec.ts` holds validation after Git writes the snapshot, then overwrites the live draft. It compares the real index bytes and HEAD at the hold. After the receipt answers with native Done pending, it retires the worktree and prunes Git before reviewing exact paths, diffs, and file text. The saved tree excludes the later edit and ignored file and has its committed tip pinned separately. The existing branch tests cover exact retry, manual supersession, and release of dirty-result pins. The 13-spec backend selection, browser review cases, and dashboard typecheck passed. See `slice-2-implementation.md` in the worktree's Git evidence directory for the commands and terminal records.
+
+The independent pass moved object-kind validation into the shared retained comparison reader and simplified Default main capture settlement. The 11 affected backend specs, dashboard typecheck, and whitespace checks passed. See `slice-2-refactor.md` in the Git evidence directory.
 
 ### 3. Identify the branch a Default main session takes up
 
@@ -126,7 +130,7 @@ Slice-plan refinement was unnecessary. The slices share one launch association a
 
 Reported: slice 1 — "Before a first Git read can occur, a reported Done may be acknowledged with a pending capture."
 Story clause: "A successful capture includes the session's commits and the working-tree changes it leaves for review."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: ad-hoc-branch-worktree-result.spec.ts holds validation after the tree write, changes the draft and reads the fixed tree after receipt and retirement. ad-hoc-branch-result.spec.ts confirms an exact retry keeps the original pair.
 
 ### G2. Exclude imported trunk from the branch comparison
 

@@ -7,7 +7,7 @@ import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionCommits } from "../src/sessionCommits.ts";
 import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
-import { defaultGitOutputLimit } from "./gitRunner.ts";
+import { defaultGitOutputLimit, runGitUntilClosed } from "./gitRunner.ts";
 import { pinPair, removeLandingPins, removePins } from "./launchLandingGit.ts";
 import { defaultMainStart, resolvedCheckout } from "./sessionCommitsCapture.ts";
 
@@ -23,15 +23,21 @@ const branchResultRefPrefix = (
 ) =>
   `${sessionBranchRefPrefix(session)}${result.doneAt.replace(/[.:]/g, "-")}/`;
 
-export function keepBranchResultRefs(
+export async function keepBranchResultRefs(
   session: LaunchRecord["session"],
   result: SessionBranchResult,
 ): Promise<void> {
-  return pinPair(
-    result.repository,
-    branchResultRefPrefix(session, result),
-    result,
-  );
+  const prefix = branchResultRefPrefix(session, result);
+  await pinPair(result.repository, prefix, result);
+  if (result.committedTip !== result.revision)
+    await runGitUntilClosed(
+      ["update-ref", `${prefix}tip`, result.committedTip],
+      {
+        cwd: result.repository,
+        maxBuffer: defaultGitOutputLimit,
+        signal: AbortSignal.timeout(30_000),
+      },
+    );
 }
 
 export async function releaseBranchResultRefs(

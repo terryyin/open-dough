@@ -82,24 +82,26 @@ export { setRecordDoneAt } from "./recordDoneAt.ts";
 export async function changeSessionRecord(
   sourceId: string,
   session: SessionReference,
-  change: (record: LaunchRecord) => LaunchRecord,
+  change: (record: LaunchRecord) => LaunchRecord | Promise<LaunchRecord>,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
-  await replaceRecords((kept) => {
+  await replaceRecords(async (kept) => {
     const records = kept[sourceId];
     if (records === undefined) return kept;
     return {
       ...kept,
-      [sourceId]: records.map((record) => {
-        if (
-          !("session" in record) ||
-          sessionKey(record.session) !== sessionKey(session)
-        ) {
-          return record;
-        }
-        changed = change(record);
-        return changed;
-      }),
+      [sourceId]: await Promise.all(
+        records.map(async (record) => {
+          if (
+            !("session" in record) ||
+            sessionKey(record.session) !== sessionKey(session)
+          ) {
+            return record;
+          }
+          changed = await change(record);
+          return changed;
+        }),
+      ),
     };
   });
   return changed;

@@ -1,6 +1,6 @@
 // One field-based rule for a historical review file: a Published completion,
 // or the retained pair and literal file list of a landed run or of a done
-// session's kept commits. URL adapters and follow-up admission share this
+// session's kept result. URL adapters and follow-up admission share this
 // check; callers name source, a reviewed-work subject (story identity or
 // session) and a completion, a reference or a session's kept pair — never a
 // repository path.
@@ -20,7 +20,11 @@ import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
-import { landedStoryReview, retainedPairFiles } from "./storyReviewLanded.ts";
+import { landedStoryReview } from "./storyReviewLanded.ts";
+import {
+  retainedBranchPairFiles,
+  retainedCommitPairFiles,
+} from "./retainedReviewPair.ts";
 import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import type { ReviewLandedRun } from "../src/storyReviewLandedRun.ts";
@@ -184,12 +188,17 @@ export async function admitSessionComparisonFile(
     sessionId: subject.session,
   });
   const branch = branchResultAtDone(record);
-  const pair =
+  const matchingBranch =
     branch?.base === file.baseline && branch.revision === file.tree
       ? branch
-      : keptSessionPair(record, file);
+      : undefined;
+  const pair = matchingBranch ?? keptSessionPair(record, file);
+  const signal = AbortSignal.timeout(30_000);
   const read =
-    pair && (await retainedPairFiles(pair, AbortSignal.timeout(30_000)));
+    pair &&
+    (matchingBranch === undefined
+      ? await retainedCommitPairFiles(pair, signal)
+      : await retainedBranchPairFiles(matchingBranch, signal));
   if (
     !pair ||
     !read ||

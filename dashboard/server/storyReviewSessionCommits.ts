@@ -9,7 +9,7 @@ import {
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { retainedPairFiles } from "./storyReviewLanded.ts";
+import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 
 // One kept run of a done session: its pair, where it is kept, and the
 // session's launch and Done times.
@@ -112,7 +112,7 @@ export async function sessionCommitsReview(
   { launchedAt, doneAt, shared, runs, position, ...pair }: KeptSessionRun,
   signal: AbortSignal,
 ): Promise<StoryReview> {
-  const read = await retainedPairFiles(pair, signal);
+  const read = await retainedCommitPairFiles(pair, signal);
   if ("missing" in read)
     return unavailableSessionCommitsReview(
       {

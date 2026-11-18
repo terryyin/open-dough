@@ -89,8 +89,8 @@ export function ReviewFeedback({
       )}
       {!reading && round > 0 && review?.kind === "branch-result" && (
         <p>
-          Review refreshed: {changedFiles(review.files.length)} in the committed
-          branch result at Done.
+          Review refreshed: {changedFiles(review.files.length)} in the branch
+          result at Done.
         </p>
       )}
       {kept !== undefined && (

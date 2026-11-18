@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   deleteRecord,
@@ -156,9 +157,14 @@ for (const reason of ["deletion", "expiry"]) {
     const staying = await launchIsolatedReview(dashboard, "Second task");
     const first = commit(leaving.workspace, "first.txt");
     const second = commit(staying.workspace, "second.txt");
+    writeFileSync(
+      path.join(leaving.workspace, "draft.txt"),
+      "A draft to keep.\n",
+    );
     await done(dashboard, leaving.session);
     await done(dashboard, staying.session);
     expect(sessionBranchPins(origin.project, leaving.session)).toContain(first);
+    expect(sessionBranchPins(origin.project, leaving.session)).toHaveLength(3);
     const stayingPins = sessionBranchPins(origin.project, staying.session);
     expect(stayingPins).toContain(second);
 

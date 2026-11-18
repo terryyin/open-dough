@@ -1,7 +1,6 @@
-// Serializes Git evidence for one session and settles it against the current Done.
+// Serializes Default main commit capture and settles it against the current Done.
 import { createHash } from "node:crypto";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
-import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
 import {
   sessionCommitsAtDone,
   type SessionCommits,
@@ -9,9 +8,7 @@ import {
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 import {
-  keepBranchResultRefs,
   keepSessionCommitRefs,
-  releaseBranchResultRefs,
   releaseSessionCommitRefs,
 } from "./launchRecordPins.ts";
 import { keptSession } from "./launchRecordStore.ts";
@@ -23,10 +20,6 @@ import {
   defaultMainStart,
   readSessionCommits,
 } from "./sessionCommitsCapture.ts";
-import {
-  branchCapturePending,
-  readBranchResult,
-} from "./sessionBranchCapture.ts";
 
 // A capture answers the Done that led to its read. A failed read has no
 // capture, so the Done time separately remembers that it was attempted.
@@ -42,10 +35,7 @@ function sessionCommitsStartForDone(record: LaunchRecord) {
 }
 
 export function doneCapturePending(record: LaunchRecord): boolean {
-  return (
-    branchCapturePending(record) ||
-    sessionCommitsStartForDone(record) !== undefined
-  );
+  return sessionCommitsStartForDone(record) !== undefined;
 }
 
 const sessionCaptures = new Map<string, Promise<LaunchRecord | undefined>>();
@@ -84,70 +74,25 @@ async function captureCurrentDone(
   try {
     const current = await keptSession(sourceId, session);
     if (current?.doneAt !== doneAt) return current;
-    if (branchCapturePending(current))
-      return await keepCurrentBranch(sourceId, key, doneAt, current);
     const start = sessionCommitsStartForDone(current);
     if (start === undefined) return current;
     const read = await readSessionCommits(current, start).catch(
       () => undefined,
     );
-    return await keepCurrentCapture(sourceId, key, doneAt, (record, sessions) =>
-      settleSessionCommits(record, sessions, doneAt, start, read),
-    );
+    return await keepCurrentSessionCommits(sourceId, key, doneAt, start, read);
   } finally {
     releaseWriteLock(lock);
   }
 }
 
-async function keepCurrentBranch(
-  sourceId: string,
-  key: string,
-  doneAt: string,
-  current: LaunchRecord,
-): Promise<LaunchRecord | undefined> {
-  const read = await readBranchResult(current, doneAt).catch(() => undefined);
-  let previous: SessionBranchResult | undefined;
-  let pinned: SessionBranchResult | undefined;
-  try {
-    const kept = await keepCurrentCapture(
-      sourceId,
-      key,
-      doneAt,
-      async (record) => {
-        try {
-          if (read === undefined)
-            return { ...record, branchResultFailedAt: doneAt };
-          await keepBranchResultRefs(record.session, read);
-        } catch {
-          await releaseBranchResultRefs(record.session, read);
-          return { ...record, branchResultFailedAt: doneAt };
-        }
-        previous = record.branchResult;
-        pinned = read;
-        const next = { ...record, branchResult: read };
-        delete next.branchResultFailedAt;
-        return next;
-      },
-    );
-    if (pinned !== undefined)
-      await releaseBranchResultRefs(current.session, previous);
-    return kept;
-  } catch (error) {
-    await releaseBranchResultRefs(current.session, pinned);
-    throw error;
-  }
-}
-
 // Compare the Done again under the store lock before applying its Git pins
 // and saved capture. A superseded or deleted mark can write neither.
-async function keepCurrentCapture(
+async function keepCurrentSessionCommits(
   sourceId: string,
   key: string,
   doneAt: string,
-  settle: (
-    record: LaunchRecord,
-    sessions: readonly LaunchRecord[],
-  ) => Promise<LaunchRecord>,
+  start: NonNullable<ReturnType<typeof defaultMainStart>>,
+  read: SessionCommits | undefined,
 ): Promise<LaunchRecord | undefined> {
   let current: LaunchRecord | undefined;
   await replaceRecords(async (kept) => {
@@ -156,7 +101,13 @@ async function keepCurrentCapture(
     const record = sessions.find((entry) => sessionKey(entry.session) === key);
     current = record;
     if (record?.doneAt !== doneAt) return leaveMachineJson;
-    const settled = await settle(record, sessions);
+    const settled = await settleSessionCommits(
+      record,
+      sessions,
+      doneAt,
+      start,
+      read,
+    );
     current = settled;
     return {
       ...kept,

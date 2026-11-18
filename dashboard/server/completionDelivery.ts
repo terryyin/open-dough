@@ -2,6 +2,7 @@
 import { completionClosure, returnedOutcome } from "./completionClosure.ts";
 import { randomUUID } from "node:crypto";
 import {
+  completedWithoutAttention,
   doneAutomatically,
   type CompletionReceipt,
 } from "../src/completionReport.ts";
@@ -20,6 +21,7 @@ import {
 } from "./completionAdmission.ts";
 import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
 
 // A quiet report's native Done starts once its receipt is answered, outside
 // the attempts lock, since the sender's turn goes on until then.
@@ -47,67 +49,86 @@ export async function deliverCompletion(
     }
     const saved =
       previous?.receipt ?? (await reserveCompletion(report, origin, delivery));
+    const prospectiveBranch = completedWithoutAttention(saved)
+      ? (await keptRecords(report.source)).find((entry) =>
+          isReportingRecord(entry, report),
+        )
+      : undefined;
     // No second attempt write follows disposition; failed writes cannot follow
     // successful disposition and turn it into a failed delivery.
-    const delivered = await withKeptAttempts(async (attempts) => {
-      const attempt = reportingAttempt(attempts, report, origin);
-      const bound = (await keptRecords(report.source)).find((entry) =>
-        isReportingRecord(entry, report),
-      );
-      if (bound === undefined) {
-        if (
-          attempt.outcome === undefined &&
-          saved.state === "pending-native-session"
-        )
-          return { saved, current: false };
-        throw new RefusedRequest(
-          409,
-          "This launch has no retained reporting session.",
-        );
-      }
-      const closure = await completionClosure(bound, saved);
-      const closesSession = closure !== "open";
-      const binding = { found: false };
-      await replaceRecords((kept) => ({
-        ...kept,
-        [report.source]: (kept[report.source] ?? []).map((entry) => {
-          if (!isReportingRecord(entry, report)) return entry;
-          if (
-            saved.session !== undefined &&
-            saved.session.sessionId !== entry.session.sessionId
-          )
+    const delivered = await withBranchResultAtDone(
+      prospectiveBranch,
+      saved.receivedAt,
+      (settle) =>
+        withKeptAttempts(async (attempts) => {
+          const attempt = reportingAttempt(attempts, report, origin);
+          const bound = (await keptRecords(report.source)).find((entry) =>
+            isReportingRecord(entry, report),
+          );
+          if (bound === undefined) {
+            if (
+              attempt.outcome === undefined &&
+              saved.state === "pending-native-session"
+            )
+              return { saved, current: false };
             throw new RefusedRequest(
               409,
-              "The reporting launch now names a different session.",
+              "This launch has no retained reporting session.",
             );
-          binding.found = true;
-          // Even an unapplied newer submission prevents an older retry from closing it.
-          if (!completionNeedsRecordWrite(attempt, entry.completion, saved))
-            return entry;
-          const automaticDone = doneAutomatically(entry);
-          const quiet =
-            closesSession &&
-            (entry.doneAt === undefined || automaticDone) &&
-            (entry.dispositionChangedAt === undefined ||
-              entry.dispositionChangedAt < saved.receivedAt);
-          const next = {
-            ...(quiet ? doneSessionRecord(entry, saved.receivedAt) : entry),
-            completion: saved,
-            returnedToBacklog: returnedOutcome(closure, saved.receipt),
-          };
-          // A newer qualification replaces previous automatic success, while
-          // explicit local Done/reopen remains independent of reported outcome.
-          if (!closesSession && automaticDone) {
-            delete next.doneAt;
-            delete next.doneProblem;
           }
-          return next;
+          const closure = await completionClosure(bound, saved);
+          const closesSession = closure !== "open";
+          const binding = { found: false };
+          await replaceRecords(async (kept) => ({
+            ...kept,
+            [report.source]: await Promise.all(
+              (kept[report.source] ?? []).map(async (entry) => {
+                if (!isReportingRecord(entry, report)) return entry;
+                if (
+                  saved.session !== undefined &&
+                  saved.session.sessionId !== entry.session.sessionId
+                )
+                  throw new RefusedRequest(
+                    409,
+                    "The reporting launch now names a different session.",
+                  );
+                binding.found = true;
+                // Even an unapplied newer submission prevents an older retry from closing it.
+                if (
+                  !completionNeedsRecordWrite(attempt, entry.completion, saved)
+                )
+                  return entry;
+                const automaticDone = doneAutomatically(entry);
+                const quiet =
+                  closesSession &&
+                  (entry.doneAt === undefined || automaticDone) &&
+                  (entry.dispositionChangedAt === undefined ||
+                    entry.dispositionChangedAt < saved.receivedAt);
+                const next = {
+                  ...(quiet
+                    ? await settle(doneSessionRecord(entry, saved.receivedAt))
+                    : entry),
+                  completion: saved,
+                  returnedToBacklog: returnedOutcome(closure, saved.receipt),
+                };
+                // A newer qualification replaces previous automatic success, while
+                // explicit local Done/reopen remains independent of reported outcome.
+                if (!closesSession && automaticDone) {
+                  delete next.doneAt;
+                  delete next.doneProblem;
+                }
+                return next;
+              }),
+            ),
+          }));
+          if (!binding.found)
+            throw new RefusedRequest(409, "The reporting session was deleted.");
+          return {
+            saved,
+            current: attempt.completion?.receipt === saved.receipt,
+          };
         }),
-      }));
-      if (!binding.found)
-        throw new RefusedRequest(409, "The reporting session was deleted.");
-      return { saved, current: attempt.completion?.receipt === saved.receipt };
-    });
+    );
     if (delivered.current) doneMarks.reported(report.source, saved);
     return delivered.saved;
   } catch (error) {

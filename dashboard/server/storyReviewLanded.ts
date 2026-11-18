@@ -1,4 +1,4 @@
-// A fixed captured comparison reads only its original common repository and objects.
+// A landed run's review and its capture provenance.
 import { isEstablishedOneShot } from "../src/launchRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import {
@@ -6,9 +6,7 @@ import {
   reviewLandedWorkflowSchema,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
-import { changedFrom } from "./storyReviewFiles.ts";
-import { runGit, type GitCall } from "./gitRunner.ts";
-import { directoryState } from "./sessionWorkspace.ts";
+import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 
 export async function landedStoryReview(
   run: ReviewLandedRun,
@@ -29,7 +27,7 @@ export async function landedStoryReview(
         ? "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk."
         : "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     );
-  const read = await retainedPairFiles(landing, signal);
+  const read = await retainedCommitPairFiles(landing, signal);
   if ("missing" in read)
     return unavailable(
       {
@@ -53,42 +51,4 @@ export async function landedStoryReview(
     tree: landing.revision,
     files: read.files,
   };
-}
-
-// A retained pair's changed files, read from its own repository's objects
-// alone, or what of the pair could not be read.
-export async function retainedPairFiles(
-  pair: {
-    readonly repository: string;
-    readonly base: string;
-    readonly revision: string;
-  },
-  signal: AbortSignal,
-): Promise<
-  | { readonly files: Awaited<ReturnType<typeof changedFrom>> }
-  | { readonly missing: "repository" | "objects" | "changes" }
-> {
-  if (directoryState(pair.repository).kind !== "available")
-    return { missing: "repository" };
-  const call: GitCall = {
-    cwd: pair.repository,
-    signal,
-    maxBuffer: 64 * 1024 * 1024,
-  };
-  try {
-    for (const object of [pair.base, pair.revision]) {
-      if (
-        (await runGit(["cat-file", "-t", object], call)).stdout.trim() !==
-        "commit"
-      )
-        throw new Error("Missing commit");
-    }
-  } catch {
-    return { missing: "objects" };
-  }
-  try {
-    return { files: await changedFrom(pair.base, pair.revision, call) };
-  } catch {
-    return { missing: "changes" };
-  }
 }

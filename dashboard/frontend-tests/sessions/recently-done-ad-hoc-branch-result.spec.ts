@@ -33,7 +33,7 @@ async function showDoneSession(
   return answers;
 }
 
-test("Recently done opens the committed branch comparison and its changed file", async ({
+test("Recently done opens the saved branch comparison and its changed file", async ({
   page,
   frontendServices,
 }) => {
@@ -46,14 +46,14 @@ test("Recently done opens the committed branch comparison and its changed file",
 
   await sidePanelPages(page).phase("open the saved branch", (pages) => {
     const review = pages.board.reviewDoneSession(title);
-    pages.reviewToolbar.expectName("Committed branch at Done");
+    pages.reviewToolbar.expectName("Branch at Done");
     review
       .expectChangedFile("1 changed file", "Added draft.txt")
       .expectFileDiff("Added draft.txt", "draft text");
   });
 });
 
-test("the committed branch comparison explains an empty result", async ({
+test("the saved branch comparison explains an empty result", async ({
   page,
   frontendServices,
 }) => {
@@ -63,7 +63,7 @@ test("the committed branch comparison explains an empty result", async ({
   await sidePanelPages(page).phase("open the saved branch", (pages) => {
     const review = pages.board.reviewDoneSession(title);
     review.expectBodyText(
-      "No changes: the committed branch matches its starting revision.",
+      "No changes: the branch at Done matches its starting revision.",
     );
   });
 });

@@ -60,7 +60,7 @@ function NoChanges({
     let words =
       "No changes: this landed run has an empty delivered comparison.";
     if (branchResult)
-      words = "No changes: the committed branch matches its starting revision.";
+      words = "No changes: the branch at Done matches its starting revision.";
     else if (published)
       words =
         "No changes: this completed story has an empty published comparison.";

@@ -1,12 +1,12 @@
 import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
-import { retainedPairFiles } from "./storyReviewLanded.ts";
+import { retainedBranchPairFiles } from "./retainedReviewPair.ts";
 
 export async function branchResultReview(
   result: SessionBranchResult,
   signal: AbortSignal,
 ): Promise<StoryReview> {
-  const read = await retainedPairFiles(result, signal);
+  const read = await retainedBranchPairFiles(result, signal);
   if ("missing" in read)
     return {
       kind: "unavailable",

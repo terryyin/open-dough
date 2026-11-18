@@ -17,7 +17,7 @@ export function reviewDescription(review: StoryReview | undefined) {
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
   if (review?.kind === "session-commits") return sessionCommitsDescription;
   if (review?.kind === "branch-result")
-    return "Read-only: the committed branch at Done, compared with the launch's starting revision.";
+    return "Read-only: the branch and working files at Done, compared with the launch's starting revision.";
   if (reviewsSessionCommits(review))
     return "Read-only: this session's kept commits.";
   return reviewsLanding(review)

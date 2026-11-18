@@ -50,7 +50,7 @@ export const toolbarComparisonName = (
   // never answered likewise. A returned landing or session-commits gap
   // still names the comparison it describes.
   if (review === undefined || review.kind === "unavailable") return "";
-  if (review.kind === "branch-result") return "Committed branch at Done";
+  if (review.kind === "branch-result") return "Branch at Done";
   if (reviewsSessionCommits(review)) return sessionCommitsName;
   return comparisonName(reviewsLanding(review) ? "landed" : shown);
 };

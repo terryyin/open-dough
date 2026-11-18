@@ -1,13 +1,16 @@
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
-import {
-  branchResultAtDone,
-  type SessionBranchResult,
-} from "../src/sessionBranchResult.ts";
+import type { SessionBranchResult } from "../src/sessionBranchResult.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
+import {
+  keepBranchResultRefs,
+  releaseBranchResultRefs,
+} from "./launchRecordPins.ts";
 import { resolvedCheckout } from "./sessionCommitsCapture.ts";
+import { writeWorkingTree } from "./workingTreeSnapshot.ts";
 
 const gitCall = (cwd: string) => ({
   cwd,
@@ -23,17 +26,16 @@ export async function isolatedBranchReviewRepository(
   return commonGitDirectory(gitCall(session.workspace)).catch(() => undefined);
 }
 
-export function branchCapturePending(record: LaunchRecord): boolean {
+function branchCapturePending(record: LaunchRecord, doneAt: string): boolean {
   return (
     record.request.workflow === "ad-hoc" &&
     record.branchReviewRepository !== undefined &&
-    record.doneAt !== undefined &&
-    record.branchResultFailedAt !== record.doneAt &&
-    branchResultAtDone(record) === undefined
+    record.branchResultFailedAt !== doneAt &&
+    record.branchResult?.doneAt !== doneAt
   );
 }
 
-export async function readBranchResult(
+async function readBranchResult(
   record: LaunchRecord,
   doneAt: string,
 ): Promise<SessionBranchResult> {
@@ -57,6 +59,66 @@ export async function readBranchResult(
   const committedTip = commitIdSchema.parse(
     await git(["rev-parse", "--verify", `${ref}^{commit}`]),
   );
+  const tree = commitIdSchema.parse(await writeWorkingTree(committedTip, call));
+  const committedTree = await git(["rev-parse", `${committedTip}^{tree}`]);
+  if (
+    (await git(["symbolic-ref", "HEAD"])) !== ref ||
+    (await git(["rev-parse", "--verify", "HEAD"])) !== committedTip
+  )
+    throw new Error("The launch's branch changed during capture.");
   await git(["merge-base", "--is-ancestor", base, committedTip]);
-  return { repository, doneAt, base, revision: committedTip, committedTip };
+  const revision = tree === committedTree ? committedTip : tree;
+  return { repository, doneAt, base, revision, committedTip };
+}
+
+// Read before publishing the mark, then admit and pin the result within the
+// same record write as Done. The write's own ordering guards decide whether
+// the prepared result may be applied. Receipt retry never reads the checkout.
+export async function withBranchResultAtDone<T>(
+  candidate: LaunchRecord | undefined,
+  doneAt: string | undefined,
+  write: (
+    settle: (marked: LaunchRecord) => Promise<LaunchRecord>,
+  ) => Promise<T>,
+): Promise<T> {
+  if (
+    candidate === undefined ||
+    doneAt === undefined ||
+    !branchCapturePending(candidate, doneAt)
+  )
+    return write((marked) => Promise.resolve(marked));
+
+  const read = await readBranchResult(candidate, doneAt).catch(() => undefined);
+  let previous: SessionBranchResult | undefined;
+  let pinned: SessionBranchResult | undefined;
+  try {
+    const saved = await write(async (marked) => {
+      if (
+        marked.doneAt !== doneAt ||
+        !branchCapturePending(marked, doneAt) ||
+        sessionKey(marked.session) !== sessionKey(candidate.session) ||
+        marked.branchReviewRepository !== candidate.branchReviewRepository
+      )
+        return marked;
+      if (read === undefined)
+        return { ...marked, branchResultFailedAt: doneAt };
+      try {
+        await keepBranchResultRefs(marked.session, read);
+      } catch {
+        await releaseBranchResultRefs(marked.session, read);
+        return { ...marked, branchResultFailedAt: doneAt };
+      }
+      previous = marked.branchResult;
+      pinned = read;
+      const next = { ...marked, branchResult: read };
+      delete next.branchResultFailedAt;
+      return next;
+    });
+    if (pinned !== undefined)
+      await releaseBranchResultRefs(candidate.session, previous);
+    return saved;
+  } catch (error) {
+    await releaseBranchResultRefs(candidate.session, pinned);
+    throw error;
+  }
 }
