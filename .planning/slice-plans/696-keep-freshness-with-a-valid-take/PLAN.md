@@ -117,7 +117,7 @@ narrows that to bases that disagree.
 
 ### 3. Shared bases that disagree about a record are refused
 Type: Behavior
-Status: planned
+Status: done
 Proof: row five, the documentation row and the ODF-482 row above; the new
 test file and `source-freshness.test.mjs` through `bash scripts/test.sh`.
 
@@ -163,15 +163,26 @@ Then record the response at ODF-482.
   `source-freshness-branch-copy.mjs`. A new distributed script is declared in
   `src/install/open-dough-execution-payload.sh`; its proof is
   `bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh Distribution/tests/installation/install-all-tools.sh Distribution/tests/installation/install-public-payload.sh`.
+- Slice 2's reference edit took the "Before finishing or stopping" read row
+  221 bytes over its 30000-byte budget (CI run 44257111689, attempt 1,
+  `read-budget.test.mjs`). Slice 3 carries the repair: restated wording
+  trimmed in `source-freshness.md`, `ci-completion-wait.md` and
+  `finish-or-stop.md`; the row is 29838 bytes. A reference edit's proof
+  includes `Distribution/tests/skills/dough-execute-plan/read-budget.test.mjs`.
 
 ## Story obligations
 
 ### G1. Several bases that hold the Take are refused whatever their text
 Reported: slice 2 — "Interim refusal: every graph with several Taken bases is refused, including ones whose records agree. Slice 3 must narrow it and reword the `ambiguous-base` part of the reference and header."
 Story clause: "When several bases hold the Take and their text of a compared record"
-Disposition: interim until slices 3
+Disposition: proved by slice 3: source-freshness-shared-bases.test.mjs "two Taken bases whose story and plan read the same proceed from one of them"; the same graph with a differing plan or story is refused
 
 ### G2. Absorb's test observes origin trunk, not every remote ref
 Reported: slice 2 — "Promise 5, \"nothing pushed\": observed for origin trunk only; the execution branch ref on origin is not separately asserted."
 Story clause: "The check still commits and pushes nothing."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: source-freshness-shared-bases.test.mjs runWithoutPublishing compares HEAD and every remote ref around check and absorb
+
+### G3. Which agreeing Taken base is named is fixed but not exercised for `from`
+Reported: slice 3 — "With agreeing Taken bases, the per-record `from` revision could in principle differ by which base is used; the choice is deterministic and no test exercises such a graph."
+Story clause: "compares from one at which the story is Taken"
+Disposition: no user cost "can continue through the normal source-freshness check": every compared record reads the same at each such base (source-freshness-take.mjs agreeAcross refuses otherwise), so each record's state, change and application are the same from any of them; only the revision named as `from` could differ, and takenBases sorts so one graph always names the same one. A home that reads as a plan at one Taken base and not at another differs in text and is refused by the same comparison.

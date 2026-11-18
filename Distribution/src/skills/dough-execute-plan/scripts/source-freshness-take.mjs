@@ -1,14 +1,17 @@
 // The Take a source-freshness comparison starts from, for
 // `source-freshness.mjs`.
 //
-// Fetches the authorized remote and takes as the base the best common base of
-// fetched trunk and HEAD (`git merge-base --all`) at which the identity is
-// Taken (the Take: Story Branch increments never reach trunk, while a merged
-// sibling or contributor history can add a second best base without it). The
-// Taken entry on fetched trunk carries the story's link and plan link. No
-// best base with the Taken entry is refused `not-taken-at-base`, several are
-// refused `ambiguous-base`; both name the bases. Reads Git only and writes
-// nothing beyond the fetch.
+// Fetches the authorized remote and looks among the best common bases of
+// fetched trunk and HEAD (`git merge-base --all`) for those at which the
+// identity is Taken (the Take: Story Branch increments never reach trunk,
+// while a merged sibling or contributor history can add a second best base
+// without it). The Taken entry on fetched trunk carries the story's link and
+// plan link. No best base with the Taken entry is refused
+// `not-taken-at-base`, naming the bases. Several Taken bases serve as one
+// when every compared record reads the same at each: the comparison starts
+// from the first by revision name, whatever order Git lists them in. A
+// record that differs between them is refused `ambiguous-base`, naming the
+// bases and the record. Reads Git only and writes nothing beyond the fetch.
 import {
   parseBacklog,
   takenHeading,
@@ -50,20 +53,14 @@ async function sharedBases(repository, trunkRevision, trackingRef) {
   }
 }
 
-// The one of `candidates` at which `identity` is Taken; none or several are
-// refused, naming every base examined or every base that holds the Take.
-async function takenBase(repository, candidates, identity) {
+// Those of `candidates` at which `identity` is Taken, in revision-name
+// order; none is refused, naming every base examined.
+async function takenBases(repository, candidates, identity) {
   const taken = [];
   for (const candidate of candidates)
     if (await takenEntry(repository, candidate, identity))
       taken.push(candidate);
-  if (taken.length === 1) return taken[0];
-  if (taken.length > 1)
-    throw new FreshnessRefusal(
-      "ambiguous-base",
-      `${identity} is Taken in the backlog at several of the branch's bases: ${taken.join(", ")}`,
-      { bases: taken },
-    );
+  if (taken.length) return taken.sort();
   if (candidates.length === 1)
     throw new FreshnessRefusal(
       "not-taken-at-base",
@@ -76,8 +73,23 @@ async function takenBase(repository, candidates, identity) {
   );
 }
 
-// The fetched trunk revision, the base the comparison starts from, and the
-// Taken entry on fetched trunk.
+// Refuses a `record` at `path` whose text (`textOf` its document) differs
+// between the Taken `bases`, so any of them serves as the comparison's base.
+async function agreeAcross(repository, bases, record, path, textOf) {
+  const texts = [];
+  for (const base of bases)
+    texts.push(textOf(await show(repository, base, path)));
+  if (texts.some((text) => text !== texts[0]))
+    throw new FreshnessRefusal(
+      "ambiguous-base",
+      `${record} ${path} differs between the branch's bases that hold the Take: ${bases.join(", ")}`,
+      { bases, record, path },
+    );
+}
+
+// The fetched trunk revision, the base the comparison starts from, the Taken
+// entry on fetched trunk, and `agree(record, path, textOf)`, which refuses a
+// compared record that the Taken bases disagree about.
 export async function resolveTake({ repository, identity, remote, targetRef }) {
   const trackingRef = originTrackingRef(targetRef, remote);
   try {
@@ -95,6 +107,8 @@ export async function resolveTake({ repository, identity, remote, targetRef }) {
       "not-taken",
       `${identity} is not Taken in the backlog on fetched ${trackingRef}`,
     );
-  const base = await takenBase(repository, candidates, identity);
-  return { trunkRevision, base, entry };
+  const bases = await takenBases(repository, candidates, identity);
+  const agree = (record, path, textOf = (document) => document) =>
+    agreeAcross(repository, bases, record, path, textOf);
+  return { trunkRevision, base: bases[0], entry, agree };
 }

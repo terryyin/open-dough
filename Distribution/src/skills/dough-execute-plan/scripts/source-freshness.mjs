@@ -3,9 +3,9 @@
 // the execution branch forked from it, for a Story Branch coordinator.
 //
 // `check` resolves the Take (`source-freshness-take.mjs`): the fetched trunk
-// revision, the base (a best common base of the branch and fetched trunk
-// that holds the Take), and the Taken entry on fetched trunk with the story's
-// link and plan link.
+// revision, the base (a best common base of the branch and fetched trunk that
+// holds the Take; several serve as one unless a record differs between them),
+// and the Taken entry on fetched trunk with the story's link and plan link.
 // The records are the story section and the linked plan; without a plan link,
 // the home alone: the whole document when it reads as a plan (a plan-homed
 // correction), otherwise the story section (a quick story).
@@ -51,7 +51,7 @@ export async function inspectSourceFreshness({
   targetRef,
 }) {
   const repository = resolve(workspace);
-  const { trunkRevision, base, entry } = await resolveTake({
+  const { trunkRevision, base, entry, agree } = await resolveTake({
     repository,
     identity,
     remote,
@@ -119,6 +119,7 @@ export async function inspectSourceFreshness({
   const writes = new Map();
   const records = [];
   const comparePlan = async (path, texts) => {
+    await agree("plan", path);
     const plan = await fromContainedBase(compareRecord, {
       record: "plan",
       path,
@@ -147,6 +148,8 @@ export async function inspectSourceFreshness({
       ]),
     );
     absent("story", homePath, sections);
+    const sectionText = (home) => sectionOf(home, entry.href)?.text;
+    await agree("story", homePath, sectionText);
     const plans = planPath && (await read(planPath));
     if (plans) absent("plan", planPath, plans);
     const story = await fromContainedBase(compareSection, {
@@ -156,7 +159,7 @@ export async function inspectSourceFreshness({
       trunk: sections.trunk.text,
       branch: sections.branch.text,
       textAt: async (revision) =>
-        sectionOf(await show(repository, revision, homePath), entry.href)?.text,
+        sectionText(await show(repository, revision, homePath)),
     });
     if (story.state === "amended")
       writes.set(homePath, withSection(sections.branch, story.application));
