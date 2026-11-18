@@ -941,7 +941,7 @@ could fail there.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout-bound installed guidance at Take `46aa7f7c0`)
-  - Evidence: slice 2 report `s2-report.md` (story-branch evidence dir): runs `s2-break-a` to `s2-break-a10`; a–a3 crashed at startup, a5/a6 watched an attribute the cards lack, a4/a9 forward moves passed, a7 a 300 ms late move passed, only a10 with a fixed 1 s wait failed. Plan 687 slice 2 learning records the limit; P4 observed only the passing step.
+  - Evidence: slice 2 report `s2-report.md` (story-branch evidence dir): runs `s2-break-a` to `s2-break-a10`; a–a3 crashed at startup, a5/a6 watched an attribute the cards lack, a4/a9 forward moves passed, a7 a 300 ms late move passed, only a10 with a fixed 1 s wait failed. Plan 687 slice 2 learning records the limit (`bc928d061:.planning/slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md`); P4 observed only the passing step.
   - Observed effect: ten break runs to establish that the break could not bite; the slice accepted the step with a recorded limitation.
   - Inference: checking a planned break's ability to fail, at the asserted state, while settling premises would have reworded or dropped it before execution. Run time sat outside the slice clock; slice active time was 5.8 min.
 
@@ -959,6 +959,6 @@ split it into its own test and renewed its proof.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout-bound installed guidance at Take `46aa7f7c0`)
-  - Evidence: plan 687 slice 2 Proof ("`board-paging-side-panel.spec.ts` gains its final step"); slice 2 refactor return: new test in `board-paging-side-panel.spec.ts` at `251c507ae`, reruns `s2-refactor-specs` and `s2-refactor-break-b`.
+  - Evidence: plan 687 slice 2 Proof ("`board-paging-side-panel.spec.ts` gains its final step", `bc928d061:.planning/slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md`); slice 2 refactor return: new test in `board-paging-side-panel.spec.ts` at `251c507ae`, reruns `s2-refactor-specs` and `s2-refactor-break-b`.
   - Observed effect: one restructure and two renewed proof runs inside the refactor pass, which used its full 15 active minutes.
   - Inference: slice planning applied the interim journey's shape without the test-boundary check the refactor pass later applied. Cost beyond those reruns not measured.
