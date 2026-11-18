@@ -38,7 +38,7 @@ export async function ownDashboardRun(
       const survived = await endRunProcesses(runId);
       if (survived.length > 0)
         throw new Error(
-          `The run left ${String(survived.length)} of its processes running after its workers exited, now ended. Stop each where it is started (dashboard/tests/README.md, "No process outlives its run"):\n${describeRunProcesses(survived)}`,
+          `The run left ${String(survived.length)} of its processes running after its workers exited, now ended. Stop each where it is started:\n${describeRunProcesses(survived)}`,
         );
       guard.check();
     } finally {

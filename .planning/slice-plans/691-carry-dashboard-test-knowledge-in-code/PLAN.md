@@ -204,7 +204,7 @@ membership. Sites: `e2e/README.md:37`, `Distribution/tests/README.md:12`,
 
 ### 7. State the hub's usage rules on their helpers
 Type: Structure
-Status: planned
+Status: done
 Proof: `git grep -n 'README.md, "' -- dashboard/tests` prints nothing;
 `caffeinate -s -i npm run test:dashboard:backend --
 observation/run-processes.spec.ts` on AC power; `npm run lint`.

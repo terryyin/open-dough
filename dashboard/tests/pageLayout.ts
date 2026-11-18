@@ -2,7 +2,8 @@
 // whole-page measurements look at every element on the page, so they name no
 // part of the stylesheet but the one cut by design, the Board's
 // Columns view; how parts a journey found lie against one another is
-// compared in partArrangement.ts.
+// compared in partArrangement.ts. A layout rule is proved once per CSS
+// branch, not over a matrix of widths on one static layout.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { closeSidePanel } from "./sidePanelFrame.ts";

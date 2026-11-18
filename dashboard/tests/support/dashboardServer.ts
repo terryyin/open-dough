@@ -63,9 +63,10 @@ export type {
   DashboardServerOptions,
 } from "./dashboardServerOptions.ts";
 
-// The boundary server in the dev server's environment: what a spec that
-// moved off a dev server starts, keeping the environment it observed there
-// (../README.md, "Two tiers").
+// The boundary server in the development project environment, for a
+// boundary spec whose fact belongs to that environment, not to Vite's dev
+// server. A page journey starts a dev server only for a fact of the
+// development environment; every other one runs under the built preview.
 export const developmentBoundary = {
   mode: "boundary",
   environment: "development",
