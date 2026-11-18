@@ -217,7 +217,7 @@ and `notifiedCard` now without a consumer.
 
 ### 3. Cue a repeated story destination
 Type: Behavior
-Status: planned
+Status: done
 Proof: `story-destination-repeat-cue` in
 `dashboard/frontend-tests/navigation/story-destination-repeat-cue.spec.ts` on
 `frontendStoryReviewOpen.ts` (`keepTakenReviewLaunch`,
@@ -228,6 +228,36 @@ the case fails.
 Behavior: the selected, inspected and reviewed destination asked for again by
 Back from Intent or Settings → the cue runs again; selection, detail and the
 review heading stay.
+
+Assertion map (interim → `frontend-tests/navigation/story-destination-repeat-cue.spec.ts`,
+same test name; arrangement `keepTakenReviewLaunch` + `installFrontendStoryReview`
+and a cold `storyUrl("open-dough", takenIdentity)` — `openFrontendStoryReview`
+opens `/` first, so it cannot express the URL arrival; interim committed
+origin, story worktree and `keepLaunchRecords` → the substitute Taken Story A
+with its kept story-branch launch; 1920×900 so the open review leaves the Taken
+card uncovered):
+
+- Arrival: card focused; destination cue with motion; cue ends (page clock
+  paused).
+- Review: Review changes → review heading (level 2) is the Taken story's title.
+- Inspect → selected, inspected, in viewport.
+- Per ask-again (Back from Intent: Intent radio checked, card gone, Back;
+  System settings → Back to dashboard): route keeps `story`; card focused;
+  destination cue with motion (6a); selected, inspected, review heading
+  unchanged (6b); cue ends; still selected. Same loop as the interim.
+- No host action: the interim asserted none, so no `recordHostRequests` check
+  is added (commitment 8 not applicable here).
+
+Scratch break (P5): `dashboard/src/pageEntries.ts` `revealStory` cued only when
+the identity differed from the last cued one (`if (identity !== lastCued) cueDestination(card); lastCued = identity;`).
+`node .claude/skills/dough-execute-plan/scripts/slice-clock.mjs run … -- env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-destination-repeat-cue.spec.ts --reporter=list --workers=2`:
+exit 1 at spec line 72 (first ask-again, Back from Intent),
+`expectDestinationCue` `toHaveClass(/\bstory-card-destination-cue\b/)`
+received "story-card story-card-selected". Restored from a copy (`git diff
+--stat dashboard/src` empty); the spec then 1 passed (3.5 s), exit 0. Interim
+spec deleted; no support left without a consumer (`destinationCue.ts`,
+`storyReviewWorktree.ts`, `launchStore.ts`, `reviewRead.ts` and the rest keep
+other importers).
 
 ### 4. Select a story card without opening it
 Type: Behavior
@@ -259,7 +289,7 @@ Observed in this workspace at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`,
 | P2. The Frontend homes the slices extend run here (slices 1, 2, 4). | `npx playwright test --config dashboard/frontend.playwright.config.ts navigation/project-selection.spec.ts sessions/recently-done-sessions-select configuration/system-settings-project-management-touch.spec.ts --reporter=list --workers=2`: 15 passed (14.4 s). The shared-identity arrangement, held revision and dependency answers are new; slices 1 and 4 build them first, and a case they cannot express keeps a Backend or E2E home under the proof rule above. |
 | P3. Removing the four specs leaves both shards selecting specs and the shard checks green (every slice). | With the four specs moved aside: shard 1/2 lists 3 tests in 1 file, shard 2/2 lists 19 tests in 6 files; `bash scripts/test.sh Distribution/tests/support/browser-group-shards.test.mjs Distribution/tests/support/ci-browser-groups.test.mjs` exit 0. Specs restored. |
 | P4. Shared support survives the deletions (slices 2–4). | `grep` importers: `notificationStoryJourney.ts`, `storyDependencyFixture.ts` and `destinationCue.ts` are imported by E2E specs or the seven remaining interim specs; none becomes unused here. Execution's consumer trace rechecks after each deletion. |
-| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). Slice 2: the absent wording for a failed read fails "an absent story is distinct…" (exit 1, "is not listed" received); restored, 8/8 pass (record under slice 2). |
+| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). Slice 2: the absent wording for a failed read fails "an absent story is distinct…" (exit 1, "is not listed" received); restored, 8/8 pass (record under slice 2). Slice 3: cueing only a changed identity in `revealStory` fails the repeat-cue case at the first ask-again (exit 1, no cue class); restored, 1/1 passes (record under slice 3). |
 
 Refinement: not needed; four slices with one proof loop each, no cumulative
 design beyond the two small arrangements named above.
