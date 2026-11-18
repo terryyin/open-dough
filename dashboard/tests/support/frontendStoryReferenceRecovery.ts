@@ -11,11 +11,13 @@ import {
   storyA,
   storyB,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { revisionStreamAtParameter } from "../../src/authenticatedReadRules.ts";
 import { backlogApart, describedRevisions } from "../describedRevisions.ts";
 import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 import { twoDependencies } from "../storyDependencyFixture.ts";
-import { controlFrontendAuthenticatedRead } from "./frontendAuthenticatedReadControl.ts";
+import {
+  controlFrontendAuthenticatedRead,
+  isRevisionCheck,
+} from "./frontendAuthenticatedReadControl.ts";
 import { openDoughSource } from "./frontendPublishedFixtures.ts";
 import {
   putFrontendPublished,
@@ -27,10 +29,6 @@ import {
 } from "./frontendStoryDependencies.ts";
 
 const laterRevision = "c3".repeat(20);
-
-// The page's revision checks: a check or its stream.
-const isRevisionCheck = (params: URLSearchParams) =>
-  params.has("since") || params.has(revisionStreamAtParameter);
 
 // Open Dough's backlog read: no file, Done, Intent, agents or branch
 // parameter, and not a revision check.

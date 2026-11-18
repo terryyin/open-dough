@@ -57,3 +57,8 @@ it until told, while the boundary (`OwnedAttempts.nextChange`) answers it at
 once. Reproduced deterministically and as 1 of 40 under load; the substitute now
 answers such a wait at once (120 of 120 under load, all 25 consumers of
 `installFrontendLaunchBoundary` pass). Published `e1d62059` (evidence `fix2-*`).
+
+Retrospective correction (2026-11-18): the c3459b69 refactor had loosened
+`boundary-server.spec.ts`'s launch check to an entry prefix and "no vite";
+it again equals the exact command with the served port, `--strictPort` and
+`--environment production` (evidence `c7-boundary`, exit 0).

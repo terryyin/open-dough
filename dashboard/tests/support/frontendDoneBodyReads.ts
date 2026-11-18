@@ -87,9 +87,12 @@ export function recordDoneRecordsAsked(page: Page) {
   return () => asked;
 }
 
-// Each record in `paths` once, in path order: asking a record again is spared
-// by the server (Backend "a later revision asks GitHub only for the record
-// whose blob changed", authenticated-read-listed-records.spec.ts).
+// Each record in `paths` once, in path order: asking a record again at the same
+// revision is spared by the server (Backend "the catalog is answered without
+// reading a record, and only the named records are read, once",
+// authenticated-read-done-catalog.spec.ts; across revisions, "a later revision
+// asks GitHub only for the record whose blob changed",
+// authenticated-read-listed-records.spec.ts).
 export const eachRecordOnce = (paths: readonly string[]) =>
   [...new Set(paths)].toSorted();
 

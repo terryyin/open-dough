@@ -23,10 +23,12 @@ same test names; arrangement `dashboard/tests/support/frontendDoneReferences.ts`
   the page itself asked in `done=bodies` reads, compared as a set (`asked`).
   The page asks the near and far records twice (supplier title, then range);
   the server sparing a second GitHub read is owned by Backend
-  `dashboard/backend-tests/observation/authenticated-read-listed-records.spec.ts`
-  "a later revision asks GitHub only for the record whose blob changed"
-  (`contentReads(...)` equals catalog plus the changed record only). No Backend
-  case added.
+  `dashboard/backend-tests/observation/authenticated-read-done-catalog.spec.ts`
+  "the catalog is answered without reading a record, and only the named records
+  are read, once" (asked again at the same revision, only the new record reaches
+  GitHub); across revisions, `authenticated-read-listed-records.spec.ts` "a
+  later revision asks GitHub only for the record whose blob changed". No
+  Backend case added.
 - Case 1: ten entries and asked = first ten (12b); far reference visible;
   near focused, in view 0.5, reading top, still ten, asked = ten + suppliers
   (12a near, 12b); far focused, in view 0.5, 27 entries, "Showing 27 of 35
@@ -114,8 +116,10 @@ four cases (the unavailable and failed inspections as two named tests), names ke
   `controlFrontendAuthenticatedRead` (`unreachable` until `pass`).
 - Case 1 (14a): unavailable notice and no destination for expired and
   unlisted — kept. 4a: `githubFor(page).calls.slice(before)` = [] → per
-  reference, `countAuthenticatedReads(done=*)` = 0 after
-  `untilPageRequestsAnswered` (`${identity} asks no Done read`, each observed).
+  reference, `countAuthenticatedReads(!isRevisionCheck)` = 0 after
+  `untilPageRequestsAnswered` (`${identity} asks no read`: no read of any kind
+  but the page's own revision checks; `isRevisionCheck` moved to
+  `frontendAuthenticatedReadControl.ts`).
   4a: `recordsAsked(github)` = 10 + suppliers → distinct page asks
   (`recordDoneRecordsAsked`). Inspect → detail — kept.
 - Case 2 (14b): "Reading Open Dough to find…", not "unavailable" — kept. 4a:
@@ -129,10 +133,12 @@ four cases (the unavailable and failed inspections as two named tests), names ke
   Notice, Inspect focus, notice cleared, revision shown, "35 entries", ten
   shown, no far destination, detail and focus kept — all kept.
 - 4b: whether GitHub is asked again for a record the page re-asks is the
-  server's cache — Backend "a later revision asks GitHub only for the record
-  whose blob changed" (`authenticated-read-listed-records.spec.ts`,
-  `expect(contentReads(server.github.calls, doneDirectory, second)).toEqual([...])`).
-  No interim count needed a new Backend case.
+  server's cache — Backend `authenticated-read-done-catalog.spec.ts` "the
+  catalog is answered without reading a record, and only the named records are
+  read, once" (same-revision re-ask: `asked(before)` = the new record only);
+  across revisions, `authenticated-read-listed-records.spec.ts` "a later
+  revision asks GitHub only for the record whose blob changed". No interim
+  count needed a new Backend case.
 
 Support removal: `storyReferenceDone.ts` lost `donePathsWithSuppliersThrough`,
 `expiredDone`, `unlisted` re-exports, the `publishDoneReferences` export and
@@ -147,6 +153,14 @@ Scratch break (2026-11-18): fault — `dashboard/src/storyReferenceJourney.tsx`
 received "SEED-227#progressive-27 is unavailable in Open Dough's dashboard.".
 Restored from a copy in the evidence dir (deleted); `git diff -- dashboard/src | wc -c`
 → 0; focused group `--repeat-each=3` → exit 0.
+
+Reopened (2026-11-18), case 1 had narrowed to Done reads. Fault —
+`storyReferenceJourney.tsx`: a layout effect sends
+`/__authenticated-read?source=scratch` whenever the notice reads
+"is unavailable in". `…npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-reference-done-recovery --workers=2 -g "expired and unlisted"`
+→ exit 1 at `SEED-299#expired asks no read` (expected 0, received 1). Restored
+from a copy (`git diff -- dashboard/src` empty); `navigation/story-reference`
+`--workers=2` → exit 0 (evidence `c7-break`, `c7-frontend`).
 
 ## Slice 8. Cancel a pending Done reference
 

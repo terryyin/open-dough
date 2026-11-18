@@ -209,8 +209,8 @@ test("a dependency disclosure replaced after unavailable facts waits for opening
   expect(recordsAsked()).not.toContain(laterDone.path);
   await openDependencies(card);
   await expect(storyReference(card, laterDone.title)).toBeVisible();
-  // Asked once by the page; a count only the server decides is Backend's
-  // (authenticated-read-listed-records.spec.ts).
+  // Asked once by the page; the server sparing a same-revision re-ask is
+  // Backend's (authenticated-read-done-catalog.spec.ts).
   expect(recordsAsked().filter((path) => path === laterDone.path)).toHaveLength(
     1,
   );

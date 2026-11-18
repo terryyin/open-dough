@@ -31,6 +31,7 @@ import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.
 import {
   controlFrontendAuthenticatedRead,
   countAuthenticatedReads,
+  isRevisionCheck,
 } from "../../tests/support/frontendAuthenticatedReadControl.ts";
 import {
   donePathsWithSuppliersThrough,
@@ -57,7 +58,6 @@ test.afterEach(() => {
 });
 
 const isCatalog = (params: URLSearchParams) => params.get("done") === "catalog";
-const isDoneRead = (params: URLSearchParams) => params.has("done");
 
 test("expired and unlisted references remain unavailable without fabricated blocks or history reads", async ({
   page,
@@ -77,14 +77,17 @@ test("expired and unlisted references remain unavailable without fabricated bloc
     [expiredDone, expiredDone.title],
     [unlisted, unlisted.identity],
   ] as const) {
-    const doneReads = countAuthenticatedReads(page, isDoneRead);
+    const reads = countAuthenticatedReads(
+      page,
+      (params) => !isRevisionCheck(params),
+    );
     await followReference(consumer, label);
     await expect(referenceNotice(page)).toContainText(
       `${entry.identity} is unavailable in Open Dough's dashboard`,
     );
     await expect(doneDestination(recent, entry.identity)).toHaveCount(0);
     await untilPageRequestsAnswered(page);
-    expect(doneReads(), `${entry.identity} asks no Done read`).toBe(0);
+    expect(reads(), `${entry.identity} asks no read`).toBe(0);
   }
   expect(eachRecordOnce(recordsAsked())).toEqual(
     donePathsWithSuppliersThrough(10),

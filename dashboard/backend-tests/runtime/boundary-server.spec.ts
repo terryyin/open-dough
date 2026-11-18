@@ -29,9 +29,17 @@ test("a boundary-mode server is the Node entry alone, naming no Vite and serving
         encoding: "utf8",
       },
     ).trim();
-    const entry = `${process.execPath} ${path.join(bundle, "boundaryServer.mjs")} `;
-    expect(command.slice(0, entry.length)).toBe(entry);
-    expect(command.slice(entry.length)).not.toMatch(/vite/i);
+    expect(command).toBe(
+      [
+        process.execPath,
+        path.join(bundle, "boundaryServer.mjs"),
+        "--port",
+        new URL(server.baseURL).port,
+        "--strictPort",
+        "--environment",
+        "production",
+      ].join(" "),
+    );
     expect(server.output()).not.toMatch(/vite/i);
     const runner = await liveRunner(server.home);
     expect(runnerCommand(runner.pid)).toBe(
