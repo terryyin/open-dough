@@ -79,17 +79,17 @@ export async function selectCompletedStoryInIntent(
     undefined,
     { intentCoverage, interleaved },
   );
-  if (history === "complete") advanceCompletedTrunk(origin);
+  let published = completion;
+  if (history === "complete") published = advanceCompletedTrunk(origin);
   else git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
   if (later !== undefined) {
     writeRevisionFiles(origin.project, later);
-    commitAll(
+    published = commitAll(
       origin.project,
       "change current tests and settings after landing",
     );
     push(origin.project);
   }
-  const published = git(origin.origin, "rev-parse", "main");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: published,

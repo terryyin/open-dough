@@ -6,7 +6,6 @@
 // outcomes are served by ./storyCiComparisonLandedOutcome.ts; shared helpers
 // come from ./storyCiComparisonFixture.ts.
 
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
 import type { Page } from "@playwright/test";
@@ -18,7 +17,7 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
 import { writeCompletedStoryImplementation } from "./completedStoryInput.ts";
-import { installedBacklogScript } from "./completedStoryPublication.ts";
+import { completeBacklogStory } from "./completedStoryPublication.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
@@ -89,18 +88,7 @@ export async function publishCodeLandedBeforeCompletion(
   );
   const landingMerge = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);
-  execFileSync(
-    process.execPath,
-    [
-      installedBacklogScript(origin.project),
-      "complete",
-      "--file",
-      ".planning/PRODUCT-BACKLOG.md",
-      "--identity",
-      queuedIdentity,
-    ],
-    { cwd: origin.project },
-  );
+  completeBacklogStory(origin.project);
   // The profile may already be gone after complete.
   rmSync(path.join(origin.project, ".planning", identity.path), {
     force: true,

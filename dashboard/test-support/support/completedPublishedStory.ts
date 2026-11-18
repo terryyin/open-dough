@@ -214,8 +214,9 @@ export function advanceCompletedTrunk(origin: StartOrigin) {
   pull(origin.project);
   writeAt(origin.project, "later.txt", "later trunk\n");
   writeAt(origin.project, "[literal]*.txt", "later rewrite\n");
-  commitAll(origin.project, "advance after completion");
+  const advanced = commitAll(origin.project, "advance after completion");
   push(origin.project);
+  return advanced;
 }
 
 // A retained comparison whose original common repository has gone away is

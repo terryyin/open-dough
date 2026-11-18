@@ -35,9 +35,9 @@ first; no open human decision; no speedup baseline.
 | 16 | Each build uses its own workflow bytes even when the local tip's workflow differs | slice 3 | observed: slice 3 fault s3-fault: altered historical workflow failed adapter-planning-skip/skipped-landed Landed identity and intent-ci-comparison +17 s; tip-only workflow change s3-tipdiff passed; restored s3-restored passed |
 | 17.1 | Planning-only, code, cancelled and proofless cases stay distinct | slice 3 | observed: backend ci-comparison-selection, ci-comparison-cancelled(-awaiting) (s3-backend), e2e skipped-landed/adapter-planning-skip/cancelled-landing/pending-proof/missing-run (s3-e2e2) |
 | 17.2 | Exact, ancestor, equivalent, later-build and unavailable results stay distinct | slice 3 | observed: backend ci-comparison-selection (s3-backend) and frontend intent-ci-comparison-mounted-selection/-gaps/-wording (s3-frontend) exact/ancestor/equivalent/later-build/unavailable rows |
-| 18 | Done Intent reads the immutable completion despite conflicting later trunk and retained-workspace edits | slice 4 | |
-| 19 | Ordinary Review still reads the local edits in that situation | slice 4 | |
-| 20 | Missing history stays unavailable until the explicit recovery action | slice 4 | |
+| 18 | Done Intent reads the immutable completion despite conflicting later trunk and retained-workspace edits | slice 4 | observed: e2e/intent/intent-done-retained-workspace.spec.ts:137 completed immutable diff (s4 E2E strict record); fault: declared completion bytes changed failed at :137, restored passed |
+| 19 | Ordinary Review still reads the local edits in that situation | slice 4 | observed: Review assertions in e2e/intent/intent-done-retained-workspace.spec.ts and intent-done-retained-landing.spec.ts (s4 E2E strict record) |
+| 20 | Missing history stays unavailable until the explicit recovery action | slice 4 | observed: shallow-history cases in intent-done-retained-workspace, intent-done-retained-landing and intent-story-completed-source with visible shallow fetch and recovery (s4 E2E strict record) |
 | 21 | Summary and collected/retained scope history keep the same counts, timing rows, represented landing and selected build provenance for changed/added/removed/renamed nested files | slice 6 | |
 | 22 | A measured file absent from the current tree still contributes to history | slice 6 | |
 | 23 | Uncollected endpoints and gaps stay visible | slice 6 | |

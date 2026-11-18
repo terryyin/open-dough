@@ -221,7 +221,7 @@ Slice 5 may move the Summary variant publishers onto `publishDeclaredTrunk`.
 
 ### 4. Read completion sources beside retained local state
 Type: Behavior
-Status: planned
+Status: done
 Proof: Immutable-source row, H and the retained/prior-execution consumer files.
 
 Behavior: Given named completion-time locations/files and conflicting later
@@ -231,6 +231,17 @@ existing history/workspace and launch/landing builders; no duplicate completion
 model. Keep actual completion, capture and recovery sequences visible where
 those operations establish the observation. Preserve missing-history refusals.
 One completion-source selection loop; 15 active minutes, commands excluded.
+
+Delivered: `completeBacklogStory` is the one home of the real backlog
+`complete` call for this story's completion and comparison setups, and
+`commitBacklogCompletion` commits it; `advanceCompletedTrunk` answers its
+commit, so completed/retained Intent setups name the published revision.
+Accepted proof: 10 E2E files (15), backend review-completed and landed-ci-scope
+(11), full lint; completion-byte fault failed at the immutable diff, restored
+passed. Left for sibling stories: `storyBranchLandedReview.ts` and
+`oneShotExecutionReview.ts` still write the call inline; the comparison
+fixtures' agent-profile deletion after `complete` is probably redundant with
+the CLI's release but unproven.
 
 ### 5. Read Summary comparisons from the shared history
 Type: Behavior

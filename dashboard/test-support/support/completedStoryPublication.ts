@@ -21,6 +21,39 @@ export function installedBacklogScript(
   );
 }
 
+// Completes the story through the installed backlog CLI.
+export function completeBacklogStory(
+  workspace: string,
+  {
+    identity = queuedIdentity,
+    skillsDirectory,
+    completionArgs = [],
+  }: {
+    identity?: string;
+    skillsDirectory?: string | undefined;
+    completionArgs?: readonly string[];
+  } = {},
+) {
+  execFileSync(
+    process.execPath,
+    [
+      installedBacklogScript(workspace, skillsDirectory),
+      "complete",
+      "--identity",
+      identity,
+      ...completionArgs,
+    ],
+    { cwd: workspace, stdio: "pipe" },
+  );
+}
+
+// Completes a launch workspace's story and commits that completion, answering
+// its commit.
+export function commitBacklogCompletion(workspace: string, message: string) {
+  completeBacklogStory(workspace, { skillsDirectory: ".agents/skills" });
+  return commitAll(workspace, message);
+}
+
 export function resolveStoryConflict(
   workspace: string,
   mergeArguments: readonly string[],
@@ -86,19 +119,11 @@ export function publishCompletedStoryLanding(
       );
     }
   }
-  execFileSync(
-    process.execPath,
-    [
-      installedBacklogScript(workspace, skillsDirectory),
-      "complete",
-      "--file",
-      ".planning/PRODUCT-BACKLOG.md",
-      "--identity",
-      identity,
-      ...coverageArgs,
-    ],
-    { cwd: workspace },
-  );
+  completeBacklogStory(workspace, {
+    identity,
+    skillsDirectory,
+    completionArgs: coverageArgs,
+  });
   if (missingAgent) {
     const record = `.planning/done/${doneRecordFileName(identity)}`;
     const facts = JSON.parse(
