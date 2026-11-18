@@ -38,11 +38,17 @@ related.showsItem("Boreal")
 ```
 
 For the mouse variant, pass `using = mouse` at the same call site. Keep this
-keyboard/mouse choice explicit when the variant is under proof. Fluent
-methods may return the object reached next, or `this` when remaining in the same
-place. Use the project's construction, asynchronous, and queue mechanics. Do not
-introduce Cypress, a base class, phase/cue runner, Gherkin, or framework conversion just to
-achieve a chain. A short sequence of awaited operations is equally valid.
+keyboard/mouse choice explicit when the variant is under proof.
+
+Prefer fluent hand-offs. The operation that opens a page returns its object,
+and an operation that takes the user elsewhere returns the object reached
+next, or `this` when remaining in the same place. The scenario then reaches
+each object through the step that led there, instead of importing and
+constructing a page or component object for every part it touches. Use the
+project's construction, asynchronous, and queue mechanics; a short sequence of
+awaited calls on the returned objects is such a chain. Do not introduce
+Cypress, a base class, phase/cue runner, Gherkin, or framework conversion just
+to achieve a chain.
 
 Wait for a meaningful observation such as a visible selected item, an enabled
 control, or a completed handoff. Keep transport synchronization that establishes

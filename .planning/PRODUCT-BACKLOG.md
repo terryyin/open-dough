@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Chain the Board paging beside the Side panel journey through fluent page objects](seeds/SEED-300-dashboard-test-page-objects.md#chain-board-paging-side-panel-page-objects) — SEED-300#chain-board-paging-side-panel-page-objects
 - [Move story reference checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-story-reference-checks) — SEED-334#move-story-reference-checks ([plan](slice-plans/689-move-story-reference-checks/PLAN.md))
 
 ## Backlog list
