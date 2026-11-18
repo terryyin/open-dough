@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff ([plan](slice-plans/695-keep-review-changes-focused-on-the-diff/PLAN.md))
 - [Move source navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group) — SEED-334#retire-emptied-integrated-ui-test-group ([plan](slice-plans/690-retire-emptied-integrated-ui-test-group/PLAN.md))
 - [State only what the checkout's log shows in a session's review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#state-only-what-the-checkout-log-shows) — SEED-379#state-only-what-the-checkout-log-shows ([plan](slice-plans/700-state-only-what-the-checkout-log-shows/PLAN.md))
-- [Get faster feedback on the seven phone-board checks](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/701-faster-phone-board-checks/PLAN.md))
 
 ## Backlog list
 

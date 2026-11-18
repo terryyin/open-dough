@@ -40,51 +40,6 @@ separately. [Doughnut configuration](https://github.com/nerds-odd-e/doughnut/blo
 [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
-<a id="run-dashboard-frontend-checks-at-doughnut-speed"></a>
-
-### Get faster feedback on the seven phone-board checks
-
-**Identity:** SEED-404#run-dashboard-frontend-checks-at-doughnut-speed
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/701-faster-phone-board-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1f2b0e2ee5376e375713aff766a4853178014dfadb5770a5170e588ebdd60d1","plan":"7848e7deb9bc248f9fc73850204fdf67e444a3bf20e35f7caf5477a606807aec"}}
-```
-
-**Goal.** A developer runs the seven phone-board checks through the ordinary
-Dashboard Frontend Test command. Their combined recorded case time is under
-0.5 seconds in repeated comparable runs, excluding Chromium and runner
-startup. Measure full command elapsed time too. All seven appear in frontend
-CI proof.
-
-**Scope.** Mount the production React dashboard and CSS with fresh service
-answers. Dispatch touch events directly. Control timers and signal transition
-completion explicitly so the scenarios need no elapsed-time waits. Check
-actual layout, focus, viewport changes and independent starting state. Keep
-representative full-page proof of published work, gesture wiring, vertical
-reading and native indicator hit testing. The [second story](#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed)
-owns the full-suite target.
-
-**Key examples**
-
-- At 390 × 844, swipe from Backlog to Taken. The two indicators are each at
-  most 16 px wide. Both the view and story card gain more than 44 px against
-  the former layout with two 44 px controls. Activating the indicator reaches
-  the named column. Keyboard activation hands focus to the surviving indicator.
-  The published-project journey also taps the real narrow target.
-- A short or cancelled swipe keeps the current column. A completed swipe moves
-  one column and stops at either end. A swipe starting on a card or its launch
-  action leaves selection, inspection and launch untouched. Ordinary taps still
-  inspect and select. With reduced motion, the open detail and selection
-  survive a rotation to landscape and back.
-- With a long backlog, a vertical touch stays unconsumed and leaves Backlog
-  visible. CSS permits vertical panning and the Backlog can actually scroll.
-  A later case starts with its own board preference and service answers.
-- A developer runs the two phone specs together → all seven results appear
-  once. The frontend CI summary includes those seven and the retained cases
-  once each, including when a moved assertion fails.
-
-[Indicator cases](../../dashboard/frontend-tests/board-indicators.mounted.spec.ts)
-and [swipe cases](../../dashboard/frontend-tests/board-swipe.mounted.spec.ts)
-
 <a id="run-the-remaining-dashboard-frontend-checks-at-doughnut-speed"></a>
 
 ### Run the remaining Dashboard Frontend Test checks at Doughnut's speed
