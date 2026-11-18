@@ -25,12 +25,12 @@ the plan.
 | 3 | A failed Refresh still keeps the last same-selection result and its check time | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-compare.spec.ts: 'an empty tool says so, a failed read names its tool…' failed Refresh keeps showsPointCount(3) and showsCheckedAt |
 | 4 | A failed read for a new selection still shows only the tool-named error | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-compare.spec.ts: same case, Refinement selection showsProblem tool-named and showsPointCount(0) |
 | 5 | Answers for an old selection never appear in a newly chosen selection, even when delayed or out of order | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-selection.spec.ts: 'an answer for a selection already left never joins the one shown' (held Claude Code read released after hiding; only Codex, 2 points; premise: fails without guards) |
-| 6 | A measured Claude Code task is drawn as a filled triangle | slice 2 | |
-| 7 | A partial Claude Code task is drawn as a hollow triangle with the caution stroke | slice 2 | |
-| 8 | Codex marks stay a filled circle (measured) and a hollow caution diamond (partial) | slice 2 | |
-| 9 | Claude Code's median stays a dashed trend line and Codex's stays solid | slice 2 | |
-| 10 | For either tool, the selected task is still the larger diamond labelled "Selected task" | slice 2 | |
-| 11 | The open task detail names the tool the task belongs to | slice 2 | |
+| 6 | A measured Claude Code task is drawn as a filled triangle | slice 2 | observed: dashboard/tests/support/usageChartPage.ts showsDistinctTraces: shapeOf Claude Code measured = 3 corners, fill differs from Codex (3 dashboard/frontend-tests/system-settings-usage-compare.spec.ts chart cases; red at base: circle) |
+| 7 | A partial Claude Code task is drawn as a hollow triangle with the caution stroke | slice 2 | observed: dashboard/tests/support/usageChartPage.ts showsDistinctTraces: Claude Code partial = 3 corners, hollow, --caution stroke (3 dashboard/frontend-tests/system-settings-usage-compare.spec.ts chart cases) |
+| 8 | Codex marks stay a filled circle (measured) and a hollow caution diamond (partial) | slice 2 | observed: dashboard/tests/support/usageChartPage.ts showsDistinctTraces: Codex measured = circle, Codex partial = 4 corners hollow --caution (3 dashboard/frontend-tests/system-settings-usage-compare.spec.ts chart cases) |
+| 9 | Claude Code's median stays a dashed trend line and Codex's stays solid | slice 2 | observed: dashboard/tests/support/usageChartPage.ts showsDistinctTraces: Claude Code median dash 6px 3px, Codex none |
+| 10 | For either tool, the selected task is still the larger diamond labelled "Selected task" | slice 2 | observed: dashboard/tests/support/usageChartPage.ts showsSelectedDiamond: one path.history-chart-point, 4 corners, 'Selected task', after selecting a Claude Code and a Codex point in dashboard/frontend-tests/system-settings-usage-compare.spec.ts 'each tool's marks differ by shape…' |
+| 11 | The open task detail names the tool the task belongs to | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-compare.spec.ts case 1 usage.showsDetail 'Open Dough · Claude Code · Execution' |
 | 12 | For each shown tool the legend has task mark, partial mark and median entries matching what is drawn | slice 3 | |
 | 13 | A hidden tool has no legend entries; with Claude Code alone there is no Codex "Task" swatch | slice 3 | |
 | 14 | Each tool summary's heading swatch is that tool's task mark | slice 3 | |
@@ -41,7 +41,7 @@ the plan.
 | 19 | Each tool's values, units, tariff, median, coverage and unpriced notes are unchanged | slice 3 | |
 | 20 | Model and effort choices still offer the union across tools, and their reset is unchanged | slice 3 | |
 | 21 | Placement by time and by equal spacing is unchanged | slice 3 | |
-| 22 | CI and scope charts render as before, though the triangle goes into the shared second trace style | slice 2 | |
-| 23 | Partial marks still use the caution colour for the same meaning | slice 2 | |
-| 24 | Large-task marks keep their current meaning | slice 2 | |
-| 25 | ↑ overflow marks keep their current meaning | slice 2 | |
+| 22 | CI and scope charts render as before, though the triangle goes into the shared second trace style | slice 2 | observed: s2-proof run: intent-ci-history-chart-marks, intent-project-ci-history-chart-marks, intent-scope-timing-history-* (6), intent/intent-ci-wall-time-history* (4), intent-project-scope-history-recovery pass |
+| 23 | Partial marks still use the caution colour for the same meaning | slice 2 | observed: dashboard/tests/support/usageChartPage.ts showsDistinctTraces caution-stroke check for both tools' partial marks |
+| 24 | Large-task marks keep their current meaning | slice 2 | observed: system-settings-usage-overflow.spec.ts showsLarge passes; HistoryChartPlot.tsx overflow/large branch precedes and is independent of the slot-1 triangle branch (diff leaves it unchanged) |
+| 25 | ↑ overflow marks keep their current meaning | slice 2 | observed: system-settings-usage-overflow.spec.ts showsMedianOverflow passes; ↑ trend-overflow rendering unchanged in diff |

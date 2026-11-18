@@ -117,7 +117,7 @@ reporter prints nothing on success; add `json` beside it to count cases.
 ### 2. Tell each tool's marks apart by shape
 
 Type: Behavior
-Status: planned
+Status: done
 
 With both tools shown, Claude Code's measured and partial task marks are
 triangles and Codex's stay circle and diamond; a partial mark of either tool is
@@ -134,6 +134,13 @@ shared-chart consumer specs (`intent-ci-history-chart-marks`,
 `intent/intent-ci-wall-time-history*`), since the mark renderer is shared.
 
 Interim: the legend still shows one "Task" swatch until slice 3, as today.
+
+Delivered: the second trace's unselected points are `<polygon>` triangles;
+the trace-1 partial override is gone, so partial marks keep the caution
+stroke; the shared `measured` locator matches circles and polygons. The
+compare spec has its own shape case and a Codex partial task to compare
+against; it is 234 lines, so slice 3's legend assertions need room elsewhere.
+Proof: 51 cases across Usage and shared-chart consumer specs pass.
 
 Sizing: 12 active minutes, medium confidence.
 

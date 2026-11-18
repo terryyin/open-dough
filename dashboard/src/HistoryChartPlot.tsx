@@ -4,7 +4,8 @@
 // the selected one, and on the row below the axis a red × per failed build
 // or a hollow mark per other build without timing. A selected build without
 // timing is also marked across the plot. A named trace after the first adds
-// its slot's class (`history-chart-trace-N`) to its points, trend and ↑ marks.
+// its slot's class (`history-chart-trace-N`) to its points, trend and ↑ marks;
+// the second trace's unselected points are triangles, filled or hollow alike.
 import type { ChartLayout, ChartMark } from "./historyChartLayout.ts";
 import { dateBaseline, plotBottom, plotTop } from "./historyChartLayout.ts";
 
@@ -15,6 +16,10 @@ const traceClass = (slot: number) =>
 // A diamond centred on (x, y), `reach` from its centre to each corner.
 const diamond = (x: number, y: number, reach: number) =>
   `M${String(x)} ${String(y - reach)} l${String(reach)} ${String(reach)} l${String(-reach)} ${String(reach)} l${String(-reach)} ${String(-reach)} Z`;
+
+// An upward triangle centred on (x, y), for the second trace's points.
+const triangle = (x: number, y: number) =>
+  `${String(x)},${String(y - 6)} ${String(x + 6)},${String(y + 4)} ${String(x - 6)},${String(y + 4)}`;
 
 function Mark({
   mark,
@@ -72,16 +77,25 @@ function Mark({
         )}
       </g>
     );
-  if (entry.selected !== true)
+  if (entry.selected !== true) {
+    const className = `history-chart-${entry.partial === undefined ? "point" : "partial"}${trace}`;
+    const title = <title>{entry.description}</title>;
+    if (mark.slot === 1)
+      return (
+        <polygon className={className} points={triangle(x, y)}>
+          {title}
+        </polygon>
+      );
     return entry.partial === undefined ? (
-      <circle className={`history-chart-point${trace}`} cx={x} cy={y} r={4}>
-        <title>{entry.description}</title>
+      <circle className={className} cx={x} cy={y} r={4}>
+        {title}
       </circle>
     ) : (
-      <path className={`history-chart-partial${trace}`} d={diamond(x, y, 5)}>
-        <title>{entry.description}</title>
+      <path className={className} d={diamond(x, y, 5)}>
+        {title}
       </path>
     );
+  }
   return (
     <g>
       <path

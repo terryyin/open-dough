@@ -8,6 +8,16 @@ import {
 } from "../accessibleReading.ts";
 import { expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
 import { tokenColour } from "../pageColours.ts";
+
+// A drawn mark's shape: a circle, or how many corners its outline turns.
+const shapeOf = (mark: Locator) =>
+  mark.evaluate((element) => {
+    if (element.tagName === "circle") return "circle";
+    const outline =
+      element.getAttribute("points") ?? element.getAttribute("d") ?? "";
+    const corners = outline.match(/-?[\d.]+[ ,]-?[\d.]+/g) ?? [];
+    return `${String(corners.length)} corners`;
+  });
 // The drawing's name over time or, with equal spacing, in task order.
 export const usageChartName =
   /^Token index per finished task (by end date|in task order, equally spaced)$/;
@@ -84,7 +94,8 @@ export function usageChart(page: Page) {
       );
     },
     // Claude Code's points and median take colours apart from Codex's, each
-    // readable on the chart, and its median is also dashed.
+    // readable on the chart; its points take another shape, its partial ones
+    // keep the caution stroke and its median is also dashed.
     async showsDistinctTraces() {
       const paint = (element: Locator, property: "fill" | "stroke") =>
         element.evaluate(
@@ -92,21 +103,45 @@ export function usageChart(page: Page) {
           property,
         );
       const second = ".history-chart-trace-1";
-      const codexPoint = chart.measured.and(page.locator(`:not(${second})`));
-      const claudePoint = chart.measured.and(page.locator(second));
+      const { measured, partial } = chart;
+      const codexPoint = measured.and(page.locator(`:not(${second})`)).first();
+      const claudePoint = measured.and(page.locator(second)).first();
+      const codexPartial = partial.and(page.locator(`:not(${second})`)).first();
+      const claudePartial = partial.and(page.locator(second)).first();
       const codexLine = chart.drawing.locator(
         `.history-chart-trend:not(${second})`,
       );
       const claudeLine = chart.drawing.locator(`.history-chart-trend${second}`);
-      expect(await paint(claudePoint.first(), "fill")).not.toBe(
-        await paint(codexPoint.first(), "fill"),
+      expect(await shapeOf(codexPoint)).toBe("circle");
+      expect(await shapeOf(codexPartial)).toBe("4 corners");
+      expect(await shapeOf(claudePoint)).toBe("3 corners");
+      expect(await shapeOf(claudePartial)).toBe("3 corners");
+      expect(await paint(claudePoint, "fill")).not.toBe(
+        await paint(codexPoint, "fill"),
       );
+      const caution = await tokenColour(page, "--caution");
+      for (const hollow of [codexPartial, claudePartial]) {
+        expect(await paint(hollow, "stroke")).toBe(caution);
+        expect(await paint(hollow, "fill")).not.toBe(
+          await paint(claudePoint, "fill"),
+        );
+      }
       expect(await paint(claudeLine, "stroke")).not.toBe(
         await paint(codexLine, "stroke"),
       );
       await expect(claudeLine).toHaveCSS("stroke-dasharray", "6px, 3px");
-      await expectChartMarkContrast(claudePoint.first());
-      await expectChartMarkContrast(claudeLine);
+      await expect(codexLine).toHaveCSS("stroke-dasharray", "none");
+      for (const mark of [claudePoint, claudePartial, codexPartial, claudeLine])
+        await expectChartMarkContrast(mark);
+    },
+    // Whichever tool's task is selected, it is the one larger diamond
+    // labelled "Selected task".
+    async showsSelectedDiamond() {
+      await expect(chart.selected).toHaveCount(1);
+      expect(await shapeOf(chart.selected)).toBe("4 corners");
+      await expect(chart.drawing.locator(".history-chart-selected")).toHaveText(
+        "Selected task",
+      );
     },
     async showsSeparatedMedianLevels() {
       await expect(chart.line).toHaveAttribute(

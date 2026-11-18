@@ -142,13 +142,13 @@
 .history-chart-trend-values { padding-inline: var(--space-4); overflow-wrap: anywhere; }
 
 /* A second named trace, such as Usage's Claude Code beside Codex, takes its own
-   point and trend colours; its trend is also dashed, so tools differ by more than colour. */
+   point and trend colours; its points are triangles and its trend is dashed, so
+   tools differ by more than colour. Its partial points keep the caution stroke. */
 :root {
   --history-chart-trace-1-mark: var(--badge-slice-planned-edge);
   --history-chart-trace-1-trend: var(--ready);
 }
 .history-chart-point.history-chart-trace-1 { fill: var(--history-chart-trace-1-mark); }
-.history-chart-partial.history-chart-trace-1 { fill: var(--history-chart-ring); stroke: var(--history-chart-trace-1-mark); }
 .history-chart-trend.history-chart-trace-1, .history-chart-trend-overflow.history-chart-trace-1 path {
   stroke: var(--history-chart-trace-1-trend);
 }
