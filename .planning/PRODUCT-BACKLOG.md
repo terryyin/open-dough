@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Declare every worker preparation with its own budget](seeds/SEED-340-test-preparation-outside-case-budgets.md#declare-every-worker-preparation-with-its-own-budget) — SEED-340#declare-every-worker-preparation-with-its-own-budget ([plan](slice-plans/692-declare-every-worker-preparation-with-its-own-budget/PLAN.md))
-- [Share one Frontend arrangement of an agent executing Open Dough's Taken story](seeds/SEED-334-product-wide-end-to-end-tests.md#share-one-executing-agent-roster-arrangement) — SEED-334#share-one-executing-agent-roster-arrangement ([plan](slice-plans/694-share-one-executing-agent-roster-arrangement/PLAN.md))
 
 ## Backlog list
 

@@ -29,29 +29,6 @@ E2E comment its retrospective found; no product change, no other conversion.
 
 **Plan:** [Converted navigation proof correction](../slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md).
 
-<a id="share-one-executing-agent-roster-arrangement"></a>
-
-### Share one Frontend arrangement of an agent executing Open Dough's Taken story
-
-**Identity:** SEED-334#share-one-executing-agent-roster-arrangement
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/694-share-one-executing-agent-roster-arrangement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"988812d5a796704445537efb7f1ff833788727cdd1cd77593445032e169bed83","plan":"1203256add27181caa88d95861d382066fb6d529f1153c0ca2adf639678445bd"}}
-```
-
-**Goal:** A maintainer changes the Frontend arrangement of Open Dough with one
-agent executing its Taken story in one place, so the roster and story URL
-journeys cannot drift apart.
-
-**Scope:** Retrospective correction of
-SEED-334#retire-integrated-ui-test-and-its-documents (commit `c2f93725c`):
-`publishRosterStory` in `dashboard/tests/support/frontendStoryUrlDestination.ts`
-and `openRoster` in
-`dashboard/frontend-tests/stories/agent-roster-collection.spec.ts` publish the
-same revision through one shared arrangement, keeping each journey's agent
-name, optional settings file and every assertion. No product change.
-
-**Plan:** [Shared executing-agent roster arrangement](../slice-plans/694-share-one-executing-agent-roster-arrangement/PLAN.md)
-
 <a id="move-story-reference-checks"></a>
 
 ### Move story reference checks out of Dashboard Integrated UI Test
