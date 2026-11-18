@@ -1,6 +1,7 @@
 # Keep source-freshness checks usable after a contributor merge
 
 **Source:** [Keep source-freshness checks usable after a contributor merge](../../seeds/SEED-400-source-freshness-with-a-valid-take.md#keep-freshness-with-a-valid-take)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-400#keep-freshness-with-a-valid-take
 
 ## Goal and scope
@@ -88,7 +89,7 @@ and ran `node <script> check --workspace <clone> --identity <identity>
 
 ### 1. Take resolution in its own module
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/source-freshness.test.mjs`
 green with the test file unedited; `wc -l` of every touched script at or under
 250.
@@ -156,3 +157,9 @@ Then record the response at ODF-482.
 - Slice 2's interim refuses every several-Taken-base graph because the premise
   table shows that choosing one of them can report a missed amendment as
   `unchanged`.
+- Slice 1 delivered Take resolution as `source-freshness-take.mjs`
+  (`resolveTake`, with base selection in its private `sharedBase` and
+  `takenBase`) and the branch-copy helpers as
+  `source-freshness-branch-copy.mjs`. A new distributed script is declared in
+  `src/install/open-dough-execution-payload.sh`; its proof is
+  `bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh Distribution/tests/installation/install-all-tools.sh Distribution/tests/installation/install-public-payload.sh`.
