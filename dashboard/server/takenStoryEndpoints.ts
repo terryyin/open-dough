@@ -5,15 +5,12 @@
 // not-landed until wrap-up.
 import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  commitShaPattern,
-  isSafeBranchName,
-} from "../src/authenticatedReadRules.ts";
+import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { resolveBranchHeadViaGh } from "./ghRevision.ts";
-import { runGit, GitFailure, gitProblem, type GitCall } from "./gitRunner.ts";
-import { fetchGitTarget } from "./gitTargetFetch.ts";
+import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
+import { fetchGitTarget, remoteBranchHead } from "./gitTargetFetch.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import type { StoryExecutionMode } from "./storyPublishedEndpointDerived.ts";
@@ -57,26 +54,7 @@ async function publishedBranchHead(
 ): Promise<string | undefined> {
   if (!isSafeBranchName(branch))
     throw new Error("The recorded branch name is not usable.");
-  const ref = `refs/heads/${branch}`;
-  try {
-    const { stdout } = await runGit(
-      ["ls-remote", "--exit-code", "--refs", "origin", ref],
-      call,
-    );
-    const [sha = "", named] = stdout.trimEnd().split("\t");
-    if (named !== ref || !commitShaPattern.test(sha))
-      throw new Error("Origin returned an invalid branch head.");
-    return sha;
-  } catch (error) {
-    if (
-      error instanceof GitFailure &&
-      error.cause instanceof Error &&
-      "code" in error.cause &&
-      error.cause.code === 2
-    )
-      return undefined;
-    throw error;
-  }
+  return remoteBranchHead("origin", `refs/heads/${branch}`, call);
 }
 
 async function liveTipOf(

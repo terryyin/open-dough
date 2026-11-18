@@ -1,10 +1,14 @@
-// A kept bound record owns capture after its startup attempt normally expires.
+// A kept record owns declared landing capture and capture after startup expiry.
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   landingReceiptSchema,
+  landingReportingReference,
   type LandingReceipt,
+  type LaunchLanding,
 } from "../src/launchLanding.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
+import { leaveMachineJson } from "./machineJsonStore.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
 import {
   authorizedLanding,
@@ -19,45 +23,51 @@ export async function submitRetainedLanding(
   report: LandingSubmission,
   prepare: boolean,
 ): Promise<LandingReceipt> {
-  const retained = record.landingReporting;
-  if (retained === undefined)
-    throw new RefusedRequest(404, "No retained landing authority.");
-  const { landing, needsSave } = await reserveLandingComparison(
-    authorizedLanding(retained.authority, report),
-    report,
-    prepare,
-    record.landing,
-    retained.preparations,
-  );
-  if (needsSave) {
-    const binding = { found: false };
-    await replaceRecords((kept) => ({
-      ...kept,
-      [report.source]: (kept[report.source] ?? []).map((entry) => {
-        if (
-          !("session" in entry) ||
-          entry.request.reporting?.reference !== report.reference
-        )
-          return entry;
-        if (entry.landingReporting?.deletedAt !== undefined)
-          throw new RefusedRequest(409, "The reporting session was deleted.");
-        binding.found = true;
-        return prepare
-          ? {
-              ...entry,
-              landingReporting: {
-                ...retained,
-                preparations: [...retained.preparations, landing],
-              },
-            }
-          : { ...entry, landing };
-      }),
-    }));
-    if (!binding.found)
+  let saved: LaunchLanding | undefined;
+  await replaceRecords(async (kept) => {
+    const records = kept[report.source] ?? [];
+    const current = records.find(
+      (entry): entry is LaunchRecord =>
+        "session" in entry &&
+        sessionKey(entry.session) === sessionKey(record.session) &&
+        entry.launchedAt === record.launchedAt &&
+        landingReportingReference(entry) === report.reference,
+    );
+    const retained = current?.landingReporting;
+    if (
+      current === undefined ||
+      retained === undefined ||
+      retained.deletedAt !== undefined
+    )
       throw new RefusedRequest(409, "The reporting session was deleted.");
-  }
+    const { landing, needsSave } = await reserveLandingComparison(
+      authorizedLanding(retained.authority, report),
+      report,
+      prepare,
+      current.landing,
+      retained.preparations,
+    );
+    saved = landing;
+    if (!needsSave) return leaveMachineJson;
+    const next = prepare
+      ? {
+          ...current,
+          landingReporting: {
+            ...retained,
+            preparations: [...retained.preparations, landing],
+          },
+        }
+      : { ...current, landing };
+    return {
+      ...kept,
+      [report.source]: records.map((entry) =>
+        entry === current ? next : entry,
+      ),
+    };
+  });
+  if (saved === undefined) throw new Error("No stored landing receipt.");
   return {
-    ...landingReceiptSchema.omit({ state: true }).parse(landing),
+    ...landingReceiptSchema.omit({ state: true }).parse(saved),
     state: prepare ? "prepared" : "recorded",
   };
 }

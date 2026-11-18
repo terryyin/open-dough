@@ -1,6 +1,10 @@
 // Public launch/creation record operations use one machine document and retention rule.
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
+import {
+  branchPinOwner,
+  keptBranchEvidence,
+} from "../src/sessionBranchResult.ts";
 import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
 import {
   readStoredRecords,
@@ -82,24 +86,26 @@ export { setRecordDoneAt } from "./recordDoneAt.ts";
 export async function changeSessionRecord(
   sourceId: string,
   session: SessionReference,
-  change: (record: LaunchRecord) => LaunchRecord,
+  change: (record: LaunchRecord) => LaunchRecord | Promise<LaunchRecord>,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
-  await replaceRecords((kept) => {
+  await replaceRecords(async (kept) => {
     const records = kept[sourceId];
     if (records === undefined) return kept;
     return {
       ...kept,
-      [sourceId]: records.map((record) => {
-        if (
-          !("session" in record) ||
-          sessionKey(record.session) !== sessionKey(session)
-        ) {
-          return record;
-        }
-        changed = change(record);
-        return changed;
-      }),
+      [sourceId]: await Promise.all(
+        records.map(async (record) => {
+          if (
+            !("session" in record) ||
+            sessionKey(record.session) !== sessionKey(session)
+          ) {
+            return record;
+          }
+          changed = await change(record);
+          return changed;
+        }),
+      ),
     };
   });
   return changed;
@@ -161,8 +167,15 @@ export async function replaceKeptSession(
 ): Promise<LaunchRecord | undefined> {
   return changeSessionRecord(sourceId, previous, (record) => ({
     ...next,
+    ...keptBranchEvidence(record),
+    ...(record.branchEntry !== undefined || record.branchResult !== undefined
+      ? { branchEvidenceOwner: branchPinOwner(record) }
+      : {}),
     landing: record.landing ?? next.landing,
     landingReporting: record.landingReporting ?? next.landingReporting,
+    dispositionChangedAt: record.dispositionChangedAt,
+    doneAt: record.doneAt,
+    doneProblem: record.doneProblem,
   }));
 }
 
@@ -191,6 +204,7 @@ export async function updateRecord(
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
+        ...keptBranchEvidence(entry),
         stopUnconfirmed: entry.stopUnconfirmed,
         reportRead: entry.reportRead,
       };

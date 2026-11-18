@@ -38,6 +38,8 @@ import {
 } from "../src/agentTerminal.ts";
 import { submitSessionAttachment } from "./sessionAttachments.ts";
 import { configuredLimit } from "./configuredLimit.ts";
+import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
+import { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 
 // How long a wait for an attempt observation to change lasts. A test may
 // shorten it through `DOUGH_CHANGE_WAIT_MS`; production stays at 30 seconds.
@@ -125,6 +127,8 @@ export async function answer(
     }
     if (url.pathname === completionEndpoint)
       return { status: 200, body: await submitCompletion(req, doneMarks) };
+    if (url.pathname === sessionBranchEntryEndpoint)
+      return { status: 200, body: await submitSessionBranchEntry(req) };
     const request = await admitted(req, url, launches);
     switch (request.kind) {
       case "drain":

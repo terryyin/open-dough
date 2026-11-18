@@ -40,6 +40,7 @@ export function ReviewFeedback({
     review?.kind === "snapshot" ||
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "branch-result" ||
     review?.kind === "published";
   return (
     <div role="status">
@@ -86,6 +87,12 @@ export function ReviewFeedback({
           published completion.
         </p>
       )}
+      {!reading && round > 0 && review?.kind === "branch-result" && (
+        <p>
+          Review refreshed: {changedFiles(review.files.length)} in the branch
+          result at Done.
+        </p>
+      )}
       {kept !== undefined && (
         <p>
           This machine&apos;s Git cannot take the story&apos;s {kept.commits}{" "}
@@ -94,6 +101,7 @@ export function ReviewFeedback({
         </p>
       )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
+      {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
       {problem !== undefined && <p>The review could not be read: {problem}</p>}
       {review?.kind === "unavailable" && (
         <p>

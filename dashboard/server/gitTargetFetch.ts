@@ -4,7 +4,40 @@
 import { OutstandingReads } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { storyReviewWaitMs } from "../src/storyReviewContract.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
-import { runGitUntilClosed, type GitCall } from "./gitRunner.ts";
+import { commitIdSchema } from "../src/launchLanding.ts";
+import {
+  GitFailure,
+  runGit,
+  runGitUntilClosed,
+  type GitCall,
+} from "./gitRunner.ts";
+
+// Read the exact named remote branch directly from its remote.
+export async function remoteBranchHead(
+  remote: string,
+  ref: string,
+  call: GitCall,
+): Promise<string | undefined> {
+  try {
+    const { stdout } = await runGit(
+      ["ls-remote", "--exit-code", "--refs", "--", remote, ref],
+      call,
+    );
+    const [sha, named] = stdout.trimEnd().split("\t");
+    if (named !== ref)
+      throw new Error("The remote returned an invalid branch head.");
+    return commitIdSchema.parse(sha);
+  } catch (error) {
+    if (
+      error instanceof GitFailure &&
+      error.cause instanceof Error &&
+      "code" in error.cause &&
+      error.cause.code === 2
+    )
+      return undefined;
+    throw error;
+  }
+}
 
 export class GitTargetFetches {
   private readonly outstanding = new OutstandingReads<void>(storyReviewWaitMs);

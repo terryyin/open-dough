@@ -4,7 +4,7 @@ import type { CompletionReport } from "../src/completionReport.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
 import { nativeDoneMarkPending } from "../src/doneMark.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
-import { sessionCommitsStartForDone } from "./recordDoneAt.ts";
+import { doneCapturePending } from "./doneCapture.ts";
 
 // Both reporting and explicit Done use this durable intent. Reporting keeps
 // the receipt's time and leaves later explicit Done/reopen intent independent.
@@ -68,7 +68,6 @@ export function reportedDoneNeedsContinuation(
 ): record is LaunchRecord {
   return (
     reportedDone(record, receipt) &&
-    (record.doneProblem !== undefined ||
-      sessionCommitsStartForDone(record) !== undefined)
+    (record.doneProblem !== undefined || doneCapturePending(record))
   );
 }

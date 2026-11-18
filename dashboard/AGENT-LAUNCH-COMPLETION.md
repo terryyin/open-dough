@@ -134,6 +134,7 @@ or unreadable are left there and the record still goes; expiry lets landing
 references go the same way, while explicit deletion keeps its landing cleanup
 retry stated below.
 [Landed run review](STORY-REVIEW-LANDED-RUNS.md) shows the kept commits.
+
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a
@@ -177,3 +178,49 @@ attempt normally expires, without extending either lifetime. Premature attempt
 loss, unreadable attempt evidence and deleted or expired records refuse capture.
 If explicit deletion fails to remove its pins after attempt expiry, its retained
 deletion intent keeps capture refused and the same deletion can retry cleanup.
+
+### Identify a branch taken up from Default main
+
+Run the **branch entry command** from the checkout when the session takes up
+its own branch or linked worktree. The command in the launch input names that
+launch by reference. It records the current branch and worktree with the files
+as they stand on entry. Review changes compares that saved entry with the
+working tree captured at Done. A repeat returns the original entry.
+
+A blank launch can identify its checkout from its confirmed host and session
+ID. Send a same-origin JSON POST to `/__agent-launch/branch-entry` on the
+dashboard naming the project, host, session, absolute worktree path and short
+branch name. Use the values from your session and checkout in this example.
+
+```sh
+curl --fail-with-body --silent --show-error \
+  -H 'Origin: http://127.0.0.1:4173' -H 'Content-Type: application/json' \
+  --data '{"source":"my-project","host":"codex","session":"SESSION_ID","workspace":"/absolute/worktree","branch":"topic"}' \
+  http://127.0.0.1:4173/__agent-launch/branch-entry
+```
+
+The checkout must be registered in the repository the launch started in. The
+handoff keeps entry evidence on the launch record and leaves any Default main
+commit runs available.
+
+When the identified checkout supports landing capture, the handoff also returns
+a `landingContext` file. Supply its path as `--landing-context` to the installed
+publisher for this branch's first landing on the recorded trunk target. The
+accepted comparison stays with the original session, including a blank launch
+and a session marked Done after the worktree is removed. The exact retained
+report input and reporting-only retry work after removal.
+
+### Discover a manual delivery after Done
+
+Done on an identified own branch keeps its working files and exact committed
+tip with that launch. If the branch lands later, reading the Board or observing
+a target revision change can discover the delivery, including after a Dashboard
+restart. The Dashboard checks the launch's recorded remote target and first-parent
+history for the exact committed tip. A merge can contribute its own resolution
+to the delivered comparison. The original Branch at Done comparison and the Done
+time stay with the launch.
+
+Discovery uses the evidence kept by the Done check and requires an unambiguous
+delivery. An accepted installed publication keeps its exact saved comparison.
+Discovery reads the authorized target and retains the verified pair for review.
+Deleting the launch or letting its retention expire releases its review evidence.

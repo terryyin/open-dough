@@ -16,6 +16,8 @@ export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
   if (review?.kind === "session-commits") return sessionCommitsDescription;
+  if (review?.kind === "branch-result")
+    return "Read-only: the branch and working files at Done, compared with the launch's starting revision.";
   if (reviewsSessionCommits(review))
     return "Read-only: this session's kept commits.";
   return reviewsLanding(review)
@@ -33,6 +35,15 @@ export function ReviewContext({
   if (review?.kind === "session-commits")
     return <SessionCommitsContext review={review} />;
   if (review?.kind === "snapshot") return <ContextLine snapshot={review} />;
+  if (review?.kind === "branch-result")
+    return (
+      <p>
+        Done{" "}
+        <time dateTime={review.doneAt}>
+          {new Date(review.doneAt).toLocaleString()}
+        </time>
+      </p>
+    );
   if (review?.kind !== "published") return null;
   return (
     <div>

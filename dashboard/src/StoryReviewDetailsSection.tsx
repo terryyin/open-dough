@@ -8,7 +8,11 @@ import {
 } from "./StoryReviewComparison.tsx";
 import { ReviewContext } from "./StoryReviewContext.tsx";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
-import { SessionRunSwitch } from "./StoryReviewSessionRuns.tsx";
+import {
+  SessionComparisonSwitch,
+  SessionRunSwitch,
+} from "./StoryReviewSessionRuns.tsx";
+import type { SessionComparisonKey } from "./sessionReviewComparisons.ts";
 import type { SessionRunChoice } from "./sessionCommits.ts";
 import type {
   ReviewItem,
@@ -26,20 +30,24 @@ export function reviewHoldsDetails({
   runs,
   workspaceChoices,
   sessionRuns,
+  sessionComparisonKeys,
   selectedRun,
 }: {
   readonly review: StoryReview | undefined;
   readonly runs: readonly ReviewRunChoice[];
   readonly workspaceChoices: boolean;
   readonly sessionRuns: readonly SessionRunChoice[];
+  readonly sessionComparisonKeys: readonly SessionComparisonKey[] | undefined;
   readonly selectedRun: ReviewRunChoice | undefined;
 }) {
   if (runs.length > 0 || workspaceChoices) return true;
-  if (sessionRuns.length > 1) return true;
+  if (sessionRuns.length > 1 || sessionComparisonKeys !== undefined)
+    return true;
   if (selectedRun !== undefined) return true;
   return (
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "branch-result" ||
     review?.kind === "snapshot" ||
     review?.kind === "published"
   );
@@ -80,6 +88,7 @@ export function StoryReviewDetailsSection({
   runs,
   items,
   sessionRuns,
+  sessionComparisonKeys,
   selectedRun,
   runKey,
   shownComparison,
@@ -96,6 +105,7 @@ export function StoryReviewDetailsSection({
   readonly runs: readonly ReviewRunChoice[];
   readonly items: readonly ReviewItem[];
   readonly sessionRuns: readonly SessionRunChoice[];
+  readonly sessionComparisonKeys: readonly SessionComparisonKey[] | undefined;
   readonly selectedRun: ReviewRunChoice | undefined;
   readonly runKey: string | undefined;
   readonly shownComparison: ComparisonChoice;
@@ -113,6 +123,7 @@ export function StoryReviewDetailsSection({
       runs,
       workspaceChoices: items.length > 0,
       sessionRuns,
+      sessionComparisonKeys,
       selectedRun,
     })
   )
@@ -136,13 +147,27 @@ export function StoryReviewDetailsSection({
           published={availablePublished !== undefined}
         />
       )}
-      {sessionRuns.length > 1 && (
-        <SessionRunSwitch
-          runs={sessionRuns}
+      {sessionComparisonKeys !== undefined && (
+        <SessionComparisonSwitch
+          keys={sessionComparisonKeys}
           selected={runKey}
           onSelect={onRun}
         />
       )}
+      {sessionRuns.length > 1 &&
+        (sessionComparisonKeys === undefined ||
+          review?.kind === "session-commits") && (
+          <SessionRunSwitch
+            label={
+              sessionComparisonKeys === undefined
+                ? undefined
+                : "Default main runs"
+            }
+            runs={sessionRuns}
+            selected={runKey}
+            onSelect={onRun}
+          />
+        )}
       {selectedRun !== undefined && (
         <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
       )}

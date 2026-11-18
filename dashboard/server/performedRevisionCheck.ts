@@ -14,6 +14,7 @@
 
 import type { BranchHeads } from "./branchHeads.ts";
 import { branchRecordedAtRevision } from "./branchReachability.ts";
+import { observeProjectRevision } from "./observedSessionLandings.ts";
 import { unrecordedBranch } from "./performedBranchRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
@@ -49,7 +50,7 @@ export async function performRevisionCheck(
     }
   }
   const { revision, heads } = listing ?? (await checks.check(source, signal));
-  pinned.namedByRef(source, revision);
+  observeProjectRevision(pinned, source, revision);
   const checked = { revision, changed: revision !== since };
   if (heads === undefined) {
     return answered(checked);

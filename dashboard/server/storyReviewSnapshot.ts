@@ -13,10 +13,6 @@ import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import type { AdmittedStoryReview } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
-import {
-  sessionCommitsReview,
-  unavailableSessionCommitsReview,
-} from "./storyReviewSessionCommits.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
@@ -53,17 +49,10 @@ export async function storyReviewResponse(
         );
       if ("explanation" in request)
         return { kind: "unavailable", explanation: request.explanation };
-      if ("sessionCommitsUnavailable" in request)
-        return unavailableSessionCommitsReview(
-          request.sessionCommitsUnavailable,
-        );
-      if ("sessionRun" in request)
-        return sessionCommitsReview(request.sessionRun, signal);
+      if ("readSession" in request) return request.readSession(signal);
       let local: StoryReview;
       if ("run" in request) {
         local = await landedStoryReview(request.run, signal);
-        // A session subject has no run choices; only a story's retained runs
-        // select one.
         if (request.runs.length > 0)
           local = {
             ...local,

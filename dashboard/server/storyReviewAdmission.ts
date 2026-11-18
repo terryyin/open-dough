@@ -23,7 +23,7 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
 import {
   admitHistoricalReviewedFile,
-  admitSessionRunFile,
+  admitSessionComparisonFile,
 } from "./storyReviewHistoricalFileAdmission.ts";
 import { queriedReviewIdentity } from "./storyReviewRunAdmission.ts";
 import {
@@ -171,7 +171,10 @@ async function admitReviewedFile(
   if (subject.kind === "session")
     return {
       kind,
-      ...(await admitSessionRunFile(queriedReviewedSessionSubject(url), file)),
+      ...(await admitSessionComparisonFile(
+        queriedReviewedSessionSubject(url),
+        file,
+      )),
     };
   return {
     kind,

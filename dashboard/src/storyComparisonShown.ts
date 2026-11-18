@@ -37,7 +37,8 @@ export function storyComparisonShown({
   if (
     review?.kind === "published" ||
     review?.kind === "landed" ||
-    review?.kind === "session-commits"
+    review?.kind === "session-commits" ||
+    review?.kind === "branch-result"
   )
     return {
       reviewed: { subject, ...fixedComparisonName(review) },
@@ -59,7 +60,7 @@ export function storyComparisonShown({
 function fixedComparisonName(
   review: Extract<
     StoryReview,
-    { kind: "published" | "landed" | "session-commits" }
+    { kind: "published" | "landed" | "session-commits" | "branch-result" }
   >,
 ) {
   if (review.kind === "published") return { completion: review.completion };

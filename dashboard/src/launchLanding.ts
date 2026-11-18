@@ -31,10 +31,25 @@ export const landingReportingSchema = z.object({
   origin: z.url(),
   authority: landingRepositorySchema,
   preparations: z.array(launchLandingSchema),
+  branchContext: z
+    .object({ reference: z.uuid(), file: z.string().min(1) })
+    .optional(),
   settledAt: z.iso.datetime().optional(),
   deletedAt: z.iso.datetime().optional(),
 });
 export type LandingReporting = z.infer<typeof landingReportingSchema>;
+
+export function landingReportingReference(record: {
+  readonly request: {
+    readonly reporting?: { readonly reference: string } | undefined;
+  };
+  readonly landingReporting?: LandingReporting | undefined;
+}): string | undefined {
+  return (
+    record.landingReporting?.branchContext?.reference ??
+    record.request.reporting?.reference
+  );
+}
 export const landingReceiptSchema = launchLandingSchema
   .omit({ repository: true })
   .extend({

@@ -2,8 +2,7 @@
 // (`./authenticatedRead.ts`), once the request is accepted and its catalog
 // source and requested read (`./requestedRead.ts`) are known: its `gh` calls
 // are tracked for the request's lifetime, and any failure is worded for this
-// source and what was being read when it failed. Each kind of read is
-// performed by the module its case below calls; failure naming is in
+// source and what was being read when it failed. Failure naming is in
 // `./readingRequestedRead.ts`, and what a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
@@ -15,6 +14,7 @@ import {
   performOnBranch,
 } from "./performedBranchRead.ts";
 import { performRevisionCheck } from "./performedRevisionCheck.ts";
+import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
 import { withTrackedGh } from "./trackedGh.ts";
@@ -229,7 +229,7 @@ export async function perform(
                 source.ref,
                 signal,
               );
-              pinned.namedByRef(source, revision);
+              observeProjectRevision(pinned, source, revision);
               reading = readingPathAt(source.backlogPath, revision);
               // Only which commit the ref names can have changed.
               return answered({

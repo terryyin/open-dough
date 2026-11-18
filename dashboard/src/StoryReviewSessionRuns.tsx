@@ -6,33 +6,79 @@
 import { ComparisonChoices } from "./StoryReviewComparison.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 import type { SessionRunChoice } from "./sessionCommits.ts";
+import {
+  branchResultName,
+  deliveredChangesName,
+  sessionBranchRun,
+  sessionDeliveryRun,
+  type SessionComparisonKey,
+} from "./sessionReviewComparisons.ts";
 
 // The run keys an answer offers, and the one it answered.
 export const sessionRunKeys = (answer: StoryReview | undefined) =>
-  answer?.kind === "session-commits"
+  answer?.sessionComparisonKeys ??
+  (answer?.kind === "session-commits"
     ? Array.from(answer.commitRuns.keys(), String)
-    : [];
+    : []);
 export const answeredRunKey = (answer: StoryReview | undefined) =>
-  answer?.kind === "session-commits"
-    ? String(answer.commitRun)
-    : answer?.selectedRun;
+  answer?.selectedRun ??
+  (answer?.kind === "session-commits" ? String(answer.commitRun) : undefined);
 
 export const sessionRunsOf = (
   answer: StoryReview | undefined,
 ): readonly SessionRunChoice[] =>
   answer?.kind === "session-commits" ? answer.commitRuns : [];
 
-export function SessionRunSwitch({
-  runs,
+// The mixed review offers one choice for each kind of saved comparison.
+const sessionComparisonNames: Readonly<Record<string, string>> = {
+  [sessionBranchRun]: branchResultName,
+  [sessionDeliveryRun]: deliveredChangesName,
+  "0": "Default main commits",
+};
+
+const comparisonOfRun = (run: string) => (/^\d+$/.test(run) ? "0" : run);
+
+export function sessionComparisonName(run: string | undefined) {
+  return run === undefined
+    ? undefined
+    : sessionComparisonNames[comparisonOfRun(run)];
+}
+
+export function SessionComparisonSwitch({
+  keys,
   selected,
   onSelect,
 }: {
-  readonly runs: readonly SessionRunChoice[];
+  readonly keys: readonly SessionComparisonKey[];
   readonly selected: string | undefined;
   readonly onSelect: (key: string) => void;
 }) {
   return (
     <ComparisonChoices
+      choices={Array.from(new Set(keys.map(comparisonOfRun)), (key) => ({
+        key,
+        label: sessionComparisonName(key),
+      }))}
+      shown={selected === undefined ? undefined : comparisonOfRun(selected)}
+      onChoose={onSelect}
+    />
+  );
+}
+
+export function SessionRunSwitch({
+  runs,
+  selected,
+  onSelect,
+  label,
+}: {
+  readonly runs: readonly SessionRunChoice[];
+  readonly label?: string | undefined;
+  readonly selected: string | undefined;
+  readonly onSelect: (key: string) => void;
+}) {
+  return (
+    <ComparisonChoices
+      {...(label === undefined ? {} : { label })}
       choices={runs.map((run, position) => ({
         key: String(position),
         label: (

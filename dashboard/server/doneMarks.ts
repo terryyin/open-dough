@@ -7,7 +7,7 @@ import type { AgentTerminals } from "./agentTerminals.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
-import { keptWithSessionCommits } from "./recordDoneAt.ts";
+import { keptWithDoneCapture } from "./doneCapture.ts";
 import { completedWithoutAttention } from "../src/completionReport.ts";
 import { localFolder, machineFolder } from "./projectFolders.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -37,8 +37,8 @@ type NativeDone = { readonly stopped: AbortSignal } & (
   | { readonly intent: "reporting" }
 );
 
-// Quiet reports capture after receipt, outside reporting locks. One native
-// Done runs per session. The developer's Done takes over a reported rename.
+// Quiet reports continue native Done and default checkout capture outside
+// reporting locks. The developer's Done takes over a reported rename.
 export class NativeDoneMarks {
   private readonly running = new Map<
     string,
@@ -66,7 +66,7 @@ export class NativeDoneMarks {
     );
     if (this.closed || !reportedDoneNeedsContinuation(current, receipt))
       return undefined;
-    return keptWithSessionCommits(sourceId, current);
+    return keptWithDoneCapture(sourceId, current);
   }
 
   private async continueReported(
@@ -235,9 +235,9 @@ async function markSessionDone(
   if (host === undefined || stop === undefined)
     throw new Error("This host cannot mark a session done.");
   const doneAt = new Date().toISOString();
-  const marked =
-    (await setRecordDoneAt(source.id, record.session, doneAt)) ??
-    doneSessionRecord(record, doneAt);
+  const marked = await setRecordDoneAt(source.id, record.session, doneAt);
+  if (marked?.doneAt !== doneAt)
+    return marked ?? doneSessionRecord(record, doneAt);
   return finishNativeDone(source.id, marked, folder, terminals, {
     intent: "manual",
     launches,

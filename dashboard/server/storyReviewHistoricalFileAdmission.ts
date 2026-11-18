@@ -1,12 +1,13 @@
 // One field-based rule for a historical review file: a Published completion,
 // or the retained pair and literal file list of a landed run or of a done
-// session's kept commits. URL adapters and follow-up admission share this
+// session's kept result. URL adapters and follow-up admission share this
 // check; callers name source, a reviewed-work subject (story identity or
 // session) and a completion, a reference or a session's kept pair — never a
 // repository path.
 import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { establishedPlace } from "../src/establishedPlace.ts";
+import { branchResultAtDone } from "../src/sessionBranchResult.ts";
 import type {
   ReviewedSessionSubject,
   ReviewedStorySubject,
@@ -19,10 +20,16 @@ import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
-import { landedStoryReview, retainedPairFiles } from "./storyReviewLanded.ts";
+import {
+  landedStoryReview,
+  type LandingReviewSource,
+} from "./storyReviewLanded.ts";
+import {
+  retainedBranchPairFiles,
+  retainedCommitPairFiles,
+} from "./retainedReviewPair.ts";
 import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import type { ReviewLandedRun } from "../src/storyReviewLandedRun.ts";
 
 export interface HistoricalReviewedFileFields {
   readonly baseline: string;
@@ -123,7 +130,7 @@ async function admitPublishedCompletion(
 async function landedRunForSubject(
   subject: HistoricalReviewedFileSubject,
   reference: string,
-): Promise<ReviewLandedRun> {
+): Promise<LandingReviewSource> {
   if (!("session" in subject)) {
     const { runs } = await reviewedLandedRuns(subject.source, subject.identity);
     return reviewedLandedRunByReference(runs, reference);
@@ -135,7 +142,7 @@ async function landedRunForSubject(
     sessionId: subject.session,
   });
   const established = establishedPlace(record);
-  if (established === undefined)
+  if (established === undefined && record.landing === undefined)
     throw new RefusedRequest(
       404,
       "This session has no launch workspace to review.",
@@ -154,7 +161,8 @@ async function admitLandedRun(
 ): Promise<AdmittedHistoricalReviewedFile> {
   const run = await landedRunForSubject(subject, reference);
   const review = await landedStoryReview(run, AbortSignal.timeout(30_000));
-  if (review.kind !== "landed")
+  const landing = run.record.landing;
+  if (review.kind !== "landed" || landing === undefined)
     throw new RefusedRequest(
       409,
       review.kind === "landing-unavailable"
@@ -168,14 +176,13 @@ async function admitLandedRun(
   )
     throw notOnCapturedRun();
   return {
-    repository: run.record.landing?.repository ?? run.established.workspace,
+    repository: landing.repository,
     ...file,
   };
 }
 
-// Admit a file against the kept run of a done session's commits its
-// comparison names (`../src/sessionCommits.ts`).
-export async function admitSessionRunFile(
+// Admit a file against the exact retained pair of a Done session.
+export async function admitSessionComparisonFile(
   subject: PublishedReviewedSubject<ReviewedSessionSubject>,
   file: HistoricalReviewedFileFields,
 ): Promise<AdmittedHistoricalReviewedFile> {
@@ -183,18 +190,30 @@ export async function admitSessionRunFile(
     host: subject.host,
     sessionId: subject.session,
   });
-  const pair = keptSessionPair(record, file);
+  const branch = branchResultAtDone(record);
+  const matchingBranch =
+    branch?.base === file.baseline && branch.revision === file.tree
+      ? branch
+      : undefined;
+  const pair = matchingBranch ?? keptSessionPair(record, file);
+  const signal = AbortSignal.timeout(30_000);
   const read =
-    pair && (await retainedPairFiles(pair, AbortSignal.timeout(30_000)));
+    pair &&
+    (matchingBranch === undefined
+      ? await retainedCommitPairFiles(pair, signal)
+      : await retainedBranchPairFiles(matchingBranch, signal));
   if (
     !pair ||
     !read ||
     "missing" in read ||
+    "attributionGap" in read ||
     !belongsOnRetainedPair(read.files, file)
   )
     throw new RefusedRequest(
       409,
-      "The file or comparison does not belong to this session's kept commits.",
+      branch === undefined
+        ? "The file or comparison does not belong to this session's kept commits."
+        : "The file or comparison does not belong to this session's branch result.",
     );
   return { repository: pair.repository, ...file };
 }

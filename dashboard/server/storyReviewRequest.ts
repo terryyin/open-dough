@@ -6,24 +6,18 @@ import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
-import { establishedPlace } from "../src/establishedPlace.ts";
-import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
-import {
-  keptNoSessionCommits,
-  keptSessionRun,
-  type KeptSessionRun,
-} from "./storyReviewSessionCommits.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { reviewedWorkSubjectQuery } from "./reviewedWorkSubjectAdmission.ts";
+import { requireExactQuery } from "./sessionAdmission.ts";
 import {
-  queriedReviewedSessionSubject,
-  reviewedWorkSubjectQuery,
-} from "./reviewedWorkSubjectAdmission.ts";
-import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
+  sessionReviewRequest,
+  type AdmittedSessionReview,
+} from "./storyReviewSessionRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 interface AdmittedWorkspaceReview {
@@ -71,62 +65,7 @@ export type AdmittedStoryReview =
         readonly identity: string;
       };
     }
-  // A Default main session's kept commits (`../src/sessionCommits.ts`).
-  | {
-      readonly kind: "story-review";
-      readonly sessionRun: KeptSessionRun;
-      readonly runs: readonly ReviewLandedRun[];
-    }
-  // An ad hoc session kept without a landing: explain before the landed reader,
-  // including default launches that established no place.
-  | {
-      readonly kind: "story-review";
-      readonly sessionCommitsUnavailable: string;
-      readonly runs: readonly ReviewLandedRun[];
-    };
-
-async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
-  const named = url.searchParams.get("run");
-  requireExactQuery(
-    url,
-    ["source", "host", "session", ...(named === null ? [] : ["run"])],
-    "review",
-  );
-  const { source, host, session } = queriedReviewedSessionSubject(url);
-  const record = await namedKeptSession(source, {
-    host,
-    sessionId: session,
-  });
-  if (launchSubject(record.request).identity !== undefined)
-    throw new RefusedRequest(
-      400,
-      "This session belongs to a story launch and is reviewed by its story.",
-    );
-  if (record.landing === undefined) {
-    const sessionRun = keptSessionRun(record, named);
-    if (sessionRun !== undefined)
-      return { kind: "story-review", sessionRun, runs: [] };
-    // A capture that found no commit says so; no capture claims nothing.
-    return {
-      kind: "story-review",
-      sessionCommitsUnavailable: keptNoSessionCommits(record)
-        ? "This session made no commits in the Default main checkout."
-        : "This session's changes were not captured.",
-      runs: [],
-    };
-  }
-  const established = establishedPlace(record);
-  if (established === undefined)
-    throw new RefusedRequest(
-      404,
-      "This session has no launch workspace to review.",
-    );
-  return {
-    kind: "story-review",
-    run: { record, established },
-    runs: [],
-  };
-}
+  | AdmittedSessionReview;
 
 async function identityReviewRequest(url: URL): Promise<AdmittedStoryReview> {
   requireExactQuery(
