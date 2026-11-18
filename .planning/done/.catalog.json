@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-353_declare-intent-comparison-histories.json",
+      "identity": "SEED-353#declare-intent-comparison-histories",
+      "completedAt": "2026-11-18T17:35:15.999Z",
+      "blob": "d20ef8343a9af1cd87f14f5afa0bfbce6c728ee6"
+    },
+    {
       "fileName": "SEED-404_run-dashboard-frontend-checks-at-doughnut-speed.json",
       "identity": "SEED-404#run-dashboard-frontend-checks-at-doughnut-speed",
       "completedAt": "2026-11-18T14:45:54.658Z",

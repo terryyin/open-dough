@@ -11,7 +11,7 @@ scope: eight stories
 
 ## Parent goal and retained scope
 
-Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. All original scope is allocated below; the landed-file admission example and its named start-origin revisions, launch reporting and file follow-up builders are delivered and documented in the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md).
+Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. All original scope is allocated below; the landed-file admission example and its named start-origin revisions, launch reporting and file follow-up builders, and the Intent comparison, source selection, build provenance and timing-history arrangement are delivered and documented in the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md).
 
 Shared scope and correctness requirements:
 
@@ -28,7 +28,6 @@ Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), co
 
 | Order | Receiving story | Original promises and scenario ownership |
 | --- | --- | --- |
-| 1 | [Declare Intent comparison histories through MakeMe](#declare-intent-comparison-histories) | Intent/CI comparison, source selection, build provenance and timing-history arrangement. |
 | 2 | [Declare local worktree review state through MakeMe](#declare-local-worktree-review-state) | Worktree content, staged/unstaged/untracked/ignored state, modes, renames, binary and context fixtures. |
 | 3 | [Declare merged review histories through MakeMe](#declare-merged-review-histories) | Story-branch commit/range comparisons, parent order, trunk integrations and conflict resolutions. |
 | 4 | [Declare trunk review authorship through MakeMe](#declare-trunk-review-authorship) | Trunk-mode own/foreign history, rewritten histories and attribution. |
@@ -46,63 +45,6 @@ Each story resumes through story refinement; no mapped original slices require p
 Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/test-support/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
 
 The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed. Neither establishes a full migration or speedup.
-
-<a id="declare-intent-comparison-histories"></a>
-
-### Declare Intent comparison histories through MakeMe
-
-**Identity:** SEED-353#declare-intent-comparison-histories
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-declare-intent-comparison-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1aa1274ec23e575a0778bd1b861bc8aca9cfc76ee8b351a7736410f3d348c081","plan":"80abe97f794ac87b7a1c65b1672d146d281af7423f0ee63de4107100c03da1b6"}}
-```
-
-**Goal.** A developer reads the repository facts explaining Intent's compared
-revisions, selected source and build provenance directly, without reconstructing
-routine Git setup. This makes Purpose and CI proof easier to maintain together.
-
-**Scope.** Migrate direct and indirect Intent/CI comparison, completed/retained
-Intent, Summary comparison and timing-history arrangement across backend, E2E
-and Frontend-group tests. Include `storyCiComparison*`,
-`intentCompletedStory`, retained-Intent, summary and scope-history callers and
-their incidental identity wiring. Use the shared MakeMe repository facts and
-existing completed-history owners for files, configuration/workflow bytes,
-authorship, ordered parents, named endpoints and starting workspace state.
-Extend those owners for demonstrated gaps; preserve deferred preparation,
-prepared-prefix/worker reuse, private mutable copies and independent assertions.
-
-Keep publication after an observation, actual completion/capture under proof,
-ref movement, shallow-history recovery, corruption and cleanup as visible
-actions. Preserve meaningful IDs and real returned reporting contexts. Update
-the test-data architecture guide and compare representative construction before
-and after under ADR 0010. This changes test construction, with no production
-behavior change or speedup promise. General review, completion, launch and
-recovery migrations remain with their receiving siblings; shared consumers keep
-their current proof and gain no completion claim from this story.
-
-**Key examples.**
-
-- Given a named built baseline, planning-only ancestors, claim and provisional
-  branch/trunk tip, opening Taken Intent shows the same baseline, provisional
-  identity and CI rows. Publishing a new branch head after that observation
-  remains a scenario action and triggers the same fresh read.
-- Given an owning landing merge, later completion and later trunk build, Done
-  Intent selects the original landing/branch endpoints. Each build uses its own
-  workflow bytes even when the local tip's workflow differs. Planning-only,
-  code, cancelled and proofless cases retain their distinct exact, ancestor,
-  equivalent, later-build and unavailable results.
-- Given completion-time locations and file bytes plus conflicting later trunk
-  and retained-workspace edits, Done Intent reads the immutable completion;
-  ordinary Review can still read the local edits. Missing history remains
-  unavailable until the explicit recovery action.
-- Given changed, added, removed and renamed files in nested test locations,
-  Summary and collected/retained scope history keep the same independent
-  counts, timing rows, represented landing and selected build provenance. A
-  measured file absent from the current tree still contributes to history;
-  uncollected endpoints and gaps stay visible.
-
-**Safe stopping point.** Intent construction is readable with unchanged
-CI/source/proof assertions and isolated fixtures; other review/launch families
-need not migrate first. No open human decision or blocking dependency.
 
 <a id="declare-local-worktree-review-state"></a>
 
