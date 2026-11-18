@@ -4,6 +4,7 @@ import {
   agentLaunchEndpoint,
 } from "../../src/agentLaunch.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { ciFollowUpEndpoint } from "../../src/ciFollowUp.ts";
 import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
@@ -12,7 +13,7 @@ import { storyNotesEndpoint } from "../../src/storyNote.ts";
 import { terminalThemeEndpoint } from "../../src/terminalThemeSetting.ts";
 import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
 import { answerAuthenticatedRead } from "../support/frontendAuthenticatedReadSubstitute.ts";
-import type { phoneBoardCommands } from "../support/mountedPhoneBoardCommands.ts";
+import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
 
 function reply(body: unknown, status = 200) {
   const payload = JSON.stringify(body);
@@ -22,17 +23,39 @@ function reply(body: unknown, status = 200) {
   });
 }
 
-type Answers = ReturnType<
-  typeof phoneBoardCommands.phoneBoardPublication
->["answers"];
+const heldAnswers = new Map<string, () => void>();
 
-export function answerPhoneBoardServices(state: Answers) {
+export function answersStillHeld() {
+  return [...heldAnswers.keys()];
+}
+
+export function endHeldAnswers() {
+  for (const end of heldAnswers.values()) end();
+  heldAnswers.clear();
+}
+
+function holdAnswer(pathname: string) {
+  return new Promise<Response>((...[, reject]) => {
+    const end = () => {
+      heldAnswers.delete(pathname);
+      reject(new DOMException(`Held ${pathname} ended`, "AbortError"));
+    };
+    heldAnswers.set(pathname, end);
+  });
+}
+
+export function answerMountedServices(
+  state: MountedServiceAnswers,
+  held: readonly string[] = [],
+) {
   const launchAcceptances: unknown[] = [];
+  const unanswered: string[] = [];
   const browserFetch = window.fetch.bind(window);
   const answers = new Map<string, unknown>([
     [projectListEndpoint, state.projects],
     [agentLaunchEndpoint, state.machine],
     [hostStatusEndpoint, state.hostStatus],
+    [ciFollowUpEndpoint, { cards: [] }],
     [completedStoryAssociationEndpoint, { kind: "unassociated" }],
     [launchHostOptionsEndpoint, { models: [] }],
     [storyNotesEndpoint, { kind: "notes", notes: {} }],
@@ -59,15 +82,17 @@ export function answerPhoneBoardServices(state: Answers) {
         );
         return reply({ error: "No launch expected" }, 405);
       }
+      if (held.includes(url.pathname)) return holdAnswer(url.pathname);
       if (answers.has(url.pathname)) return reply(answers.get(url.pathname));
       if (
         url.pathname.startsWith("/__") &&
         !url.pathname.startsWith("/__vitest")
       ) {
-        throw new Error(`No phone board answer for ${url.pathname}`);
+        unanswered.push(url.pathname);
+        throw new Error(`No mounted answer for ${url.pathname}`);
       }
       return browserFetch(input, options);
     },
   );
-  return launchAcceptances;
+  return { launchAcceptances, unanswered };
 }

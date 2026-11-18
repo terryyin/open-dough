@@ -2,6 +2,7 @@
 
 **Identity:** SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
 **Source:** [Run the story-notes frontend checks at the mounted boundary](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and current decisions
 
@@ -53,7 +54,7 @@ Each slice has a 15-active-minute budget, excluding commands. A moved spec's bui
 ### 1. Mount the dashboard for any frontend case
 
 Type: Structure
-Status: planned
+Status: done
 
 Record the matched baseline first: run `npm run test:dashboard:frontend -- stories/story-notes` and the whole-group command twice each at two workers in one session, and note load, elapsed time and summed case time under Learnings. Then generalize the phone-board mount into the mounted dashboard support: a fresh root and document state per case, default service answers from a Node command that returns `defaultFrontendServiceState` data, an unanswered `/__` request failing the case by name, and cleanup that restores globals and ends any answer still held. The phone-board mount becomes a caller that adds its viewport, resize and gesture parts. External behavior is unchanged. This enables slice 3.
 
@@ -132,5 +133,17 @@ Local gate on awake macOS uses `caffeinate -s -i` on AC power for the whole-grou
 Slice-plan refinement ran in planning: the first mounted notes case was split so the shared notes rule lands as its own Structure slice before the mounted page object and arrangement command. The slices share one mounted fixture, one notes rule and one page-object vocabulary, and each moves an independently observable group of cases. Typing, keyboard activation and focus return on the mounted app are first reached in slice 4; a failure there returns under learning escalation. Review found no remaining slice-specific concern.
 
 ## Learnings
+
+**Slice 1 baseline** (at `e8e01643a`, 2026-11-18/19, Node 24.21.0, two workers, AC power under `caffeinate -s -i`, 16-core machine, proof records `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` in the checkout's `open-dough/evidence`):
+
+| Command | Run | Load before | Elapsed | Summed case time |
+| --- | --- | --- | ---: | ---: |
+| `npm run test:dashboard:frontend -- stories/story-notes` (11 cases) | 1 | 19.6 | 39.7 s | 36.3 s |
+| same | 2 | 14.0 | 16.3 s | 23.4 s |
+| `npm run test:dashboard:frontend` (715 cases) | 1 | 29.8 | 534 s after suite admission (3,142 s including 43 min queued) | 1,003 s |
+
+The whole-group command takes the repository's one-full-local-suite admission (`refs/dough/local-test-suite`); run 1 waited 43 minutes behind another worktree's backend suite and run 2 is still queued behind it. Measure the whole group from admission (the proof record's Playwright output directory time to `finishedAt`), not from command launch. The story-notes command varied 2.4× between runs at similar load, so slice 7's alternating matched pairs, not these single figures, decide the ratio.
+
+**Slice 1:** the board already sent `/__project-configuration/ci-follow-up` unanswered on the mounted board; the old stub threw and the app swallowed it. The mounted support now fails any unanswered `/__` request by name, so later mounted families must answer every service their board reads.
 
 ## Story obligations

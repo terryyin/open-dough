@@ -1,0 +1,42 @@
+# Source review
+
+Launched 2026-11-18 by the execution coordinator as a fresh general-purpose agent without conversation inheritance. Input: only the selected story's original text (seed `SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md`, the narrowing note, Goal, Scope, deferrals, Key examples and Architecture of `#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed`), with the source-only reviewer instructions. It read no other project files and returned 27 numbered commitments.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | A developer running the story-notes specs gets their answer in at most a third of today's time at the usual two-worker local budget; the four specs' command takes at most a third of its matched baseline; after, in a matched session, the same command reports all accounted cases in a third of its matched baseline or less (before: 22.1 s at load 21) (Goal / Scope ¶3 / Key example 7) | slice 7 | |
+| 2 | Every original product assertion accounted for; each case keeps its observations (Goal / Scope ¶1 / Key example 7) | slice 7 | |
+| 3 | The cases in `stories/story-notes.spec.ts`, `story-notes-edit.spec.ts`, `story-notes-retained.spec.ts` and `story-notes-unreadable.spec.ts` move from the built-app fixture to mounted specs that render the production app with prepared service answers and deliver input directly, as the phone-board checks do (Scope ¶1) | slice 6 | |
+| 4 | A case stays on the built-app fixture, or moves to `e2e/`, only where its behavior needs a real page load, native input or a live socket; each such case is recorded with its reason, destination and cost (Scope ¶1 / Key example 5) | slice 6 | |
+| 5 | Every case starts from a fresh mount and default service answers (Scope ¶1) | slice 1 | observed: dashboard/frontend-tests/mounted-dashboard.mounted.spec.ts "the next case opens with default answers and no late update" (mountAnsweredDashboard fresh root, storage, history, timers; default answers from commands.dashboardServiceAnswers) |
+| 6 | One case ends while a notes answer is still held; the next case in the same file opens the board with default answers and no late update (Key example 4 / Scope ¶1) | slice 1 | observed: dashboard/frontend-tests/mounted-dashboard.mounted.spec.ts "a case may end while a notes answer is still held" then next case: answersStillHeld [] and unchanged HTML after timers; fails without endHeldAnswers (evidence s1-notes-held-break) |
+| 7 | Later families gain the mounted fixture these specs need (the mounted fixture is reusable by later families) (Goal) | slice 1 | observed: dashboard/test-support/mounted-dashboard/mountedDashboard.ts mountAnsweredDashboard used by phoneBoard.ts; board-swipe and board-indicators 7 cases pass |
+| 8 | Arranged data comes from the same state builders and MakeMe data the built-app specs use, built in Node and handed to the mounted case (Scope ¶2) | slice 3 | |
+| 9 | The notes service answers by one rule in both engines; the route substitute and the mounted answers both use that one answering rule (Scope ¶2 / Architecture) | slice 3 | |
+| 10 | The notes page object keeps one vocabulary of phases, cues and control names, naming them once (Scope ¶2 / Architecture) | slice 3 | |
+| 11 | These specs do not grow a parallel copy of Dashboard Test Support (Architecture) | slice 6 | |
+| 12a | File selection continues to work through `npm run test:dashboard:frontend` (Scope ¶2) | slice 3 | |
+| 12b | `--grep` selection continues to work through `npm run test:dashboard:frontend`; `npm run test:dashboard:frontend -- stories/ --grep 'unreadable'` selects the moved case (Scope ¶2 / Key example 6) | slice 3 | |
+| 13 | The comparison is set before changing anything: the four specs' whole command and the whole-group command, at two workers in one session on the same machine, with the load recorded (ADR 0010 requires this basis before the observed run) (Scope ¶3 / Architecture) | slice 1 | observed: PLAN.md Learnings: Slice 1 baseline |
+| 14 | The whole-group command is no slower than its matched baseline (Scope ¶3) | slice 7 | |
+| 15 | The summed case time and the per-file import cost are reported beside the timing comparison (Scope ¶3) | slice 7 | |
+| 16 | The seed gains the measured cost of real specs at the mounted boundary; the refinement evidence is updated with the per-file figure (Goal / Scope ¶3) | slice 7 | |
+| 17a | A saved line note edited by keyboard and saved: the mounted case shows the saved text (Key example 1) | slice 4 | |
+| 17b | ... the focus returns to Edit (Key example 1) | slice 4 | |
+| 17c | ... the same change request the built-app case recorded is made (Key example 1) | slice 4 | |
+| 18a | A save refused while a draft holds typed text: the draft and the original note remain (Key example 2) | slice 4 | |
+| 18b | ... the failure is announced (Key example 2) | slice 4 | |
+| 19a | Notes unreadable for a project: every card kind says so in place of a count (Key example 3) | slice 3 | |
+| 19b | ... a later project read does not restore a count (Key example 3) | slice 3 | |
+| 20 | A Taken note survives a new launch and appears on Done; the case moves if a fresh mount reads the same app-owned state, otherwise (proof needs the browser's reload) it stays where a real page exists and is recorded with its reason (Key example 5) | slice 6 | |
+| 21 | The attached-terminal case is judged the same way for its live socket (moves if mounted proof suffices, otherwise stays and is recorded with its reason) (Key example 5) | slice 6 | |
+
+## Unnumbered context
+
+- Narrowing note: Terry narrowed the story on 2026-11-18 from the whole remaining group to one family; mounted specs cannot import Node-side test data, so this story takes the four story-notes specs; the whole-group minute stays the seed's ambition; other families (including other `stories/` specs) carry the rest.
+- Deferred: other `stories/` specs and families, the whole-group minute, making test data importable in the browser, merging spec files or sharing file isolation, rebalancing CI shards.
+- Baseline figure: the four specs' command took 22.1 s at load 21 (settled baseline for comparison).
+- Architecture background: the phone-board delivery kept its own in-page page objects and service answers; no Accepted decision conflicts; ADR 0010 is the reason for the pre-set comparison basis.
+- "Keep the change when..." is the acceptance condition for keeping the change, expressed through commitments 1 and 14.

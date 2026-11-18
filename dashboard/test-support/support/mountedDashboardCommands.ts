@@ -5,9 +5,12 @@ import { readyStory } from "../launchJourney.ts";
 import { takenBacklogStories } from "../launchStoryCardPage.ts";
 import { defaultFrontendServiceState } from "./frontendServiceState.ts";
 
-export const phoneBoardCommands = { phoneBoardPublication };
+export const mountedDashboardCommands = {
+  dashboardServiceAnswers,
+  phoneBoardPublication,
+};
 
-function phoneBoardPublication(...[, long]: [BrowserCommandContext, boolean]) {
+function serviceAnswers(long: boolean) {
   const {
     projects,
     revision,
@@ -20,17 +23,27 @@ function phoneBoardPublication(...[, long]: [BrowserCommandContext, boolean]) {
     doneBySource,
   } = defaultFrontendServiceState(long ? { backlog: largeBacklog } : {});
   return {
-    answers: {
-      projects,
-      revision,
-      backlog,
-      files,
-      locations,
-      candidates,
-      machine,
-      hostStatus,
-      doneBySource,
-    },
+    projects,
+    revision,
+    backlog,
+    files,
+    locations,
+    candidates,
+    machine,
+    hostStatus,
+    doneBySource,
+  };
+}
+
+export type MountedServiceAnswers = ReturnType<typeof serviceAnswers>;
+
+function dashboardServiceAnswers() {
+  return { answers: serviceAnswers(false), boardPositionKey };
+}
+
+function phoneBoardPublication(...[, long]: [BrowserCommandContext, boolean]) {
+  return {
+    answers: serviceAnswers(long),
     boardPositionKey,
     readyStory,
     titles: long
@@ -44,6 +57,9 @@ function phoneBoardPublication(...[, long]: [BrowserCommandContext, boolean]) {
 
 declare module "vitest/browser" {
   interface BrowserCommands {
+    dashboardServiceAnswers(): Promise<
+      ReturnType<typeof dashboardServiceAnswers>
+    >;
     phoneBoardPublication(
       long: boolean,
     ): Promise<ReturnType<typeof phoneBoardPublication>>;
