@@ -4,7 +4,8 @@
 
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { LaunchWithState } from "../../src/launchRecord.ts";
+import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
+import { sessionListing } from "../../src/sessionListing.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardParts.ts";
 import {
@@ -38,6 +39,8 @@ export type FrontendBoardReview = {
 
 // Publishes the three done stories, installs review-state and done-body
 // controls, runs `prepare` (hold/fail staging), then opens Recently done.
+// The machine answers `observed` sessions, or else `doneSessions` as the
+// sessions listing gives Done sessions.
 export async function openFrontendBoardReview(
   page: Page,
   services: FrontendServiceState,
@@ -45,11 +48,13 @@ export async function openFrontendBoardReview(
     now = Date.now(),
     reviewed = [],
     observed = [],
+    doneSessions = [],
     prepare,
   }: {
     readonly now?: number;
     readonly reviewed?: readonly string[];
     readonly observed?: readonly LaunchWithState[];
+    readonly doneSessions?: readonly LaunchRecord[];
     readonly prepare?: (bodies: FrontendDoneBodyReads) => void;
   } = {},
 ): Promise<FrontendBoardReview> {
@@ -58,6 +63,14 @@ export async function openFrontendBoardReview(
     services.answerMachine(
       makeMe.aMachineAnswer.observing(...observed).please(),
     );
+  } else if (doneSessions.length > 0) {
+    const machine = makeMe.aMachineAnswer
+      .observingDone(...doneSessions)
+      .please();
+    services.answerMachine({
+      ...machine,
+      records: machine.records.map(sessionListing),
+    });
   }
   const review = await installFrontendStoryReviewState(page, {
     "open-dough": reviewed,

@@ -28,16 +28,23 @@ export {
   frontendPublishedReview,
   frontendReviewIds,
   frontendReviewSnapshot,
+  frontendSessionCommitsReview,
 } from "./frontendStoryReviewFixtures.ts";
 
 export type FrontendStoryReview = {
   readonly asked: () => readonly string[];
+  // The query each ask of `endpoint` named, oldest first.
+  readonly queriesAsked: (
+    endpoint: string,
+  ) => readonly Readonly<Record<string, string>>[];
   readonly snapshot: () => StoryReview;
   readonly answerSnapshot: (review: StoryReview) => void;
   readonly answerHistoricalSnapshot: (
     identity: string,
     review: StoryReview,
   ) => void;
+  // The answer for every ask that names `run`.
+  readonly answerRunSnapshot: (run: number, review: StoryReview) => void;
   readonly answerNextSnapshot: (review: StoryReview) => void;
   readonly holdNextSnapshot: () => ReturnType<
     ReturnType<typeof controls>["holdNext"]
@@ -70,13 +77,20 @@ export async function installFrontendStoryReview(
   const fileCtl = controls(page, state.files);
   const textCtl = controls(page, state.texts);
   return {
-    asked: () => [...state.asked],
+    asked: () => state.asked.map(({ endpoint }) => endpoint),
+    queriesAsked: (endpoint) =>
+      state.asked
+        .filter((ask) => ask.endpoint === endpoint)
+        .map(({ query }) => query),
     snapshot: () => state.snapshot,
     answerSnapshot: (review) => {
       Object.assign(state, { snapshot: storyReviewSchema.parse(review) });
     },
     answerHistoricalSnapshot: (identity, review) => {
       state.historicalSnapshots.set(identity, storyReviewSchema.parse(review));
+    },
+    answerRunSnapshot: (run, review) => {
+      state.runSnapshots.set(String(run), storyReviewSchema.parse(review));
     },
     answerNextSnapshot: (review) => {
       snapshotCtl.answerNext(storyReviewSchema.parse(review));

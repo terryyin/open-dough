@@ -58,7 +58,8 @@ export function ReviewBody({
         <SnapshotView
           key={
             shownComparison.reviewed.completion ??
-            shownComparison.reviewed.reference
+            shownComparison.reviewed.reference ??
+            shownComparison.tree
           }
           reviewed={shownComparison.reviewed}
           comparison={shownComparison.comparison}

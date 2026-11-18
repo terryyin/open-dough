@@ -4,6 +4,10 @@ import type { StoryReview, ReviewComparison } from "./storyReviewContract.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import {
+  SessionCommitsContext,
+  sessionCommitsDescription,
+} from "./StoryReviewSessionCommitsContext.tsx";
+import {
   FileBrowserToggle,
   type FileBrowserPlace,
 } from "./FileBrowserToggle.tsx";
@@ -11,6 +15,7 @@ import {
 export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
+  if (review?.kind === "session-commits") return sessionCommitsDescription;
   return review?.kind !== "landed" && review?.kind !== "landing-unavailable"
     ? "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed."
     : "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision.";
@@ -31,6 +36,14 @@ export function ReviewContext({
     return (
       <LandedContext
         landing={review.landing}
+        {...(review.files.length === 0 ? {} : { browser })}
+        onShowBrowser={onShowBrowser}
+      />
+    );
+  if (review?.kind === "session-commits")
+    return (
+      <SessionCommitsContext
+        review={review}
         {...(review.files.length === 0 ? {} : { browser })}
         onShowBrowser={onShowBrowser}
       />

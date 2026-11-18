@@ -11,6 +11,11 @@ import { useReviewRead } from "./useReviewRead.ts";
 import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
+  answeredRunKey,
+  sessionRunKeys,
+  sessionRunsOf,
+} from "./StoryReviewSessionRuns.tsx";
+import {
   reviewedWorkQuery,
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
@@ -47,6 +52,9 @@ export function useStoryReviewSelection({
   }>({ of: undefined, workspace: initial });
   const answer = defaultRead.answer;
   const runs = answer?.runs ?? [];
+  // A session's kept runs are chosen by position; landed runs by their key.
+  const keys = [...runs.map((run) => run.key), ...sessionRunKeys(answer)];
+  const answered = answeredRunKey(answer);
   if (
     !defaultRead.reading &&
     defaultRead.problem !== undefined &&
@@ -62,9 +70,9 @@ export function useStoryReviewSelection({
     // the run the answer opened on.
     const run =
       selection.run === undefined
-        ? answer.selectedRun
-        : !runs.some((run) => run.key === selection.run)
-          ? fallback?.key
+        ? answered
+        : !keys.includes(selection.run)
+          ? (fallback?.key ?? answered)
           : selection.run;
     setSelection({
       of: answer,
@@ -80,23 +88,23 @@ export function useStoryReviewSelection({
     {
       round,
       enabled:
-        enabled &&
-        selection.run !== undefined &&
-        answer?.selectedRun !== selection.run,
+        enabled && selection.run !== undefined && answered !== selection.run,
     },
   );
   const review =
     selection.run === undefined
       ? answer
-      : runRead.answer?.selectedRun === selection.run
+      : answeredRunKey(runRead.answer) === selection.run
         ? runRead.answer
-        : answer?.selectedRun === selection.run
+        : answered === selection.run
           ? answer
           : undefined;
   return {
     review,
     runs,
     selectedRun,
+    sessionRuns: sessionRunsOf(answer),
+    runKey: selection.run,
     // The run the workspace answer itself shows: its landed fallback.
     answerRun: answer?.selectedRun,
     snapshot: answer?.kind === "snapshot" ? answer : undefined,

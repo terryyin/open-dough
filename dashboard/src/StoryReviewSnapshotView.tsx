@@ -43,12 +43,15 @@ function NoChanges({
   committedOnly,
   published,
   sessionSubject,
+  sessionCommits,
 }: {
   readonly snapshot?: TakenStoryReview;
   readonly commitsReview: boolean;
   readonly committedOnly: boolean;
   readonly published: boolean;
   readonly sessionSubject: boolean;
+  // A session's kept commits rather than its landing, which names a launch.
+  readonly sessionCommits: boolean;
 }) {
   if (snapshot === undefined) {
     let words =
@@ -57,7 +60,9 @@ function NoChanges({
       words =
         "No changes: this completed story has an empty published comparison.";
     else if (sessionSubject)
-      words = "No changes: this session's delivered comparison is empty.";
+      words = sessionCommits
+        ? "No changes: these session commits leave no difference."
+        : "No changes: this session's delivered comparison is empty.";
     return <p>{words}</p>;
   }
   if (commitsReview) return <p>The chosen commits changed nothing.</p>;
@@ -155,6 +160,7 @@ export function SnapshotView({
       committedOnly={committedOnly}
       published={reviewed.completion !== undefined}
       sessionSubject={isReviewedSessionSubject(reviewed.subject)}
+      sessionCommits={reviewed.reference === undefined}
     />
   ) : (
     <StoryReviewWorkarea

@@ -29,10 +29,11 @@ export function launchStartContext(
 }
 
 // What a launch's start established, under the key its record keeps it by:
-// a story's start or preparation, or an unattached session.
-export type EstablishedRecordFacts = Pick<
+// a story's start or preparation, or an unattached session; or where a
+// default launch, which establishes none, started.
+export type LaunchStartFacts = Pick<
   LaunchRecord,
-  "start" | "preparation" | "establishedSession"
+  "start" | "preparation" | "establishedSession" | "defaultStart"
 >;
 
 // The story what a launch's start established names: a story's start or
@@ -50,7 +51,7 @@ export function establishedStory(
 export function launchRecord(
   request: RecordedLaunchRequest,
   session: HostSession,
-  facts: EstablishedRecordFacts,
+  facts: LaunchStartFacts,
   launchedAt: string,
 ): LaunchRecord {
   return {
@@ -63,6 +64,9 @@ export function launchRecord(
     ...(facts.establishedSession === undefined
       ? {}
       : { establishedSession: facts.establishedSession }),
+    ...(facts.defaultStart === undefined
+      ? {}
+      : { defaultStart: facts.defaultStart }),
     launchedAt,
   };
 }

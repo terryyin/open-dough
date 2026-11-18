@@ -36,6 +36,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   doneAt?: string,
  *   doneProblem?: string,
  *   returnedToBacklog?: boolean,
+ *   sessionCommits?: { repository: string, runs: { base: string, revision: string }[], shared?: true },
  * }} LaunchOutcome
  */
 
@@ -123,6 +124,18 @@ export class LaunchOutcomeBuilder {
     return this;
   }
 
+  /**
+   * The commits the session made in its Default main checkout, kept at Done:
+   * each run's pair in the checkout's common repository, oldest first, and
+   * `shared` when another session was open in that checkout meanwhile.
+   * @param {{ repository: string, runs: { base: string, revision: string }[], shared?: true }} kept
+   */
+  keptSessionCommits({ repository, runs, shared }) {
+    const sessionCommits = { repository, runs, ...(shared && { shared }) };
+    this.#outcome = { ...this.#outcome, sessionCommits };
+    return this;
+  }
+
   // The dashboard closed the launch on its final report finding the story
   // back in the queue, keeping that outcome under the report's receipt.
   returnedToBacklog() {
@@ -167,6 +180,7 @@ export class LaunchOutcomeBuilder {
       doneAt,
       doneProblem,
       returnedToBacklog,
+      sessionCommits,
     } = this.#outcome;
     const report = completion && finalReport(completion, at);
     const landing =
@@ -194,6 +208,9 @@ export class LaunchOutcomeBuilder {
       }),
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
+      ...(sessionCommits && {
+        sessionCommits: { ...structuredClone(sessionCommits), readAt: at },
+      }),
     };
   }
 }

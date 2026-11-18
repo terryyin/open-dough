@@ -1,5 +1,5 @@
 // Deletion records launch-local intent even before native launch settlement.
-import { removeLandingPins } from "./launchLandingGit.ts";
+import { releaseRecordPins } from "./launchRecordPins.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import {
@@ -52,6 +52,10 @@ export async function deleteRecord(
       record?.landingReporting?.authority.repository ??
       attempts?.find((entry) => entry.id === reference)?.landingRepository
         ?.repository;
+    const landing =
+      reference === undefined || repository === undefined
+        ? undefined
+        : { repository, reference };
     const retainedCleanup = record?.landingReporting !== undefined;
     if (retainedCleanup) {
       // Retain intent and repository in this same record until pin cleanup
@@ -74,8 +78,7 @@ export async function deleteRecord(
             : entry,
         ),
       }));
-      if (reference !== undefined && repository !== undefined)
-        await removeLandingPins(repository, reference);
+      await releaseRecordPins(record, landing);
     }
     let deleted = false;
     await replaceRecords((kept) => {
@@ -92,8 +95,7 @@ export async function deleteRecord(
       return { ...kept, [sourceId]: remaining };
     });
     // Older records recover their repository through the retained attempt.
-    if (!retainedCleanup && reference !== undefined && repository !== undefined)
-      await removeLandingPins(repository, reference);
+    if (!retainedCleanup) await releaseRecordPins(record, landing);
     return deleted;
   });
 }

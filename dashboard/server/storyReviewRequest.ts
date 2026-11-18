@@ -9,6 +9,11 @@ import {
 import { establishedPlace } from "../src/establishedPlace.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
+import {
+  keptNoSessionCommits,
+  keptSessionRun,
+  type KeptSessionRun,
+} from "./storyReviewSessionCommits.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
@@ -66,6 +71,12 @@ export type AdmittedStoryReview =
         readonly identity: string;
       };
     }
+  // A Default main session's kept commits (`../src/sessionCommits.ts`).
+  | {
+      readonly kind: "story-review";
+      readonly sessionRun: KeptSessionRun;
+      readonly runs: readonly ReviewLandedRun[];
+    }
   // An ad hoc session kept without a landing: explain before the landed reader,
   // including default launches that established no place.
   | {
@@ -75,7 +86,12 @@ export type AdmittedStoryReview =
     };
 
 async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
-  requireExactQuery(url, ["source", "host", "session"], "review");
+  const named = url.searchParams.get("run");
+  requireExactQuery(
+    url,
+    ["source", "host", "session", ...(named === null ? [] : ["run"])],
+    "review",
+  );
   const { source, host, session } = queriedReviewedSessionSubject(url);
   const record = await namedKeptSession(source, {
     host,
@@ -86,12 +102,19 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
       400,
       "This session belongs to a story launch and is reviewed by its story.",
     );
-  if (record.landing === undefined)
+  if (record.landing === undefined) {
+    const sessionRun = keptSessionRun(record, named);
+    if (sessionRun !== undefined)
+      return { kind: "story-review", sessionRun, runs: [] };
+    // A capture that found no commit says so; no capture claims nothing.
     return {
       kind: "story-review",
-      landingUnavailable: "This session's changes were not captured.",
+      landingUnavailable: keptNoSessionCommits(record)
+        ? "This session made no commits in the Default main checkout."
+        : "This session's changes were not captured.",
       runs: [],
     };
+  }
   const established = establishedPlace(record);
   if (established === undefined)
     throw new RefusedRequest(

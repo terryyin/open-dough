@@ -1,11 +1,18 @@
 // Explain why a standalone session has no readable captured comparison.
 import path from "node:path";
-import { unlinkSync } from "node:fs";
+import { renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { expect, test } from "../../tests/support/codexStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { adHocReview } from "../../tests/support/adHocReview.ts";
+import {
+  adHocReview,
+  establishDefaultMainSession,
+  keptAdHocRecord,
+  launchDefaultMainSession,
+  markAdHocDone,
+} from "../../tests/support/adHocReview.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import { commitInCheckout } from "../../tests/support/sessionCheckoutWork.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -104,4 +111,90 @@ test("an ad hoc landing whose comparison objects are gone explains the gap", asy
   } finally {
     await repository.cleanup();
   }
+});
+
+test("a blank default launch that edited files and committed nothing says it made no commits in the Default main checkout", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  const { sessionId } = (await launchDefaultMainSession(dashboard)).session;
+  writeFileSync(path.join(origin.project, "edited.txt"), "uncommitted\n");
+  dashboard.claudeSessionBecomes(sessionId, "working-idle");
+
+  await markAdHocDone(dashboard, sessionId);
+
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+    kind: "landing-unavailable",
+    explanation: "This session made no commits in the Default main checkout.",
+  });
+});
+
+test("a session whose checkout log cannot be read at Done is done and says its changes were not captured", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  const sessionId = "unreadable-at-done";
+  establishDefaultMainSession(dashboard, origin, sessionId);
+  await commitInCheckout(origin.project, "2099-01-02T12:00:00Z", "typo.txt");
+  // Git can no longer read the checkout.
+  renameSync(
+    path.join(origin.project, ".git"),
+    path.join(origin.project, ".git-away"),
+  );
+
+  expect(await markAdHocDone(dashboard, sessionId)).toEqual(expect.any(String));
+
+  expect(
+    (await keptAdHocRecord(dashboard, sessionId))?.sessionCommits,
+  ).toBeUndefined();
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+    kind: "landing-unavailable",
+    explanation: "This session's changes were not captured.",
+  });
+});
+
+test("a session whose checkout log holds no entry at Done is done and says its changes were not captured", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  const sessionId = "log-removed-at-done";
+  establishDefaultMainSession(dashboard, origin, sessionId);
+  // Git still reads the checkout, whose logs of what was made there are gone:
+  // without `HEAD`'s log alone it would read the branch's in its place.
+  rmSync(path.join(origin.project, ".git", "logs"), { recursive: true });
+
+  expect(await markAdHocDone(dashboard, sessionId)).toEqual(expect.any(String));
+
+  expect(
+    (await keptAdHocRecord(dashboard, sessionId))?.sessionCommits,
+  ).toBeUndefined();
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+    kind: "landing-unavailable",
+    explanation: "This session's changes were not captured.",
+  });
+});
+
+test("a default launch in a checkout Git cannot read keeps no start, is done, and says its changes were not captured", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  renameSync(
+    path.join(origin.project, ".git"),
+    path.join(origin.project, ".git-away"),
+  );
+  const record = await launchDefaultMainSession(dashboard);
+  expect(record.defaultStart).toBeUndefined();
+  const { sessionId } = record.session;
+  dashboard.claudeSessionBecomes(sessionId, "working-idle");
+
+  expect(await markAdHocDone(dashboard, sessionId)).toEqual(expect.any(String));
+
+  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
+    kind: "landing-unavailable",
+    explanation: "This session's changes were not captured.",
+  });
 });

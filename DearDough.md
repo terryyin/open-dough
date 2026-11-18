@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 577. Removed numbers are never reused.
-- Recovery: `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529).
+- Recovery: `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -489,6 +489,14 @@ A changed attribution rule passed its fixture specs and full consumer suite and 
   - Evidence: slice 1 accepted on 5 fixture cases and usage-history 98/98, published dcd69ec7b; slice 2's copy import made 17 of 424 Codex launches 0 (duplicate task on reimport, repaired 5145a57c3); the next run made 11 launches unpriced (turn-start compaction before its turn_context) and kept a `/dough-land` without `<command-args>` in its execution (both repaired 0a58de188). Each real-store import took 9–12.5 min at about 4 GB; a store already written with a defective rule had to be restored from backup because stored task turns only grow.
   - Observed effect: three repair cycles on the story branch, three full imports of real history plus a restore, and slice 2 over its active budget; no trunk impact.
   - Inference: the plan's decisive premises sampled simple shapes; a narrowed import of a few real sessions with a per-record comparison, run before accepting slice 1, would likely have found all three defects earlier. Saving is unmeasured.
+- Execution: SEED-379#keep-default-main-session-changes-for-review (plan 693; first implementation 5cdf62a89)
+  - Timestamp: unknown (2026-11-18; post-execution review of 5d4ce67ae..27664feb3)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.106 (checkout-bound installation at Take 5d4ce67ae)
+  - Evidence: the plan's premise tallied the real checkout's reflog kinds but the capture rule was accepted on planned journeys; after eight accepted slices the independent review, confirmed in scratch repositories, found an amended merge (`commit (amend)`, two parents), a continued cherry-pick (`commit (cherry-pick)`) and an autosquash (`rebase (fixup)`) misread; correction plan 700.
+  - Observed effect: a merged run and false "made no commits" answers reached the story branch; a correction story and plan were queued.
+  - Inference: same problem with matching uncertainty: the history was surveyed, not compared entry by entry against the rule's output. Running the rule over a real reflog window first would likely have shown the unplaced kinds.
 
 ## DD-552 — A slice grows a reference already at the 250-line limit that the plan did not size
 
@@ -967,19 +975,6 @@ split it into its own test and renewed its proof.
   - Evidence: plan 687 slice 2 Proof ("`board-paging-side-panel.spec.ts` gains its final step", `bc928d061:.planning/slice-plans/687-keep-navigation-conversion-proof-whole/PLAN.md`); slice 2 refactor return: new test in `board-paging-side-panel.spec.ts` at `251c507ae`, reruns `s2-refactor-specs` and `s2-refactor-break-b`.
   - Observed effect: one restructure and two renewed proof runs inside the refactor pass, which used its full 15 active minutes.
   - Inference: slice planning applied the interim journey's shape without the test-boundary check the refactor pass later applied. Cost beyond those reruns not measured.
-
-## DD-576 — Slice clock keeps running while the coordinator waits on a developer question <a id="dd-576"></a>
-The coordinator asked the developer a CI-repair question while a repair slice's clock was running and paused it only after the answer, so the wait counted as active time.
-
-### Occurrences
-- Execution: SEED-340#declare-every-worker-preparation-with-its-own-budget (plan 692; first implementation `df9c246dcf1d9bf242d93f8517d01c70cf858587`)
-  - Timestamp: unknown (2026-11-18; CI repair of Distribution Tests share 2)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.105 (checkout-bound installation at claim `b0763981528`)
-  - Evidence: slice `repair-distribution-share2` started before the repair agent's 2.8-minute attempt; after the developer answered the follow-up question, `slice-clock.mjs status` reported 10.9 elapsed and 4.1 remaining. The coordinator then paused it and started `repair-share2-merges` fresh.
-  - Observed effect: about 8 minutes of waiting counted against the slice, and the remaining work moved to a new slice name rather than continuing the same one.
-  - Inference: the oversized-slice rule already says to pause when execution stops for a human; the coordinator missed it when the question followed a returned report. Cost was a renamed slice, not lost work.
 
 ## DD-577 — A conversion map records a narrowed interim negative and slice acceptance takes it <a id="dd-577"></a>
 

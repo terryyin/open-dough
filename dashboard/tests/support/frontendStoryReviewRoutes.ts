@@ -39,7 +39,8 @@ export async function installReviewRoutes(page: Page, state: ReviewBuckets) {
         () =>
           params.get("historical") === "true"
             ? (state.historicalSnapshots.get(identity) ?? state.snapshot)
-            : state.snapshot,
+            : (state.runSnapshots.get(params.get("run") ?? "") ??
+              state.snapshot),
       );
     },
   );

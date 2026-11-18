@@ -13,7 +13,7 @@ import {
   replaceKeptSession,
   updateRecord,
 } from "./launchRecordStore.ts";
-import { launchRecord, type EstablishedRecordFacts } from "./launchRecord.ts";
+import { launchRecord, type LaunchStartFacts } from "./launchRecord.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
 export type LaunchRecording = {
@@ -24,7 +24,7 @@ export type LaunchRecording = {
 export function launchRecording(
   request: RecordedLaunchRequest,
   began: Date,
-  facts: EstablishedRecordFacts,
+  facts: LaunchStartFacts,
   previous: LaunchRecord | undefined,
   doneMarks: NativeDoneMarks,
 ) {

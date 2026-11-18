@@ -47,15 +47,24 @@ export function controls<T>(page: Page, bucket: Bucket<T>) {
   };
 }
 
+// One ask of a story-review endpoint, with the query it named.
+export type ReviewAsk = {
+  readonly endpoint: string;
+  readonly query: Readonly<Record<string, string>>;
+};
+
 export async function answerBucket<T>(
   route: Route,
-  asked: string[],
+  asked: ReviewAsk[],
   endpoint: string,
   key: string,
   bucket: Bucket<T>,
   settle: () => T = () => bucket.settle(),
 ) {
-  asked.push(endpoint);
+  asked.push({
+    endpoint,
+    query: Object.fromEntries(new URL(route.request().url()).searchParams),
+  });
   const planned = takeQueued(bucket.next, key);
   const hold = takeQueued(bucket.holds, key);
   await answerHeld(hold, async () => {
@@ -64,10 +73,12 @@ export async function answerBucket<T>(
 }
 
 export type ReviewBuckets = {
-  readonly asked: string[];
+  readonly asked: ReviewAsk[];
   snapshot: StoryReview;
   readonly snapshots: Bucket<StoryReview>;
   readonly historicalSnapshots: Map<string, StoryReview>;
+  // The answer for an ask naming `run`, by that run.
+  readonly runSnapshots: Map<string, StoryReview>;
   readonly ranges: Bucket<ReviewRange>;
   readonly files: Bucket<ReviewedFileDiff>;
   readonly texts: Bucket<ReviewedFileText>;
@@ -82,7 +93,7 @@ const emptyBucket = <T>(settle: () => T): Bucket<T> => ({
 });
 
 export function createReviewBuckets(initial: StoryReview): ReviewBuckets {
-  const asked: string[] = [];
+  const asked: ReviewAsk[] = [];
   let snapshot = initial;
   return {
     asked,
@@ -94,6 +105,7 @@ export function createReviewBuckets(initial: StoryReview): ReviewBuckets {
     },
     snapshots: emptyBucket(() => snapshot),
     historicalSnapshots: new Map(),
+    runSnapshots: new Map(),
     ranges: emptyBucket(() => ({
       kind: "comparison" as const,
       from: frontendReviewIds.baseline,

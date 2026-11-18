@@ -104,6 +104,33 @@ rename. A server that closes during the wait leaves the pending mark. Early
 quiet reporting applies the same operation when its native session is bound.
 Launch binding releases persistence locks before its required Done owner
 continues an early report.
+
+### Session commits kept at Done
+
+When a session that started in the project's Default main checkout is marked
+done, by Mark as done or by the Done operation of an automatic Done, its launch
+record keeps the commits it made there: the entries of the checkout's local
+`HEAD` log from the launch on that made a commit in the checkout (a commit, an
+amend, a cherry-pick, a revert, or a rebase replaying one of those) and are
+still part of the checkout's `HEAD` at Done. Work pulled, fast-forwarded or
+merged into the checkout is none of them. Commits that follow one another
+form one run, kept oldest first as a fixed pair (the first commit's first
+parent and the last commit) in the checkout's common Git repository and held
+there by references under `refs/open-dough/session-commits/`, so the pair
+outlives its branches. A default launch starts from the checkout and revision
+its record kept at launch; a session established in the default checkout from
+its own start. Each Done reads anew and replaces the earlier capture; a log
+that cannot be read keeps Done and leaves no capture; reopening a session
+leaves its capture until the next Done. A reported Done reads its
+commits when its native Done begins, so an abandoned rename wait keeps them. The references stay
+while the launch record is kept and are released with it: deleting the record,
+or its expiry 30 days after Done, removes that record's session-commit
+references and its landing references from the saved repository and leaves
+every other record's. Session-commit references in a repository that is gone
+or unreadable are left there and the record still goes; expiry lets landing
+references go the same way, while explicit deletion keeps its landing cleanup
+retry stated below.
+[Landed run review](STORY-REVIEW-LANDED-RUNS.md) shows the kept commits.
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a

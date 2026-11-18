@@ -14,6 +14,7 @@ import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
+import { SessionRunSwitch } from "./StoryReviewSessionRuns.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
@@ -56,6 +57,8 @@ export function StoryReview({
     reading,
     runs,
     selectedRun,
+    sessionRuns,
+    runKey,
     snapshot: workspace,
     published: availablePublished,
     chosen,
@@ -153,6 +156,13 @@ export function StoryReview({
             commits={workspace !== undefined && items.length > 0}
             landed={runs.length > 0}
             published={availablePublished !== undefined}
+          />
+        )}
+        {sessionRuns.length > 1 && (
+          <SessionRunSwitch
+            runs={sessionRuns}
+            selected={runKey}
+            onSelect={onRun}
           />
         )}
         {selectedRun !== undefined && (

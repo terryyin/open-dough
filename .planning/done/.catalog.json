@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-379_keep-default-main-session-changes-for-review.json",
+      "identity": "SEED-379#keep-default-main-session-changes-for-review",
+      "completedAt": "2026-11-18T09:58:45.081Z",
+      "blob": "a88c52a281f9029c37b5fe44353e88c73fd8a584"
+    },
+    {
       "fileName": "SEED-399_let-a-long-codex-wait-run-without-model-requests.json",
       "identity": "SEED-399#let-a-long-codex-wait-run-without-model-requests",
       "completedAt": "2026-11-18T09:43:18.505Z",

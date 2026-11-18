@@ -59,6 +59,29 @@ listed because its workspace is gone says that the workspace is gone and no
 landing comparison was captured, since such a launch may never have landed.
 Missing or unreadable saved repository or objects explain why the comparison is
 unavailable.
+An ad hoc session in the Default main checkout that holds no landing answers
+the commits it made there instead, kept with its launch record at Done
+([capture at Done](AGENT-LAUNCH-COMPLETION.md#session-commits-kept-at-done)):
+the review names them as session commits with the session's launch and Done
+times, and compares a run's first commit's first parent with its last commit.
+The context is headed **Session commits**, says the commits were made in the
+Default main checkout while the session was open, and names the two revisions;
+a capture from a shared checkout adds, in its own sentence, that another
+session was open in the same checkout during that time, so the comparison may
+include that session's work. A session with one kept run shows no Comparison
+switch. With several, the Comparison switch lists the runs as its choices,
+oldest first, and the review opens on the first; each is named by its commit
+count ("1 commit", "2 commits"), its last commit's subject and that commit's
+time, separated and formatted as the Landed run selector's entries are.
+Choosing a run asks for it by its position and shows its files and two
+revisions. Refresh keeps the chosen run and then says how many files changed
+in the kept session commits; a delayed reply for another run cannot replace
+the choice. A run whose commits leave no difference says so in place of the
+file browser. It reads each fixed pair from the saved common Git
+repository as a landing's is read, so it stays readable after trunk advances
+and after the commits leave every branch, without fetching or writing to the
+checkout. A session that holds a landing keeps answering its landing.
+
 None of these states guesses a baseline or lists substitute files from today's
 trunk. Requests to the same review/file boundary name either a story (project
 and story identity, with the landed run's launch identity) or an ad hoc session
