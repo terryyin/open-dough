@@ -43,6 +43,8 @@ export type FrontendStoryReview = {
     identity: string,
     review: StoryReview,
   ) => void;
+  // The answer for every ask that names `run`.
+  readonly answerRunSnapshot: (run: number, review: StoryReview) => void;
   readonly answerNextSnapshot: (review: StoryReview) => void;
   readonly holdNextSnapshot: () => ReturnType<
     ReturnType<typeof controls>["holdNext"]
@@ -86,6 +88,9 @@ export async function installFrontendStoryReview(
     },
     answerHistoricalSnapshot: (identity, review) => {
       state.historicalSnapshots.set(identity, storyReviewSchema.parse(review));
+    },
+    answerRunSnapshot: (run, review) => {
+      state.runSnapshots.set(String(run), storyReviewSchema.parse(review));
     },
     answerNextSnapshot: (review) => {
       snapshotCtl.answerNext(storyReviewSchema.parse(review));

@@ -32,6 +32,7 @@ import { expect } from "./support/preparationPage.ts";
 import { sidePanelContents } from "./support/sidePanelContents.ts";
 import { Board } from "./storyCardPages.ts";
 import { StoryReview } from "./storyReviewPages.ts";
+import { SessionRunSwitch } from "./sessionRunSwitchPages.ts";
 import { SessionsSidebar, Terminal } from "./terminalPages.ts";
 
 type Perspective = "Development" | "Intent";
@@ -122,6 +123,7 @@ export class SidePanelPages {
   readonly intent = new Intent(this);
   readonly sidePanel = new SidePanel(this);
   readonly storyReview = new StoryReview(this);
+  readonly sessionRuns = new SessionRunSwitch(this);
   readonly finalReport = new FinalReport(this);
   readonly terminal = new Terminal(this);
   readonly sessionsSidebar = new SessionsSidebar(this);

@@ -82,16 +82,26 @@ export function frontendPublishedReview(
   };
 }
 
-// The answer for a Done session's kept commits: its first run's comparison of
-// `files`, each kept run offered as one commit, and the capture's shared mark.
+// What a kept run's switch label names: its commit count and last commit.
+export type FrontendSessionRunFacts = {
+  readonly commits: number;
+  readonly subject: string;
+  readonly committedAt: string;
+};
+
+// The answer for a Done session's kept commits: the run at `position`'s
+// comparison of `files`, each kept run offered with its `facts` (one commit
+// at Done unless given), and the capture's shared mark.
 export function frontendSessionCommitsReview(
   { launchedAt, doneAt, sessionCommits }: LaunchRecord,
   files: TakenStoryReview["files"],
+  position = 0,
+  facts: readonly FrontendSessionRunFacts[] = [],
 ): StoryReview {
   const runs = sessionCommits?.runs ?? [];
-  const [first] = runs;
-  if (doneAt === undefined || first === undefined)
-    throw new Error("The record keeps no session commits of a Done session.");
+  const answered = runs[position];
+  if (doneAt === undefined || answered === undefined)
+    throw new Error("The record keeps no such run of a Done session.");
   return {
     kind: "session-commits",
     session: {
@@ -99,16 +109,17 @@ export function frontendSessionCommitsReview(
       doneAt,
       ...(sessionCommits?.shared === true && { shared: true as const }),
     },
-    commitRuns: runs.map(({ base, revision }) => ({
+    commitRuns: runs.map(({ base, revision }, at) => ({
       commits: 1,
       subject: "session work",
       committedAt: doneAt,
+      ...facts[at],
       baseline: base,
       tree: revision,
     })),
-    commitRun: 0,
-    baseline: first.base,
-    tree: first.revision,
+    commitRun: position,
+    baseline: answered.base,
+    tree: answered.revision,
     files,
   };
 }

@@ -315,7 +315,7 @@ steps need another home.
 
 ### 7. Switch between a session's runs
 Type: Behavior
-Status: planned
+Status: done
 Proof: case in `recently-done-ad-hoc-session-commits.spec.ts`. Scratch break:
 open on the newest run; the case fails.
 
@@ -324,6 +324,23 @@ switch lists the runs oldest first, each named by commit count, last commit's
 subject and time; choosing the second shows its files and revisions, Refresh
 keeps the choice, and a delayed reply for the first cannot replace it. A
 session with one run shows no switch.
+
+Delivered: `SessionRunSwitch` (`src/StoryReviewSessionRuns.tsx`) renders the
+landed switch's `ComparisonChoices` (`src/StoryReviewComparison.tsx`) with
+one choice per run, labelled “N commit(s) — last subject — time”;
+`useStoryReviewSelection` spells a run's position as its run key, so
+`run=<position>`, Refresh and the stale-reply guard are the landed ones; the
+fixed view is keyed by completion, then reference, then tree; an empty run
+says “No changes: these session commits leave no difference.” Scratch
+breaks: opening on the last run failed the first-run check
+(`s7-scratch-break`), and a new answer always taking the answered run let
+the late first-run reply replace the second (`s7b-scratch-break`); restored,
+`s7-refactor-frontend-consumers-1` and `s7-refactor-e2e-landed-switch-1`
+exit 0. Follow-up for wrap-up: `pages.sessionRuns.refresh()` and
+`expectDescription()` (`tests/sessionRunSwitchPages.ts`) act on the Story
+review as a whole and belong on `StoryReview` in
+`tests/storyReviewPages.ts`, which at 235 lines must first be split by
+responsibility (context expectations apart from file browser and diff).
 
 ### 8. Release kept commits with the launch record
 Type: Behavior
@@ -398,4 +415,9 @@ Disposition: no user cost "A developer can review what a future ad hoc session w
 ### G11. Refresh feedback, an empty run and the panel guide for session commits
 Reported: slice 6 — "The Refresh feedback line and the hidden description for session commits are implemented but not observed by a test. A kept run with an empty comparison still shows the landing wording \"No changes: this session's delivered comparison is empty.\" `STORY-REVIEW-LANDED-RUNS.md` was not updated for the panel wording."
 Story clause: "The review's context names the comparison as commits made in the Default main checkout while the session was open, with its exact two revisions."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: `dashboard/frontend-tests/sessions/recently-done-ad-hoc-session-runs.spec.ts` (Refresh feedback "Review refreshed: 2 changed files in the kept session commits."; the region's accessible description; the empty-run case "No changes: these session commits leave no difference.") and the session-commits paragraph of `dashboard/STORY-REVIEW-LANDED-RUNS.md`
+
+### G12. A Refresh that answers fewer runs keeps the position, not the run
+Reported: slice 7 — "Session run keys are positions, so a Refresh that returns fewer or reordered runs keeps the position, not the run. Cases not written: choosing back to the first run, and a Refresh after which the chosen position no longer exists."
+Story clause: "otherwise the Comparison switch lists the runs, oldest first, and the review opens on the first."
+Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": a record's runs change only when a reopened session is marked done again (`keptWithSessionCommits` in `server/recordDoneAt.ts` replaces the capture at a set Done), and the review is offered on the Done entry in Recently done, so an open panel's runs stay as answered; a position past the end is refused by the server (`keptSessionRun`) and shown through the panel's existing failed-read feedback.

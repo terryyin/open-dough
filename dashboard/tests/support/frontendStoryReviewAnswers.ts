@@ -77,6 +77,8 @@ export type ReviewBuckets = {
   snapshot: StoryReview;
   readonly snapshots: Bucket<StoryReview>;
   readonly historicalSnapshots: Map<string, StoryReview>;
+  // The answer for an ask naming `run`, by that run.
+  readonly runSnapshots: Map<string, StoryReview>;
   readonly ranges: Bucket<ReviewRange>;
   readonly files: Bucket<ReviewedFileDiff>;
   readonly texts: Bucket<ReviewedFileText>;
@@ -103,6 +105,7 @@ export function createReviewBuckets(initial: StoryReview): ReviewBuckets {
     },
     snapshots: emptyBucket(() => snapshot),
     historicalSnapshots: new Map(),
+    runSnapshots: new Map(),
     ranges: emptyBucket(() => ({
       kind: "comparison" as const,
       from: frontendReviewIds.baseline,
