@@ -63,7 +63,7 @@ Proof: `npm run test:dashboard:frontend -- board-swipe board-indicators` passes 
 ### 2. Answer the notes service by one rule
 
 Type: Structure
-Status: planned
+Status: done
 
 Extract the notes answering rule from `frontendStoryNotes.ts` into a module without Playwright or Node imports: project-scoped reads, accepted changes with their recorded requests, unreadable, refused, unreachable and held answers. The route substitute keeps its interface and calls the rule. A new note's identity and time come from the caller, so the rule needs no MakeMe import. External behavior is unchanged. This enables slice 3.
 
@@ -141,9 +141,12 @@ Slice-plan refinement ran in planning: the first mounted notes case was split so
 | `npm run test:dashboard:frontend -- stories/story-notes` (11 cases) | 1 | 19.6 | 39.7 s | 36.3 s |
 | same | 2 | 14.0 | 16.3 s | 23.4 s |
 | `npm run test:dashboard:frontend` (715 cases) | 1 | 29.8 | 534 s after suite admission (3,142 s including 43 min queued) | 1,003 s |
+| same | 2 | 16.6 after | 527 s after suite admission (2,255 s including 29 min queued) | 1,007 s |
 
-The whole-group command takes the repository's one-full-local-suite admission (`refs/dough/local-test-suite`); run 1 waited 43 minutes behind another worktree's backend suite and run 2 is still queued behind it. Measure the whole group from admission (the proof record's Playwright output directory time to `finishedAt`), not from command launch. The story-notes command varied 2.4× between runs at similar load, so slice 7's alternating matched pairs, not these single figures, decide the ratio.
+The whole-group command takes the repository's one-full-local-suite admission (`refs/dough/local-test-suite`); run 1 waited 43 minutes and run 2 29 minutes behind another worktree's backend suite. Run 2's built-app cases ran while slice 1's uncommitted mounted-support edits were in the tree; those edits reach only the mounted specs, which had already run, but the slice 1 agent's focused runs added load. Measure the whole group from admission (the proof record's Playwright output directory time to `finishedAt`), not from command launch. The story-notes command varied 2.4× between runs at similar load, so slice 7's alternating matched pairs, not these single figures, decide the ratio.
 
 **Slice 1:** the board already sent `/__project-configuration/ci-follow-up` unanswered on the mounted board; the old stub threw and the app swallowed it. The mounted support now fails any unanswered `/__` request by name, so later mounted families must answer every service their board reads.
+
+**Slice 2:** the notes rule is the class `StoryNotesRule` in `dashboard/test-support/support/frontendStoryNotesRule.ts`, because a function over passed-in state failed `no-param-reassign`. Slice 3's mounted answers construct one with their own new-note identity callback and call `answer`, `setNotes` and `markUnreadable`; the server and app already use `answerStoryNotes` and `StoryNotesAnswer`.
 
 ## Story obligations
