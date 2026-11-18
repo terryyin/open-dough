@@ -105,7 +105,7 @@ run picker and context still show beneath the toolbar until slice 3.
 
 ### 2. Review journeys reach review details through one step
 Type: Structure
-Status: planned
+Status: done
 Proof: second row above; the e2e and frontend suites named in the premise row
 green with no product change.
 
@@ -177,6 +177,24 @@ collapsed. Replaces slice 1's interim layout.
 - Trunk amended the story's first scope limit to “Resizing the file sidebar
   and remembering its width, delivered separately.” (`ced05e258`), absorbed
   here; no numbered commitment's source text changed.
+- Slice 2 accepted on 2026-11-18: `showReviewDetails` in `reviewControls.ts`
+  is the one step. A scratch (details hidden, step revealing them) over the
+  whole e2e suite (798 tests) and the whole frontend suite (690) found 8 more
+  bypassing tests in 7 `e2e/review` files and 2 frontend specs, all routed;
+  no other e2e folder and no integrated spec reads the controls. Scratch
+  reverted: whole `e2e/review` and the Intent landed-run spec green (74
+  tests), frontend suite green but for the slice 1 defect repaired above,
+  `frontend-tests/navigation` green after the repair.
+- For slice 3: `openReviewAsOpened` in `reviewRead.ts` opens without the
+  step; activating the eye moves focus off the review body, so
+  `expectOpenedWithKeyboard` asserts focus before the step; the review
+  remounts, and so collapses, when another card's Review changes replaces it
+  in the open panel; absence assertions on detail controls pass vacuously
+  while collapsed, so each takes the step first; the layout helper
+  `notReadWhole` flags any element styled `text-overflow: ellipsis`.
+- `e2e/runtime/production-watcher-updates.spec.ts:43` and
+  `production-watcher.spec.ts:57` timed out once in a 42-minute whole-e2e
+  scratch run under load and passed on rerun; they open no review.
 - Flaky under load, not caused by this story:
   `e2e/review/story-review-one-shot-choice.spec.ts:23` timed out once at 30 s
   at load about 32; its trace shows about 23 s in the fixture's three real

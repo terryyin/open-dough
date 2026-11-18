@@ -17,7 +17,7 @@ import {
   type FrontendStoryReview,
 } from "./frontendStoryReview.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import { reviewRegion } from "./reviewControls.ts";
+import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   openFrontendBoardReview,
   storyA,
@@ -60,7 +60,7 @@ export async function openFrontendStoryReview(
   await openFrontendTakenBacklog(page);
   const card = takenStoryCard(page);
   await reviewChanges(card).click();
-  const review = reviewRegion(page);
+  const review = await showReviewDetails(reviewRegion(page));
   return { card, review, answers };
 }
 
@@ -76,5 +76,5 @@ export async function openFrontendDoneStoryReview(
   prepare(answers);
   await openFrontendBoardReview(page, frontendServices);
   await reviewChanges(doneCard(page, storyA.title)).click();
-  return { review: reviewRegion(page), answers };
+  return { review: await showReviewDetails(reviewRegion(page)), answers };
 }

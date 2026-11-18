@@ -31,8 +31,8 @@ import {
   contextLine,
   contextValues,
   contextWords,
-  reviewBody,
 } from "../../dashboard/tests/support/reviewContextLine.ts";
+import { expectOpenedWithKeyboard } from "../../dashboard/tests/support/reviewRead.ts";
 import { shownLineNumbers } from "../../dashboard/tests/support/reviewLineNumbers.ts";
 import {
   expectTreeRows,
@@ -70,7 +70,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
   await expect(review).toContainText(`Story review ${queuedIdentity}`);
-  await expect(reviewBody(review)).toBeFocused();
+  await expectOpenedWithKeyboard(review);
   const files = changedFilesList(review, "7 changed files");
   await expectTreeRows(files, [
     "fresh",

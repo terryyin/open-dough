@@ -15,7 +15,11 @@ import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
-import { comparison, reviewRegion } from "./support/reviewControls.ts";
+import {
+  comparison,
+  reviewRegion,
+  showReviewDetails,
+} from "./support/reviewControls.ts";
 
 export class StoryReview extends PageObject {
   get #review() {
@@ -59,6 +63,7 @@ export class StoryReview extends PageObject {
     readonly revision: string;
   }) {
     return this.cueHere("Story review: shows the landed context", async () => {
+      await showReviewDetails(this.#review);
       await expect(
         this.#review.getByRole("heading", { name: "Landed run", exact: true }),
       ).toBeVisible();
@@ -78,8 +83,12 @@ export class StoryReview extends PageObject {
   }
 
   expectNoComparisonSwitch() {
-    return this.cueHere("Story review: shows no Comparison switch", () =>
-      expect(comparison(this.#review)).toHaveCount(0),
+    return this.cueHere(
+      "Story review: shows no Comparison switch",
+      async () => {
+        await showReviewDetails(this.#review);
+        await expect(comparison(this.#review)).toHaveCount(0);
+      },
     );
   }
 

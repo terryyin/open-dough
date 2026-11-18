@@ -51,6 +51,14 @@ export async function expectToggleLeadsToolbar(
   return toggleAt;
 }
 
+// The open review with its details readable: the comparison choices, the run
+// picker, the context of the comparison shown and the uncommitted check.
+// Safe to take again; a later opening of the panel takes it anew.
+export async function showReviewDetails(review: Locator) {
+  await expect(reviewToolbar(review)).toBeVisible();
+  return review;
+}
+
 // The story review's comparison switch.
 export const comparison = (review: Locator) =>
   review.getByRole("radiogroup", { name: "Comparison" });
