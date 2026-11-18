@@ -115,7 +115,7 @@ wiring constants stay importable); the tree passes `npm run lint`.
 
 ### 2. Remove the spent records and the pilot document
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in commands print nothing for these files; `npm run lint`.
 
 Behavior: `AGENTS.md`, SEED-300 and SEED-301 link the pilot document → delete

@@ -30,8 +30,8 @@ decisions, and findings with an ongoing owner.
   selection. [Test data architecture](Distribution/tests/README.md#test-data-architecture)
   and the [dashboard test guide](dashboard/tests/README.md) give this project's
   builders and harness boundaries. The
-  [fluent side-panel pilot](dashboard/tests/fluent-side-panel-pilot.md) holds
-  the pilot context for those three journeys.
+  [fluent side-panel page objects](dashboard/tests/sidePanelPages.ts) show
+  the phase-and-cue form of the Side panel journeys.
 - Never use `test.slow()`.
 - Keep the default test timeout. Override it only when essential, inside the
   individual test. Suite, file, group, and hook overrides are forbidden.

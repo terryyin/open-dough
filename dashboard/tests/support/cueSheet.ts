@@ -4,8 +4,9 @@
 // phase then runs them, each as its own Playwright step, and stops at the
 // first that fails, keeping that step's assertion. The page's requests and
 // the native hosts move on their own, so what a phase waits for is always
-// something the page shows; holds, request counts and kept records stay
-// with the test between phases.
+// something the page shows. A cue reads nothing the test needs afterwards:
+// the test reads measurements, holds, request counts and kept records
+// between phases.
 
 import { test } from "./pageTest.ts";
 
