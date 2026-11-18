@@ -9,7 +9,7 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { publishSkippedPlanningLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedFixture.ts";
+import { publishSkippedPlanningLanding } from "../../dashboard/test-support/support/storyCiComparisonSkippedLandingFixture.ts";
 import { publishCodeLandedBeforeCompletion } from "../../dashboard/test-support/support/storyCiComparisonEarlierLanding.ts";
 import { serveEarlierLandingWithLandedOutcome } from "../../dashboard/test-support/support/storyCiComparisonLandedOutcome.ts";
 import { laterProof } from "../../dashboard/test-support/support/storyCiComparisonCancelledLanding.ts";

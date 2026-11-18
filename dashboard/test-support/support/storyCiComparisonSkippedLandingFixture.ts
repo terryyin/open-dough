@@ -1,7 +1,8 @@
 // Done Story Branch publishers for Intent CI comparison Landed equivalent-
 // build cases (../../../e2e/intent/intent-ci-comparison-skipped-landed.spec.ts): a
-// planning-only landing with parent proof, the same without parent proof,
-// and a code landing with no run (exact-only No build).
+// planning-only landing with parent proof and the same without parent proof.
+// `publishUnbuiltStoryLanding` also serves a code landing with no run
+// (./missingLandedRun.ts).
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
@@ -18,7 +19,10 @@ import { queuedIdentity } from "./startOrigin.ts";
 import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 import {
-  commitComparisonCiWorkflow,
+  aComparisonCiTrunk,
+  publishDeclaredTrunk,
+} from "./storyCiComparisonBaseline.ts";
+import {
   serveActionsFor,
   wall,
   type StoryCiComparisonSetup,
@@ -42,11 +46,13 @@ export async function publishUnbuiltStoryLanding(
   origin: StartOrigin,
   branchChange: "planning" | "code",
 ) {
-  commitComparisonCiWorkflow(origin.project);
-  writeAt(origin.project, "src/built.ts", "built before story\n");
-  commitAll(origin.project, "ship a built revision");
-  const olderBaseline = git(origin.project, "rev-parse", "HEAD");
-  push(origin.project);
+  const { "built baseline": olderBaseline } = await publishDeclaredTrunk(
+    origin,
+    aComparisonCiTrunk().withRevision("built baseline", {
+      message: "ship a built revision",
+      files: { "src/built.ts": "built before story\n" },
+    }),
+  );
 
   const claimant = "Yui";
   const identity = agentIdentity(claimant);
@@ -57,20 +63,20 @@ export async function publishUnbuiltStoryLanding(
     mode: "story-branch",
   });
 
-  if (branchChange === "planning") {
+  if (branchChange === "planning")
     writeAt(workspace, ".planning/landing-note.md", "docs-only landing\n");
-    commitAll(workspace, "planning-only branch tip");
-  } else {
-    writeAt(workspace, "dashboard/landed.ts", "code at landing\n");
-    commitAll(workspace, "code change on branch");
-  }
-  const branchSide = git(workspace, "rev-parse", "HEAD");
+  else writeAt(workspace, "dashboard/landed.ts", "code at landing\n");
+  const branchSide = commitAll(
+    workspace,
+    branchChange === "planning"
+      ? "planning-only branch tip"
+      : "code change on branch",
+  );
   git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
 
   pull(origin.project);
   writeAt(origin.project, "src/built.ts", "trunk parent before landing\n");
-  commitAll(origin.project, "trunk build at landing parent");
-  const trunkSide = git(origin.project, "rev-parse", "HEAD");
+  const trunkSide = commitAll(origin.project, "trunk build at landing parent");
   push(origin.project);
 
   git(origin.project, "fetch", "--quiet", "origin", branch);
@@ -107,8 +113,10 @@ export async function publishUnbuiltStoryLanding(
   } catch {
     // Profile may already be gone after complete.
   }
-  commitAll(origin.project, "complete the story through CLI");
-  const completion = git(origin.project, "rev-parse", "HEAD");
+  const completion = commitAll(
+    origin.project,
+    "complete the story through CLI",
+  );
   push(origin.project);
   git(origin.project, "push", "--quiet", "--delete", "origin", branch);
   git(origin.project, "worktree", "remove", "--force", workspace);
@@ -132,10 +140,9 @@ export async function publishUnbuiltStoryLanding(
 async function publishLandingWithoutRun(
   page: Page,
   origin: StartOrigin,
-  branchChange: "planning" | "code",
   parentProof: "summary" | "none",
 ): Promise<SkippedLandingSetup> {
-  const setup = await publishUnbuiltStoryLanding(origin, branchChange);
+  const setup = await publishUnbuiltStoryLanding(origin, "planning");
   const { olderBaseline, trunkSide, branchSide, landingMerge, completion } =
     setup;
   const published = git(origin.origin, "rev-parse", "main");
@@ -207,19 +214,12 @@ export async function publishSkippedPlanningLanding(
   page: Page,
   origin: StartOrigin,
 ): Promise<SkippedLandingSetup> {
-  return publishLandingWithoutRun(page, origin, "planning", "summary");
+  return publishLandingWithoutRun(page, origin, "summary");
 }
 
 export async function publishSkippedLandingWithoutProof(
   page: Page,
   origin: StartOrigin,
 ): Promise<SkippedLandingSetup> {
-  return publishLandingWithoutRun(page, origin, "planning", "none");
-}
-
-export async function publishCodeLandingWithoutBuild(
-  page: Page,
-  origin: StartOrigin,
-): Promise<SkippedLandingSetup> {
-  return publishLandingWithoutRun(page, origin, "code", "summary");
+  return publishLandingWithoutRun(page, origin, "none");
 }

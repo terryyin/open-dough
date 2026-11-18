@@ -198,7 +198,7 @@ publishing a narrowed shared type.
 
 ### 3. Read build eligibility from historical workflow facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Workflow/eligibility row, F's scoped provenance and final workflow fault.
 
 Behavior: Given explicit workflow bytes and planning/code changes at named
@@ -208,6 +208,16 @@ start/landing/proofless-parent and retry starting history through the same graph
 owners. Preserve provider runs/proofs/jobs, adapter differences and literal
 invalidity. Unshallow/retry and later publication under proof remain actions.
 One build-selection loop; 15 active minutes, commands excluded.
+
+Delivered: `aComparisonCiTrunk` declares the paths-ignore CI workflow and
+`publishDeclaredTrunk` commits declared revisions, pushes once and answers SHAs
+by name; `commitComparisonCiWorkflow` and the uncalled skipped-start/baseline-walk
+publishers are gone (their distinctions stay in backend selection/cancelled and
+Frontend mounted specs). Accepted proof: 15 E2E files (18), 65 backend files
+(173), 4 Frontend files (36), full lint; historical-workflow fault failed at the
+Landed identity and +17 s, tip-only workflow change passed, restored passed.
+Slice 5 may move the Summary variant publishers onto `publishDeclaredTrunk`.
+`landingMerge` after a real `git merge` stays a read of the action's result.
 
 ### 4. Read completion sources beside retained local state
 Type: Behavior

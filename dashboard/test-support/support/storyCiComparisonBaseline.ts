@@ -1,6 +1,7 @@
-// The trunk history a CI comparison fixture (./storyCiComparisonFixture.ts)
-// starts a story from: a built baseline, then planning-only revisions up to
-// the claim, declared once and committed by the repository harness.
+// Trunk histories a CI comparison fixture (./storyCiComparisonFixture.ts)
+// starts a story from, declared once and committed by the repository harness:
+// a built baseline followed by planning-only revisions up to the claim, or a
+// trunk opening with the paths-ignore CI workflow.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
@@ -8,7 +9,6 @@ import { commitDeclaredRevision } from "../../../Distribution/tests/support/repo
 import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
-import { lines } from "./storyReviewWorktree.ts";
 import {
   comparisonCiWorkflow,
   comparisonWorkflow,
@@ -38,57 +38,56 @@ export function withPlanningBeforeClaim<Name extends string>(
   );
 }
 
+// A trunk whose CI workflow's paths-ignore confirms skips at planning-only
+// revisions, as the observed builds ran it.
+export const aComparisonCiTrunk = () =>
+  makeMe.aRepository.withRevision("ci workflow", {
+    backlog: null,
+    message: "add CI workflow with paths-ignore",
+    files: { ".github/workflows/ci.yml": comparisonCiWorkflow },
+  });
+
 // The built baseline keeps the workflow as it ran for the observed builds.
-// `withCiWorkflow` precedes it with a paths-ignore CI workflow;
-// `sharedInBaseline` adds shared.txt so a later completed story can skip its
-// initial shared commit and leave a planning-only claim parent.
-function comparisonBaselineHistory(options?: {
-  readonly withCiWorkflow?: boolean;
-  readonly sharedInBaseline?: boolean;
-}) {
-  const history =
-    options?.withCiWorkflow === true
-      ? makeMe.aRepository.withRevision("ci workflow", {
-          backlog: null,
-          message: "add CI workflow with paths-ignore",
-          files: { ".github/workflows/ci.yml": comparisonCiWorkflow },
-        })
-      : makeMe.aRepository;
+function comparisonBaselineHistory() {
   return withPlanningBeforeClaim(
-    history.withRevision("built baseline", {
+    makeMe.aRepository.withRevision("built baseline", {
       backlog: null,
       message: "ship a built revision",
       files: {
         "src/built.ts": "built before story\n",
         [comparisonWorkflowPath]: comparisonWorkflow,
-        ...(options?.sharedInBaseline === true && {
-          "shared.txt": lines("line"),
-        }),
       },
     }),
-  ).please().revisions;
+  );
 }
 
-// Publishes `comparisonBaselineHistory` on trunk, transported once since no
-// reader observes the intermediate publications, and answers the commit the
-// built baseline became.
-export async function precedeClaimWithPlanning(
+// Publishes a declared trunk history, transported once since no reader
+// observes the intermediate publications, and answers the commit each named
+// revision became.
+export async function publishDeclaredTrunk<Name extends string>(
   origin: StartOrigin,
-  options?: Parameters<typeof comparisonBaselineHistory>[0],
-): Promise<string> {
-  const commits = new Map<string, string>();
-  for (const revision of comparisonBaselineHistory(options)) {
-    commits.set(
-      revision.name,
-      await commitDeclaredRevision(
-        origin.project,
-        revision,
-        dashboardDeveloper,
-      ),
+  history: RepositoryBuilder<Name>,
+): Promise<Record<Name, string>> {
+  const commits: Record<string, string> = {};
+  for (const revision of history.please().revisions) {
+    commits[revision.name] = await commitDeclaredRevision(
+      origin.project,
+      revision,
+      dashboardDeveloper,
     );
   }
   push(origin.project);
-  const baseline = commits.get("built baseline");
-  if (baseline === undefined) throw new Error("No built baseline committed");
-  return baseline;
+  return commits;
+}
+
+// Publishes `comparisonBaselineHistory` on trunk and answers the commit the
+// built baseline became.
+export async function precedeClaimWithPlanning(
+  origin: StartOrigin,
+): Promise<string> {
+  const commits = await publishDeclaredTrunk(
+    origin,
+    comparisonBaselineHistory(),
+  );
+  return commits["built baseline"];
 }

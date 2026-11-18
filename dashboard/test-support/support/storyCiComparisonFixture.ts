@@ -38,7 +38,6 @@ export {
 } from "./storyCiComparisonBaseline.ts";
 export {
   comparisonCiWorkflow,
-  commitComparisonCiWorkflow,
   comparisonWorkflow,
   comparisonWorkflowPath,
 } from "./storyCiComparisonWorkflows.ts";

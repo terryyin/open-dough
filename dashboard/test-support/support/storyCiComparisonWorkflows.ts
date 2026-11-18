@@ -4,7 +4,6 @@
 // paths-ignore confirms skips.
 
 import { readFileSync } from "node:fs";
-import { commitAll, writeAt } from "./storyReviewWorktree.ts";
 
 export const comparisonWorkflowPath = ".github/workflows/comparison.yml";
 // The observed jobs' rows name that workflow's jobs, so it stays as it ran
@@ -37,8 +36,3 @@ export const comparisonCiWorkflow = [
   "      - run: echo ok",
   "",
 ].join("\n");
-
-export function commitComparisonCiWorkflow(project: string): void {
-  writeAt(project, ".github/workflows/ci.yml", comparisonCiWorkflow);
-  commitAll(project, "add CI workflow with paths-ignore");
-}
