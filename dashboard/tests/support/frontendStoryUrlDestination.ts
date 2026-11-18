@@ -1,5 +1,6 @@
 // Frontend arrangement for arriving at a story from its URL
-// (../../frontend-tests/navigation/story-url-destination.spec.ts): Doughnut
+// (../../frontend-tests/navigation/story-url-destination.spec.ts) or learning
+// why it cannot be shown (story-url-destination-unavailable.spec.ts): Doughnut
 // and Open Dough each tell the shared story identity
 // (../projectSelectionProjects.ts), Doughnut with twelve stories queued ahead
 // of it so its card starts out of view; and Open Dough alone with Akiho

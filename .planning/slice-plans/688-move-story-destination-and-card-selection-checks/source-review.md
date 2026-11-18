@@ -25,11 +25,11 @@ examples are journeys, not rejection rules.
 | 4c | Key example 1: once answered, Doughnut's card holds the keyboard in view | slice 1 | observed: dashboard/frontend-tests/navigation/story-url-destination.spec.ts "cold story URL waits…" step 'once answered': expectArrivedAt(card) (focused, in view 0.99), Tab then expectKeyboardWithin(card) |
 | 4d | Key example 1: once answered, the route keeps the story | slice 1 | observed: dashboard/frontend-tests/navigation/story-url-destination.spec.ts "cold story URL waits…" step 'once answered': expectRoute story=SEED-777#shared-story, empty hash |
 | 4e | Key example 1: the Frontend case holds and releases that answer itself | slice 1 | observed: dashboard/frontend-tests/navigation/story-url-destination.spec.ts "cold story URL waits…": holdProjectReads(page, "doughnut", releases) (dashboard/tests/holdAuthenticatedReads.ts) then held.release() in the case |
-| 5a | Key example 2: an absent story reads differently from the other outcomes | slice 2 | |
-| 5b | Key example 2: an unknown project reads distinctively | slice 2 | |
-| 5c | Key example 2: a failed story read reads distinctively | slice 2 | |
-| 5d | Key example 2: "Retry story destination" recovers the failed read | slice 2 | |
-| 5e | Key example 2: a project choice made meanwhile wins, without a late reveal | slice 2 | |
+| 5a | Key example 2: an absent story reads differently from the other outcomes | slice 2 | observed: dashboard/frontend-tests/navigation/story-url-destination-unavailable.spec.ts "an absent story is distinct…" step 'a story Doughnut does not list is absent': region contains "is not listed in Doughnut's published work" and SEED-404#gone, no Retry button, no card focused |
+| 5b | Key example 2: an unknown project reads distinctively | slice 2 | observed: dashboard/frontend-tests/navigation/story-url-destination-unavailable.spec.ts "an unknown project retains…": region contains "Project retired-project is not configured" and the identity, route keeps project, no card focused |
+| 5c | Key example 2: a failed story read reads distinctively | slice 2 | observed: dashboard/frontend-tests/navigation/story-url-destination-unavailable.spec.ts "an absent story is distinct…" step 'an unread Doughnut is a failed read': unreachable() read → "could not be read", not "is not listed", identity kept, no focus |
+| 5d | Key example 2: "Retry story destination" recovers the failed read | slice 2 | observed: dashboard/frontend-tests/navigation/story-url-destination-unavailable.spec.ts "an absent story is distinct…" step 'Retry, once Doughnut answers': pass() then Retry story destination → Doughnut card focused, region gone |
+| 5e | Key example 2: a project choice made meanwhile wins, without a late reveal | slice 2 | observed: dashboard/frontend-tests/navigation/story-url-destination-unavailable.spec.ts "a project choice supersedes…": Doughnut held, Open Dough chosen; after release choice stays Open Dough, story null, revealsOf [] and no Doughnut card |
 | 6a | Key example 3: asking again (Back from Intent, Back from Settings) for the selected, inspected, reviewed destination cues it again | slice 3 | |
 | 6b | Key example 3: the repeat keeps selection, detail and review heading | slice 3 | |
 | 7a | Key example 4: clicking a card's empty area toggles its selection | slice 4 | |

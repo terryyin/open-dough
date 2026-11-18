@@ -27,9 +27,11 @@ successor stories. No product code change. No blocking dependency.
 - New arrangements go in their own `frontend*.ts` module:
   `frontendServiceState.ts` is 241 lines and `dashboardTest.ts` 243, and no
   edited file may pass 250.
-- `notificationStoryJourney.ts` keeps its page-side names (`storyUrl`,
-  `notifiedCard`, `storyDestination`, `expectArrivedAt`); E2E
-  `sessions/session-alerts-navigation.spec.ts` still imports it. Its
+- `notificationStoryJourney.ts` keeps its live page-side names (`storyUrl`,
+  `storyDestination`, `expectArrivedAt`); E2E
+  `sessions/session-alerts-navigation.spec.ts` still imports it. Slice 2
+  removed `expectNoHostActions` and `notifiedCard`, left unused by the
+  interim spec's deletion. Its
   server-side `notificationOrigins` stays for that E2E case. The Frontend
   arrangement reuses `projectSelectionProjects.ts` (`sharedStoryIdentity`,
   Doughnut and Open Dough publications) rather than a second copy of the
@@ -159,7 +161,7 @@ Dough with one agent executing its Taken story); fold them together when slice
 
 ### 2. Explain a story destination that cannot be shown
 Type: Behavior
-Status: planned
+Status: done
 Proof: the other four `notification-story-navigation` tests ("an unknown
 project…", "an absent story is distinct from failed reading…", "a project
 choice supersedes a pending story destination…", "ordinary project replacement
@@ -173,6 +175,45 @@ break: show the absent wording for a failed read; the distinction case fails.
 Behavior: an unknown project, an absent story, a failed read or a superseding
 choice → its own explanation with the identity kept, "Retry story destination"
 or "Show project stories" recovering, and no late reveal.
+
+Assertion map (interim → `frontend-tests/navigation/story-url-destination-unavailable.spec.ts`,
+same test names; arrangement `answerSharedStoryProjects`; interim
+`otherTitle`/`notifiedCard` → `openDoughSharedTitle`/`doughnutSharedTitle` cards):
+
+- Unknown: "Project retired-project is not configured"; identity kept; route
+  `project=retired-project`; no card focused; "Show project stories" removes
+  the region, clears `story`, shows Open Dough's card. In "an unknown project…".
+- Absent vs failed: SEED-404#gone → "is not listed in Doughnut's published
+  work", identity shown, no card focused (plus: no Retry offered). Failed read
+  (interim `answerWith("main", noConnection)`) →
+  `controlFrontendAuthenticatedRead(source=doughnut).unreachable()`: "could not
+  be read", not "is not listed", identity kept, no card focused. `pass()` then
+  "Retry story destination" → Doughnut's card focused, region gone. In "an
+  absent story is distinct…" (three steps).
+- Superseding choice: Doughnut's reads held (`target.requests > 1` →
+  `held() > 0`); choose Open Dough → its card visible; release; choice stays
+  Open Dough; `story` cleared; `revealsOf` `[]` (no late reveal); Doughnut's
+  card absent. In "a project choice supersedes…".
+- Settings removal: arrival focused; System settings → Remove project
+  Doughnut → confirm dialog hidden; `story` cleared; Back to dashboard →
+  remaining project chosen (interim Pygardon, its first remaining project →
+  Open Dough here, the only one left); no region; `story` cleared. In "ordinary
+  project replacement…", on `installFrontendSettingsSubstitutes` with Open
+  Dough and Doughnut configured, the journey of
+  `configuration/system-settings-project-management-touch.spec.ts`. That the
+  server rewrites the file is E2E `configuration/project-remove.spec.ts`.
+- No host action (`expectNoHostActions`) → `recordHostRequests` equals `[]` at
+  the end of each of the four tests.
+
+Scratch break (P5): `dashboard/src/StoryDestination.tsx`, `status === "failed"`
+rendered the absent wording (`"failed" && false` branch; `absent || failed`
+shows "is not listed"). `node .claude/skills/dough-execute-plan/scripts/slice-clock.mjs run … -- env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/frontend.playwright.config.ts navigation/story-url-destination-unavailable.spec.ts -g "an absent story is distinct" --reporter=list --workers=2`:
+exit 1 in step "an unread Doughnut is a failed read…", expected "could not be
+read", received "Story SEED-777#shared-story is not listed in Doughnut's
+published work.". Restored from a copy (`git status` shows no `dashboard/src`
+change); both story URL specs then 8 passed (6.2 s), exit 0. Interim spec
+deleted; `notificationStoryJourney.ts` unchanged, its `expectNoHostActions`
+and `notifiedCard` now without a consumer.
 
 ### 3. Cue a repeated story destination
 Type: Behavior
@@ -218,7 +259,7 @@ Observed in this workspace at `87dfb8fbf1f6dc78cbd279e8fb33d1396da9d8a6`,
 | P2. The Frontend homes the slices extend run here (slices 1, 2, 4). | `npx playwright test --config dashboard/frontend.playwright.config.ts navigation/project-selection.spec.ts sessions/recently-done-sessions-select configuration/system-settings-project-management-touch.spec.ts --reporter=list --workers=2`: 15 passed (14.4 s). The shared-identity arrangement, held revision and dependency answers are new; slices 1 and 4 build them first, and a case they cannot express keeps a Backend or E2E home under the proof rule above. |
 | P3. Removing the four specs leaves both shards selecting specs and the shard checks green (every slice). | With the four specs moved aside: shard 1/2 lists 3 tests in 1 file, shard 2/2 lists 19 tests in 6 files; `bash scripts/test.sh Distribution/tests/support/browser-group-shards.test.mjs Distribution/tests/support/ci-browser-groups.test.mjs` exit 0. Specs restored. |
 | P4. Shared support survives the deletions (slices 2–4). | `grep` importers: `notificationStoryJourney.ts`, `storyDependencyFixture.ts` and `destinationCue.ts` are imported by E2E specs or the seven remaining interim specs; none becomes unused here. Execution's consumer trace rechecks after each deletion. |
-| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). |
+| P5. Each replacement discriminates (every slice). | Not observable before the replacements exist: each slice's paired scratch break above settles it and records the result here. Slice 1: an early `document.body.scrollIntoView()` in `useStoryDestination` before Doughnut's revision answers fails "cold story URL waits…" (exit 1, one reveal recorded); restored, the spec passes 4/4 (record under slice 1). Slice 2: the absent wording for a failed read fails "an absent story is distinct…" (exit 1, "is not listed" received); restored, 8/8 pass (record under slice 2). |
 
 Refinement: not needed; four slices with one proof loop each, no cumulative
 design beyond the two small arrangements named above.
