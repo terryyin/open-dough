@@ -1,50 +1,17 @@
-// The mounted notes board the story-notes cases open, with its notes answers on the
-// shared rule and the fixture's timers; and its Story notes page: the cues of
-// the Playwright page object (../support/storyNotesPage.ts) under the same
-// names, reading the same names (../storyNotesNames.ts).
-import { act } from "react";
-import { expect, vi } from "vitest";
-import { commands, page, userEvent, type Locator } from "vitest/browser";
+// The mounted Story notes page: the cues of the Playwright page object
+// (../support/storyNotesPage.ts) under the same names, reading the same names
+// (../storyNotesNames.ts).
+import { expect } from "vitest";
+import { page, type Locator } from "vitest/browser";
 import {
   storyNoteSentToFollowUp,
   storyNoteWaitingForFollowUp,
   storyNotesWaitingDescription,
 } from "../../src/storyNote.ts";
-import type { ArrangedStoryNote } from "../support/mountedDashboardCommands.ts";
 import { storyNotesNames as n } from "../storyNotesNames.ts";
-import { mountAnsweredDashboard } from "./mountedDashboard.ts";
+import { click, fill, press } from "./mountedActInput.ts";
 
-type Column = "Backlog" | "Taken" | "Recently done";
-const wide = { width: 1280, height: 720 };
-
-async function onControl(
-  locator: Locator,
-  use: (control: HTMLElement) => void,
-) {
-  await act(async () => {
-    const element = await locator.findElement();
-    if (!(element instanceof HTMLElement))
-      throw new Error(`Expected a control: ${locator.selector}`);
-    use(element);
-  });
-}
-
-async function click(locator: Locator) {
-  await onControl(locator, (control) => {
-    control.click();
-  });
-}
-
-// Activates a control as a keyboard user does: focus, then a real Enter.
-async function press(locator: Locator) {
-  await onControl(locator, (control) => {
-    control.focus();
-  });
-  await expect.element(locator).toHaveFocus();
-  await act(() => userEvent.keyboard("{Enter}"));
-}
-
-function storyNotesPage() {
+export function storyNotesPage() {
   const dialog = page.getByRole("dialog", { name: n.dialog, exact: true });
   const field = dialog.getByRole("textbox", { name: n.field, exact: true });
   const entries = dialog
@@ -63,6 +30,12 @@ function storyNotesPage() {
     entries.nth(index).getByRole("button", { name, exact: true });
   const question = (index: number) =>
     entries.nth(index).getByRole("group", { name: n.deleteQuestion });
+  const add = async () => {
+    await click(dialog.getByRole("button", { name: n.add, exact: true }));
+    await expect
+      .element(dialog.getByRole("heading", { name: n.add, exact: true }))
+      .toBeVisible();
+  };
   return {
     expectCount: async (card: Locator, count: number) => {
       await expect
@@ -88,14 +61,35 @@ function storyNotesPage() {
         .element(dialog.getByRole("alert").filter({ hasText: message }))
         .toBeVisible();
     },
-    add: async () => {
-      await click(dialog.getByRole("button", { name: n.add, exact: true }));
+    add,
+    addNote: async (text: string) => {
+      await add();
+      await fill(field, text);
+      await click(dialog.getByRole("button", { name: n.save, exact: true }));
+      await expect.element(field).not.toBeInTheDocument();
+    },
+    expectContext: async (title: string, identity: string) => {
       await expect
-        .element(dialog.getByRole("heading", { name: n.add, exact: true }))
+        .element(dialog.getByText(title, { exact: true }))
+        .toBeVisible();
+      await expect
+        .element(dialog.getByText(identity, { exact: true }))
         .toBeVisible();
     },
+    expectSaved: async () => {
+      await expect.poll(() => inDialog(n.announcement)).toBe(n.saved);
+      expect(page.getByText(n.saved, { exact: true }).elements()).toHaveLength(
+        1,
+      );
+      await expect.element(field).not.toBeInTheDocument();
+      expect(dialog.getByRole("alert").elements()).toEqual([]);
+    },
+    expectEntryActions: async (index: number) => {
+      await expect.element(action(index, n.edit)).toBeVisible();
+      await expect.element(action(index, n.delete)).toBeVisible();
+    },
     type: async (text: string) => {
-      await field.fill(text);
+      await fill(field, text);
     },
     save: async () => {
       await click(dialog.getByRole("button", { name: n.save, exact: true }));
@@ -185,32 +179,6 @@ function storyNotesPage() {
     close: async () => {
       await click(dialog.getByRole("button", { name: n.close, exact: true }));
       await expect.element(dialog).not.toBeInTheDocument();
-    },
-  };
-}
-
-// Opens the wide board on the notes arrangement the Node command builds.
-export async function mountStoryNotesBoard(note?: ArrangedStoryNote) {
-  const arranged = await commands.storyNotesBoard(note);
-  const dashboard = await mountAnsweredDashboard({
-    answers: arranged.answers,
-    boardPositionKey: arranged.boardPositionKey,
-    viewport: wide,
-  });
-  return {
-    project: arranged.project,
-    identity: arranged.identity,
-    note: arranged.note,
-    cards: arranged.cards,
-    notes: storyNotesPage(),
-    notesService: dashboard.notes,
-    card: (column: Column, title: string) =>
-      page
-        .getByRole("region", { name: column, exact: true })
-        .getByRole("article", { name: title, exact: true }),
-    // Advances the fixture's timers, as the built app's clock ran.
-    runFor: async (ms: number) => {
-      await act(() => vi.advanceTimersByTimeAsync(ms));
     },
   };
 }

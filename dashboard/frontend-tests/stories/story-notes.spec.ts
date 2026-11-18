@@ -1,20 +1,13 @@
 // Real store persistence/refusals: ../../backend-tests/review/story-notes-*.spec.ts.
+// The notes service cases run mounted: ./story-notes-*.mounted.spec.ts.
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendBoardReview,
   storyA,
 } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
 import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
 import { parts } from "../../test-support/dashboardParts.ts";
-import { showColumn } from "../../test-support/boardPage.ts";
-import {
-  readyIdentity,
-  readyStory,
-  takenIdentity,
-  takenStory,
-} from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendTerminalSubstitute.ts";
 import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
@@ -23,180 +16,12 @@ import {
   terminalPanel,
   terminalScreenParts,
 } from "../../test-support/terminalScreenPage.ts";
-import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
-import {
-  storyNoteSentToFollowUp,
-  storyNoteWaitingForFollowUp,
-} from "../../src/storyNote.ts";
 
 const reviewedStoryCard = (page: Page) =>
   parts(page).recentlyDone.getByRole("article", {
     name: storyA.title,
     exact: true,
   });
-
-test("all card kinds offer general notes, blank is unsaved, newest first", async ({
-  page,
-  frontendServices,
-}) => {
-  const service = await installFrontendStoryNotes(page);
-  await openFrontendBoardReview(page, frontendServices);
-  const notes = storyNotesPage(page);
-  const done = reviewedStoryCard(page);
-  await notes.expectCount(done, 0);
-  await notes.open(done);
-  await notes.expectContext(storyA.title, storyA.identity);
-  await notes.close();
-  await showColumn(page, "Taken");
-  await notes.expectCount(
-    parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
-    0,
-  );
-  await showColumn(page, "Backlog");
-  const card = parts(page).backlog.getByRole("article", {
-    name: readyStory,
-    exact: true,
-  });
-  await notes.open(card);
-  await notes.expectContext(readyStory, readyIdentity);
-  await notes.add();
-  await notes.type("   ");
-  await notes.save();
-  await notes.expectComposing("   ");
-  expect(service.asked().filter(({ method }) => method === "POST")).toEqual([]);
-  await notes.cancel();
-  await notes.addNote("First observation");
-  await notes.expectSaved();
-  await notes.expectNotes(["First observation"]);
-  await notes.expectNoteContext(
-    "First observation",
-    `${readyStory} · ${readyIdentity}`,
-  );
-  await notes.addNote("Later observation");
-  await notes.expectSaved();
-  await notes.expectNotes(["Later observation", "First observation"]);
-  expect(service.changes()).toEqual([
-    { action: "add", identity: readyIdentity, text: "First observation" },
-    { action: "add", identity: readyIdentity, text: "Later observation" },
-  ]);
-  await notes.close();
-  await notes.expectCount(card, 2);
-  await expect(
-    card.getByRole("button", { name: "Notes (2)", exact: true }),
-  ).toBeFocused();
-  await showColumn(page, "Recently done");
-  await notes.open(done);
-  await notes.expectNotes([]);
-  await notes.close();
-});
-
-const saveFailures = [
-  ["a refused save", "failNextChange"],
-  ["a save that cannot reach the dashboard", "loseNextChange"],
-] as const;
-for (const [failure, failNext] of saveFailures)
-  test(`${failure} keeps its draft and says so; saving again saves and clears it`, async ({
-    page,
-    frontendServices,
-  }) => {
-    const service = await installFrontendStoryNotes(page);
-    await openFrontendBoardReview(page, frontendServices);
-    const notes = storyNotesPage(page);
-    await notes.open(reviewedStoryCard(page));
-    await notes.add();
-    const draft = "Keep the observation when saving fails.";
-    await notes.type(draft);
-    service[failNext]();
-    await notes.save();
-    await notes.expectProblem("The note could not be saved.");
-    await notes.expectComposing(draft);
-    await notes.save();
-    await notes.expectSaved();
-    await notes.expectNotes([draft]);
-  });
-
-test("waiting and sent notes show their state; the card counts only waiting notes", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.clock.install();
-  await page.clock.pauseAt(new Date());
-  const service = await installFrontendStoryNotes(page);
-  const waiting = makeMe.aStoryNote
-    .withText("Still waiting")
-    .identifiedAs("34810000-0000-4000-8000-000000000101")
-    .please();
-  const sent = makeMe.aStoryNote
-    .withText("Already sent")
-    .identifiedAs("34810000-0000-4000-8000-000000000102")
-    .savedAt("2026-11-17T00:10:00.000Z")
-    .deliveredAs("2026-11-17T00:10:00.000Z")
-    .please();
-  service.answer("open-dough", {
-    [storyA.identity]: [waiting, sent],
-    [takenIdentity]: [waiting],
-  });
-  await openFrontendBoardReview(page, frontendServices);
-  const notes = storyNotesPage(page);
-  const done = reviewedStoryCard(page);
-  await notes.expectCount(done, 2);
-  await notes.expectWaiting(done, 1);
-  await notes.open(done);
-  await notes.expectNotes(["Already sent", "Still waiting"]);
-  await notes.expectNoteState(0, storyNoteSentToFollowUp);
-  await notes.expectNoteState(1, storyNoteWaitingForFollowUp);
-  await notes.expectEntryActions(0);
-  await notes.close();
-  service.answer("open-dough", {
-    [storyA.identity]: [sent],
-    [takenIdentity]: [waiting],
-  });
-  await page.clock.runFor(checkIntervalMs);
-  await notes.expectCount(done, 1);
-  await notes.expectWaiting(done, 0);
-  await notes.open(done);
-  await notes.expectNoteState(0, storyNoteSentToFollowUp);
-  await notes.expectEntryActions(0);
-  await notes.close();
-  await showColumn(page, "Taken");
-  const taken = parts(page).taken.getByRole("article", {
-    name: takenStory,
-    exact: true,
-  });
-  await notes.expectCount(taken, 1);
-  await notes.expectWaiting(taken, 1);
-});
-
-test("next project read updates the count and open list; an older read cannot replace a save", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.clock.install();
-  await page.clock.pauseAt(new Date());
-  const service = await installFrontendStoryNotes(page);
-  await openFrontendBoardReview(page, frontendServices);
-  const notes = storyNotesPage(page);
-  const card = reviewedStoryCard(page);
-  await notes.open(card);
-  await notes.expectNotes([]);
-  const remote = makeMe.aStoryNote.withText("Saved on another page").please();
-  service.answer("open-dough", { [storyA.identity]: [remote] });
-  await page.clock.runFor(checkIntervalMs);
-  await notes.expectNotes(["Saved on another page"]);
-  await notes.close();
-  await notes.expectCount(card, 1);
-  await notes.open(card);
-  const old = service.holdNext();
-  await page.clock.runFor(checkIntervalMs);
-  await old.received;
-  await notes.addNote("Saved here afterwards");
-  await notes.expectSaved();
-  old.release();
-  await old.delivered;
-  await notes.expectNotes(["Saved here afterwards", "Saved on another page"]);
-  await notes.close();
-  await notes.expectCount(card, 2);
-});
 
 test("Story notes leaves an attached terminal mounted and connected", async ({
   page,

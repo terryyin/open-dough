@@ -94,7 +94,7 @@ Proof: `npm run test:dashboard:frontend -- stories/story-notes-edit` passes thre
 ### 5. Add, fail and refresh notes on the mounted board
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: cards of every kind offer general notes → the developer saves, meets a refused and an unreachable save, and a newer and an older project read arrive → blank stays unsaved, newest shows first, a failed save keeps its draft and saves on retry, waiting and sent notes show their state, the card counts only waiting notes, and an older read cannot replace a save.
 
@@ -152,5 +152,7 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 **Slice 3:** the mounted notes board is `mountStoryNotesBoard()` in `dashboard/test-support/mounted-dashboard/mountedStoryNotesPage.ts`; it returns the arranged cards and project, the notes service rule, the mounted Story notes page and `runFor`. `commands.storyNotesBoard()` builds the arrangement in Node. Control names live once in `dashboard/test-support/storyNotesNames.ts`. The Vitest viewport is a 390×844 phone, so the notes board mounts at 1280×720 through the mount's `viewport` option and needs no `showColumn`. A held answer is checked before any service answers. `locator.fill` typed a draft under the fake timers.
 
 **Slice 4:** mounted keyboard activation focuses the control inside `act`, asserts focus, then sends `userEvent.keyboard("{Enter}")` inside `act`, as the Playwright form focuses and presses Enter; focus return is asserted with `toHaveFocus()`. The Playwright page object lost the edit and delete cues whose only caller moved. In 1 of 3 runs the refused-edit case printed React's "not wrapped in act(...)" warning for `ConfiguredDashboard` while passing; the same warning appears in slice 1 and 3 logs. Slice 5 owns finding the unwrapped update before relying on held answers. Split `mountedStoryNotesPage.ts` (214 lines) into the Story notes page and a mounted notes board module when slice 5 adds cues.
+
+**Slice 5:** the "not wrapped in act" warning was service answers, effects started as act ended and frame-timed callbacks reaching React after act; after a notes refresh outside act a reopened dialog rendered without `showModal`. `actSettled()` in `dashboard/test-support/mounted-dashboard/mountedActInput.ts` runs each mount, input, `runFor` and held-answer release inside act, repeats task rounds while the page changes, then confirms with one frame round. Mounted cases now take about 0.4–1.9 s each instead of 0.06–0.4 s; the `stories/story-notes` command took 10.1–12.5 s with two built-app cases still in it, against the 16.3 s and 39.7 s baseline runs. Slice 7 decides whether that meets a third; settling is the first lever. The planned older-read discrimination (release the older read before the save) cannot fail, since a read answered before the save is not older; removing the product guard `sequence <= shown` in `dashboard/src/localSettingState.ts` fails the case instead. The Playwright substitute and page object lost the controls and cues whose only callers moved.
 
 ## Story obligations

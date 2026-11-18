@@ -5,6 +5,7 @@ import { commands, page } from "vitest/browser";
 import { App } from "../../src/App.tsx";
 import "../../src/dashboardStyles.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
+import { actSettled } from "./mountedActInput.ts";
 import {
   answerMountedServices,
   answersStillHeld,
@@ -77,15 +78,15 @@ export async function mountAnsweredDashboard(options: {
         `Unanswered mounted requests: ${services.unanswered.join(", ")}`,
       );
   });
-  await act(() => {
+  await actSettled(() => {
     root = createRoot(container);
     root.render(createElement(App));
-    return Promise.resolve();
   });
   return {
     container,
     launchAcceptances: services.launchAcceptances,
     notes: services.notes,
+    holdNextNotes: services.holdNextNotes,
     answersStillHeld,
     boardRows: () => container.querySelectorAll(".board-row").length,
   };

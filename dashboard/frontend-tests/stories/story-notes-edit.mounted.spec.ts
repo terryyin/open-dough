@@ -1,6 +1,6 @@
 // Mounted board against the notes service rule, with immutable line context.
 import { expect, test } from "vitest";
-import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesPage.ts";
+import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesBoard.ts";
 import {
   storyNoteSentToFollowUp,
   storyNoteWaitingForFollowUp,
@@ -48,7 +48,7 @@ test("a line note edits text alone, cancel keeps it, delete removes and updates 
   expect(notesService.changes).toEqual([
     {
       action: "edit",
-      identity: board.identity,
+      identity: board.identities.done,
       id: board.note.id,
       text: "Updated observation",
     },
@@ -68,7 +68,7 @@ test("a line note edits text alone, cancel keeps it, delete removes and updates 
   await notes.close();
   await notes.expectCount(card, 0);
   expect(notesService.changes.slice(1)).toEqual([
-    { action: "delete", identity: board.identity, id: board.note.id },
+    { action: "delete", identity: board.identities.done, id: board.note.id },
   ]);
 });
 
@@ -93,7 +93,7 @@ test("saving an unchanged edit of a sent note shows it waiting again", async () 
   expect(notesService.changes).toEqual([
     {
       action: "edit",
-      identity: board.identity,
+      identity: board.identities.done,
       id: board.note.id,
       text: "Send this again unchanged",
     },
@@ -126,7 +126,7 @@ test("refused edits keep typed text and original note; refused deletion keeps te
   await notes.delete(0);
   await notes.answerDelete(0, "Delete");
   await notes.expectNotes([]);
-  const { identity } = board;
+  const identity = board.identities.done;
   const { id } = board.note;
   expect(notesService.changes).toEqual([
     { action: "edit", identity, id, text: "Typed edit survives refusal" },

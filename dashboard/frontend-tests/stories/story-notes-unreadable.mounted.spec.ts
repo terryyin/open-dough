@@ -1,7 +1,7 @@
 // Mounted board with the notes service's unreadable answer; the real store's
 // refusal and preservation are proved in story-notes-admission.spec.ts.
 import { test } from "vitest";
-import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesPage.ts";
+import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesBoard.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 
 test("unreadable notes replace the count on every card kind and say so in Story notes", async () => {

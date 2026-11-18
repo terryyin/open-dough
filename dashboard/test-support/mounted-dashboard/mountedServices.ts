@@ -18,6 +18,7 @@ import {
   StoryNotesRule,
 } from "../support/frontendStoryNotesRule.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
+import type { AnswerHold } from "../support/frontendSubstituteAnswers.ts";
 
 function reply(body: unknown, status = 200) {
   const payload = JSON.stringify(body);
@@ -48,6 +49,8 @@ function holdAnswer(pathname: string) {
   });
 }
 
+const notesHold = "next notes answer";
+
 export function answerMountedServices(
   state: MountedServiceAnswers,
   held: readonly string[] = [],
@@ -55,9 +58,28 @@ export function answerMountedServices(
   const launchAcceptances: unknown[] = [];
   const unanswered: string[] = [];
   const browserFetch = window.fetch.bind(window);
-  const notes = new StoryNotesRule<never>(numberedNewStoryNotes());
+  const notes = new StoryNotesRule<AnswerHold>(numberedNewStoryNotes());
   for (const [project, byStory] of Object.entries(state.notes ?? {}))
     notes.setNotes(project, byStory);
+  // Holds the rule's next notes answer: `received` resolves when the request
+  // arrives and `release` sends its answer. A hold still kept ends at cleanup.
+  const holdNextNotes = () => {
+    let received: () => void = () => undefined;
+    let release: () => void = () => undefined;
+    const arrived = new Promise<void>((resolve) => {
+      received = resolve;
+    });
+    const released = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const end = () => {
+      heldAnswers.delete(notesHold);
+      release();
+    };
+    heldAnswers.set(notesHold, end);
+    notes.nextHold = { received, released, delivered: () => undefined };
+    return { received: arrived, release: end };
+  };
   const answers = new Map<string, unknown>([
     [projectListEndpoint, state.projects],
     [agentLaunchEndpoint, state.machine],
@@ -95,6 +117,10 @@ export function answerMountedServices(
         });
         if (answer.kind === "unreachable")
           throw new TypeError("Failed to fetch");
+        if (answer.hold) {
+          answer.hold.received();
+          await answer.hold.released;
+        }
         return reply(answer.body, answer.status);
       }
       if (url.pathname === agentAcceptEndpoint) {
@@ -112,5 +138,10 @@ export function answerMountedServices(
       return browserFetch(input, options);
     },
   );
-  return { launchAcceptances, unanswered, notes };
+  return {
+    launchAcceptances,
+    unanswered,
+    notes,
+    holdNextNotes,
+  };
 }

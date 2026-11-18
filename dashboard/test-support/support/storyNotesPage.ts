@@ -77,13 +77,6 @@ export function storyNotesPage(page: Page) {
         await expect(dialog.locator("form")).toContainText(text);
     },
     add,
-    // Adds a general note: opens the composer, writes and saves it.
-    addNote: async (text: string) => {
-      await add();
-      await field.fill(text);
-      await saveButton.click();
-      await expect(field).toHaveCount(0);
-    },
     // Writes and saves the composer a diff opened; it closes on saving.
     saveDiffNote: async (text: string) => {
       await field.fill(text);
