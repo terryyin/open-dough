@@ -54,6 +54,9 @@ node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' complete-revision '/EXACT
 When the observer ended before a receipt, follow
 [managed completion recovery](ci-completion-recovery.md).
 
+On Codex, await the original command through the
+[foreground wait](wait-for-proof.md#codex-foreground-waits).
+
 The command stays silent while waiting and keeps its ten-minute foreground bound.
 Before waiting it exclusively records the first completion start and a sixty-minute
 overall deadline for this mailbox and accepted SHA. Resuming, caller interruption,
