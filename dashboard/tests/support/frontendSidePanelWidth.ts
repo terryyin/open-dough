@@ -7,6 +7,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { reviewChanges } from "../storyCardControls.ts";
+import { doneCard } from "../doneStoryReviewPage.ts";
 import { reviewRegion } from "./reviewControls.ts";
 import {
   expect,
@@ -26,11 +27,7 @@ import { expectSettledPage } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { panelDivider, split, wideWindow } from "../sidePanelWidthPage.ts";
 import { closeSidePanel } from "../sidePanelFrame.ts";
-import {
-  boardReviewDoneRecords,
-  doneCard,
-  storyA,
-} from "../recentlyDoneReviewState.ts";
+import { boardReviewDoneRecords, storyA } from "../recentlyDoneReviewState.ts";
 
 export const widthKey = "open-dough.sidePanel.width";
 
