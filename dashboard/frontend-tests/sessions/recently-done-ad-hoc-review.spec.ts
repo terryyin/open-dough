@@ -10,7 +10,6 @@ import {
 } from "../../tests/recentlyDoneColumn.ts";
 import { doneStories, storyA } from "../../tests/recentlyDoneReviewState.ts";
 import { sidePanelPages } from "../../tests/sidePanelPages.ts";
-import { sessionListing } from "../../src/sessionListing.ts";
 import { reviewTargetName } from "../../src/storyReviewContract.ts";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -46,11 +45,6 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
     .launchedAt(new Date(now - 6 * 60_000).toISOString())
     .markedDoneAt(new Date(now - 5 * 60_000).toISOString())
     .please();
-  const machine = makeMe.aMachineAnswer
-    .observingDone(landed, noLanding)
-    .please();
-  const listings = machine.records.map(sessionListing);
-  frontendServices.answerMachine({ ...machine, records: listings });
   const answers = await installFrontendStoryReview(page, {
     kind: "landed",
     baseline: base,
@@ -73,7 +67,9 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
     deliveredPath,
   );
 
-  const { recent } = await openFrontendBoardReview(page, frontendServices);
+  const { recent } = await openFrontendBoardReview(page, frontendServices, {
+    doneSessions: [landed, noLanding],
+  });
 
   const landedName = standaloneSessionName("Ad hoc", landedTitle);
   const noLandingName = standaloneSessionName("Ad hoc", noLandingTitle);

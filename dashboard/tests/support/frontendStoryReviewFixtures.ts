@@ -1,5 +1,6 @@
 // Shared snapshot and file-diff shapes for frontend story-review substitutes.
 
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   reviewedFileDiffSchema,
   type ReviewedFileDiff,
@@ -77,6 +78,37 @@ export function frontendPublishedReview(
     target: "main",
     baseline: frontendReviewIds.baseline,
     tree: frontendReviewIds.tree,
+    files,
+  };
+}
+
+// The answer for a Done session's kept commits: its first run's comparison of
+// `files`, each kept run offered as one commit, and the capture's shared mark.
+export function frontendSessionCommitsReview(
+  { launchedAt, doneAt, sessionCommits }: LaunchRecord,
+  files: TakenStoryReview["files"],
+): StoryReview {
+  const runs = sessionCommits?.runs ?? [];
+  const [first] = runs;
+  if (doneAt === undefined || first === undefined)
+    throw new Error("The record keeps no session commits of a Done session.");
+  return {
+    kind: "session-commits",
+    session: {
+      launchedAt,
+      doneAt,
+      ...(sessionCommits?.shared === true && { shared: true as const }),
+    },
+    commitRuns: runs.map(({ base, revision }) => ({
+      commits: 1,
+      subject: "session work",
+      committedAt: doneAt,
+      baseline: base,
+      tree: revision,
+    })),
+    commitRun: 0,
+    baseline: first.base,
+    tree: first.revision,
     files,
   };
 }

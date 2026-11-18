@@ -16,6 +16,7 @@ import { lines } from "../../tests/support/storyReviewWorktree.ts";
 import {
   adHocReview,
   adHocSessionFileDiff,
+  keepSessionWithKeptRun,
 } from "../../tests/support/adHocReview.ts";
 
 test.use({ serverMode: "boundary" });
@@ -183,23 +184,11 @@ test("a file read naming a kept run's pair of a session's commits is answered, a
   const repository = await renameRevisionRepo();
   try {
     const { base, result } = repository.revisions;
-    const sessionId = "session-commits-file";
-    keepLaunchRecords(dashboard, [
-      makeMe.aLaunchRecord
-        .adHoc({ title: "Session commits file" })
-        .inDefaultCheckout({
-          workspace: repository.integration,
-          landing: "review",
-          revision: base,
-        })
-        .inClaudeSession({ sessionId })
-        .keptSessionCommits({
-          repository: repository.integration,
-          runs: [{ base, revision: result }],
-        })
-        .markedDone()
-        .please(),
-    ]);
+    const sessionId = keepSessionWithKeptRun(
+      dashboard,
+      repository.integration,
+      { base, revision: result },
+    );
     const read = (named: object) =>
       adHocSessionFileDiff(request, dashboard, sessionId, {
         baseline: base,

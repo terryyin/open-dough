@@ -283,7 +283,7 @@ whole store, so stored records are kept before any launch.
 
 ### 6. Show session commits in the review panel
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `frontend-tests/sessions/recently-done-ad-hoc-session-commits.spec.ts`.
 Scratch break: drop the shared sentence; the case fails.
 
@@ -294,6 +294,24 @@ and, when shared, says in its own sentence that the comparison may include
 another session's work; the file browser, counts and Close with focus return
 behave as for a landing. The no-commit explanation is shown as the review's
 explanation. Keep wording consistent with the landed context.
+
+Delivered: `src/StoryReviewSessionCommitsContext.tsx` heads the context
+“Session commits”, says “Commits made in the Default main checkout while
+the session was open, launched … and done ….”, then “From base to
+revision.” and, when shared, “Another session was open in the same checkout
+during that time, so the comparison may include that session's work.” The
+panel reads a run's files by session, baseline, tree and path, and offers
+no notes or follow-up, as for a landed ad hoc review. Scratch break: the
+shared sentence's condition inverted failed the shared case on visibility
+(`s6-scratch-break`, exit 1); restored, `s6-refactor-frontend-1` exit 0.
+Learnings for slice 7: the fixed snapshot view is keyed by completion or
+reference, both absent here, so a run switch keys it by the run's tree;
+`useStoryReviewSelection` keys runs by a string and asks `run=<key>`, while
+session runs are positions; `StoryReview.tsx` (217 lines) shows the switch
+only with landed runs or items; `frontendSessionCommitsReview` answers one
+run with placeholder facts; the review substitute records each ask's query
+(`queriesAsked`); `tests/storyReviewPages.ts` is at 236 lines, so switch
+steps need another home.
 
 ### 7. Switch between a session's runs
 Type: Behavior
@@ -345,7 +363,7 @@ Disposition: proved by slice 3: `dashboard/backend-tests/review/ad-hoc-review-fi
 ### G4. The panel shows session commits with worktree wording
 Reported: slice 2 — "Until slice 6 the panel receives kind `session-commits` and shows it with worktree wording and no file diffs; these sessions previously said not captured."
 Story clause: "The review's context names the comparison as commits made in the Default main checkout while the session was open, with its exact two revisions."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: `dashboard/frontend-tests/sessions/recently-done-ad-hoc-session-commits.spec.ts` unshared case (Session commits heading and context, "1 changed file", the chosen file's diff shown)
 
 ### G5. A repeated Done, a cleared Done and a failed read at Done are unobserved
 Reported: slice 2 — "Untested Done rules: failed read keeps Done with no capture; a second Done replaces the capture; clearing Done leaves it."
@@ -360,7 +378,7 @@ Disposition: no user cost "A developer can review what a future ad hoc session w
 ### G7. File text, follow-up and note context of a session-commits pair are unobserved
 Reported: slice 3 — "The file text endpoint for a session-commits pair is not observed; only the diff endpoint is, through the same admission function. Follow-up and note file context for a session-commits pair is not admitted, because that path requires a completion or reference."
 Story clause: "The review's context names the comparison as commits made in the Default main checkout while the session was open, with its exact two revisions."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: `dashboard/backend-tests/review/ad-hoc-session-commits-file-text.spec.ts` (a kept pair answers both sides' text, another pair 409) and `dashboard/frontend-tests/sessions/recently-done-ad-hoc-session-commits.spec.ts` (the panel's diff and text reads carry the session, baseline, tree and path with no reference; `expectNoLineFollowUp` and `expectNoNoteActions`: a session subject offers no notes or follow-up, as the landed ad hoc review, `StoryReview.tsx` hides `StoryNotes` for it)
 
 ### G8. A session's own merge-resolution commit is not a session commit
 Reported: slice 3 — "A session commit that is itself a conflicted-merge resolution (`commit (merge):` log entry) is not treated as a session commit by the rule and is not observed."
@@ -376,3 +394,8 @@ Disposition: no user cost "A developer can review what a future ad hoc session w
 Reported: slice 5 — "Records with no known checkout do not mark a capture: Claude default launches kept before slice 1, and records whose workspace no longer exists on disk. Records dropped by store retention before this session's Done cannot mark it."
 Story clause: "When another session was open in the same checkout during that time, the context also says the comparison may include that session's work."
 Disposition: no user cost "A developer can review what a future ad hoc session working in the shared Default main checkout changed": the story covers future sessions, and every session launched after slice 1 keeps its checkout (`defaultStart`, or its established or continuation workspace, read by `checkoutSharedMeanwhile` in `server/sessionCheckoutShared.ts`); a record leaves the store only 30 days after its own Done or by deletion, and a workspace missing from disk is not the Default main checkout a capture reads.
+
+### G11. Refresh feedback, an empty run and the panel guide for session commits
+Reported: slice 6 — "The Refresh feedback line and the hidden description for session commits are implemented but not observed by a test. A kept run with an empty comparison still shows the landing wording \"No changes: this session's delivered comparison is empty.\" `STORY-REVIEW-LANDED-RUNS.md` was not updated for the panel wording."
+Story clause: "The review's context names the comparison as commits made in the Default main checkout while the session was open, with its exact two revisions."
+Disposition: receiving slice 7

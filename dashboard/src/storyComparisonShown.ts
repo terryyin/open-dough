@@ -1,7 +1,8 @@
 // The comparison a story's diff reads (`./StoryReviewFileDiff.tsx`), as one
 // derivation for every view that shows a story's changes: the story reviewed,
 // the comparison's *from* tree and changed files, and the tree it reaches. A
-// published completion or a landed run shows its fixed comparison; a workspace
+// published completion, a landed run or a session's kept commits show their
+// fixed comparison; a workspace
 // snapshot shows the comparison chosen for it
 // (`./useStoryReviewComparison.ts`), once that is known. A changed file's diff
 // runs from its own tree when it includes trunk's changes, else from the
@@ -33,14 +34,13 @@ export function storyComparisonShown({
   readonly comparison: ReviewComparison | undefined;
   readonly tree: string | undefined;
 }): ShownStoryComparison | undefined {
-  if (review?.kind === "published" || review?.kind === "landed")
+  if (
+    review?.kind === "published" ||
+    review?.kind === "landed" ||
+    review?.kind === "session-commits"
+  )
     return {
-      reviewed: {
-        subject,
-        ...(review.kind === "published"
-          ? { completion: review.completion }
-          : { reference: review.landing.reference }),
-      },
+      reviewed: { subject, ...fixedComparisonName(review) },
       comparison: { from: review.baseline, files: review.files },
       tree: review.tree,
     };
@@ -51,6 +51,20 @@ export function storyComparisonShown({
   )
     return { reviewed: { subject }, comparison, tree };
   return undefined;
+}
+
+// What names a fixed comparison beside its subject: a published completion,
+// or a landed run's reference. A session's kept run is named by its pair
+// alone.
+function fixedComparisonName(
+  review: Extract<
+    StoryReview,
+    { kind: "published" | "landed" | "session-commits" }
+  >,
+) {
+  if (review.kind === "published") return { completion: review.completion };
+  if (review.kind === "landed") return { reference: review.landing.reference };
+  return {};
 }
 
 // The tree a changed file's diff runs from in `comparison`; without a file,

@@ -3,6 +3,7 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
+  storyReviewFileTextEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { reviewedWorkQuery } from "../../src/reviewedWorkSubject.ts";
@@ -46,6 +47,43 @@ export function adHocSessionFileDiff(
     ...sessionQuery(session),
     ...file,
   });
+}
+
+// The file text read of the same pair, which the panel asks beside the diff.
+export function adHocSessionFileText(
+  request: APIRequestContext,
+  dashboard: DashboardServer,
+  session: string,
+  file: { baseline: string; tree: string; path: string },
+) {
+  return getReview(request, dashboard, storyReviewFileTextEndpoint, {
+    ...sessionQuery(session),
+    ...file,
+  });
+}
+
+// Keeps a Done session of the Default main checkout at `repository` whose
+// kept commits are the one run `base` to `revision`; answers its session id.
+export function keepSessionWithKeptRun(
+  dashboard: DashboardServer,
+  repository: string,
+  { base, revision }: { base: string; revision: string },
+): string {
+  const sessionId = "session-with-kept-run";
+  keepLaunchRecords(dashboard, [
+    makeMe.aLaunchRecord
+      .adHoc({ title: "Session with a kept run" })
+      .inDefaultCheckout({
+        workspace: repository,
+        landing: "review",
+        revision: base,
+      })
+      .inClaudeSession({ sessionId })
+      .keptSessionCommits({ repository, runs: [{ base, revision }] })
+      .markedDone()
+      .please(),
+  ]);
+  return sessionId;
 }
 
 // Launches an ad hoc session in the project's Default main checkout, blank

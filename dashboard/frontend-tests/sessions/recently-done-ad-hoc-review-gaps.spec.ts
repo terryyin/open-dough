@@ -1,7 +1,6 @@
 // Each unavailable or empty comparison explains the gap independently.
 import { test } from "../../tests/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sessionListing } from "../../src/sessionListing.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { sessionReviewChanges } from "../../tests/recentlyDoneColumn.ts";
 import { sidePanelPages } from "../../tests/sidePanelPages.ts";
@@ -35,13 +34,10 @@ for (const { title, answer, explanation } of [
     frontendServices,
   }) => {
     const session = makeMe.aLaunchRecord.adHoc({ title }).markedDone().please();
-    const machine = makeMe.aMachineAnswer.observingDone(session).please();
-    frontendServices.answerMachine({
-      ...machine,
-      records: machine.records.map(sessionListing),
-    });
     await installFrontendStoryReview(page, answer);
-    const { recent } = await openFrontendBoardReview(page, frontendServices);
+    const { recent } = await openFrontendBoardReview(page, frontendServices, {
+      doneSessions: [session],
+    });
 
     await sessionReviewChanges(recent, title).click();
 
@@ -62,11 +58,6 @@ test("an ad hoc review explains an empty comparison", async ({
 }) => {
   const title = "Empty comparison";
   const session = makeMe.aLaunchRecord.adHoc({ title }).markedDone().please();
-  const machine = makeMe.aMachineAnswer.observingDone(session).please();
-  frontendServices.answerMachine({
-    ...machine,
-    records: machine.records.map(sessionListing),
-  });
   const { baseline, tree } = frontendReviewIds;
   await installFrontendStoryReview(page, {
     kind: "landed",
@@ -81,7 +72,9 @@ test("an ad hoc review explains an empty comparison", async ({
       launchedAt: "2026-01-02T12:00:00.000Z",
     }),
   });
-  const { recent } = await openFrontendBoardReview(page, frontendServices);
+  const { recent } = await openFrontendBoardReview(page, frontendServices, {
+    doneSessions: [session],
+  });
 
   await sessionReviewChanges(recent, title).click();
 

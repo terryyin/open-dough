@@ -77,6 +77,43 @@ export class StoryReview extends PageObject {
     });
   }
 
+  // The session-commits context: its heading, where the commits were made,
+  // the session's two times and the comparison's two revisions.
+  expectSessionCommitsContext(facts: {
+    readonly launchedAt: string;
+    readonly doneAt: string;
+    readonly base: string;
+    readonly revision: string;
+  }) {
+    return this.cueHere("Session review: shows session commits", async () => {
+      const context = this.#review
+        .getByRole("heading", { name: "Session commits", exact: true })
+        .locator("..");
+      await expect(context).toContainText(
+        "Commits made in the Default main checkout while the session was open",
+      );
+      for (const at of [facts.launchedAt, facts.doneAt])
+        await expect(context.locator(`time[datetime="${at}"]`)).toBeVisible();
+      await expect(context).toContainText(
+        `From ${facts.base} to ${facts.revision}.`,
+      );
+      await expect(
+        this.#review.getByRole("heading", { name: "Landed run", exact: true }),
+      ).toHaveCount(0);
+    });
+  }
+
+  // The shared-checkout sentence beside the two revisions, or its absence.
+  expectSharedCheckoutNote(shown: boolean) {
+    const note = this.#review.getByText(
+      "the comparison may include that session's work.",
+    );
+    return this.cueHere(
+      `Session review: ${shown ? "notes" : "does not note"} a shared checkout`,
+      () => (shown ? expect(note).toBeVisible() : expect(note).toHaveCount(0)),
+    );
+  }
+
   expectNoComparisonSwitch() {
     return this.cueHere("Story review: shows no Comparison switch", () =>
       expect(comparison(this.#review)).toHaveCount(0),

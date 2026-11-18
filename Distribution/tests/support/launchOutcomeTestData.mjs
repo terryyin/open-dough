@@ -36,7 +36,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   doneAt?: string,
  *   doneProblem?: string,
  *   returnedToBacklog?: boolean,
- *   sessionCommits?: { repository: string, runs: { base: string, revision: string }[] },
+ *   sessionCommits?: { repository: string, runs: { base: string, revision: string }[], shared?: true },
  * }} LaunchOutcome
  */
 
@@ -126,11 +126,13 @@ export class LaunchOutcomeBuilder {
 
   /**
    * The commits the session made in its Default main checkout, kept at Done:
-   * each run's pair in the checkout's common repository, oldest first.
-   * @param {{ repository: string, runs: { base: string, revision: string }[] }} kept
+   * each run's pair in the checkout's common repository, oldest first, and
+   * `shared` when another session was open in that checkout meanwhile.
+   * @param {{ repository: string, runs: { base: string, revision: string }[], shared?: true }} kept
    */
-  keptSessionCommits({ repository, runs }) {
-    this.#outcome = { ...this.#outcome, sessionCommits: { repository, runs } };
+  keptSessionCommits({ repository, runs, shared }) {
+    const sessionCommits = { repository, runs, ...(shared && { shared }) };
+    this.#outcome = { ...this.#outcome, sessionCommits };
     return this;
   }
 

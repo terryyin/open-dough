@@ -35,24 +35,22 @@ export function ReviewFeedback({
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const kept =
     snapshot?.published?.kept === undefined ? undefined : snapshot.published;
+  // A review already showing changes stays shown while it is read again.
+  const showsChanges =
+    review?.kind === "snapshot" ||
+    review?.kind === "landed" ||
+    review?.kind === "session-commits" ||
+    review?.kind === "published";
   return (
     <div role="status">
       {shown === "commits" && <RangeFeedback range={range} />}
-      {reading &&
-        review?.kind !== "snapshot" &&
-        review?.kind !== "landed" &&
-        review?.kind !== "published" && (
-          <p>Reading the story&apos;s changes…</p>
-        )}
-      {reading &&
-        (review?.kind === "snapshot" ||
-          review?.kind === "landed" ||
-          review?.kind === "published") && (
-          <p>
-            Refreshing the review… What is shown is still the snapshot taken
-            earlier.
-          </p>
-        )}
+      {reading && !showsChanges && <p>Reading the story&apos;s changes…</p>}
+      {reading && showsChanges && (
+        <p>
+          Refreshing the review… What is shown is still the snapshot taken
+          earlier.
+        </p>
+      )}
       {!reading &&
         round > 0 &&
         snapshot !== undefined &&
@@ -74,6 +72,12 @@ export function ReviewFeedback({
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the captured
           landed comparison.
+        </p>
+      )}
+      {!reading && round > 0 && review?.kind === "session-commits" && (
+        <p>
+          Review refreshed: {changedFiles(review.files.length)} in the kept
+          session commits.
         </p>
       )}
       {!reading && round > 0 && review?.kind === "published" && (
