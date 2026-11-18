@@ -28,7 +28,8 @@ observations stay independent when that interface is the tested contract.
 
 This family does not promise faster tests, fewer cases, a new fluent framework,
 conversion of every browser statement, or changes to dashboard behavior.
-Case-by-case fluent adoption follows the existing pilot evidence. These limits
+Specs reach page objects through fluent hand-offs; the pilot's phase-and-cue
+runner is adopted case by case on its evidence. These limits
 do not require rejecting naturally supported callers or unlisted valid cases.
 
 ## Approved split, trace and order
@@ -74,9 +75,9 @@ justified by those gains. Locator counts alone do not establish improvement.
 | Candidate | Fit to the goal and cost |
 | --- | --- |
 | Keep local helpers and use naming/review guidance | Least code, but leaves shared selectors and sequences with multiple edit sites; does not deliver the stated ownership outcome. |
-| Extend existing procedural/component helpers | Recommended default: reuses established scoped observations and actions, shares controls with fluent callers, and leaves causal evidence in each scenario. |
+| Extend existing component helpers behind page objects reached by fluent hand-off | Recommended default: reuses established scoped observations and actions, has each step return the object the spec uses next, and leaves causal evidence in each scenario. |
 | Convert the suite to fluent phases | Useful where recurring handoffs earn their cost; the pilot demonstrates three journeys, not a benefit for all 26 findings. A universal conversion adds machinery without that evidence. |
-| Adapt a laboratory instrument/protocol separation | A mechanism within the procedural approach: the instrument adapter owns operation/measurement mechanics; the experiment protocol owns inputs, intervention order and expected results. The analogy breaks where accessibility or measurement tests examine the instrument interface itself; helpers must preserve those signals rather than normalize them. |
+| Adapt a laboratory instrument/protocol separation | A mechanism within the recommended approach: the instrument adapter owns operation/measurement mechanics; the experiment protocol owns inputs, intervention order and expected results. The analogy breaks where accessibility or measurement tests examine the instrument interface itself; helpers must preserve those signals rather than normalize them. |
 
 The strongest doubt is that page-object compliance can conceal test meaning:
 one `cancelPendingJump` operation could hide the intermediate focus contract
@@ -127,8 +128,9 @@ the bounded selection used one worker. No scratch product edit was made.
 ## Architecture
 
 The consequential responsibility is shared test-side control and observation
-ownership across procedural/fluent callers and multiple fixture tiers.
-Browser helpers accept a page or scoped region plus caller facts; fixture
+ownership across the specs' page objects and multiple fixture tiers. A spec
+reaches each page object through the step that leads there; the browser
+helpers behind it accept a page or scoped region plus caller facts; fixture
 construction, transport holds and expected domain values keep their existing
 owners. Production and test expectations remain independent.
 
@@ -180,11 +182,18 @@ North Star direction needs no addition for this test-side change.
 - Each finding has a resolved disposition backed by the affected specs.
   A representative before/after from each feature family shows the user
   action and expected outcome in domain terms, with repeated locators and
-  interaction sequences owned by shared helpers. Prefer existing procedural
-  helpers and component owners. The
+  interaction sequences owned by shared helpers. The spec reaches each page
+  object by fluent hand-off, as the
+  [page-object convention](../../Distribution/src/skills/dough-page-objects/references/convention.md)
+  states: only opening the dashboard constructs one, each later step returns
+  the object for what the user now faces, and existing helpers and component
+  owners are reused behind them. A support helper that needs a page object
+  takes it from its caller; the first story to touch
+  [frontendCardSessions.ts](../../dashboard/tests/support/frontendCardSessions.ts)
+  settles its two `frontendBoard(page)` calls. The
   [fluent pilot](../../dashboard/tests/fluent-side-panel-pilot.md#what-the-pilot-earned)
-  supplies evidence for shared controls and recurring handoffs. Adopt fluent
-  phases where those benefits justify the extra code.
+  supplies evidence for shared controls and recurring handoffs. Adopt its
+  phase-and-cue runner where those benefits justify the extra code.
 - A shared control edit, such as the Story card's Review changes action or
   the Terminal's input locator, has one maintained selector owner for the
   affected callers. A test of the exact name, accessibility contract, or DOM
