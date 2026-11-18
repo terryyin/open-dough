@@ -6,16 +6,16 @@ Fresh-context reviewer `source_review_399` in execution rollout `01a1edd5-a53c-7
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| P01 | Developer can “leave a long proof run, CI completion wait, or paused-supplier watch alone until it has a result or reaches its deadline” (Goal). | slice 2 | |
-| P02 | Code-mode quiet interval fitting observed host window has “zero model requests after the wait starts” (Scope, quiet proof example). | slice 2 | |
-| P03 | For a longer still-pending unchanged interval, continuation occurs “only when the host hands control back,” with “wakes limited to necessary host returns” (Scope, CI example). | slice 2 | |
-| P04 | At that host return, Codex resumes “the same wait” (Scope, CI example; the CI result is from the original operation). | slice 2 | |
-| P05 | The resumed wait uses “the existing deadline” (Scope, CI existing bounds and supplier original deadline examples). | slice 2 | |
-| P06 | “Return a completed command’s terminal result as it becomes available” (Scope, proof completion and original CI operation result examples). | slice 2 | |
-| P07 | Outer yield alone establishes no termination (Scope, CI pending example). | slice 2 | |
-| P08 | Outer yield alone establishes no expiry (Scope). | slice 2 | |
-| P09 | Supplier qualifying publication arrives before deadline after unchanged pause → corresponding publication receipt (supplier example). | slice 2 | |
-| P10 | Supplier original deadline expires first after unchanged pause → corresponding expiry receipt (supplier example). | slice 2 | |
-| P11 | “Continue the proof, CI, or supplier workflow from that result” (Scope, supplier execution continues after publication example). | slice 2 | |
-| P12 | “Apply its existing deadline procedure” on expiry (Scope, supplier execution stops under existing agreement example). | slice 2 | |
-| P13 | “Real Codex traces show the gain against the current wait” (Goal; Scope’s native-trace measurement constraints are context). | slice 2 | |
+| P01 | Developer can “leave a long proof run, CI completion wait, or paused-supplier watch alone until it has a result or reaches its deadline” (Goal). | slice 2 | observed: slice-2-report.md in checkout Git evidence, four native arm results: no user replies between launch and receipt |
+| P02 | Code-mode quiet interval fitting observed host window has “zero model requests after the wait starts” (Scope, quiet proof example). | slice 2 | observed: rollout 01a1edf7-d1cd-73a3-a722-0817cc94a6e4 rows 20–23, 12.326 seconds, exit 17 and zero intermediate responses |
+| P03 | For a longer still-pending unchanged interval, continuation occurs “only when the host hands control back,” with “wakes limited to necessary host returns” (Scope, CI example). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-ebbd0f40c49f rows 16–23, one response at the 301.031-second host return |
+| P04 | At that host return, Codex resumes “the same wait” (Scope, CI example; the CI result is from the original operation). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-ebbd0f40c49f rows 18, 20 and 23, same cell g27:1 and original mailbox receipt |
+| P05 | The resumed wait uses “the existing deadline” (Scope, CI existing bounds and supplier original deadline examples). | slice 2 | observed: slice-2-report.md CI handoff record, unchanged start and expiry; final proof rollout row 20 request capped to 120 seconds; both supplier receipts returned their original deadline |
+| P06 | “Return a completed command’s terminal result as it becomes available” (Scope, proof completion and original CI operation result examples). | slice 2 | observed: slice-2-report.md native timing: original proof exit, exact CI receipt, supplier publication or expiry returned from each original command |
+| P07 | Outer yield alone establishes no termination (Scope, CI pending example). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-ebbd0f40c49f rows 18–23, live cell returned with no receipt then resumed |
+| P08 | Outer yield alone establishes no expiry (Scope). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-ebbd0f40c49f rows 18–23, resumed pending cell and identical CI expiry record |
+| P09 | Supplier qualifying publication arrives before deadline after unchanged pause → corresponding publication receipt (supplier example). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-eb2305d55dcb row 19, publication receipt for verified before and after Git objects |
+| P10 | Supplier original deadline expires first after unchanged pause → corresponding expiry receipt (supplier example). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-eb5be690b336 row 19, deadline receipt and verified unchanged supplier SHA |
+| P11 | “Continue the proof, CI, or supplier workflow from that result” (Scope, supplier execution continues after publication example). | slice 2 | observed: slice-2-report.md caller outcomes: final proof row 33 kept gate open at exit 17; CI row 28 accepted success and shutdown; supplier publication rows 23–29 verified agreement before lifting hold |
+| P12 | “Apply its existing deadline procedure” on expiry (Scope, supplier execution stops under existing agreement example). | slice 2 | observed: rollout 01a1edf4-66c1-7891-afde-eb5be690b336 row 24, stopped with original exact resume condition |
+| P13 | “Real Codex traces show the gain against the current wait” (Goal; Scope’s native-trace measurement constraints are context). | slice 2 | observed: plan Slice 1 measured wait window and slice-2-report.md native traces, five control responses versus zero at 275 seconds and one per crossing handback |

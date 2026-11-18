@@ -76,7 +76,7 @@ that evidence. A missing observable route remains an open proof concern.
 
 ### 2. Wait through unchanged intervals and return the original result
 Type: Behavior
-Status: planned
+Status: done
 Proof: a representative agent follows the candidate guidance in an
 isolated native Codex session. Retain rollout references and terminal
 receipts for the examples below. Compare with slice 1 and accept only if
@@ -188,3 +188,34 @@ configuration. The evidence for that fallback is the exercised underlying
 command/session path. Full report and run record are in the checkout's Git
 evidence directory (`slice-1-report.md`, `slice-1-native-run.log.run.json`).
 Records-only refactor disposition.
+
+Slice 1 was published and registered on the execution branch at
+`60b5b814666f3d49e88e018f4e7cb1b87a8a84e7`, extending the accepted claim.
+
+## Slice 2 accepted verification
+
+- Proof rollout `01a1edf7-d1cd-73a3-a722-0817cc94a6e4` bounded outer launch
+  by its original two-minute deadline. It returned exit 17 after 12.326
+  seconds, 12 ms after the command marker, with zero intermediate model
+  requests. The recorded exit-file result kept the proof gate open.
+- CI rollout `01a1edf4-66c1-7891-afde-ebbd0f40c49f` used one 301.031-second
+  outer launch and one necessary request to resume the same `g27:1` cell.
+  The 60-second continuation returned after 44.215 seconds with the original
+  exact revision's `CI_OBSERVER` success and confirmed shutdown. The original
+  completion record's start and deadline survived. Slice 1 separately
+  measured the full five-minute continuation on the same host profile.
+- Local supplier rollouts `01a1edf4-66c1-7891-afde-eb2305d55dcb` and
+  `01a1edf4-66c1-7891-afde-eb5be690b336` used zero intermediate requests.
+  Verified Git object changes lifted the hold before its original deadline.
+  Unchanged refs ended at the deadline with the original resume condition.
+- Four named focused checks passed for payload links, CI completion, supplier
+  publication, and continued publication wait. The representative authoring
+  review followed shared proof, CI and supplier entries and inspected Cursor
+  and Claude Code routes. See the checkout's Git evidence files
+  `slice-2-report.md`, `slice-2-consumer-trace.md`,
+  `slice-2-final-focused-outcomes.txt` and native run records for commands and
+  trace coordinates. Both native and focused runner records exited zero.
+- Independent refactor aligned the published slice-clock caller with the
+  shared host wait. The payload-link check and `git diff --check` passed.
+  Existing native proof still exercises the same command and wait. The
+  refactor consumer trace is in the checkout's Git evidence directory.
