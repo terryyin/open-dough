@@ -61,7 +61,7 @@ and flakes follow the
 
 ### 1. The frontend group runs as two shards
 
-Status: planned
+Status: done
 Type: Behavior
 
 Behavior: a CI run of this revision → `dashboard-frontend / shard 1/2` and
@@ -124,3 +124,12 @@ This review identified no remaining slice-specific concern.
   the fall to 17 since, so they stay as written.
 - `.github/workflows/ci.yml` is at the 250-line file-size limit after this
   change.
+- Slice 1, hosted: run 44218814549 (attempt 1) on story-branch revision
+  `389b28dfc8380a49cd134c7d67d1ad8861f4a157` succeeded with 18 jobs.
+  `dashboard-frontend / shard 1/2` took 238 s and `shard 2/2` 165 s from job
+  start to the end of the test step, against the 346 s bound; `ci-proof`
+  passed, and `dashboard-backend / shard 1/3` (with
+  `runtime/runner-ownership.spec.ts`) passed. The `main`-run reading by
+  `bash scripts/ci-job-times.sh` and
+  `node scripts/ci-shard-balance.mjs dashboard-frontend` follows integration
+  (source-review P1 and P2, owner target CI).
