@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "SEED-385#submit-and-close-the-dashboard-terminal",
+  "mode": "story-branch",
+  "branch": "cursor/submit-and-close-the-dashboard-terminal",
+  "host": "cursor",
+  "model": "auto"
+}
