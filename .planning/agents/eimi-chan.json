@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Eimi-chan",
+  "email": "eimi-chan@example.org",
+  "identity": "SEED-399#let-a-long-codex-wait-run-without-model-requests",
+  "mode": "story-branch",
+  "branch": "codex/let-a-long-codex-wait-run-without-model-requests",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
