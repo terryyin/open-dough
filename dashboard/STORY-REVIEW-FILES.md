@@ -66,8 +66,8 @@ changes counts from its `includesTrunkFrom`, as its diff does. A file shows coun
 diff adds or removes a line: a binary, mode-only, or empty file shows none. A
 collapsed folder's count stays the changed files it holds.
 
-Beside the diff, the browser is 16rem wide until the reviewer chooses a
-width with the Files divider between the panes, by dragging it or with its
+Beside the diff, the browser is 16rem wide, border and padding included,
+until the reviewer chooses a width with the Files divider between the panes, by dragging it or with its
 Left and Right keys, one 1rem step each (`src/StoryReviewWorkarea.tsx`,
 `src/reviewFileSidebarWidth.ts`). Neither pane becomes narrower than its
 minimum: 12rem for the browser and 18rem for the diff. The chosen width is
