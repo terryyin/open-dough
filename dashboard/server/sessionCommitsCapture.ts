@@ -117,12 +117,10 @@ async function runsOf(
   return runs;
 }
 
-// What a session that started in the Default main checkout `start` names
-// committed there from its launch to now, kept in the common repository in
-// place of any pairs kept for it before. Throws when the checkout's log
-// cannot be read or holds no entry.
-export async function captureSessionCommits(
-  record: Pick<LaunchRecord, "launchedAt" | "session">,
+// Read the commits made in the session's Default main checkout since launch.
+// Throws when the checkout's log cannot be read or holds no entry.
+export async function readSessionCommits(
+  record: Pick<LaunchRecord, "launchedAt">,
   start: { readonly workspace: string },
 ): Promise<SessionCommits> {
   const checkout = resolvedCheckout(start.workspace);
@@ -141,9 +139,16 @@ export async function captureSessionCommits(
     "--git-common-dir",
   ]);
   const runs = await runsOf(checkout, made);
-  const prefix = sessionCommitsRefPrefix(record.session);
+  return { repository, runs, readAt: new Date().toISOString() };
+}
+
+// Hold the read's pairs in place of any pairs pinned for an earlier Done.
+export async function keepSessionCommitRefs(
+  session: LaunchRecord["session"],
+  { repository, runs }: SessionCommits,
+): Promise<void> {
+  const prefix = sessionCommitsRefPrefix(session);
   await removePins(repository, prefix);
   for (const [index, run] of runs.entries())
     await pinPair(repository, `${prefix}${String(index)}/`, run);
-  return { repository, runs, readAt: new Date().toISOString() };
 }

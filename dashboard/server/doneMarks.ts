@@ -16,14 +16,12 @@ import type { ProjectFolder } from "./projectFolders.ts";
 import {
   acknowledgeDoneLocally,
   doneSessionRecord,
+  reportedDoneNeedsContinuation,
   reportedNativeDonePending,
 } from "./doneSessionRecord.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
-export {
-  doneSessionRecord,
-  reportedNativeDonePending,
-} from "./doneSessionRecord.ts";
+export { doneSessionRecord } from "./doneSessionRecord.ts";
 
 // The wait before Done reports a native stop or removal unconfirmed.
 const nativeWaitMs = 10_000;
@@ -39,44 +37,50 @@ type NativeDone = { readonly stopped: AbortSignal } & (
   | { readonly intent: "reporting" }
 );
 
-// Runs the native Done each quiet report asks for once its receipt is sent,
-// outside the reporting locks, one at a time per session. The developer's
-// Done takes over a session's running one. Closing abandons their waits:
-// reporting leaves the pending mark, while manual Done retains its rename
-// failure; no wait outlives its one bounded rename attempt.
+// Quiet reports capture after receipt, outside reporting locks. One native
+// Done runs per session. The developer's Done takes over a reported rename.
 export class NativeDoneMarks {
   private readonly running = new Map<
     string,
     { readonly stop: AbortController; readonly settled: Promise<unknown> }
   >();
+  private readonly reporting = new Set<Promise<void>>();
   private closed = false;
 
   constructor(private readonly terminals: AgentTerminals) {}
 
-  // Starts the native Done `receipt` asked for, unless the record no longer
-  // waits for it or its session's Done already runs. Failures stay in the
-  // record for the developer's Done action.
+  // Continue the latest report's capture and any pending native Done.
   reported(sourceId: string, receipt: CompletionReport): void {
     if (this.closed || !completedWithoutAttention(receipt)) return;
-    void this.continueReported(sourceId, receipt).catch(() => undefined);
+    const continued = this.continueReported(sourceId, receipt).catch(() => {});
+    this.reporting.add(continued);
+    void continued.then(() => this.reporting.delete(continued));
+  }
+
+  private async captureReportedDone(
+    sourceId: string,
+    receipt: CompletionReport,
+  ): Promise<LaunchRecord | undefined> {
+    const current = (await keptRecords(sourceId)).find(
+      (entry) => entry.completion?.receipt === receipt.receipt,
+    );
+    if (this.closed || !reportedDoneNeedsContinuation(current, receipt))
+      return undefined;
+    return keptWithSessionCommits(sourceId, current);
   }
 
   private async continueReported(
     sourceId: string,
     receipt: CompletionReport,
   ): Promise<void> {
-    const current = (await keptRecords(sourceId)).find(
-      (entry) => entry.completion?.receipt === receipt.receipt,
-    );
-    if (this.closed || !reportedNativeDonePending(current, receipt)) return;
-    const key = sessionKey(current.session);
+    const marked = await this.captureReportedDone(sourceId, receipt);
+    if (this.closed || !reportedNativeDonePending(marked, receipt)) return;
+    const key = sessionKey(marked.session);
     if (this.running.has(key)) return;
-    // The report wrote the mark: its commits are kept before the native wait,
-    // which closing or the developer's Done may abandon.
-    await this.track(key, async (stopped) =>
+    await this.track(key, (stopped) =>
       finishNativeDone(
         sourceId,
-        await keptWithSessionCommits(sourceId, current),
+        marked,
         reportingFolder(sourceId),
         this.terminals,
         { intent: "reporting", stopped },
@@ -111,11 +115,10 @@ export class NativeDoneMarks {
   close(): Promise<void> {
     this.closed = true;
     for (const { stop } of this.running.values()) stop.abort();
-    // Manual Done already wrote its mark; keep the server alive until its
-    // abandoned rename's problem is retained. Reported Done writes nothing.
-    return Promise.all(
-      [...this.running.values()].map(({ settled }) => settled),
-    ).then(() => {});
+    return Promise.all([
+      ...this.reporting,
+      ...Array.from(this.running.values(), ({ settled }) => settled),
+    ]).then(() => {});
   }
 
   // Runs one Done of the session `key` as the one its next Done waits for.

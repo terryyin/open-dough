@@ -159,6 +159,7 @@ export const launchRecordSchema = z.object({
   landing: launchLandingSchema.optional(),
   landingReporting: landingReportingSchema.optional(),
   sessionCommits: sessionCommitsSchema.optional(),
+  sessionCommitsFailedAt: z.iso.datetime().optional(),
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.
   reportRead: z.uuid().optional(),

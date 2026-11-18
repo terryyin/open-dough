@@ -34,7 +34,7 @@ export async function deliverCompletion(
     const previous = await previousCompletion(report, origin, delivery);
     if (previous?.applied) {
       if (
-        previous.nativeDonePending &&
+        previous.continueDone &&
         (await withKeptAttempts((attempts) =>
           Promise.resolve(
             reportingAttempt(attempts, report, origin).completion?.receipt ===

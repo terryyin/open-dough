@@ -121,8 +121,11 @@ outlives its branches. A default launch starts from the checkout and revision
 its record kept at launch; a session established in the default checkout from
 its own start. Each Done reads anew and replaces the earlier capture; a log
 that cannot be read keeps Done and leaves no capture; reopening a session
-leaves its capture until the next Done. A reported Done reads its
-commits when its native Done begins, so an abandoned rename wait keeps them. The references stay
+leaves its capture until the next Done. A quiet report that advances Done
+reads the commits for that mark, even if the native rename is pending or
+already confirmed. The capture survives an abandoned rename wait. Retrying
+the same delivery can continue a pending operation and keeps the result of
+any capture already attempted for that Done. The references stay
 while the launch record is kept and are released with it: deleting the record,
 or its expiry 30 days after Done, removes that record's session-commit
 references and its landing references from the saved repository and leaves

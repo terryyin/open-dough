@@ -2,6 +2,7 @@
 
 **Identity:** SEED-379#state-only-what-the-checkout-log-shows
 **Source:** [State only what the checkout's log shows in a session's review](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#state-only-what-the-checkout-log-shows)
+**Source review:** [Source-only commitments](source-review.md)
 
 ## Goal and scope
 
@@ -175,7 +176,7 @@ Each slice has 15 active minutes excluding command time.
 
 ### 1. Keep the commits made up to a later reported Done
 Type: Behavior
-Status: planned
+Status: done
 Proof: case in `backend-tests/review/ad-hoc-session-commits-done.spec.ts`
 (110 lines). Scratch break: capture a reported Done only when the record
 holds no capture; the case fails on the missing second commit.
@@ -185,9 +186,27 @@ reports quietly again → **Review changes** answers both commits up to the
 second Done, with the shared mark read for that Done. A report redelivered
 for the same Done reads nothing again. Diagnose first why the second
 continuation does not capture (premise row 1), then make a durable Done
-later than the kept capture's `readAt` capture again. Replace the superseded
-sentence in `AGENT-LAUNCH-COMPLETION.md` with the delivered rule for a
-reported Done.
+later than the kept capture's `readAt` capture again. Update
+`AGENT-LAUNCH-COMPLETION.md` with the delivered rule for a reported Done.
+
+Finding: an earlier native rename could suppress the later continuation,
+and an already confirmed rename could make it ineligible. Capture admission
+now follows the current automatic Done and the time its previous capture was
+read. A failed attempt keeps its Done time without keeping a comparison.
+Reads for the same session are serialized, and the store rechecks Done before
+replacing its comparison. The guide on the claimed base already said that
+capture survives an abandoned rename wait. Its delivered update explains
+later quiet Done and same-delivery retry.
+
+Proof: both later quiet-report cases failed on the first tree with the
+planned scratch guard (exit 1). The restored backend review, Done and
+completion specs passed, including the same-delivery retry after restart.
+Manual Done, retained-review and quiet-report E2E consumers, plus dashboard
+typecheck, passed. Commands, selected observations and consumer dispositions
+are in `slice-1-return.md` and `slice-1-consumer-trace.md` in this checkout's
+Git evidence directory. Close and late reported Done were rechecked in the
+Done and quiet-rename specs after the formatter repair. Delivery gates the
+slice on full lint and the commit hook's staged checks.
 
 ### 2. Leave a merge commit out of a session's runs
 Type: Behavior
@@ -232,6 +251,12 @@ commit made before the session and rebased during it → the review answers
 “This session made no commits in the Default main checkout.”, asserted on
 the review. `commit (initial)` leaves the accepted kinds, so a root commit
 is an entry the rule cannot place.
+
+Also settle G1 at review admission. A new Done whose capture is held or
+unavailable must not present the previous Done's runs or no-commit result
+under the new time. Prove at the HTTP review boundary that a held later read
+gives the not-captured explanation until the current capture can answer.
+Apply the same evidence rule to run and file-pair admission.
 
 ### 5. Release every reference a session's record kept
 Type: Behavior
@@ -293,6 +318,28 @@ domain-named driver of a session's work in its checkout owns them, with
 stored facts as MakeMe builder steps under
 [test data architecture](../../../Distribution/tests/README.md#test-data-architecture).
 No product change.
+
+## Story obligations
+
+### G1. A later Done can show the previous Done's capture while its read is pending
+Reported: slice 1 — "The Done write keeps the earlier capture while the new read is pending. Review admission can put the later Done time beside the old comparison or its no-commit answer. The two dashboard processes that share the store can defer the new read when the same-session lock wait expires."
+Story clause: "the review holds the session's commits up to the Done it names"
+Disposition: interim until slices 4
+
+## Execution context
+
+- Hibiki-chan, Story Branch Mode, `codex/state-only-what-the-checkout-s-log-shows-in-a-se`.
+  Publisher `dashboard-territory.local-open-dough`. Take
+  `730571d29023631e33ef8bb8da3260fa6eb1fcd7` was accepted on `origin/main`
+  and published to the execution branch. Starting revision
+  `e80a106962a3fed8820b0b2c50c5c053d0e9155d`.
+- Execution checkout `/Users/terryyin/git/open-dough/.worktrees/state-only-what-the-checkout-s-log-shows-in-a-se`.
+  Integration checkout `/Users/terryyin/git/open-dough`. Locked install,
+  dashboard typecheck and native Chromium prerequisites succeeded in the execution checkout.
+  Replanning retains existing authority.
+- GitHub Actions `ci.yml` (`CI`), repository `terryyin/open-dough`, execution branch
+  above. Codex observer `hibiki-seed-379-1ad3583f`, mailbox
+  `/tmp/dough-ci-501/watch-iasTzS`, PID 79402, session 16076, cell `g39:11`.
 
 ## Concerns and refinement
 

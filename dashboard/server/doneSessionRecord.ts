@@ -4,6 +4,7 @@ import type { CompletionReport } from "../src/completionReport.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
 import { nativeDoneMarkPending } from "../src/doneMark.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
+import { sessionCommitsStartForDone } from "./recordDoneAt.ts";
 
 // Both reporting and explicit Done use this durable intent. Reporting keeps
 // the receipt's time and leaves later explicit Done/reopen intent independent.
@@ -41,16 +42,33 @@ export async function acknowledgeDoneLocally(
   return marked;
 }
 
-// A read-only query lets confirmed Done receipts be acknowledged without a
-// write lock. Pending native work is continued by `NativeDoneMarks`.
-export function reportedNativeDonePending(
+function reportedDone(
   record: LaunchRecord | undefined,
   receipt: CompletionReport,
 ): record is LaunchRecord {
   return (
     record !== undefined &&
     record.completion?.receipt === receipt.receipt &&
-    doneAutomatically(record) &&
-    record.doneProblem !== undefined
+    doneAutomatically(record)
+  );
+}
+
+export function reportedNativeDonePending(
+  record: LaunchRecord | undefined,
+  receipt: CompletionReport,
+): record is LaunchRecord {
+  return reportedDone(record, receipt) && record.doneProblem !== undefined;
+}
+
+// A receipt with both a settled capture and confirmed native Done can be
+// acknowledged without a write. The capture is independent of native Done.
+export function reportedDoneNeedsContinuation(
+  record: LaunchRecord | undefined,
+  receipt: CompletionReport,
+): record is LaunchRecord {
+  return (
+    reportedDone(record, receipt) &&
+    (record.doneProblem !== undefined ||
+      sessionCommitsStartForDone(record) !== undefined)
   );
 }
