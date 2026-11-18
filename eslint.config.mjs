@@ -99,8 +99,10 @@ export default defineConfig(
   },
   {
     // Frontend specs run the built app against substitutes, never the real
-    // dashboard server, fake GitHub or fake hosts. This block replaces the
-    // shared one's options for these files, so it restates its restriction.
+    // dashboard server, fake GitHub or fake hosts. Names are refused, not
+    // modules: their helpers stay importable from dashboardTest.ts. This
+    // block replaces the shared one's options for these files, so it
+    // restates its restriction.
     files: ["dashboard/frontend-tests/**/*.{ts,mts,tsx}"],
     rules: {
       "no-restricted-imports": [
