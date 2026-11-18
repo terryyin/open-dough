@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-382#give-the-frontend-group-headroom-on-slow-runners",
+  "mode": "story-branch",
+  "branch": "claude/give-the-dashboard-frontend-group-headroom-on-sl",
+  "host": "claude",
+  "model": "fable"
+}
