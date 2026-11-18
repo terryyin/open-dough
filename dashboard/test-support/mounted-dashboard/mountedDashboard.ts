@@ -5,6 +5,8 @@ import { commands, page } from "vitest/browser";
 import { App } from "../../src/App.tsx";
 import "../../src/dashboardStyles.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
+import type { StoryNotesRule } from "../support/frontendStoryNotesRule.ts";
+import type { AnswerHold } from "../support/frontendSubstituteAnswers.ts";
 import { actSettled } from "./mountedActInput.ts";
 import {
   answerMountedServices,
@@ -23,10 +25,48 @@ async function showViewport({
     await page.viewport(width, height);
 }
 
+type MountedCase = {
+  teardowns: (() => Promise<void> | void)[];
+  unanswered: string[][];
+};
+let mountedCase: MountedCase | undefined;
+
+// The case this mount belongs to. Its first mount remembers the page as the
+// case found it; one hook after the case ends every mount, then restores it.
+function joinMountedCase(): MountedCase {
+  if (mountedCase) return mountedCase;
+  const viewport = { width: window.innerWidth, height: window.innerHeight };
+  const storage = Object.entries<string>(localStorage);
+  const url = location.href;
+  const historyState: unknown = history.state;
+  const joined: MountedCase = { teardowns: [], unanswered: [] };
+  mountedCase = joined;
+  onTestFinished(async () => {
+    mountedCase = undefined;
+    try {
+      for (const teardown of joined.teardowns.reverse()) await teardown();
+    } finally {
+      endHeldAnswers();
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+      localStorage.clear();
+      for (const [key, value] of storage) localStorage.setItem(key, value);
+      history.replaceState(historyState, "", url);
+      await showViewport(viewport);
+    }
+    const unanswered = joined.unanswered.flat();
+    if (unanswered.length > 0)
+      throw new Error(`Unanswered mounted requests: ${unanswered.join(", ")}`);
+  });
+  return joined;
+}
+
 export async function mountAnsweredDashboard(options: {
   answers: MountedServiceAnswers;
   boardPositionKey: string;
   held?: readonly string[];
+  // The notes service an earlier mount in the case answered from.
+  notes?: StoryNotesRule<AnswerHold>;
   arrange?: () => void;
   restore?: () => Promise<void> | void;
   style?: string;
@@ -36,13 +76,10 @@ export async function mountAnsweredDashboard(options: {
   const earlier = answersStillHeld();
   if (earlier.length > 0)
     throw new Error(`Answers held by an earlier case: ${earlier.join(", ")}`);
-  const original = { width: window.innerWidth, height: window.innerHeight };
+  const mounted = joinMountedCase();
   if (options.viewport) await showViewport(options.viewport);
-  const storage = Object.entries<string>(localStorage);
   localStorage.clear();
   localStorage.setItem(options.boardPositionKey, "0");
-  const url = location.href;
-  const historyState: unknown = history.state;
   history.replaceState(null, "", "/");
 
   vi.useFakeTimers({
@@ -50,7 +87,11 @@ export async function mountAnsweredDashboard(options: {
   });
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   options.arrange?.();
-  const services = answerMountedServices(options.answers, options.held);
+  const services = answerMountedServices(
+    options.answers,
+    options.held,
+    options.notes,
+  );
 
   const container = document.createElement("div");
   container.id = "root";
@@ -58,25 +99,22 @@ export async function mountAnsweredDashboard(options: {
   style.textContent = options.style ?? "";
   document.body.append(style, container);
   let root: Root | undefined;
-  onTestFinished(async () => {
+  const unmount = () => {
     try {
       act(() => root?.unmount());
     } finally {
+      root = undefined;
       container.remove();
       style.remove();
-      endHeldAnswers();
-      vi.unstubAllGlobals();
-      vi.useRealTimers();
-      localStorage.clear();
-      for (const [key, value] of storage) localStorage.setItem(key, value);
-      history.replaceState(historyState, "", url);
-      await options.restore?.();
-      await showViewport(original);
     }
-    if (services.unanswered.length > 0)
-      throw new Error(
-        `Unanswered mounted requests: ${services.unanswered.join(", ")}`,
-      );
+  };
+  mounted.unanswered.push(services.unanswered);
+  mounted.teardowns.push(async () => {
+    try {
+      unmount();
+    } finally {
+      await options.restore?.();
+    }
   });
   await actSettled(() => {
     root = createRoot(container);
@@ -89,6 +127,8 @@ export async function mountAnsweredDashboard(options: {
     holdNextNotes: services.holdNextNotes,
     answersStillHeld,
     boardRows: () => container.querySelectorAll(".board-row").length,
+    // Leaves the page, as a case that mounts the board again after it.
+    unmount,
   };
 }
 

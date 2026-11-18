@@ -19,6 +19,10 @@ import {
 } from "../support/frontendStoryNotesRule.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
 import type { AnswerHold } from "../support/frontendSubstituteAnswers.ts";
+import {
+  answerStoryReview,
+  createReviewBuckets,
+} from "../support/frontendStoryReviewRule.ts";
 
 function reply(body: unknown, status = 200) {
   const payload = JSON.stringify(body);
@@ -54,11 +58,15 @@ const notesHold = "next notes answer";
 export function answerMountedServices(
   state: MountedServiceAnswers,
   held: readonly string[] = [],
+  // The notes service a case carries from an earlier mount, as the app's
+  // own notes outlive a page load; otherwise a fresh one.
+  carried?: StoryNotesRule<AnswerHold>,
 ) {
+  const notes =
+    carried ?? new StoryNotesRule<AnswerHold>(numberedNewStoryNotes());
   const launchAcceptances: unknown[] = [];
   const unanswered: string[] = [];
   const browserFetch = window.fetch.bind(window);
-  const notes = new StoryNotesRule<AnswerHold>(numberedNewStoryNotes());
   for (const [project, byStory] of Object.entries(state.notes ?? {}))
     notes.setNotes(project, byStory);
   // Holds the rule's next notes answer: `received` resolves when the request
@@ -80,6 +88,10 @@ export function answerMountedServices(
     notes.nextHold = { received, released, delivered: () => undefined };
     return { received: arrived, release: end };
   };
+  const review =
+    state.review && createReviewBuckets<never>(state.review.snapshot);
+  for (const [path, diff] of Object.entries(state.review?.files ?? {}))
+    review?.fileByPath.set(path, diff);
   const answers = new Map<string, unknown>([
     [projectListEndpoint, state.projects],
     [agentLaunchEndpoint, state.machine],
@@ -105,6 +117,9 @@ export function answerMountedServices(
         return reply(body, status);
       }
       if (held.includes(url.pathname)) return holdAnswer(url.pathname);
+      const reviewAnswer =
+        review && answerStoryReview(review, url.pathname, url.searchParams);
+      if (reviewAnswer) return reply(reviewAnswer.body());
       const requestBody = (): unknown =>
         typeof options?.body === "string"
           ? JSON.parse(options.body)

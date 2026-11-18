@@ -17,15 +17,21 @@ import {
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
 import { openDoughSource } from "./frontendPublishedFixtures.ts";
+import type {
+  ReviewedFileDiff,
+  StoryReview,
+} from "../../src/storyReviewContract.ts";
+import { retainedNoteBoards } from "./mountedRetainedNoteCommands.ts";
 
 export const mountedDashboardCommands = {
   dashboardServiceAnswers,
   phoneBoardPublication,
   storyNotesBoard,
   storyNote,
+  retainedNoteBoards,
 };
 
-function serviceAnswers(
+export function serviceAnswers(
   state: FrontendServiceState,
   notes?: Record<string, Record<string, StoryNote[]>>,
 ) {
@@ -54,7 +60,15 @@ function serviceAnswers(
   };
 }
 
-export type MountedServiceAnswers = ReturnType<typeof serviceAnswers>;
+// The story review a board answers: its snapshot and each file's diff by path.
+export type MountedReviewAnswers = {
+  snapshot: StoryReview;
+  files: Record<string, ReviewedFileDiff>;
+};
+
+export type MountedServiceAnswers = ReturnType<typeof serviceAnswers> & {
+  review?: MountedReviewAnswers;
+};
 
 function dashboardServiceAnswers() {
   return {

@@ -8,6 +8,7 @@ import {
   storyNoteWaitingForFollowUp,
   storyNotesWaitingDescription,
 } from "../../src/storyNote.ts";
+import { lineNumberLabel, type DiffLineSide } from "../../src/diffLineSide.ts";
 import { storyNotesNames as n } from "../storyNotesNames.ts";
 import { click, fill, press } from "./mountedActInput.ts";
 
@@ -62,6 +63,26 @@ export function storyNotesPage() {
         .toBeVisible();
     },
     add,
+    // Opens Add note from a diff line's number menu.
+    fromLine: async (scope: Locator, side: DiffLineSide, line: number) => {
+      await click(
+        scope.getByRole("button", {
+          name: lineNumberLabel(side, line),
+          exact: true,
+        }),
+      );
+      await click(
+        page
+          .getByRole("menu")
+          .getByRole("menuitem", { name: n.add, exact: true }),
+      );
+      await expect.element(dialog).toBeVisible();
+    },
+    saveDiffNote: async (text: string) => {
+      await fill(field, text);
+      await click(dialog.getByRole("button", { name: n.save, exact: true }));
+      await expect.element(dialog).not.toBeInTheDocument();
+    },
     addNote: async (text: string) => {
       await add();
       await fill(field, text);

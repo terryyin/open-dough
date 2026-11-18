@@ -8,7 +8,14 @@ import { mountAnsweredDashboard } from "./mountedDashboard.ts";
 import { storyNotesPage } from "./mountedStoryNotesPage.ts";
 
 type Column = "Backlog" | "Taken" | "Recently done";
-const wide = { width: 1280, height: 720 };
+// The wide board the notes cases open at.
+export const wide = { width: 1280, height: 720 };
+
+// A story's card in a board column, by its title.
+export const boardCard = (column: Column, title: string) =>
+  page
+    .getByRole("region", { name: column, exact: true })
+    .getByRole("article", { name: title, exact: true });
 
 // Opens the wide board on the notes arrangement the Node command builds.
 export async function mountStoryNotesBoard(
@@ -40,10 +47,7 @@ export async function mountStoryNotesBoard(
         release: () => actSettled(held.release),
       };
     },
-    card: (column: Column, title: string) =>
-      page
-        .getByRole("region", { name: column, exact: true })
-        .getByRole("article", { name: title, exact: true }),
+    card: boardCard,
     // Advances the fixture's timers, as the built app's clock ran.
     runFor: async (ms: number) => {
       await actSettled(() => vi.advanceTimersByTimeAsync(ms));

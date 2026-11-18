@@ -117,7 +117,7 @@ Proof: the built-app review consumers the consumer trace lists for the routes an
 ### 7. Keep a Taken note through launch and Done on the mounted board
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the developer saves a line note from the Taken story's review diff → a new launch and then Done follow → the recorded add carries the line context, the note shows on the relaunched Taken card and on Done with its full context, without workspace or launch records.
 
@@ -170,5 +170,7 @@ The whole-group command takes the repository's one-full-local-suite admission (`
 **Slice 6 refinement** (5.5 active minutes, no overrun): the retained case's reloads read only app-owned state, so it must move, but its journey saves the note from a review diff line and asserts the recorded add; the mounted services answer no story-review requests and the review substitute is Playwright-only (`page.route`, `holdAnswer(page)`). An attempt that arranged the note instead dropped both observations and was removed. Slice 6 now extracts the review rule and records the terminal stay; slice 7 moves the retained case; the comparison is slice 8.
 
 **Slice 6:** the story-review rule is `answerStoryReview(state, pathname, params)` over `createReviewBuckets<Hold>()` in `dashboard/test-support/support/frontendStoryReviewRule.ts`; it returns `undefined` for other paths and `{ body: () => unknown, hold }`, computing a held body after release. Slice 7's mounted fetch answers route through it as they do for notes. Under zsh a space-joined spec list reaches the runner as one argument, selects nothing and still exits 0; pass each path separately and read the selection count from the proof record.
+
+**Slice 7:** opening Review changes and saving a line note from the diff worked on the mounted board with direct clicks and fill inside act. Mounted services answer story-review requests through `answerStoryReview`, and a later mount can carry an earlier mount's `StoryNotesRule` (`notes` option). The first mount of a case saves viewport, storage and history and one cleanup tears every mount down newest first, then restores the page once (`mounted-dashboard.mounted.spec.ts` "a case that mounts the board twice leaves the page as it found it"). Review region and toolbar names live once in `dashboard/test-support/storyReviewNames.ts`; line-number names come from the product's `lineNumberLabel`.
 
 ## Story obligations
