@@ -32,12 +32,12 @@ intent introduced or affected by a newly developed story.
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable ([plan](slice-plans/704-stable-client-finding-records/PLAN.md))
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review ([plan](slice-plans/705-keep-own-branch-session-results-for-review/PLAN.md))
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories ([plan](slice-plans/643-declare-intent-comparison-histories/PLAN.md))
+- [Pilot which new retrospective findings to record](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings ([plan](slice-plans/706-pilot-new-retrospective-findings/PLAN.md))
 
 ## Backlog list
 
 - [Run the remaining Dashboard Frontend Test checks at Doughnut's speed](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
-- [Pilot which new retrospective findings to record](seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings) — SEED-401#pilot-new-retrospective-findings
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
