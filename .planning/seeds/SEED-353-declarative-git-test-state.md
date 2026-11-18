@@ -110,7 +110,7 @@ need not migrate first. No open human decision or blocking dependency.
 
 **Identity:** SEED-353#declare-local-worktree-review-state
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/707-declare-local-worktree-review-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cffb7b699d1c187da31581ca092b05d70242b0cad5c0cbec274ce619ef2a84f2","plan":"3331b56127df796c6da7c11c9bc42d3c8e9539bebd7fa3a0fc7e983bdade9df3"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/708-declare-local-worktree-review-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cffb7b699d1c187da31581ca092b05d70242b0cad5c0cbec274ce619ef2a84f2","plan":"3331b56127df796c6da7c11c9bc42d3c8e9539bebd7fa3a0fc7e983bdade9df3"}}
 ```
 
 **Goal.** A developer reads the committed, staged, unstaged, untracked and
