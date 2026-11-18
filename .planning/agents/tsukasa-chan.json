@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsukasa-chan",
+  "email": "tsukasa-chan@example.org",
+  "identity": "SEED-400#keep-freshness-with-a-valid-take",
+  "mode": "story-branch",
+  "branch": "claude/keep-source-freshness-checks-usable-after-a-cont",
+  "host": "claude",
+  "model": "fable"
+}
