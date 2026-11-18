@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "identity": "SEED-404#run-dashboard-frontend-checks-at-doughnut-speed",
+  "mode": "story-branch",
+  "branch": "codex/get-faster-feedback-on-the-seven-phone-board-che",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
