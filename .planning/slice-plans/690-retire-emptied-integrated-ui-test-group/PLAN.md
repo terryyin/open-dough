@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#retire-emptied-integrated-ui-test-group
 **Source:** [Source navigation and retirement](../../seeds/SEED-334-product-wide-end-to-end-tests.md#retire-emptied-integrated-ui-test-group)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -123,7 +124,7 @@ Each slice has 15 active minutes excluding command time.
 
 ### 1. Read a record whose path has a space
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new case in
 `dashboard/backend-tests/observation/authenticated-read-boundary.spec.ts`
 beside "the record itself is asked of GitHub". Scratch break: the server
@@ -138,6 +139,22 @@ Assertion map: interim test 1 step 4, record set → this case for the encoded
 path and the existing record-read case for "only the record itself"; ref and
 backlog reads → `authenticated-read-revision-backlog.spec.ts`; agent and done
 directory and settings reads → `authenticated-read-listed-records.spec.ts`.
+
+Accepted implementation proof: the real development dashboard server returned
+200 with the pinned revision, original path and bytes. After membership was
+read, the case observed exactly one GitHub argv, with
+`contents/docs/release%20notes/2026.md?ref=<revision>`. On a detached copy
+of Take, replacing the encoder in `ghContents.ts` with the raw path made the
+same case fail at its exact argv comparison (literal space received, `%20`
+expected), after the HTTP status and body passed. The scratch command was
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/observation/authenticated-read-boundary.spec.ts --grep 'encodes the space in a canonical path' --workers=2`
+(exit 1 as expected). The scratch worktree was retired.
+Restored product code passed
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/observation/authenticated-read-boundary.spec.ts dashboard/backend-tests/observation/authenticated-read-revision-backlog.spec.ts dashboard/backend-tests/observation/authenticated-read-listed-records.spec.ts --workers=2`
+(12 cases) and `npm run --silent typecheck:dashboard`. The Git evidence directory
+has `slice-1-return.md` and the corresponding run records. The only affected
+runtime consumer is Backend test registration; the focused command exercises
+that config. The shared harness and the interim case are untouched.
 
 ### 2. Open canonical and plan records from the Frontend group
 Type: Behavior
@@ -268,3 +285,29 @@ this planning pass against the scratch observations above. This review
 identified no remaining slice-specific concern. Slice 5 is one delivery by
 necessity (P3) and holds only removals observed in the scratch run; slice 4
 carries its preparation.
+
+## Execution context
+
+- Airi-chan, publisher `dashboard-territory.local-open-dough`, Story Branch
+  Mode in the owned `.worktrees/move-source-navigation-checks-out-and-retire-das`
+  checkout on `codex/move-source-navigation-checks-out-and-retire-das`.
+  Integration checkout is the repository's default worktree. Target is
+  `origin/main`. Start `ced05e2587ddb8b8c91f8bc820d4b2fb53ed02d2`.
+  Take `8d330797a8e3d3fd2b958868334033dc44527a37` is on both targets.
+- Native locked npm and Chromium setup, the native check, and
+  `npm run --silent typecheck:dashboard` passed in this checkout.
+- Branch observer uses GitHub Actions `ci.yml` (CI), coordinator
+  `airi-690-976c20d6`, directory `/tmp/dough-ci-501/watch-20Cn5A`,
+  PID 36722, Codex session 62194 and yielded cell `g8:11`.
+- Baseline at Take: E2E 797 tests, Frontend 692, Backend 1711, Integrated 3.
+  The Git evidence directory holds the four `baseline-list-*.txt` listings.
+  Use `--list --reporter=list` for roster comparison because the default
+  reporter prints nothing on success.
+- Distribution selected 652 jobs at Take via
+  `OPEN_DOUGH_TEST_DIR=Distribution/tests PATH=/opt/homebrew/bin:$PATH bash scripts/test-jobs.sh --from "$PWD"`.
+  The Git evidence directory retains the NUL-terminated listing for slice 5.
+- Sibling check at `0b0997b02`: plan 691 closed at `43e8ab8e` and was
+  already part of the Take's base. There is no Markdown under `dashboard/tests/`.
+  The browser-group roster story is undelivered. No incoming sibling change
+  alters slice 1's boundary or proof.
+- Reuse existing planning authority. No separate overrun replan was selected.

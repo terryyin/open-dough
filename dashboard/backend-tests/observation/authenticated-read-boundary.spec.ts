@@ -161,4 +161,53 @@ test.describe("authenticated read boundary (development environment)", () => {
       ],
     ]);
   });
+
+  test("encodes the space in a canonical path when asking GitHub for that record alone", async () => {
+    const revision = "ef".repeat(20);
+    const recordPath = "docs/release notes/2026.md";
+    const recordText = "# Release notes for 2026\n";
+    const story = makeMe.aBacklogEntry
+      .with({
+        title: "Read the release notes",
+        identity: "SEED-boundary#release-notes",
+        href: "/docs/release%20notes/2026.md",
+      })
+      .please();
+    const published = describedRevision(
+      makeMe.aRepository
+        .withRevision("release-notes", {
+          backlog: { queued: [story] },
+          files: { [recordPath]: recordText },
+        })
+        .please(),
+      revision,
+    );
+    server.github.serve(everyRepository, publishes(published));
+    const membership = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      headers: { Origin: server.origin },
+    });
+    expect(membership.status).toBe(200);
+
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(recordPath)}`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({
+      revision,
+      path: recordPath,
+      text: recordText,
+    });
+    expect(server.ghCalls().slice(callsBefore)).toEqual([
+      [
+        "api",
+        "--include",
+        "-H",
+        "Accept: application/vnd.github.raw",
+        `repos/${knownRepository}/contents/docs/release%20notes/2026.md?ref=${revision}`,
+      ],
+    ]);
+  });
 });
