@@ -135,17 +135,93 @@ workspace and local state land, which its declared merges compose.
 
 **Identity:** SEED-353#declare-trunk-review-authorship
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/711-declare-trunk-review-authorship/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c4e5077891eb53e1be5eda76be4f63633b63ca5df4b8db680f6874338695d8e0","plan":"9a5fc625a85dadcbb28a9b092c1c3d771b5054146492d10f3e72017d19856e1b"}}
 ```
 
-**For / why.** A developer reads own versus foreign Trunk Mode changes directly
-from authored revision facts. Include `storyReviewTrunkMode.ts`, older-Git,
-rewritten-line, own-since, flagged-history and worktree-ambiguity starting state.
-**Evaluation.** Declared agent/developer authors, Takes, interleaving and rewritten
-history preserve own-change comparisons, marks and ambiguity/refusal results;
-Git observations remain independent of the description's renderer.
-**Safe stopping point.** Trunk attribution setup is readable without changing
-publication/refresh transitions or waiting for completed-story migration.
+**Goal.** A developer reads a Trunk Mode story's review cases from who
+authored each trunk and worktree revision, which worktrees the agent holds and
+where each starts, rather than from the pushes, pulls, rebases and Git config
+calls that once produced them. Own versus foreign changes, flagged rewrites and
+worktree ambiguity then explain themselves and stay easy to change with the
+review behavior they prove.
+
+**Scope.** Migrate the starting state of
+`dashboard/test-support/support/storyReviewTrunkMode.ts` and
+`storyReviewTrunkCommits.ts` and their consumers
+`e2e/review/story-review-trunk-own-changes.spec.ts`,
+`story-review-trunk-own-flagged.spec.ts` and
+`story-review-trunk-own-older-git.spec.ts`, and the agent-authored worktrees of
+`e2e/review/story-review-trunk-worktree-ambiguity.spec.ts`. Declare, through the
+shared MakeMe repository description and its start-origin materialization: Yui-chan's
+published story commits interleaved on trunk with another developer's commits,
+Mina-chan's preparation commit and a merge Yui-chan authored with its ordered
+parents; a story commit that changes a line another developer's later trunk
+commit rewrites; unpublished story commits; untracked files; and each
+worktree's branch, starting revision and agent authorship. The review reads a
+worktree's agent from its per-worktree author configuration, so declared
+authorship is materialized through the real `configureAgentAuthorship`, not a
+second spelling of it. The ambiguity cases need several agent-authored
+worktrees beside the story's, each possibly holding an unpublished claim, so
+the description gains them as a demonstrated need. Extend those owners;
+preserve deferred, prepared-prefix reuse and each test's private mutable
+checkouts. Named revision and tree results replace incidental `rev-parse`.
+Remove `publishLater`, which no spec uses.
+
+Changes made after the review opened stay visible scenario actions: an
+unpublished commit before reopening, Yui-chan publishing and another developer
+rewriting her line before Refresh, and the older-Git reset to trunk. The
+Trunk Mode start in `story-review-trunk-worktree.spec.ts` stays the real start,
+since that spec proves the review of what a terminal start leaves; its later
+commit and push stay actions on that start's worktree. Git observations the
+specs assert (`merge-base`, a commit's subject, a parent tree) stay independent
+of the description's renderer, and the older-Git fixture stays the environment
+it is. Update the test-data architecture guide and compare representative
+construction before and after under ADR 0010. No production behavior change or
+speedup promise.
+
+Excluded: completed-story histories and the completed-review backend specs that
+also import `agentAuthoredWorktree.ts` (completed-story sibling, which can
+reuse this story's declared agent worktrees); Story Branch Mode merges (merged
+review histories sibling); launch, start and session-association arrangement
+(launch and session sibling). Shared `git`, `commitAll` and `writeAt` helpers
+and `agentAuthoredWorktree.ts` stay while other families import them.
+
+**Key examples.**
+
+- Given trunk declared up to Yui-chan's Trunk Mode claim of Story A, then her
+  `s1` changing `src/a.ts`'s first line, another developer's `o1`, Mina-chan's
+  `prep.md`, Yui-chan's merge of side work bringing `merged.md` with its first
+  parent trunk and its second the side commit, `o2` changing the file's last
+  line, and her `s2` adding `d.md`, and her worktree on `claude/story-a` at
+  trunk's head authored as her with untracked `notes.md`: All changes lists
+  `d.md`, `notes.md` and `src/a.ts` with only `-a 0`/`+a one`, the review
+  reports two published commits, and the context line reads “origin/main less
+  2 story commits”. An unpublished `u1` committed after opening joins on
+  reopening while Commits lists only `u1`.
+- Given nothing published since the claim and a declared unpublished `u1`, the
+  baseline is the claim, which an independent `merge-base` confirms, and only
+  `notes.md` and `src/g.ts` are listed.
+- Given a declared `s1 more` changing `src/c.ts`'s ninth line, `s2` changing
+  its third, and another developer's `o3` rewriting that third line, `src/c.ts`
+  is flagged from the named tree before `s1 more`, counted `+2 −2` and diffed
+  `-c 3`/`-c 9` to `+c trunk`/`+c nine`; `HEAD~1` is still `s2`. With one
+  commit published when the review opens, publishing `s2` and `o3` afterwards
+  flags the file only on Refresh.
+- Given the same two published commits and `u1` on a Git that cannot restate
+  trees, the review lists only `notes.md` and `src/g.ts` and says the published
+  commits could not be taken out; resetting the worktree to trunk afterwards
+  still reports no changes with that explanation.
+- Given the claim on trunk, the story's worktree `trunk-a` with one slice, and
+  declared agent-authored worktrees beside it — one at trunk before the claim,
+  one holding Yui-chan's unpublished claim of another story, one holding
+  Akiho-chan's unpublished claim of Story A — the review reads `trunk-a` alone;
+  given a second worktree `trunk-b` at the claim, the review is unavailable,
+  names both worktrees, and the boundary refuses both reads with 409.
+
+**Safe stopping point.** Trunk Mode review attribution setup has one shared
+declarative owner, with publication and Refresh transitions and the real
+terminal start unchanged, independent of the completed-story migration. No
+open human decision.
 
 <a id="declare-completed-story-review-histories"></a>
 
