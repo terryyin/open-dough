@@ -15,7 +15,7 @@ Developers should read the repository facts and relationships explaining dashboa
 
 Shared scope and correctness requirements:
 
-- Audit direct and indirect arrangement throughout `dashboard/backend-tests/`, `e2e/`, affected `dashboard/tests/` and support. A scan is a starting point, not the boundary; preserve purposes and independent assertions.
+- Audit direct and indirect arrangement throughout `dashboard/backend-tests/`, `e2e/`, affected `dashboard/frontend-tests/` and `dashboard/test-support/`, which took over the retired integrated tier and shared support. A scan is a starting point, not the boundary; preserve purposes and independent assertions.
 - Use the one shared `makeMe` entry and existing repository/launch/landing builders for meaningful files, refs, authorship, ordered parents, exact bytes and workspace state. Extend current owners for demonstrated needs; no imperative scripts in builder spelling or second representation of those facts.
 - Harnesses retain filesystem, Git, installation, environment and cleanup. Materialize only on demand; preserve prepared-prefix/template reuse and private mutable refs, objects, config, index and files. Expose named revision/workspace results instead of incidental `rev-parse` setup.
 - Builders derive related incidental IDs, preferring fixed defaults where isolation permits and internal uniqueness when needed. Specs neither import `randomUUID` for defaults nor create, extract or pass an incidental UUID just to relate construction steps. Explicit meaningful differences, malformed IDs and real launch-returned reporting contexts remain intact.
@@ -43,7 +43,7 @@ Each story resumes through story refinement; no mapped original slices require p
 
 ## Existing solution and evidence
 
-Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/tests/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
+Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/test-support/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
 
 The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed. Neither establishes a full migration or speedup.
 
@@ -53,7 +53,7 @@ The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 cand
 
 **Identity:** SEED-353#declare-intent-comparison-histories
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-declare-intent-comparison-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fcde2a4e2f7f6b65ed6532a228ce66c98f29bb6ed6f891893e227cbadd1922bd","plan":"bd6372600d0cd042a789851f159aa2f92f5b389398940d78bf57b21ab37a6181"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-declare-intent-comparison-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1aa1274ec23e575a0778bd1b861bc8aca9cfc76ee8b351a7736410f3d348c081","plan":"80abe97f794ac87b7a1c65b1672d146d281af7423f0ee63de4107100c03da1b6"}}
 ```
 
 **Goal.** A developer reads the repository facts explaining Intent's compared
@@ -62,7 +62,7 @@ routine Git setup. This makes Purpose and CI proof easier to maintain together.
 
 **Scope.** Migrate direct and indirect Intent/CI comparison, completed/retained
 Intent, Summary comparison and timing-history arrangement across backend, E2E
-and remaining integrated tests. Include `storyCiComparison*`,
+and Frontend-group tests. Include `storyCiComparison*`,
 `intentCompletedStory`, retained-Intent, summary and scope-history callers and
 their incidental identity wiring. Use the shared MakeMe repository facts and
 existing completed-history owners for files, configuration/workflow bytes,

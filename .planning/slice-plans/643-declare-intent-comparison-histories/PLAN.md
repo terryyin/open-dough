@@ -10,8 +10,8 @@ named repository facts instead of reconstructing routine Git. Preserve the same
 independent HTTP, UI, CI acquisition, source-selection and timing observations.
 The source's shared requirements and key examples govern all six slices.
 
-Include direct and indirect arrangement in backend, E2E and remaining integrated
-Intent scenarios, including `storyCiComparison*`, completed/retained Intent,
+Include direct and indirect arrangement in backend, E2E and Frontend-group
+Intent scenarios (the Frontend group took over the retired integrated tier), including `storyCiComparison*`, completed/retained Intent,
 Summary comparisons and scope-history support. Existing declarative cases need
 no cosmetic rewrite. General review/completion/launch/recovery migration stays
 with the source seed's other stories; changed shared owners retain their proof.
@@ -28,13 +28,17 @@ tests alone do not establish that gain. Do not claim runtime savings.
 
 ## Existing owners and architectural direction
 
-PFE in this owned checkout at `b85a83dcbd1d54cfe631035a0326fd09dc6ec202`:
+PFE at `b85a83dcbd1d54cfe631035a0326fd09dc6ec202`, rechecked on 2026-11-18 at
+`8851d33cdc7d3fa2ac1702cb547a61fc473519a9`. Shared dashboard support now lives in
+`dashboard/test-support/support/`; comparison, retained and completion fixtures
+moved there with unchanged content.
+
 
 | Responsibility | Reuse/change decision |
 | --- | --- |
 | Repository facts, parents, authors, exact files and workspace | Reuse `Distribution/tests/support/repositoryTestData.mjs` through the one `makeMe` entry. The materializer/revision owners execute Git and return named SHAs. Add only facts required by a consuming case; no command-shaped builder API. |
-| Installed origins, prepared prefixes and private copies | Reuse `startOriginPreparation.ts`, `startOriginInitialization.ts`, `startOrigin.ts` and `keptPublishedStory.ts`. Carry the revision map through these paths if not already delivered by the sibling's named-history work. Extend the same owners without a blocking story dependency or a parallel cache. |
-| Completion and comparison history | Reuse/modularize the facts already represented by `keptPublishedStory.ts`, `completedPublishedStory.ts`, `completedStoryInput.ts`, `intentSummaryStoryComparisonRepository.ts`, `queued-repository.mjs` and `takeRevision`. One shared representation of claim/implementation/completion relationships; CI variants compose its facts, rather than copy review-history logic. Preserve real CLI publication when that operation is under proof. |
+| Installed origins, prepared prefixes and private copies | Reuse `startOriginPreparation.ts`, `startOriginInitialization.ts`, `startOriginInstallation.ts`, `startOrigin.ts` and `keptPublishedStory.ts`. Start origins already answer each described revision's commit through shared-prefix, private and kept copies (`start-origin-private` backend proof); consume that map rather than adding one. Extend the same owners without a parallel cache. |
+| Completion and comparison history | Reuse/modularize the facts already represented by `keptPublishedStory.ts`, `completedPublishedStory.ts`, `completedStoryInput.ts`, `intentSummaryStoryComparisonRepository.ts`, `keptComparedStoryBranch.ts` (the retry case's worker-kept completed history), `queued-repository.mjs` and `takeRevision`. One shared representation of claim/implementation/completion relationships; CI variants compose its facts, rather than copy review-history logic. Preserve real CLI publication when that operation is under proof. |
 | CI evidence and kept provenance | Retain `serveActionsFor`, adapter answers, `storyCiComparisonEvidence`, CI/proof builders, `scopeHistoryCollection.ts` and `aLandedCiHistory`. They serve external evidence, not expected answers. Related incidental launch/landing IDs derive through existing builders; explicit provenance dates/identities remain caller facts. |
 | Browser mechanics | Keep the existing Intent comparison, story, Summary and scope-history page owners. Tests retain concrete expectations, provider calls and causal transitions. No new scenario runner. |
 
@@ -45,15 +49,16 @@ The [existing North Star](../../NORTH-STAR.md#one-backlog-interpretation-separat
 and test-data architecture support this direction. No new topic, schema, ADR
 exception or consequential architectural decision is needed.
 
-Inspected expected owners are within 250 lines: repository builder 231,
-origin preparation 249, initialization 94, origin 193, kept story 169,
-comparison fixture 236, Taken 140, Done 79, earlier landing 193, skipped
-fixtures 243/225/137, completed publisher 243, retained helpers 58/56,
-Intent completed 105, Summary repository 184, publishers 108/187, guide 224.
+Expected owners rechecked at the revision above are within 250 lines: repository
+builder 231, origin preparation 212, initialization 98, installation 73, origin
+212, kept story 169, kept compared branch 57, comparison fixture 236, Taken 140,
+Done 103, earlier landing 193, skipped fixtures 243/225/137, completed publisher
+243, retained helpers 58/56, Intent completed 105, Summary repository 157,
+variant publishers 187, scope collection 201, guide 238.
 Recheck edited paths. Keep serving, history facts and materialization cohesive:
-extract baseline facts from the comparison-serving module, completion facts
-from CLI publication, and installation layering from origin preparation if
-growth requires it. Do not mechanically cut files or duplicate models.
+extract baseline facts from the comparison-serving module and completion facts
+from CLI publication if growth requires it. Do not mechanically cut files or
+duplicate models.
 
 ## Decisive premises and preparation evidence
 
@@ -95,6 +100,23 @@ Scratch edits were reverted byte for byte before any preparation record write.
 Expected fault failures above are controlled observations; no unexplained
 failure remains. Use fresh proof paths for execution.
 
+Rechecked 2026-11-18 at `8851d33cdc7d3fa2ac1702cb547a61fc473519a9` after the
+support relocation and integrated-tier retirement, on AC under `caffeinate -s -i`,
+one worker, load 7.0–9.8 from another worktree's backend run, 63% free memory.
+The A/E/H routes (11 cases), F (6 cases) and I (8 cases) passed strictly. The
+B/D/G probes stay retained from 2026-11-15: the fixtures they edited
+(`storyCiComparisonFixture.ts`, `storyCiComparisonTakenFixture.ts`, the
+retained Intent helpers) moved to `dashboard/test-support/support/` with
+byte-identical content, and their consuming specs changed only import paths.
+
+```sh
+# A+E+H union: strict passed, 11 cases
+OPEN_DOUGH_E2E_PROOF_RECORD=<job tmp>/seed353-a.json caffeinate -s -i npm run test:e2e -- intent/intent-ci-comparison.spec.ts intent/intent-ci-comparison-taken.spec.ts intent/intent-ci-comparison-skipped-landed.spec.ts intent/intent-done-retained-workspace.spec.ts intent/intent-project-scope-timing-history.spec.ts intent/intent-ci-comparison-adapter.spec.ts intent/intent-ci-done-prior-provenance.spec.ts intent/intent-summary-story-comparison-source.spec.ts --workers=1
+# F: strict passed, 6 cases
+OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD=<job tmp>/seed353-f.json caffeinate -s -i npm run test:dashboard:backend -- intent/ci-comparison-published-endpoints.spec.ts intent/ci-comparison-history-integration.spec.ts intent/landed-ci-scope-build-provenance.spec.ts --workers=1
+# I: 8 passed (same command as above)
+```
+
 ## Outside-in proof and consumer ownership
 
 | Promise and reached boundary | Slice / proof owner |
@@ -102,11 +124,11 @@ failure remains. Use fresh proof paths for execution.
 | Named baseline/claim/provisional branch and trunk; later-head refresh remains an action | 1: complete `intent-ci-comparison-taken` and `intent-ci-comparison-adapter-taken` E2E files, reached backend Taken cases, real SHA/parent observations and Actions request assertions. |
 | Original owning landing/branch vs completion/later builds; fast-forward/rewrite variants preserved | 2: E, F and `ci-comparison-endpoints` backend cases. Preserve canonical expected endpoint facts rather than deriving expectations with the description renderer. |
 | Workflow/config bytes yield planning-only/equivalent, code/no-run, cancelled and proofless distinctions | 3: complete skipped/missing-run/adapter-planning-skip/cancelled-landing E2E files, reached backend selection/refusal cases and scoped-provenance file. Final historical-workflow fault must still discriminate. |
-| Done sources stay immutable despite retained workspace/later trunk; missing objects and recovery stay meaningful | 4: complete retained-workspace, retained-landing, prior-execution, default-answer-selection, completed-source and project-refresh E2E files; reached integrated Done source/review-mode cases. Keep capture, completion, shallow/deepen and post-read publication as actions where observed. |
-| Nested/renamed Summary rows and file source use the same declared comparison | 5: E's Summary file-source cases, renamed Summary E2E, reached integrated Summary/relative/drilldown cases and their independent proof/provider assertions. |
-| Scope history keeps represented landing, selected build, dates, order, gaps and file timing totals | 6: A's collector/project case, complete scoped collected-file/history/prior-build E2E cases and reached backend scoped build-provenance/later-build/shared-attempt cases; integrated kept-history provenance/gaps/legacy cases. |
+| Done sources stay immutable despite retained workspace/later trunk; missing objects and recovery stay meaningful | 4: complete retained-workspace, retained-landing, prior-execution, default-answer-selection, completed-source and project-refresh E2E files; reached Frontend-group Done source/review-mode cases. Keep capture, completion, shallow/deepen and post-read publication as actions where observed. |
+| Nested/renamed Summary rows and file source use the same declared comparison | 5: E's Summary file-source cases, renamed Summary E2E, reached Frontend-group Summary/relative/drilldown cases and their independent proof/provider assertions. |
+| Scope history keeps represented landing, selected build, dates, order, gaps and file timing totals | 6: A's collector/project case, complete scoped collected-file/history/prior-build E2E cases and reached backend scoped build-provenance/later-build/shared-attempt cases; Frontend-group kept-history provenance/gaps/legacy cases. |
 | Deferred reuse, private refs/objects/config/index/files and cleanup | 1 owns any origin/map change: existing start-origin isolation and kept-origin consumers plus I. Every later slice reruns reached consumers when its shared description changes. |
-| Readability, one shared model and no superseded arrangement | Every slice compares representative before/after construction and removes newly unused setup. Slice 6 updates the guide and checks remaining direct/indirect Intent candidates across the original three roots. |
+| Readability, one shared model and no superseded arrangement | Every slice compares representative before/after construction and removes newly unused setup. Slice 6 updates the guide and checks remaining direct/indirect Intent candidates across `dashboard/backend-tests/`, `e2e/`, `dashboard/frontend-tests/` and `dashboard/test-support/`. |
 
 Before delivery, run installed `dough-execute-plan/scripts/consumer-trace.mjs`
 with `--checkout <execution checkout> --base HEAD`, adding effect terms for
@@ -203,7 +225,7 @@ loop; 15 active minutes, commands excluded.
 
 Apply [AGENTS.md](../../../AGENTS.md#test-automation), installed MakeMe and browser
 page-object selection before test edits. The selector resolved MakeMe true for
-the inspected three tiers, pageObjects true for E2E/integrated and false for
+the inspected tiers, pageObjects true for E2E/Frontend and false for
 backend. Recheck actual/new paths. Builders follow consuming tests; production
 types are type-only imports, and Git/files/environment/cleanup remain harness
 work. Add no builder-only checks. Keep default test timeouts; never `test.slow()`

@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yuma-chan",
-  "email": "yuma-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-353#declare-intent-comparison-histories",
-  "host": "claude"
-}
