@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-379#bound-capture-to-done",
+  "mode": "story-branch",
+  "branch": "cursor/bound-a-session-s-kept-commits-to-its-done",
+  "host": "cursor",
+  "model": "auto"
+}

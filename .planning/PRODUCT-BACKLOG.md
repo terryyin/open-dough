@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Get faster feedback on the seven phone-board checks](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-dashboard-frontend-checks-at-doughnut-speed ([plan](slice-plans/701-faster-phone-board-checks/PLAN.md))
+- [Bound a session's kept commits to its Done](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done) — SEED-379#bound-capture-to-done ([plan](slice-plans/703-bound-session-capture-to-done/PLAN.md))
 
 ## Backlog list
 
-- [Bound a session's kept commits to its Done](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#bound-capture-to-done) — SEED-379#bound-capture-to-done
 - [Run the remaining Dashboard Frontend Test checks at Doughnut's speed](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed) — SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
 - [Store duplicate finding evidence once and preserve IDs across log recreation](seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) — SEED-402#keep-client-finding-evidence-and-ids-stable
