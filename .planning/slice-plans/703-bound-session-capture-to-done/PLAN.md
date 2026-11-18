@@ -97,3 +97,7 @@ negative observation are one behavior at the same HTTP entry. The existing
 held Git seam establishes the decisive ordering and the actual review
 answer. If the whole-second log cannot settle an observed boundary, the
 same slice owns the unavailable answer instead of assuming an order.
+
+## Execution complete
+
+Product advice: no change
