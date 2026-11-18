@@ -1,147 +1,63 @@
-// A fresh run of plain preparation-page consumers, Claude, Codex and a later
-// revision override sharing one worker, under the Dashboard Backend Test
-// setup: both hosts' queued origins are prepared before any case's own time,
-// every case gets its host's layout as an independent copy, and the override
-// keeps its later revision. Integrated and E2E registration of both queued
-// layouts is witnessed by their own consuming journeys, which fail naming any
-// key their setup omits (../../tests/support/runArtifacts.ts).
-import { createServer, type ServerResponse } from "node:http";
-import type { AddressInfo } from "node:net";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
-import {
-  preparationFixtures,
-  startPreparationProofRun,
-} from "../support/preparationProofRun.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { removeProofDirectories } from "../../tests/support/proofRecordRun.ts";
+import { observeQueuedOrigins } from "../support/queuedOriginsProof.ts";
+import { expect, test as base } from "../../tests/support/pageTest.ts";
+import { coldInputPreparation } from "../../tests/support/publishedMainWorkerFixtures.ts";
 
-const preload = pathToFileURL(
-  path.join(preparationFixtures, "cloneGate.mjs"),
-).href;
+const test = base.extend<
+  object,
+  { queuedOrigins: Awaited<ReturnType<typeof observeQueuedOrigins>> }
+>({
+  queuedOrigins: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => use(await observeQueuedOrigins()),
+    coldInputPreparation,
+  ],
+});
 
-type Held = { layout: string; release: () => void };
-
-test.afterEach(removeProofDirectories);
-
-test("a cold run prepares both hosts' origins before the first case", async () => {
-  const held: Held[] = [];
-  let bothHeld: () => void = () => {};
-  const reached = new Promise<void>((resolve) => {
-    bothHeld = resolve;
+test("both queued origins are prepared before the first private copy", async ({
+  queuedOrigins: { heldLayouts, casesWhileHeld, timing },
+}) => {
+  const { releasedAt, completed, firstCopyStartedAt } = timing;
+  expect(heldLayouts).toEqual(["claude", "codex"]);
+  expect(casesWhileHeld).toEqual([]);
+  expect(completed.claude).toBeGreaterThanOrEqual(releasedAt);
+  expect(completed.codex).toBeGreaterThanOrEqual(releasedAt);
+  expect(firstCopyStartedAt).toBeGreaterThanOrEqual(
+    Math.max(completed.claude ?? Infinity, completed.codex ?? Infinity),
+  );
+  await test.info().attach("preparation-and-case-intervals", {
+    body: JSON.stringify(timing),
+    contentType: "application/json",
   });
-  const gate = createServer((request, response: ServerResponse) => {
-    const input: Buffer[] = [];
-    request.on("data", (chunk: Buffer) => input.push(chunk));
-    request.once("end", () => {
-      const { layout } = JSON.parse(Buffer.concat(input).toString("utf8")) as {
-        layout: string;
-      };
-      held.push({
-        layout,
-        release: () => {
-          if (!response.writableEnded) response.end("continue");
-        },
-      });
-      if (held.length === 2) bothHeld();
-    });
-  });
-  await new Promise<void>((resolve, reject) => {
-    gate.once("error", reject);
-    gate.listen(0, "127.0.0.1", resolve);
-  });
-  const { port } = gate.address() as AddressInfo;
-  const run = startPreparationProofRun({
-    spec: "preparation.proof.ts",
-    setup: "backendGlobalSetup.ts",
-    env: {
-      NODE_OPTIONS: [
-        process.env["NODE_OPTIONS"],
-        `--import ${JSON.stringify(preload)}`,
-      ]
-        .filter(Boolean)
-        .join(" "),
-      OPEN_DOUGH_ARTIFACT_PROOF_GATE: `http://127.0.0.1:${String(port)}`,
-    },
-  });
-  try {
-    // Both layouts are requested together, before any case reports.
-    await Promise.race([
-      reached,
-      run.result.then((result) => {
-        throw new Error(
-          `Playwright exited before both origins were held: ${result.stdout}${result.stderr}`,
-        );
-      }),
-    ]);
-    expect(held.map(({ layout }) => layout).sort()).toEqual([
-      "claude",
-      "codex",
-    ]);
-    expect(run.cases()).toEqual([]);
-    const releasedAt = Date.now();
-    for (const { release } of held) release();
+});
 
-    await run.passed();
+test("each host's copy contains its own installation", ({ queuedOrigins }) => {
+  const [claude, codex, override] = queuedOrigins.cases;
+  expect(claude).toMatchObject({
+    host: "claude",
+    tree: expect.arrayContaining([".claude"]),
+  });
+  expect(codex).toMatchObject({
+    host: "codex",
+    tree: expect.arrayContaining([".agents"]),
+  });
+  expect(claude?.tree).not.toEqual(codex?.tree);
+  expect(override?.tree).toEqual(claude?.tree);
+});
 
-    // Worker preparation and case intervals, recorded separately.
-    const claude = run.completedAt("start-origin-claude-queued");
-    const codex = run.completedAt("start-origin-codex-queued");
-    expect(claude).toBeGreaterThanOrEqual(releasedAt);
-    expect(codex).toBeGreaterThanOrEqual(releasedAt);
-    // Each case's own origin setup (its first origin step; the second is
-    // its teardown) starts after both bases completed.
-    const originSetups = [
-      ...new Map(
-        run
-          .fixtureSteps("origin")
-          .reverse()
-          .map((step) => [step.case, step]),
-      ).values(),
-    ];
-    expect(originSetups).toHaveLength(3);
-    for (const step of originSetups)
-      expect(step.start).toBeGreaterThanOrEqual(
-        Math.max(claude ?? Infinity, codex ?? Infinity),
-      );
-    const ends = run.steps().filter((step) => step.event === "end");
-    // Kept visible: run-owned preparation versus each case's own time.
-    await test.info().attach("preparation-and-case-intervals", {
-      body: JSON.stringify({
-        held: { releasedAt, claude, codex },
-        cases: ends,
-      }),
-      contentType: "application/json",
-    });
+test("each case starts with a private copy", ({ queuedOrigins: { cases } }) => {
+  const [claude, codex, override] = cases;
+  expect(new Set(cases.map(({ origin }) => origin)).size).toBe(3);
+  expect(claude?.branches).not.toContain("private-proof");
+  expect(codex?.branches).not.toContain("private-proof");
+  expect(override?.branches).not.toContain("private-proof");
+});
 
-    const cases = run.cases();
-    expect(cases.map(({ host }) => host)).toEqual([
-      "claude",
-      "codex",
-      "claude",
-    ]);
-    expect(new Set(cases.map(({ origin }) => origin)).size).toBe(3);
-    // A copy holds no other case's private write.
-    for (const { branches } of cases)
-      expect(branches).not.toContain("private-proof");
-    const [onClaude, onCodex, overriding] = cases;
-    expect(onClaude?.tree).not.toEqual(onCodex?.tree);
-    expect(overriding?.tree).toEqual(onClaude?.tree);
-    expect(overriding?.revisions.at(-1)).toBe("changed review");
-    expect(overriding?.revisions).toEqual([
-      ...(onClaude?.revisions ?? []),
-      "changed review",
-    ]);
-    expect(overriding?.mainIsLast).toBe(true);
-  } finally {
-    for (const { release } of held) release();
-    const closed = new Promise<void>((resolve) =>
-      gate.close(() => {
-        resolve();
-      }),
-    );
-    gate.closeAllConnections();
-    await closed;
-    await run.stop();
-  }
+test("a later revision becomes main in its own copy", ({ queuedOrigins }) => {
+  const [claude, , override] = queuedOrigins.cases;
+  expect(override?.host).toBe("claude");
+  expect(override?.revisions).toEqual([
+    ...(claude?.revisions ?? []),
+    "changed review",
+  ]);
+  expect(override?.mainIsLast).toBe(true);
 });

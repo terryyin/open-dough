@@ -27,15 +27,7 @@ function gated(command, args, ...rest) {
 gated[promisify.custom] = async (command, args, ...rest) => {
   if (held(command, args)) {
     const target = args.at(-1);
-    await (
-      await fetch(gate, {
-        method: "POST",
-        body: JSON.stringify({
-          pid: process.pid,
-          layout: path.basename(target),
-        }),
-      })
-    ).text();
+    await (await fetch(`${gate}/${path.basename(target)}`)).text();
   }
   return run(command, args, ...rest);
 };

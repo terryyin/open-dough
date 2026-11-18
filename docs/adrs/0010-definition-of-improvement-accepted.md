@@ -46,6 +46,9 @@ Every dimension need not improve; the permissible tradeoffs must be explicit.
   Use relevant exposure to assess immediate and delayed effects. Missing evidence
   remains unknown; delivery or absence of complaints alone establishes no benefit.
   Bound conclusions to the observed context and record any necessary later check.
+- When the process being evaluated determines which events get recorded, select
+  a sample of eligible cases independently of those records. Compare what
+  happened with what the process recorded, including cases that produced no entry.
 - Humans own goals and consequential unresolved tradeoffs. Agents evaluate and
   act within established criteria and delegated authority. A conflict or missing
   consequential decision prompts Jidoka intervention on the affected action;
