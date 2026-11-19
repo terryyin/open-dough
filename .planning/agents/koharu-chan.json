@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-413#pilot-direct-dashboard-unit-tests",
+  "mode": "story-branch",
+  "branch": "claude/pilot-direct-backend-handler-and-narrow-ui-compo",
+  "host": "claude"
+}
