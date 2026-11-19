@@ -10,7 +10,7 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/frontend-tests",
     job: "dashboard-frontend",
-    spec: "control-reachability-observation.spec.ts",
+    spec: "test-harness/control-reachability-observation.spec.ts",
     grep: "a control revealed by earlier scrolling is still checked",
   },
   {
