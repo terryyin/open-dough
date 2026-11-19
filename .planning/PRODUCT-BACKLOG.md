@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Narrow the ad hoc review handlers' contracts to what they read](seeds/SEED-413-renovate-dashboard-unit-tests.md#narrow-ad-hoc-review-handler-contracts) — SEED-413#narrow-ad-hoc-review-handler-contracts
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
 - [Renovate the remaining dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
 - [Prove Project CI history through the components that show it](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests) — SEED-413#renovate-dashboard-frontend-unit-tests
