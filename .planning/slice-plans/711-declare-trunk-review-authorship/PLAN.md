@@ -137,7 +137,7 @@ named descriptions and consumers read named revisions. One attribution loop;
 
 ### 2. Read rewritten-line flags from declared history
 Type: Behavior
-Status: planned
+Status: done
 Proof: Second consumer row; S3 establishes the route.
 
 Behavior: Given the declared `s1 more`, `s2` and another developer's `o3`
@@ -230,3 +230,8 @@ ownership.
 - Accepted slice-1 proof: own-changes + older-git (3), flagged setup compat
   (2), builder suite (10), typecheck; evidence under the checkout's
   `open-dough/evidence/slice-1/`.
+- Slice 2: declared rewrite history is `trunkModeStory({ rewritten: true })`;
+  post-open Refresh keeps slimmed `publishRewrittenLine` (no `earlier`).
+  Flag baseline is `origin.revision("o2")^{tree}`. Removed `publishLater`.
+  Accepted proof: flagged (2) + shared consumers (3); evidence
+  `open-dough/evidence/slice-2/`.

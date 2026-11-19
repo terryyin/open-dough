@@ -1,6 +1,6 @@
 // Story A's Trunk Mode review setup (own-changes, flagged, older-git specs)
 // off a real bare origin (./startOrigin.ts): Yui-chan's claim, declared
-// published attribution via `trunkModeStory`, rewrite actions via
+// published attribution via `trunkModeStory`, rewrite-after-open via
 // `publishRewrittenLine`, and the kept launch record (./storyLaunchRecord.ts).
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -38,6 +38,17 @@ const byMina = { author: { name: mina.agent, email: mina.email } };
 
 const aAfterS1 = lines("a").replace("a 0\n", "a one\n");
 const aAfterO2 = aAfterS1.replace("a 11\n", "a last\n");
+
+// `src/c.ts` with the lines given in place of its own, by line number.
+const cWith = (changed: Readonly<Record<number, string>>) =>
+  Object.entries(changed).reduce(
+    (text, [line, now]) => text.replace(`c ${line}\n`, `${now}\n`),
+    lines("c"),
+  );
+
+const cNine = { 9: "c nine" } as const;
+const cStory = { ...cNine, 3: "c story" } as const;
+const cTrunk = { ...cNine, 3: "c trunk" } as const;
 
 // Trunk up to Yui-chan's claim: `src/a.ts`, `src/b.ts` and `src/c.ts`, an
 // earlier story she took, changed and closed, and then her claim, which moves
@@ -77,37 +88,28 @@ const unpublishedU1 = {
   files: { "src/g.ts": "g\n" },
 } as const;
 
-export function trunkModeStory({
-  published,
-  unpublished = false,
-}: {
-  readonly published: 0 | 1 | 2;
-  readonly unpublished?: boolean;
-}): StartRepository {
-  const withNotes = (workspace: {
-    please(): StartRepository;
-    withUnpublishedRevision(
-      name: "u1",
-      facts: typeof unpublishedU1,
-    ): { please(): StartRepository };
-  }): StartRepository =>
-    withLocalState(
-      (unpublished
-        ? workspace.withUnpublishedRevision("u1", unpublishedU1)
-        : workspace
-      ).please(),
-      notesUntracked,
-    );
+type WorkspaceChain = {
+  please(): StartRepository;
+  withUnpublishedRevision(
+    name: "u1",
+    facts: typeof unpublishedU1,
+  ): { please(): StartRepository };
+};
 
-  if (published === 0)
-    return withNotes(
-      trunkModeClaim().withWorkspace(branch, {
-        from: "take Story A",
-        agent: yui.agent,
-      }),
-    );
+const withNotes = (
+  workspace: WorkspaceChain,
+  unpublished: boolean,
+): StartRepository =>
+  withLocalState(
+    (unpublished
+      ? workspace.withUnpublishedRevision("u1", unpublishedU1)
+      : workspace
+    ).please(),
+    notesUntracked,
+  );
 
-  const throughO2 = trunkModeClaim()
+const throughO2 = () =>
+  trunkModeClaim()
     .withRevision("s1", {
       ...byYui,
       files: { "src/a.ts": aAfterS1 },
@@ -132,81 +134,82 @@ export function trunkModeStory({
       files: { "src/a.ts": aAfterO2 },
     });
 
+export function trunkModeStory(
+  options:
+    | {
+        readonly published: 0 | 1 | 2;
+        readonly unpublished?: boolean;
+      }
+    | {
+        readonly rewritten: true;
+        readonly unpublished?: boolean;
+      },
+): StartRepository {
+  const unpublished = options.unpublished ?? false;
+
+  if ("rewritten" in options)
+    return withNotes(
+      throughO2()
+        .withRevision("s1 more", {
+          ...byYui,
+          files: { "src/c.ts": cWith(cNine) },
+        })
+        .withRevision("s2", {
+          ...byYui,
+          files: {
+            "src/c.ts": cWith(cStory),
+            "d.md": "story document\n",
+          },
+        })
+        .withRevision("o3", {
+          files: { "src/c.ts": cWith(cTrunk) },
+        })
+        .withWorkspace(branch, { from: "o3", agent: yui.agent }),
+      unpublished,
+    );
+
+  const { published } = options;
+
+  if (published === 0)
+    return withNotes(
+      trunkModeClaim().withWorkspace(branch, {
+        from: "take Story A",
+        agent: yui.agent,
+      }),
+      unpublished,
+    );
+
   if (published === 1)
     return withNotes(
-      throughO2.withWorkspace(branch, { from: "o2", agent: yui.agent }),
+      throughO2().withWorkspace(branch, { from: "o2", agent: yui.agent }),
+      unpublished,
     );
 
   return withNotes(
-    throughO2
+    throughO2()
       .withRevision("s2", {
         ...byYui,
         files: { "d.md": "story document\n" },
       })
       .withWorkspace(branch, { from: "s2", agent: yui.agent }),
+    unpublished,
   );
 }
-
-// Yui-chan publishes `s2`, adding `d.md` and holding the changed files also
-// named, leaving the worktree's untracked file as it is.
-function publishSecond(workspace: string, ...also: string[]) {
-  writeAt(workspace, "d.md", "story document\n");
-  git(workspace, "add", "d.md", ...also);
-  git(workspace, "commit", "--quiet", "-m", "s2");
-  push(workspace);
-  git(workspace, "fetch", "--quiet", "origin", "main");
-}
-
-// `src/c.ts` with the lines given in place of its own, by line number.
-const cWith = (changed: Readonly<Record<number, string>>) =>
-  Object.entries(changed).reduce(
-    (text, [line, now]) => text.replace(`c ${line}\n`, `${now}\n`),
-    lines("c"),
-  );
 
 // Yui-chan publishes `s2`, which here also changes a line of `src/c.ts`, and
 // another developer's `o3` then rewrites that very line; the worktree is
-// rebased onto fetched trunk. With `earlier`, she first publishes a story
-// commit changing another line of that file. Returns trunk and the tree
-// before her first change to the file.
-export function publishRewrittenLine(
-  origin: StartOrigin,
-  workspace: string,
-  { earlier = false }: { readonly earlier?: boolean } = {},
-) {
-  const beforeStory = git(workspace, "rev-parse", "HEAD^{tree}");
-  const kept = earlier ? { 9: "c nine" } : {};
-  if (earlier) {
-    writeAt(workspace, "src/c.ts", cWith(kept));
-    git(workspace, "add", "src/c.ts");
-    git(workspace, "commit", "--quiet", "-m", "s1 more");
-    push(workspace);
-  }
-  writeAt(workspace, "src/c.ts", cWith({ ...kept, 3: "c story" }));
-  publishSecond(workspace, "src/c.ts");
+// rebased onto fetched trunk. Returns trunk after the rewrite.
+export function publishRewrittenLine(origin: StartOrigin, workspace: string) {
+  writeAt(workspace, "src/c.ts", cWith({ 3: "c story" }));
+  writeAt(workspace, "d.md", "story document\n");
+  git(workspace, "add", "d.md", "src/c.ts");
+  git(workspace, "commit", "--quiet", "-m", "s2");
+  push(workspace);
+  git(workspace, "fetch", "--quiet", "origin", "main");
   pull(origin.project);
-  writeAt(origin.project, "src/c.ts", cWith({ ...kept, 3: "c trunk" }));
+  writeAt(origin.project, "src/c.ts", cWith({ 3: "c trunk" }));
   commitAllAs(origin.project, "o3");
   push(origin.project);
-  return { trunk: rebaseOntoTrunk(workspace), beforeStory };
-}
-
-// Yui-chan's later story commit `s3`, adding `src/e.ts`, reaches trunk from
-// the project's checkout, leaving the worktree's own commit unpublished, then
-// with `trunkToo` another developer's `o4`, adding `src/f.ts`. Returns trunk.
-export function publishLater(
-  project: string,
-  workspace: string,
-  trunkToo: boolean,
-) {
-  pull(project);
-  writeAt(project, "src/e.ts", "e\n");
-  commitAllAs(project, "s3", yui);
-  if (trunkToo) {
-    writeAt(project, "src/f.ts", "f\n");
-    commitAllAs(project, "o4");
-  }
-  push(project);
   return rebaseOntoTrunk(workspace);
 }
 
