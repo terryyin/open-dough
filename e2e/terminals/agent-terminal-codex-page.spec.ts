@@ -105,7 +105,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   expect(codexAttaches(native)).toHaveLength(1);
   await chooseProject(page, "Open Dough");
   await terminal.close();
-  await expect(terminal.panel).toHaveCount(0);
+  await terminal.expectClosed();
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[0]?.pid ?? 0))
     .toBe("SIGHUP");
@@ -113,7 +113,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
   await terminal.expectText("original retained history");
   await page.reload();
-  await expect(terminal.panel).toHaveCount(0);
+  await terminal.expectClosed();
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[1]?.pid ?? 0))
     .toBe("SIGHUP");
