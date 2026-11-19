@@ -19,8 +19,9 @@ import {
   watchComparisonReads,
 } from "../../dashboard/test-support/support/storyCiComparisonRetry.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { comparedStoryBranchCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 // The completed history is the worker's; this case's origin is its copy.
@@ -92,7 +93,7 @@ test("unrecoverable published history shows the published-review explanation wit
     message: "ship a built revision",
     files: { "src/built.ts": "built\n" },
   });
-  await completedPublishedStory(origin, "story-branch");
+  await publishDeclaredTrunk(origin, comparedStoryBranchCompletionOntoTip());
   // Shallow project checkout: claim history cannot be recovered.
   git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
   const published = git(origin.origin, "rev-parse", "main");

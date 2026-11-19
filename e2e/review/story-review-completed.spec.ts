@@ -25,19 +25,21 @@ import {
   readReview,
   refreshReview,
 } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import path from "node:path";
 import {
-  completedPublishedStory,
   advanceCompletedTrunk,
   keepUnusableCompletedCapture,
-} from "../../dashboard/test-support/support/completedPublishedStory.ts";
+} from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
+import { ordinaryJourneyCompletedHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
+
+test.use({ originRepository: ordinaryJourneyCompletedHistory() });
 
 test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const story = await completedPublishedStory(origin);
-  const { completion } = story;
+  const completion = origin.revision("completion");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: completion,
@@ -87,7 +89,11 @@ test("a CLI-completed story without a local launch opens fixed published changes
   // The server fallback proof
   // (../../dashboard/backend-tests/review/story-review-completed-gaps.spec.ts) cannot
   // show that, and ending the journey before the tail saved no time.
-  keepUnusableCompletedCapture(dashboard, origin, story);
+  keepUnusableCompletedCapture(dashboard, origin, {
+    workspace: path.join(origin.project, ".worktrees", "missing-completed"),
+    completion,
+    baseline: origin.revision("interleaving"),
+  });
   const withRun = await refreshReview(page, review);
   expect(withRun).toMatchObject({
     kind: "published",

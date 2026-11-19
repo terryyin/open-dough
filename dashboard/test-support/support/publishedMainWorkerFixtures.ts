@@ -15,6 +15,13 @@ export const coldInputPreparation = {
   timeout: 60_000,
 } as const;
 
+// npm exec of the pinned Codex package is larger than other cold inputs and
+// can miss a warm cache on CI; keep the same worker scope with a longer bound.
+export const pinnedWatcherCodexPreparation = {
+  scope: "worker",
+  timeout: 180_000,
+} as const;
+
 async function requestPublishedMainSource(profile: PublishedMainSourceProfile) {
   const [artifacts, source] = await Promise.all([
     import("./runArtifacts.ts"),
@@ -105,6 +112,6 @@ export const publishedMainWorkerFixtures: Fixtures<
       const { pinnedWatcherCodex } = await import("./watcherNativeCodex.ts");
       await use(await pinnedWatcherCodex());
     },
-    coldInputPreparation,
+    pinnedWatcherCodexPreparation,
   ],
 };

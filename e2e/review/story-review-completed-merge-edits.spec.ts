@@ -14,17 +14,15 @@ import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { ownConflictExtraCompletedHistory } from "../../dashboard/test-support/support/completedOwnMergeHistory.ts";
+
+test.use({ originRepository: ownConflictExtraCompletedHistory() });
 
 test("a completed story's integration edits open with their diffs beside its mixed conflict file", async ({
   page,
   origin,
 }) => {
-  const { completion } = await completedPublishedStory(
-    origin,
-    "story-branch",
-    "own-conflict-extra",
-  );
+  const completion = origin.revision("completion");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: completion,

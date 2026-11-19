@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-353_declare-completed-story-review-histories.json",
+      "identity": "SEED-353#declare-completed-story-review-histories",
+      "completedAt": "2026-11-19T07:16:38.022Z",
+      "blob": "185753046db6055492b17bdeae30410ece30117a"
+    },
+    {
       "fileName": "SEED-410_remove-redundant-dashboard-navigation-doc.json",
       "identity": "SEED-410#remove-redundant-dashboard-navigation-doc",
       "completedAt": "2026-11-19T05:37:32.206Z",
@@ -2682,18 +2688,6 @@
       "identity": "SEED-144#recognize-opendough-by-its-icon",
       "completedAt": "2026-10-20T07:23:13.081Z",
       "blob": "d30b5982ee2ec1b74161db14e555702edc731791"
-    },
-    {
-      "fileName": "SEED-052_safe-cursor-session-stop.json",
-      "identity": "SEED-052#safe-cursor-session-stop",
-      "completedAt": "2026-10-20T06:26:02.357Z",
-      "blob": "48c28a364f587c0ef2c0067a80425139e5bb178b"
-    },
-    {
-      "fileName": "SEED-010_observe-retrospective-response-effectiveness.json",
-      "identity": "SEED-010#observe-retrospective-response-effectiveness",
-      "completedAt": "2026-10-20T05:55:26.137Z",
-      "blob": "ee6332fb2ddcc8cc4641a8a8245e1288abb2f1c3"
     }
   ],
   "unreadable": []

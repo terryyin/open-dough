@@ -3,12 +3,15 @@
 // developer the checkout's configuration names and the executing agent.
 import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   arrangedBacklogFacts,
   backlog,
+  backlogOf,
+  queued,
   run,
   scratchProject,
   takenEntry,
@@ -23,6 +26,7 @@ import {
   readRecord,
 } from "./product-backlog-done-fixture.mjs";
 import { checkoutOf } from "./product-backlog-git-fixture.mjs";
+import { plantAgentProfile } from "./product-backlog-profile-fixture.mjs";
 
 // The developer the checkout's Git configuration names, whom `complete`
 // credits in the record.
@@ -179,6 +183,46 @@ test("a Taken profile recording no host or model leaves a record naming the agen
       completedAt,
       developer: "Terry Yin",
       agent: "Akiho-chan",
+    },
+  );
+});
+
+// Declared review histories reuse an agentless done record after return; the
+// CLI must still prove that shape when taken work is returned and its profile
+// is already released before complete.
+test("complete after a return with the execution profile released writes an agentless done record", async (t) => {
+  const project = scratchProject(t);
+  plantAgentProfile(
+    project,
+    makeMe.anAgentProfile
+      .executing({ name: "Akiho", identity: takenStory, host: "claude" })
+      .please(),
+  );
+  const returned = await run(project, [
+    "place",
+    "--identity",
+    takenStory,
+    "--position",
+    "first",
+    "--return",
+  ]);
+  assert.equal(returned.code, 0, returned.stderr);
+  assert.equal(project.read(), backlogOf([], [takenEntry, ...queued]));
+  unlinkSync(join(project.directory, ".planning", agentIdentity("Akiho").path));
+
+  const result = await run(
+    project,
+    ["complete", "--identity", takenStory],
+    at(completedAt),
+  );
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(
+    readRecord(project, "SEED-008_script-product-backlog-list-updates.json"),
+    {
+      schemaVersion: 1,
+      identity: takenStory,
+      title: "Update the product backlog without hand-editing the shared list",
+      completedAt,
     },
   );
 });

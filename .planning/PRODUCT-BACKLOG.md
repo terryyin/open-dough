@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
-- [Declare completed-story review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-completed-story-review-histories) — SEED-353#declare-completed-story-review-histories ([plan](slice-plans/716-declare-completed-story-review-histories/PLAN.md))
 - [Express submit-and-close test intent](seeds/SEED-411-express-submit-and-close-test-intent.md#express-submit-and-close-test-intent) — SEED-411#express-submit-and-close-test-intent
 - [Return to recently selected stories](seeds/SEED-409-return-to-recently-selected-stories.md#return-to-recently-selected-stories) — SEED-409#return-to-recently-selected-stories ([plan](slice-plans/718-return-to-recently-selected-stories/PLAN.md))
 

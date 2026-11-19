@@ -57,6 +57,11 @@ the real production seed only when the development list is missing.
 Declare the Git state a test starts from with `makeMe.aRepository`.
 [Repository test data](repository-test-data.md) covers named revisions,
 workspaces and their uncommitted state, releases, claims and served revisions.
+A completed-story review starts from a declared history — named claim,
+implementation, merges and `completionRevision` — published through the origin
+or `publishDeclaredTrunk`, not a variant replay. See
+[completedStoryHistory.ts](../../dashboard/test-support/support/completedStoryHistory.ts)
+and the completion paragraph in that repository guide.
 
 Arrange native hook settings with `makeMe.hostHookSettings.forHost(host)`.
 State unrelated settings through `.with(...)` and handlers through `.handling(...)`;

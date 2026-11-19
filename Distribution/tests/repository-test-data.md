@@ -76,12 +76,25 @@ its readiness basis. [Queued repository](support/queued-repository.mjs)
 Intent comparison setups read their endpoints from these named results.
 Publish the built baseline with `precedeClaimWithPlanning`, or compose
 `withPlanningBeforeClaim` into a CI trunk declared with `aComparisonCiTrunk`;
-`publishDeclaredTrunk` pushes it once and answers each SHA by name. `publishTake` answers its `claim`, and
-`completedPublishedStory` its `claim`, `completion` and owning `branchSide`.
-`completeBacklogStory` runs the real backlog completion; `commitAll` and
-`advanceCompletedTrunk` answer the commit they made.
+`publishDeclaredTrunk` pushes it once and answers each SHA by name.
+`publishTake` answers its `claim`. A completed-story review history is declared
+with named revisions — `takeRevision` for the claim, the implementation,
+interleaving and each merge, and `completionRevision` for the done record —
+then published through `test.use({ originRepository })` or mid-test
+`publishDeclaredTrunk`. Named histories such as
+`ordinaryTrunkModeCompletedHistory` and `ordinaryStoryBranchCompletedHistory`
+live in
+[completedStoryHistory.ts](../../dashboard/test-support/support/completedStoryHistory.ts);
+they answer `claim`, `completion` and Story Branch `branchSide` by revision
+name. Mid-test trunk advances, unusable captures and a later developer's merge
+that carries the done record stay as visible actions in
+[completedStoryVisibleActions.ts](../../dashboard/test-support/support/completedStoryVisibleActions.ts)
+(`advanceCompletedTrunk`, `keepUnusableCompletedCapture`,
+`laterDeveloperCarriesDoneRecord`).
+`completeBacklogStory` and `publishCompletedStory` remain for launch and
+retained-landing completions that still run the installed CLI.
 [Baseline and trunk](../../dashboard/test-support/support/storyCiComparisonBaseline.ts) ·
-[Completion](../../dashboard/test-support/support/completedStoryPublication.ts)
+[Completion publication](../../dashboard/test-support/support/completedStoryPublication.ts)
 
 A revision can also carry one `release`, built with
 `makeMe.aRelease.with({ version, taggedAt, marker }).please()` and, where

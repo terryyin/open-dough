@@ -9,21 +9,20 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import {
-  completedPublishedStory,
-  advanceCompletedTrunk,
-} from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 import { serveActionsFor } from "../../dashboard/test-support/support/storyCiComparisonFixture.ts";
-import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
 
 test("a completed Trunk comparison shows No build without selecting the available later trunk build", async ({
   page,
   origin,
 }) => {
-  await completedPublishedStory(origin, "trunk");
-  advanceCompletedTrunk(origin);
-  const builtPastCompletion = git(origin.origin, "rev-parse", "main");
+  const commits = await publishDeclaredTrunk(
+    origin,
+    intentTrunkCompletionOntoTip({ advance: true }),
+  );
+  const builtPastCompletion = commits["advance after completion"];
   const committed = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: builtPastCompletion,

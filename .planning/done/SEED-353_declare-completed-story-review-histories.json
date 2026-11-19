@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-353#declare-completed-story-review-histories",
+  "title": "Declare completed-story review histories through MakeMe",
+  "completedAt": "2026-11-19T07:16:38.022Z",
+  "developer": "Terry Yin",
+  "agent": "Kirara-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "## Dough Intent Coverage\n\n**Verdict: Caught**\n\n**Story:** SEED-353#declare-completed-story-review-histories\n**Revision:** 5b5dfb340030d03f3076822caf1f1a77c69cfdbf\n\n**Promise (validated):** Missing-repository capture falls back to published history. The capture is declared with the completion's first parent as its comparison base (seed key example / source commitment 11). Observed nuance: published review.baseline is the restated story-less tree (less.tree), which is not equal to completion^1^{tree} on this ordinary trunk history—so \"first parent as base\" names the capture declaration, not the published baseline field.\n\n**Fault:** In dashboard/server/storyReviewSnapshot.ts, after an unusable landed capture, call publishedStoryReview but do not return it (suppress publishedFallback recovery). Fixtures and assertions left intact.\n\n**Maintained assertion that caught it:** dashboard/backend-tests/review/story-review-completed-gaps.spec.ts — ordinary trunk › \"an unusable local captured run falls back to published completion while its explicit choice retains its gap\" — expect(review).toMatchObject({ kind: \"published\", completion }) at line 114.\n\n**Reach / wrong behavior / restoration:** Baseline passed; faulted observed landing-unavailable while hasPublishedFallback true and assertion failed expecting published; restored hash matched HEAD and focused command passed again.\n\n**Next proof action:** None for this promise's fallback-to-published path.\n\n### Costs\n- Test runtime: 20.4 s (measured)\n- Human effort: Unavailable\n- Agent effort: Unavailable\n- Invocation-to-report elapsed: 504512 ms (measured)\n"
+  }
+}
