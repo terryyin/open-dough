@@ -2,6 +2,7 @@
 
 **Identity:** SEED-353#declare-merged-review-histories
 **Source:** [Declare merged review histories through MakeMe](../../seeds/SEED-353-declarative-git-test-state.md#declare-merged-review-histories)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal, scope and evaluation
 
@@ -107,7 +108,7 @@ unreached boundary.
 
 ### 1. Read Story A's trunk integrations from declared merges
 Type: Behavior
-Status: planned
+Status: done
 Proof: First consumer row; C2 and D establish the route.
 
 Behavior: Given Story A's description — trunk's `README.md` and `src/{a,b,c}.ts`,
@@ -120,6 +121,24 @@ independent `merge-tree` of the named parents conflicts exactly for the
 conflicted cases. `worktreeWithStoryCommits`/`integrateTrunk` become declared
 facts composed on plan 708's workspace; consumers read named revisions. One
 integration loop; 15 active minutes, commands excluded.
+
+Accepted proof (2026-11-19): `trunkIntegrationRepository` in
+`storyReviewTrunk.ts` declares trunk, `landed`, `trunk changes`, Story A's
+workspace from `landed` and `merge trunk` with parents story then trunk; the
+spec's four cases each `test.use` it and check `parentsConflict` (independent
+`git merge-tree --write-tree`, exit 1 = conflict) before the unchanged review
+assertions. `story-review-commit-trunk.spec.ts` 4/4 strict passed after the
+refactor pass; parents swapped to [trunk, story] failed all 4 (D repeated);
+the renames consumer passed; typecheck and eslint clean. ADR 0010: about 30
+lines of push/fetch/merge/try-catch plumbing became one declaration whose
+merge parents are named facts the test checks; the cost is stating the merge's
+full bytes (the separate-line case's merged `src/a.ts` carries both edits).
+Learnings: plan 708's `materializeStartWorkspace` already commits workspace
+revisions with declared parents naming trunk revisions, so no materializer
+change was needed. Refactor follow-up for wrap-up: the
+`getByRole("list", { name: "Story commits" }).getByRole("button")` row
+locator repeats in about 15 places across 10 `e2e/review` commit specs, a
+candidate for one domain-named reader in `reviewRead.ts`.
 
 ### 2. Read renamed and starting story commits from declared revisions
 Type: Behavior

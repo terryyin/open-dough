@@ -1,6 +1,10 @@
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
+import type { StartRepository } from "./startOriginPreparation.ts";
 import {
   addStoryWorktree,
+  branch,
   commitAll,
   git,
   lines,
@@ -31,36 +35,57 @@ export function worktreeWithStoryCommits(origin: StartOrigin) {
   return { workspace, landed };
 }
 
-// Trunk takes the landed slice and changes `README.md`,
-// `src/a.ts`, and `src/c.ts`'s sixth line to `c trunk`; the story merges
-// trunk, settling `src/c.ts`'s conflict with the sixth line given. Without
-// one, trunk changes `README.md` only and the story merges it cleanly.
-export function integrateTrunk(
-  origin: StartOrigin,
-  { workspace, landed }: { workspace: string; landed: string },
+// Story A's declared history: trunk's `README.md` and `src/{a,b,c}.ts`, then
+// the landed slice `landed` trunk takes, where the story's worktree starts,
+// and trunk's `trunk changes` to `README.md` — with a `settled` line, also to
+// `src/a.ts` and `src/c.ts`'s sixth line `c trunk`. The story commits
+// `story changes c` (its sixth line `c story`), then any given `story`
+// revision, then `merge trunk` with parents story then trunk, whose declared
+// bytes settle `src/c.ts` with the line given, or merge cleanly without one,
+// overridden by any `merged` files.
+export function trunkIntegrationRepository(
   settled?: string,
-) {
-  const project = origin.project;
-  git(project, "merge", "--quiet", "--ff-only", landed);
-  writeAt(project, "README.md", sixth("readme", "readme trunk"));
-  if (settled !== undefined) {
-    writeAt(project, "src/a.ts", sixth("a", "a trunk"));
-    writeAt(project, "src/c.ts", sixth("c", "c trunk"));
-  }
-  commitAll(project, "trunk changes");
-  git(project, "push", "--quiet", "origin", "main");
-
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  if (settled === undefined) {
-    git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
-    return;
-  }
-  try {
-    git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
-    return;
-  } catch {
-    // `src/c.ts` conflicts; the story settles it.
-  }
-  writeAt(workspace, "src/c.ts", sixth("c", settled));
-  commitAll(workspace, "merge trunk");
+  {
+    story,
+    merged = {},
+  }: {
+    readonly story?: RepositoryRevision;
+    readonly merged?: Record<string, string>;
+  } = {},
+): StartRepository {
+  const trunk = {
+    "README.md": sixth("readme", "readme trunk"),
+    ...(settled !== undefined && {
+      "src/a.ts": sixth("a", "a trunk"),
+      "src/c.ts": sixth("c", "c trunk"),
+    }),
+  };
+  const described = queuedReadyRepository()
+    .withRevision("trunk files", {
+      files: {
+        "README.md": sixth("readme"),
+        ...Object.fromEntries(
+          ["a", "b", "c"].map((word) => [`src/${word}.ts`, sixth(word)]),
+        ),
+      },
+    })
+    .withRevision("landed", { files: { "landed.txt": "landed slice\n" } })
+    .withRevision("trunk changes", { files: trunk })
+    .withWorkspace(branch, { from: "landed" })
+    .withUnpublishedRevision("story changes c", {
+      files: { "src/c.ts": sixth("c", "c story") },
+    });
+  const storyHead = story?.name ?? "story changes c";
+  return (
+    story ? described.withUnpublishedRevision(story.name, story) : described
+  )
+    .withUnpublishedRevision("merge trunk", {
+      parents: [storyHead, "trunk changes"],
+      files: {
+        ...trunk,
+        ...(settled !== undefined && { "src/c.ts": sixth("c", settled) }),
+        ...merged,
+      },
+    })
+    .please();
 }
