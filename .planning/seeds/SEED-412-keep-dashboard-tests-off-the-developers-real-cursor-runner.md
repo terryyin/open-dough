@@ -2,7 +2,7 @@
 id: SEED-412
 status: active
 planted: 2026-11-19
-planted_during: Terry asked for a fix story at the top of the backlog after a whole Dashboard Backend Test run, while SEED-408 was being made ready, read the machine's real Cursor runner
+planted_during: Terry asked for a fix story at the top of the backlog after a whole Dashboard Backend Test run read the machine's real Cursor runner
 trigger_when: selected from the backlog
 scope: one story
 ---
@@ -25,7 +25,7 @@ listeners. An accidental attempt to use the default Cursor runner or an
 unrelated listener fails the run with a named cause.
 
 **Observed defect:** During a whole Dashboard Backend Test run on 2026-11-19,
-made while SEED-408 was being made ready, a test process (pid 21529, started
+a test process (pid 21529, started
 from the Vite config) sent `GET /sessions` to the Cursor runner twice. Its
 `HOME` was the developer's real home, so it reached the machine's real Cursor
 runner.
@@ -53,10 +53,6 @@ runner.
   or its workers a test-owned home by default.
 - The Cursor host resolves the runner from `homedir()` by default
   (`dashboard/server/hosts/cursor/runnerPaths.ts` and its callers).
-- SEED-408's
-  [plan](../slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md)
-  records a related `GET /sessions` that reached the runner stand-in
-  unexpectedly.
 
 **Scope:**
 
@@ -104,7 +100,7 @@ runner.
 
 **Scope limits:** This story does not change how the production Dashboard
 finds the real runner or any other machine-local state. It also does not
-change which tests run live or mounted; that stays with SEED-408. Non-Node
+change which tests run live or mounted. Non-Node
 helpers such as `git` and shell fakes inherit the test-owned home. Unix-domain
 sockets use the test-owned home and temporary directories. The guard covers
 the test runners' Node TCP and browser traffic. A kernel sandbox that also

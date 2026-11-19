@@ -2,6 +2,7 @@
 
 **Identity:** SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner
 **Source:** [Keep dashboard tests off the developer's real Cursor runner](../../seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md#keep-dashboard-tests-off-the-developers-real-cursor-runner)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -10,9 +11,8 @@ Developers can run Dashboard Backend Test, Dashboard Frontend Test
 Cursor. Every test process inherits a disposable default home. The default
 Cursor canary and refused connections fail the run, even when a test has
 passed or the caller handled the error. The seed defines coverage for Node
-TCP, browser requests, explicit fixture homes, and native helpers.
-[SEED-408](../../seeds/SEED-408-default-dashboard-backend-checks-to-the-mounted-boundary.md#default-dashboard-backend-checks-to-the-mounted-boundary)
-owns the backend live or mounted default.
+TCP, browser requests, explicit fixture homes, and native helpers. Which
+backend checks run live or mounted stays unchanged.
 
 ## Approach and reuse
 
@@ -98,7 +98,7 @@ checkout, Node 24.21.0, Playwright 1.65.0 and Chromium 158.0.8127.18.
 ### 1. The comparison renderer compiles without the dashboard's boundaries
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Rendering starts and closes in a scratch home with a runner address.
 It compiles normal comparison markup and leaves the runner and that home alone.
@@ -109,6 +109,12 @@ zero requests on close and no generated machine-local state beyond the address.
 The baseline above shows the existing renderer violates both checks. Exercise
 comparison markup and tree rendering in the affected frontend fixtures and
 keep the cache cleanup assertion.
+
+Accepted proof: `comparison-renderer-vite-cache.spec.ts` "a comparison
+renderer leaves the runner and the machine home alone" failed with
+`POST /release-handoffs` before the fix and passes with the renderer on
+`configFile: false` and the React plugin. The 15 comparison frontend specs
+(84 cases) pass through `pageTest.ts`.
 
 ### 2. The backend run owns its default home and canary verdict
 
@@ -217,9 +223,13 @@ Keep default timeouts and omit `test.slow()`. Apply
 [dough-page-objects](../../../.agents/skills/dough-page-objects/SKILL.md) to
 affected test sources.
 
-- **Focused:** `bash scripts/test.sh <paths>`, with
-  `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`.
-  Use the repository root for runner invocations.
+- **Focused:** prefix `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`
+  and run from the repository root. `bash scripts/test.sh` takes only shell
+  and `node --test` files; backend specs use
+  `npx playwright test --config dashboard/backend.playwright.config.ts <specs>`
+  and frontend specs `node scripts/test-frontend.mjs <specs>`. Proof records
+  use the group's `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` or
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 - **Whole runs:** use `npm run test:dashboard:backend`,
   `npm run test:dashboard:frontend`, and `npm run test:e2e` as mapped to
   the slices. The retained frontend group can be checked directly with
