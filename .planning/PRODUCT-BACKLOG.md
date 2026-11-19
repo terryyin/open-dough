@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Plot new models with an estimated Token Index](seeds/SEED-406-plot-new-models-with-estimated-token-index.md#plot-new-models-with-estimated-token-index) — SEED-406#plot-new-models-with-estimated-token-index
 - [Hold and settle mounted frontend cases by one rule](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#hold-and-settle-mounted-frontend-cases-by-one-rule) — SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule
 - [Run the story-notes checks in a third of their time](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) — SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
 - [Run the other frontend families at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) — SEED-404#run-the-other-frontend-families-at-the-mounted-boundary
