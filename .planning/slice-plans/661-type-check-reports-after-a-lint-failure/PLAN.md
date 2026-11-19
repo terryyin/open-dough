@@ -2,6 +2,7 @@
 
 **Identity:** SEED-382#type-check-reports-after-a-lint-failure
 **Source:** [Prove the type-check reports after a lint failure](../../seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#type-check-reports-after-a-lint-failure)
+**Source review:** [Independent source review](source-review.md)
 
 ## Provenance and findings
 
@@ -73,7 +74,7 @@ Failures and flakes follow the
 ### 1. A workflow check pins the type-check's condition
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new test passes on the current `ci.yml`. With a scratch edit for
 each of key examples 2 to 5 it fails, and the edit is reverted. `npm run lint`
 passes.
@@ -86,6 +87,26 @@ The test finds the step by its `run: npm run typecheck:dashboard` line,
 requires exactly one such step in the `lint` job, and compares its `if:` lines
 with the pinned line. Its header comment says what the job promises: lint and
 the type-check each report their own outcome.
+
+Accepted focused proof at `6c628be4a` with the new test present used Node
+`24.21.0` and Bash `5.3.20`. `bash scripts/test.sh
+Distribution/tests/support/ci-lint-job.test.mjs` selected the single test in
+each run.
+
+| Setup | Observed result |
+| --- | --- |
+| Delivered workflow | The type-check condition matched and the test passed. |
+| Extra dependency on the lint step | The test failed, showing `steps.lint.outcome` in the actual condition. |
+| `success()` or `!failure()` guard | Both runs failed at the condition assertion and showed the changed expression. |
+| Removed condition, removed cancellation guard, or added lint-tools dependency | All three runs failed at the same assertion, showing the missing line or changed expression. |
+
+The scratch proof restored `ci.yml` byte for byte. The standard scheduler
+selected the test once in the unsplit suite and once in CI share 3/3. The
+terminal records, failure excerpts, and consumer trace are in
+`slice-1-lint-job.FPeIYK/` in the worktree's Git evidence directory.
+The independent refactor review found no needed edits, so the focused results
+still apply. `caffeinate -s -i npm run lint` exited 0 on AC power, recorded
+in `delivery-lint.log.run.json` in the same evidence directory.
 
 ## Current decisions
 
@@ -100,3 +121,9 @@ Slice-plan refinement was not needed: one slice, one outcome, proof observed.
 This review identified no remaining concern for slice 1.
 
 ## Learnings
+
+## Execution context
+
+- Hibiki-chan (`dashboard-territory.local-open-dough`) is executing in Story Branch Mode in the linked worktree `/Users/terryyin/git/open-dough/.worktrees/prove-the-type-check-reports-after-a-lint-failur`, whose creation record names this story. The integration checkout is `/Users/terryyin/git/open-dough`.
+- `origin/main` accepted the Take at `6c628be4a85e225a1c09dfefb900b238300f919e`, based on `2b737cabf546af8e4731f8db9e16f756eae8c504`. The same Take is the published base on `origin/codex/prove-the-type-check-reports-after-a-lint-failur`.
+- The Codex observer for that story branch watches GitHub Actions `ci.yml` (CI) as `seed-382-hibiki-chan`, directory `/tmp/dough-ci-501/watch-gEq6No`, PID `60825`, session `49295`, cell `g208:11`.
