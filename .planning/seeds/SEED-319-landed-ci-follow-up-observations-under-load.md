@@ -50,7 +50,7 @@ verdict specs, and [Make dashboard journeys fit the default timeout under load](
 
 **Identity:** SEED-319#hold-landed-ci-follow-up-observations-under-load
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred until after SEED-413 renovates landed-ci backend and Intent frontend unit tests; refine only remaining full-server or E2E checks."],"basis":{"document":"c3a6fcab3e499929ac71dc6ec8d3162e216d3582ac93b384fa1d02f06690902f"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred until after SEED-413 moves landed-ci backend and Intent frontend unit tests to plain Vitest; refine only surviving e2e/ workflows."],"basis":{"document":"6d74400fdbc2d137b95e977d6bd176561eff2273840337c75e786f95812448ef"}}
 ```
 
 #### Goal
@@ -62,10 +62,11 @@ CI, with every 5 s observation and assertion kept.
 #### Scope to refine
 
 - Sequence after [`SEED-413`](SEED-413-renovate-dashboard-unit-tests.md)
-  renovates `backend-tests/intent/landed-ci-*` onto direct strongly typed
-  backend handlers and `frontend-tests/intent/` onto narrow component mounts
-  ([Architectural North Star](../NORTH-STAR.md)). Rerun only the checks that
-  still exist as full-server or browser workflows at 2 workers under local load
+  renovates `backend-tests/intent/landed-ci-*` onto plain Node Vitest over
+  strongly typed backend handlers and `frontend-tests/intent/` onto plain
+  Vitest + embedded Chromium narrow component mounts, adding zero wrappers to
+  `test-support` ([Architectural North Star](../NORTH-STAR.md)). Rerun only the
+  checks that still exist as `e2e/` workflows at 2 workers under local load
   20–30, and drop any whose miss disappeared once single-service checks stopped
   booting HTTP servers and `<App />` mounts or that SEED-287 already settled;
   record which ones.

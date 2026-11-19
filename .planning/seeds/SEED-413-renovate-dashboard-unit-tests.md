@@ -32,9 +32,18 @@ The released and installed
 [test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary),
 [architectural thinking guidance](../../.agents/skills/dough-slice-planning/references/architectural-thinking.md),
 and [Architectural North Star](../NORTH-STAR.md) establish the target
-direction: make production code directly testable instead of growing test
-support, and gradually remove wrapper and substitute scaffolding so tests
-exercise production code directly.
+direction:
+
+- **Test support holds only data builders (MakeMe) and page objects** (plus rare
+  minimal seam code strictly forced by a framework limitation); no new wrappers
+  may be added to test support, and every change outside data builders and page
+  objects only removes from it.
+- **Plain Vitest runs unit tests; `@playwright/test` stays in `e2e/` only:**
+  `dashboard/frontend-tests/` runs on plain Vitest + embedded headless Chromium
+  (retiring `frontend.playwright.config.ts`, `.mounted.spec.ts` split naming,
+  and dual-runner glue in `scripts/test-frontend.mjs`), and
+  `dashboard/backend-tests/` runs on plain Vitest in Node (retiring
+  `backend.playwright.config.ts`).
 
 ## Alternatives and decision
 
@@ -85,18 +94,20 @@ and deleted `test-support` surface together under
     contract; the server HTTP route is a thin wire adapter (retaining only a
     focused wire check where wire admission itself is under test), and backend
     Story Notes behavior cases call the typed server handler directly.
-  - Frontend Story Notes cases mount the smallest rendered component or view
-    owning the Story Notes interaction in Vitest browser mode with narrow typed
-    inputs/contracts and MakeMe data directly (no `<App />` mount, no
-    `mountedStoryNotesBoard.ts`, no `frontendStoryNotesRule.ts`, and none of
+  - Frontend Story Notes cases run as plain Vitest + embedded headless Chromium
+    specs (no `@playwright/test` imports or `test.step` wrappers), mounting the
+    smallest rendered component or view owning the Story Notes interaction with
+    narrow typed inputs/contracts and MakeMe data directly (no `<App />` mount,
+    no `mountedStoryNotesBoard.ts`, no `frontendStoryNotesRule.ts`, and none of
     `DD-587`'s custom settle-mode flags); any cross-region live-terminal
     coexistence check lives at the minimal container or one E2E check that
     genuinely owns it. The 11 Story Notes behaviors pass in ~1.1 s summed case
     time at two workers.
-  - Spent Story Notes `test-support` wrappers are deleted,
-    `dashboard/backend-tests/README.md` and `dashboard/frontend-tests/README.md`
-    state the new default entry rules, and `.planning/open-dough.json` aligns
-    `dashboard/frontend-tests` conventions with narrow component tests.
+  - Spent Story Notes `test-support` wrappers are deleted (adding no new
+    wrappers), `dashboard/backend-tests/README.md` and
+    `dashboard/frontend-tests/README.md` state the plain-Vitest entry rules and
+    the test-support freeze, and `.planning/open-dough.json` disables
+    `pageObjects` on `dashboard/frontend-tests`.
 - **Effort hypothesis.** S–M, high confidence — bounded to one 11-case UI
   family, its backend notes handler, and repository guidance alignment.
 - **Safe stopping point.** Even before the remaining folders migrate, every new
@@ -126,11 +137,13 @@ and deleted `test-support` surface together under
   For each folder:
   - Keep wire transport thin over exported strongly typed handlers sharing one
     typed contract with `dashboard/src/`.
-  - Move single-service behavioral specs to direct typed handler calls; retain
-    focused HTTP/SSE/WebSocket specs only where wire admission, origin/auth
-    refusal, status, or framing is the behavior under test.
-  - Delete retired `dashboard/test-support/` HTTP request/server wrappers and
-    leave no behavioral regression gap.
+  - Move single-service behavioral specs to plain Node Vitest calling those
+    typed handlers directly; retain focused HTTP/SSE/WebSocket specs only where
+    wire admission, origin/auth refusal, status, or framing is the behavior
+    under test, and retire `dashboard/backend.playwright.config.ts` once the
+    last folder leaves `@playwright/test`.
+  - Delete retired `dashboard/test-support/` HTTP request/server wrappers
+    (adding no new wrappers) and leave no behavioral regression gap.
 - **Effort hypothesis.** L across the suite — split into independent per-folder
   stories during refinement so each finishes cleanly within the slice limit.
 - **Safe stopping point.** Every completed folder stands on its own with faster
@@ -158,13 +171,16 @@ and deleted `test-support` surface together under
   component inputs rather than `putFrontend*` — and `sessions/` alongside
   `SEED-341`). For each folder:
   - Give components narrow typed props or shared typed boundary contracts so
-    Vitest browser specs mount the owning component/view directly (mounting an
-    enclosing container only when focus return or cross-child coordination is
-    the contract, and keeping true multi-service/history navigation workflows
-    in `e2e/`).
-  - Retire `frontendApp.ts`, `mountedDashboard.ts`,
-    `frontendServiceSubstitutes.ts`, `frontend*Rule.ts`, and whole-app
-    `frontend-tests` page-object scaffolding as their callers migrate.
+    plain Vitest + headless Chromium specs mount the owning component/view
+    directly without `@playwright/test`, `page.route(...)`, or `test.step(...)`
+    (mounting an enclosing container only when focus return or cross-child
+    coordination is the contract, and moving any true multi-service or
+    full-reload straggler to `e2e/` or dropping duplicates).
+  - Retire `dashboard/frontend.playwright.config.ts`, `.mounted.spec.ts` split
+    naming, dual-runner glue (`scripts/test-frontend.mjs`,
+    `frontendMounted.mjs`, `frontendOutputs.mjs`, `frontendSelection.mjs`),
+    `frontendApp.ts`, `mountedDashboard.ts`, `frontendServiceSubstitutes.ts`,
+    `frontend*Rule.ts`, and `frontend-tests` page-object scaffolding.
 - **Effort hypothesis.** L across the suite — split by folder during refinement,
   following each folder's shared typed contract from Backend Renovation where
   coupled.

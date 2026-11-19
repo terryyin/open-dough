@@ -38,10 +38,13 @@ slices, inside Execute Plan and before the Execution Retrospective. Apply the in
 [shared test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary)
 and the [Architectural North Star](../NORTH-STAR.md) across the test families
 affected by the story, including older overlapping cases. Enter replacement
-unit tests at strongly typed backend handlers or the smallest owning rendered
-UI components, reshaping the production seam when needed rather than adding
-HTTP wrappers or whole-app route substitutes in test support. Prove the
-replacement unit coverage before narrowing or removing an E2E case. Retain
+unit tests in plain Vitest — plain Node Vitest on strongly typed backend
+handlers, and plain Vitest + embedded headless Chromium (no `@playwright/test`
+or page objects) on the smallest owning rendered UI components — reshaping the
+production seam when needed and adding zero wrappers to `test-support` (only
+MakeMe data builders and `e2e/` page objects are allowed; any other touch only
+removes from `test-support`). Prove the replacement unit coverage before
+narrowing or removing an E2E case. Retain
 representative E2E proof of real service interactions and remove a redundant
 case when a surviving test catches the same regression. Record the surviving
 proof and changes to E2E and total runnable case counts.

@@ -44,9 +44,10 @@ CI evidence when they need it.
   identities, names, units, and meanings, with the minimum necessary
   translation under
   [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
-  and prove the server slicing and progressive UI disclosure at strongly typed
-  handlers and the narrow owning components without growing whole-app
-  `test-support` route substitutes ([Architectural North Star](../NORTH-STAR.md)).
+  and prove the server slicing and progressive UI disclosure in plain Vitest on
+  strongly typed handlers and narrow owning components (embedded Chromium, no
+  `@playwright/test` or new `test-support` wrappers;
+  [Architectural North Star](../NORTH-STAR.md)).
   Keep the underlying retained evidence available for authorized inspection.
 
 #### Key examples to refine

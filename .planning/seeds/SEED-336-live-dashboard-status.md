@@ -34,9 +34,16 @@ Use [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md) to
 compare update latency, requests, transferred bytes, and backend work with the
 current behavior as the stories land. Terminal traffic stays on WebSocket.
 For all five stories, SSE events, snapshots, and HTTP fallbacks map directly to
-the same domain concepts, identities, and meanings. Compact payloads use subsets
-of those concepts and the minimum necessary translation under
-[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+the same domain concepts, identities, and meanings, sharing one typed contract
+between `dashboard/server/` and `dashboard/src/` under
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
+and the [Architectural North Star](../NORTH-STAR.md). Keep `e2e/` to one or two
+representative streaming journeys; prove backend observation/retry rules in
+plain Node Vitest on strongly typed handlers (testing the wire directly only for
+SSE framing), prove UI status/cue components in plain Vitest + embedded headless
+Chromium without `@playwright/test` or page objects, and add no wrappers or
+instrumentation to `test-support` (only MakeMe data builders and `e2e/` page
+objects are permitted; any touch outside them removes from `test-support`).
 [History payloads](SEED-337-dashboard-history-reads.md#read-only-the-history-the-dashboard-needs)
 have their own story.
 
@@ -48,7 +55,7 @@ have their own story.
 
 **Identity:** SEED-336#show-github-retry-on-the-dashboard
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/612-show-github-retry-on-the-dashboard/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"671c1ae6e1acd5935c62d8b1a5169b679ba85ad765569dc57f3fcf15573ec95b","plan":"61b79d05e3cd0b7c834ec2a4cfdedc3cd02bc3f7b5780738344f52348579ecea"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/612-show-github-retry-on-the-dashboard/PLAN.md","assessment":"not-ready","reasons":["Realign plan 612 proof rows with plain Vitest unit tests (Node Vitest for typed observation handlers, Vitest + Chromium for UI notice states, e2e/ only for representative stream journeys) and zero test-support wrappers."],"basis":{"document":"e43ff75983f8779d2564e4b313e0a8ac7eedf7642e0624962a768711ee6c3d41","plan":"4e21b5fc0000ae495fc572af6182d86cd931d73774771c5cd2706ce07058b255"}}
 ```
 
 #### Goal
@@ -59,123 +66,66 @@ if known, and when that retry is in progress.
 
 #### Scope
 
-- The backend owns the GitHub wait, next attempt, and recovery for active
-  published-source observation. The browser reports waiting, the next planned
-  retry time when known, an attempt actually in progress, and recovery after
-  a successful read. Expiring a browser timer or opening a connection does
-  not establish either an attempt or recovery.
-- Keep the last published snapshot readable with its revision and retrieval
-  time throughout waiting and retrying. A visible page eligible for streaming
-  keeps its dashboard SSE connection through both states. GitHub progress and
-  dashboard connection health remain independently observable, including a
-  lost or silent connection during a long GitHub wait.
-- The existing shared GitHub request owner remains the authority for the wait
-  and request admission. No GitHub request starts before that wait ends; an
-  extension moves the reported retry later. The backend schedules the next
-  attempt without needing a browser request at expiry, sharing observation
-  among interested pages rather than scheduling one retry per page.
-- Pages without an HTTP/1.1 stream slot may retrieve current status and catch
-  up over HTTP. Their active observation still has a backend-owned retry. A
-  first visit during a wait can learn that status before a snapshot exists.
-  Status retrieval itself need not ask GitHub or wait for GitHub to answer.
-- Preserve visibility-scoped demand, the existing connection budget, source
-  selection, and snapshot/content catch-up. A returning or reconnecting page
-  learns current status; a departed page cannot overwrite the selected source.
+- Backend owns GitHub wait, next attempt, and recovery for active
+  published-source observation; browser reports waiting, next planned retry when
+  known, actual attempt in progress, and recovery after a successful read
+  (neither timer expiry nor opening a connection establishes an attempt or
+  recovery).
+- Keep the last published snapshot readable with revision and retrieval time
+  throughout waiting and retrying; an eligible visible page keeps its SSE
+  connection through both, keeping GitHub progress and dashboard connection
+  health independently observable (including silent/lost connections).
+- Shared GitHub request owner remains authority for wait and admission: no
+  GitHub request before wait ends, extensions move reported retry later, and
+  backend schedules one shared attempt across interested pages without a browser
+  request at expiry.
+- Pages without an HTTP/1.1 stream slot retrieve current status and catch up
+  over HTTP while backend still retries on schedule; a first visit during a wait
+  learns status before any snapshot exists, without asking or waiting on GitHub.
+- Preserve visibility-scoped demand, connection budget, source selection, and
+  snapshot catch-up; a departed page cannot overwrite the selected source.
 
-#### Scope limits and required restrictions
+#### Scope limits and restrictions
 
 Review cues, sessions, CI follow-up, and host status migrate in their own
-stories. This story keeps the connection usable through GitHub backoff but
-does not add their events. It adds no manual retry override, new stream per
-status, terminal transport, or durable story state. Existing ordinary read
-errors and eligible transient recovery keep their meanings; this is not a
-general move of every read scheduler to the backend.
-
-The no-request-before-retry rule protects GitHub's directed or validated
-fallback wait. Shared request admission, local authentication, and the
-HTTP/1.1 stream budget protect the existing upstream and connection limits;
-they are correctness constraints rather than limits inferred from examples.
-Having a snapshot is not a prerequisite for reporting backend status.
+stories. Add no manual retry override, extra stream per status, terminal
+transport, or durable story state; keep existing transient content-read error
+meanings, GitHub wait protection, local auth, and HTTP/1.1 stream budget. Having
+a snapshot is not a prerequisite for reporting backend status.
 
 #### Key examples
 
-1. A visible streaming page shows snapshot A. GitHub rate-limits the next
-   observation until T. The page retains A and its retrieval time, keeps the
-   same connection, and says that the dashboard will retry automatically at
-   T. No GitHub request starts during the wait. At T, the backend starts the
-   attempt without a new browser request and reports retrying. Success clears
-   the GitHub notice and catches up with published work, even if the revision
-   is still A.
-2. Two pages observe one project. Their shared retry is refused with a later
-   wait, or with no usable GitHub time. Both show the backend's new planned
-   attempt, including the request owner's existing fallback wait when used.
-   Neither page invents a success or starts an independent retry at the old T.
-3. A streaming page waits longer than the ordinary silence bound. A healthy
-   connection remains distinguishable from one that has closed or fallen
-   silent. Losing that connection reports lost dashboard freshness while A
-   and the last known GitHub status remain available; reconnecting catches up
-   with current backend status rather than restarting the GitHub wait.
-4. An HTTP/1.1 page has no stream slot. It retrieves the same waiting and
-   retrying status as streaming pages. Stop its status GETs before T while
-   its observation interest is active: the backend still attempts at T. Its
-   next status read catches up without creating a second upstream attempt.
-5. A first visit during a shared GitHub wait has no snapshot. It sees the
-   automatic retry status before published content is available. Backend
-   recovery permits the normal initial content read. Hiding or leaving ends
-   that page's observation demand; revealing or returning gets current status
-   without replaying missed attempts or disturbing another observing page.
+1. Visible streaming page shows snapshot A; GitHub rate-limits until T → retains
+   A and retrieval time on the same connection, announces automatic retry at T
+   with zero GitHub requests during the wait, backend attempts at T without a
+   browser request and reports retrying, and success clears the notice even if
+   revision is still A.
+2. Two pages observe one project; shared retry is refused with a later wait or no
+   usable GitHub time → both show the new planned attempt (or owner fallback)
+   without inventing success or retrying at old T.
+3. Streaming page waits past the ordinary silence bound → healthy connection
+   stays distinct from closed/silent; connection loss reports lost dashboard
+   freshness while retaining A and last GitHub status, and reconnecting catches
+   up without restarting the GitHub wait.
+4. HTTP/1.1 slotless page stops status GETs before T while interest is active →
+   backend still attempts once at T, and the next GET catches up.
+5. First visit during a shared wait (no snapshot) → sees retry status before
+   content; backend recovery enables initial content read; hiding/leaving ends
+   demand without disturbing other pages.
 
-#### UI and architecture
+#### UI, architecture, and evidence
 
-Describe the wait and automatic retry near the published source summary,
-using the existing status/announcement surface. Say when an attempt is in
-progress and clear the GitHub notice only on successful observation. Keep a
-connection problem distinct so a developer can tell whether the dashboard
-still receives updates. A planned time promises an attempt, not successful
-publication or delivery at that time. No new layout or component is selected.
+Describe wait, active retry, and connection loss distinctly near the published
+source summary without new layout/components; one backend observation status has
+the same meaning across SSE, HTTP, and browser without moving published-work
+interpretation to the backend (historical prose at
+`248e6e284:.planning/seeds/SEED-336-live-dashboard-status.md`).
 
-Follow Accepted [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
-and [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution):
-one backend observation status has the same meaning through SSE, HTTP, and
-the browser. Connection health is transport evidence, not GitHub success or
-story state. No new ADR or architectural exception is needed.
-Backend recovery signals may trigger the browser's existing snapshot readers;
-this does not transfer published-work interpretation into the backend.
-
-#### Alternatives, challenge, and evidence
-
-The existing browser countdown/reopen is the smallest change but leaves retry
-ownership in the page and interrupts the connection. A separate status stream
-could report backend progress but would consume another connection and repeat
-connection recovery. Recommend the selected shared-stream direction, with HTTP
-status for pages without a slot: it satisfies the goal within the existing
-budget and keeps one source of retry scheduling.
-
-Borrow a departure board's relationship to dispatch: the dispatcher owns the
-next attempt and reports a delay, dispatch, or recovery; the board presents
-that account without controlling it. Here the backend observer and request
-owner supply that account and the browser is the board. The analogy stops at
-the planned time: GitHub can extend the wait and no successful read is assured.
-
-The strongest challenge is that a countdown can reach zero while nothing is
-being attempted, or a live stream can be mistaken for fresh GitHub data. The
-examples require backend-originated progress and independent connection
-health, preserving the already selected goal rather than broadening it.
-
-Observed in this owned workspace on 2026-11-13 at `22bb416f10d6d8c723a12f8d93f51d008b1d3c3c`:
-the controlled backend stream tests pass for shared listings/last-close cleanup
-and a rate-limit event carrying a 120-second wait. The browser rate-limit
-journey passes for retaining A, closing, waiting, reopening, and recovery.
-Removing only the immediate close call in a reverted scratch experiment still
-passed: the limit change also triggers effect cleanup. Retry/status changes
-therefore need separation from stream lifecycle eligibility. The
-[slice plan](../slice-plans/612-show-github-retry-on-the-dashboard/PLAN.md)
-records exact commands, remaining proof, and extension points. Autonomous
-due-time retry, bootstrap/fallback status, and liveness through a long wait
-are new behavior to prove, not findings claimed from the baseline.
-
-This remains useful if later status migrations wait. There is no open goal,
-scope, or architecture decision from this refinement.
+Observed on 2026-11-13 at `22bb416f10d6d8c723a12f8d93f51d008b1d3c3c`: backend
+stream sharing/cleanup and 120 s rate-limit events pass; removing only the
+immediate close call in a scratch check still closed the stream via effect
+cleanup, so retry/status updates must be separated from stream lifecycle
+eligibility ([slice plan](../slice-plans/612-show-github-retry-on-the-dashboard/PLAN.md)).
 
 <a id="keep-review-cues-current-with-sse"></a>
 
@@ -195,61 +145,34 @@ dashboard through server-sent events (SSE), without waiting for a poll.
 
 #### Scope to refine
 
-- Reuse the dashboard's existing SSE connection for story review updates,
-  including rows from projects other than the one selected on the Board.
-  A streaming page needs no separate connection or recurring review GET per
-  project. Reconnecting catches up with saved changes. Failed saves leave the
-  last confirmed state visible and do not announce a change.
-- Resolve shown rows' completed-story links when the evidence changes or an
-  unresolved read needs recovery. Reuse confirmed links for unchanged rows
-  while new answers are pending. Update a row when the link or review state
-  actually changes. Preserve the existing rules for published done stories and
-  confirmed Ad hoc associations. An unverified link supplies no warning.
-- Keep the dashboard SSE connection and its machine-local review updates live
-  while GitHub reads are rate-limited or temporarily unavailable. Use the
-  connection and status behavior delivered by
-  [Show GitHub retry on the dashboard](#show-github-retry-on-the-dashboard).
-  Confirmed labels stay visible as local review changes continue to arrive.
-- Reuse the existing HTTP/1.1 stream budget. Settle how a page catches up when
-  the dashboard connection itself drops or a page has no stream slot.
-- Keep the existing review file as the durable source for the dashboard
-  machine. Keep published completed-story evidence and machine-local review
-  state distinct under
-  [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+- Reuse the existing SSE connection across projects (no extra connection or
+  recurring review GET per project); reconnect catches up, and failed saves keep
+  the last confirmed state without announcing a change.
+- Resolve shown rows' completed-story links on evidence change or needed
+  recovery, reusing confirmed links while reads are pending so settled rows do
+  not flash (`storyReviewStates.ts` and `recentlyDoneShownLinks.ts` currently
+  poll every 15 s; `00295c11c`); preserve published done-story and Ad hoc
+  association rules (unverified links supply no warning).
+- Keep SSE and local review updates live during GitHub backoff using
+  [Show GitHub retry on the dashboard](#show-github-retry-on-the-dashboard),
+  reuse the HTTP/1.1 stream budget with catch-up for dropped/slotless pages, and
+  keep the local review file distinct from published completion under
+  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
 
 #### Key examples to refine
 
-1. A quiet visible page streams with linked rows from two projects. Over a
-   controlled minute, no established label disappears and there are zero
-   recurring review GETs or repeated completed-story link requests for those
-   unchanged rows. Measure the request counts against the current behavior,
-   including catalog and Ad hoc association requests, and check that the page
-   holds no additional SSE connection.
-2. Two pages show linked rows for the same story. A successful **Mark as
-   reviewed** clears the cue on the saving page and the other streaming page
-   without a periodic refresh. **Unreview** restores it. Rows with the same
-   story identity in a different project keep their own state.
-3. GitHub rate-limits published reads while two dashboard pages are streaming.
-   The published snapshot stays visible with a rate-limit notice. A review
-   saved on one page updates the other through its existing connection, with
-   no review GET or GitHub read during the wait. Published updates resume after
-   the backend's wait ends.
-4. A page loses its stream while another page saves a change. Existing cues
-   stay visible during the interruption, and the first usable observation
-   reconciles them with the saved state. Revealing older rows or receiving new
-   publication evidence updates the affected rows without flashing settled rows.
-
-#### Background
-
-[Spot completed stories that need review](https://github.com/terryyin/open-dough/blob/00295c11c7e28959be063196ae152921c51f2c6d/.planning/seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review) added
-the cue. [The review store](../../dashboard/src/storyReviewStates.ts) polls
-once per project every 15 seconds. [The sidebar link reader](../../dashboard/src/recentlyDoneShownLinks.ts)
-also refreshes every 15 seconds and publishes partial results from a fresh
-map, which can briefly hide a label until its link resolves again. The
-The dashboard's published observation connection owns connection limits,
-visibility and reconnect behavior. Today the browser
-closes its EventSource when it receives a GitHub rate-limit event. This story
-delivers steadier review cues independently of the later status migrations.
+1. Quiet visible page streaming linked rows from two projects over a controlled
+   minute → zero disappearing labels, zero recurring review or unchanged-link
+   GETs, and no extra SSE connection (measured against baseline).
+2. Two pages showing linked rows for one story → **Mark as reviewed** /
+   **Unreview** updates both without periodic refresh while other projects keep
+   independent state.
+3. GitHub rate-limits reads while two pages stream → snapshot and rate-limit
+   notice stay visible, saved reviews reach the other page with zero review or
+   GitHub GETs during the wait, and published updates resume afterward.
+4. Stream drops while another page saves → cues stay visible during the gap,
+   first usable observation reconciles them, and revealing older rows or new
+   publications never flashes settled rows.
 
 <a id="stream-session-status"></a>
 

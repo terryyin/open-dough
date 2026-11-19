@@ -21,16 +21,18 @@ builders supply defaults for everything else.
 Most session tests began as full-app or end-to-end browser journeys. Under the installed
 [shared test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary)
 and the [Architectural North Star](../NORTH-STAR.md), behavior one service can
-prove belongs in unit tests that exercise production code directly: backend
-session cases call strongly typed handlers in `dashboard/server/` (testing the
-raw wire only when wire behavior itself is under test), and frontend session UI
-cases mount the smallest rendered component or view that owns the interaction
-with narrow typed inputs or shared contracts rather than `<App />` and
-whole-app route substitutes. MakeMe builders supply thin domain defaults, and
-session `test-support` wrappers are retired as production seams become directly
-testable. A few end-to-end journeys remain for what only the integrated page
-shows: pace, placement, persistence across restarts and reloads, and no
-unintended reads.
+prove belongs in plain Vitest unit tests that exercise production code
+directly: backend session cases run in plain Node Vitest calling strongly typed
+handlers in `dashboard/server/` (testing the raw wire only when wire behavior
+itself is under test), and frontend session UI cases run in plain Vitest +
+embedded headless Chromium (no `@playwright/test` or page objects) mounting the
+smallest rendered component or view that owns the interaction with narrow typed
+inputs or shared contracts rather than `<App />` and whole-app route
+substitutes. Test support holds only MakeMe data builders and `e2e/` page
+objects — add zero wrappers and only remove session `test-support` wrappers as
+production seams become directly testable. A few end-to-end journeys remain in
+`e2e/` (`@playwright/test`) for what only the integrated page shows: pace,
+placement, persistence across restarts and reloads, and no unintended reads.
 
 Preserve every distinct behavior check at some tier. Remove an end-to-end
 variant only when a cheaper test proves the same rule and a remaining journey

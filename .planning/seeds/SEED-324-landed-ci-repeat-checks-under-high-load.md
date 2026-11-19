@@ -27,7 +27,7 @@ This seed now holds its correction.
 {"schemaVersion":1,"identity":"SEED-324#close-landed-ci-repeat-check-gaps","dependencies":[{"supplier":{"identity":"SEED-332#answer-fake-gh-reads-in-process","href":"seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process"},"implementation":"SEED-332 owns the shared fake-GitHub read transport and fixture/staging efficiency work. SEED-324 consumes its published interfaces and retains its own coverage/refactoring implementation and acceptance.","rationale":"Slice 3 repeatedly exhausted default budgets in shared fixture/history work. SEED-332 already owns that receiving repair and has composed this correction's offered history and lifetime changes. Parallel edits would duplicate an active repair; common design and reconciliation alone cannot establish the stable published supplier outcome and its proof.","condition":"SEED-332 completes and publishes its reusable fake-GitHub/fixture efficiency outcome with its required stability evidence and real native CLI controls intact. Integrating that outcome and proving this correction's own stage, race, kept-proof, ancestry and load observations remain SEED-324 work.","state":"satisfied","resolution":{"revision":"fe1d1b851247f7d0a5d726e7e575f0b9ab32a036","path":".planning/seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process","summary":"SEED-332 completed its reusable default in-process fake-GitHub transport and fixture/staging efficiency outcome, with production transport unchanged and real native CLI PID/signal/replacement controls intact. Completed PLAN610 and linked proof at this recoverable revision retain controlled136/136 under measured53.22% totalCPU contention, admitted full2793+one expected opt-in skip, current group/native receiving85/85, repaired stream15/15 and exact CI9e4ace82/run43553974482/1 success; completionfe1d1b85/run43554534505/1 also succeeded. This outcome was accepted on origin/main atc5a700892faf556137e6b48c61f365a8742833a8. The supplier prerequisite is fulfilled. SEED-324 retains its own integration, stage/race/kept-proof/ancestry coverage, three-pass family and natural-load/25-second acceptance; those unfinished consumer promises are not claimed complete. Its distinct not-ready natural-load preparation reason remains unchanged.\nCondition satisfied: SEED-332 completes and publishes its reusable fake-GitHub/fixture efficiency outcome with its required stability evidence and real native CLI controls intact. Integrating that outcome and proving this correction's own stage, race, kept-proof, ancestry and load observations remain SEED-324 work.\nAccepted integration: c5a700892faf556137e6b48c61f365a8742833a8 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"not-ready","reasons":["Realign unfinished slices 3–8 to prove stage, race, kept-proof and ancestry coverage through strongly typed landed-ci backend handlers directly instead of HTTP test-support layers under load 30–50."],"basis":{"document":"995426488940971a24ad00a38204a79e6c5bbb5da669dc87dc4ea1e022035278","plan":"e4035ffed63a168c6d2cbbb3483c11e37d0980e48d30918f13baf45b1aba49a6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"not-ready","reasons":["Realign unfinished slices 3–8 to plain Node Vitest over strongly typed landed-ci backend handlers directly, removing HTTP/ciFollowUpScenario test-support wrappers."],"basis":{"document":"21bcda7507ab87cdc9a55a34072447c1d2a4fcc5c3e7a5ec872076a871f06446","plan":"e4035ffed63a168c6d2cbbb3483c11e37d0980e48d30918f13baf45b1aba49a6"}}
 ```
 
 **Goal.** A maintainer who changes automatic CI follow-up, or the support
@@ -51,10 +51,11 @@ product history-read path, and under the
 [Architectural North Star](../NORTH-STAR.md) and installed
 [test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary),
 unfinished slices 3–8 should prove the missing stage, race, kept-proof and
-ancestry behaviors by exposing and calling strongly typed `landed-ci` backend
-handlers directly (retiring HTTP/`ciFollowUpScenario` `test-support` layers
-rather than tidying them to survive load 30–50 HTTP server runs), while keeping
-the surviving phone E2E journeys from slices 1–2 intact.
+ancestry behaviors in plain Node Vitest by exposing and calling strongly typed
+`landed-ci` backend handlers directly (adding zero wrappers to `test-support`
+and removing HTTP/`ciFollowUpScenario` `test-support` wrappers rather than
+tidying them to survive load 30–50 HTTP server runs), while keeping the
+surviving phone E2E journeys from slices 1–2 intact.
 
 Plan:
 [607-close-landed-ci-repeat-check-gaps](../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md).

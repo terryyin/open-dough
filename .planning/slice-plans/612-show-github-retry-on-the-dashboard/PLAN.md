@@ -23,8 +23,11 @@ catch-up. This plan authorizes no implementation by itself.
 
 Follow Accepted [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them),
 [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
-and [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
-No new topic or ADR exception is needed. Status is
+[ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md),
+and the [Architectural North Star](../../NORTH-STAR.md) (plain Vitest for
+backend handler and narrow UI component unit tests, `@playwright/test` only for
+representative `e2e/` journeys, and zero new wrappers or instrumentation added
+to `test-support`). Status is
 machine-local observation evidence, never story state. SSE and HTTP carry
 the same domain meanings, including planned time versus attempt versus success.
 
@@ -136,8 +139,9 @@ single shared listing, cancellation and tracked-controller cleanup unchanged.
 Do not build general event subscriptions for later status migrations.
 
 Before altering retry behavior, capture the comparable two-page wait/recovery
-baseline below using the existing fake-GitHub/HTTP journey and controlled clocks.
-Keep observation instrumentation in test support, not a new benchmark system.
+baseline below using the existing fake-GitHub/HTTP journey and controlled clocks;
+add no instrumentation or wrappers to `test-support`
+([Architectural North Star](../../NORTH-STAR.md)).
 
 ### 2. Keep a streaming page informed while the backend waits and retries
 Type: Behavior
