@@ -3,11 +3,13 @@
 // them (`intent.locations`): a location at a folder, declared by a kind with
 // optional include patterns or by source entries with optional syntax hints;
 // and its answer at a revision, as the Intent locations read gives it: the
-// declaration with the files it selects there.
+// declaration with the files it selects there. The read's whole answer at a
+// revision gives those locations or the settings' problem.
 
 /** @typedef {import("../../../dashboard/server/intentLocationsSettings.ts").DeclaredLocation} DeclaredLocation */
 /** @typedef {import("../../../dashboard/server/intentLocationsSettings.ts").IntentLocation} IntentLocation */
 /** @typedef {import("../../../dashboard/src/intentLocationSelection.ts").SourceDeclaration} SourceDeclaration */
+/** @typedef {import("../../../dashboard/server/intentLocationsRead.ts").IntentLocationsAnswer} IntentLocationsAnswer */
 /** @typedef {{ intent: { locations: DeclaredLocation[] } }} IntentSettings */
 
 export class IntentLocationBuilder {
@@ -122,5 +124,54 @@ export class IntentSettingsBuilder {
   /** @returns {IntentSettings} */
   please() {
     return { intent: { locations: [...this.#locations] } };
+  }
+}
+
+export class IntentLocationsAnswerBuilder {
+  /** @type {string | undefined} */
+  #revision;
+  /** @type {IntentLocation[]} */
+  #locations = [];
+  /** @type {Pick<IntentLocationsAnswer, "settingsProblem" | "recovery">} */
+  #settingsProblem = {};
+
+  /** @param {string} revision the pinned revision the read answers at */
+  at(revision) {
+    this.#revision = revision;
+    return this;
+  }
+
+  /** @param {readonly IntentLocation[]} locations answered locations in declaration order */
+  locating(...locations) {
+    this.#locations = [...locations];
+    return this;
+  }
+
+  // The settings could not be read through a transient failure.
+  withUnreadableSettings() {
+    this.#settingsProblem = {
+      settingsProblem: "unreadable",
+      recovery: "transient",
+    };
+    return this;
+  }
+
+  withMalformedSettings() {
+    this.#settingsProblem = { settingsProblem: "malformed" };
+    return this;
+  }
+
+  /** @returns {IntentLocationsAnswer} */
+  please() {
+    if (this.#revision === undefined)
+      throw new Error("choose .at(revision) first");
+    if (this.#settingsProblem.settingsProblem !== undefined) {
+      return {
+        revision: this.#revision,
+        locations: null,
+        ...this.#settingsProblem,
+      };
+    }
+    return { revision: this.#revision, locations: [...this.#locations] };
   }
 }

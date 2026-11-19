@@ -1,10 +1,13 @@
 // @ts-check
 // Builders of a published revision as Intent reads it: its source, work,
-// Intent locations and CI scope history glance. Node-free, so makeMe.mjs and
-// pageMakeMe.mjs expose them from these definitions.
+// Intent locations and their answer, and CI scope history glance. Node-free,
+// so makeMe.mjs and pageMakeMe.mjs expose them from these definitions.
 import { PublishedWorkBuilder } from "./comparisonViewTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
-import { IntentLocationBuilder } from "./intentLocationTestData.mjs";
+import {
+  IntentLocationBuilder,
+  IntentLocationsAnswerBuilder,
+} from "./intentLocationTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 
 /**
@@ -12,6 +15,7 @@ import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
  * @property {PublishedSourceBuilder} aPublishedSource
  * @property {PublishedWorkBuilder} aPublishedWork
  * @property {IntentLocationBuilder} anIntentLocation
+ * @property {IntentLocationsAnswerBuilder} anIntentLocationsAnswer
  * @property {import("./factBuilder.mjs").FactBuilder<import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance>} aScopeHistoryGlance
  */
 
@@ -34,6 +38,12 @@ export function publishedReadingMakeMeProperties() {
       enumerable: true,
       get() {
         return new IntentLocationBuilder();
+      },
+    },
+    anIntentLocationsAnswer: {
+      enumerable: true,
+      get() {
+        return new IntentLocationsAnswerBuilder();
       },
     },
     aScopeHistoryGlance: {

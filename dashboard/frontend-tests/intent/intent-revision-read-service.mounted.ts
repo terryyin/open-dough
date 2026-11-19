@@ -18,7 +18,7 @@ export const otherFeature = `Feature: Disk space
     Then I see its free space
 `;
 // A feature long enough for the reading pane to scroll.
-export const longFeature = (scenario: string) =>
+const longFeature = (scenario: string) =>
   `Feature: Jobs\n  Scenario: ${scenario}\n    Then it is done\n${[
     ...Array(60).keys(),
   ]
@@ -26,6 +26,12 @@ export const longFeature = (scenario: string) =>
     .join("")}`;
 
 export type Snapshot = Readonly<Record<string, string>>;
+
+// A revision publishing the long feature, at its first scenario, and the other.
+export const at = (scenario: string): Snapshot => ({
+  [featurePath]: longFeature(scenario),
+  [otherPath]: otherFeature,
+});
 
 const answer = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -66,20 +72,25 @@ function trunkCiAnswer(params: URLSearchParams) {
 const locationsOf = (
   revision: string,
   files: Snapshot,
-): IntentLocationsAnswer => ({
-  revision,
-  locations: [
-    makeMe.anIntentLocation
-      .at(featuresFolder)
-      .ofKind("gherkin")
-      .selecting(
-        ...Object.keys(files).filter((file) =>
-          file.startsWith(`${featuresFolder}/`),
-        ),
-      )
-      .please(),
-  ],
-});
+): IntentLocationsAnswer =>
+  makeMe.anIntentLocationsAnswer
+    .at(revision)
+    .locating(
+      makeMe.anIntentLocation
+        .at(featuresFolder)
+        .ofKind("gherkin")
+        .selecting(
+          ...Object.keys(files).filter((file) =>
+            file.startsWith(`${featuresFolder}/`),
+          ),
+        )
+        .please(),
+    )
+    .please();
+
+// How a held read settles: with the published content, unreachable, or with
+// the locations answer the case gives.
+type HoldOutcome = "published" | "unreachable" | IntentLocationsAnswer;
 
 // The read service answering Intent's locations and file reads at each published revision and
 // the trunk's CI. `reads` lists Intent's reads as `<what>@<revision>`;
@@ -92,17 +103,19 @@ export function publishedReadService(published: Map<string, Snapshot>) {
   clearAllTransientFailures();
   const reads: string[] = [];
   const unexpected: string[] = [];
-  // Each hold settles true when the case fails its read.
-  const holds = new Map<string, Promise<boolean>>();
+  const holds = new Map<string, Promise<HoldOutcome>>();
   const held: string[] = [];
-  // Waits out a hold on the read, which then rejects as unreachable if failed.
+  // Waits out a hold on the read, which then rejects as unreachable if failed,
+  // answering the locations the case gave in place of the published ones.
   const answering = async (read: string) => {
     reads.push(read);
     const hold = holds.get(read);
-    if (hold === undefined) return;
+    if (hold === undefined) return undefined;
     holds.delete(read);
     held.push(read);
-    if (await hold) throw new TypeError("Failed to fetch");
+    const outcome = await hold;
+    if (outcome === "unreachable") throw new TypeError("Failed to fetch");
+    return outcome === "published" ? undefined : outcome;
   };
   const realFetch = window.fetch.bind(window);
   const fetchSpy = vi
@@ -121,8 +134,8 @@ export function publishedReadService(published: Map<string, Snapshot>) {
       const revision = params.get("revision") ?? "";
       const files = published.get(revision);
       if (files !== undefined && intent === "locations") {
-        await answering(`locations@${revision}`);
-        return answer(locationsOf(revision, files));
+        const given = await answering(`locations@${revision}`);
+        return answer(given ?? locationsOf(revision, files));
       }
       if (files !== undefined && path !== null && path in files) {
         await answering(`${path}@${revision}`);
@@ -139,28 +152,28 @@ export function publishedReadService(published: Map<string, Snapshot>) {
     unexpected,
     held: () => held.length,
     // Holds the next read named `<what>@<revision>`. `release` lets it
-    // answer and `fail` makes it unreachable; each settles the reading it
+    // answer, `fail` makes it unreachable and `answerLocations` answers a
+    // locations read with the given answer; each settles the reading it
     // updates. Later reads of the same name answer at once.
     holdRead(read: string) {
-      let settle: (failed: boolean) => void = () => {};
+      let settle: (outcome: HoldOutcome) => void = () => {};
       holds.set(
         read,
-        new Promise<boolean>((resolve) => {
+        new Promise<HoldOutcome>((resolve) => {
           settle = resolve;
         }),
       );
       onTestFinished(() => {
-        settle(false);
+        settle("published");
       });
+      const settled = (outcome: HoldOutcome) =>
+        actSettled(() => {
+          settle(outcome);
+        });
       return {
-        release: () =>
-          actSettled(() => {
-            settle(false);
-          }),
-        fail: () =>
-          actSettled(() => {
-            settle(true);
-          }),
+        release: () => settled("published"),
+        fail: () => settled("unreachable"),
+        answerLocations: (given: IntentLocationsAnswer) => settled(given),
       };
     },
   };

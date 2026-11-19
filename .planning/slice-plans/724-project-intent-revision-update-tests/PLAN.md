@@ -169,7 +169,7 @@ unreadable updates and their Retry (slices 3–5), keeping the shared modules.
 ### 4. Keep the current reading when settings cannot be read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An unreadable settings answer at the offered revision leaves
 the old reading and selection in place with a settings-specific failure
@@ -179,6 +179,16 @@ Proof: Replace the settings-update spec. Supply the typed unreadable answer
 and then new locations. Assert the settings-specific wording, absence of a
 replacement settings panel, old revision/text/selection, and new revision
 and source with the notice cleared after Retry.
+
+Accepted proof: the unreadable-settings case passed in the new
+`intent-revision-update-failures.mounted.spec.ts`, which also holds slice 3's
+case, with the MakeMe consumer group and the typecheck. The applying cases stay
+in `intent-revision-apply.mounted.spec.ts`. Learning: `holdRead(...)` also
+offers `answerLocations(answer)`, and `makeMe.anIntentLocationsAnswer` builds
+readable, `withUnreadableSettings()` and `withMalformedSettings()` answers.
+Three built-app specs still write that answer by hand
+(`intent-read-recovery`, `intent-gherkin-settings-problems`,
+`intent-revision-update-boundaries`); the later frontend families own them.
 
 ### 5. Focus the explanation when the latest settings are malformed
 

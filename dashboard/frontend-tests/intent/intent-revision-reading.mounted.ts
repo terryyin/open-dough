@@ -129,6 +129,10 @@ export function intentReading() {
       document.querySelectorAll('.intent-locations [aria-pressed="true"]'),
     readingPane,
     purpose,
+    // An explanation of unusable settings shown in the reading's place.
+    settingsProblem: intent
+      .getByRole("alert")
+      .filter({ hasText: "Intent locations for" }),
     shownSource: sourceText(featurePath),
     otherSource: sourceText(otherPath),
     // The selected file's failed read and its own Retry.
