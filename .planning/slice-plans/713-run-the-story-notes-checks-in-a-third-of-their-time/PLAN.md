@@ -54,7 +54,7 @@ Verify the selection runs eleven cases entirely in mounted Chromium.
 ### 2. Finish each mounted dialog close on its close event
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the shared mounted input support for ordinary controls. For dialog
 close, subscribe to the specific dialog's native close event before issuing
@@ -110,5 +110,6 @@ worker count and Node version slice 3 uses.
 ## Learnings
 
 - Slice 1: terminal output printed into a mounted page updates React outside input, so `attachedTerminal` prints and reads the terminal inside `actSettled`; without it the family printed two act warnings. Slice 2's settling changes must keep that path warning-free.
+- Slice 2: only a dialog the product closes with `dialog.close()` fires `close`; a line-note save unmounts the dialog through `onSaved`, so it settles as ordinary input. Family runs 4–6 took 5.09, 4.52 and 4.51 s (Vitest duration) at load about 9.
 
 ## Story obligations

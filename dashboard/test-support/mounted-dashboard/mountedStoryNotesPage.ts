@@ -10,7 +10,7 @@ import {
 } from "../../src/storyNote.ts";
 import { lineNumberLabel, type DiffLineSide } from "../../src/diffLineSide.ts";
 import { storyNotesNames as n } from "../storyNotesNames.ts";
-import { click, fill, press } from "./mountedActInput.ts";
+import { click, closing, fill, press } from "./mountedActInput.ts";
 
 export function storyNotesPage() {
   const dialog = page.getByRole("dialog", { name: n.dialog, exact: true });
@@ -205,7 +205,9 @@ export function storyNotesPage() {
         .toBeVisible();
     },
     close: async () => {
-      await click(dialog.getByRole("button", { name: n.close, exact: true }));
+      await closing(dialog, () =>
+        click(dialog.getByRole("button", { name: n.close, exact: true })),
+      );
       await expect.element(dialog).not.toBeInTheDocument();
     },
   };

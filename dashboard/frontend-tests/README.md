@@ -49,10 +49,13 @@ board reads.
   and Node, such as `frontendStoryNotesRule.ts` and
   `frontendStoryReviewRule.ts`; control and region names live once in
   `../test-support/*Names.ts`.
-- Run every mount, input, `runFor` and held-answer release through
-  `actSettled` in `mountedActInput.ts`, which settles React before the case
-  observes the page. A page still changing after its round cap fails the
-  case with `UnsettledPageError`, which names the cap.
+- Run every mount, `runFor`, held-answer release and printed terminal output
+  through `actSettled` in `mountedActInput.ts`, which settles React with task
+  and frame rounds before the case observes the page. Input goes through its
+  `click`, `press` and `fill`, which settle with task rounds; an input that
+  closes a dialog goes through `closing`, which finishes on that dialog's
+  native `close` event inside `act`. A page still changing after its round
+  cap fails the case with `UnsettledPageError`, which names the cap.
 - Only the next notes answer can be held, through `holdNextNotes`, to observe
   pending and recovery states. A second hold fails by name, and a hold still
   kept at cleanup is abandoned as an aborted request.
