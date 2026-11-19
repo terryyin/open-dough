@@ -9,7 +9,8 @@ show passing proof. There are no controlled events or later wake turns.
 
 - workflow: ordinary execution with an available supplier (dough-execute-plan, Story Branch Mode)
 - behavior: supplier complete before session start; preserved partial work; one integration and filing; no event wakes
-- hosts: codex (qualified natively); claude, cursor: not qualified
+- hosts: codex (qualified natively)
+- unqualified hosts: claude, cursor (no native observations yet)
 - qualification: passing frozen Codex journeys on 2026-11-14 and 2026-11-17; rejected shortcuts covered by the controlled case journey
 - environment: small Node project and isolated local Git remote; no external services
 - prerequisites: Bash 5, Git, Node 24, jq; a logged-in Codex CLI for explicit native qualification

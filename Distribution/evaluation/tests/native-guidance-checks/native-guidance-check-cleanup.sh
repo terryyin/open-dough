@@ -121,11 +121,12 @@ prepare_run() {
 assert_cleaned_services() {
   local arm
   for arm in "${CLEANUP_EVIDENCE}"/arm.*; do
-    [[ $(< "${arm}/cleanup") == cleanup ]]
     if kill -0 "$(< "${arm}/service.pid")" 2> /dev/null; then
       printf 'FAIL: stand-in service survived in %s\n' "${arm}" >&2
       return 1
     fi
+    rm -- "${arm}/service.pid"
+    [[ $(< "${arm}/cleanup") == cleanup ]]
   done
 }
 
@@ -184,6 +185,7 @@ interrupt_turn() (
       printf 'FAIL: stand-in host survived in %s\n' "${arm}" >&2
       return 1
     fi
+    rm -- "${arm}/host.pid"
     if ! grep -Fxq existed "${arm}/host-exited"; then
       printf 'FAIL: stand-in host did not exit while its workspace existed in %s\n' "${arm}" >&2
       return 1

@@ -20,10 +20,11 @@
 #     [--model MODEL] [--effort EFFORT] [--deadline SECONDS]
 #   Distribution/evaluation/src/native-guidance-check.sh --recover RECORD [--payload-repo DIR]
 #
-# --list prints each case's selection traits (workflow, hosts,
-# prerequisites, decisions-and-proof, duration); each --where keeps the cases
-# whose TRAIT contains TEXT. --native codex runs one paid Codex journey of the
-# named case with this checkout's working tree as the payload, or, with
+# --list prints each case's selection traits (workflow, hosts, unqualified-hosts,
+# prerequisites, decisions-and-proof, duration). The hosts trait names qualified
+# hosts only. Each --where keeps the cases whose TRAIT contains TEXT.
+# --native codex runs one paid Codex journey of the named case with this
+# checkout's working tree as the payload, or, with
 # --baseline and --candidate, a paid pair: both revisions of --payload-repo
 # (default this checkout) are frozen as commits, the factor under test, its
 # intended gain and the quality criteria are recorded before either arm

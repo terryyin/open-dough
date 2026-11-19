@@ -160,7 +160,7 @@ archive deadlines in larger batches remain timing evidence from the repair.
 
 ### 2. Catalog host selection names qualified hosts only
 Type: Behavior
-Status: planned
+Status: done
 Proof: The entry's credential-free catalog checks, with negative host filters, plus `--list` on the real catalog.
 
 Behavior: cases qualified natively on Codex only → a maintainer runs
@@ -187,6 +187,12 @@ nothing, beside the existing positive checks. Then on the real catalog,
 `--where hosts=cursor` and `hosts=claude` list nothing and fail, and
 `hosts=codex` lists exactly the four qualified cases. The planning observation
 showed the negatives fail today.
+
+The real catalog and synthetic check passed for the positive and negative
+filters. All three historical records recovered at their expected bases.
+All 43 focused files passed after the cleanup fixture retired settled PIDs.
+The earlier local SIGKILL sender could not be identified. See the source
+review and the worktree's `slice-2-return.md` Git evidence.
 
 ### 3. The runner owns per-turn command and harness facts
 Type: Structure

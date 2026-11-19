@@ -28,8 +28,8 @@ inherits the once-per-turn, every-case and runner-ownership qualifications.
 | P04 | Under the same condition, the arm’s host session is stopped (C, host-route refusal). | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check-cleanup.sh: refused-route asserts no host start marker and no retained attempt |
 | P05 | When an interruption ends a started arm early, the services a case started are stopped (C, interrupted run). | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check-cleanup.sh: pair and single terminal INT and targeted single TERM all assert cleaned services and the entry signal status |
 | P06 | Under the same condition, the arm’s host session is stopped (C, interrupted run). | slice 1 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check-cleanup.sh: each interrupted host is gone before case cleanup and records its workspace present at exit, with no later event or assessment |
-| P07 | Catalog host selection matches qualified hosts (H). | slice 2 |  |
-| P08 | Catalog host selection excludes unqualified hosts (H). | slice 2 |  |
+| P07 | Catalog host selection matches qualified hosts (H). | slice 2 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh asserts positive Codex and blocked filters. Real catalog lists the four qualified cases, with only paused-supplier under the blocked intersection |
+| P08 | Catalog host selection excludes unqualified hosts (H). | slice 2 | observed: Distribution/evaluation/tests/native-guidance-checks/native-guidance-check.sh asserts an unqualified-only host is visible but filters to no output and failure. The real Claude and Cursor filters returned empty results and exit 1 |
 | P09 | When the turn’s stream shows the command count, the runner records the count (T). | slice 3 |  |
 | P10 | When the turn’s stream cannot show the command count, the runner records `unknown` for it (T). | slice 3 |  |
 | P11 | When the turn’s stream shows the harness inspection, the runner records the inspection (T). | slice 3 |  |

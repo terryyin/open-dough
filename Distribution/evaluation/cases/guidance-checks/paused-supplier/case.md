@@ -13,7 +13,8 @@ dependent slice once, with its proof.
 - workflow: blocked execution waiting on a paused supplier (dough-execute-plan, Story Branch Mode)
 - behavior: forced turns while blocked, then one qualifying continuation
 - environment: small Node project and isolated local Git remote; no external services
-- hosts: codex (qualified natively); claude, cursor: not qualified
+- hosts: codex (qualified natively)
+- unqualified hosts: claude, cursor (no native observations yet)
 - prerequisites: Bash 5, Git, Node 24, jq; a logged-in Codex CLI for `--native codex`
 - decisions and proof: hold through a diagnostic pass, an unchanged wake and an early publication; integrate the completed supplier outcome; finish slice 3 with `node --test tests/*.test.mjs` passing
 - duration: Codex qualified 2026-11-14, four turns of 21.6 min in total after

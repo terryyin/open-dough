@@ -84,9 +84,11 @@ Distribution/evaluation/src/native-guidance-check.sh --list --where hosts=codex 
 Distribution/evaluation/src/native-guidance-check.sh --list --where prerequisites=nix
 ```
 
-`--list` prints each case's traits from its `case.md` Selection section:
-workflow, hosts, prerequisites, decisions-and-proof and duration. Each
-`--where TRAIT=TEXT` keeps the cases whose trait contains TEXT, ignoring case.
+`--list` prints each case's traits from its `case.md` Selection section,
+including workflow, hosts, unqualified-hosts, prerequisites,
+decisions-and-proof and duration. The hosts trait names qualified hosts only.
+Each `--where TRAIT=TEXT` keeps the cases whose named trait contains TEXT,
+ignoring case.
 
 | Case                        | What it exercises                                                                                                         | Preparation and run, as measured on 2026-11-14                                                      |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
