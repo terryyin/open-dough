@@ -73,28 +73,38 @@ test.describe("authenticated read boundary: a rate limit that directs no wait ba
           retryAfterSeconds: 1,
         });
       },
-      { ...developmentBoundary, limitBackoffMs: 1_000 },
+      {
+        ...developmentBoundary,
+        limitBackoffMs: 1_000,
+        liveServer: "the server reads GitHub backoff once per process",
+      },
     );
   });
 
   test("the first refusal waits one minute, held back as a directed wait is", async () => {
-    await onServerOfItsOwn(async (server) => {
-      servedRefusing(server, revision, (request) =>
-        isContent(request, sharedSeedPath) ? rateLimitedAnswer() : undefined,
-      );
-      const refused = await timedRead(server, sharedSeedRead(revision));
-      expect(refused.body).toEqual({
-        error: undirectedAs(sharedSeedPath, 60),
-        retryAfterSeconds: 60,
-      });
-      const before = server.github.calls.length;
-      expectHeldBack(
-        await timedRead(server, otherSeedRead),
-        refused,
-        "the other seed",
-      );
-      expect(askedSince(server, before)).toEqual([]);
-    });
+    await onServerOfItsOwn(
+      async (server) => {
+        servedRefusing(server, revision, (request) =>
+          isContent(request, sharedSeedPath) ? rateLimitedAnswer() : undefined,
+        );
+        const refused = await timedRead(server, sharedSeedRead(revision));
+        expect(refused.body).toEqual({
+          error: undirectedAs(sharedSeedPath, 60),
+          retryAfterSeconds: 60,
+        });
+        const before = server.github.calls.length;
+        expectHeldBack(
+          await timedRead(server, otherSeedRead),
+          refused,
+          "the other seed",
+        );
+        expect(askedSince(server, before)).toEqual([]);
+      },
+      {
+        ...developmentBoundary,
+        liveServer: "the server reads GitHub backoff once per process",
+      },
+    );
   });
 
   test("a base beyond an hour waits one hour", async () => {
@@ -109,7 +119,11 @@ test.describe("authenticated read boundary: a rate limit that directs no wait ba
           retryAfterSeconds: 3600,
         });
       },
-      { ...developmentBoundary, limitBackoffMs: 2 * 60 * 60 * 1000 },
+      {
+        ...developmentBoundary,
+        limitBackoffMs: 2 * 60 * 60 * 1000,
+        liveServer: "the server reads GitHub backoff once per process",
+      },
     );
   });
 });

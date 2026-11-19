@@ -35,7 +35,10 @@ import {
 } from "../../test-support/support/completionRecoveryFaults.ts";
 import { observeLaterCompletionIntent } from "../../test-support/support/completionRecoveryIntent.ts";
 
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "the test temporarily switches to the server HOME",
+});
 
 test("quiet Done needs landing and readable closure; unacked completion recovers reporting-only; unfinished stays open", async ({
   dashboard,

@@ -26,7 +26,10 @@ import {
 } from "../../test-support/support/oneShotLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 for (const workflow of ["refinement", "execution"] as const) {
   test(`${workflow} retains its accepted comparison through actual retirement and GC, without completing its launch`, async ({
     dashboard,

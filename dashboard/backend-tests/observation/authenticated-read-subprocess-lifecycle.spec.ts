@@ -143,6 +143,7 @@ test.describe("authenticated read boundary: bounded timeout without changing the
       ...developmentBoundary,
       ghTransport: "cli",
       readTimeoutMs: shortTimeoutMs,
+      liveServer: "the server reads the GitHub request bound once per process",
     });
   });
 

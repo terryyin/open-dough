@@ -29,7 +29,10 @@ import {
   retryDeclaredLanding,
 } from "../../test-support/support/declaredSessionLanding.ts";
 
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 
 test("the declared worktree's installed landing and exact retry stay with the original launch", async ({
   dashboard,

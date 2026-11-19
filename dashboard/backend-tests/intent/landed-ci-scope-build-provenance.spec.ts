@@ -21,7 +21,11 @@ import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { publishSkippedPlanningLanding } from "../../test-support/support/storyCiComparisonSkippedLandingFixture.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -193,7 +197,12 @@ test("an exact landing and a skipped landing share one collected attempt and ret
         ],
       },
     });
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
   const answer = await scopedHistory(reader.origin, setup.landingMerge);
   expect((answer.body as { entries: unknown[] }).entries).toHaveLength(1);

@@ -22,7 +22,10 @@ import {
   git,
 } from "../../test-support/support/storyReviewWorktree.ts";
 
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const historical = { ...completedReviewQuery, historical: "true" };
 
 for (const invalid of [

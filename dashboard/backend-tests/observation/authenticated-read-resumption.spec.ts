@@ -1,13 +1,9 @@
-// Reading resumes with one read first (github-request-admission.mjs), at the
-// local authenticated read boundary over real HTTP with the synthetic `gh`:
-// once a wait has passed, directed or backed off, one read reaches GitHub
-// while the others wait; refused with a new wait, it answers every waiting
-// request as limited with nothing else asked; answered, unreachable, left, or
-// timed out, the others are asked. Each case starts a server of its own,
-// because the wait outlives the request that met it. How a wait holds back
-// reads: ./authenticated-read-cooldown.spec.ts; a wait that starts while
-// reads wait their turn: ./authenticated-read-wait-in-turn.spec.ts; the turns
-// themselves: ./authenticated-read-turns.spec.ts.
+// At the authenticated HTTP read boundary, one read reaches synthetic GitHub
+// first after a directed or backed-off wait (github-request-admission.mjs).
+// A second limit applies to every waiter. An answer, disconnection, departure,
+// or timeout allows the others to proceed. Each case owns its server because
+// the wait outlives the request. See ./authenticated-read-cooldown.spec.ts,
+// ./authenticated-read-wait-in-turn.spec.ts, and ./authenticated-read-turns.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -70,12 +66,19 @@ const waits = [
     name: "a directed wait",
     refusal: rateLimitedAnswer(429, { "Retry-After": "1" }),
   },
-  { name: "a backed-off wait", refusal: rateLimitedAnswer() },
+  {
+    name: "a backed-off wait",
+    refusal: rateLimitedAnswer(),
+    serverOptions: {
+      limitBackoffMs: 1_000,
+      liveServer: "the server reads GitHub backoff once per process",
+    },
+  },
 ];
 
 const threeReads = seedPaths.slice(0, 3);
 
-for (const { name, refusal } of waits) {
+for (const { name, refusal, serverOptions } of waits) {
   test(`after ${name}, three requests send one read first; refused with a new wait, all three are answered as limited and nothing else reached GitHub`, async () => {
     await onServerOfItsOwn(
       async (server) => {
@@ -107,7 +110,7 @@ for (const { name, refusal } of waits) {
           expectHeldBack(answer, first, "a request behind the first read");
         }
       },
-      { ...developmentBoundary, limitBackoffMs: 1_000 },
+      { ...developmentBoundary, ...serverOptions },
     );
   });
 
@@ -141,7 +144,7 @@ for (const { name, refusal } of waits) {
           asked(threeReads).sort(),
         );
       },
-      { ...developmentBoundary, limitBackoffMs: 1_000 },
+      { ...developmentBoundary, ...serverOptions },
     );
   });
 }
@@ -230,7 +233,16 @@ for (const { name, readTimeoutMs, end } of endingsWithoutLimit) {
           asked(threeReads).sort(),
         );
       },
-      { ...developmentBoundary, limitBackoffMs: 1_000, readTimeoutMs },
+      {
+        ...developmentBoundary,
+        ...(readTimeoutMs === undefined
+          ? {}
+          : {
+              readTimeoutMs,
+              liveServer:
+                "the server reads the GitHub request bound once per process",
+            }),
+      },
     );
   });
 }

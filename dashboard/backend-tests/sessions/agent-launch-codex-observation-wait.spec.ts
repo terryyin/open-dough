@@ -16,7 +16,11 @@ import {
   passive,
 } from "../../test-support/support/codexObservation.ts";
 
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+test.use({
+  serverMode: "boundary",
+  projectFolders: ["open-dough"],
+  liveServer: "the mounted startup observation races the native test setup",
+});
 
 const waitMs = 1_500;
 
@@ -50,6 +54,7 @@ test("waiters share a held observation, a departing one ends only its own wait, 
   await dashboard.close();
   const server = await startDashboardServer({
     mode: "boundary",
+    liveServer: "the preceding live server retains the machine's Cursor runner",
     machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,

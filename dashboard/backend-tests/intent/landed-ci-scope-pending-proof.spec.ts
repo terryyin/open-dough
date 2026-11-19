@@ -15,7 +15,11 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
@@ -129,7 +133,12 @@ test("a pending landed attempt keeps its known run identity and link in the loca
     },
   };
   await expect.poll(readScope).toMatchObject(pending);
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
   const observed = await readScope(reader.origin);
   expect(observed).toMatchObject(pending);
@@ -178,7 +187,12 @@ test("an unread CI landing still retains independently evidenced local trunk ord
   await expect
     .poll(() => retainedState(dashboard.home).trunkOrder)
     .toEqual([revision]);
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
   expect(retainedState(dashboard.home).trunkOrder).toEqual([revision]);
 });

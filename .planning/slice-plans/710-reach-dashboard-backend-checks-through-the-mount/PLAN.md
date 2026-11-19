@@ -232,7 +232,7 @@ the remaining diagnosis leads.
 ### 6. Cases held for another reason ask for the live server and say why
 
 Type: Structure
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 The remaining cases in [MOUNT-TRIAL.md](MOUNT-TRIAL.md): the landed CI and
@@ -248,6 +248,26 @@ Enables slice 7.
 
 Proof: the listed specs pass on the live default; a search for the free-text
 reasons lists every held case, which is the deferred story's input.
+
+The live-default proofs passed all 100 focused cases across two selections.
+The same cases passed with a scratch mounted default, with 27 mounted and
+80 live starts. Dashboard typecheck passed and the dispatcher was restored
+byte for byte. Logs, route evidence, and the searchable held-case list are
+under `slice-6-` in Git evidence.
+
+The trial's presumed child environment cause resolved to a synchronous
+publication child blocking its mounted HTTP receiver. The backoff and
+request owner bounds initialize once in `ghRead.ts`. Quiet closure needs
+distinct worker and server HOME values. Some readers reuse a live
+predecessor's runner on the same machine. Four scoped Codex starters
+reproduced competing native setup reads; the trace did not isolate the
+initiating callback in every case.
+
+The CI comparison module remembers final answers by repository and story
+identity across machine directories. This is an exception to the trial's
+path-scoped cache premise. The affected tests need an empty process and
+request one explicitly. The mount and product cache policy stay scoped to
+their existing responsibilities.
 
 ### 7. Dashboard Backend Test mounts boundary-mode starts by default
 
@@ -275,6 +295,13 @@ time under a quarter of the baseline's for the same starts. Alternate the
 live and mounted defaults three times over `review/` and record both wall
 times. Run `npm run test:dashboard:frontend` and `npm run test:e2e`, since
 the start is shared with them, and confirm neither mounted a server.
+
+The retained November 18 baseline is aggregate. For a matched-start
+comparison, collect a live-default run on the same implementation with the
+temporary recorder's default override, and pair the originally live starts
+by case and call order with the starts the mounted default routed in-process.
+Explicit mount-only runtime checks keep their requested entry in both runs
+and have no live mate. Retain any unpaired rows for review.
 
 ### 8. The entry rule names the mount and the live request
 
@@ -331,6 +358,8 @@ spec alone before reading it as a defect of the change.
   `5986f220a1452459fe4b62c6cd46c7d7e1d840b8` and registered with this observer.
 - Slice 4 was accepted on the story branch at
   `4a754c19f05e4e2d0011d22f836936f4d2836512` and registered with this observer.
+- Slice 5 was accepted on the story branch at
+  `ed000275896c0d2b89ded0d81703c0b2f5c28b30` and registered with this observer.
 - Checkout preparation passed the locked npm install, Chromium prerequisite
   check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
 
@@ -347,6 +376,12 @@ Disposition: receiving slice 7
 Reported: slice 4 — "authenticated-read-output-bound.spec.ts expects one fresh process diagnostic and sees prior entries."
 Story clause: "A proof that needs an empty process is a separate-process proof."
 Disposition: proved by slice 5: `slice-5-g2.routes` and `slice-5-g2.log.run.json`, paired with the existing one-entry assertion in `authenticated-read-output-bound.spec.ts`
+
+### G3. CI comparison cases start with an empty process cache
+
+Reported: slice 6 — "two later checks expected a pending or unavailable build and immediately read a previous final build."
+Story clause: "A proof that needs an empty process is a separate-process proof."
+Disposition: proved by slice 6: the final mounted-default selection kept the existing pending-proof and receipt assertions on their explicit live starts, as recorded in `slice-6-final.log.run.json` and `slice-6-final.routes`
 
 ## Plan review
 

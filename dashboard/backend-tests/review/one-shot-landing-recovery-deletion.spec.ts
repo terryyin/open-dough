@@ -37,6 +37,7 @@ test("deletion after attempt expiry retains refusal and repository through a rea
   const clock = landingRetentionClock(origin.machine);
   const receiver = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,
