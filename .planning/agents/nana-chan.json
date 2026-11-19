@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-406#plot-new-models-with-estimated-token-index",
+  "host": "codex",
+  "model": "gpt-6.2-astra"
+}
