@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+  "mode": "story-branch",
+  "branch": "claude/keep-dashboard-tests-off-the-developer-s-real-cu",
+  "host": "claude"
+}
