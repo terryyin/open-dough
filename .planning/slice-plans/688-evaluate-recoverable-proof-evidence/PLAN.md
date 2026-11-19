@@ -197,7 +197,7 @@ Delivery disposition: records-only.
 
 ### 3. Acceptance observations and the verdict are recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: a table of acceptance decisions with trace locations, and one verdict
 record; for revise or stop, the follow-up story's `read-state` and backlog
 line.
@@ -216,6 +216,88 @@ keep or inconclusive, add no story.
 
 Sizing: each slice is one read-and-record pass over one execution's retained
 trace. No Structure slice and no interim behavior.
+
+#### Acceptance decisions
+
+The table uses one-based JSONL lines from the coordinator trace in slice 1.
+The sampled plan has one Structure slice. The remaining rows cover its
+refactor and the CI repair that followed integration.
+
+| Decision | Evidence the coordinator read | Observed result |
+| --- | --- | --- |
+| Slice 1, shared roster arrangement | Received hand-back at 284, inspected the source diff and fixtures at 307–330, read the exit results and excerpts from its own counted reruns at 391–420, and read the first 40 lines of the consumer trace at 411. The hand-back names the worker's run records and full report. The trace shows no direct read of those worker run-record files, the full report, or a whole proof log. | The hand-back reported exit 0 and eight cases inferred from source, with no printed count. The coordinator accepted after the new proof record showed eight selected cases and the command exited 0. It displayed one expected outcome directly, then recorded eight expected outcomes and checked the obligations at 434–443. |
+| Slice 1 refactor | Fresh refactor launch at 458 and its returned hand-back at 524. | The refactor review found no changes needed. The trace shows no additional proof rerun or full report read at this acceptance. |
+| Trunk CI diagnosis and repair | CI failure receipt at 963, bounded failed-job diagnostic at 995–1005, repair hand-back at 1086, refactor hand-back at 1143, and the focused rebase validation summary at 1184–1185. | An unrelated feedback-maintenance E2E spec raced a startup read. The repair changed that spec. After trunk advanced, the coordinator ran the repaired spec five times on the rebased candidate and observed five expected outcomes. Final trunk CI succeeded at 1207. |
+
+#### Repeated commands and worker rounds
+
+- The slice implementer ran the same two frontend specs again with
+  `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` after the original command exited 0
+  with an empty log. The rerun sought a count and followed a whitespace
+  correction. The first run and the retry each exited 0, and the generic
+  environment variable produced no frontend proof file. The implementer also
+  reran `npm run lint` after correcting the newline. See worker
+  `agent-a6344a5de0cd970e2.jsonl` lines 90–110, 129–151.
+- The coordinator ran those two frontend specs at 391–392 to acquire a count
+  with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`. Playwright exited 0.
+  The surrounding read failed because the coordinator prefixed an already
+  absolute evidence path with `$PWD`. It repeated the command at 397–398 with
+  the corrected path, obtaining `acc2-proof.json` and exit 0. The literal
+  commands and bounded reads are retained at those trace lines.
+- The coordinator did not return slice 1 to its implementer for a missing
+  proof row. The independent refactor at 458 and the new diagnosis at 1072
+  served distinct purposes. The diagnosis worker's successive reproductions
+  changed the way the race was forced. The initial setup passed both versions,
+  the load-event stall timed out, and the real-time stall exposed the same
+  assertion failure in five of five attempts before the fix. The equivalent
+  after-fix probe passed five of five, and the repaired spec passed 20 of 20
+  locally. See `agent-accf8901126c18f3b.jsonl` lines 141–209 and 233–264.
+  The coordinator's later five-repeat run at 1184 validated a new revision
+  after rebasing the repair. Its purpose was candidate validation.
+
+#### Later findings and limits
+
+Evidence cutoff: 2026-11-19 18:34 +0800.
+
+- Story-branch CI succeeded on `b886da46e05a0131e748bbc818e159cec482d799`
+  (run `44218421269`, attempt 1, coordinator line 737). The branch closure
+  used that CI basis (line 925). After integration, trunk CI on
+  `f9f1b7c156423e39c65a185a3e738bbec21b7582` failed in E2E shard 1/6
+  (run `44219732025`, attempt 1, lines 963 and 995–1008). The reported
+  race occurred in `system-settings-feedback-maintenance-unchanged.spec.ts`,
+  outside the original frontend roster proof. Repaired trunk revision
+  `615ce8114b79844327869fe2ce178a2c0c75bb42` passed CI
+  (run `44222562048`, attempt 1, lines 1207–1214).
+- The retrospective found the intended roster change complete. Its DD-571
+  occurrence identified an omitted reporter flag in the brief and the
+  incorrect proof-record variable in the worker command, both before the
+  hand-back. The two forms of return already exposed the missing count.
+  See coordinator lines 667–698 and the implementer's full report write
+  and hand-back at worker lines 151 and 156. Neither the retrospective nor
+  CI supplies evidence of a defect the full worker report would have exposed
+  and the hand-back concealed.
+- The sample finished its only planned slice, retrospective, branch CI,
+  trunk CI repair and final trunk CI before the cutoff. Its coordinator
+  records retirement and completion at 1242–1257. It had no later planned
+  slice or outstanding check in the retained session. The worktree evidence
+  directory retired with it, so the record relies on persisted transcript
+  fields and excerpts. There is no independent comparison execution, and
+  the baseline covers Claude Code whole sessions.
+
+#### Verdict
+
+**Inconclusive.** The v0.3.105 sample had a 3,496-character median against
+the 7,800-character baseline. Acceptance used a short hand-back, source
+inspection and bounded evidence. It still repeated the frontend command
+to get a verified selection count. The missing observation for **Keep** is
+acceptance from the retained original proof without recreating its output.
+Both forms of the original return exposed the count gap, and the coordinator
+resolved it directly without a second worker round. The later CI failure
+concerned a different spec. The trace establishes neither the **Revise**
+condition nor the **Stop and rethink** condition of reading whole reports
+or logs. The story's inconclusive path queues no follow-up.
+
+Delivery disposition: records-only.
 
 ## Local gates and current decisions
 
