@@ -276,3 +276,4 @@ Product advice:
 - Final accepted implementation SHA `07683c6d2` was still pending CI at
   retrospective return; conclusions about integrated-state acceptance remain
   conditional until the completion operation settles.
+- CI repair on failed `07683c6d2`: launch-acceptance `worker.pid` race vs spawn note while step stays `start`; assertion moved admission pid to the accept answer and allows any pid on the store (run 44436581827).
