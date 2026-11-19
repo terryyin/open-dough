@@ -2,6 +2,7 @@
 // kind, and saves the service refuses or cannot be reached for.
 import { expect, test } from "vitest";
 import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesBoard.ts";
+import type { StoryNoteSaveFailure } from "../../test-support/support/frontendStoryNotesRule.ts";
 
 test("all card kinds offer general notes, blank is unsaved, newest first", async () => {
   const board = await mountStoryNotesBoard("no notes");
@@ -47,23 +48,24 @@ test("all card kinds offer general notes, blank is unsaved, newest first", async
   await notes.close();
 });
 
-const saveFailures = [
-  ["a refused save", "refused"],
-  ["a save that cannot reach the dashboard", "unreachable"],
-] as const;
-for (const [failure, failNext] of saveFailures)
-  test(`${failure} keeps its draft and says so; saving again saves and clears it`, async () => {
-    const board = await mountStoryNotesBoard("no notes");
-    const { notes, notesService } = board;
-    await notes.open(board.card("Recently done", board.cards.done));
-    await notes.add();
-    const draft = "Keep the observation when saving fails.";
-    await notes.type(draft);
-    notesService.failNext = failNext;
-    await notes.save();
-    await notes.expectProblem("The note could not be saved.");
-    await notes.expectComposing(draft);
-    await notes.save();
-    await notes.expectSaved();
-    await notes.expectNotes([draft]);
-  });
+async function keepsDraftAfterFailedSave(failNext: StoryNoteSaveFailure) {
+  const board = await mountStoryNotesBoard("no notes");
+  const { notes, notesService } = board;
+  await notes.open(board.card("Recently done", board.cards.done));
+  await notes.add();
+  const draft = "Keep the observation when saving fails.";
+  await notes.type(draft);
+  notesService.failNext = failNext;
+  await notes.save();
+  await notes.expectProblem("The note could not be saved.");
+  await notes.expectComposing(draft);
+  await notes.save();
+  await notes.expectSaved();
+  await notes.expectNotes([draft]);
+}
+
+test("a refused save keeps its draft and says so; saving again saves and clears it", () =>
+  keepsDraftAfterFailedSave("refused"));
+
+test("a save that cannot reach the dashboard keeps its draft and says so; saving again saves and clears it", () =>
+  keepsDraftAfterFailedSave("unreachable"));

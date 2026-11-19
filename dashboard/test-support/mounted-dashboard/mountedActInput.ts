@@ -28,7 +28,7 @@ function nextFrame() {
   });
 }
 
-// The rounds `actSettled` waits for the page to settle before failing the case.
+// The rounds a mounted act waits for the page to settle before failing the case.
 export const settleRounds = 20;
 
 // A page still changing after `settleRounds` rounds, named so the case fails
@@ -40,12 +40,11 @@ export class UnsettledPageError extends Error {
   }
 }
 
-// Runs `action` inside act, then settles the page inside act: task rounds
-// while the page still changes, then a frame round; it is settled when a frame
-// round changes nothing, so answers that later effects request and observer
-// callbacks of the new layout also reach React inside act. A page still
-// changing after `settleRounds` rounds fails with `UnsettledPageError`.
-export async function actSettled(action: () => unknown) {
+// Settles the page inside act after `action`: task rounds while the page
+// still changes and, with `frames`, a frame round; it is settled when a final
+// round changes nothing. A page still changing after `settleRounds` rounds
+// fails with `UnsettledPageError`.
+async function settleAfter(action: () => unknown, frames: boolean) {
   let changed = false;
   const changes = new MutationObserver(() => {
     changed = true;
@@ -61,13 +60,15 @@ export async function actSettled(action: () => unknown) {
       await action();
       await nextTask();
     });
-    let framed = false;
+    // Whether the last round was a final one: with `frames` a frame round,
+    // otherwise any task round.
+    let final = !frames;
     for (let round = 0; round < settleRounds; round += 1) {
       if (changes.takeRecords().length > 0) changed = true;
-      if (framed && !changed) return;
-      framed = !changed;
+      if (final && !changed) return;
+      final = !frames || !changed;
       changed = false;
-      await act(framed ? nextFrame : nextTask);
+      await act(frames && final ? nextFrame : nextTask);
     }
     throw new UnsettledPageError();
   } finally {
@@ -75,11 +76,26 @@ export async function actSettled(action: () => unknown) {
   }
 }
 
+// Runs `action` inside act and settles with task and frame rounds, so answers
+// that later effects request and observer callbacks of the new layout also
+// reach React inside act: for mounts, clock advances, released reads and
+// output the page receives.
+export async function actSettled(action: () => unknown) {
+  await settleAfter(action, true);
+}
+
+// Settles input with task rounds only: each answer and effect it starts
+// reaches React inside act. Work that completes later, as a dialog's queued
+// close, is awaited by its own event (`closing`).
+async function inputSettled(action: () => unknown) {
+  await settleAfter(action, false);
+}
+
 async function onControl(
   locator: Locator,
   use: (control: HTMLElement) => void,
 ) {
-  await actSettled(async () => {
+  await inputSettled(async () => {
     const element = await locator.findElement();
     if (!(element instanceof HTMLElement))
       throw new Error(`Expected a control: ${locator.selector}`);
@@ -99,10 +115,29 @@ export async function press(locator: Locator) {
     control.focus();
   });
   await expect.element(locator).toHaveFocus();
-  await actSettled(() => userEvent.keyboard("{Enter}"));
+  await inputSettled(() => userEvent.keyboard("{Enter}"));
 }
 
 // Types into a field inside act, as the built app's fill did.
 export async function fill(locator: Locator, text: string) {
-  await actSettled(() => locator.fill(text));
+  await inputSettled(() => locator.fill(text));
+}
+
+// Runs `action`, which closes `dialog`, and finishes on that dialog's native
+// close event inside act, since the browser queues the event after the input.
+export async function closing(dialog: Locator, action: () => Promise<void>) {
+  const element = await dialog.findElement();
+  if (!(element instanceof HTMLDialogElement))
+    throw new Error(`Expected a dialog: ${dialog.selector}`);
+  const closed = new Promise<void>((resolve) => {
+    element.addEventListener(
+      "close",
+      () => {
+        resolve();
+      },
+      { once: true },
+    );
+  });
+  await action();
+  await inputSettled(() => closed);
 }

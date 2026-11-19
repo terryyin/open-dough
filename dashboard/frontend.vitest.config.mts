@@ -3,6 +3,7 @@ import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { mountedDashboardCommands } from "./test-support/support/mountedDashboardCommands.ts";
+import { mountedTerminalCommands } from "./test-support/support/mountedTerminalCommands.ts";
 
 export default defineConfig({
   plugins: [react()],
@@ -20,7 +21,7 @@ export default defineConfig({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true },
       }),
-      commands: mountedDashboardCommands,
+      commands: { ...mountedDashboardCommands, ...mountedTerminalCommands },
       instances: [{ browser: "chromium" }],
     },
   },

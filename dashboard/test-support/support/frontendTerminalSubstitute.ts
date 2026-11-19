@@ -15,11 +15,13 @@ type TerminalSize = { readonly cols: number; readonly rows: number };
 // `sent` is the input the page sent; `sizes` the terminal sizes it reported.
 // `attaches` counts the page's terminal connections.
 // With `opens`, the page's socket stays connecting until that settles.
+// With `active`, only sockets opened while it holds are answered.
 export async function installAttachedTerminalSubstitute(
   page: Page,
   options: {
     readonly application?: TerminalApplication;
     readonly opens?: Promise<void>;
+    readonly active?: () => boolean;
   } = {},
 ): Promise<{
   readonly sent: string[];
@@ -32,7 +34,12 @@ export async function installAttachedTerminalSubstitute(
   const application =
     options.application ??
     echoingApplication("attached abcdef12\r\nClaude Code\r\n");
-  await page.routeWebSocket(`**${agentTerminalEndpoint}**`, async (ws) => {
+  const { active } = options;
+  const endpoint = `**${agentTerminalEndpoint}**`;
+  const answered = active
+    ? (url: URL) => url.href.includes(agentTerminalEndpoint) && active()
+    : endpoint;
+  await page.routeWebSocket(answered, async (ws) => {
     connections += 1;
     ws.onMessage((message) => {
       if (typeof message !== "string") return;

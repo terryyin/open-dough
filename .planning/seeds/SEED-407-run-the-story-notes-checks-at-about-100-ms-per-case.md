@@ -32,15 +32,20 @@ Keep all eleven behaviors, including refusing a write, reopening after a
 stale read, restoring keyboard focus and keeping a live terminal attached.
 Preserve the original case denominator when reorganizing proof. Count setup
 and teardown, including any preparation introduced by the proposed change.
-The preceding story delivers about half the baseline. The one-third
+The preceding story delivered about half the baseline on 2026-11-19: in
+matched A–B–B–A pairs at load 6.4–8.8, the original `e8e01643a` took 9.7–11.9 s
+and the mounted family 4.3–5.4 s, ratios 0.41–0.50. In a 5.0 s run at load
+8.4, about 0.9 s was runner startup before Vitest, 0.2 s npm and 3.9 s Vitest:
+tests 65%, import 27% (about 1.1 s, rising to about 2.5 s at load 12) and
+worker 9%. The attached-terminal case was slowest at about 1.1 s; the others
+took 100–900 ms. Above load 11 the same pairs reached 0.51–0.54. The one-third
 milestone moved here on 2026-11-19 with its untried experiments: mount the
 three edit cases at the smallest production boundary that proves their card
 count, dialog, focus, context and service requests, and make configuration
 loading and dependency preoptimization distributable on the supported Node
 range. Vitest attributed 30 to 43% of the mounted phase to imports. The
 separate Dashboard frontend family story owns rollout beyond Story Notes.
-[Half-time baseline and experiments](SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) and
-[other frontend families](SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary)
+[Other frontend families](SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary)
 
 Doughnut reported 2,573 frontend cases in 65 seconds, about **25 ms per
 case** across the suite. Its Vitest configuration runs headless Chromium
