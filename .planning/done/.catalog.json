@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-412_keep-dashboard-tests-off-the-developers-real-cursor-runner.json",
+      "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+      "completedAt": "2026-11-19T11:07:39.350Z",
+      "blob": "bbf977e930ee229cbe33c5bfe60f531745846fcb"
+    },
+    {
       "fileName": "SEED-382_type-check-reports-after-a-lint-failure.json",
       "identity": "SEED-382#type-check-reports-after-a-lint-failure",
       "completedAt": "2026-11-19T09:52:27.206Z",
@@ -2664,12 +2670,6 @@
       "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
       "completedAt": "2026-10-20T11:29:50.319Z",
       "blob": "c20116abfbcd5c008d8b37e969ff2423f62e3b6e"
-    },
-    {
-      "fileName": "SEED-052_cursor-chosen-model-unconfirmed-start.json",
-      "identity": "SEED-052#cursor-chosen-model-unconfirmed-start",
-      "completedAt": "2026-10-20T10:38:06.856Z",
-      "blob": "4269bbc243d2209267ed749c16cb253d4a123060"
     }
   ],
   "unreadable": []
