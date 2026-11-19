@@ -2,6 +2,7 @@
 
 **Identity:** SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
 **Source:** [Run the Story Notes checks in half their time](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -37,7 +38,7 @@ slices before broadening the work.
 ### 1. Run the attached-terminal case with the rest of Story Notes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the terminal case from the built-app fixture to the existing mounted
 board. Arrange its launch with the shared Node builders and install the
@@ -107,5 +108,7 @@ at load 6.4–7.1 in the table above, measured through the same command,
 worker count and Node version slice 3 uses.
 
 ## Learnings
+
+- Slice 1: terminal output printed into a mounted page updates React outside input, so `attachedTerminal` prints and reads the terminal inside `actSettled`; without it the family printed two act warnings. Slice 2's settling changes must keep that path warning-free.
 
 ## Story obligations

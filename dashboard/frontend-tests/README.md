@@ -59,14 +59,17 @@ board reads.
 - The board's revision stream is unreachable, so the banner reads
   `disconnected` and the board reads project changes through its check
   schedule.
+- A case's terminal socket is answered on the provider's page through
+  `attachedTerminal` in `mountedSessionTerminal.ts`, which installs the
+  attached-terminal substitute for that case only and prints when the case
+  says so.
 - A mount is not a reload: every mount clears `localStorage`, resets the board
   position and sets history to `/`, and carries from an earlier mount only the
   services passed in, such as its notes rule. One cleanup tears all mounts
   down and restores the page.
 
 A case stays on a built-app page only when its behavior needs the real page:
-a real page load or reload, native input the mount cannot deliver, or a live
-socket, such as the attached terminal that Story notes must leave connected.
+a real page load or reload or native input the mount cannot deliver.
 
 Dashboard harness helpers and fixtures stay in Dashboard Test Support. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.

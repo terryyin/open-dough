@@ -27,6 +27,9 @@ export function storyNotesPage() {
       ?.closest("li")?.textContent;
   const inDialog = (selector: string) =>
     dialog.query()?.querySelector(selector)?.textContent;
+  // The card's notes control, which opens the dialog.
+  const opener = (scope: Locator) =>
+    scope.getByRole("button", { name: n.control });
   const action = (index: number, name: string) =>
     entries.nth(index).getByRole("button", { name, exact: true });
   const question = (index: number) =>
@@ -53,9 +56,13 @@ export function storyNotesPage() {
         [],
       );
     },
-    open: async (card: Locator) => {
-      await click(card.getByRole("button", { name: n.control }));
+    open: async (card: Locator, using: "mouse" | "keyboard" = "mouse") => {
+      const control = opener(card);
+      await (using === "keyboard" ? press(control) : click(control));
       await expect.element(dialog).toBeVisible();
+    },
+    expectOpenerFocused: async (scope: Locator) => {
+      await expect.element(opener(scope)).toHaveFocus();
     },
     expectProblem: async (message: string) => {
       await expect

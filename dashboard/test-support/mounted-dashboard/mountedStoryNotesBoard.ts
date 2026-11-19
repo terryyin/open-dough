@@ -18,10 +18,12 @@ export const boardCard = (column: Column, title: string) =>
     .getByRole("article", { name: title, exact: true });
 
 // Opens the wide board on the notes arrangement the Node command builds.
+// With `openSession`, the Sessions sidebar lists an open session of that title.
 export async function mountStoryNotesBoard(
   arrangement?: StoryNotesArrangement,
+  openSession?: string,
 ) {
-  const arranged = await commands.storyNotesBoard(arrangement);
+  const arranged = await commands.storyNotesBoard(arrangement, openSession);
   const dashboard = await mountAnsweredDashboard({
     answers: arranged.answers,
     boardPositionKey: arranged.boardPositionKey,
