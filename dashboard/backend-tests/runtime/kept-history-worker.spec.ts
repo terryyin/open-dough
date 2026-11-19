@@ -11,7 +11,10 @@ import {
   test,
   workerPreparationFixtures,
 } from "../../test-support/support/pageTest.ts";
-import { coldInputPreparation } from "../../test-support/support/publishedMainWorkerFixtures.ts";
+import {
+  coldInputPreparation,
+  pinnedWatcherCodexPreparation,
+} from "../../test-support/support/publishedMainWorkerFixtures.ts";
 import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
 
 type ReportedCase = {
@@ -62,7 +65,9 @@ const preparations = Object.entries(workerPreparationFixtures).filter(
 test("every worker preparation takes the cold allowance", () => {
   for (const [name, registration] of preparations) {
     expect(Array.isArray(registration) && registration[1], name).toEqual(
-      coldInputPreparation,
+      name === "pinnedWatcherCodex"
+        ? pinnedWatcherCodexPreparation
+        : coldInputPreparation,
     );
   }
 });

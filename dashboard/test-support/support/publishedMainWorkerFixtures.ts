@@ -15,6 +15,13 @@ export const coldInputPreparation = {
   timeout: 60_000,
 } as const;
 
+// npm exec of the pinned Codex package is larger than other cold inputs and
+// can miss a warm cache on CI; keep the same worker scope with a longer bound.
+export const pinnedWatcherCodexPreparation = {
+  scope: "worker",
+  timeout: 180_000,
+} as const;
+
 async function requestPublishedMainSource(profile: PublishedMainSourceProfile) {
   const [artifacts, source] = await Promise.all([
     import("./runArtifacts.ts"),
@@ -98,14 +105,13 @@ export const publishedMainWorkerFixtures: Fixtures<
   ],
   // The pinned native Codex executable a published-main watcher journey
   // drains through (./watcherNativeCodex.ts). Acquiring the package is the
-  // worker's; each journey starts and stops its own daemon from it. npm exec
-  // of that large package can exceed the ordinary cold 60s under CI cache miss.
+  // worker's; each journey starts and stops its own daemon from it.
   pinnedWatcherCodex: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
       const { pinnedWatcherCodex } = await import("./watcherNativeCodex.ts");
       await use(await pinnedWatcherCodex());
     },
-    { scope: "worker", timeout: 180_000 },
+    pinnedWatcherCodexPreparation,
   ],
 };
