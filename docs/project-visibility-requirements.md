@@ -141,8 +141,8 @@ cards and local Session entries as defined by
 [ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
 Published records support membership, order, source links, and the available
 story, assignment, and slice facts. Local sessions retain their own evidence.
-The current [navigation guidance](dashboard-navigation.md) owns the interactions
-that make this information readable. Broader zoom and animation hypotheses
+Board and panel interactions that make this information readable stay with the
+dashboard UI and its [Board interaction](dashboard-board-interaction.md) guidance. Broader zoom and animation hypotheses
 remain subject to the selected reading need and available evidence.
 
 Motion should explain navigation and changes between successfully retrieved

@@ -151,9 +151,10 @@ story progress by itself. Zoom must not invent facts to answer these questions.
 
 ## Board and spatial navigation
 
-The [dashboard navigation guidance](dashboard-navigation.md) describes the pinned
-banner, supporting disclosures, connected Columns, and progressive spatial navigation.
-It is part of this temporary design direction and carries the same authority.
+Pinned banner, supporting disclosures, connected Columns, and progressive
+spatial navigation belong with this temporary design direction. Detail for those
+reading journeys lives in [Board interaction](dashboard-board-interaction.md) and
+[Dashboard spatial-reading direction](dashboard-spatial-reading.md).
 
 ## Animation explains change
 

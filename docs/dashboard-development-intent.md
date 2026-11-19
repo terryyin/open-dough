@@ -1,8 +1,7 @@
 # Development and Intent
 
-Part of the [Dashboard navigation guidance](dashboard-navigation.md), under the
-[Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md). Its authority, scope,
-and revision policy apply here.
+Part of the [Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md). Its
+authority, scope, and revision policy apply here.
 
 Development is the first-visit default perspective: the stories or agent
 roster, near-future direction, Start session and published-state

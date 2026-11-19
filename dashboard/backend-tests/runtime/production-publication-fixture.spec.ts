@@ -22,6 +22,12 @@ test("a documentation-only publication pushes only its requested paths to origin
     (await exec("git", ["--git-dir", fixture.origin, ...args])).stdout;
   try {
     await fixture.push();
+    const disposableDoc = "docs/publication-fixture-delete-target.md";
+    await fixture.commit(
+      { [disposableDoc]: "# Publication fixture delete target\n" },
+      "Add disposable documentation path",
+    );
+    await fixture.push();
     const base = (await origin("rev-parse", "main")).trim();
     const readme = await readFile(
       path.join(fixture.development, "dashboard/README.md"),
@@ -31,7 +37,7 @@ test("a documentation-only publication pushes only its requested paths to origin
       {
         "dashboard/README.md": `${readme}\nPublication fixture note.\n`,
         "docs/publication-note.md": "# Publication note\n",
-        "docs/dashboard-navigation.md": null,
+        [disposableDoc]: null,
       },
       "Document only",
     );
@@ -47,7 +53,7 @@ test("a documentation-only publication pushes only its requested paths to origin
       "M",
       "dashboard/README.md",
       "D",
-      "docs/dashboard-navigation.md",
+      disposableDoc,
       "A",
       "docs/publication-note.md",
     ]);
