@@ -113,7 +113,7 @@ and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
 **Identity:** SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/713-run-the-story-notes-checks-in-a-third-of-their-time/PLAN.md","assessment":"not-ready","reasons":["Slices 1 and 4 still need a full eleven-case candidate that reaches one third in both matched pairs. The closest warning-free prototype missed by 1.06 and 1.46 seconds. Check the smaller production mount for the edit cases with their original assertions and the ordinary two-worker command."],"basis":{"document":"16bc0531c5e3aac432c7e7c791cc6dc1e59735fc57840bd8467261888294ee0a","plan":"bd3f1be121abe266ea707a1531779c1a8b85baa60c464a2e5c4086826f4a4be6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/713-run-the-story-notes-checks-in-a-third-of-their-time/PLAN.md","assessment":"not-ready","reasons":["Slice 1's smaller production mount for the edit cases is still unmeasured. Trunk after the hold-and-settle correction measured about 0.80 and 0.95 of the original, and the best earlier candidate missed one third by 1.06 and 1.46 seconds. Run the candidate with its original assertions through the ordinary two-worker command in matched A–B–B–A pairs at low host load; the 2026-11-19 load of 25 to 32 was too high to resolve a one-second gap."],"basis":{"document":"a9012ab4ce18a162e30f5fc2e34fe80eb7de8b3543f70bcfe8ff2bdda515ebba","plan":"926dcfa98bc4d13472628a6239472f20e3bb41e8efc3670dab0e1486ec467311"}}
 ```
 
 Split on 2026-11-19 from the story-notes story, whose matched comparison
@@ -208,9 +208,23 @@ Even then it needed another 1.06 and 1.46 seconds in the matched pairs to
 meet one third. Skipping title discovery gave inconsistent results. A
 faster case body, a terminal check left out of the selection, or a timing
 starting after browser launch cannot establish the promised gain.
-The separate [hold-and-settle correction](#hold-and-settle-mounted-frontend-cases-by-one-rule)
-owns the revision stream, held-answer cleanup and named settle failure.
-[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
+The hold-and-settle correction, delivered on 2026-11-19 at `2fdb91207`,
+answers the revision stream as unreachable, abandons a held notes answer at
+cleanup and fails a page still changing after 20 settle rounds with
+`UnsettledPageError`. Its `actSettled` repeats task rounds while the page
+changes and ends after a frame round that changes nothing. Any cheaper
+settling keeps those three behaviors.
+[Mounted dashboard support](../../dashboard/frontend-tests/README.md#mounted-dashboard-support)
+and [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
+
+After that correction, at `62bc35557` on 2026-11-19, two A–B–B–A rounds
+compared the original at `e8e01643a` with trunk under load 25 to 32. Trunk
+took 25.1, 37.6, 26.8 and 14.5 s, the original 31.5 and 15.2 s in its
+complete runs. Comparable pairs gave about 0.80 and 0.95. Two original runs
+failed with “Cannot fast-forward to the past”. Trunk passed all eleven cases
+in every run with no act warning. In its fastest run, Vitest took 8.3 s for
+ten mounted cases, 30% import, and the built-app terminal case still ran.
+The correction left the gap to one third open.
 
 **Decision.** Keep one third as the acceptance threshold for this story.
 The scope includes the remaining cost of starting and running the mounted
