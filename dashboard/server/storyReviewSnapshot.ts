@@ -12,12 +12,7 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { keptRecords } from "./launchRecordStore.ts";
-import {
-  isReviewedSessionSubject,
-  type ReviewedSessionSubject,
-} from "../src/reviewedWorkSubject.ts";
-import type { KeptSessionState } from "./storyReviewSessionAdmission.ts";
+import { reviewInput } from "./storyReviewSessionAdmission.ts";
 import type { AdmittedStoryReview } from "./storyReviewRequest.ts";
 import {
   keptStoryReview,
@@ -33,25 +28,13 @@ export async function storyReviewResponse(
   { read }: AdmittedStoryReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
-  const { subject } = read;
-  const input: StoryReviewInput = isReviewedSessionSubject(subject)
-    ? { read: { ...read, subject }, kept: await keptSessionState(subject) }
-    : { read: { ...read, subject } };
+  const input = await reviewInput(read);
   const body = await withResponseSignal(
     res,
     (signal) => storyReview(input, signal),
     storyReviewWaitMs,
   );
   return { status: 200, body };
-}
-
-// The adapter reads the session's kept launch records on every request; an
-// unknown source is refused here, before any record is read.
-async function keptSessionState(
-  subject: ReviewedSessionSubject,
-): Promise<KeptSessionState> {
-  const source = knownSource(subject.source);
-  return { records: await keptRecords(source.id) };
 }
 
 // Answers one review read for a story or an ad hoc session. A session read

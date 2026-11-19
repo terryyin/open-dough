@@ -15,13 +15,10 @@ import { RefusedRequest } from "./localOrigin.ts";
 import {
   admittedSessionReview,
   type AdmittedSessionReview,
-  type KeptSessionState,
+  type ReviewInput,
 } from "./storyReviewSessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type {
-  ReviewedSessionSubject,
-  ReviewedStorySubject,
-} from "../src/reviewedWorkSubject.ts";
+import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReviewRead } from "../src/storyReviewRead.ts";
 
 interface AdmittedWorkspaceReview {
@@ -143,20 +140,8 @@ async function admittedIdentityReview(
   };
 }
 
-// The review handler's typed input: a story read, which the kept records
-// admit, or a session read with the kept session state the adapter read.
-export type StoryReviewInput =
-  | {
-      readonly read: StoryReviewRead & {
-        readonly subject: ReviewedStorySubject;
-      };
-    }
-  | {
-      readonly read: StoryReviewRead & {
-        readonly subject: ReviewedSessionSubject;
-      };
-      readonly kept: KeptSessionState;
-    };
+// The review handler's typed input over the review read.
+export type StoryReviewInput = ReviewInput<StoryReviewRead>;
 
 // Admits a typed review read against the kept records; a session read
 // against its kept session state.

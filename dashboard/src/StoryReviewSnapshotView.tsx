@@ -22,7 +22,8 @@ import {
 } from "./storyReviewContract.ts";
 import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
-import { FileDiff, type ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
+import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {

@@ -5,9 +5,9 @@ import { workIdentitySchema } from "../src/launchRequest.ts";
 import {
   reviewedSessionSubjectSchema,
   type ReviewedSessionSubject,
+  type ReviewedStorySubject,
 } from "../src/reviewedWorkSubject.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { knownSource } from "./sessionAdmission.ts";
 
 export type ReviewedWorkSubjectQuery =
   | {
@@ -55,8 +55,10 @@ export function queriedStoryIdentity(url: URL): string {
   return identity.data;
 }
 
-// Session subject with its configured project, for reads admitted in one step.
-export function queriedReviewedSessionSubject(url: URL) {
-  const { source, host, session } = queriedSessionSubject(url);
-  return { source: knownSource(source), host, session };
+// Story subject named on a review URL after the keys are known exact.
+export function queriedStorySubject(url: URL): ReviewedStorySubject {
+  return {
+    source: url.searchParams.get("source") ?? "",
+    identity: queriedStoryIdentity(url),
+  };
 }

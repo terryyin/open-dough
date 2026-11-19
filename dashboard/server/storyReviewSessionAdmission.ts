@@ -6,10 +6,16 @@ import {
   type SessionComparisonKey,
 } from "../src/sessionReviewComparisons.ts";
 import { branchResultAtDone } from "../src/sessionBranchResult.ts";
-import type { ReviewedSessionSubject } from "../src/reviewedWorkSubject.ts";
+import {
+  isReviewedSessionSubject,
+  type ReviewedSessionSubject,
+  type ReviewedStorySubject,
+  type ReviewedWorkSubject,
+} from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { namedSessionRecord } from "./sessionAdmission.ts";
+import { knownSource, namedSessionRecord } from "./sessionAdmission.ts";
+import { keptRecords } from "./launchRecordStore.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { hasBranchReview } from "./sessionBranchCapture.ts";
 import { branchResultReview } from "./storyReviewBranchResult.ts";
@@ -25,6 +31,29 @@ import {
 // project. Only the adapter reads the store for them.
 export interface KeptSessionState {
   readonly records: readonly LaunchRecord[];
+}
+
+// A review handler's typed input: a story read, which today's admission path
+// admits, or a session read with the kept session state the adapter read.
+export type ReviewInput<R extends { readonly subject: ReviewedWorkSubject }> =
+  | { readonly read: R & { readonly subject: ReviewedStorySubject } }
+  | {
+      readonly read: R & { readonly subject: ReviewedSessionSubject };
+      readonly kept: KeptSessionState;
+    };
+
+// The adapters read a session's kept launch records on every request; an
+// unknown source is refused here, before any record is read.
+export async function reviewInput<
+  R extends { readonly subject: ReviewedWorkSubject },
+>(read: R): Promise<ReviewInput<R>> {
+  const subject: ReviewedWorkSubject = read.subject;
+  if (!isReviewedSessionSubject(subject)) return { read: { ...read, subject } };
+  const source = knownSource(subject.source);
+  return {
+    read: { ...read, subject },
+    kept: { records: await keptRecords(source.id) },
+  };
 }
 
 export type AdmittedSessionReview = {

@@ -8,7 +8,7 @@
 // runs from its own tree when it includes trunk's changes, else from the
 // comparison's *from* tree (`diffStartOf`), in Review changes and Intent alike.
 
-import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
 import type {
   ReviewComparison,
   ReviewedFile,

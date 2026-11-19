@@ -169,7 +169,7 @@ fails under a scratch edit changing a mapped status.
 ### 4. The file diff and file text reads answer through typed handlers
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Split `fileDiffRequest`, `fileTextRequest` and the two file
 responses the same way as slice 1: the adapter parses the named pair and path
@@ -276,6 +276,22 @@ count, worker count and load against the baseline row. `npm run lint` and
   unit specs, so `launchTestData.mjs` needed no split. The wire check
   `review/ad-hoc-review-wire.spec.ts` keeps the existing started-server
   arrangement (`codexStart` boundary mode, `keepLaunchRecords`).
+- Slice 4 placed the file reads' typed read `ReviewedFileRead` with
+  `reviewedFileQuery` in `dashboard/src/reviewedFileRead.ts`, the adapter in
+  `dashboard/server/storyReviewFileRequest.ts`, the handlers
+  `reviewedFileDiff` and `reviewedFileText` over `ReviewedFileInput` in
+  `storyReviewFileResponse.ts`, and session file admission over
+  `kept.records` in `storyReviewSessionFileAdmission.ts`;
+  `storyReviewHistoricalFileAdmission.ts` is story-only. Its refactor made
+  one generic `ReviewInput<R>` with `reviewInput(read)` in
+  `storyReviewSessionAdmission.ts` the adapters' single step that refuses an
+  unknown source and reads the kept records; `StoryReviewInput` and
+  `ReviewedFileInput` are its instances, and `queriedStorySubject` holds the
+  one story-subject parse. As in slice 1, a
+  request with an unknown source and a malformed shape now answers the
+  shape's 400. No wire spec refuses an unknown source for a session
+  subject (only `story-review-refusal.spec.ts` does, for a story), so slice
+  5's wire check adds that case for commitment 4.
 
 ## Proof and local gates
 

@@ -14,7 +14,7 @@ import { useStoryNoteAnnouncement } from "./storyNoteAnnouncement.ts";
 import { useStoryNotes } from "./storyNotes.ts";
 import { StoryNotesDialog } from "./StoryNotesDialog.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
-import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
 
 export const StoryNoteView =
   createContext<StoryNoteContext["view"]>("Review changes");

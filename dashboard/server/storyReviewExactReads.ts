@@ -6,19 +6,21 @@ import {
   storyReviewRangeEndpoint,
 } from "../src/storyReviewContract.ts";
 import {
-  fileDiffRequest,
-  fileTextRequest,
   rangeRequest,
-  type AdmittedReviewedFile,
   type AdmittedStoryReviewRange,
 } from "./storyReviewAdmission.ts";
+import {
+  fileDiffRequest,
+  fileTextRequest,
+  type AdmittedReviewedFileRead,
+} from "./storyReviewFileRequest.ts";
 import {
   storyReviewRequest,
   type AdmittedStoryReview,
 } from "./storyReviewRequest.ts";
 
 export type StoryReviewExactRead =
-  AdmittedStoryReview | AdmittedReviewedFile | AdmittedStoryReviewRange;
+  AdmittedStoryReview | AdmittedReviewedFileRead | AdmittedStoryReviewRange;
 
 export const storyReviewExactReads: ReadonlyArray<
   readonly [

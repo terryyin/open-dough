@@ -9,14 +9,7 @@ import {
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { queriedStoryIdentity } from "./reviewedWorkSubjectAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
-
-// Source and story identity named on a review URL, never a repository path.
-export function queriedReviewIdentity(url: URL) {
-  const source = knownSource(url.searchParams.get("source"));
-  return { source, identity: queriedStoryIdentity(url) };
-}
 
 // Landed runs for this source and story from retained records.
 export async function reviewedLandedRuns(

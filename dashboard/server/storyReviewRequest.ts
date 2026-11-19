@@ -6,7 +6,7 @@ import type { StoryReviewRead } from "../src/storyReviewRead.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   queriedSessionSubject,
-  queriedStoryIdentity,
+  queriedStorySubject,
   reviewedWorkSubjectQuery,
 } from "./reviewedWorkSubjectAdmission.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
@@ -55,14 +55,11 @@ function identityReviewRead(url: URL): StoryReviewRead {
       400,
       "The historical review request is malformed.",
     );
-  const identity = queriedStoryIdentity(url);
+  const subject = queriedStorySubject(url);
   if (reference !== null && run !== null)
     throw new RefusedRequest(400, "The review names two run identities.");
   return {
-    subject: {
-      source: url.searchParams.get("source") ?? "",
-      identity,
-    },
+    subject,
     ...(reference === null ? {} : { reference }),
     ...(run === null ? {} : { run }),
     ...(completed === null ? {} : { completed: true }),

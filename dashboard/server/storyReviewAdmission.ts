@@ -3,45 +3,40 @@
 // a named historical completion or landed run follows retained publication or
 // launch evidence. File reads name hexadecimal comparison objects and literal
 // changed paths, including a rename's old path. Historical reads must match that
-// comparison's pair and file list through admitHistoricalReviewedFile.
+// comparison's pair and file list: a story's through admitHistoricalReviewedFile,
+// a session's through admitSessionReviewedFile.
 // Commit ranges name listed fromTree/fromBaseline and tree/baseline points;
 // the range reader confirms their objects exist. Uncommitted changes compare
 // the head tree with the snapshot tree on the same baseline. Optional
 // integrations name selected merges' listed parent points and destination
 // baselines, without accepting paths or rereading history.
 
-import { queriedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { z } from "zod";
+import type { ReviewedFileRead } from "../src/reviewedFileRead.ts";
 import {
   objectIdSchema,
-  reviewedPathSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
 } from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { requireExactQuery } from "./sessionAdmission.ts";
+import { knownSource, requireExactQuery } from "./sessionAdmission.ts";
 import {
   admitHistoricalReviewedFile,
-  admitSessionComparisonFile,
+  type AdmittedHistoricalReviewedFile,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import { queriedReviewIdentity } from "./storyReviewRunAdmission.ts";
+import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
+import type { ReviewInput } from "./storyReviewSessionAdmission.ts";
 import {
-  queriedReviewedSessionSubject,
-  reviewedWorkSubjectQuery,
-} from "./reviewedWorkSubjectAdmission.ts";
+  queriedWorkspace,
+  storyWorkspace,
+} from "./storyReviewWorkspaceAdmission.ts";
 
 // One admitted comparison identity for printed diff or revision file text.
-export interface AdmittedReviewedFile {
-  readonly kind: "story-review-file" | "story-review-file-text";
-  readonly repository: string;
-  // The tree the comparison reads from.
-  readonly baseline: string;
-  readonly tree: string;
-  readonly path: string;
-  // The path the file had at the baseline, for a rename.
-  readonly oldPath?: string;
-}
+type AdmittedReviewedFile = AdmittedHistoricalReviewedFile;
+
+// The file handlers' typed input over the file read.
+export type ReviewedFileInput = ReviewInput<ReviewedFileRead>;
 
 export interface AdmittedStoryReviewRange {
   readonly kind: "story-review-range";
@@ -52,13 +47,6 @@ export interface AdmittedStoryReviewRange {
   readonly baseline: string;
   readonly integrations: readonly ReviewIntegration[];
 }
-
-const reviewedFileQuerySchema = z.object({
-  baseline: objectIdSchema,
-  tree: objectIdSchema,
-  path: reviewedPathSchema,
-  oldPath: reviewedPathSchema.optional(),
-});
 
 const rangeQuerySchema = z.object({
   fromTree: objectIdSchema,
@@ -106,87 +94,44 @@ export async function rangeRequest(
   return { kind: "story-review-range", established, ...query.data };
 }
 
-async function admitReviewedFile(
-  url: URL,
-  kind: AdmittedReviewedFile["kind"],
-  label: "file diff" | "file text",
+// Admit the read file against its subject's comparison: a story's workspace,
+// Published completion or landed run through today's admission path, or a
+// session's kept launch records the adapter read.
+export async function admitReviewedFile(
+  input: ReviewedFileInput,
 ): Promise<AdmittedReviewedFile> {
-  const subject = reviewedWorkSubjectQuery(url);
-  requireExactQuery(
-    url,
-    [
-      ...subject.keys,
-      "baseline",
-      "tree",
-      "path",
-      ...(url.searchParams.has("reference") ? ["reference"] : []),
-      ...(url.searchParams.has("completion") ? ["completion"] : []),
-      ...(url.searchParams.has("oldPath") ? ["oldPath"] : []),
-    ],
-    label,
-  );
-  const query = reviewedFileQuerySchema.safeParse(
-    Object.fromEntries(url.searchParams),
-  );
-  if (!query.success)
-    throw new RefusedRequest(
-      400,
-      `The ${label} names a malformed object or path.`,
-    );
-  const { baseline, tree, path, oldPath } = query.data;
-  const file = {
-    baseline,
-    tree,
-    path,
-    ...(oldPath === undefined ? {} : { oldPath }),
-  };
-  if (url.searchParams.has("completion")) {
-    const named = objectIdSchema.safeParse(url.searchParams.get("completion"));
-    if (!named.success || url.searchParams.has("reference"))
+  const { subject, reference, completion, ...file } = input.read;
+  if ("kept" in input) {
+    if (completion !== undefined)
       throw new RefusedRequest(
         400,
         "The published comparison identity is malformed.",
       );
-    const { source, identity } = queriedReviewIdentity(url);
-    const admitted = await admitHistoricalReviewedFile({
+    return admitSessionReviewedFile(
+      input.read.subject,
+      reference,
+      file,
+      input.kept,
+    );
+  }
+  const { identity } = input.read.subject;
+  const source = knownSource(subject.source);
+  if (completion !== undefined)
+    return admitHistoricalReviewedFile({
       source,
       identity,
-      completion: named.data,
+      completion,
       ...file,
     });
-    return { kind, ...admitted };
-  }
-  if (url.searchParams.has("reference")) {
-    const named =
-      subject.kind === "session"
-        ? queriedReviewedSessionSubject(url)
-        : queriedReviewIdentity(url);
-    const admitted = await admitHistoricalReviewedFile({
-      ...named,
-      reference: url.searchParams.get("reference") ?? "",
+  if (reference !== undefined)
+    return admitHistoricalReviewedFile({
+      source,
+      identity,
+      reference,
       ...file,
     });
-    return { kind, ...admitted };
-  }
-  if (subject.kind === "session")
-    return {
-      kind,
-      ...(await admitSessionComparisonFile(
-        queriedReviewedSessionSubject(url),
-        file,
-      )),
-    };
   return {
-    kind,
-    repository: (await queriedWorkspace(url)).workspace,
+    repository: (await storyWorkspace(source, identity)).workspace,
     ...file,
   };
-}
-
-export async function fileDiffRequest(url: URL): Promise<AdmittedReviewedFile> {
-  return admitReviewedFile(url, "story-review-file", "file diff");
-}
-
-export async function fileTextRequest(url: URL): Promise<AdmittedReviewedFile> {
-  return admitReviewedFile(url, "story-review-file-text", "file text");
 }
