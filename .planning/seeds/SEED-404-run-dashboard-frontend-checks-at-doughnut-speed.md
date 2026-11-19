@@ -113,7 +113,7 @@ and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
 **Identity:** SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d38ebe902951cec713d36699d25007d26bff562086f044e75528cf28e50360a8","plan":"4f8c4e07773085455b51f1f8e93614a4813d605891c438b06a55734cc0548b40"}}
 ```
 
 Correction from the execution retrospective of
