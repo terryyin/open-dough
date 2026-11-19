@@ -39,9 +39,14 @@ CI evidence when they need it.
   chart responses belong to
   [Read CI history at a glance in story comparison and test Proof](https://github.com/terryyin/open-dough/blob/33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa/.planning/seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance).
 - Use compact subsets of Session, retained launch, CI build, timing, and
-  evidence concepts. Preserve identities, names, units, and meanings, with the
-  minimum necessary translation under
-  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+  evidence concepts, sharing one typed contract between `dashboard/server/` and
+  `dashboard/src/` rather than duplicating payload shapes by hand. Preserve
+  identities, names, units, and meanings, with the minimum necessary
+  translation under
+  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
+  and prove the server slicing and progressive UI disclosure at strongly typed
+  handlers and the narrow owning components without growing whole-app
+  `test-support` route substitutes ([Architectural North Star](../NORTH-STAR.md)).
   Keep the underlying retained evidence available for authorized inspection.
 
 #### Key examples to refine

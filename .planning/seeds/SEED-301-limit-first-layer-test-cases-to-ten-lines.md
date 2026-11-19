@@ -3,8 +3,8 @@ id: SEED-301
 status: active
 planted: 2026-11-11
 planted_during: Terry requested a reminder to cap first-layer test cases at ten lines
-trigger_when: Terry is ready to refine the test-case length rule and its tooling
-scope: story
+trigger_when: After SEED-413 renovates dashboard unit tests around directly testable production seams and Terry is ready to refine the case-length rule
+scope: one story
 ---
 
 # SEED-301 — First-layer test case length
@@ -15,48 +15,27 @@ scope: story
 
 **Identity:** SEED-301#limit-first-layer-test-cases-to-ten-lines
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Refinement must define the test-case counting and enforcement details and settle the Nix, Python, and Lizard setup."],"basis":{"document":"873e4b47f32e727ebaa22bfae983bf7202be0e00fe5fe97f6babb11338965550"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred until after SEED-413 unit-test renovation; refinement must define Lizard counting via Nix/Python and achieve <=10-line cases through clean production seams rather than test-support wrappers."],"basis":{"document":"308a46de16fe90f101ed5d36a744b71905de9c0418ed5efdf40c36006f97fe78"}}
 ```
 
 #### Goal
 
 Keep test intent easy for Open Dough developers to read by limiting each
-first-layer test case body to 10 lines of code. Use the existing MakeMe test
-data builders and page objects to keep setup and browser mechanics out of the
-case body while keeping the scenario and its expected outcome visible.
-[MakeMe](../../Distribution/tests/README.md#test-data-architecture) · [Page objects](../../dashboard/tests/sidePanelPages.ts)
+first-layer test case body to 10 lines of code — achieved by making production
+handlers and UI components directly testable with thin
+[MakeMe](../../Distribution/tests/README.md#test-data-architecture) defaults
+under the [Architectural North Star](../NORTH-STAR.md) and installed
+[test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary),
+never by hiding test orchestration or assertions inside `test-support/`
+wrappers. (`SEED-301#publish-intent-projects-through-makeme` was folded into
+[`SEED-413#renovate-dashboard-frontend-unit-tests`](SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests)
+on 2026-11-19 so Intent MakeMe inputs target narrow Intent components rather
+than `putFrontend*` whole-app substitutes.)
 
 #### Refinement reminder for Terry
 
-Enforce the rule during refinement. Agree how Lizard will count lines of code
-in individual test case bodies and verify that a 10-line case passes and an
-11-line case is flagged.
-
-Set up the tooling in dependency order. Use Nix to manage the development
-environment, provide Python through that environment, then add Lizard for
-line counting.
-
-<a id="publish-intent-projects-through-makeme"></a>
-
-### Publish Intent projects through MakeMe
-
-**Identity:** SEED-301#publish-intent-projects-through-makeme
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-**Goal:** Intent frontend specs build their published projects (Open Dough,
-Doughnut, Pygardon), settings, candidates records and source revisions
-through MakeMe steps instead of importing many fixture constants and
-`describedRevisions`/`intentSettingsText` separately, as
-`intent-source-target-recovery.spec.ts`'s 53 import lines show.
-
-**Scope:** `dashboard/tests/catalogProjectRecords.ts`,
-`intentCodeBrowseFixtures.ts`, `intentCandidates*Fixtures.ts` and the Intent
-frontend specs importing them, and the published-project answers of
-`frontendServices` (`putFrontendIntentSources`, `putFrontendFolderSources`,
-`putFrontendIntentStory`, `putFrontendPublished`, `putFrontendStories`,
-`putFrontendCandidates`, `putFrontendDonePublication`,
-`putFrontendDoneRecords`). Moving these into
-`Distribution/tests/support` needs their runtime `dashboard/` imports
-replaced by Distribution renderers first.
+Sequence after `SEED-413` so clean production entry points already exist before
+enforcing a numeric cap. Agree how Lizard will count lines of code in
+individual test case bodies and verify that a 10-line case passes and an
+11-line case is flagged. Set up the tooling in dependency order: Nix for the
+development environment, Python through Nix, then Lizard.

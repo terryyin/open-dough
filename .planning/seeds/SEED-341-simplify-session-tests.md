@@ -18,13 +18,19 @@ long comments explaining what the code already says. A developer reading a
 session test should see only the facts that matter to its case. MakeMe
 builders supply defaults for everything else.
 
-Most session tests are end-to-end browser journeys over the real server.
-Pure rules — how a session reads, which readings need attention, how many a
-card counts — belong in browser-free module tests in `dashboard/backend-tests/`
-(or built-frontend tests in `dashboard/frontend-tests/` for UI-only
-behavior), where every variant costs little. A few end-to-end journeys remain
-for what only the integrated page shows: pace, placement, persistence across
-restarts and reloads, and no unintended reads.
+Most session tests began as full-app or end-to-end browser journeys. Under the installed
+[shared test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary)
+and the [Architectural North Star](../NORTH-STAR.md), behavior one service can
+prove belongs in unit tests that exercise production code directly: backend
+session cases call strongly typed handlers in `dashboard/server/` (testing the
+raw wire only when wire behavior itself is under test), and frontend session UI
+cases mount the smallest rendered component or view that owns the interaction
+with narrow typed inputs or shared contracts rather than `<App />` and
+whole-app route substitutes. MakeMe builders supply thin domain defaults, and
+session `test-support` wrappers are retired as production seams become directly
+testable. A few end-to-end journeys remain for what only the integrated page
+shows: pace, placement, persistence across restarts and reloads, and no
+unintended reads.
 
 Preserve every distinct behavior check at some tier. Remove an end-to-end
 variant only when a cheaper test proves the same rule and a remaining journey
@@ -39,12 +45,15 @@ still proves the integration. No dashboard behavior changes.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Goal:** Simplify the session families in
-`dashboard/tests/sessions/`: sidebar reading and navigation, Recently done
-selection and paging, final reports and touch, workspace retirement,
-completion reporting, and Running Cursor. Remove case-table loops, shorten
-cases through builder and page-object defaults, and move pure rules to
-backend or frontend tests while keeping a few end-to-end journeys.
+**Goal:** Simplify the session families across `e2e/sessions/`,
+`dashboard/frontend-tests/sessions/`, and `dashboard/backend-tests/sessions/`:
+sidebar reading and navigation, Recently done selection and paging, final
+reports and touch, workspace retirement, completion reporting, and Running
+Cursor. Remove case-table loops, shorten cases through clean production seams
+and MakeMe defaults while retiring session `test-support` wrappers and
+whole-app substitutes, and move single-service session behavior to strongly
+typed backend handler tests or narrow owning UI component mounts while keeping
+a few representative end-to-end journeys.
 
 #### Starting evidence
 
