@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-404_run-the-story-notes-checks-in-a-third-of-their-time.json",
+      "identity": "SEED-404#run-the-story-notes-checks-in-a-third-of-their-time",
+      "completedAt": "2026-11-19T03:09:39.106Z",
+      "blob": "20835ffeb33e608dd5c36bbfb639e436c038aa24"
+    },
+    {
       "fileName": "SEED-406_plot-new-models-with-estimated-token-index.json",
       "identity": "SEED-406#plot-new-models-with-estimated-token-index",
       "completedAt": "2026-11-19T02:01:07.975Z",
@@ -2688,12 +2694,6 @@
       "identity": "SEED-010#schedule-proof-after-refactoring",
       "completedAt": "2026-10-20T04:25:03.137Z",
       "blob": "98afeeafcd94bef64ea8ffdf67d548172b3d2d53"
-    },
-    {
-      "fileName": "SEED-010_accept-original-story-promises.json",
-      "identity": "SEED-010#accept-original-story-promises",
-      "completedAt": "2026-10-20T02:23:03.299Z",
-      "blob": "1ee6f0f69b6120a1fec65d595d7f5788bc3dac3a"
     }
   ],
   "unreadable": []

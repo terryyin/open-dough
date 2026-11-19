@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps ([plan](slice-plans/621-close-native-comparison-harness-gaps/PLAN.md))
-- [Run the Story Notes checks in half their time](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) — SEED-404#run-the-story-notes-checks-in-a-third-of-their-time ([plan](slice-plans/713-run-the-story-notes-checks-in-a-third-of-their-time/PLAN.md))
 
 ## Backlog list
 
