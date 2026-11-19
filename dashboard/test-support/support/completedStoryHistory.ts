@@ -11,8 +11,6 @@ import {
   storyPlanPath,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import type { StartOrigin } from "./startOrigin.ts";
-import { laterBranchMergesTrunkAndFastForwards } from "./laterStoryMergesTrunk.ts";
 import {
   author,
   claimant,
@@ -25,7 +23,6 @@ import {
   trunkWriterShared,
   yuiCompletion,
 } from "./completedStoryThroughInterleaving.ts";
-import { git } from "./storyReviewWorktree.ts";
 
 const akihoName = "Akiho";
 const akiho = agentIdentity(akihoName);
@@ -184,14 +181,4 @@ export function missingAgentTrunkCompletedHistory() {
 
 export function missingAgentStoryBranchCompletedHistory() {
   return storyBranchLanding(missingAgentCompletion()).please();
-}
-
-export function laterDeveloperCarriesDoneRecord(
-  origin: StartOrigin,
-  completion: string,
-) {
-  return laterBranchMergesTrunkAndFastForwards(
-    origin,
-    git(origin.project, "rev-parse", `${completion}^1`),
-  );
 }

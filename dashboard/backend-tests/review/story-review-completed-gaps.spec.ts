@@ -4,7 +4,7 @@ import {
   completedStoryQuery as named,
   completedReviewQuery as completed,
 } from "../../test-support/support/completedReviewRequests.ts";
-import { keepUnusableCompletedCapture } from "../../test-support/support/completedPublishedStory.ts";
+import { keepUnusableCompletedCapture } from "../../test-support/support/completedStoryVisibleActions.ts";
 import {
   missingAgentStoryBranchCompletedHistory,
   missingAgentTrunkCompletedHistory,

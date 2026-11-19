@@ -4,9 +4,11 @@ import {
   completedStoryQuery as named,
   completedReviewQuery as completed,
 } from "../../test-support/support/completedReviewRequests.ts";
-import { advanceCompletedTrunk } from "../../test-support/support/completedPublishedStory.ts";
 import {
+  advanceCompletedTrunk,
   laterDeveloperCarriesDoneRecord,
+} from "../../test-support/support/completedStoryVisibleActions.ts";
+import {
   ordinaryCompletedReviewHistories,
   ordinaryTrunkModeCompletedHistory,
 } from "../../test-support/support/completedStoryHistory.ts";

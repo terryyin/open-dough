@@ -19,7 +19,7 @@ import {
   fileFollowUpDialog,
   startSessionField,
 } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
-import { advanceCompletedTrunk } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { advanceCompletedTrunk } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { ordinaryJourneyCompletedHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
 import { claimant } from "../../dashboard/test-support/support/completedStoryThroughInterleaving.ts";
 import { agentWorktree } from "../../dashboard/test-support/support/agentAuthoredWorktree.ts";

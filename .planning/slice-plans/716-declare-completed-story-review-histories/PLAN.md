@@ -271,7 +271,7 @@ rather than growing ordinary history modules past 250 lines.
 ### 8. Retire the replay helpers and document the declared completion
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a developer reads the guides → they show how to declare a
 completed story, and the replay helpers are gone.
@@ -294,6 +294,16 @@ completed story, and the replay helpers are gone.
 Proof: `grep -rn` finds no importer of the deleted modules. Lint and the
 dashboard typecheck pass. The whole `review/` and `launches/` backend
 groups, and the E2E `review/` and `intent/` groups, pass.
+Accepted (reusable): replay modules deleted; mid-test helpers in
+`completedStoryVisibleActions.ts` (`advanceCompletedTrunk`,
+`keepUnusableCompletedCapture`, `laterDeveloperCarriesDoneRecord`); guides
+updated; ADR 0010 comparison in evidence. Grep clean; lint + typecheck;
+backend review 186 + launches 389; E2E review 72 + intent 103. Launch/session
+siblings keep `publishCompletedStory` Story Branch path.
+
+Learnings: uninterleaved refusal not rebuilt (API gone); visible mid-test
+actions stay outside declared-history modules; Story Branch CLI landing path
+remains for retained launch completions.
 
 ## Concern review
 

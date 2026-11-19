@@ -29,7 +29,7 @@ import path from "node:path";
 import {
   advanceCompletedTrunk,
   keepUnusableCompletedCapture,
-} from "../../dashboard/test-support/support/completedPublishedStory.ts";
+} from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { ordinaryJourneyCompletedHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
 
 test.use({ originRepository: ordinaryJourneyCompletedHistory() });

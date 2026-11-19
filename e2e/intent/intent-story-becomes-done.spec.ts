@@ -12,7 +12,7 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { keepUnusableCompletedCapture } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { keepUnusableCompletedCapture } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
   chooseStoryTab,

@@ -7,7 +7,7 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import { keepUnusableCompletedCapture } from "../../test-support/support/completedPublishedStory.ts";
+import { keepUnusableCompletedCapture } from "../../test-support/support/completedStoryVisibleActions.ts";
 import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { agentWorktree } from "../../test-support/support/agentAuthoredWorktree.ts";
 import {
