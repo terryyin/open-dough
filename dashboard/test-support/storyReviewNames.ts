@@ -1,7 +1,5 @@
 // Story review region, toolbar and card action names, named once for the
-// Playwright review controls (support/reviewControls.ts, storyCardControls.ts)
-// and the mounted review page (mounted-dashboard/mountedStoryReviewPage.ts).
-// Imports neither engine.
+// Playwright review controls (support/reviewControls.ts, storyCardControls.ts).
 export const storyReviewNames = {
   // A card's action that opens its review.
   cardAction: "Review changes",

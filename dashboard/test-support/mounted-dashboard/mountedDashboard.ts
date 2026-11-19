@@ -5,14 +5,8 @@ import { commands, page } from "vitest/browser";
 import { App } from "../../src/App.tsx";
 import "../../src/dashboardStyles.ts";
 import type { MountedServiceAnswers } from "../support/mountedDashboardCommands.ts";
-import type { StoryNotesRule } from "../support/frontendStoryNotesRule.ts";
-import type { AnswerHold } from "../support/frontendSubstituteAnswers.ts";
-import { actSettled } from "./mountedActInput.ts";
-import {
-  abandonKeptHold,
-  answerMountedServices,
-  refuseHoldFromEarlierCase,
-} from "./mountedServices.ts";
+import { actSettled } from "./mountedActSettled.ts";
+import { answerMountedServices } from "./mountedServices.ts";
 
 async function showViewport({
   width,
@@ -46,7 +40,6 @@ function joinMountedCase(): MountedCase {
     try {
       for (const teardown of joined.teardowns.reverse()) await teardown();
     } finally {
-      abandonKeptHold();
       vi.unstubAllGlobals();
       vi.useRealTimers();
       localStorage.clear();
@@ -64,15 +57,12 @@ function joinMountedCase(): MountedCase {
 export async function mountAnsweredDashboard(options: {
   answers: MountedServiceAnswers;
   boardPositionKey: string;
-  // The notes service an earlier mount in the case answered from.
-  notes?: StoryNotesRule<AnswerHold>;
   arrange?: () => void;
   restore?: () => Promise<void> | void;
   style?: string;
   // The viewport the case mounts at; the original returns at cleanup.
   viewport?: { width: number; height: number };
 }) {
-  refuseHoldFromEarlierCase();
   const mounted = joinMountedCase();
   if (options.viewport) await showViewport(options.viewport);
   localStorage.clear();
@@ -84,7 +74,7 @@ export async function mountAnsweredDashboard(options: {
   });
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   options.arrange?.();
-  const services = answerMountedServices(options.answers, options.notes);
+  const services = answerMountedServices(options.answers);
 
   const container = document.createElement("div");
   container.id = "root";
@@ -116,8 +106,6 @@ export async function mountAnsweredDashboard(options: {
   return {
     container,
     launchAcceptances: services.launchAcceptances,
-    notes: services.notes,
-    holdNextNotes: services.holdNextNotes,
     boardRows: () => container.querySelectorAll(".board-row").length,
     // The banner's connection state, as its `data-connection` names it.
     connection: () =>

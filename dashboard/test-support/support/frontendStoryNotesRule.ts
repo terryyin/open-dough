@@ -1,8 +1,7 @@
 // How the notes service substitute answers one request: project-scoped reads,
-// accepted changes with their recorded requests, unreadable projects, refused
-// or unreachable changes, and the hold taken for the next answer. Both the
-// Playwright route substitute and the mounted fetch answers call it, so it
-// imports neither Playwright nor Node.
+// accepted changes with their recorded requests, and unreadable projects.
+// Both the Playwright route substitute and the mounted fetch answers call it,
+// so it imports neither Playwright nor Node.
 import {
   storyNoteChangeSchema,
   type StoryNote,
@@ -24,22 +23,11 @@ export function numberedNewStoryNotes(): NewStoryNote {
   };
 }
 
-// How the next note save fails: the service refuses it or cannot be reached.
-export type StoryNoteSaveFailure = "refused" | "unreachable";
-
-export type StoryNotesRuleAnswer<Hold> =
-  | { kind: "unreachable" }
-  | { kind: "answer"; status: number; body: unknown; hold?: Hold | undefined };
-
-// What the substitute remembers between requests; `Hold` is whatever the
-// caller holds an answer with.
-export class StoryNotesRule<Hold> {
+// What the substitute remembers between requests.
+export class StoryNotesRule {
   private readonly projects = new Map<string, Record<string, StoryNote[]>>();
   private readonly unreadable = new Set<string>();
-  readonly asked: { project: string; method: string }[] = [];
   readonly changes: StoryNoteChange[] = [];
-  nextHold: Hold | undefined;
-  failNext: StoryNoteSaveFailure | undefined;
 
   constructor(private readonly newNote: NewStoryNote) {}
 
@@ -53,13 +41,8 @@ export class StoryNotesRule<Hold> {
     this.unreadable.add(project);
   }
 
-  answer(request: {
-    project: string;
-    method: string;
-    body?: unknown;
-  }): StoryNotesRuleAnswer<Hold> {
+  answer(request: { project: string; method: string; body?: unknown }) {
     const { project, method } = request;
-    this.asked.push({ project, method });
     if (this.unreadable.has(project)) {
       return method === "POST"
         ? answer(500, { error: "The note could not be saved." })
@@ -68,22 +51,16 @@ export class StoryNotesRule<Hold> {
     if (method === "POST") {
       const change = storyNoteChangeSchema.parse(request.body);
       this.changes.push(structuredClone(change));
-      const failure = this.failNext;
-      this.failNext = undefined;
-      if (failure === "unreachable") return { kind: "unreachable" };
-      if (failure === "refused") {
-        return answer(503, { error: "Change refused." });
-      }
       const notes = this.notesOf(project);
       this.projects.set(project, {
         ...notes,
         [change.identity]: this.changed(notes[change.identity] ?? [], change),
       });
     }
-    const hold = this.nextHold;
-    this.nextHold = undefined;
-    const body = { kind: "notes", notes: this.notesOf(project) };
-    return { ...answer(200, structuredClone(body)), hold };
+    return answer(200, {
+      kind: "notes",
+      notes: structuredClone(this.notesOf(project)),
+    });
   }
 
   private notesOf(project: string) {
@@ -108,5 +85,5 @@ export class StoryNotesRule<Hold> {
 }
 
 function answer(status: number, body: unknown) {
-  return { kind: "answer", status, body } as const;
+  return { status, body };
 }

@@ -1,7 +1,6 @@
 // Story notes control names, roles, selectors and announcement text, named
 // once for the Playwright page object (support/storyNotesPage.ts) and the
-// mounted one (mounted-dashboard/mountedStoryNotesPage.ts). Imports neither
-// engine.
+// controls it reuses.
 export const storyNotesNames = {
   dialog: "Story notes",
   field: "Note text",
@@ -11,9 +10,7 @@ export const storyNotesNames = {
   close: "Close",
   cancel: "Cancel",
   edit: "Edit",
-  editHeading: "Edit note",
   delete: "Delete",
-  deleteQuestion: "Delete this note?",
   saved: "Note saved to this story.",
   // The dialog's announcement, and a saved entry's note text.
   announcement: ".launch-dialog-body > [role='status']",

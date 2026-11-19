@@ -269,7 +269,7 @@ Notes unit cases summed about 225 ms at two workers, load 3 to 5.
 ### 6. The terminal journey owns notes beside a terminal, and spent support is gone
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: In `e2e/terminals/agent-terminal-lifetime.spec.ts`, opening and
 closing Story notes on a card leaves the attached terminal printing and on
@@ -290,6 +290,14 @@ mounted specs, which share `mountedDashboard.ts`, pass. The summed case time
 from `node scripts/test-frontend.mjs stories/story-notes` is reported with
 case count, worker count and load against the 4.3 s baseline. `npm run lint`
 and `npm run typecheck:dashboard` pass.
+
+Learning: the E2E notes step is two steps in
+`agent-terminal-lifetime.spec.ts` over `storyNotesPage` and `terminalScreen`.
+The mounted notes, terminal and review support is gone; `mountedActInput.ts`
+is now `mountedActSettled.ts` (`actSettled` only), and
+`frontendStoryNotesRule.ts` keeps no hold, failure queue or unreachable
+answer. The frontend README still names `holdNextNotes`,
+`mountedSessionTerminal` and `mountedActInput.ts` helpers until slice 7.
 
 ### 7. The test guidance states the entry rules and names the reference family
 
