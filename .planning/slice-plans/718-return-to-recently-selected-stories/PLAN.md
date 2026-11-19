@@ -159,9 +159,12 @@ row as a way to set it.
 ### 5. The button returns to the selected story before listing
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a test in `recent-stories.spec.ts` on a Board tall enough to
 scroll.
+Accepted proof: `open-dough/evidence/refactor-slice5-frontend-proof.json`
+(4 recent-stories tests); lint/typecheck exit 0. Return reuses `choose`
+(select+follow) when the card start is not readable.
 
 Behavior: examples 2 and 3. A story is selected and its card is scrolled
 out of view. Clicking the button brings the card into view and leaves the

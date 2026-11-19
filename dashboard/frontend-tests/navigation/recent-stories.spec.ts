@@ -1,10 +1,4 @@
-// Recent stories in the banner (../../src/recentStoriesControl.tsx): outline vs
-// filled bookmark, empty and ordered history, Escape/outside dismiss,
-// disposable-storage retention across a reload (capped at 10), and choosing a
-// row that selects and reveals the story in Development. Selections come from
-// a card empty area and from opening a Side panel terminal. ADR 0008 names the
-// control.
-
+// Recent stories banner control (../../src/recentStoriesControl.tsx).
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendTakenBacklog,
@@ -23,7 +17,6 @@ import {
 } from "../../test-support/storyCardSelection.ts";
 import { storyCard } from "../../test-support/storyCardControls.ts";
 import {
-  chooseRecentStory,
   dismissRecentStoriesByBannerClick,
   dismissRecentStoriesWithEscape,
   expectRecentStoriesButton,
@@ -37,11 +30,20 @@ import {
   putRecentHistoryStories,
 } from "../../test-support/recentStoriesHistory.ts";
 import {
+  chooseDoughnutFromOpenDoughRoster,
   chooseUnavailableRecentStory,
-  expectChoseDoughnutFromRoster,
   openOpenDoughWithDoughnutBoard,
-  rememberDoughnutThenShowOpenDoughRoster,
 } from "../../test-support/recentStoriesChoosePage.ts";
+import {
+  lengthenCardPastFold,
+  listWhileStartReadable,
+  openTallReturnBoard,
+  returnFollowsOtherProject,
+  returnOutOfViewThenList,
+  returnTargetIdentity,
+  selectDoughnutWhileShowingOpenDough,
+  selectReturnTargetThenScrollAway,
+} from "../../test-support/recentStoriesReturnPage.ts";
 import { expectBannerRow } from "../../test-support/bannerReading.ts";
 import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import { settings } from "../../test-support/support/systemSettingsPage.ts";
@@ -49,7 +51,6 @@ import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
 import { watchPageErrors } from "../../test-support/pageErrors.ts";
 import { recentStoriesLimit } from "../../src/recentStories.ts";
-import { doughnutTakenIdentity } from "../../test-support/projectSelectionProjects.ts";
 
 test("the banner Recent stories control shows selection state and lists recent stories from card and Side panel selection", async ({
   page,
@@ -210,24 +211,37 @@ test("recent stories survive a reload, capped at the 10 most recent, and last on
   });
 });
 
-const goneIdentity = "GONE-1#nope";
-
 test("choosing a Recent stories row selects and reveals that story in Development, including across projects and when unavailable", async ({
   page,
   frontendServices,
 }) => {
   const board = await openOpenDoughWithDoughnutBoard(page, frontendServices);
-
   await test.step("from Open Dough's Roster, choosing Doughnut's taken story closes the popover, switches project, and reveals the card focused and cued", async () => {
-    await rememberDoughnutThenShowOpenDoughRoster(page, board);
-    await chooseRecentStory(page, {
-      project: "Doughnut",
-      identity: doughnutTakenIdentity,
-    });
-    await expectChoseDoughnutFromRoster(page, board.doughnutTaken);
+    await chooseDoughnutFromOpenDoughRoster(page, board);
   });
-
   await test.step("choosing a row whose story is no longer on the Board shows the story-reference unavailable notice", async () => {
-    await chooseUnavailableRecentStory(page, goneIdentity);
+    await chooseUnavailableRecentStory(page, "GONE-1#nope");
+  });
+});
+
+test("the Recent stories button returns to the selected story before listing", async ({
+  page,
+  frontendServices,
+}) => {
+  const cards = await openTallReturnBoard(page, frontendServices);
+  const row = { project: "Open Dough", identity: returnTargetIdentity };
+  await test.step("selected card out of view → first click reveals it, popover stays closed; second click opens the list", async () => {
+    await selectReturnTargetThenScrollAway(page, cards.returnTarget);
+    await returnOutOfViewThenList(page, cards.returnTarget, row);
+    await dismissRecentStoriesWithEscape(page);
+  });
+  await test.step("tall card start visible → first click opens the popover", async () => {
+    await lengthenCardPastFold(cards.returnTarget);
+    await listWhileStartReadable(page, row);
+    await dismissRecentStoriesWithEscape(page);
+  });
+  await test.step("selected story in another project → first click follows it there", async () => {
+    await selectDoughnutWhileShowingOpenDough(page, cards);
+    await returnFollowsOtherProject(page, cards.doughnutTaken);
   });
 });

@@ -1,7 +1,8 @@
 // The banner's Recent stories control (`./recentStories.ts` shapes the list):
 // a bookmark that shows whether a story is selected, and a popover listing
-// recent selections (ADR 0008). Choosing a row selects that story and follows
-// it through the story-reference journey so Development reveals it.
+// recent selections (ADR 0008). Choosing a row, or clicking the button while
+// the selected card's start is out of view, selects and follows through the
+// story-reference journey so Development reveals it.
 
 import {
   useContext,
@@ -13,6 +14,7 @@ import {
 } from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
+import { startIsReadable } from "./pageMovement.ts";
 import { projectLabel, useVisibleProjects } from "./projectList.tsx";
 import {
   sameSelectedStory,
@@ -21,6 +23,7 @@ import {
   useSelectedStory,
   type SelectedStory,
 } from "./pageStorySelection.tsx";
+import { storyCard } from "./storyCardFocus.ts";
 import { StoryNavigationOnPage } from "./storyNavigation.tsx";
 import "./recent-stories.css";
 
@@ -61,6 +64,20 @@ export function RecentStories() {
     dismiss();
   };
 
+  // When the selected story's card start is not in the region's readingBounds
+  // (same rule keepInView uses for readable), return via choose and leave the
+  // popover closed; otherwise toggle the list.
+  const onButtonClick = () => {
+    if (selected !== undefined) {
+      const card = storyCard(selected.identity);
+      if (card === undefined || !startIsReadable(card)) {
+        choose(selected);
+        return;
+      }
+    }
+    setOpen((was) => !was);
+  };
+
   useEffect(() => {
     if (!open) return;
     const onPointer = (event: PointerEvent) => {
@@ -99,9 +116,7 @@ export function RecentStories() {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
-        onClick={() => {
-          setOpen((was) => !was);
-        }}
+        onClick={onButtonClick}
       >
         {selected === undefined ? (
           <Icon icon={Bookmark} />

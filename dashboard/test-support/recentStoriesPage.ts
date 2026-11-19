@@ -19,9 +19,50 @@ export function recentStoriesPopover(page: Page): Locator {
   return page.getByRole("dialog", { name: "Recent stories", exact: true });
 }
 
+// Browser mirror of ../src/pageMovement.ts `startIsReadable` (readingBounds
+// start rule) for Recent stories return settle and scroll preconditions.
+export async function cardStartIsReadable(card: Locator): Promise<boolean> {
+  return card.evaluate((element) => {
+    const region = element.closest<HTMLElement>(
+      ".board-scroll, .roster-scroll",
+    );
+    const at = element.getBoundingClientRect();
+    const box = region?.getBoundingClientRect();
+    const padding = getComputedStyle(region ?? document.documentElement);
+    const top =
+      (box?.top ?? 0) + (Number.parseFloat(padding.scrollPaddingTop) || 0);
+    const bottom =
+      (box?.bottom ?? innerHeight) -
+      (Number.parseFloat(padding.scrollPaddingBottom) || 0);
+    const left = box?.left ?? 0;
+    const right = box?.right ?? innerWidth;
+    const visibleOn = (start: number, end: number, low: number, high: number) =>
+      ((start + end) / 2 >= low && (start + end) / 2 <= high) ||
+      (start <= low && end >= high);
+    return (
+      at.top >= top &&
+      at.top <= bottom &&
+      visibleOn(at.left, at.right, left, right)
+    );
+  });
+}
+
+async function selectedCardStartReadable(page: Page): Promise<boolean> {
+  const selected = page.locator(".story-card-selected");
+  if ((await selected.count()) === 0) return true;
+  return cardStartIsReadable(selected.first());
+}
+
 export async function openRecentStories(page: Page): Promise<Locator> {
-  await recentStoriesButton(page).click();
+  const button = recentStoriesButton(page);
+  await button.click();
   const popover = recentStoriesPopover(page);
+  // When a selected story's start is out of view, the first click returns to
+  // it and leaves the popover closed; wait for that settle, then open.
+  if ((await popover.count()) === 0) {
+    await expect.poll(() => selectedCardStartReadable(page)).toBe(true);
+    await button.click();
+  }
   await expect(popover).toBeVisible();
   return popover;
 }

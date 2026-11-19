@@ -7,6 +7,21 @@ import { prefersReducedMotion } from "./reducedMotion.ts";
 // What tells that the developer moved around the page themselves.
 const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 
+// Whether the element's start lies inside the scroll region's readingBounds
+// (./boardScroll.ts), including when a tall card's end runs below the fold.
+export function startIsReadable(element: Element): boolean {
+  const at = element.getBoundingClientRect();
+  const bounds = readingBounds(element);
+  const visibleOn = (start: number, end: number, low: number, high: number) =>
+    ((start + end) / 2 >= low && (start + end) / 2 <= high) ||
+    (start <= low && end >= high);
+  return (
+    at.top >= bounds.top &&
+    at.top <= bounds.bottom &&
+    visibleOn(at.left, at.right, bounds.left, bounds.right)
+  );
+}
+
 // Scrolls a part of the page, such as a work's card, into view, smoothly or,
 // when the developer asks for reduced motion, at once, leaving the keyboard
 // where it is; a Board Column that hides it shows first. It keeps the
@@ -61,18 +76,7 @@ export function keepInView(
       })
       .join(" ");
   };
-  const readable = () => {
-    const at = element.getBoundingClientRect();
-    const bounds = readingBounds(element);
-    const visibleOn = (start: number, end: number, low: number, high: number) =>
-      ((start + end) / 2 >= low && (start + end) / 2 <= high) ||
-      (start <= low && end >= high);
-    return (
-      at.top >= bounds.top &&
-      at.top <= bounds.bottom &&
-      visibleOn(at.left, at.right, bounds.left, bounds.right)
-    );
-  };
+  const readable = () => startIsReadable(element);
   const stopSettling = () => {
     window.removeEventListener("scroll", progressed, true);
     window.removeEventListener("scrollend", settled, true);

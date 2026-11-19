@@ -112,6 +112,18 @@ export async function expectChoseDoughnutFromRoster(
   await dismissRecentStoriesWithEscape(page);
 }
 
+export async function chooseDoughnutFromOpenDoughRoster(
+  page: Page,
+  cards: TwoProjectTakenCards,
+) {
+  await rememberDoughnutThenShowOpenDoughRoster(page, cards);
+  await chooseRecentStory(page, {
+    project: "Doughnut",
+    identity: doughnutTakenIdentity,
+  });
+  await expectChoseDoughnutFromRoster(page, cards.doughnutTaken);
+}
+
 export async function chooseUnavailableRecentStory(
   page: Page,
   goneIdentity: string,
