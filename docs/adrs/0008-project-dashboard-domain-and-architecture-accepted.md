@@ -101,8 +101,8 @@ Use these names directly across UI language, architecture, code, tests, and
 documentation, adapting casing only to programming syntax. Each concept has
 one name and responsibility; keep no competing synonym or alias layer. A Panel
 divider resizes; a Scrollbar scrolls. Terminals, final reports, and story reviews
-are Side panel contents, not names for the shared region. Layout and scrolling
-mechanics remain in the [navigation guidance](../dashboard-navigation.md).
+are Side panel contents, not names for the shared region. Layout and scrolling mechanics stay with the dashboard UI implementation and its
+[Board interaction](../dashboard-board-interaction.md) guidance.
 
 ### Durable project state and local operational state
 

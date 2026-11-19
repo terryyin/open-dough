@@ -1,8 +1,7 @@
 # Dashboard spatial-reading direction
 
-Part of the [Dashboard navigation guidance](dashboard-navigation.md), under the
-[Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md). Its authority, scope,
-and revision policy apply here. These are design directions for richer spatial
+Part of the [Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md). Its
+authority, scope, and revision policy apply here. These are design directions for richer spatial
 reading when ordinary layout and scrolling no longer serve the work.
 
 The initial layout hypothesis is a left-to-right flow with a visible connector,
