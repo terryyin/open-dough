@@ -3,6 +3,7 @@
 // from completionRevision. Mid-test later merges that must stay real Git merges
 // use laterDeveloperCarriesDoneRecord (not a declared first-parent overlay).
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   completionRevision,
   queuedReadyRepository,
@@ -10,6 +11,7 @@ import {
   storyB,
   takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
+import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { laterBranchMergesTrunkAndFastForwards } from "./laterStoryMergesTrunk.ts";
@@ -52,10 +54,13 @@ const yuiCompletion = () =>
     host: "claude",
   });
 
-// Ordinary Trunk Mode: claim, Yui's implementation, another writer's
-// interleaving on that tip, then the completion with Yui's done record.
-export function ordinaryTrunkModeCompletedHistory() {
-  return queuedReadyRepository()
+// Ordinary Trunk Mode revisions onto a base builder: claim, Yui's
+// implementation, another writer's interleaving, then the completion.
+// Shared by the origin-history and mid-test onto-tip composition routes only.
+function ordinaryTrunkModeCompletedBuilder<Name extends string>(
+  base: RepositoryBuilder<Name>,
+) {
+  return base
     .withRevision("shared", { files: { "shared.txt": lines("line") } })
     .withRevision("claim", yuiClaim())
     .withRevision("implementation", {
@@ -70,8 +75,18 @@ export function ordinaryTrunkModeCompletedHistory() {
         "other-story.txt": "another story\n",
       },
     })
-    .withRevision("completion", yuiCompletion())
-    .please();
+    .withRevision("completion", yuiCompletion());
+}
+
+// Ordinary Trunk Mode: full origin history from a queued-ready base.
+export function ordinaryTrunkModeCompletedHistory() {
+  return ordinaryTrunkModeCompletedBuilder(queuedReadyRepository()).please();
+}
+
+// Same Trunk Mode completion chain for mid-test publishDeclaredTrunk onto an
+// origin that already holds the queued-ready prefix (and any earlier captures).
+export function ordinaryTrunkModeCompletionOntoTip() {
+  return ordinaryTrunkModeCompletedBuilder(makeMe.aRepository);
 }
 
 // Ordinary Story Branch Mode: Yui's claim on a branch, implementation,

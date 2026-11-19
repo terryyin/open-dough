@@ -27,6 +27,7 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
@@ -54,7 +55,10 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
       writeRevisionFiles(workspace, implementation);
     },
   );
-  keepUnusableCompletedCapture(dashboard, origin, story);
+  keepUnusableCompletedCapture(dashboard, origin, {
+    ...story,
+    baseline: git(origin.project, "rev-parse", `${story.completion}^`),
+  });
   // Show the actual earlier claim first, then advance that same publication
   // to its actual completed result without navigating or reselecting.
   const published = await publishCommittedOrigin(page, {

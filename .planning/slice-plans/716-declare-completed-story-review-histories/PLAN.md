@@ -111,7 +111,7 @@ file-admission. Also `repository-*.test.mjs` and native-evidence-identity.
 ### 2. Gap and fallback reviews start from declared completions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a gap or fallback case starts from a declared completion. Its
 shallow fetch, unusable retained capture or moved checkout is the visible
@@ -123,9 +123,16 @@ action → its gap, fallback and historical-choice answers are unchanged.
 - Have `keepUnusableCompletedCapture` take the named completion and its
   first parent instead of `rev-parse`.
 - The missing-agent cases move with slice 3, and the own-conflict gap case
-  with slice 5.
+  with slice 5. Those deferred cases live in
+  `story-review-completed-gaps-replay.spec.ts` until those slices.
 
 Proof: those specs pass.
+Accepted (reusable): `keepUnusableCompletedCapture` takes named `completion`
+and first-parent `baseline` (no `rev-parse`). Ordinary trunk history via
+`originRepository`; mid-test onto-tip via `ordinaryTrunkModeCompletionOntoTip`
++ `publishDeclaredTrunk`. Unusable-capture names a retired workspace path so
+no readable worktree remains. Backend gaps + historical-choice +
+capture-fallback (8) and deferred replay (3) passed.
 
 ### 3. Attribution reads declared takeover, return and agentless records
 

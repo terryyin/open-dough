@@ -221,15 +221,20 @@ export function advanceCompletedTrunk(origin: StartOrigin) {
 
 // A retained comparison whose original common repository has gone away is
 // only the starting precondition; published review still comes from real Git.
+// Callers name the completion and its first parent (baseline); no rev-parse.
 export function keepUnusableCompletedCapture(
   dashboard: DashboardServer,
   origin: StartOrigin,
-  story: { readonly workspace: string; readonly completion: string },
+  story: {
+    readonly workspace: string;
+    readonly completion: string;
+    readonly baseline: string;
+  },
 ) {
   const record = storyALaunchRecord(story.workspace);
   const comparison = makeMe.aPublishedComparison
     .with({
-      base: git(origin.project, "rev-parse", `${story.completion}^`),
+      base: story.baseline,
       revision: story.completion,
     })
     .please();

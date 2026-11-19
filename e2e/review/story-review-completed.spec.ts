@@ -30,6 +30,7 @@ import {
   advanceCompletedTrunk,
   keepUnusableCompletedCapture,
 } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances", async ({
   page,
@@ -87,7 +88,10 @@ test("a CLI-completed story without a local launch opens fixed published changes
   // The server fallback proof
   // (../../dashboard/backend-tests/review/story-review-completed-gaps.spec.ts) cannot
   // show that, and ending the journey before the tail saved no time.
-  keepUnusableCompletedCapture(dashboard, origin, story);
+  keepUnusableCompletedCapture(dashboard, origin, {
+    ...story,
+    baseline: git(origin.project, "rev-parse", `${story.completion}^`),
+  });
   const withRun = await refreshReview(page, review);
   expect(withRun).toMatchObject({
     kind: "published",
