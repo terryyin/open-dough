@@ -150,7 +150,7 @@ takes its state from the adapter. `npm run lint` and
 ### 3. Session subject refusals are proven in-process, with one wire check
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given kept records holding a story launch's session, when the
 handler is asked to review that session, then it refuses with "This session
@@ -271,8 +271,11 @@ count, worker count and load against the baseline row. `npm run lint` and
 - Slice 3 owns a MakeMe step for the `gone`, `review` and `landedSession`
   arrangement both slice 2 unit specs repeat (about 25 lines each), for
   example a landed ad hoc session in a retired isolated workspace;
-  `launchTestData.mjs` is at 244 lines, so the step goes with a cohesive
-  split of that builder file.
+  Delivered in slice 3 as `makeMe.aSessionReviewRead.ofLandedAdHocSession`
+  on the session review read builder, its only consumers being the review
+  unit specs, so `launchTestData.mjs` needed no split. The wire check
+  `review/ad-hoc-review-wire.spec.ts` keeps the existing started-server
+  arrangement (`codexStart` boundary mode, `keepLaunchRecords`).
 
 ## Proof and local gates
 
