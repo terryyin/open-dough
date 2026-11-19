@@ -113,6 +113,10 @@ Proof:
 - `npm run test:dashboard:frontend -- review/` passes, since those specs open the review through `storyCardControls.ts`. The name's text is unchanged, so its other readers in `intent/`, `navigation/` and `e2e/` rest on the typecheck.
 - `npm run typecheck:dashboard` and ESLint pass.
 
+## Execution complete
+
+Product advice: no change. The mounted support now holds, settles and remounts as its isolation spec and README state, which the queued SEED-404 story moving the other frontend families to the mounted boundary can rely on; its priority stands.
+
 ## Plan review
 
 Refinement was not needed: the three slices each own one outcome and proof loop, and every premise above was observed in the form its slice uses. This review found no remaining slice-specific concern.
