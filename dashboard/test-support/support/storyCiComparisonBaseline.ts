@@ -5,7 +5,10 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import {
+  commitDeclaredRevision,
+  declaredParents,
+} from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
@@ -68,21 +71,27 @@ function comparisonBaselineHistory() {
 
 // Publishes a declared trunk history, transported once since no reader
 // observes the intermediate publications, and answers the commit each named
-// revision became.
+// revision became. `known` seeds parent names already on the origin so a
+// mid-test merge can name them.
 export async function publishDeclaredTrunk<Name extends string>(
   origin: StartOrigin,
   history: RepositoryBuilder<Name>,
+  known: Readonly<Record<string, string>> = {},
 ): Promise<Record<Name, string>> {
-  const commits: Record<string, string> = {};
+  const commits: Record<string, string> = { ...known };
+  const published = {} as Record<Name, string>;
   for (const revision of history.please().revisions) {
-    commits[revision.name] = await commitDeclaredRevision(
+    const commit = await commitDeclaredRevision(
       origin.project,
       revision,
       dashboardDeveloper,
+      declaredParents(revision, new Map(Object.entries(commits))),
     );
+    commits[revision.name] = commit;
+    published[revision.name as Name] = commit;
   }
   push(origin.project);
-  return commits;
+  return published;
 }
 
 // Publishes `comparisonBaselineHistory` on trunk and answers the commit the

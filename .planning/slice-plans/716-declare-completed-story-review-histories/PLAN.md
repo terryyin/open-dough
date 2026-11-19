@@ -2,6 +2,7 @@
 
 **Identity:** SEED-353#declare-completed-story-review-histories
 **Source:** [Declare completed-story review histories through MakeMe](../../seeds/SEED-353-declarative-git-test-state.md#declare-completed-story-review-histories)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -17,13 +18,14 @@ no speedup promise.
 
 ## Current decisions
 
-- **One owner for completion facts.** Add `completionRevision` beside
-  `takeRevision` in `Distribution/tests/support/queued-repository.mjs`. Like
-  the claim, it gives the facts a real completion commits: the story leaves
-  Taken, the agent's profile is removed, and a `makeMe.aDoneRecord` is
-  written. The record has a fixed `completedAt`, the developer, the agent and
-  host, and optional Intent coverage. A case states an agentless record
-  explicitly. The done catalog comes from the shared renderer.
+- **One owner for completion facts.** `completionRevision` lives in
+  `Distribution/tests/support/completion-revision.mjs` and is re-exported
+  beside `takeRevision` from `queued-repository.mjs`. Like the claim, it gives
+  the facts a real completion commit: the story leaves Taken, the agent's
+  profile is removed, and a `makeMe.aDoneRecord` is written. The record has a
+  fixed `completedAt`, the developer, the agent and host, and optional Intent
+  coverage. A case states an agentless record explicitly. The done catalog
+  comes from the shared renderer.
 - **Named histories.** The completed-story histories go in one dashboard
   support module, `completedStoryHistory.ts`, as `RepositoryBuilder`
   extensions named by what they show: the ordinary Trunk Mode and Story
@@ -48,6 +50,12 @@ no speedup promise.
   - retained captures.
   
   An advance that comes before the first read becomes a declared revision.
+  A mid-test later merge that must carry a second parent's tree (the done
+  record onto trunk's first-parent path) stays a real Git merge:
+  `commitDeclaredRevision` overlays the first parent only. Until wrap-up
+  deletes it, `laterBranchMergesTrunkAndFastForwards` owns that Git action and
+  `laterDeveloperCarriesDoneRecord` in `completedStoryHistory.ts` is the
+  completion-centric wrapper specs call.
 - **Conflicts.** A declared conflicted merge is confirmed independently in its
   case: `git merge-tree --write-tree` of its named parents exits 1 on the
   resolved file. A clean merge's parents merge without conflict. This follows
@@ -78,7 +86,7 @@ Budget for every slice: 15 active minutes, excluding commands.
 ### 1. Ordinary completed reviews read a declared completion
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a backend completed-review case starts from the declared ordinary
 Trunk Mode or Story Branch history → its review answers, file diffs and later
@@ -91,6 +99,14 @@ fixed-after-advance checks are unchanged.
 - Migrate `story-review-completed-file-admission.spec.ts`.
 
 Proof: those specs pass through the backend command in Local verification.
+Accepted (reusable): `completionRevision` + `ordinaryTrunkModeCompletedHistory` /
+`ordinaryStoryBranchCompletedHistory` / `ordinaryCompletedReviewHistories`;
+`publishDeclaredTrunk` passes `declaredParents`. Backend
+`story-review-completed.spec.ts` + `story-review-completed-file-admission.spec.ts`
+(7 cases): published completion, agent Yui-chan, file isolation, story-branch
+`branch completion` === `completion^2`, later-merge stability via
+`laterDeveloperCarriesDoneRecord`, advance-after-read, configured-folder,
+file-admission. Also `repository-*.test.mjs` and native-evidence-identity.
 
 ### 2. Gap and fallback reviews start from declared completions
 

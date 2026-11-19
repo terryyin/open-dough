@@ -1,7 +1,8 @@
 // A later story by another developer whose branch started before a completed
 // story's done record arrived: it merges trunk as its second parent and
 // fast-forwards trunk, carrying that existing done record onto a new
-// first-parent path. Completed story setup lives in ./completedPublishedStory.ts.
+// first-parent path. Declared completed histories and the completion-centric
+// entry live in ./completedStoryHistory.ts; wrap-up retires this module.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
