@@ -80,7 +80,7 @@ and deleted `test-support` surface together under
 
 **Identity:** SEED-413#narrow-ad-hoc-review-handler-contracts
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/724-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2dec45ebed1e102a783d0d786655f85daeed2f59bc6ac3e5b5304565e685f695","plan":"d93ea5d9097ee47757dfd4585557ad64842fb040413a66d67cacc36d9968cd16"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f1b5bc90b7c8fab3497dbfc684cf23371a59677eb533669e47081a4da71da627","plan":"9c84dd9c6eb84d558303cc017afbf084dee4e2077a3f5867b95b3c6cac0823dc"}}
 ```
 
 Correction of the typed ad hoc review handlers
@@ -114,7 +114,7 @@ their execution's retrospective.
   correction does not change whether the file read refuses a story launch's
   session; that refusal is a product question. Story subjects keep their
   admission path.
-- **Plan.** [724](../slice-plans/724-narrow-ad-hoc-review-handler-contracts/PLAN.md)
+- **Plan.** [725](../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md)
 
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
