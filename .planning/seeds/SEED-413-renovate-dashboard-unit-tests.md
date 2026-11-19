@@ -83,7 +83,7 @@ and deleted `test-support` surface together under
 {"schemaVersion":1,"identity":"SEED-413#renovate-dashboard-backend-unit-tests","dependencies":[{"supplier":{"identity":"SEED-413#pilot-direct-dashboard-unit-tests","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests"},"implementation":"The pilot makes npm run test:dashboard:backend and the dashboard-backend CI job run plain Node Vitest cases beside the Playwright specs, with the group's split, times and proof record, and states the backend entry rules in dashboard/backend-tests/README.md.","rationale":"This story's cases are plain Node Vitest cases in the backend group. Before the pilot's group run exists they have no command or CI job to run in, and building that run here would duplicate the pilot's Taken slices in the same files.","condition":"Plain Node Vitest cases under dashboard/backend-tests/ run in npm run test:dashboard:backend and in the dashboard-backend CI job with the group's split, times and proof record.","state":"satisfied","resolution":{"revision":"6723c8e2c2d65e78fa11aad404c69660030f5633","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests","summary":"Satisfied: npm run test:dashboard:backend is node scripts/test-backend.mjs over the shared two-engine group run; dashboard/backend-tests/review/story-notes.unit.spec.ts ran on Node Vitest in the dashboard-backend CI job (run 44515013156, shard 2/3 only) and locally under _SPLIT, _TIMES and _PROOF_RECORD (engine node in the proof record); dashboard/backend-tests/README.md states the backend entry rules.\nCondition satisfied: Plain Node Vitest cases under dashboard/backend-tests/ run in npm run test:dashboard:backend and in the dashboard-backend CI job with the group's split, times and proof record.\nAccepted integration: 36d7dfa9e3f39ea4767cafc7848349ffdddd490e on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/721-prove-ad-hoc-review-reads-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"388772da2b4a63b692edaec52bf26e354006711071ca839da9157e0258972b13","plan":"bebf6e70935f1c1e6f40744c259bc282c9614feff55e5ada792d5aa18cfaad7b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/721-prove-ad-hoc-review-reads-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f90455a6d14b18f5a96a49a62d4be96ed9bbd7dfc9274ca633cce541cd38ce8f","plan":"a800d529ca9d3e464b6b8fa4cddad3d06828b2d127bec59855b7b67ec02eb136"}}
 ```
 
 First family of the backend renovation, split from the suite-wide story; the
@@ -102,8 +102,8 @@ it.
 - **Scope: server.**
   - The review, file diff and file text reads separate a thin wire adapter
     from typed handlers. The adapter owns method, origin, turning the query
-    into a typed subject, the status each refusal maps to, and turning a
-    closed response into a bounded abort signal. A handler takes a
+    into a typed subject, answering the status a refusal carries, and turning
+    a closed response into a bounded abort signal. A handler takes a
     `ReviewedWorkSubject` (with the run or the file pair the read names) and
     an `AbortSignal`, answers `StoryReview`, `ReviewedFileDiff` or
     `ReviewedFileText`, and keeps every rule about what a kept record admits
@@ -114,7 +114,8 @@ it.
     today. This story's delivery and proof cover session subjects.
 - **Scope: cases.**
   - Every ad hoc review case whose state is kept launch records and a
-    repository becomes a plain Node Vitest case through the handlers, and
+    repository becomes a plain Node Vitest case through the handlers, in
+    `*.unit.spec.ts` specs as the backend README's entry rule names them, and
     none is lost. On 2026-11-19 those are all of
     `review/ad-hoc-review.spec.ts`, `ad-hoc-review-file.spec.ts` and
     `ad-hoc-review-subject.spec.ts`, the three kept-record cases of
@@ -168,8 +169,9 @@ it.
   - *Two admissions, separated.* `storyReviewRequest(url)` reads the query and
     the kept records in one step and refuses with an HTTP status either way.
     Reading the query's shape belongs to the adapter. Deciding what a kept
-    record admits belongs to the handler, with the pilot's refusal
-    convention.
+    record admits belongs to the handler, which refuses as `storyNotes`
+    does: it throws `RefusedRequest` with the message and the status the
+    adapter answers.
   - *The signal, not the response.* `storyReviewResponse` and the file
     responses take a `ServerResponse` only to end the read when the response
     closes or the bounded wait passes. The handler takes the signal; the
@@ -180,8 +182,10 @@ it.
     server uses. A family whose state has no owner yet, such as the landed
     CI memos, gives it one in production code.
   - *MakeMe owns stored documents.* The launch store and the project list are
-    files under the machine home; MakeMe writes them from its builders, so
-    `launchStore.ts` loses users family by family. This is the kept-record
+    files under the machine home. MakeMe builds each as a stored document, as
+    `makeMe.aStoredStoryNotesDocument` does for notes, and the case keeps it
+    under its own machine home, so `launchStore.ts` loses users family by
+    family. This is the kept-record
     part of `SEED-353#declare-launch-session-repository-state`; that story
     keeps the launch and session repository state.
 - **Baseline and observations** (2026-11-19).
@@ -198,9 +202,14 @@ it.
     `storyReviewResponse` with a stand-in for the response. Three cases
     passed in 295, 84 and 65 ms; the read itself took 56–79 ms. The local
     Playwright time of the same cases was not measured.
+  - With the pilot on trunk at `78126b37f`, `npm run test:dashboard:backend
+    -- review/story-notes` at load about 3 ran the nine cases of
+    `story-notes.unit.spec.ts` on Node Vitest in 2–18 ms each; the group's
+    times record gave 0.1 s for the file and its proof record named the
+    Vitest configuration.
 - **Effort hypothesis.** S to M, medium confidence. The seam and the
   in-process read are observed; the MakeMe step for the stored documents is
-  the least observed part.
+  the least observed part; the pilot's stored-document builder shows its form.
 - **Safe stopping point.** The review handlers and their cases stand on
   their own, and the README carries the rules the other families need.
 

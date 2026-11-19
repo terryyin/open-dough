@@ -20,9 +20,11 @@ Done, the branch result, manual landing and handoff journeys,
 `adHocReview.ts`, `launchStore.ts` and `completedReviewRequests.ts` while
 those import them, `backend.playwright.config.ts`, and `Distribution/src/`.
 
-This story waits on the pilot
-(plan 720) for the backend
-group's Node Vitest run; the seed records the agreement.
+The Story Notes pilot supplies the backend group's Node Vitest run, the
+`*.unit.spec.ts` entry and the reference family
+(`dashboard/backend-tests/review/story-notes.unit.spec.ts` with
+`story-notes-admission.spec.ts` as its wire check); the seed records the
+satisfied agreement.
 
 ## Approach and reuse
 
@@ -49,25 +51,31 @@ conflicts.
   the bounded response signal and the status mapping in
   `launchBoundaryAnswer.ts` (238). An exported handler takes the typed read
   and an `AbortSignal`, admits it against the kept records and answers.
-  Refusals a record decides stay in the handler under the pilot's refusal
-  convention.
+  Refusals a record decides stay in the handler as they are thrown today:
+  `RefusedRequest` with its message and status, the convention `storyNotes`
+  follows. A handler case asserts both.
 - **Process-wide state through its owner (reuse).**
   `mountProjectConfiguration(environment)` mounts the project list from the
   machine home and answers its close. A case calls it under its own `HOME`.
 - **Machine state through MakeMe (change).** `makeMe.aLaunchRecord`,
   `makeMe.aLaunchLanding`, `makeMe.aConfiguredProject` and
   `makeMe.aRepository` with `materializeLocalCheckout` already build the
-  values. MakeMe gains the step that keeps them under a machine home: the
-  project list and the launch store as the documents the server reads.
-  `Distribution/tests/test-data-architecture.md` names it. `launchStore.ts`
+  values. MakeMe gains stored-document builders for the launch store and the
+  project list, the documents the server reads, in the form of
+  `makeMe.aStoredStoryNotesDocument`: the builder answers the document as
+  data and the case keeps it under its machine home.
+  `Distribution/tests/test-data-architecture.md` names them. `launchStore.ts`
   keeps its remaining users.
-- **Group run (reuse).** The cases run through the pilot's two-engine backend
-  group run and its Vitest-file predicate. This plan adds no runner code.
+- **Group run (reuse).** The cases run through the two-engine backend group
+  run (`scripts/test-backend.mjs`), which sends `*.unit.spec.ts` specs to
+  Vitest in Node (`dashboard/backend.vitest.config.mts`). This plan adds no
+  runner code.
 - **File sizes.** Every file named above is under the 250-line check.
-  `launchBoundaryAnswer.ts` at 238 and `makeMe.mjs` at 250 are the closest; a
+  `launchBoundaryAnswer.ts` at 238 and `makeMe.mjs` at 245 are the closest; a
   slice that would take either over the check moves a cohesive part out in
   the same slice (the review reads' adapter beside the review modules; the
-  machine-home step in its own test-data module that `makeMe.mjs` exposes).
+  stored-document builders in their own test-data module that `makeMe.mjs`
+  exposes, as `storyNoteTestData.mjs` is).
 
 ## Owner of each moved case
 
@@ -92,7 +100,7 @@ Vitest 5.1.0. Scratch files were removed after each run.
 | The project list mounts and closes per case in one worker (slices 2, 3, 5) | Same run: each of the three cases mounted under a new home and closed; a second mount without the close throws by design. |
 | Baseline for the timing promise (slice 6) | `playwright test --config dashboard/backend.playwright.config.ts review/ad-hoc-review.spec.ts review/ad-hoc-review-file.spec.ts review/ad-hoc-review-subject.spec.ts` with the proof record, load about 6: 10 cases passed, run 9.3 s, 9.8 s wall. The record at this revision carries no per-case time, so the comparison is run time for these ten cases. CI medians over five main runs: 5.7 s for the three files. |
 | Which suites read the review reads at the wire (slices 1, 4) | Search for the endpoints and their request helpers: 39 specs in `dashboard/backend-tests/review/`, one in `launches/`, 16 in `e2e/review/` and `e2e/intent/`. The 11 `dashboard/frontend-tests/` matches answer the reads from route substitutes and never reach the server. |
-| The backend group runs Node Vitest cases (slices 2–6) | Supplied by plan 720, slices 1 and 2; unobserved here and carried by the recorded dependency. |
+| The backend group runs Node Vitest cases (slices 2–6) | Observed on 2026-11-19 at `78126b37f` in this workspace, load about 3: `npm run test:dashboard:backend -- review/story-notes` with `_TIMES` and `_PROOF_RECORD` set ran the nine cases of `story-notes.unit.spec.ts` on Vitest 5.1.0 in Node, 2–18 ms each; the times record gave `0.1 backend-tests/review/story-notes.unit.spec.ts` and the proof record named `dashboard/backend.vitest.config.mts`. This workspace has no `node_modules` of its own, so the Playwright half of that command did not start here; the slices' Playwright proof needs `npm ci` in the execution checkout. |
 
 ## Ordered slices
 
@@ -122,7 +130,7 @@ kept Done ad hoc session with a captured landing, and its repository whose
 trunk advanced afterwards), when a plain Node Vitest case asks the handler for
 that session's review, then it answers `landed` with the captured baseline,
 tree and changed file, and the repository's `HEAD` and index are unchanged,
-with no server started. The same entry proves the same-tree landing, the
+with no server started. The cases live in `*.unit.spec.ts` specs. The same entry proves the same-tree landing, the
 session without a landing, the landing whose repository is gone, the landing
 whose comparison objects are gone, and the unreadable kept comparison. The
 HTTP versions of these six cases are deleted.
@@ -131,7 +139,7 @@ Proof: The cases pass through `npm run test:dashboard:backend --
 review/ad-hoc-review` and appear in the group's times and proof record. Each
 fails under a scratch edit disabling its rule in the review modules. The
 remaining Playwright cases of `ad-hoc-review-unavailable` and
-`ad-hoc-session-commits` pass. The MakeMe step's own cases under
+`ad-hoc-session-commits` pass. The stored-document builders' own cases under
 `Distribution/tests/` pass.
 
 ### 3. Session subject refusals are proven in-process, with one wire check
@@ -143,7 +151,8 @@ Behavior: Given kept records holding a story launch's session, when the
 handler is asked to review that session, then it refuses with "This session
 belongs to a story launch and is reviewed by its story."; an unknown session
 is refused with "This dashboard launched no such session for this project."
-One Playwright wire check through a started server keeps a refused method, a
+Each refusal is a `RefusedRequest` carrying the status the wire answers
+today. One Playwright wire check through a started server keeps a refused method, a
 foreign origin, a query naming both a story and a session, a malformed run,
 and the 400 and 404 those two refusals map to.
 `ad-hoc-review-subject.spec.ts` is deleted.
@@ -190,7 +199,8 @@ Type: Behavior
 Status: planned
 
 Behavior: A contributor reading `dashboard/backend-tests/README.md` finds the
-rules this family adds to the reference family: state a case's machine and
+rules this family adds under "Which entry a case uses", beside the Story
+Notes reference family: state a case's machine and
 repositories through MakeMe; call another handler in arrangement only when
 that step is the behavior under test; mount process-wide server state through
 its production function. Every `dashboard/test-support/` function and module
@@ -222,9 +232,9 @@ count, worker count and load against the baseline row. `npm run lint` and
 
 - The typed read's exact shape and where the handler modules sit are the
   executor's choice within Approach: one shape shared by the page's query
-  builder and the adapter, and no second refusal convention beside the
-  pilot's.
-- The new cases carry the pilot's Vitest-file marker and live in
+  builder and the adapter, and `RefusedRequest` as the only refusal
+  convention.
+- The new cases are `*.unit.spec.ts` specs in
   `dashboard/backend-tests/review/`.
 - Partly moved specs (`ad-hoc-review-unavailable`, `ad-hoc-session-commits`)
   keep their remaining Playwright cases in place.
@@ -252,5 +262,7 @@ Slice-plan refinement was not needed: six slices, each with one outcome and
 its own proof loop, and every seed promise mapped. Slices 1 and 4 are the
 same split on two reads, each placed before the Behavior that calls it.
 Until slice 6, helpers the deleted specs used may remain without an importer,
-and slice 6 removes them. This review found no remaining slice-specific
-concern.
+and slice 6 removes them. The plan was reviewed again on 2026-11-19 with the
+pilot on trunk: its entry naming, refusal convention and stored-document
+builder replaced the placeholders here, and the group-run premise is now
+observed. This review found no remaining slice-specific concern.
