@@ -91,7 +91,7 @@ Proof:
 ### 2. Answer the mounted board's revision stream
 
 Type: Structure
-Status: planned
+Status: done
 
 Removes a real-time request the mounted support leaves unanswered. Answer the board's revision stream in `mountedServices.ts` with a stand-in that errors at once inside act, restored with the other globals at cleanup. Each isolation case reads the banner's connection as `disconnected` after its mount.
 

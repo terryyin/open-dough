@@ -15,6 +15,7 @@ test("a case may end while a notes answer is still held", async () => {
     expect(kept.hold?.delivered()).toBe(false);
   });
   const dashboard = await mountDefaultDashboard();
+  expect(dashboard.connection()).toBe("disconnected");
   const hold = dashboard.holdNextNotes();
   kept.hold = hold;
   await actSettled(() => vi.advanceTimersByTimeAsync(checkIntervalMs));
@@ -24,6 +25,7 @@ test("a case may end while a notes answer is still held", async () => {
 
 test("the next case opens with default answers and no late update", async () => {
   const dashboard = await mountDefaultDashboard();
+  expect(dashboard.connection()).toBe("disconnected");
   const opened = dashboard.container.innerHTML;
   expect(dashboard.boardRows()).toBeGreaterThan(0);
   await act(() => vi.advanceTimersByTimeAsync(0));
@@ -32,6 +34,7 @@ test("the next case opens with default answers and no late update", async () => 
 
 test("a second hold of the next notes answer fails by name", async () => {
   const dashboard = await mountDefaultDashboard();
+  expect(dashboard.connection()).toBe("disconnected");
   dashboard.holdNextNotes();
   expect(() => dashboard.holdNextNotes()).toThrow(
     "The next notes answer is already held.",
@@ -56,11 +59,13 @@ test("a case that mounts the board twice leaves the page as it found it", async 
     boardPositionKey,
     viewport: { width: 1280, height: 720 },
   });
+  expect(first.connection()).toBe("disconnected");
   first.unmount();
   const again = await mountAnsweredDashboard({
     answers,
     boardPositionKey,
     viewport: { width: 1024, height: 700 },
   });
+  expect(again.connection()).toBe("disconnected");
   expect(again.boardRows()).toBeGreaterThan(0);
 });

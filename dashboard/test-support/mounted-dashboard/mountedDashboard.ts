@@ -119,6 +119,9 @@ export async function mountAnsweredDashboard(options: {
     notes: services.notes,
     holdNextNotes: services.holdNextNotes,
     boardRows: () => container.querySelectorAll(".board-row").length,
+    // The banner's connection state, as its `data-connection` names it.
+    connection: () =>
+      container.querySelector(".banner")?.getAttribute("data-connection"),
     // Leaves the page, as a case that mounts the board again after it.
     unmount,
   };

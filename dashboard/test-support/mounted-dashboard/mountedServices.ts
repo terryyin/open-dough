@@ -32,6 +32,23 @@ function reply(body: unknown, status = 200) {
   });
 }
 
+// Answers the board's revision stream as unreachable: each stream errors in
+// the microtask after it opens, inside the act that opened it, and the board
+// reads project changes through the check schedule instead.
+class UnreachableRevisionStream {
+  onerror: ((event: Event) => void) | null = null;
+  onmessage: ((event: MessageEvent) => void) | null = null;
+  private closed = false;
+  constructor() {
+    queueMicrotask(() => {
+      if (!this.closed) this.onerror?.(new Event("error"));
+    });
+  }
+  close() {
+    this.closed = true;
+  }
+}
+
 const notesHold = "next notes answer";
 // Abandons the notes hold a case still keeps; unset once it is released or
 // abandoned.
@@ -171,6 +188,7 @@ export function answerMountedServices(
       return browserFetch(input, options);
     },
   );
+  vi.stubGlobal("EventSource", UnreachableRevisionStream);
   return {
     launchAcceptances,
     unanswered,
