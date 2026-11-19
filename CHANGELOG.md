@@ -1,3 +1,17 @@
+## 0.3.108 - 2026-11-19
+
+- The Dashboard banner can return to the selected story or open a list of the ten most recent selections. Choosing a row follows the story across projects and preserves the Board or Intent perspective. History persists in the current browser when storage is available.
+- Execute Plan gives Codex a shorter foreground-wait procedure. It starts the command once, resumes the same wait against the original deadline, and distinguishes caller deadlines from deadlines enforced by the command.
+- Slice planning and refactoring map domain concepts directly across code, APIs, UI, persistence, and tests. Unit tests start at typed backend handlers, the smallest rendered UI that owns the behavior, or a CLI contract. External service substitutes use shared typed contracts.
+- Planning and wrap-up keep enduring behavior in automated tests, architecture in code, operational setup in configuration, and architectural preferences in human-controlled ADRs. Wrap-up deletes realized North Star topics.
+- Source tests share one declaration for browser group selection and CI checks. The runner fixtures include that declaration, completed-story review tests declare their Git histories, and Review changes journeys use a shared page object.
+
+The Promoted payload contains 383 files. Nine guidance files changed, with no additions or retirements. Dashboard and test-runner changes are source-only.
+
+The self-installation baseline, nine focused installation and browser-configuration checks, four runner fixture checks, dashboard type-check, and focused Recent stories browser tests passed locally. Representative guidance review covered resuming a yielded wait, choosing typed test boundaries, and retiring a realized North Star topic while preserving unfinished direction. [Hosted trunk CI passed at `5eb9dfddc`](https://github.com/terryyin/open-dough/actions/runs/44492475233). The source candidate `e300eb9c8` adds backlog and planning changes.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this release reuses native evidence for the unchanged installation, discovery, and host-hook integrations. The [accepted Codex foreground-wait evidence](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/slice-plans/698-let-a-long-codex-wait-run-without-model-requests/PLAN.md#slice-2-accepted-verification) covers the same wait mechanism. Natural supplier-watch sampling and the existing native observations for freshness ordering and oversized-file reorganization remain pending.
+
 ## 0.3.107 - 2026-11-19
 
 - Execute Plan keeps proof and CI waits inside the Codex host call where supported. If the host returns a live cell, resume that cell with its original deadline. The separate coordinator delegation experiment found a quiet wake and higher combined effort, so its overlay stayed out of the release.
