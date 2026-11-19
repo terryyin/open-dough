@@ -126,6 +126,23 @@ paired proof, zero confirmed repeat opportunities, and unestablished alternate
 ownership and costs. The focused readback verified the unchanged runtime
 and backlog through the decision. Delivery disposition: records-only.
 
+## Execution complete
+
+Product advice: Keep the current Codex wait guidance and leave the Claude Code
+trial off the backlog. The candidate's quiet wake and higher matched success
+cost settle the release decision. The retained Claude Code family could not
+establish a repeatable, authorized transfer that offsets trial cost. See
+[the two decisions](decisions.md).
+
+The retrospective verified three delivered planning-only slices, the
+negative-result stopping rule, and the absence of shipped guidance and test
+changes. The independent upstream runner correction (`f09a46405a64`) entered
+the story branch in `50fcfc4a09f1`; it is outside the trial change. The merged
+runtime matches that successful upstream revision, and the exact failed
+runner-ownership example passed locally on the merge. Story-branch CI is
+tracked separately. The process review recorded the preflight mismatch in
+[DD-586](../../../DearDough.md#dd-586--a-paid-native-probe-reached-delegation-before-qualifying-proof-artifact-writes).
+
 ## Local gates and concern review
 
 Each slice has a 15-active-minute budget. Run long commands through the slice

@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 585. Removed numbers are never reused.
+- Highest allocated local number: 586. Removed numbers are never reused.
 - Recovery: `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.- Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -991,3 +991,10 @@ A native harness change passed 51 macOS checks before hosted Linux exposed three
   - Evidence: [failed Linux shard](https://github.com/terryyin/open-dough/actions/runs/44432359216/job/135252647345) and `f768859be:.planning/slice-plans/621-close-native-comparison-harness-gaps/diagnosis-native-linux-arm.md`.
   - Observed effect: a writer pause, one repair publication and 15 passing Linux checks after repair. The original proof had used macOS Bash and process groups.
   - Inference: use the existing [Ubuntu diagnostic](Distribution/tests/ci/ci-container.md) before publishing a change to shell signal or process-group ownership that ships on Linux.
+
+## DD-586 — A paid native probe reached delegation before qualifying proof artifact writes
+
+### Occurrences
+
+- Execution: SEED-345#get-long-verification-results-without-empty-wakes (plan 714, first trial publication `70f2434bca1a`, Codex 0.170.0, GPT-6.2 Sol xhigh, modified 0.3.106 guidance with the current source wait reference).
+  - Evidence: At 2026-11-19T03:05:51.369641+00:00, app-server thread `01a1f1c3-5ab9-7e30-81b4-69e10e071b76` (turn `01a1f1c3-5d20-78f1-a1a9-ccbaaf8f89f5`) had reached delegation but the worker's Git evidence directory write was refused by workspace-write. The original verification never started. The qualified rerun used the historical full-access profile inside the existing outer macOS isolation. A non-model check of the exact required artifact path under the selected boundary could have exposed the mismatch before the paid turn. The possible saving is unmeasured.
