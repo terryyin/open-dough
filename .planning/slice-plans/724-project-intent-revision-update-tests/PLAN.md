@@ -121,7 +121,7 @@ The published-reading MakeMe accessors now have one home,
 ### 2. Explain a selected path that the new revision deleted
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: When **Show latest** applies locations that still list a different
 file but omit the selected path, Purpose explains the missing path at the
@@ -131,6 +131,13 @@ Proof: Migrate the deleted-path notice case. Observe the exact path and
 revision, the visible surviving file, no source region or pressed file,
 the pane's focus, and only the locations request at the new revision.
 Keep the Development → Intent notice case in its original file.
+
+Accepted proof: the deleted-path case passed in the `intent/intent-revision`
+group with the typecheck. Learning: the read service substitute now clears
+the production answer memo and file cache through `forgetAnswers()` and
+`forgetCachedFiles()` at its start, so each case begins with empty
+browser-session caches. `clearAllTransientFailures()` is the existing seam if
+the retry cases leave failure state behind.
 
 ### 3. Retry locations and source at the revision each read owns
 

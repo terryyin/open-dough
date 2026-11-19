@@ -19,6 +19,7 @@ import { actSettled } from "../../test-support/mounted-dashboard/mountedActSettl
 import {
   featurePath,
   featuresFolder,
+  otherPath,
 } from "./intent-revision-read-service.mounted.ts";
 
 const source = makeMe.aPublishedSource
@@ -93,6 +94,10 @@ export async function mountReading(work: PublishedWork) {
 export const click = (target: Locator) =>
   actSettled(() => userEvent.click(target));
 
+// The pane the selected file's reading scrolls in.
+const readingPane = () =>
+  document.querySelector<HTMLElement>(".intent-reading");
+
 // The mounted Intent reading as a reader finds it.
 export function intentReading() {
   const intent = page.getByRole("main", { name: "Intent", exact: true });
@@ -108,6 +113,14 @@ export function intentReading() {
       name: new RegExp(`^(Expand|Collapse) ${featuresFolder}$`),
     }),
     feature: intent.getByRole("button", { name: featurePath, exact: true }),
+    otherFile: intent.getByRole("button", { name: otherPath, exact: true }),
+    // Every file source the reading shows.
+    sources: intent.getByLabelText(/ source$/),
+    // Files the locations column shows selected.
+    pressedFiles: () =>
+      document.querySelectorAll('.intent-locations [aria-pressed="true"]'),
+    readingPane,
+    purpose: intent.getByRole("region", { name: "Purpose", exact: true }),
     // The source as read, without the line breaking hints it renders.
     shownSource: () =>
       (featureSource.query()?.textContent ?? "").replace(/[\u200B\u00AD]/g, ""),
@@ -134,7 +147,7 @@ export async function openFeature(reading: ReturnType<typeof intentReading>) {
 
 // Scrolls the reading pane halfway, answering the offset it reached.
 export async function scrollReadingHalfway() {
-  const pane = document.querySelector<HTMLElement>(".intent-reading");
+  const pane = readingPane();
   if (pane === null) throw new Error("Intent shows no reading pane");
   const most = pane.scrollHeight - pane.clientHeight;
   expect(most).toBeGreaterThan(40);

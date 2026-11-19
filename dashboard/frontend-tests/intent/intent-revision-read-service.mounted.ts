@@ -3,7 +3,9 @@
 // (./intent-revision-*.mounted.spec.ts, ./intent-revision-reading.mounted.ts).
 import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { forgetAnswers } from "../../src/answerMemo.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { forgetCachedFiles } from "../../src/fileContentCache.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
 import { actSettled } from "../../test-support/mounted-dashboard/mountedActSettled.ts";
 
@@ -81,8 +83,11 @@ const locationsOf = (
 // The read service answering Intent's locations and file reads at each published revision and
 // the trunk's CI. `reads` lists Intent's reads as `<what>@<revision>`;
 // `unexpected` any other call; `holdLocationsOf` keeps one revision's
-// locations read until the case releases it.
+// locations read until the case releases it. Each service starts the
+// browser session's read caches empty, so every read a case causes reaches it.
 export function publishedReadService(published: Map<string, Snapshot>) {
+  forgetAnswers();
+  forgetCachedFiles();
   const reads: string[] = [];
   const unexpected: string[] = [];
   const holds = new Map<string, Promise<void>>();

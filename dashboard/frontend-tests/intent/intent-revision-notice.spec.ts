@@ -1,11 +1,8 @@
 import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
-import { filesColumn } from "../../test-support/intentModePage.ts";
-import { sourceFile } from "../../test-support/intentCodeBrowsePage.ts";
-import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts";
 // Development follows newer revisions while Intent keeps its reading behind
-// the notice; a deleted selected feature is explained, with nothing else
-// selected (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
-// Show latest keeping the reading: ./intent-revision-apply.mounted.spec.ts.
+// the notice (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
+// Show latest keeping the reading or explaining a deleted selected feature:
+// ./intent-revision-apply.mounted.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { parts } from "../../test-support/dashboardPage.ts";
@@ -13,14 +10,11 @@ import { shortRevision } from "../../test-support/dashboardParts.ts";
 import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
 import {
   browserRevision,
-  purposeRegion,
   revisionNotice,
 } from "../../test-support/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
 import { pygardon } from "../../test-support/intentCodeBrowseFixtures.ts";
 import {
   featurePath,
-  otherPath,
   publishedFeature,
 } from "../../test-support/intentJobsFeatureFixtures.ts";
 import {
@@ -67,37 +61,4 @@ test("Development follows a new revision while Intent, opened again, keeps its r
     `locations@${pygardon.revision}`,
     `${featurePath}@${pygardon.revision}`,
   ]);
-});
-
-test("a selected feature the latest revision deleted is explained, with nothing else selected", async ({
-  page,
-  frontendServices,
-}) => {
-  const files = publishedFiles(jobsFeatures);
-  const reads = intentReads(page);
-  const { moveTrunk, intent } = await openWithFeatureSelected(
-    page,
-    frontendServices,
-    files,
-  );
-
-  const revision = "e9".repeat(20);
-  const remaining = Object.fromEntries(
-    Object.entries(files).filter(([path]) => path !== featurePath),
-  );
-  await moveTrunk(revision, remaining);
-  await showLatestRevision(revisionNotice(intent)).click();
-
-  await expect(purposeRegion(intent)).toContainText(
-    `${featurePath} is not in revision ${shortRevision(revision)}`,
-  );
-  await untilPageReadsAnswered(page);
-  await expect(sourceFile(intent, otherPath)).toBeVisible();
-  await expect(
-    filesColumn(intent).locator('[aria-pressed="true"]'),
-  ).toHaveCount(0);
-  await expect(intent.getByLabel(/ source$/)).toHaveCount(0);
-  await expect(intentReadingPane(intent)).toBeFocused();
-  await expect(browserRevision(intent)).toContainText(shortRevision(revision));
-  expect(reads.slice(2)).toEqual([`locations@${revision}`]);
 });
