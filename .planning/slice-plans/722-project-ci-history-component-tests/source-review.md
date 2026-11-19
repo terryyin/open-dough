@@ -36,11 +36,11 @@ retirement have other owners.
 | 16 | When the reader views the supplied window of twenty measured builds and six gaps, the chart duration rises and falls with the measured values. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts, window case checks the x order and every direction change among twenty points |
 | 17 | Every break in that window is visible in the chart. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts, window case checks stroke lengths 6, 2, 3, 3, 2, 4 |
 | 18 | When the reader expands evidence for that window, all 26 entries have evidence. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts, window case opens evidence and compares all 26 ordered rows |
-| 19 | With empty history, the judgment remains visible. | slice 2 | |
-| 20 | With empty history, **Proof** remains visible. | slice 2 | |
-| 21 | With empty history, no evidence disclosure is offered. | slice 2 | |
-| 22 | At a 390 px viewport, with focus on **Check again**, Shift+Tab opens the keyboard path to **Builds and evidence**. | slice 2 | |
-| 23 | From the resulting position in that phone journey, Enter expands **Builds and evidence**. | slice 2 | |
+| 19 | With empty history, the judgment remains visible. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, empty case requires the passing trunk judgment with the revision and subject |
+| 20 | With empty history, **Proof** remains visible. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, empty case requires the Proof region and all three exact accessible labels |
+| 21 | With empty history, no evidence disclosure is offered. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, empty case checks that history has no summary or chart |
+| 22 | At a 390 px viewport, with focus on **Check again**, Shift+Tab opens the keyboard path to **Builds and evidence**. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, measured case checks 390 × 844, focuses Check again, sends Shift+Tab, and observes the disclosure focused |
+| 23 | From the resulting position in that phone journey, Enter expands **Builds and evidence**. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, measured case sends Enter from the focused disclosure and observes the visible list and exact row |
 | 24 | The run links reached in that journey have their expected names. | slice 3 | |
 | 25 | After expansion in the phone journey, successive Tabs reach the run links in order. | slice 3 | |
 | 26 | The gap-only answer explains each gap. | slice 3 | |

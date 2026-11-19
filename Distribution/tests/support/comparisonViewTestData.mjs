@@ -28,6 +28,20 @@ export const comparisonViewFacts = {
   },
 };
 
+/** @typedef {Pick<typeof comparisonViewFacts, "anIntentCiStatus">} IntentCiStatusMakeMe */
+
+/** @returns {PropertyDescriptorMap} */
+export function intentCiStatusMakeMeProperties() {
+  return {
+    anIntentCiStatus: {
+      enumerable: true,
+      get() {
+        return comparisonViewFacts.anIntentCiStatus;
+      },
+    },
+  };
+}
+
 export class PublishedWorkBuilder {
   /** @param {import("../../../dashboard/src/publishedWork.ts").PublishedWork} facts */
   with(facts) {

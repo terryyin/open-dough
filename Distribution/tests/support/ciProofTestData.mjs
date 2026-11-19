@@ -118,3 +118,17 @@ export class CiProofBuilder {
     };
   }
 }
+
+/** @typedef {{ aCiProof: CiProofBuilder }} CiProofMakeMe */
+
+/** @returns {PropertyDescriptorMap} */
+export function ciProofMakeMeProperties() {
+  return {
+    aCiProof: {
+      enumerable: true,
+      get() {
+        return new CiProofBuilder();
+      },
+    },
+  };
+}

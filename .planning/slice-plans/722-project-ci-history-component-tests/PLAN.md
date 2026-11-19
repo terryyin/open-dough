@@ -113,11 +113,12 @@ window case checked 26 rows, all twenty points and six stroke lengths. The
 five-case family, Story Notes consumers, backend lifecycle consumer, case
 listing and dashboard typecheck passed. Local evidence is in the checkout's
 Git evidence directory in `slice1-return.md`.
+Published branch revision: `9ec3bb95400e7b4be6f11e35fdb275695490a383`.
 
 ### 2. Read a measured or empty history beside the trunk judgment and Proof
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a passing trunk judgment and its proof, a reader sees those
 labels with either a one-build or an empty history. One build names the time,
@@ -132,6 +133,15 @@ measured state. At phone width, reach the disclosure from Check again with
 Shift+Tab, open it with Enter and tab to the run link. Measure overflow in
 the document and history descendants. In the empty state require an absent
 chart and disclosure. Run the family through the frontend group.
+
+Accepted proof: Both original titles passed on mounted Chromium in
+`intent-ci-wall-time-history.mounted.spec.ts`. The measured case verified
+the exact labels and evidence, Shift+Tab, Enter and Tab to run 41,
+and that the document and history descendants fit at 390 × 844. The empty
+case kept the matching judgment and three Proof labels and offered no chart
+or disclosure. The focused frontend run (26 cases), backend proof consumers
+(10), five-title listing and dashboard typecheck passed. Local evidence is
+in the checkout's Git evidence directory in `slice2-return.md`.
 
 ### 3. Reach the evidence for each unmeasured landing on a phone
 
