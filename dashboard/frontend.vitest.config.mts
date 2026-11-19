@@ -4,6 +4,9 @@ import { defineConfig } from "vitest/config";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { mountedDashboardCommands } from "./test-support/support/mountedDashboardCommands.ts";
 import { mountedTerminalCommands } from "./test-support/support/mountedTerminalCommands.ts";
+import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
+
+useDisposableTestHome();
 
 export default defineConfig({
   plugins: [react()],

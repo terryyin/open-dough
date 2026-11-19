@@ -282,11 +282,10 @@ that read `.planning/open-dough.json` or the READMEs pass.
 - The backend Vitest marker is the executor's choice within the constraint in
   Approach: one shared predicate, transitional, with no rename of existing
   frontend files.
-- Plan 719
-  ([SEED-412](../../seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md))
-  also edits `scripts/test-frontend.mjs` and the run setup. Whichever lands
-  second rebases onto the other; the backend Vitest run starts under the run
-  isolation the group has at that time.
+- SEED-412 set up disposable homes in the existing Playwright and frontend
+  Vitest configs in `944fdaeea`. Plan 719 remains recoverable at `05b3168e`.
+  The backend Vitest run starts under the run isolation the group has at
+  that time.
 - No CI job is added and no shard count changes; the backend Vitest cases
   ride the existing `dashboard-backend` shards.
 

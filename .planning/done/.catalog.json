@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-412_keep-dashboard-tests-off-the-developers-real-cursor-runner.json",
+      "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+      "completedAt": "2026-11-19T11:07:39.350Z",
+      "blob": "bbf977e930ee229cbe33c5bfe60f531745846fcb"
+    },
+    {
       "fileName": "SEED-411_express-submit-and-close-test-intent.json",
       "identity": "SEED-411#express-submit-and-close-test-intent",
       "completedAt": "2026-11-19T11:07:34.654Z",

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+  "title": "Keep dashboard tests off the developer's real Cursor runner",
+  "completedAt": "2026-11-19T11:07:39.350Z",
+  "developer": "Terry Yin",
+  "agent": "Rina-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

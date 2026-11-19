@@ -6,8 +6,8 @@
 // root, CI job and output directory and keeps its own global setup, so no
 // run reads another runner's split, times, proof record, deadline or output
 // directory, and each selects only its own root's specs (prepareFocusedRun).
-import { availableParallelism } from "node:os";
-import { mkdirSync } from "node:fs";
+import { availableParallelism, homedir, tmpdir } from "node:os";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dashboardBrowserArgs } from "./browserArgs.ts";
@@ -22,6 +22,30 @@ import {
 } from "./testFiles.mjs";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
+
+export function useDisposableTestHome() {
+  // Keep Playwright's browser registry outside the temporary home, including
+  // when a mixed frontend run starts Playwright from Vitest's disposable HOME.
+  const browserPath =
+    process.env["PLAYWRIGHT_BROWSERS_PATH"] ??
+    process.env["npm_config_playwright_browsers_path"] ??
+    process.env["npm_package_config_playwright_browsers_path"];
+  if (!browserPath) {
+    const home = homedir();
+    const cache =
+      process.platform === "darwin"
+        ? path.join(home, "Library", "Caches")
+        : process.platform === "win32"
+          ? process.env["LOCALAPPDATA"] || path.join(home, "AppData", "Local")
+          : process.env["XDG_CACHE_HOME"] || path.join(home, ".cache");
+    process.env["PLAYWRIGHT_BROWSERS_PATH"] = path.join(cache, "ms-playwright");
+  }
+
+  const home = mkdtempSync(path.join(tmpdir(), "dough-dashboard-test-home-"));
+  process.env["HOME"] = home;
+  if (process.platform === "win32") process.env["USERPROFILE"] = home;
+  process.once("exit", () => rmSync(home, { recursive: true, force: true }));
+}
 
 /**
  * `<prefix>_SPLIT`, `_TIMES`, `_PROOF_RECORD`, `_DEADLINE_MS` and
@@ -67,6 +91,7 @@ async function prepareGroupRun(variables, outputs) {
   // Workers reload it, but only the runner admits a full local run before
   // global setup.
   const runner = process.env["TEST_WORKER_INDEX"] === undefined;
+  if (runner) useDisposableTestHome();
   if (
     runner &&
     !process.env["CI"] &&
