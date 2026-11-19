@@ -14,7 +14,7 @@ import {
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
 import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
-import { CiHistoryAnswerBuilder } from "./ciHistoryAnswerTestData.mjs";
+import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { CiProofBuilder } from "./ciProofTestData.mjs";
 import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
 import {
@@ -42,7 +42,7 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 /**
  * CI builders exposed on MakeMe (fresh on each access).
  *
- * @typedef {CiOwnMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
+ * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
  */
 /**
  * @typedef {object} CiOwnMakeMe
@@ -68,7 +68,6 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
  * @property {FactBuilder<import("./ciQueueTestData.mjs").CiAdapterQueueEntry>} aCiQueueEntry
  * @property {FactBuilder<import("./ciRevisionCoverageTestData.mjs").RevisionCoverageRecord>} aRevisionCoverage
  * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
- * @property {import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerBuilder} aCiHistoryAnswer
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
  * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
  * @property {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} anIntentCiStatus
@@ -211,12 +210,7 @@ export function ciMakeMeProperties() {
         return new LandedCiHistoryBuilder();
       },
     },
-    aCiHistoryAnswer: {
-      enumerable: true,
-      get() {
-        return new CiHistoryAnswerBuilder();
-      },
-    },
+    ...ciHistoryAnswerMakeMeProperties(),
     aCiRun: {
       enumerable: true,
       get() {

@@ -3,6 +3,8 @@
 **Identity:** SEED-413#renovate-dashboard-frontend-unit-tests
 **Source:** [Prove Project CI history through the components that show it](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests)
 
+**Source review:** [Independent source review](source-review.md)
+
 ## Goal and scope
 
 A developer can verify Project Intent's trunk CI history in plain Vitest and
@@ -68,12 +70,27 @@ then reported all five built-app history cases and both mounted Chromium cases
 passed in one group proof record. This change affects the runner environment.
 The component, data and native key paths exercised above are identical.
 
+## Execution context
+
+Story Branch Mode in the established `codex/prove-project-ci-history-through-the-components`
+worktree. Publisher `dashboard-territory.local-open-dough`, agent Ai-chan. Claim
+`a354099b409102a1031e9f2f82f975bbd3068467` accepted on `origin/main` and
+published as the execution branch base. Starting revision `f9e6023bc520c5a8485f619d0ede25c1b097b1c7`.
+The readiness review basis predates the pilot closure. That closure removed the
+obsolete plan link and settled the supplier dependency. The selected scope
+agrees with the executable plan.
+
+Codex CI observer for `terryyin/open-dough`, workflow `ci.yml`, execution branch
+`codex/prove-project-ci-history-through-the-components`, coordinator
+`ai-chan-f57056ac`, directory `/tmp/dough-ci-501/watch-3vYp1O`,
+PID 81472, session 41509, cell `g217:11`.
+
 ## Ordered slices
 
 ### 1. Read the window in landing order and see every gap
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given builds in backend landing order with reversed build dates or
 the twenty-build window with intervening gaps, the reader opens the evidence.
@@ -87,6 +104,15 @@ Check exact rows and dates, the no-choice controls, reversed x positions, the
 rise and fall of the twenty points and the six stroke lengths in the old
 window case. Include a build whose measured time differs from elapsed wall
 time. Keep the backend-selected window as input. Run the family and typecheck.
+
+Accepted proof: The two original titles passed on mounted Chromium in
+`intent-ci-wall-time-history-evidence.mounted.spec.ts`. The order case checked
+the reversed x positions, disconnected points, date attributes, three ordered
+rows and run 213's three-minute measure over its five-minute attempt. The
+window case checked 26 rows, all twenty points and six stroke lengths. The
+five-case family, Story Notes consumers, backend lifecycle consumer, case
+listing and dashboard typecheck passed. Local evidence is in the checkout's
+Git evidence directory in `slice1-return.md`.
 
 ### 2. Read a measured or empty history beside the trunk judgment and Proof
 

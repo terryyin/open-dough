@@ -91,3 +91,20 @@ export class CiHistoryAnswerBuilder {
     return { entries: [...this.#entries] };
   }
 }
+
+/**
+ * @typedef {object} CiHistoryAnswerMakeMe
+ * @property {CiHistoryAnswerBuilder} aCiHistoryAnswer
+ */
+
+/** @returns {PropertyDescriptorMap} */
+export function ciHistoryAnswerMakeMeProperties() {
+  return {
+    aCiHistoryAnswer: {
+      enumerable: true,
+      get() {
+        return new CiHistoryAnswerBuilder();
+      },
+    },
+  };
+}
