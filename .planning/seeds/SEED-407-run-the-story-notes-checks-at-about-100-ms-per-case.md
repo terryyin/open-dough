@@ -32,9 +32,14 @@ Keep all eleven behaviors, including refusing a write, reopening after a
 stale read, restoring keyboard focus and keeping a live terminal attached.
 Preserve the original case denominator when reorganizing proof. Count setup
 and teardown, including any preparation introduced by the proposed change.
-The preceding story owns the one-third milestone. The separate Dashboard
-frontend family story owns rollout beyond Story Notes.
-[One-third baseline and experiments](SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) and
+The preceding story delivers about half the baseline. The one-third
+milestone moved here on 2026-11-19 with its untried experiments: mount the
+three edit cases at the smallest production boundary that proves their card
+count, dialog, focus, context and service requests, and make configuration
+loading and dependency preoptimization distributable on the supported Node
+range. Vitest attributed 30 to 43% of the mounted phase to imports. The
+separate Dashboard frontend family story owns rollout beyond Story Notes.
+[Half-time baseline and experiments](SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) and
 [other frontend families](SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary)
 
 Doughnut reported 2,573 frontend cases in 65 seconds, about **25 ms per

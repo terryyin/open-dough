@@ -109,47 +109,50 @@ and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
 <a id="run-the-story-notes-checks-in-a-third-of-their-time"></a>
 
-### Run the story-notes checks in a third of their time
+### Run the Story Notes checks in half their time
 
 **Identity:** SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/713-run-the-story-notes-checks-in-a-third-of-their-time/PLAN.md","assessment":"not-ready","reasons":["Slice 1's smaller production mount for the edit cases is still unmeasured. Trunk after the hold-and-settle correction measured about 0.80 and 0.95 of the original, and the best earlier candidate missed one third by 1.06 and 1.46 seconds. Run the candidate with its original assertions through the ordinary two-worker command in matched A–B–B–A pairs at low host load; the 2026-11-19 load of 25 to 32 was too high to resolve a one-second gap."],"basis":{"document":"a9012ab4ce18a162e30f5fc2e34fe80eb7de8b3543f70bcfe8ff2bdda515ebba","plan":"926dcfa98bc4d13472628a6239472f20e3bb41e8efc3670dab0e1486ec467311"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/713-run-the-story-notes-checks-in-a-third-of-their-time/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"607ab853a94d30357e882f741d5b22ec1a1cd24bc97b4b955e267e6b03459e41","plan":"ba92100958defe0e643185646a58bd83a40f188ec260f356f5de35511d75d1ab"}}
 ```
 
 Split on 2026-11-19 from the story-notes story, whose matched comparison
-measured 0.83 of the baseline instead of a third.
+measured 0.83 of the baseline instead of a third. Rescoped on 2026-11-19 to
+the gain preparation reproduced: about half. Terry accepted that result and
+moved further optimization to the
+[100 ms follow-up](SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case).
 
 **Goal.** A developer running the story-notes specs gets their answer in at
-most a third of the 2026-11-19 matched baseline at the usual two-worker local
+most half of the matched `e8e01643a` baseline at the usual two-worker local
 budget, with every original product assertion kept, and later mounted
 families inherit the cheaper settling.
 
-**Scope.** In a 10.8 s run of `npm run test:dashboard:frontend --
-stories/story-notes`, runner start took 1.2 s, the Playwright phase 2.7 s
-(startup and the attached-terminal case) and the mounted phase 6.6 s; mounted
-cases took 0.5–1.5 s each, against about 0.15 s for the phone-board cases,
-and import about 0.3 worker-s per file. Most mounted time goes to
-`actSettled` in `dashboard/test-support/mounted-dashboard/mountedActInput.ts`,
-which waits for frames and tasks inside act after every input so no update
-escapes act. Make settling cheaper without bringing back React's "not wrapped
-in act" warnings or the reopened Story notes dialog that skipped `showModal`.
-Take the Playwright phase out of the command by answering the attached
-terminal's socket in the mounted board through the engine-free
-`TerminalApplication` rule, or record why the case stays with its cost.
-Compare in matched alternating runs against `e8e01643a`, as the story-notes
-story did. Deferred: the other families and the whole-group minute.
+**Scope.** Move the attached-terminal case from the built-app fixture onto
+the mounted board, answering its socket through the existing
+`installAttachedTerminalSubstitute` and `directedApplication`, so the command
+runs all eleven cases in mounted Chromium without the Playwright phase.
+Finish a dialog close on that dialog's native `close` event observed inside
+`act`, and keep `actSettled`'s task and frame rounds where timer advances,
+released reads and layout callbacks can still update the page. Keep the
+hold-and-settle behaviors: the unreachable revision stream, held-answer
+cleanup and `UnsettledPageError`. Compare in matched alternating runs
+against `e8e01643a`. Deferred to the 100 ms follow-up: one third, a smaller
+production mount for the edit cases, native config loading and dependency
+preoptimization. Deferred to the rollout story: the other families and the
+whole-group minute.
 
 **Key examples.**
 
 - The edit case's keyboard save still shows the saved text, returns focus to
-  Edit and records the same change request, in a fraction of today's 1.0 s.
+  Edit and records the same change request.
 - A run of the mounted story-notes specs prints no "not wrapped in act" line,
   and reopening Story notes after a project read still opens the dialog.
 - Story notes opens beside an attached terminal on the mounted board, and the
   terminal stays connected and shows output printed while notes was open.
-- Before: 10.4 and 13.5 s for the baseline revision in matched runs on
-  2026-11-19. After, in a matched session, the command takes a third of its
-  baseline or less.
+- Before: 10.12 and 10.49 s for the baseline revision in the low-load matched
+  pairs on 2026-11-19. After, in a matched session at comparable load, each
+  run takes at most half of its paired baseline, as the scratch combination's
+  4.44 and 4.96 s did.
 
 #### What the focused command can save
 
@@ -226,12 +229,11 @@ in every run with no act warning. In its fastest run, Vitest took 8.3 s for
 ten mounted cases, 30% import, and the built-app terminal case still ran.
 The correction left the gap to one third open.
 
-**Decision.** Keep one third as the acceptance threshold for this story.
-The scope includes the remaining cost of starting and running the mounted
-suite. In the two best matched pairs, one third would be 3.37 and 3.50 s
-for all eleven cases. The developer's longer-term target of about 100 ms
-per case has its own [queued story](SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case).
-It would bring this same command to about 1.1 s with today's eleven cases.
+**Decision.** Accept half as this story's threshold. The mounted socket
+and close-event combination reproduced 0.44 and 0.47 at low load. One third
+and the experiments that might reach it moved to the
+[100 ms follow-up](SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case),
+which targets about 1.1 s for today's eleven cases.
 
 <a id="run-the-other-frontend-families-at-the-mounted-boundary"></a>
 
