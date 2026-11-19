@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Ai-chan",
+  "email": "ai-chan@example.org",
+  "identity": "SEED-345#get-long-verification-results-without-empty-wakes",
+  "mode": "story-branch",
+  "branch": "codex/trial-a-quieter-codex-wait-for-long-verification",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
