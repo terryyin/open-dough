@@ -162,7 +162,7 @@ active minutes, commands excluded.
 
 ### 4. Read worktree ambiguity from declared agent worktrees
 Type: Behavior
-Status: planned
+Status: done
 Proof: Third and fourth consumer rows and the builder row; S4 establishes the route.
 
 Behavior: Given the declared claim of Story A on trunk, Yui-chan's `trunk-a`
@@ -240,3 +240,27 @@ ownership.
   Unique revision names share `assertNewRevisionName` in
   `repository-revision-facts.mjs`. Accepted proof: builder (10) +
   own-changes/older-git (3); evidence `open-dough/evidence/slice-3/`.
+- Slice 4 file-size reorganization (required before delivery; plan's
+  under-250 expectation for these paths was wrong):
+  1. `storyReviewTrunkMode.ts` (~314): move claim-only trunk and ambiguity
+     descriptions (`trunkModeClaim`, `trunkModeAmbiguityAlone` /
+     `trunkModeAmbiguityBoth`, and their agent/local-state helpers) into a
+     cohesive sibling beside it (e.g. `storyReviewTrunkAmbiguity.ts`); keep
+     published `trunkModeStory` / `publishRewrittenLine` here; re-export or
+     update imports so ambiguity/real-start consumers stay clear.
+  2. `repository-history.mjs` (~267): move `materializeWorkspace` and the
+     multi-workspace materialization loop into a sibling beside it (e.g.
+     `repository-workspace-materialize.mjs`); `buildRepository` remains the
+     public history entry.
+  3. `repository-fixture.test.mjs` (~277): move the several-workspaces
+     materialization case (and only the workspace-materialization cases that
+     must travel with it) into a test module beside `repository-workspace.mjs`
+     (e.g. `repository-workspace.test.mjs`); leave unrelated fixture cases.
+  Proof to preserve: builder suites (including the moved case), typecheck,
+  ambiguity + real-start e2e, and singular own-changes/older-git/flagged if
+  the materializer public path moves.
+- Slice 4 delivered those seams: `storyReviewTrunkAmbiguity.ts`,
+  `repository-workspace-materialize.mjs`, `repository-workspace.test.mjs`;
+  `describedWorkspaces` used by history reads/snapshot. Accepted proof:
+  builder 11, typecheck, e2e ambiguity+worktree+own+flagged+older-git (8);
+  evidence `open-dough/evidence/slice-4/`.

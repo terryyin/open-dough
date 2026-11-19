@@ -1,8 +1,9 @@
 // @ts-check
-// A description's execution workspace: branch, starting trunk revision,
+// A description's execution workspaces: each branch, starting trunk revision,
 // optional agent authorship and checkout identity, and ordered unpublished
 // revisions. Builder methods stay on RepositoryBuilder; the workspace facts,
-// checks and assembly live here.
+// checks and assembly live here. One workspace is the usual case; several
+// appear when a case needs agent-authored worktrees beside the story's.
 import {
   assertKnownParents,
   assertNewRevisionName,
@@ -38,75 +39,101 @@ import {
  */
 
 /**
+ * Builder-side workspace while unpublished revisions accumulate on the latest.
+ * @template {string} [Name=string]
+ * @typedef {WorkspaceFacts<Name> & {
+ *   unpublished: NamedRevision<Name>[],
+ * }} WorkspaceInProgress
+ */
+
+/**
  * @template {string} Name
- * @param {WorkspaceFacts<Name> | undefined} existing
+ * @param {readonly WorkspaceInProgress<Name>[] | undefined} existing
  * @param {string} branch
  * @param {{ from: Name, checkoutIdentity?: GitPerson, agent?: string }} facts
- * @returns {WorkspaceFacts<Name>}
+ * @returns {WorkspaceInProgress<Name>[]}
  */
 export function declareWorkspace(existing, branch, facts) {
-  if (existing)
-    throw new Error(`The repository already has workspace ${existing.branch}`);
-  return { ...facts, branch };
+  const workspaces = existing ?? [];
+  if (workspaces.some((workspace) => workspace.branch === branch))
+    throw new Error(`The repository already has workspace ${branch}`);
+  return [...workspaces, { ...facts, branch, unpublished: [] }];
 }
 
 /**
  * @template {string} Name
  * @template {string} NewName
- * @param {WorkspaceFacts<Name> | undefined} workspace
+ * @param {readonly WorkspaceInProgress<Name>[] | undefined} workspaces
  * @param {NewName} name
  * @param {readonly RepositoryRevision[]} revisions
- * @param {readonly RepositoryRevision[]} unpublished
  * @param {RevisionFacts} [facts]
- * @returns {NamedRevision<Name | NewName>[]}
+ * @returns {WorkspaceInProgress<Name | NewName>[]}
  */
 export function declareUnpublishedRevision(
-  workspace,
+  workspaces,
   name,
   revisions,
-  unpublished,
   facts = {},
 ) {
-  if (!workspace)
+  if (!workspaces?.length)
     throw new Error(
       `Unpublished revision ${name} needs a workspace: call withWorkspace first`,
     );
-  const known = [...revisions, ...unpublished];
+  const known = [
+    ...revisions,
+    ...workspaces.flatMap((workspace) => workspace.unpublished),
+  ];
   assertNewRevisionName(name, known);
   assertKnownParents(name, facts, known);
-  return /** @type {NamedRevision<Name | NewName>[]} */ ([
-    ...unpublished,
-    { ...facts, name },
-  ]);
+  const last = workspaces.length - 1;
+  return /** @type {WorkspaceInProgress<Name | NewName>[]} */ (
+    workspaces.map((workspace, index) =>
+      index === last
+        ? {
+            ...workspace,
+            unpublished: [...workspace.unpublished, { ...facts, name }],
+          }
+        : workspace,
+    )
+  );
 }
 
 /**
  * @template {string} Name
- * @param {WorkspaceFacts<Name> | undefined} workspace
+ * @param {readonly WorkspaceInProgress<Name>[] | undefined} workspaces
  * @param {readonly RepositoryRevision[]} revisions
  */
-export function assertWorkspaceFromKnownTrunk(workspace, revisions) {
-  if (
-    workspace &&
-    !revisions.some((revision) => revision.name === workspace.from)
-  )
-    throw new Error(
-      `Workspace ${workspace.branch} starts from unknown trunk revision ${workspace.from}`,
-    );
+export function assertWorkspacesFromKnownTrunk(workspaces, revisions) {
+  for (const workspace of workspaces ?? [])
+    if (!revisions.some((revision) => revision.name === workspace.from))
+      throw new Error(
+        `Workspace ${workspace.branch} starts from unknown trunk revision ${workspace.from}`,
+      );
 }
 
 /**
  * @template {string} Name
- * @param {WorkspaceFacts<Name> | undefined} workspace
- * @param {readonly RepositoryRevision[]} unpublished
- * @returns {RepositoryWorkspace<Name> | undefined}
+ * @param {readonly WorkspaceInProgress<Name>[] | undefined} workspaces
+ * @returns {RepositoryWorkspace<Name>[] | undefined}
  */
-export function workspaceWithRevisions(workspace, unpublished) {
-  if (!workspace) return undefined;
-  return /** @type {RepositoryWorkspace<Name>} */ (
-    /** @type {unknown} */ ({
-      ...workspace,
+export function workspacesWithRevisions(workspaces) {
+  if (!workspaces?.length) return undefined;
+  return /** @type {RepositoryWorkspace<Name>[]} */ (
+    workspaces.map(({ unpublished, ...facts }) => ({
+      ...facts,
       revisions: unpublished.map((revision) => ({ ...revision })),
-    })
+    }))
   );
+}
+
+/**
+ * Every workspace a completed description holds: the singular `workspace` or
+ * the `workspaces` list when several were declared.
+ * @param {{ workspace?: RepositoryWorkspace, workspaces?: readonly RepositoryWorkspace[] }} description
+ * @returns {readonly RepositoryWorkspace[]}
+ */
+export function describedWorkspaces(description) {
+  if (description.workspaces) return description.workspaces;
+  if (description.workspace) return [description.workspace];
+  return [];
 }

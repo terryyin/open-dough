@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildRepository, layout } from "./repository-history.mjs";
 import { integrationDeveloper } from "./repository-revision-commit.mjs";
+import { describedWorkspaces } from "./repository-workspace.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
 /** @typedef {import("./repository-history.mjs").Snapshot} Snapshot */
@@ -136,9 +137,10 @@ export async function locateSnapshot(description, shape) {
  * @param {RepositoryDescription} description
  */
 export async function prepareRepositorySnapshot(directory, description) {
-  if (description.workspace)
+  const [workspace] = describedWorkspaces(description);
+  if (workspace)
     throw new Error(
-      `A repository snapshot holds published revisions only; workspace ${description.workspace.branch} belongs to the materialized repository`,
+      `A repository snapshot holds published revisions only; workspace ${workspace.branch} belongs to the materialized repository`,
     );
   const { gitTemplates } = snapshotShape;
   const { revisions, trunkSha } = await buildRepository(

@@ -2,19 +2,18 @@ import {
   reviewRefresh,
   reviewRegion,
 } from "../../dashboard/test-support/support/reviewControls.ts";
-// A Trunk Mode story taken in a terminal (./story-review-trunk-worktree.spec.ts)
-// beside other worktrees of the project's checkout, each added by Git and
-// authored through the real per-worktree authorship
-// (`workspace-agent-authorship.mjs`). A worktree the story's agent left before
-// the story's claim, one still on another story's claim, and one another
-// agent left at a claim of the story trunk does not publish are passed over:
-// the review reads the story's worktree alone. Two worktrees holding the story's
-// claim are not chosen between: Review changes opens a review that says so
-// and names both as the context line would show them, with no context line,
-// file browser, diff, or comparison controls, and the boundary refuses to read either.
+// A Trunk Mode story's claim and agent-authored worktrees declared through
+// MakeMe (../../dashboard/test-support/support/storyReviewTrunkAmbiguity.ts):
+// Yui-chan's `trunk-a` with one slice beside worktrees that local Git passes
+// over — one she left before the claim, one still on another story's claim,
+// and one Akiho-chan left at an unpublished claim of Story A — so the review
+// reads `trunk-a` alone. Two worktrees holding the story's claim are not
+// chosen between: Review changes opens a review that says so and names both
+// as the context line would show them, with no context line, file browser,
+// diff, or comparison controls, and the boundary refuses to read either.
+// ./story-review-trunk-worktree.spec.ts keeps the real terminal start.
 
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
-import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { launchRecordsSchema } from "../../dashboard/src/agentLaunch.ts";
@@ -26,10 +25,6 @@ import {
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  agentWorktree,
-  claimWorktree,
-} from "../../dashboard/test-support/support/agentAuthoredWorktree.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   expect,
@@ -48,30 +43,20 @@ import {
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
-  otherQueuedIdentity,
   queuedIdentity,
   type StartOrigin,
-  type TakenStart,
 } from "../../dashboard/test-support/support/startOrigin.ts";
 import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
-  commitAll,
-  git,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+  trunkModeAmbiguityAlone,
+  trunkModeAmbiguityBoth,
+} from "../../dashboard/test-support/support/storyReviewTrunkAmbiguity.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { yui } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 
 const shown = (slug: string) => `~/git/open-dough/.worktrees/${slug}`;
-
-// Story A taken by the real Trunk Mode start in `trunk-a`, with one slice
-// committed after the claim, and trunk as it was before the claim.
-async function storyTakenWithOneSlice(origin: StartOrigin) {
-  const beforeClaim = (await origin.originGit("rev-parse", "main")).trim();
-  const start = await origin.takenInTrunkMode("trunk-a");
-  const claim = git(start.workspace, "rev-parse", "HEAD");
-  expect(claim).not.toBe(beforeClaim);
-  writeFileSync(path.join(start.workspace, "slice.txt"), "slice\n");
-  commitAll(start.workspace, "first slice");
-  return { ...start, claim, beforeClaim };
-}
+const worktree = (origin: StartOrigin, slug: string) =>
+  path.join(origin.project, ".worktrees", slug);
 
 // Local Git finds the story's worktree alone, for the story's agent, and the
 // story's review reads it from the claim.
@@ -79,8 +64,10 @@ async function expectStoryWorktreeReviewedAlone(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
-  { agent, workspace, branch, claim }: TakenStart & { readonly claim: string },
 ) {
+  const workspace = worktree(origin, "trunk-a");
+  const claim = origin.revision("take Story A");
+  const branch = "exec/trunk-a";
   const sessions = await page.request.get(
     `${dashboard.baseURL}${agentLaunchEndpoint}`,
     { headers: { Origin: dashboard.origin } },
@@ -88,7 +75,7 @@ async function expectStoryWorktreeReviewedAlone(
   const { workspaces } = launchRecordsSchema.parse(await sessions.json());
   expect(
     workspaces.map((found) => [found.identity, found.agent, found.workspace]),
-  ).toEqual([[queuedIdentity, agent, shown("trunk-a")]]);
+  ).toEqual([[queuedIdentity, yui.agent, shown("trunk-a")]]);
 
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
@@ -105,90 +92,69 @@ async function expectStoryWorktreeReviewedAlone(
   ]);
 }
 
-test("worktrees without this story's published claim — the agent's earlier or other-story worktrees and an earlier agent's unpublished claim — are passed over, and the review reads the publishing agent's worktree alone", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const story = await storyTakenWithOneSlice(origin);
-  const { agent, beforeClaim } = story;
+test.describe("worktrees without this story's published claim", () => {
+  test.use({ originRepository: trunkModeAmbiguityAlone() });
 
-  // One worktree the agent authors sits on trunk before the claim, one is
-  // still on the claim of another story it held (which trunk no longer
-  // publishes), and an agent that held the story earlier left its worktree at
-  // its own claim (which trunk does not publish).
-  const earlier = await agentWorktree(origin, agent, "earlier", beforeClaim);
-  writeFileSync(path.join(earlier, "earlier.txt"), "earlier\n");
-  await claimWorktree(
+  test("the agent's earlier or other-story worktrees and an earlier agent's unpublished claim are passed over, and the review reads the publishing agent's worktree alone", async ({
+    page,
+    dashboard,
     origin,
-    agent,
-    "closed-b",
-    beforeClaim,
-    otherQueuedIdentity,
-  );
-  const earlierAgent = "Akiho-chan";
-  expect(story.agent).not.toBe(earlierAgent);
-  await claimWorktree(
-    origin,
-    earlierAgent,
-    "earlier-agent",
-    beforeClaim,
-    queuedIdentity,
-  );
-
-  await expectStoryWorktreeReviewedAlone(page, dashboard, origin, story);
+  }) => {
+    await expectStoryWorktreeReviewedAlone(page, dashboard, origin);
+  });
 });
 
-test("two worktrees holding the story's claim open a review that names both and reads neither", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { agent, workspace } = await origin.takenInTrunkMode("trunk-a");
-  const claim = git(workspace, "rev-parse", "HEAD");
-  writeFileSync(path.join(workspace, "notes.md"), "notes\n");
-  const second = await agentWorktree(origin, agent, "trunk-b", claim);
-  writeFileSync(path.join(second, "second.txt"), "second\n");
-  const explanation = `Several worktrees on this machine hold this story's claim for ${agent}: ${shown("trunk-a")}, ${shown("trunk-b")}. The review cannot choose one.`;
+test.describe("two worktrees holding the story's claim", () => {
+  test.use({ originRepository: trunkModeAmbiguityBoth() });
 
-  await openBacklog(page, origin);
-  const card = parts(page).taken.getByRole("article", { name: "Story A" });
-  const answered = page.waitForResponse(
-    (response) => new URL(response.url()).pathname === storyReviewEndpoint,
-  );
-  await reviewChanges(card).click();
-  expect(storyReviewSchema.parse(await (await answered).json())).toEqual({
-    kind: "unavailable",
-    explanation,
-  });
+  test("open a review that names both and reads neither", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const workspace = worktree(origin, "trunk-a");
+    const claim = origin.revision("take Story A");
+    const explanation = `Several worktrees on this machine hold this story's claim for ${yui.agent}: ${shown("trunk-a")}, ${shown("trunk-b")}. The review cannot choose one.`;
 
-  // Read the explanation directly; do not reveal empty details.
-  const review = reviewRegion(page);
-  await expect(reviewFeedback(review)).toHaveText(explanation);
-  await expect(contextLine(review)).toHaveCount(0);
-  await expect(reviewBody(review)).toBeEmpty();
-  await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(review.getByRole("region")).toHaveCount(0);
-  await expect(review.getByRole("radio")).toHaveCount(0);
-  await expect(review.getByRole("checkbox")).toHaveCount(0);
-  await expect(reviewRefresh(review)).toBeVisible();
-
-  // The boundary refuses to read either worktree with the same explanation.
-  const story = { source: "open-dough", identity: queuedIdentity };
-  const tree = git(workspace, "rev-parse", "HEAD^{tree}");
-  const refused = { error: explanation };
-  for (const [endpoint, query] of [
-    [storyReviewFileEndpoint, { baseline: claim, tree, path: "notes.md" }],
-    [
-      storyReviewRangeEndpoint,
-      { fromTree: tree, fromBaseline: claim, tree, baseline: claim },
-    ],
-  ] as const) {
-    const read = await page.request.get(
-      `${dashboard.baseURL}${endpoint}?${new URLSearchParams({ ...story, ...query })}`,
-      { headers: { Origin: dashboard.origin } },
+    await openBacklog(page, origin);
+    const card = parts(page).taken.getByRole("article", { name: "Story A" });
+    const answered = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === storyReviewEndpoint,
     );
-    expect(read.status(), endpoint).toBe(409);
-    expect(await read.json()).toEqual(refused);
-  }
+    await reviewChanges(card).click();
+    expect(storyReviewSchema.parse(await (await answered).json())).toEqual({
+      kind: "unavailable",
+      explanation,
+    });
+
+    // Read the explanation directly; do not reveal empty details.
+    const review = reviewRegion(page);
+    await expect(reviewFeedback(review)).toHaveText(explanation);
+    await expect(contextLine(review)).toHaveCount(0);
+    await expect(reviewBody(review)).toBeEmpty();
+    await expect(review.getByRole("list")).toHaveCount(0);
+    await expect(review.getByRole("region")).toHaveCount(0);
+    await expect(review.getByRole("radio")).toHaveCount(0);
+    await expect(review.getByRole("checkbox")).toHaveCount(0);
+    await expect(reviewRefresh(review)).toBeVisible();
+
+    // The boundary refuses to read either worktree with the same explanation.
+    const story = { source: "open-dough", identity: queuedIdentity };
+    const tree = git(workspace, "rev-parse", "HEAD^{tree}");
+    const refused = { error: explanation };
+    for (const [endpoint, query] of [
+      [storyReviewFileEndpoint, { baseline: claim, tree, path: "notes.md" }],
+      [
+        storyReviewRangeEndpoint,
+        { fromTree: tree, fromBaseline: claim, tree, baseline: claim },
+      ],
+    ] as const) {
+      const read = await page.request.get(
+        `${dashboard.baseURL}${endpoint}?${new URLSearchParams({ ...story, ...query })}`,
+        { headers: { Origin: dashboard.origin } },
+      );
+      expect(read.status(), endpoint).toBe(409);
+      expect(await read.json()).toEqual(refused);
+    }
+  });
 });

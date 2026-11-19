@@ -1,6 +1,6 @@
 // What a start origin's project checkout holds beyond the published trunk:
-// the trunk it has fetched, and the description's workspace as a start
-// leaves a story's, a linked worktree `.worktrees/<slug>` on its branch.
+// the trunk it has fetched, and each described workspace as a start leaves
+// a story's, a linked worktree `.worktrees/<slug>` on its branch.
 
 import { execFile } from "node:child_process";
 import path from "node:path";

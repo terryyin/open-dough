@@ -31,17 +31,23 @@ the same author, committer and message defaults.
 
 A description can also name its trunk branch (`withTrunkBranch`, default
 `main`), the integration checkout's committer (`withCheckoutIdentity`), and
-one execution workspace: `withWorkspace(branch, { from, checkoutIdentity })`
-with ordered `withUnpublishedRevision` commits. The materializer adds that
-workspace as an `execution` worktree with its own committer and commits its
-revisions without pushing; `candidateSha` names its tip. A start origin
-instead checks it out as the linked worktree `.worktrees/<slug>` on its
-branch, and a case reads it and its named revisions through
-`origin.revision(name)` or `storyWorktree(origin)`. A trunk revision stating
-`fetched: false` is published, but a start origin leaves the checkout's trunk
-and tracking ref on the revision before it.
-`withLocalState(description, { staged, unstaged, untracked, ignored, modes })`
-states what the workspace leaves uncommitted; both write it after its
+one or more execution workspaces: each
+`withWorkspace(branch, { from, checkoutIdentity, agent })` with ordered
+`withUnpublishedRevision` commits attached to the latest workspace. A
+declared `agent` is materialized through the real `configureAgentAuthorship`
+(per-worktree `author.*`), not as `checkoutIdentity`. The completed
+description keeps a single workspace as `workspace`, or several as
+`workspaces`. The materializer adds the first as an `execution` worktree
+with its own committer and commits its revisions without pushing;
+`candidateSha` names that tip; further workspaces are linked under
+`.worktrees/<branch basename>`. A start origin checks each out as the linked
+worktree `.worktrees/<slug>` on its branch, and a case reads them and their
+named revisions through `origin.revision(name)` or `storyWorktree(origin)`.
+A trunk revision stating `fetched: false` is published, but a start origin
+leaves the checkout's trunk and tracking ref on the revision before it.
+`withLocalState(description, { staged, unstaged, untracked, ignored, modes }, branch?)`
+states what a workspace leaves uncommitted; with several workspaces, `branch`
+names which one. Both materializers write it after that workspace's
 revisions. A revision's
 `executables` lists files to commit with the executable mode. The first
 revision gets an empty backlog unless it states one, as `backlog` or as bytes

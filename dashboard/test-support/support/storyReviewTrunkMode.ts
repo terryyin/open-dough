@@ -1,16 +1,10 @@
 // Story A's Trunk Mode review setup (own-changes, flagged, older-git specs)
-// off a real bare origin (./startOrigin.ts): Yui-chan's claim, declared
-// published attribution via `trunkModeStory`, rewrite-after-open via
-// `publishRewrittenLine`, and the kept launch record (./storyLaunchRecord.ts).
+// off a real bare origin (./startOrigin.ts): declared published attribution
+// via `trunkModeStory`, rewrite-after-open via `publishRewrittenLine`, and
+// the kept launch record (./storyLaunchRecord.ts). Claim-only and
+// multi-workspace ambiguity live in ./storyReviewTrunkAmbiguity.ts.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
-import {
-  queuedReadyRepository,
-  storyA,
-  storyB,
-} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -18,23 +12,18 @@ import { originMain } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
 import {
+  byMina,
+  byYui,
+  trunkModeClaimBuilder,
+} from "./storyReviewTrunkAmbiguity.ts";
+import {
   commitAllAs,
-  mina,
   pull,
   push,
   rebaseOntoTrunk,
   yui,
 } from "./storyReviewTrunkCommits.ts";
 import { branch, git, lines, writeAt } from "./storyReviewWorktree.ts";
-
-// Yui-chan's profile naming the story she executes in Trunk Mode.
-const yuiExecuting = (identity: string) =>
-  makeMe.anAgentProfile
-    .executing({ name: "Yui", identity, mode: "trunk", branch: "origin/main" })
-    .please();
-
-const byYui = { author: { name: yui.agent, email: yui.email } };
-const byMina = { author: { name: mina.agent, email: mina.email } };
 
 const aAfterS1 = lines("a").replace("a 0\n", "a one\n");
 const aAfterO2 = aAfterS1.replace("a 11\n", "a last\n");
@@ -49,34 +38,6 @@ const cWith = (changed: Readonly<Record<number, string>>) =>
 const cNine = { 9: "c nine" } as const;
 const cStory = { ...cNine, 3: "c story" } as const;
 const cTrunk = { ...cNine, 3: "c trunk" } as const;
-
-// Trunk up to Yui-chan's claim: `src/a.ts`, `src/b.ts` and `src/c.ts`, an
-// earlier story she took, changed and closed, and then her claim, which moves
-// Story A to Taken in Trunk Mode.
-const trunkModeClaim = () =>
-  queuedReadyRepository()
-    .withRevision("trunk files", {
-      files: Object.fromEntries(
-        ["a", "b", "c"].map((word) => [`src/${word}.ts`, lines(word)]),
-      ),
-    })
-    .withRevision("take the earlier story", {
-      ...byYui,
-      agentProfiles: [yuiExecuting("SEED-OLD#old")],
-    })
-    .withRevision("earlier story", {
-      ...byYui,
-      files: { "old.md": "earlier story\n" },
-    })
-    .withRevision("close the earlier story", {
-      ...byYui,
-      remove: [`.planning/${yui.path}`],
-    })
-    .withRevision("take Story A", {
-      ...byYui,
-      backlog: { direction, taken: [storyA], queued: [storyB] },
-      agentProfiles: [yuiExecuting(storyA.identity)],
-    });
 
 // The worktree as the review's context line shows it.
 export const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
@@ -109,7 +70,7 @@ const withNotes = (
   );
 
 const throughO2 = () =>
-  trunkModeClaim()
+  trunkModeClaimBuilder()
     .withRevision("s1", {
       ...byYui,
       files: { "src/a.ts": aAfterS1 },
@@ -172,7 +133,7 @@ export function trunkModeStory(
 
   if (published === 0)
     return withNotes(
-      trunkModeClaim().withWorkspace(branch, {
+      trunkModeClaimBuilder().withWorkspace(branch, {
         from: "take Story A",
         agent: yui.agent,
       }),

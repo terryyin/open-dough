@@ -7,21 +7,22 @@ import {
   exec,
   git,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { configureDeclaredAgentAuthorship } from "../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
-import { writeLocalState } from "./repository-local-state.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import {
   commitDeclaredRevision,
   configureIdentity,
   declaredParents,
   integrationDeveloper,
+  tagRevision,
 } from "./repository-revision-commit.mjs";
+import { materializeDescribedWorkspaces } from "./repository-workspace-materialize.mjs";
+
+export { tagRevision } from "./repository-revision-commit.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
 /** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
 /** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
 /** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
-/** @typedef {import("./repository-local-state.mjs").WorkspaceWithLocalState} WorkspaceWithLocalState */
 
 /**
  * Where a history's repositories live: its bare origin, if it publishes to
@@ -46,35 +47,6 @@ export const layout = (fixture) => ({
  * `info/` or hooks), and the harness layer its first commit also holds.
  * @typedef {{ gitTemplates: boolean, layer?: HarnessLayer | undefined }} BuildShape
  */
-
-/**
- * Tag a committed revision: a release gets its annotated `v<version>` tag
- * dated `taggedAt`, and each stated name a lightweight tag. Returns the tag
- * refs it created.
- * @param {string} checkout
- * @param {RepositoryRevision} revision
- */
-export async function tagRevision(checkout, { release, tags = [] }) {
-  /** @type {string[]} */
-  const created = [];
-  if (release) {
-    const tag = `v${release.version}`;
-    await exec("git", ["tag", "-a", tag, "-m", tag], {
-      cwd: checkout,
-      env: {
-        ...process.env,
-        GIT_AUTHOR_DATE: release.taggedAt,
-        GIT_COMMITTER_DATE: release.taggedAt,
-      },
-    });
-    created.push(`refs/tags/${tag}`);
-  }
-  for (const tag of tags) {
-    await git(checkout, "tag", tag);
-    created.push(`refs/tags/${tag}`);
-  }
-  return created;
-}
 
 /**
  * A built history's published revisions, laid out like a fixture at
@@ -149,12 +121,12 @@ export async function buildRepository(
     revisions,
     trunkBranch = "main",
     checkoutIdentity = integrationDeveloper,
-    workspace,
+    ...description
   },
   { gitTemplates, layer },
   snapshot,
 ) {
-  const { origin, integration, execution } = paths;
+  const { origin, integration } = paths;
   const started = await startHistory(
     paths,
     { trunkBranch, checkoutIdentity },
@@ -190,41 +162,11 @@ export async function buildRepository(
       trunkBranch,
       ...graphTags,
     );
-  if (!workspace)
-    return {
-      revisions: Object.fromEntries(commits),
-      trunkSha,
-      candidateSha: undefined,
-    };
-
-  // The workspace is a worktree of the integration checkout. Its revisions
-  // are committed there and never pushed, then its declared local state is
-  // written over them. The builder has checked that it starts from a trunk
-  // revision and that every revision name is new. A declared `agent` is
-  // applied through the real configureAgentAuthorship before those revisions.
-  const start = /** @type {string} */ (commits.get(workspace.from));
-  await git(integration, "branch", workspace.branch, start);
-  await git(integration, "worktree", "add", execution, workspace.branch);
-  if (workspace.checkoutIdentity)
-    await configureIdentity(execution, workspace.checkoutIdentity, {
-      worktreeOnly: true,
-    });
-  if (workspace.agent !== undefined)
-    await configureDeclaredAgentAuthorship(execution, workspace.agent);
-  let candidateSha = start;
-  for (const revision of workspace.revisions) {
-    candidateSha = await commitDeclaredRevision(
-      execution,
-      revision,
-      workspace.checkoutIdentity ?? checkoutIdentity,
-      declaredParents(revision, commits),
-    );
-    await tagRevision(execution, revision);
-    commits.set(revision.name, candidateSha);
-  }
-  writeLocalState(
-    execution,
-    /** @type {WorkspaceWithLocalState} */ (workspace).local,
+  const candidateSha = await materializeDescribedWorkspaces(
+    paths,
+    { revisions, trunkBranch, checkoutIdentity, ...description },
+    commits,
+    checkoutIdentity,
   );
   return { revisions: Object.fromEntries(commits), trunkSha, candidateSha };
 }
