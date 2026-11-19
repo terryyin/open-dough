@@ -36,7 +36,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Renovate dashboard backend unit tests around strongly typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests) — SEED-413#renovate-dashboard-backend-unit-tests
+- [Prove ad hoc session review reads in-process through a typed review handler](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests) — SEED-413#renovate-dashboard-backend-unit-tests
+- [Renovate the remaining dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
 - [Renovate dashboard frontend unit tests around narrow owning components](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests) — SEED-413#renovate-dashboard-frontend-unit-tests
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
