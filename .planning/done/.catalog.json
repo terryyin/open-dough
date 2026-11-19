@@ -8,6 +8,12 @@
       "blob": "0e1177d11aff218c7704c521b80e10548a8e249b"
     },
     {
+      "fileName": "SEED-353_declare-trunk-review-authorship.json",
+      "identity": "SEED-353#declare-trunk-review-authorship",
+      "completedAt": "2026-11-19T01:58:05.567Z",
+      "blob": "77f7de53426e8bae2dbb92b8053319b2a85eb59c"
+    },
+    {
       "fileName": "SEED-403_reach-dashboard-backend-checks-through-the-mounted-boundary.json",
       "identity": "SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary",
       "completedAt": "2026-11-19T01:45:14.070Z",

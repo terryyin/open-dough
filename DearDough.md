@@ -7,9 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 583. Removed numbers are never reused.
-- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.
-- Occurrence history is partial.
+- Highest allocated local number: 584. Removed numbers are never reused.
+- Recovery: `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.- Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
@@ -483,6 +482,13 @@ designed after implementation instead of in planning.
   - Timestamp: unknown (2026-11-18, slice 1 refactor pass)
   - Evidence: plan 689 was 276 lines at Take and its gates recorded each slice's assertion map and scratch break "in this plan"; slice 1's refactor pass stopped at 316. The coordinator moved evidence to a sibling file, which passed 250 again at slice 5 and was split by reference kind.
   - Observed effect: two unplanned record reorganizations; no human stop.
+- Execution: SEED-353#declare-trunk-review-authorship (plan 711; first implementation `61b3b48a2`)
+  - Timestamp: 2026-11-19T09:12:00+08:00 (slice-4 refactor Jidoka stop)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `cd588fe73`)
+  - Evidence: plan 711 File size claimed `storyReviewTrunkMode.ts` 216 and "Other expected edits stay under 250"; slice-4 refactor `1942ff8f` returned REFACTOR JIDOKA STOP (storyReviewTrunkMode 314, repository-history 267, repository-fixture.test 277) with no reorganization decision; coordinator authorized three seams; Learnings record the plan's under-250 expectation was wrong; seams landed in `07683c6d2`.
+  - Observed effect: one mid-refactor Jidoka stop, an authorized reorganization round, and delayed slice-4 delivery until seams landed; no human owner question.
+  - Inference: matching uncertainty with the at-limit DD-552 form — files started under 250 with an explicit stay-under claim, and planned Behavior content grew them past the gate. A planning-time seam for each Behavior-grown module would avoid discovering the split after implementation. Related ODF-516 family.
 
 ## DD-553 — A real-history premise is settled at an intermediate stage, not at the total it predicts
 
@@ -654,29 +660,6 @@ passes on such slices made no edits.
   - Evidence: subagent usage reports. Slice 1 (a new 32-line maintainer-doc section in `Distribution/evaluation/guidance-checks.md`): refactor 54.9k tokens, "none, already clean". Slice 5 (one 4-line paragraph in a maintainer skill): refactor 51.6k tokens, no edits. Slice 4's recipe correction used the within-accepted-return disposition and spawned none.
   - Observed effect: about 106k subagent tokens on two no-edit passes over small documentation additions; no defect found.
   - Inference: matched to this finding as the same concrete cost (a tiny non-records change pays a full no-edit refactor pass), though the changes here were documentation additions, not test deletions. A behavior review already walked each change, which may be what made the pass redundant.
-- Execution: SEED-345#split-the-agent-effort-contract-guide (plan 682; implementation `23e338fd7`)
-  - Timestamp: unknown (2026-11-17, before commit `23e338fd7` at 23:17:29 +08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `627b82320`)
-  - Evidence: the single Structure slice moved three guide sections verbatim (both `diff`s empty) and repointed seven header comments. The coordinator implemented it locally. The fresh refactor agent used 56.1k tokens and returned `## REFACTOR COMPLETE` with no edits.
-  - Observed effect: one no-edit refactor pass on a verbatim move with mechanical proof.
-  - Inference: same rule cost as the deletion-only rows, here for a verbatim relocation rather than a deletion. Matching is by the step 1 exemption gap, not by change kind.
-
-## DD-565 — Proof waiting defers read-only CI diagnosis through suite admission <a id="dd-565"></a>
-
-A CI failure arrived when a local full gate launched. The proof-wait rule forbade other checks until the command finished or its expected window was exceeded; the first overdue inspection showed that almost the whole window had been suite-admission waiting. A bounded CI classification could be separate from checkout mutation while retaining the proof owner.
-
-### Occurrences
-
-- Execution: SEED-396#replace-evaluation-shell-checks (plan 679; first implementation `251af1f66bb8830227df0b59fbc2306a33df4c40`)
-  - Timestamp: unknown (2026-11-17; first full evaluation and CI diagnosis)
-  - Tool: Codex
-  - Model: gpt-6.1-sol
-  - Open Dough release: 0.3.104 (checkout-bound installation unchanged from claim `0ada9a1e3`)
-  - Evidence: live coordinator tool history and `004d9915bbc222a4404e69531fcf62e005720014:.planning/slice-plans/679-evaluation-checks-state-facts-plainly/diagnosis-ci-share1-deadline.md`. CI run 44077311815/1 reported share 1 failure at local-gate launch. At the first bounded overdue check, the local command had existed for 16m17s while its test children had run for about 13s. Read-only CI logs then established the absolute share cutoff; a workflow-only repair preserved unfiltered evaluation selection while that proof continued.
-  - Observed effect: CI classification was deferred roughly one admission window. The original local command stayed owned through its terminal result.
-  - Inference: permit bounded read-only failure classification during a proof wait, with checkout mutations still held until safe. This is a triage-latency observation; no total wall-time or token saving is established.
 
 ## ODF-338 — Concurrent slices invalidate proof in one checkout <a id="odf-338"></a>
 
@@ -997,3 +980,17 @@ The story promised a third of the story-notes time on the strength of phone-boar
   - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` "Observations used for sizing" (scratch probe of 82 ms, phone-board 7 cases) against slice 5 learning (`actSettled`) and the slice 8 comparison (0.80 and 0.86 of baseline); Terry changed the promise and queued `SEED-404#run-the-story-notes-checks-in-a-third-of-their-time`.
   - Observed effect: the goal was missed and a further story is needed.
   - Inference: a probe that holds answers and refreshes reads, as real cases do, would have exposed the settling cost before the third was promised. Close to DD-553 and DD-554 (premises settled on an unrepresentative stage).
+
+## DD-584 — A CI-repair brief's abbreviated evidence path lands under the checkout root and breaks delivery formatting <a id="dd-584"></a>
+
+Slice briefs named the absolute git-path evidence directory. The CI-repair brief abbreviated it as `…/evidence/ci-repair` / `evidence/ci-repair`, so the repair agent wrote under checkout-root `evidence/`. Selective format scanned those untracked files and refused delivery until the coordinator moved them into `$(git rev-parse --git-path open-dough/evidence)`.
+
+### Occurrences
+
+- Execution: SEED-353#declare-trunk-review-authorship (plan 711; first implementation `61b3b48a2`; repair `fa0db1362`)
+  - Timestamp: unknown (2026-11-19 +08:00; repair delivery between repair return and `fa0db1362` at 09:37:15+08:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `cd588fe73`)
+  - Evidence: repair brief `97ec84ef` (“evidence dir `…/evidence/ci-repair`”); return under worktree `evidence/ci-repair/REPORT.md`; coordinator moved it to git-path `open-dough/evidence/ci-repair/from-checkout-root` and published `fa0db1362`. Proof-evidence requires `git rev-parse --git-path open-dough/evidence`.
+  - Observed effect: one guarded delivery refusal and a cleanup-plus-retry before the repair SHA published.
+  - Inference: naming the same absolute git-path used for slice evidence would have kept artifacts outside format's change-set selection.

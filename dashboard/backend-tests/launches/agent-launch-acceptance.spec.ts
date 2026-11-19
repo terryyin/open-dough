@@ -105,10 +105,20 @@ test.describe("an accepted launch", () => {
         request: keptRequest,
         publication: { kind: "unknown" },
         owned: true,
+        // Admission keeps this server as the worker before start effects.
+        worker: {
+          pid: server.pid,
+          serverPid: server.pid,
+          step: "start",
+          notedAt: expect.any(String),
+        },
       },
     });
     const id = answered.attempt?.id;
-    // Kept with its exact request before the start published anything.
+    // Kept with its exact request before the start published anything. The
+    // start script may already have replaced worker.pid while step stays
+    // "start" (./agent-launch-worker-handoff.spec.ts); serverPid still names
+    // this server.
     expect(keptAttempts()).toEqual([
       {
         id,
@@ -117,7 +127,7 @@ test.describe("an accepted launch", () => {
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },
         worker: {
-          pid: server.pid,
+          pid: expect.any(Number),
           serverPid: server.pid,
           step: "start",
           notedAt: expect.any(String),

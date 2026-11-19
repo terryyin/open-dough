@@ -40,135 +40,143 @@ import {
   commitUnpublished,
   openTaken,
   shownWorkspace,
-  trunkModeRepository,
   trunkModeStory,
 } from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
+  storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
-// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
-test.use({ originRepository: trunkModeRepository });
+test.describe("published Trunk Mode attribution", () => {
+  test.use({ originRepository: trunkModeStory({ published: 2 }) });
 
-test("all changes lists a Trunk Mode story's published changes beside its unpublished ones and leaves trunk's out", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace, trunk } = trunkModeStory(origin, { published: 2 });
-  expect(git(workspace, "rev-parse", "HEAD")).toBe(trunk);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openTaken(page, origin);
-  const snapshot = await openStoryReview(page, card);
-  const review = reviewRegion(page);
+  test("all changes lists a Trunk Mode story's published changes beside its unpublished ones and leaves trunk's out", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    const trunk = origin.revision("s2");
+    expect(git(workspace, "rev-parse", "HEAD")).toBe(trunk);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openTaken(page, origin);
+    const snapshot = await openStoryReview(page, card);
+    const review = reviewRegion(page);
 
-  await test.step("the published and uncommitted files are listed, and no other commit's", async () => {
-    // Not `src/b.ts`, `prep.md`, `merged.md`, `old.md`, or the claim's files.
-    expect(snapshot.files.map(({ path: file }) => file)).toEqual([
-      "d.md",
-      "notes.md",
-      "src/a.ts",
-    ]);
-    expect(snapshot.published).toEqual({ trunk, commits: 2 });
-    expect(snapshot.baseline).not.toBe(trunk);
-    const files = changedFilesList(review, "3 changed files");
-    await expectTreeRows(files, ["src", "  a.ts", "d.md", "notes.md"]);
-    // The file trunk also changed shows the story's line alone.
-    await listedFile(files, "Modified src/a.ts").press("Enter");
-    const diff = fileDiff(review, "Modified src/a.ts");
-    await expect(diff.locator(".story-review-removed")).toHaveText(["-a 0"]);
-    await expect(diff.locator(".story-review-added")).toHaveText(["+a one"]);
-  });
-
-  await test.step("the context line names trunk less the story's published commits", async () => {
-    const words = contextWords({
-      branch,
-      baseline: trunk,
-      published: 2,
-      workspace: shownWorkspace,
+    await test.step("the published and uncommitted files are listed, and no other commit's", async () => {
+      // Not `src/b.ts`, `prep.md`, `merged.md`, `old.md`, or the claim's files.
+      expect(snapshot.files.map(({ path: file }) => file)).toEqual([
+        "d.md",
+        "notes.md",
+        "src/a.ts",
+      ]);
+      expect(snapshot.published).toEqual({ trunk, commits: 2 });
+      expect(snapshot.baseline).not.toBe(trunk);
+      const files = changedFilesList(review, "3 changed files");
+      await expectTreeRows(files, ["src", "  a.ts", "d.md", "notes.md"]);
+      // The file trunk also changed shows the story's line alone.
+      await listedFile(files, "Modified src/a.ts").press("Enter");
+      const diff = fileDiff(review, "Modified src/a.ts");
+      await expect(diff.locator(".story-review-removed")).toHaveText(["-a 0"]);
+      await expect(diff.locator(".story-review-added")).toHaveText(["+a one"]);
     });
-    const values = contextValues(review);
-    const baseline = contextLine(review).locator(
-      ".story-review-context-baseline",
-    );
-    await expect(values).toHaveAccessibleName(words);
-    await expect(baseline.locator("code[aria-hidden]")).toHaveText(
-      trunk.slice(0, 7),
-    );
-    await expect(baseline).toContainText("origin/main less 2 story commits");
-    await values.press("Enter");
-    await expect(values).toHaveAttribute("aria-expanded", "true");
-    await expect(baseline).toHaveText(
-      `Baseline ${trunk} where ${branch} meets origin/main, less the story's 2 published commits`,
-    );
-    await expect(values).toHaveAccessibleName(words);
-    await values.press("Enter");
-  });
 
-  await test.step("an unpublished commit is listed with the rest, and Commits stays the worktree's", async () => {
-    commitUnpublished(workspace);
-    const later = await reopenStoryReview(page, card);
-    expect(later.published).toEqual({ trunk, commits: 2 });
-    expect(later.files.map(({ path: file }) => file)).toEqual([
-      "d.md",
-      "notes.md",
-      "src/a.ts",
-      "src/g.ts",
-    ]);
-    expect(later.commits.map(({ subject }) => subject)).toEqual(["u1"]);
-    await expectTreeRows(changedFilesList(review, "4 changed files"), [
-      "src",
-      "  a.ts",
-      "  g.ts",
-      "d.md",
-      "notes.md",
-    ]);
+    await test.step("the context line names trunk less the story's published commits", async () => {
+      const words = contextWords({
+        branch,
+        baseline: trunk,
+        published: 2,
+        workspace: shownWorkspace,
+      });
+      const values = contextValues(review);
+      const baseline = contextLine(review).locator(
+        ".story-review-context-baseline",
+      );
+      await expect(values).toHaveAccessibleName(words);
+      await expect(baseline.locator("code[aria-hidden]")).toHaveText(
+        trunk.slice(0, 7),
+      );
+      await expect(baseline).toContainText("origin/main less 2 story commits");
+      await values.press("Enter");
+      await expect(values).toHaveAttribute("aria-expanded", "true");
+      await expect(baseline).toHaveText(
+        `Baseline ${trunk} where ${branch} meets origin/main, less the story's 2 published commits`,
+      );
+      await expect(values).toHaveAccessibleName(words);
+      await values.press("Enter");
+    });
 
-    await comparisonChoice(review, "Commits", { exact: true }).check();
-    const commits = review
-      .getByRole("list", { name: "Story commits", exact: true })
-      .getByRole("button");
-    await expect(commits).toHaveCount(2);
-    await expect(commits.first()).toHaveText("Uncommitted changes");
-    await expect(commits.nth(1)).toContainText("u1");
+    await test.step("an unpublished commit is listed with the rest, and Commits stays the worktree's", async () => {
+      commitUnpublished(workspace);
+      const later = await reopenStoryReview(page, card);
+      expect(later.published).toEqual({ trunk, commits: 2 });
+      expect(later.files.map(({ path: file }) => file)).toEqual([
+        "d.md",
+        "notes.md",
+        "src/a.ts",
+        "src/g.ts",
+      ]);
+      expect(later.commits.map(({ subject }) => subject)).toEqual(["u1"]);
+      await expectTreeRows(changedFilesList(review, "4 changed files"), [
+        "src",
+        "  a.ts",
+        "  g.ts",
+        "d.md",
+        "notes.md",
+      ]);
 
-    await comparisonChoice(review, "All changes", { exact: true }).check();
-    await uncommittedCheck(review).uncheck();
-    await expectTreeRows(changedFilesList(review, "3 changed files"), [
-      "src",
-      "  a.ts",
-      "  g.ts",
-      "d.md",
-    ]);
+      await comparisonChoice(review, "Commits", { exact: true }).check();
+      const commits = review
+        .getByRole("list", { name: "Story commits", exact: true })
+        .getByRole("button");
+      await expect(commits).toHaveCount(2);
+      await expect(commits.first()).toHaveText("Uncommitted changes");
+      await expect(commits.nth(1)).toContainText("u1");
+
+      await comparisonChoice(review, "All changes", { exact: true }).check();
+      await uncommittedCheck(review).uncheck();
+      await expectTreeRows(changedFilesList(review, "3 changed files"), [
+        "src",
+        "  a.ts",
+        "  g.ts",
+        "d.md",
+      ]);
+    });
   });
 });
 
-test("a Trunk Mode story with nothing published since its claim is reviewed against the merge-base", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace, trunk } = trunkModeStory(origin, { published: 0 });
-  commitUnpublished(workspace);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openTaken(page, origin);
-  const snapshot = await openStoryReview(page, card);
-  const review = reviewRegion(page);
+test.describe("nothing published since the claim", () => {
+  test.use({
+    originRepository: trunkModeStory({ published: 0, unpublished: true }),
+  });
 
-  expect(snapshot.published).toBeUndefined();
-  expect(snapshot.baseline).toBe(trunk);
-  expect(snapshot.baseline).toBe(
-    git(workspace, "merge-base", "HEAD", "origin/main"),
-  );
-  expect(snapshot.files.map(({ path: file }) => file)).toEqual([
-    "notes.md",
-    "src/g.ts",
-  ]);
-  await expect(contextValues(review)).toHaveAccessibleName(
-    contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
-  );
-  await expect(
-    contextLine(review).locator(".story-review-context-baseline"),
-  ).not.toContainText("less");
+  test("a Trunk Mode story with nothing published since its claim is reviewed against the merge-base", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    const trunk = origin.revision("take Story A");
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openTaken(page, origin);
+    const snapshot = await openStoryReview(page, card);
+    const review = reviewRegion(page);
+
+    expect(snapshot.published).toBeUndefined();
+    expect(snapshot.baseline).toBe(trunk);
+    expect(snapshot.baseline).toBe(
+      git(workspace, "merge-base", "HEAD", "origin/main"),
+    );
+    expect(snapshot.files.map(({ path: file }) => file)).toEqual([
+      "notes.md",
+      "src/g.ts",
+    ]);
+    await expect(contextValues(review)).toHaveAccessibleName(
+      contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
+    );
+    await expect(
+      contextLine(review).locator(".story-review-context-baseline"),
+    ).not.toContainText("less");
+  });
 });

@@ -1,5 +1,5 @@
 // @ts-check
-// Validation and presence rules for the facts one declared revision carries.
+// Validation rules for declaring revisions and the facts each carries.
 /** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
 
@@ -11,6 +11,12 @@ function statesBacklogBytes(revision) {
   return (
     revision.files !== undefined && Object.hasOwn(revision.files, backlogPath)
   );
+}
+
+/** @param {string} name @param {readonly RepositoryRevision[]} known */
+export function assertNewRevisionName(name, known) {
+  if (known.some((revision) => revision.name === name))
+    throw new Error(`Duplicate repository revision: ${name}`);
 }
 
 /** @param {RepositoryRevision} revision */

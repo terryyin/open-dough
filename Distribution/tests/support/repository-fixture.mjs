@@ -3,7 +3,15 @@
 // bare origin and checkout. Templates are built once per process
 // (repository-history.mjs), from a run-wide snapshot when a registered
 // prefix matches (repository-snapshot.mjs).
-import { cpSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fixtureTeardown } from "../skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
@@ -96,8 +104,14 @@ async function copyTemplate(description, { parent, ...shape }) {
     // the template's paths; point them at this copy.
     if (shape.origin)
       await git(integration, "remote", "set-url", "origin", origin);
-    if (candidateSha !== undefined)
+    if (candidateSha !== undefined) {
+      // Copied worktrees still name the template paths; repair each.
       await git(integration, "worktree", "repair", execution);
+      const linked = join(integration, ".worktrees");
+      if (existsSync(linked))
+        for (const slug of readdirSync(linked))
+          await git(integration, "worktree", "repair", join(linked, slug));
+    }
     return {
       ...(candidateSha === undefined ? {} : { execution, candidateSha }),
       integration,
