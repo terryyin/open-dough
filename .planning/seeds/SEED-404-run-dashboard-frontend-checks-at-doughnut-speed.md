@@ -136,7 +136,7 @@ observation; product code is unchanged. [Plan](../slice-plans/711-hold-and-settl
 
 **Identity:** SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/713-run-the-story-notes-checks-in-a-third-of-their-time/PLAN.md","assessment":"not-ready","reasons":["Slices 1 and 4 still need a full eleven-case candidate that reaches one third in both matched pairs. The closest warning-free prototype missed by 1.06 and 1.46 seconds. Check the smaller production mount for the edit cases with their original assertions and the ordinary two-worker command."],"basis":{"document":"16bc0531c5e3aac432c7e7c791cc6dc1e59735fc57840bd8467261888294ee0a","plan":"bd3f1be121abe266ea707a1531779c1a8b85baa60c464a2e5c4086826f4a4be6"}}
 ```
 
 Split on 2026-11-19 from the story-notes story, whose matched comparison
@@ -173,6 +173,74 @@ story did. Deferred: the other families and the whole-group minute.
 - Before: 10.4 and 13.5 s for the baseline revision in matched runs on
   2026-11-19. After, in a matched session, the command takes a third of its
   baseline or less.
+
+#### What the focused command can save
+
+On 2026-11-19, preparation compared the original eleven cases at `e8e01643a`
+with scratch variants of `f731dab6c`. Each A–B–B–A comparison timed
+`npm run test:dashboard:frontend -- stories/story-notes` from invocation
+through exit, with the default two workers, separate fresh processes, installed
+dependencies and warmed caches on the same 16-core Mac, Node 24.21.0, on AC.
+The proof records contain the same eleven passing case titles on both sides
+of each pair below. The scratch edits were reverted and all eleven passed
+again on the original preparation checkout.
+
+| Scratch variant | Original → variant, seconds | Fraction of original | Natural load |
+| --- | --- | --- | --- |
+| Reuse the routed socket in the mount and await the dialog close event inside `act` | 10.12 → 4.44 and 10.49 → 4.96 | 0.44 and 0.47 | 6.4–7.1 |
+| Same mechanism, cases grouped into two isolated files | 22.76 → 13.11 and 27.84 → 12.88 | 0.58 and 0.46 | 13.5–24.3 |
+| Same mechanism, six files importing an app bundle built inside each invocation | 11.16 → 4.96 and 12.26 → 5.59 | 0.44 and 0.46 | 11.2–15.6 |
+| Mounted socket and acknowledged close, with native config loading on Node 24.21 | 17.84 → 9.79 and 22.91 → 11.64 | 0.55 and 0.51 | 13.0–16.3 |
+| Same native-loader candidate, with React, React DOM and the xterm dependencies explicitly preoptimized as in Doughnut | 30.88 → 14.95 and 24.54 → 12.04 | 0.48 and 0.49 | 21.6–24.5 |
+
+Compare each variant with its paired original. The native-loader experiments
+used Node's experimental type transform. All eight timed runs in those two
+comparisons passed the same eleven titles with no act warning. Each comparison
+ran under a different load. One separate original run failed at
+`page.clock.pauseAt(new Date())` with “Cannot fast-forward to the past” and
+supplied no timing comparison. CI run 44427115222, attempt 1 at `0ee137add`,
+covered both frontend shards (723 cases, 306 files). Story notes ran on shard
+2. CI records summed case durations. The timing promise applies to the local
+command. [CI run](https://github.com/terryyin/open-dough/actions/runs/44427115222)
+
+#### Architecture
+
+The mounted Vitest command receives the provider's Playwright page in Node.
+In the scratch case, the existing `installAttachedTerminalSubstitute` and
+`directedApplication` drove the mounted production terminal. Opening notes
+by keyboard, printing while open and closing preserved both lines of output,
+the original connected screen, one attachment and focus on Notes. The
+fixture can own the case's attachment while the product owns xterm and the
+WebSocket client. [Terminal substitute](../../dashboard/test-support/support/frontendTerminalSubstitute.ts)
+and [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+
+The borrowed mechanism is a delivery acknowledgement. Closing a dialog
+queues a native event. Its disappearance from a role query can precede
+React's close handler, which clears the open state and restores focus.
+Registering for that dialog's `close` before clicking and observing it
+inside `act` made the next open reliable in the observed runs. That event
+acknowledges only the close. Timer advances, released answers and layout
+callbacks still need their own settling. Simply substituting task turns
+for frames produced an act warning on a green run. Keeping frames for
+mounts and project reads but skipping them for controls also reproduced
+the missing dialog on the second open of the refresh case.
+[Dialog](../../dashboard/src/StoryNotesDialog.tsx) and [control](../../dashboard/src/StoryNotesControl.tsx)
+
+The first variant passed four consecutive family runs without an act warning.
+Even then it needed another 1.06 and 1.46 seconds in the matched pairs to
+meet one third. Skipping title discovery gave inconsistent results. A
+faster case body, a terminal check left out of the selection, or a timing
+starting after browser launch cannot establish the promised gain.
+The separate [hold-and-settle correction](#hold-and-settle-mounted-frontend-cases-by-one-rule)
+owns the revision stream, held-answer cleanup and named settle failure.
+[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
+
+**Decision.** Keep one third as the acceptance threshold for this story.
+The scope includes the remaining cost of starting and running the mounted
+suite. In the two best matched pairs, one third would be 3.37 and 3.50 s
+for all eleven cases. The developer's longer-term target of about 100 ms
+per case has its own [queued story](SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case).
+It would bring this same command to about 1.1 s with today's eleven cases.
 
 <a id="run-the-other-frontend-families-at-the-mounted-boundary"></a>
 
