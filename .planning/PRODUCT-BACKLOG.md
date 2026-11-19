@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Express submit-and-close test intent](seeds/SEED-411-express-submit-and-close-test-intent.md#express-submit-and-close-test-intent) — SEED-411#express-submit-and-close-test-intent
 - [Keep dashboard tests off the developer's real Cursor runner](seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md#keep-dashboard-tests-off-the-developers-real-cursor-runner) — SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner ([plan](slice-plans/719-keep-dashboard-tests-off-the-developers-real-cursor-runner/PLAN.md))
-- [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 
 ## Backlog list
 
