@@ -98,13 +98,14 @@ export const publishedMainWorkerFixtures: Fixtures<
   ],
   // The pinned native Codex executable a published-main watcher journey
   // drains through (./watcherNativeCodex.ts). Acquiring the package is the
-  // worker's; each journey starts and stops its own daemon from it.
+  // worker's; each journey starts and stops its own daemon from it. npm exec
+  // of that large package can exceed the ordinary cold 60s under CI cache miss.
   pinnedWatcherCodex: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
       const { pinnedWatcherCodex } = await import("./watcherNativeCodex.ts");
       await use(await pinnedWatcherCodex());
     },
-    coldInputPreparation,
+    { scope: "worker", timeout: 180_000 },
   ],
 };
