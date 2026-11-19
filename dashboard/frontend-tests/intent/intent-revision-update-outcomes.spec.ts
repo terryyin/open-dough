@@ -2,12 +2,11 @@ import { openWithFeatureSelected } from "../../test-support/support/frontendInte
 import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts";
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry after Development → Intent; the
-// failures themselves, unreadable settings and their Retry are proven mounted
-// in ./intent-revision-update-failures.mounted.spec.ts
+// failures themselves, unreadable and malformed settings and their Retry are
+// proven mounted in ./intent-revision-update-failures.mounted.spec.ts
 // (../../src/useIntentLocations.ts, ../../src/useIntentFileRead.ts,
 // ../../src/IntentRevisionNotice.tsx).
-// Malformed settings and held updates across projects:
-// ./intent-revision-update-boundaries.spec.ts.
+// Held updates across projects: ./intent-revision-update-boundaries.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { parts } from "../../test-support/dashboardPage.ts";

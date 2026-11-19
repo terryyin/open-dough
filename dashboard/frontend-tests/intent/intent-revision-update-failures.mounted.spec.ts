@@ -1,9 +1,12 @@
 // An offered revision whose update fails keeps the shown reading with the
 // failure and Retry: at the locations and at the selected file
 // (../../src/useIntentLocations.ts, ../../src/useIntentFileRead.ts), and when
-// the latest settings cannot be read (../../src/IntentRevisionNotice.tsx).
-// Applying the latest: ./intent-revision-apply.mounted.spec.ts. Companion
-// built-app case: ./intent-revision-update-outcomes.spec.ts.
+// the latest settings cannot be read (../../src/IntentRevisionNotice.tsx);
+// malformed latest settings replace the reading with their explanation
+// (../../src/IntentLocationsUnavailable.tsx). Applying the latest:
+// ./intent-revision-apply.mounted.spec.ts. Companion built-app cases:
+// ./intent-revision-update-outcomes.spec.ts and
+// ./intent-revision-update-boundaries.spec.ts.
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
@@ -23,23 +26,30 @@ import {
 
 vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
 
-test("a failed update keeps the shown reading with its failure and Retry, which applies the update", async () => {
-  const [a, c] = ["d7".repeat(20), "eb".repeat(20)];
+// The feature read at `shown` and offered at `latest`, whose Show latest waits
+// on the held locations read at `latest`.
+async function showLatestHeld(shown: string, latest: string) {
   const service = publishedReadService(
     new Map([
-      [a, at("Archive a job")],
-      [c, at("Purge a job")],
+      [shown, at("Archive a job")],
+      [latest, at("Purge a job")],
     ]),
   );
-  const show = await mountReading(workAt(a));
+  const show = await mountReading(workAt(shown));
   const reading = intentReading();
-  const { toggle, feature, shownSource } = reading;
   await openFeature(reading);
-  await expect.poll(shownSource).toContain("Scenario: Archive a job");
-  await show(workAt(c));
-  const latest = service.holdRead(`locations@${c}`);
+  await expect.poll(reading.shownSource).toContain("Scenario: Archive a job");
+  await show(workAt(latest));
+  const held = service.holdRead(`locations@${latest}`);
   await click(reading.showLatest);
   await expect.poll(service.held).toBe(1);
+  return { service, reading, latest: held };
+}
+
+test("a failed update keeps the shown reading with its failure and Retry, which applies the update", async () => {
+  const [a, c] = ["d7".repeat(20), "eb".repeat(20)];
+  const { service, reading, latest } = await showLatestHeld(a, c);
+  const { toggle, feature, shownSource } = reading;
   await reading.expectBrowserAt(a);
   await latest.fail();
 
@@ -94,21 +104,8 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
 
 test("an unreadable settings answer at the latest revision keeps the shown reading with Retry, which applies the update", async () => {
   const [a, c] = ["d8".repeat(20), "ef".repeat(20)];
-  const service = publishedReadService(
-    new Map([
-      [a, at("Archive a job")],
-      [c, at("Purge a job")],
-    ]),
-  );
-  const show = await mountReading(workAt(a));
-  const reading = intentReading();
+  const { service, reading, latest } = await showLatestHeld(a, c);
   const { feature, shownSource } = reading;
-  await openFeature(reading);
-  await expect.poll(shownSource).toContain("Scenario: Archive a job");
-  await show(workAt(c));
-  const latest = service.holdRead(`locations@${c}`);
-  await click(reading.showLatest);
-  await expect.poll(service.held).toBe(1);
   await latest.answerLocations(
     makeMe.anIntentLocationsAnswer.at(c).withUnreadableSettings().please(),
   );
@@ -138,5 +135,18 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
     `locations@${c}`,
     `${featurePath}@${c}`,
   ]);
+  expect(service.unexpected).toEqual([]);
+});
+
+test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async () => {
+  const [a, c] = ["d9".repeat(20), "ec".repeat(20)];
+  const { service, reading, latest } = await showLatestHeld(a, c);
+  await latest.answerLocations(
+    makeMe.anIntentLocationsAnswer.at(c).withMalformedSettings().please(),
+  );
+
+  await expect.poll(reading.settingsPanelText).toContain("is not valid JSON");
+  await expect.element(reading.settingsPanel).toHaveFocus();
+  await reading.expectBrowserAt(c);
   expect(service.unexpected).toEqual([]);
 });

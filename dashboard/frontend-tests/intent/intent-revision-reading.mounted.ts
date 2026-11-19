@@ -101,17 +101,22 @@ const readingPane = () =>
 // The mounted Intent reading as a reader finds it.
 export function intentReading() {
   const intent = page.getByRole("main", { name: "Intent", exact: true });
-  // A file's source as read, without the line breaking hints it renders.
-  const sourceText = (path: string) => () =>
-    (
-      intent.getByLabelText(`${path} source`, { exact: true }).query()
-        ?.textContent ?? ""
-    ).replace(/[\u200B\u00AD]/g, "");
+  // Text as read, without the line breaking hints it renders.
+  const readText = (target: Locator) => () =>
+    (target.query()?.textContent ?? "").replace(/[\u200B\u00AD]/g, "");
+  const sourceText = (path: string) =>
+    readText(intent.getByLabelText(`${path} source`, { exact: true }));
   const notice = intent
     .getByRole("status")
     .filter({ hasText: "New revision available" });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
   const retry = { name: "Retry", exact: true } as const;
+  // An explanation of unusable settings shown in the reading's place.
+  const explanation = { hasText: "Intent locations for" } as const;
+  // The tab panel the settings explanation is read in.
+  const settingsPanel = intent
+    .getByRole("tabpanel")
+    .filter({ has: page.getByRole("alert").filter(explanation) });
   const browserRevision = intent.getByLabelText("Test browser revision", {
     exact: true,
   });
@@ -129,10 +134,9 @@ export function intentReading() {
       document.querySelectorAll('.intent-locations [aria-pressed="true"]'),
     readingPane,
     purpose,
-    // An explanation of unusable settings shown in the reading's place.
-    settingsProblem: intent
-      .getByRole("alert")
-      .filter({ hasText: "Intent locations for" }),
+    settingsProblem: intent.getByRole("alert").filter(explanation),
+    settingsPanel,
+    settingsPanelText: readText(settingsPanel),
     shownSource: sourceText(featurePath),
     otherSource: sourceText(otherPath),
     // The selected file's failed read and its own Retry.

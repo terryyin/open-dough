@@ -2,7 +2,8 @@
 // revisions wait behind one polite notice, and Show latest reads only the
 // latest, keeping the old reading until it answers
 // (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
-// Failed and unreadable updates: ./intent-revision-update-failures.mounted.spec.ts.
+// Failed, unreadable and malformed-settings updates:
+// ./intent-revision-update-failures.mounted.spec.ts.
 // Companion built-app case: ./intent-revision-notice.spec.ts.
 import { expect, test, vi } from "vitest";
 import {

@@ -39,24 +39,26 @@ const answer = (body: unknown, status = 200) =>
     headers: { "content-type": "application/json" },
   });
 
-// The trunk's unchanged CI judgment and empty history, which Intent reads
-// beside every published revision.
+// The trunk's unchanged CI judgment, of its head, freshly read with nothing
+// kept, and empty history, which Intent reads beside every published revision.
 function trunkCiAnswer(params: URLSearchParams) {
   const revision = params.get("revision") ?? "";
   if (params.get("intent") === "ci-status")
-    return makeMe.anIntentCiStatus
-      .with({
-        branch: "main",
-        revision,
-        state: "unread",
-        subject: "No readable result",
-        laterWithoutResult: 0,
-        reason:
-          "No result of the selected check was found in the readable history",
-        checkedAt: "2026-11-01T00:00:00.000Z",
-        freshness: "fresh",
-      })
-      .please();
+    return params.has("kept")
+      ? { none: true }
+      : makeMe.anIntentCiStatus
+          .with({
+            branch: "main",
+            revision: "c1".repeat(20),
+            state: "unread",
+            subject: "No readable result",
+            laterWithoutResult: 0,
+            reason:
+              "No result of the selected check was found in the readable history",
+            checkedAt: "2026-11-01T00:00:00.000Z",
+            freshness: "fresh",
+          })
+          .please();
   if (params.get("intent") !== "ci-history") return undefined;
   if (!params.has("scope")) return makeMe.aCiHistoryAnswer.please();
   return makeMe.aScopeHistoryGlance

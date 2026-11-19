@@ -1,11 +1,10 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
-// An applied update that replaces the reading or must not cross projects:
-// an unusable latest settings file takes the reading's focus into its
-// explanation, and a held update of a project left behind never shows in
-// another's reading (../../src/useIntentLocations.ts,
-// ../../src/IntentRevisionNotice.tsx). Failed and unreadable updates that keep
-// the shown reading: ./intent-revision-update-outcomes.spec.ts.
+// A held update of a project left behind never shows in another's reading
+// (../../src/useIntentLocations.ts, ../../src/IntentRevisionNotice.tsx).
+// Malformed latest settings, and failed and unreadable updates that keep the
+// shown reading: ./intent-revision-update-failures.mounted.spec.ts and
+// ./intent-revision-update-outcomes.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { chooseProject } from "../../test-support/dashboardPage.ts";
@@ -40,39 +39,6 @@ import {
 const releases: (() => void)[] = [];
 test.afterEach(() => {
   for (const release of releases.splice(0)) release();
-});
-
-test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async ({
-  page,
-  frontendServices,
-}) => {
-  const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(
-    page,
-    frontendServices,
-    files,
-  );
-  await moveTrunk(
-    "ec".repeat(20),
-    {
-      ...files,
-      ".planning/open-dough.json": "{\n",
-    },
-    {
-      revision: "ec".repeat(20),
-      locations: null,
-      settingsProblem: "malformed",
-    },
-  );
-  await showLatestRevision(revisionNotice(intent)).click();
-  const explanation = intent.locator(
-    '[role="tabpanel"]:has(.intent-settings-problem)',
-  );
-  await expect(explanation).toContainText("is not valid JSON");
-  await expect(explanation).toBeFocused();
-  await expect(browserRevision(intent)).toContainText(
-    shortRevision("ec".repeat(20)),
-  );
 });
 
 test("choosing another project while an update is held shows only that project's reading when it is answered", async ({

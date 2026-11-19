@@ -193,7 +193,7 @@ Three built-app specs still write that answer by hand
 ### 5. Focus the explanation when the latest settings are malformed
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Applying the latest revision with malformed settings displays
 its explanation as the active reading and focuses that tab panel.
@@ -202,11 +202,30 @@ Proof: Use the typed malformed settings answer. Assert the invalid JSON
 text, tab-panel focus and new browser revision. Replace only the first
 boundaries case. The project-switch case stays in the built app.
 
+Accepted proof: the malformed-settings case passed in
+`intent-revision-update-failures.mounted.spec.ts` with the four remaining
+built-app cases, `intent-home-activation` and the typecheck. The read service
+now answers the trunk's CI status reads in shapes production accepts.
+
 Finish the family by observing the group discovery and strict proof described
 below. Confirm the five old cases are accounted for and the four remaining
 built-app cases still pass. Compare summed case durations of the five before
 and after, with command elapsed and selection reported separately. Confirm
 the moved cases use no app build, route mini-server or frontend page object.
+
+Family finish (2026-11-19, AC power, at the slice 5 candidate): the listing
+selects five `mounted-chromium` and four `chromium` cases. Three
+`intent/intent-revision --workers=2` runs at load 3.7–4.8 summed the five moved
+cases at 6.970, 7.169 and 7.580 s, against 6.278 s for the built app at load
+2.6–3.1. Command elapsed was 11.26, 11.31 and 11.40 s, against 11.40 s. The
+four retained built-app cases summed 5.68, 5.39 and 4.75 s, against 5.34 s.
+The mounted cases alone summed 5.33 s. The family delivered no case-time
+improvement. A one-run profile at load 4.65 found clicks take 60–75% of
+each case. Each browser-driven click takes about 150 ms, and the shared
+`mountedActSettled.ts` frame round after it about 85 ms. Viewport changes
+take 1 ms. No cut inside these case files keeps the reader-operated clicks
+and focus they prove. Whether a click that changes nothing can skip the
+settle frame round is a candidate follow-up for the later families.
 
 ## Local gates and delivery
 
