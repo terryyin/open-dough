@@ -2,7 +2,6 @@
 // Both the refinement capture and the execution completion use real installed
 // publication; the Done reader chooses their meaning, not a fabricated answer.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,
@@ -17,7 +16,7 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
   chooseStoryTab,
   folderToggle,
@@ -29,6 +28,7 @@ import {
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { capturedChoice } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 import {
   git,
   lines,
@@ -64,15 +64,9 @@ test("a Done story reads its published execution instead of an earlier refinemen
     "earlier-refinement",
   );
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
-  const { completion } = await completedPublishedStory(
+  const { completion } = await publishDeclaredTrunk(
     origin,
-    "trunk",
-    undefined,
-    (workspace) => {
-      writeRevisionFiles(workspace, implementation);
-    },
-    undefined,
-    { skillsDirectory: ".agents/skills" },
+    intentTrunkCompletionOntoTip({ implementation }),
   );
   const locations: string[] = [];
   const sourceReads: string[] = [];

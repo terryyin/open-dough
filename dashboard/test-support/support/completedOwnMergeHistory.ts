@@ -1,6 +1,7 @@
 // The story's own declared integration and landing merges for completed-story
 // review (conflicted merge edits, plain merge edit, own octopus, conflicted
 // completion landing). Ordinary / foreign stay in their modules.
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import {
@@ -43,31 +44,37 @@ const ownConflictTip = {
   ...mergeResolution,
 } as const;
 
-function landStoryBranch<Name extends string>(
+// Trunk-first owning landing: one completion fact, first-parent overlay drops
+// trunk-only paths (and any caller `extraRemove`) so the tip matches merge-tree.
+export function landStoryBranchOntoTip<Name extends string>(
   throughIntegration: RepositoryBuilder<Name>,
   trunkTip: string,
   trunkFiles: Record<string, string>,
   tipFiles: Record<string, string>,
+  extraRemove: readonly string[] = [],
 ) {
+  const done = freshYuiCompletion();
   const trunkLanding = {
     ...trunkFiles,
     "integration-other.txt": integrationOther,
   };
-  // Overlay keeps first-parent paths; drop trunk-only files the branch replaced
-  // so the landing tree matches `merge-tree` of the declared parents.
-  const removed = Object.keys(trunkLanding).filter(
-    (path) =>
-      path !== "integration-other.txt" && !Object.hasOwn(tipFiles, path),
-  );
+  const removed = [
+    ...((done.remove as readonly string[] | undefined) ?? []),
+    ...Object.keys(trunkLanding).filter(
+      (path) =>
+        path !== "integration-other.txt" && !Object.hasOwn(tipFiles, path),
+    ),
+    ...extraRemove,
+  ];
   return throughIntegration
-    .withRevision("branch completion", { ...freshYuiCompletion(), author })
+    .withRevision("branch completion", { ...done, author })
     .withRevision("trunk before landing", {
       parents: [trunkTip],
       message: "trunk advances before story integration",
       files: trunkLanding,
     })
     .withRevision("completion", {
-      ...freshYuiCompletion(),
+      ...done,
       parents: ["trunk before landing", "branch completion"],
       author,
       committer: author,
@@ -76,8 +83,10 @@ function landStoryBranch<Name extends string>(
     });
 }
 
-function throughOwnConflictIntegration() {
-  return queuedReadyRepository()
+function throughOwnConflictIntegration<Name extends string>(
+  base: RepositoryBuilder<Name> = queuedReadyRepository() as RepositoryBuilder<Name>,
+) {
+  return base
     .withRevision("shared", {
       files: {
         "shared.txt": lines("line"),
@@ -110,24 +119,35 @@ function throughOwnConflictIntegration() {
     });
 }
 
+const ownConflictTrunkLanding = {
+  "shared.txt": trunkFirstShared,
+  ...otherStory,
+  "agents/only.json": agentOnly,
+  "agents/other.json": otherProfile,
+  "checks/before.test.mjs": checksBefore,
+} as const;
+
+export function ownConflictExtraCompletionOntoTip() {
+  return landStoryBranchOntoTip(
+    throughOwnConflictIntegration(makeMe.aRepository),
+    "interleaving",
+    ownConflictTrunkLanding,
+    ownConflictTip,
+  );
+}
+
 export function ownConflictExtraCompletedHistory() {
-  return landStoryBranch(
+  return landStoryBranchOntoTip(
     throughOwnConflictIntegration(),
     "interleaving",
-    {
-      "shared.txt": trunkFirstShared,
-      ...otherStory,
-      "agents/only.json": agentOnly,
-      "agents/other.json": otherProfile,
-      "checks/before.test.mjs": checksBefore,
-    },
+    ownConflictTrunkLanding,
     ownConflictTip,
   ).please();
 }
 
 export function plainMergeEditCompletedHistory() {
   const tip = { ...integrated, ...mergeResolution };
-  return landStoryBranch(
+  return landStoryBranchOntoTip(
     storyBranchThroughInterleaving().withRevision("integration", {
       parents: ["implementation", "interleaving"],
       message: "merge trunk into the story",
@@ -142,7 +162,7 @@ export function plainMergeEditCompletedHistory() {
 
 export function ownOctopusCompletedHistory() {
   const tip = { ...integrated, "story-side.txt": "side line\n" };
-  return landStoryBranch(
+  return landStoryBranchOntoTip(
     storyBranchThroughInterleaving()
       .withRevision("story-side", {
         parents: ["claim"],

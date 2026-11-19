@@ -17,6 +17,7 @@ import {
   author,
   claimant,
   developer,
+  freshYuiCompletion,
   integrated,
   otherStory,
   storyBranchThroughInterleaving,
@@ -89,8 +90,10 @@ function ordinaryTrunkModeCompletedBuilder<Name extends string>(
   );
 }
 
-function storyBranchThroughIntegration() {
-  return storyBranchThroughInterleaving().withRevision("integration", {
+function storyBranchThroughIntegration<Name extends string>(
+  base?: RepositoryBuilder<Name>,
+) {
+  return storyBranchThroughInterleaving(base).withRevision("integration", {
     parents: ["implementation", "interleaving"],
     message: "merge trunk into the story",
     author,
@@ -98,8 +101,11 @@ function storyBranchThroughIntegration() {
   });
 }
 
-function storyBranchLanding(branchCompletion: object) {
-  return storyBranchThroughIntegration()
+function storyBranchLanding<Name extends string>(
+  branchCompletion: object,
+  base?: RepositoryBuilder<Name>,
+) {
+  return storyBranchThroughIntegration(base)
     .withRevision("branch completion", { ...branchCompletion, author })
     .withRevision("trunk before landing", {
       parents: ["interleaving"],
@@ -125,6 +131,12 @@ export function ordinaryTrunkModeCompletedHistory() {
 
 export function ordinaryTrunkModeCompletionOntoTip() {
   return ordinaryTrunkModeCompletedBuilder(makeMe.aRepository);
+}
+
+export function ordinaryStoryBranchCompletionOntoTip(
+  completion = freshYuiCompletion(),
+) {
+  return storyBranchLanding(completion, makeMe.aRepository);
 }
 
 export function ordinaryStoryBranchCompletedHistory() {

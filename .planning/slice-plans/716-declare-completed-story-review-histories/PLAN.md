@@ -238,7 +238,7 @@ launches 9 + E2E journeys 6 passed. Retained snapshot still uses a visible
 ### 7. Intent's completed stories publish declared completions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Intent fixtures append the declared completion, with Intent
 coverage where stated, through `publishDeclaredTrunk`, now with parents →
@@ -255,6 +255,18 @@ unchanged.
   `dashboard/` and `e2e/`.
 
 Proof: those backend, frontend and E2E specs pass.
+Accepted (reusable): `intentCompletedHistory.ts` (`intentTrunkCompletionOntoTip`,
+`retainedDeclaredStoryWorkspace`) plus onto-tip Story Branch helpers;
+`landStoryBranchOntoTip` for landing overlays; Intent coverage via
+`freshYuiCompletion({ intentCoverage })`. Consumer-trace ok; backend intent 308,
+frontend CI comparison 7, E2E consumers 32 passed. Retained landings stay
+`keepLaunchRecord` + `agentWorktree`.
+
+Learnings: after `capturedChoice`, `git pull --ff-only` before
+`publishDeclaredTrunk`; summary rename keeps
+`summaryComparisonChangeRevision.remove` so trunk-first overlay does not
+restore retired paths; keep Intent helpers in `intentCompletedHistory.ts`
+rather than growing ordinary history modules past 250 lines.
 
 ### 8. Retire the replay helpers and document the declared completion
 

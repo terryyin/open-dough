@@ -1,9 +1,11 @@
 // Another writer's declared trunk merges for completed-story review (unrelated /
 // non-owning resolutions, foreign octopus, inseparable rewrite). Ordinary /
 // takeover / return stay in completedStoryHistory.ts.
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import {
   author,
+  freshYuiCompletion,
   implemented,
   interleavedFiles,
   interleavedShared,
@@ -20,9 +22,10 @@ function landStoryBranch<Name extends string>(
   throughIntegration: RepositoryBuilder<Name>,
   trunkTip: string,
   tipFiles: Record<string, string>,
+  completion = yuiCompletion(),
 ) {
   return throughIntegration
-    .withRevision("branch completion", { ...yuiCompletion(), author })
+    .withRevision("branch completion", { ...completion, author })
     .withRevision("trunk before landing", {
       parents: [trunkTip],
       message: "trunk advances before story integration",
@@ -32,7 +35,7 @@ function landStoryBranch<Name extends string>(
       },
     })
     .withRevision("completion", {
-      ...yuiCompletion(),
+      ...completion,
       parents: ["trunk before landing", "branch completion"],
       author,
       committer: author,
@@ -140,6 +143,44 @@ export function foreignOctopusCompletedHistory() {
   ).please();
 }
 
+function nonOwningStoryBranchTip() {
+  return {
+    ...implemented,
+    "shared.txt": interleavedShared.replace(
+      "line 5\n",
+      "foreign resolution of shared\n",
+    ),
+    ...otherStory,
+  };
+}
+
+function nonOwningStoryBranchLanding<Name extends string>(
+  base?: RepositoryBuilder<Name>,
+  completion = yuiCompletion(),
+) {
+  const tipFiles = nonOwningStoryBranchTip();
+  return landStoryBranch(
+    foreignConflict(
+      storyBranchThroughInterleaving(base),
+      trunkWriterShared,
+      trunkInterleaved,
+      false,
+    ).withRevision("integration", {
+      parents: ["implementation", "foreign resolution"],
+      message: "merge trunk into the story",
+      author,
+      files: tipFiles,
+    }),
+    "foreign resolution",
+    tipFiles,
+    completion,
+  );
+}
+
+export function nonOwningStoryBranchCompletionOntoTip() {
+  return nonOwningStoryBranchLanding(makeMe.aRepository, freshYuiCompletion());
+}
+
 export function nonOwningForeignMergeCompletedHistory(
   mode: "trunk" | "story-branch",
 ) {
@@ -152,27 +193,5 @@ export function nonOwningForeignMergeCompletedHistory(
     )
       .withRevision("completion", yuiCompletion())
       .please();
-  const tipFiles = {
-    ...implemented,
-    "shared.txt": interleavedShared.replace(
-      "line 5\n",
-      "foreign resolution of shared\n",
-    ),
-    ...otherStory,
-  };
-  return landStoryBranch(
-    foreignConflict(
-      storyBranchThroughInterleaving(),
-      trunkWriterShared,
-      trunkInterleaved,
-      false,
-    ).withRevision("integration", {
-      parents: ["implementation", "foreign resolution"],
-      message: "merge trunk into the story",
-      author,
-      files: tipFiles,
-    }),
-    "foreign resolution",
-    tipFiles,
-  ).please();
+  return nonOwningStoryBranchLanding().please();
 }

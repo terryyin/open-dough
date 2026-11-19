@@ -2,6 +2,7 @@
 // implementation, and another writer's interleaving on trunk or the story
 // branch. Ordinary, foreign-merge, and later own-merge histories compose on it.
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   completionRevision,
   queuedReadyRepository,
@@ -49,7 +50,9 @@ export const yuiClaim = (branch?: string) =>
     publisher: "another-publisher",
     ...(branch === undefined ? {} : { branch }),
   });
-export const yuiCompletion = (facts: { completedAt?: string } = {}) =>
+export const yuiCompletion = (
+  facts: { completedAt?: string; intentCoverage?: IntentCoverage } = {},
+) =>
   completionRevision({
     story: storyA,
     queued: [storyB],
@@ -59,12 +62,20 @@ export const yuiCompletion = (facts: { completedAt?: string } = {}) =>
     ...facts,
   });
 // Recently done keeps only the last 30 days; a fixed January stamp falls out.
-export const freshYuiCompletion = () =>
-  yuiCompletion({ completedAt: new Date().toISOString() });
+export const freshYuiCompletion = (
+  facts: { intentCoverage?: IntentCoverage } = {},
+) => yuiCompletion({ completedAt: new Date().toISOString(), ...facts });
 export const implementation = {
   message: "story implementation",
   author,
   files: implemented,
+} as const;
+export const advanceAfterCompletion = {
+  message: "advance after completion",
+  files: {
+    "later.txt": "later trunk\n",
+    "[literal]*.txt": "later rewrite\n",
+  },
 } as const;
 
 export function trunkThroughInterleaving<Name extends string>(
@@ -80,8 +91,10 @@ export function trunkThroughInterleaving<Name extends string>(
     });
 }
 
-export function storyBranchThroughInterleaving() {
-  return queuedReadyRepository()
+export function storyBranchThroughInterleaving<Name extends string>(
+  base: RepositoryBuilder<Name> = queuedReadyRepository() as RepositoryBuilder<Name>,
+) {
+  return base
     .withRevision("shared", { files: { "shared.txt": lines("line") } })
     .withRevision("claim", yuiClaim(storyBranch))
     .withRevision("implementation", implementation)
