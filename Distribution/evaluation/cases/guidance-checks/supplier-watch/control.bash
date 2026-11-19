@@ -32,7 +32,7 @@ while read -r event; do
   printf 'turn-2-publication-%s-begin-ms: %s\n' "${index}" "$(node -e 'console.log(Date.now())')" \
     >> "${scratch}/case-evidence/watch-observations.txt"
   if [[ ${index} -eq 1 ]]; then
-    supplier_case_observe "${root}" 2-before "${stream}" "${scratch}" "${harness}" \
+    supplier_case_observe "${root}" 2-before "${stream}" "${scratch}" \
       >> "${scratch}/case-evidence/watch-observations.txt"
   fi
   case_apply_event "${root}" "${event}" "${scratch}"
@@ -43,7 +43,7 @@ while read -r event; do
     printf 'turn-2-publication-%s-ms: %s\n' "${index}" "$(node -e 'console.log(Date.now())')"
   } >> "${scratch}/case-evidence/watch-observations.txt"
   if [[ ${event} == nonqualifying ]]; then
-    supplier_case_observe "${root}" 2-hold "${stream}" "${scratch}" "${harness}" \
+    supplier_case_observe "${root}" 2-hold "${stream}" "${scratch}" \
       >> "${scratch}/case-evidence/watch-observations.txt"
   fi
   printf '%s\n' "${case_remote_main}" > "${clock}/${event}"

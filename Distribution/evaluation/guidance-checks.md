@@ -34,8 +34,9 @@ Both procedures were demonstrated on 2026-11-17: the effort-derived
 task and basis: reuse a case's own frozen baseline only under the
 [sufficiency rules](baselines.md#compare-another-candidate-with-saved-evidence),
 or observe both arms fresh. An extracted case never treats the whole-story
-runs it came from as its baseline. An interrupted journey stays incomplete;
-the entry never retries it.
+runs it came from as its baseline. On INT or TERM, the entry waits for each
+active arm to stop its host session and clean up before removing its work
+directory. It exits 130 or 143, respectively, without starting another turn.
 
 ## Redo the source phase for an uncovered finding
 
@@ -83,9 +84,11 @@ Distribution/evaluation/src/native-guidance-check.sh --list --where hosts=codex 
 Distribution/evaluation/src/native-guidance-check.sh --list --where prerequisites=nix
 ```
 
-`--list` prints each case's traits from its `case.md` Selection section:
-workflow, hosts, prerequisites, decisions-and-proof and duration. Each
-`--where TRAIT=TEXT` keeps the cases whose trait contains TEXT, ignoring case.
+`--list` prints each case's traits from its `case.md` Selection section,
+including workflow, hosts, unqualified-hosts, prerequisites,
+decisions-and-proof and duration. The hosts trait names qualified hosts only.
+Each `--where TRAIT=TEXT` keeps the cases whose named trait contains TEXT,
+ignoring case.
 
 | Case                        | What it exercises                                                                                                         | Preparation and run, as measured on 2026-11-14                                                      |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
@@ -121,6 +124,18 @@ not the decision being measured. Keep expected answers in the assessor and
 `case.bash` controller, never in the agent's workspace, and leave the project's
 ordinary requirements and tests available to the agent.
 
+The runner records command count and harness inspection for each turn from
+its session stream. Both fields read `unknown` when the stream cannot establish
+them. A case can extend the runner's inspection pattern with
+`case_harness_paths`. Its `case_observe ROOT TURN STREAM SCRATCH` reports
+project observations.
+
+A case that starts services can define `case_cleanup ROOT` to stop them and
+print its own observation fields. The runner calls it once after
+`case_materialize` starts, including on failed materialization, refusal by
+`case_prepare_run`, and interruption. If the arm cannot start a session, its
+`unstarted` observations include any cleanup fields and it retains no attempt.
+
 Before a case informs a comparison, qualify it natively: one journey must show
 the intended decision and its proof, and a plausible wrong decision must fail
 the assessor as a rejected case. Record measured preparation and native
@@ -134,7 +149,8 @@ recover earlier cases through Git rather than a separate registry.
 (`native-guidance-check-<case>.sh`), substitute pairs and the pair judge's
 rejected cases (`native-comparison-pairs.sh`), refusals and incomplete pairs
 (`native-comparison-incomplete.sh`) and refresh and recovery
-(`native-comparison-refresh.sh`). Substitute hosts prove the runner,
+(`native-comparison-refresh.sh`) and early cleanup
+(`native-guidance-check-cleanup.sh`). Substitute hosts prove the runner,
 observer, assessors and judge; they never stand in for native behavior.
 `native-comparison-baselines.sh` also exercises frozen capture, export and
 reassessment after raw cleanup, complete failures and insufficient proof.

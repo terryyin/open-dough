@@ -67,6 +67,12 @@ The command prints the pair's record and `result-path:`, and exits 0 with an
 outcome (`preserved`, `improved`, `regressed`, `neither-passed`) or 1 when
 the pair is `incomplete` or `not-comparable`.
 
+Interrupt with Ctrl-C or TERM to stop the run. The entry waits for active
+arms to stop their host sessions and finish case cleanup before removing
+their work directories, then exits 130 or 143, respectively. An arm whose
+materialization fails or whose case refuses the host route runs its optional
+cleanup and records `unstarted` without retaining an arm attempt.
+
 ## Save one frozen baseline
 
 The [baseline guide](baselines.md) covers standalone frozen
@@ -102,6 +108,9 @@ Then:
 - `effort-*` lines follow the verdict and never change it. An incomplete or
   not comparable pair computes no effort difference, and an arm that
   stopped is marked `partial`: its counts cover only the turns observed.
+  The runner records command count and harness inspection for each turn.
+  A stream that cannot establish those facts yields `unknown` for both
+  fields, and the effort count omits that turn's commands.
 - `unknown:` names each turn an arm did not observe and each arm whose
   applied settings and workers stay unknown without a readable session
   record. Nothing unknown is counted as zero.

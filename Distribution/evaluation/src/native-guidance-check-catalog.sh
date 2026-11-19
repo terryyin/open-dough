@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # The catalog of Native guidance check cases (Distribution/evaluation/cases/guidance-checks/<case>/):
 # each case's selection traits, the `- trait: value` items of its case.md
-# Selection section (workflow, hosts, prerequisites, decisions and proof,
-# duration), for a maintainer choosing a case.
+# Selection section (workflow, hosts, unqualified hosts, prerequisites,
+# decisions and proof, duration), for a maintainer choosing a case.
+# The hosts trait names qualified hosts only.
 #
 #   native_guidance_check_catalog SOURCE_DIR [TRAIT=TEXT]...
 #     Prints each case whose every named trait contains TEXT (ignoring case):

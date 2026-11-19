@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-346#close-native-comparison-harness-gaps",
+  "title": "Close native comparison harness gaps",
+  "completedAt": "2026-11-19T02:29:04.336Z",
+  "developer": "Terry Yin",
+  "agent": "Maki-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

@@ -14,7 +14,8 @@ retain the investigation outcome and recoverable historical evidence.
 - workflow: blocked execution after a developer requests supplier monitoring
 - behavior: independent in-flight producer events and exactly one continuation
 - environment: isolated small Node project and local Git remote
-- hosts: codex controlled substitute only; native execution is retired
+- hosts: none
+- unqualified hosts: codex (controlled substitute only, native execution retired)
 - prerequisites: Bash 5, Git, Node 24, jq; exact controlled substitute and external FIFO driver
 - decisions and proof: paused/early-publication hold, partial-work preservation,
   qualifying continuation once with independent and executed proof

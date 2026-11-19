@@ -20,7 +20,11 @@ owned_process_group_signal() {
   local caller_pgid=$4
 
   if [[ -n ${pgid} && ${pgid} != "${caller_pgid}" ]]; then
-    kill -s "${signal}" -- "-${pgid}" 2> /dev/null || true
+    # The recorded group includes its leader. Sending TERM to the leader
+    # again can interrupt its exit handler before it finishes cleanup.
+    if kill -s "${signal}" -- "-${pgid}" 2> /dev/null && [[ ${signal} == TERM ]]; then
+      return 0
+    fi
   fi
   kill -s "${signal}" "${pid}" 2> /dev/null || true
 }
@@ -32,8 +36,8 @@ owned_process_group_terminate() {
   local pgid=$1
   local pid=$2
   local grace=$3
-  local caller_pgid
-  caller_pgid=$(owned_process_group_pgid_of $$)
+  local caller_pid=${BASHPID} caller_pgid
+  caller_pgid=$(owned_process_group_pgid_of "${caller_pid}")
 
   owned_process_group_signal TERM "${pgid}" "${pid}" "${caller_pgid}"
   if ((grace > 0)); then

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-346_close-native-comparison-harness-gaps.json",
+      "identity": "SEED-346#close-native-comparison-harness-gaps",
+      "completedAt": "2026-11-19T02:29:04.336Z",
+      "blob": "a2b4450def15879c4129e0fd2dc2115c278e8d4b"
+    },
+    {
       "fileName": "SEED-406_plot-new-models-with-estimated-token-index.json",
       "identity": "SEED-406#plot-new-models-with-estimated-token-index",
       "completedAt": "2026-11-19T02:01:07.975Z",
@@ -2688,12 +2694,6 @@
       "identity": "SEED-010#schedule-proof-after-refactoring",
       "completedAt": "2026-10-20T04:25:03.137Z",
       "blob": "98afeeafcd94bef64ea8ffdf67d548172b3d2d53"
-    },
-    {
-      "fileName": "SEED-010_accept-original-story-promises.json",
-      "identity": "SEED-010#accept-original-story-promises",
-      "completedAt": "2026-10-20T02:23:03.299Z",
-      "blob": "1ee6f0f69b6120a1fec65d595d7f5788bc3dac3a"
     }
   ],
   "unreadable": []

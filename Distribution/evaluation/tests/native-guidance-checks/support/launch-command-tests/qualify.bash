@@ -54,6 +54,6 @@ for outcome in "$@"; do
   )
   printf 'outcome: %s\nseconds: %s\nload-before: %s\nload-after: %s\n' "${outcome}" \
     "$((SECONDS - start))" "${load}" "$(sysctl -n vm.loadavg 2> /dev/null || uptime)"
-  grep -E '^turn-1-(status|source|backend|e2e|perturbation|fault|probes)|^assessment-' "${work}/run/observations.txt"
+  grep -E '^turn-1-(status|commands|harness-inspected|source|backend|e2e|perturbation|fault|probes)|^assessment-' "${work}/run/observations.txt"
   rm -rf -- "${work}"
 done
