@@ -4,6 +4,7 @@
 // pricing variants belong to frontend and backend token-index tests.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { test } from "../../dashboard/test-support/support/pageTest.ts";
@@ -123,7 +124,7 @@ test("both tools compare on one chart in their own units, follow a filter, open 
     "Nov 6 · Claude Code · 6,000",
   ]);
   await usage.showsToolNotes([
-    "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
+    codexTariff.label,
     "Anthropic API list prices read 2026-11-15 · standard speed · Claude Opus 5.5 input-token equivalents",
     "Not included: background agent-view row summaries, recaps and idle compaction",
   ]);
