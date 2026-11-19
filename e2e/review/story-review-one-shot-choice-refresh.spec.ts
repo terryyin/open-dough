@@ -1,43 +1,31 @@
 // Retained integration: real stored records -> Refresh -> immutable diff display.
-import {
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import {
   test,
-  expect,
   storedReviewChoices,
   storedCapturedChoice,
 } from "../../dashboard/test-support/support/storedReviewChoices.ts";
 import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { reviewLaunch } from "../../dashboard/test-support/support/reviewRunRecords.ts";
-import { refreshAndRead } from "../../dashboard/test-support/support/reviewRead.ts";
 import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
 import { recordOperation } from "../../dashboard/test-support/support/completionRecovery.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 
-// Opens story A's review with the run `key` chosen under Landed runs; its
-// Refresh waits until the review has read it.
+// Opens story A's review with the run `key` chosen under Landed runs.
 async function chooseLandedRun(
   page: Page,
   origin: StartOrigin,
   key: string,
   name?: string,
 ) {
-  await openCapturedReview(page, origin);
-  const review = reviewRegion(page);
-  await comparisonChoice(review, "Landed runs").check();
-  const select = landedRunChoice(review);
-  await select.selectOption(key);
+  const { review } = await openCapturedReview(page, origin);
+  await review.comparison.choose("Landed runs");
+  await review.landedRun.choose(key);
   if (name !== undefined)
-    await expect(added(review)).toHaveText([`+${name}.txt`]);
-  const refresh = () => refreshAndRead(review);
-  return { review, select, refresh };
+    await review.diffs.expectLines("added", [`+${name}.txt`]);
+  return review;
 }
-const added = (review: Locator) => review.locator(".story-review-added");
 
 function recoveredChoice(record: LaunchRecord) {
   const established = record.start ?? record.preparation;
@@ -65,23 +53,12 @@ test("Refresh preserves a selected run after a new capture and after its native 
   const { first, legacy } = await storedReviewChoices(dashboard, origin, [
     "first",
   ]);
-  const { review, select, refresh } = await chooseLandedRun(
-    page,
-    origin,
-    first.key,
-    "first",
-  );
+  const review = await chooseLandedRun(page, origin, first.key, "first");
   const third = await storedCapturedChoice(dashboard, origin, "third");
-  await refresh();
-  await expect(select).toHaveValue(first.key);
-  expect(
-    await select
-      .locator("option")
-      .evaluateAll((options) =>
-        options.map((option) => option.getAttribute("value")),
-      ),
-  ).toEqual([third.key, first.key, legacy.key]);
-  await expect(added(review)).toHaveText(["+first.txt"]);
+  await review.status.refreshAndRead();
+  await review.landedRun.expectChosen(first.key);
+  await review.landedRun.expectRunKeys([third.key, first.key, legacy.key]);
+  await review.diffs.expectLines("added", ["+first.txt"]);
   const keptFirst = keptLaunchRecords(dashboard).find(
     (record): record is LaunchRecord =>
       "session" in record && record.request.reporting?.reference === first.key,
@@ -92,9 +69,9 @@ test("Refresh preserves a selected run after a new capture and after its native 
     first.record.session,
     recoveredChoice(keptFirst),
   ]);
-  await refresh();
-  await expect(select).toHaveValue(first.key);
-  await expect(added(review)).toHaveText(["+first.txt"]);
+  await review.status.refreshAndRead();
+  await review.landedRun.expectChosen(first.key);
+  await review.diffs.expectLines("added", ["+first.txt"]);
 });
 
 test("Refresh replaces a deleted choice whose native session was replaced with the newest captured run rather than an older one", async ({
@@ -107,12 +84,7 @@ test("Refresh replaces a deleted choice whose native session was replaced with t
     "second",
     "third",
   ]);
-  const { review, select, refresh } = await chooseLandedRun(
-    page,
-    origin,
-    first.key,
-    "first",
-  );
+  const review = await chooseLandedRun(page, origin, first.key, "first");
   const keptFirst = keptLaunchRecords(dashboard).find(
     (record): record is LaunchRecord =>
       "session" in record && record.request.reporting?.reference === first.key,
@@ -129,10 +101,10 @@ test("Refresh replaces a deleted choice whose native session was replaced with t
     "open-dough",
     replacement.session,
   ]);
-  await refresh();
-  await expect(select).toHaveValue(third.key);
-  await expect(select.locator("option")).toHaveCount(3);
-  await expect(added(review)).toHaveText(["+third.txt"]);
+  await review.status.refreshAndRead();
+  await review.landedRun.expectChosen(third.key);
+  await review.landedRun.expectRunCount(3);
+  await review.diffs.expectLines("added", ["+third.txt"]);
 });
 
 test("Refresh replaces an expired choice with the remaining captured run and falls back to the evidence gap when that run is deleted", async ({
@@ -147,28 +119,23 @@ test("Refresh replaces an expired choice with the remaining captured run and fal
     origin,
     ["second", "third"],
   );
-  const { review, select, refresh } = await chooseLandedRun(
-    page,
-    origin,
-    third.key,
-    "third",
-  );
+  const review = await chooseLandedRun(page, origin, third.key, "third");
   await recordOperation(dashboard, "setRecordDoneAt", [
     "open-dough",
     third.record.session,
     "2000-01-01T00:00:00.000Z",
   ]);
-  await refresh();
-  await expect(select).toHaveValue(second.key);
-  await expect(select.locator("option")).toHaveCount(2);
-  await expect(added(review)).toHaveText(["+second.txt"]);
+  await review.status.refreshAndRead();
+  await review.landedRun.expectChosen(second.key);
+  await review.landedRun.expectRunCount(2);
+  await review.diffs.expectLines("added", ["+second.txt"]);
   await recordOperation(dashboard, "deleteRecord", [
     "open-dough",
     second.record.session,
   ]);
-  await refresh();
-  await expect(select).toHaveValue(legacy.key);
-  await expect(select.locator("option")).toHaveCount(1);
-  await expect(review).toContainText("no captured landing comparison");
-  await expect(review.getByRole("list")).toHaveCount(0);
+  await review.status.refreshAndRead();
+  await review.landedRun.expectChosen(legacy.key);
+  await review.landedRun.expectRunCount(1);
+  await review.expectText("no captured landing comparison");
+  await review.files.expectNoLists();
 });

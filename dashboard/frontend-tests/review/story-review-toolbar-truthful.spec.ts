@@ -5,7 +5,7 @@ import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { reviewChanges } from "../../test-support/storyCardControls.ts";
 import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
 import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendPublishedReview,
@@ -18,19 +18,10 @@ import {
   storyA,
 } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import { reviewFeedback } from "../../test-support/support/reviewContextLine.ts";
 import {
-  filesToggle,
-  reviewRefresh,
-  reviewRegion,
-  toolbarComparison,
-} from "../../test-support/support/reviewControls.ts";
-import {
-  expectDetailsCollapsed,
-  expectEyeBesideComparison,
-  expectNoToolbarComparisonOrDetails,
-} from "../../test-support/support/reviewDetails.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+  openReviewChangesFrom,
+  type ReviewChanges,
+} from "../../test-support/reviewChangesPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
 import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
@@ -41,6 +32,19 @@ const added = (path: string) => ({
   lines: { added: 1, removed: 0 },
 });
 
+// The first read is on its way: progress, with no comparison name or eye.
+async function expectPending(review: ReviewChanges) {
+  await review.status.expectFeedbackSays("Reading the story's changes…");
+  await review.expectNoComparisonNameOrDetails();
+}
+
+// A refused read keeps the problem and Refresh, with no name or eye.
+async function expectRefused(review: ReviewChanges) {
+  await review.status.expectFeedbackSays("The review could not be read:");
+  await review.expectNoComparisonNameOrDetails();
+  await review.status.expectRefreshAndCloseOffered();
+}
+
 test("a Done card holds progress with no name or eye until a published answer arrives", async ({
   page,
   frontendServices,
@@ -50,18 +54,17 @@ test("a Done card holds progress with no name or eye until a published answer ar
   answers.answerFile(frontendFileDiff("done.txt", ["+done"]));
   const held = answers.holdNextSnapshot();
   await openFrontendBoardReview(page, frontendServices);
-  await reviewChanges(doneCard(page, storyA.title)).click();
-  const review = reviewRegion(page);
-  await held.received;
-  await expect(reviewFeedback(review)).toContainText(
-    "Reading the story's changes…",
+  const review = await openReviewChangesFrom(
+    page,
+    reviewChanges(doneCard(page, storyA.title)),
   );
-  await expectNoToolbarComparisonOrDetails(review);
+  await held.received;
+  await expectPending(review);
   held.release();
   await held.delivered;
-  await expect(toolbarComparison(review)).toHaveText("Published completion");
-  await expectEyeBesideComparison(review, "Show review details");
-  await expect(fileDiff(review, "Added done.txt")).toContainText("+done");
+  await review.expectComparisonNamed("Published completion");
+  await review.details.expectEyeBesideComparison("Show review details");
+  await review.diffs.expectShows("Added done.txt", "+done");
 });
 
 test("an ad hoc landing holds the same pending toolbar, then names Landed runs", async ({
@@ -104,18 +107,17 @@ test("an ad hoc landing holds the same pending toolbar, then names Landed runs",
   const { recent } = await openFrontendBoardReview(page, frontendServices, {
     doneSessions: [session],
   });
-  await sessionReviewChanges(recent, title).click();
-  const review = reviewRegion(page);
-  await held.received;
-  await expect(reviewFeedback(review)).toContainText(
-    "Reading the story's changes…",
+  const review = await openReviewChangesFrom(
+    page,
+    sessionReviewChanges(recent, title),
   );
-  await expectNoToolbarComparisonOrDetails(review);
+  await held.received;
+  await expectPending(review);
   held.release();
   await held.delivered;
-  await expect(toolbarComparison(review)).toHaveText("Landed runs");
-  await expectDetailsCollapsed(review);
-  await expect(fileDiff(review, `Modified ${path}`)).toContainText("after");
+  await review.expectComparisonNamed("Landed runs");
+  await review.details.expectCollapsed();
+  await review.diffs.expectShows(`Modified ${path}`, "after");
 });
 
 test("a refused first read keeps the problem and Refresh; retry reveals the answer", async ({
@@ -138,65 +140,58 @@ test("a refused first read keeps the problem and Refresh; retry reveals the answ
     },
   );
   await openFrontendBoardReview(page, frontendServices);
-  await reviewChanges(doneCard(page, storyA.title)).click();
-  const review = reviewRegion(page);
-  await expect(reviewFeedback(review)).toContainText(
-    "The review could not be read:",
+  const review = await openReviewChangesFrom(
+    page,
+    reviewChanges(doneCard(page, storyA.title)),
   );
-  await expectNoToolbarComparisonOrDetails(review);
-  await expect(reviewRefresh(review, { exact: true })).toBeVisible();
-  await reviewRefresh(review, { exact: true }).click();
-  await expect(toolbarComparison(review)).toHaveText("Published completion");
-  await expectEyeBesideComparison(review, "Show review details");
-  await expect(fileDiff(review, "Added retry.txt")).toContainText("+retry");
+  await expectRefused(review);
+  await review.status.refresh();
+  await review.expectComparisonNamed("Published completion");
+  await review.details.expectEyeBesideComparison("Show review details");
+  await review.diffs.expectShows("Added retry.txt", "+retry");
 });
 
 test("Refresh of a readable comparison keeps its name, eye and diff while progress shows", async ({
   page,
   frontendServices,
 }) => {
-  const { review, answers } = await openFrontendStoryReviewAsOpened(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({ files: [added("keep.txt")] }),
-    (initial) => {
-      initial.answerFile(frontendFileDiff("keep.txt", ["+keep"]));
-    },
-  );
-  await expect(toolbarComparison(review)).toHaveText("All changes");
-  await expectDetailsCollapsed(review);
-  await expect(fileDiff(review, "Added keep.txt")).toContainText("+keep");
+  const { reviewChanges: review, answers } =
+    await openFrontendStoryReviewAsOpened(
+      page,
+      frontendServices,
+      frontendReviewSnapshot({ files: [added("keep.txt")] }),
+      (initial) => {
+        initial.answerFile(frontendFileDiff("keep.txt", ["+keep"]));
+      },
+    );
+  await review.expectComparisonNamed("All changes");
+  await review.details.expectCollapsed();
+  await review.diffs.expectShows("Added keep.txt", "+keep");
   const held = answers.holdNextSnapshot();
   try {
-    await reviewRefresh(review, { exact: true }).click();
+    await review.status.refresh();
     await held.received;
-    await expect(reviewFeedback(review)).toContainText(
-      "Refreshing the review…",
-    );
-    await expect(toolbarComparison(review)).toHaveText("All changes");
-    await expectDetailsCollapsed(review);
-    await expect(fileDiff(review, "Added keep.txt")).toContainText("+keep");
+    await review.status.expectFeedbackSays("Refreshing the review…");
+    await review.expectComparisonNamed("All changes");
+    await review.details.expectCollapsed();
+    await review.diffs.expectShows("Added keep.txt", "+keep");
   } finally {
     held.release();
   }
-  await expect(reviewFeedback(review)).toContainText("Review refreshed");
+  await review.status.expectFeedbackSays("Review refreshed");
   await page.route(
     (url) => url.pathname === storyReviewEndpoint,
     (route) => fulfillJson(route, { error: "unreadable" }, 500),
   );
-  await reviewRefresh(review, { exact: true }).click();
-  await expect(reviewFeedback(review)).toContainText(
-    "The review could not be read:",
-  );
-  await expectNoToolbarComparisonOrDetails(review);
-  await expect(reviewRefresh(review, { exact: true })).toBeVisible();
+  await review.status.refresh();
+  await expectRefused(review);
 });
 
 test("the files toggle stays independent of whether details are offered", async ({
   page,
   frontendServices,
 }) => {
-  const { review } = await openFrontendStoryReviewAsOpened(
+  const { reviewChanges: review } = await openFrontendStoryReviewAsOpened(
     page,
     frontendServices,
     frontendReviewSnapshot({ files: [added("toggle.txt")] }),
@@ -204,11 +199,11 @@ test("the files toggle stays independent of whether details are offered", async 
       initial.answerFile(frontendFileDiff("toggle.txt", ["+toggle"]));
     },
   );
-  await expect(filesToggle(review)).toBeVisible();
-  await expectDetailsCollapsed(review);
-  await filesToggle(review).click();
-  await expect(filesToggle(review, "Show files")).toBeVisible();
-  await expectDetailsCollapsed(review);
-  await filesToggle(review, "Show files").click();
-  await expect(filesToggle(review)).toBeVisible();
+  await review.expectFilesToggleNamed("Hide files");
+  await review.details.expectCollapsed();
+  await review.hideFiles();
+  await review.expectFilesToggleNamed("Show files");
+  await review.details.expectCollapsed();
+  await review.showFiles();
+  await review.expectFilesToggleNamed("Hide files");
 });

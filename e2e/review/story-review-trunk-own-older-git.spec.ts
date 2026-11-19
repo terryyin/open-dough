@@ -6,24 +6,13 @@
 // baseline's, and the feedback says, for as long as the snapshot is shown,
 // that the story's published commits could not be taken out.
 
-import type { Locator } from "@playwright/test";
 import { expect } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextLine,
-  contextValues,
-  contextWords,
-  reviewFeedback,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectTreeRows,
-  changedFilesList,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
-  openStoryReview,
-  refreshReview,
-} from "../../dashboard/test-support/support/reviewRead.ts";
+  openReviewChanges,
+  type ReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import {
   openTaken,
@@ -46,14 +35,13 @@ const keptIn = (commits: string) =>
 
 // The context line names the baseline as any worktree's: the trunk revision
 // where the branch meets trunk, with nothing said taken out.
-async function expectPlainContextLine(review: Locator, trunk: string) {
-  await expect(contextValues(review)).toHaveAccessibleName(
+async function expectPlainContextLine(review: ReviewChanges, trunk: string) {
+  await review.context.expectWords(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
-  await expect(
-    contextLine(review).locator(".story-review-context-baseline"),
-  ).toHaveText(
+  await review.context.expectBaseline(
     new RegExp(`^Baseline ${trunk.slice(0, 7)}.* meets\\s+origin/main$`),
+    { exact: true },
   );
 }
 
@@ -63,8 +51,8 @@ olderGit(
     const { workspace } = storyWorktree(origin);
     const trunk = origin.revision("s2");
     keepLaunchRecord(dashboard, workspace);
-    const snapshot = await openStoryReview(page, await openTaken(page, origin));
-    const review = reviewRegion(page);
+    const review = await openReviewChanges(page, await openTaken(page, origin));
+    const { snapshot } = review;
 
     await olderGit.step(
       "all changes lists the unpublished and uncommitted files against the merge-base",
@@ -80,7 +68,7 @@ olderGit(
           "notes.md",
           "src/g.ts",
         ]);
-        await expectTreeRows(changedFilesList(review, "2 changed files"), [
+        await review.files.expectRows("2 changed files", [
           "src",
           "  g.ts",
           "notes.md",
@@ -90,16 +78,14 @@ olderGit(
     );
 
     await olderGit.step("the feedback says why", async () => {
-      await expect(reviewFeedback(review)).toHaveText(
-        keptIn("2 published commits"),
-      );
+      await review.status.expectFeedback(keptIn("2 published commits"));
       await expectPlainContextLine(review, trunk);
     });
 
     await olderGit.step("Refresh keeps saying it", async () => {
-      const refreshed = await refreshReview(review);
+      const refreshed = (await review.refreshAndAnswer()).snapshot;
       expect(refreshed.published?.kept).toBe("not-restated");
-      await expect(reviewFeedback(review)).toHaveText(
+      await review.status.expectFeedback(
         `Review refreshed: 2 changed files against baseline ${trunk.slice(0, 7)}.${keptIn("2 published commits")}`,
       );
     });
@@ -109,13 +95,18 @@ olderGit(
       async () => {
         git(workspace, "reset", "--quiet", "--hard", "origin/main");
         git(workspace, "clean", "--quiet", "-f");
-        const none = await refreshReview(review);
+        const none = (await review.refreshAndAnswer()).snapshot;
         expect(none.files).toEqual([]);
-        await expect(review).toContainText(
+        await review.expectText(
           `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
         );
-        await expect(reviewFeedback(review)).toContainText(
-          keptIn("2 published commits"),
+        await review.status.expectFeedback(
+          new RegExp(
+            keptIn("2 published commits").replace(
+              /[.*+?^${}()|[\]\\]/g,
+              "\\$&",
+            ),
+          ),
         );
       },
     );

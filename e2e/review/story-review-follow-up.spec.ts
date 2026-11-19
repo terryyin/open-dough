@@ -25,19 +25,11 @@ import { claimant } from "../../dashboard/test-support/support/completedStoryThr
 import { agentWorktree } from "../../dashboard/test-support/support/agentAuthoredWorktree.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
-import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
@@ -67,22 +59,21 @@ test.describe("published file Follow up", () => {
       name: "Story A",
       exact: true,
     });
-    const first = await readReview(page, card);
-    expect(first.kind).toBe("published");
-    if (first.kind !== "published")
+    const review = await openReviewChanges(page, card);
+    const first = review.answer;
+    expect(first?.kind).toBe("published");
+    if (first?.kind !== "published")
       throw new Error("expected published review");
     const comparison = `Published completion ${first.baseline} → ${first.tree}`;
-    const review = reviewRegion(page);
-    await expect(review).toContainText("Published completion");
-    await listedFile(review, sharedFile, { exact: true }).click();
+    await review.expectText("Published completion");
+    await review.files.chooseShown(sharedFile);
     const dialog = fileFollowUpDialog(page);
     // Key-example wording; Kept short enough for Taken's accessible name.
     const instruction = "Check pinned revision on project switch";
 
     await test.step("Follow up opens the existing dialog with the story and file context", async () => {
-      const follow = fileFollowUp(review, storyName);
-      await expect(follow).toBeVisible();
-      await follow.click();
+      await review.diffs.expectFollowUp(storyName);
+      await review.diffs.followUp(storyName);
       await expectFileFollowUpDialog(dialog, storyName, [
         "Path: shared.txt",
         `Comparison: ${comparison}`,
@@ -159,7 +150,6 @@ test.describe("retained workspace snapshot", () => {
       name: "Story A",
       exact: true,
     });
-    const review = reviewRegion(page);
     const dialog = fileFollowUpDialog(page);
 
     await test.step("the card offers Open terminal and no card Follow up", async () => {
@@ -167,13 +157,13 @@ test.describe("retained workspace snapshot", () => {
       await expect(fileFollowUp(card, storyName)).toHaveCount(0);
     });
 
-    const first = await readReview(page, card);
-    expect(first.kind).toBe("snapshot");
+    const review = await openReviewChanges(page, card);
+    expect(review.answer?.kind).toBe("snapshot");
 
     await test.step("a retained workspace snapshot offers no file Follow up", async () => {
-      await listedFile(review, sharedFile, { exact: true }).click();
-      await expect(fileDiff(review, sharedFile, { exact: true })).toBeVisible();
-      await expect(fileFollowUp(review, storyName)).toHaveCount(0);
+      await review.files.chooseShown(sharedFile);
+      await review.diffs.expectShows(sharedFile);
+      await review.diffs.expectFollowUp(storyName, false);
     });
 
     await test.step("Landed runs offer Follow up with the landed comparison", async () => {
@@ -184,20 +174,19 @@ test.describe("retained workspace snapshot", () => {
           url.searchParams.has("run")
         );
       });
-      await comparisonChoice(review, "Landed runs", { exact: true }).check();
+      await review.comparison.choose("Landed runs");
       const landedReview = (await (await landed).json()) as {
         kind: string;
         baseline: string;
         tree: string;
       };
       expect(landedReview.kind).toBe("landed");
-      await expect(review).toContainText("Landed run");
+      await review.landedRun.expectShown();
       // The landed pair lists completion artifacts; pick one known path.
       const doneRecord = "Added .planning/done/SEED-A_a.json";
-      await listedFile(review, doneRecord, { exact: true }).click();
-      const follow = fileFollowUp(review, storyName);
-      await expect(follow).toBeVisible();
-      await follow.click();
+      await review.files.chooseShown(doneRecord);
+      await review.diffs.expectFollowUp(storyName);
+      await review.diffs.followUp(storyName);
       await expectFileFollowUpDialog(dialog, storyName, [
         "Path: .planning/done/SEED-A_a.json",
         `Comparison: Landed run ${landedReview.baseline} → ${landedReview.tree}`,

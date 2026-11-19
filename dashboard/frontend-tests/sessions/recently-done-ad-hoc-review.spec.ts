@@ -22,16 +22,7 @@ import {
   installFrontendStoryReview,
 } from "../../test-support/support/frontendStoryReview.ts";
 import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import {
-  landedRunChoice,
-  reviewRegion,
-  toolbarComparison,
-} from "../../test-support/support/reviewControls.ts";
-import {
-  expectDetailsCollapsed,
-  expectEyeBesideComparison,
-} from "../../test-support/support/reviewDetails.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { reviewChangesAfter } from "../../test-support/reviewChangesPage.ts";
 
 test("a standalone ad hoc Done entry opens its review from Review changes", async ({
   page,
@@ -109,16 +100,13 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
     },
   );
 
-  await action.click();
+  const opened = await reviewChangesAfter(page, action);
   // The session's landing opens compact: its one toolbar, the run's facts
   // behind the eye, and the delivered file's diff readable.
-  const opened = reviewRegion(page);
-  await expect(toolbarComparison(opened)).toHaveText("Landed runs");
-  await expectDetailsCollapsed(opened);
-  await expectEyeBesideComparison(opened, "Show review details");
-  await expect(fileDiff(opened, `Modified ${deliveredPath}`)).toContainText(
-    "after",
-  );
+  await opened.expectComparisonNamed("Landed runs");
+  await opened.details.expectCollapsed();
+  await opened.details.expectEyeBesideComparison("Show review details");
+  await opened.diffs.expectShows(`Modified ${deliveredPath}`, "after");
   await journey.phase(
     "the panel shows the session's landed review",
     (pages) => {
@@ -150,7 +138,7 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
   );
 
   // One landing: its revealed details offer no run picker.
-  await expect(landedRunChoice(opened)).toHaveCount(0);
+  await opened.landedRun.expectNoPicker();
 
   await journey.phase(
     "reviewing the session clears the selected story",

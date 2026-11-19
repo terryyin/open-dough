@@ -35,7 +35,9 @@ and configuration.
   [`dashboardPage.ts`](dashboard/test-support/dashboardPage.ts) is the Dashboard Test Support page-object
   entry. The
   [fluent side-panel page objects](dashboard/test-support/sidePanelPages.ts) show
-  the phase-and-cue form of the Side panel journeys.
+  the phase-and-cue form of the Side panel journeys. Review changes journeys
+  operate the review through [`reviewChangesPage.ts`](dashboard/test-support/reviewChangesPage.ts),
+  which alone knows where each review control lives.
 - Never use `test.slow()`.
 - Keep the default test timeout. Override it only when essential, inside the
   individual test. Suite, file, group, and hook overrides are forbidden.

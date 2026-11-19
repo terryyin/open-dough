@@ -29,6 +29,10 @@ import {
   storyA,
 } from "./frontendRecentlyDoneBoardReview.ts";
 import { doneCard } from "../doneStoryReviewPage.ts";
+import {
+  assumeReviewChanges,
+  type ReviewChanges,
+} from "../reviewChangesPage.ts";
 
 // The Taken story's kept story-branch launch, which offers Review changes.
 export function keepTakenReviewLaunch(services: FrontendServiceState): void {
@@ -60,6 +64,8 @@ export async function openFrontendStoryReviewAsOpened(
 ): Promise<{
   readonly card: Locator;
   readonly review: Locator;
+  // The same review as the Review changes page object, to continue from.
+  readonly reviewChanges: ReviewChanges;
   readonly answers: FrontendStoryReview;
 }> {
   keepTakenReviewLaunch(frontendServices);
@@ -90,7 +96,12 @@ export async function openFrontendStoryReviewAsOpened(
   }
   const review = reviewRegion(page);
   await expect(review).toBeVisible();
-  return { card, review, answers };
+  return {
+    card,
+    review,
+    reviewChanges: await assumeReviewChanges(page),
+    answers,
+  };
 }
 
 // The same opening with the review's details readable.

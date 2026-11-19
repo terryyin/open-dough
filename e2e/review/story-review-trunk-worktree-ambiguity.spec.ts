@@ -1,7 +1,3 @@
-import {
-  reviewRefresh,
-  reviewRegion,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 // A Trunk Mode story's claim and agent-authored worktrees declared through
 // MakeMe (../../dashboard/test-support/support/storyReviewTrunkAmbiguity.ts):
 // Yui-chan's `trunk-a` with one slice beside worktrees that local Git passes
@@ -13,16 +9,13 @@ import {
 // diff, or comparison controls, and the boundary refuses to read either.
 // ./story-review-trunk-worktree.spec.ts keeps the real terminal start.
 
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { launchRecordsSchema } from "../../dashboard/src/agentLaunch.ts";
 import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
 import {
-  storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewRangeEndpoint,
-  storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
@@ -30,23 +23,13 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextLine,
-  contextValues,
-  contextWords,
-  reviewBody,
-  reviewFeedback,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectTreeRows,
-  changedFilesList,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   queuedIdentity,
   type StartOrigin,
 } from "../../dashboard/test-support/support/startOrigin.ts";
-import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   trunkModeAmbiguityAlone,
   trunkModeAmbiguityBoth,
@@ -79,17 +62,15 @@ async function expectStoryWorktreeReviewedAlone(
 
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
-  const opened = await openStoryReview(page, card);
-  const review = reviewRegion(page);
+  const review = await openReviewChanges(page, card);
+  const opened = review.snapshot;
   expect(opened.baseline).toBe(claim);
   expect(opened.head).toBe(git(workspace, "rev-parse", "HEAD"));
   expect(opened.files.map((file) => file.path)).toEqual(["slice.txt"]);
-  await expect(contextValues(review)).toHaveAccessibleName(
+  await review.context.expectWords(
     contextWords({ branch, baseline: claim, workspace: shown("trunk-a") }),
   );
-  await expectTreeRows(changedFilesList(review, "1 changed file"), [
-    "slice.txt",
-  ]);
+  await review.files.expectRows("1 changed file", ["slice.txt"]);
 }
 
 test.describe("worktrees without this story's published claim", () => {
@@ -118,25 +99,15 @@ test.describe("two worktrees holding the story's claim", () => {
 
     await openBacklog(page, origin);
     const card = parts(page).taken.getByRole("article", { name: "Story A" });
-    const answered = page.waitForResponse(
-      (response) => new URL(response.url()).pathname === storyReviewEndpoint,
-    );
-    await reviewChanges(card).click();
-    expect(storyReviewSchema.parse(await (await answered).json())).toEqual({
-      kind: "unavailable",
-      explanation,
-    });
+    const review = await openReviewChanges(page, card);
+    expect(review.answer).toEqual({ kind: "unavailable", explanation });
 
     // Read the explanation directly; do not reveal empty details.
-    const review = reviewRegion(page);
-    await expect(reviewFeedback(review)).toHaveText(explanation);
-    await expect(contextLine(review)).toHaveCount(0);
-    await expect(reviewBody(review)).toBeEmpty();
-    await expect(review.getByRole("list")).toHaveCount(0);
-    await expect(review.getByRole("region")).toHaveCount(0);
-    await expect(review.getByRole("radio")).toHaveCount(0);
-    await expect(review.getByRole("checkbox")).toHaveCount(0);
-    await expect(reviewRefresh(review)).toBeVisible();
+    await review.status.expectFeedback(explanation);
+    await review.status.expectNoContextLine();
+    await review.status.expectBodyEmpty();
+    await review.frame.expectNoFilesOrComparisons();
+    await review.status.expectRefreshAndCloseOffered();
 
     // The boundary refuses to read either worktree with the same explanation.
     const story = { source: "open-dough", identity: queuedIdentity };

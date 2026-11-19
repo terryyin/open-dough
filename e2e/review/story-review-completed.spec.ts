@@ -1,15 +1,4 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-  filesToggle,
-  toolbarComparison,
-} from "../../dashboard/test-support/support/reviewControls.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   expect,
@@ -21,10 +10,6 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import {
-  readReview,
-  refreshReview,
-} from "../../dashboard/test-support/support/launchLandingReview.ts";
 import path from "node:path";
 import {
   advanceCompletedTrunk,
@@ -53,34 +38,36 @@ test("a CLI-completed story without a local launch opens fixed published changes
   });
   await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(reviewChanges(card)).toBeVisible();
-  const first = await readReview(page, card);
-  expect(first.kind).toBe("published");
-  if (first.kind !== "published") throw new Error("No published review");
+  const review = await openReviewChanges(page, card);
+  const first = review.answer;
+  expect(first?.kind).toBe("published");
+  if (first?.kind !== "published") throw new Error("No published review");
   expect(first.completion).toBe(completion);
   expect(first.files.map((file) => file.path)).toContain("[literal]*.txt");
   expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
-  const review = reviewRegion(page);
-  await expect(review).toContainText("Published completion");
-  await listedFile(review, "Modified shared.txt", { exact: true }).click();
-  const diff = fileDiff(review, "Modified shared.txt");
-  await expect(diff.locator(".story-review-added")).toHaveText([
-    "+story first",
-  ]);
-  await expect(diff.locator(".story-review-removed")).toHaveText(["-line 0"]);
-  await expect(toolbarComparison(review)).toHaveText("Published completion");
-  await filesToggle(review).click();
-  await expect(fileBrowser(review)).toBeHidden();
-  await filesToggle(review, "Show files").click();
-  await expect(fileBrowser(review)).toBeVisible();
+  const { files, diffs } = review;
+  await review.expectText("Published completion");
+  await files.chooseShown("Modified shared.txt");
+  await diffs.expectChangedLines("Modified shared.txt", {
+    removed: ["-line 0"],
+    added: ["+story first"],
+  });
+  await review.expectComparisonNamed("Published completion");
+  await review.hideFiles();
+  await review.expectFilesShown(false);
+  await review.showFiles();
+  await review.expectFilesShown(true);
   advanceCompletedTrunk(origin);
-  expect(await refreshReview(page, review)).toEqual(first);
-  await closeSidePanel(review);
-  expect(await readReview(page, card)).toEqual(first);
-  await listedFile(review, "Added [literal]*.txt", { exact: true }).click();
-  await expect(
-    fileDiff(review, "Added [literal]*.txt", { exact: true }),
-  ).toContainText("+delivered on another machine");
-  await expect(review).not.toContainText("later.txt");
+  expect((await review.refreshAndAnswer()).answer).toEqual(first);
+  await review.close();
+  const reopened = await openReviewChanges(page, card);
+  expect(reopened.answer).toEqual(first);
+  await reopened.files.chooseShown("Added [literal]*.txt");
+  await reopened.diffs.expectShows(
+    "Added [literal]*.txt",
+    "+delivered on another machine",
+  );
+  await reopened.expectNoText("later.txt");
   // A later retained capture cannot replace the published comparison when
   // its repository is gone. Both choices remain navigable without a launch
   // being invented for the published completion.
@@ -94,26 +81,18 @@ test("a CLI-completed story without a local launch opens fixed published changes
     completion,
     baseline: origin.revision("interleaving"),
   });
-  const withRun = await refreshReview(page, review);
+  const withRun = (await reopened.refreshAndAnswer()).answer;
   expect(withRun).toMatchObject({
     kind: "published",
     completion,
     files: first.files,
   });
-  await expect(
-    comparisonChoice(review, "Published completion", { exact: true }),
-  ).toBeChecked();
-  await comparisonChoice(review, "Landed runs", { exact: true }).check();
-  await expect(review).toContainText(
+  await reopened.comparison.expectChosen("Published completion");
+  await reopened.comparison.choose("Landed runs");
+  await reopened.expectText(
     "captured landing repository is missing or unreadable",
   );
-  await comparisonChoice(review, "Published completion", {
-    exact: true,
-  }).check();
-  await expect(
-    comparisonChoice(review, "Published completion", { exact: true }),
-  ).toBeChecked();
-  await expect(
-    listedFile(review, "Added [literal]*.txt", { exact: true }),
-  ).toBeVisible();
+  await reopened.comparison.choose("Published completion");
+  await reopened.comparison.expectChosen("Published completion");
+  await reopened.files.expectListed(/changed file/, ["Added [literal]*.txt"]);
 });

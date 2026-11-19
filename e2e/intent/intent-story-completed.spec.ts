@@ -14,8 +14,7 @@
 // The done card's Review changes selects it too, and toggling its selection
 // clears it while the review stays open.
 
-import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -147,18 +146,16 @@ test("Intent overlays a completed story's published history comparison, naming i
     expect(inIntent.get(changed.modified)).toContain("completed");
     expect(inIntent.get(changed.added)).toContain("added");
     await story.openReview();
-    const review = reviewRegion(page);
-    await expect(review).toContainText("Published completion");
+    const review = await assumeReviewChanges(page);
+    await review.expectText("Published completion");
     // Its three test files and the six Intent counts outside the locations.
-    await expect(review.locator(".story-review-files [data-kind]")).toHaveCount(
-      9,
-    );
+    await review.files.expectKindMarks(9);
     for (const [name, diff] of inIntent)
       expect(await story.reviewDiff(name), name).toBe(diff);
   });
 
   await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
-    const review = reviewRegion(page);
+    const review = await assumeReviewChanges(page);
     const { development, intentChoice } = parts(page);
     await development.click();
     await showColumn(page, "Recently done");
@@ -173,7 +170,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await showColumn(page, "Recently done");
     await emptyArea(card).click();
     await expectSelected(card, false);
-    await expect(fileBrowser(review)).toBeVisible();
+    await review.expectFilesShown(true);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(scoped).toHaveCount(0);

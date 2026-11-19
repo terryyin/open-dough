@@ -1,6 +1,4 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Every retained run is a keyboard choice beside the live workspace.
-import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   test,
@@ -11,14 +9,7 @@ import {
   reviewChoices,
   addLiveEdit,
 } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
-import { refreshAndRead } from "../../dashboard/test-support/support/reviewRead.ts";
 import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
-import { chooseCommit } from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 
 test("keyboard choices show each retained captured or legacy run beside the live workspace comparison", async ({
   page,
@@ -28,97 +19,67 @@ test("keyboard choices show each retained captured or legacy run beside the live
 }) => {
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const choices = await reviewChoices(dashboard, origin, codexProtocol);
-  const { card, review: answer } = await openCapturedReview(page, origin);
-  expect(answer.kind).toBe("snapshot");
-  expect(answer.runs?.map((run) => run.key)).toEqual([
+  const { card, review } = await openCapturedReview(page, origin);
+  const { answer } = review;
+  expect(answer?.kind).toBe("snapshot");
+  expect(answer?.runs?.map((run) => run.key)).toEqual([
     choices.second.key,
     choices.first.key,
     choices.legacy.key,
   ]);
-  const review = reviewRegion(page);
+  const { files, landedRun, commits, diffs } = review;
   addLiveEdit(choices.workspace);
-  await refreshAndRead(review);
-  await expect(review).toContainText(
+  await review.status.refreshAndRead();
+  await review.status.expectFeedbackSays(
     "Review refreshed: 2 changed files against baseline",
   );
-  await expect(
-    comparisonChoice(review, "All changes", { exact: true }),
-  ).toBeChecked();
-  const radio = comparisonChoice(review, "Landed runs", { exact: true });
-  await radio.focus();
-  await page.keyboard.press("Space");
-  const select = landedRunChoice(review);
-  await expect(select).toHaveValue(choices.second.key);
+  await review.comparison.expectChosen("All changes");
+  await review.comparison.choose("Landed runs", "keyboard");
+  await review.landedRun.expectChosen(choices.second.key);
   for (const [index, run] of [choices.second, choices.first].entries()) {
-    await select.focus();
-    await page.keyboard.press("Home");
-    if (index > 0) await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("Enter");
-    await expect(select).toHaveValue(run.key);
-    await expect(review.getByRole("radio", { checked: true })).toHaveCount(1);
-    await expect(
-      changedFilesList(review, "1 changed file", { exact: true }).getByRole(
-        "button",
-        { name: `Added ${run.name}.txt`, exact: true },
-      ),
-    ).toBeVisible();
-    await expect(review.locator(".story-review-added")).toHaveText([
-      `+${run.name}.txt`,
-    ]);
-    await expect(review).toContainText(run.receipt.base);
-    await expect(review).toContainText(run.receipt.revision);
-    await expect(review).toContainText("Refinement launched");
-    await expect(review.locator("time")).toHaveAttribute(
-      "datetime",
-      run.record.launchedAt,
+    await review.landedRun.press(
+      "Home",
+      ...(index > 0 ? ["ArrowDown"] : []),
+      "Enter",
     );
-    await expect(review).toContainText("origin/main");
+    await review.landedRun.expectChosen(run.key);
+    await review.comparison.expectChosen("Landed runs");
+    await files.expectListed("1 changed file", [`Added ${run.name}.txt`]);
+    await diffs.expectLines("added", [`+${run.name}.txt`]);
+    await landedRun.expectShown(
+      run.receipt.base,
+      run.receipt.revision,
+      "Refinement launched",
+      "origin/main",
+    );
+    await landedRun.expectLaunchedAt(run.record.launchedAt);
   }
-  await select.focus();
-  await page.keyboard.press("End");
-  await page.keyboard.press("Enter");
-  await expect(select).toHaveValue(choices.legacy.key);
-  await expect(review).toContainText("no captured landing comparison");
-  await expect(review).toContainText(
-    "cannot be reconstructed from today's trunk",
-  );
-  await expect(review.locator("time")).toHaveAttribute(
-    "datetime",
-    choices.legacy.launchedAt,
-  );
-  await expect(review.getByRole("list")).toHaveCount(0);
+  await review.landedRun.press("End", "Enter");
+  await review.landedRun.expectChosen(choices.legacy.key);
+  await review.expectText("no captured landing comparison");
+  await review.expectText("cannot be reconstructed from today's trunk");
+  await landedRun.expectLaunchedAt(choices.legacy.launchedAt);
+  await files.expectNoLists();
   expect(
     stored(dashboard.home).find(
       (record) => record.session.sessionId === choices.legacy.session.sessionId,
     )?.request.reporting,
   ).toBeUndefined();
-  await comparisonChoice(review, "All changes", { exact: true }).focus();
-  await page.keyboard.press("Space");
-  await expect(review.getByRole("listbox")).toHaveCount(0);
-  await expect(
-    changedFilesList(review, "2 changed files", { exact: true }).getByRole(
-      "button",
-      { name: "Added live-edit.txt", exact: true },
-    ),
-  ).toBeVisible();
-  await comparisonChoice(review, "Commits", { exact: true }).check();
-  const commits = review.getByRole("list", {
-    name: "Story commits",
-    exact: true,
-  });
-  const rows = commits.getByRole("button");
-  await expect(rows).toHaveCount(2);
-  await chooseCommit(review, rows.nth(1));
-  await chooseCommit(review, rows.nth(1));
-  await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(rows.nth(0)).toHaveAttribute("aria-pressed", "false");
-  await expect(review.locator(".story-review-added")).toHaveText(["+live.txt"]);
-  await radio.check();
-  await expect(select).toHaveValue(choices.second.key);
-  await comparisonChoice(review, "Commits", { exact: true }).check();
-  await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(rows.nth(0)).toHaveAttribute("aria-pressed", "false");
-  await expect(review.locator(".story-review-added")).toHaveText(["+live.txt"]);
-  await closeSidePanel(review);
+  await review.comparison.choose("All changes", "keyboard");
+  await review.landedRun.expectNoPicker();
+  await files.expectListed("2 changed files", ["Added live-edit.txt"]);
+  await review.comparison.choose("Commits");
+  await commits.expectRowCount(2);
+  await commits.chooseAlone(1);
+  await commits.expectChosen(1);
+  await commits.expectChosen(0, false);
+  await diffs.expectLines("added", ["+live.txt"]);
+  await review.comparison.choose("Landed runs");
+  await review.landedRun.expectChosen(choices.second.key);
+  await review.comparison.choose("Commits");
+  await commits.expectChosen(1);
+  await commits.expectChosen(0, false);
+  await diffs.expectLines("added", ["+live.txt"]);
+  await review.close();
   await expect(reviewChanges(card)).toBeFocused();
 });

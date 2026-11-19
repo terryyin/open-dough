@@ -1,19 +1,9 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A claimed Story Branch Mode launch's landed integration in the story review:
 // the real installed start, the installed
 // `history-preserving-publication.mjs integrate` and `worktree-retirement.mjs`
 // against a real bare origin produce the launch record the review reads
 // (../../dashboard/test-support/support/storyBranchLandedReview.ts). Only the native Codex transport and
 // GitHub's answers are substituted.
-import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   test,
   expect,
@@ -26,11 +16,7 @@ import {
   git,
   retireLaunchWorkspace,
 } from "../../dashboard/test-support/support/launchLanding.ts";
-import {
-  readReview,
-  refreshReview,
-} from "../../dashboard/test-support/support/launchLandingReview.ts";
-import { reviewFeedback } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedRecord,
@@ -72,14 +58,14 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     name: "Story A",
     exact: true,
   });
-  const review = reviewRegion(page);
 
   // While the integrated workspace remains, the review opens on it and the
   // Comparison switch lists the integration and the earlier one-shot run.
-  const live = await readReview(page, card);
-  expect(live.kind).toBe("snapshot");
-  expect(live.selectedRun).toBeUndefined();
-  expect(live.runs).toEqual([
+  const opened = await openReviewChanges(page, card);
+  const live = opened.answer;
+  expect(live?.kind).toBe("snapshot");
+  expect(live?.selectedRun).toBeUndefined();
+  expect(live?.runs).toEqual([
     {
       key: reporting.reference,
       workflow: "execution",
@@ -103,23 +89,16 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   expect(Date.parse(record.launchedAt)).toBeGreaterThan(
     Date.parse(refinement.record.launchedAt),
   );
-  const landedRuns = comparisonChoice(review, "Landed runs", { exact: true });
-  await expect(landedRuns).not.toBeChecked();
-  await expect(review.getByRole("heading", { name: "Landed run" })).toHaveCount(
-    0,
-  );
-  await landedRuns.check();
-  const select = landedRunChoice(review);
-  await expect(select).toHaveValue(reporting.reference);
-  await expect(select.getByRole("option")).toHaveText([
+  await opened.comparison.expectOffered("Landed runs");
+  await opened.comparison.expectChosen("All changes");
+  await opened.landedRun.expectNotShown();
+  await opened.comparison.choose("Landed runs");
+  await opened.landedRun.expectChosen(reporting.reference, [
     `Execution — ${await browserLocaleString(page, record.launchedAt)} — ${accepted.slice(0, 8)}`,
     `Refinement — ${await browserLocaleString(page, refinement.record.launchedAt)} — ${refinement.receipt.revision.slice(0, 8)}`,
   ]);
-  await expect(
-    review.getByRole("heading", { name: "Landed run", exact: true }),
-  ).toBeVisible();
-  await expect(review).toContainText(accepted);
-  await closeSidePanel(review);
+  await opened.landedRun.expectShown(accepted);
+  await opened.close();
 
   // Wrap-up retires the worktree and both branches once trunk holds the work.
   retireLaunchWorkspace(start, origin, accepted, start.branch);
@@ -127,7 +106,8 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     await origin.originGit("for-each-ref", `refs/heads/${start.branch}`),
   ).toBe("");
 
-  const answer = await readReview(page, card);
+  const review = await openReviewChanges(page, card);
+  const { answer } = review;
   expect(answer).toMatchObject({
     kind: "landed",
     baseline: trunkTip,
@@ -144,7 +124,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
       revision: accepted,
     },
   });
-  if (answer.kind !== "landed") throw new Error("No landed review");
+  if (answer?.kind !== "landed") throw new Error("No landed review");
   const files = answer.files;
   expect(files.map((file) => file.path)).toEqual(delivered);
   expect(files).toEqual(
@@ -157,40 +137,26 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     reporting.reference,
     refinement.key,
   ]);
-  await expect(
-    review.getByRole("heading", { name: "Story A", exact: true }),
-  ).toBeVisible();
-  await expect(
-    review.getByRole("heading", { name: "Landed run", exact: true }),
-  ).toBeVisible();
-  await expect(
-    comparisonChoice(review, "Landed runs", { exact: true }),
-  ).toBeChecked();
-  await expect(review.getByRole("radio")).toHaveCount(1);
-  const context = review.locator("div").filter({
-    has: page.getByRole("heading", { name: "Landed run", exact: true }),
-  });
-  await expect(context.last()).toContainText(
+  await review.frame.expectHeading("Story A");
+  await review.comparison.expectOnly("Landed runs");
+  await review.landedRun.expectShown(
     `Execution launched ${await browserLocaleString(page, record.launchedAt)}, delivered to origin/main.`,
-  );
-  await expect(context.last().locator("time")).toHaveAttribute(
-    "datetime",
-    record.launchedAt,
-  );
-  await expect(context.last()).toContainText(
     `From ${trunkTip} to ${accepted}.`,
   );
-  await expect(listedFile(review, /trunk-only\.txt/)).toHaveCount(0);
+  await review.landedRun.expectLaunchedAt(record.launchedAt);
+  await review.files.expectNotShown(/trunk-only\.txt/);
   // The file both changed shows the story's change against trunk's at the
   // base: trunk's own line is no change.
-  await listedFile(review, "Modified shared.txt", { exact: true }).click();
-  const diff = fileDiff(review, "Modified shared.txt");
-  await expect(diff.locator(".story-review-added")).toHaveText([
-    "+the story's line",
-  ]);
-  await expect(diff.locator(".story-review-removed")).toHaveText(["-line 1"]);
-  await expect(diff).not.toContainText("trunk's line");
-  await expect(diff).not.toContainText("trunk's earlier line");
+  await review.files.chooseShown("Modified shared.txt");
+  await review.diffs.expectChangedLines("Modified shared.txt", {
+    removed: ["-line 1"],
+    added: ["+the story's line"],
+  });
+  await review.diffs.expectLacks(
+    "Modified shared.txt",
+    "trunk's line",
+    "trunk's earlier line",
+  );
 
   // Others land after it and one reverts it: Refresh reads the same pair.
   trunkCommitFromAnotherWriter(origin, "later.txt", (writer) => {
@@ -199,7 +165,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   expect((await origin.originGit("rev-parse", "main")).trim()).not.toBe(
     accepted,
   );
-  const again = await refreshReview(page, review);
+  const again = (await review.refreshAndAnswer()).answer;
   expect(again).toMatchObject({
     kind: "landed",
     baseline: trunkTip,
@@ -207,11 +173,11 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     selectedRun: reporting.reference,
     files,
   });
-  await expect(reviewFeedback(review)).toContainText(
+  await review.status.expectFeedbackSays(
     `Review refreshed: ${files.length} changed files in the captured landed comparison.`,
   );
-  await expect(review).toContainText(`From ${trunkTip} to ${accepted}.`);
-  await expect(listedFile(review, "Added later.txt")).toHaveCount(0);
+  await review.landedRun.expectShown(`From ${trunkTip} to ${accepted}.`);
+  await review.files.expectNotShown("Added later.txt");
   expect(published.revision).toBe(accepted);
   expect((await claimedRecord(dashboard)).landing).toEqual(record.landing);
 });

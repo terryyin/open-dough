@@ -9,18 +9,7 @@ import {
   frontendReviewIds,
   frontendReviewSnapshot,
 } from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import {
-  expectLineCounts,
-  expectTreeRows,
-  fileDiff,
-  fileRow,
-  changedFilesList,
-} from "../../test-support/support/reviewTreeRows.ts";
-import {
-  reviewRegion,
-  uncommittedCheck as check,
-} from "../../test-support/support/reviewControls.ts";
+import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
 
 function reviewRequests(page: Page) {
   const made: string[] = [];
@@ -70,40 +59,39 @@ test("the check leaves uncommitted changes out of all changes and back without r
       files: committedFiles,
     },
   });
-  const { answers } = await openFrontendStoryReview(
-    page,
-    frontendServices,
-    snapshot,
-    (initial) => {
-      initial.answerFile(
-        frontendFileDiff("story.txt", ["+story", "+more"]),
-        "story.txt",
-      );
-    },
-  );
-  const review = reviewRegion(page);
-  const whole = changedFilesList(review, "2 changed files");
-  const diff = fileDiff(review, "Added story.txt");
-  await expect(whole).toBeVisible();
-  await expect(check(review)).toBeChecked();
-  await fileRow(review, "Added story.txt").press("Enter");
-  await expectLineCounts(review, "Added story.txt", "+2 −0");
-  await expect(diff).toContainText("+more");
+  const { answers, reviewChanges: review } =
+    await openFrontendStoryReviewAsOpened(
+      page,
+      frontendServices,
+      snapshot,
+      (initial) => {
+        initial.answerFile(
+          frontendFileDiff("story.txt", ["+story", "+more"]),
+          "story.txt",
+        );
+      },
+    );
+  const { files, diffs } = review;
+  const file = "Added story.txt";
+  await files.expectListed("2 changed files");
+  await review.comparison.expectUncommittedIncluded(true);
+  await files.chooseShown(file, "keyboard");
+  await files.expectLineCounts(file, "+2 −0");
+  await diffs.expectShows(file, "+more");
   const requests = reviewRequests(page);
   answers.answerFile(frontendFileDiff("story.txt", ["+story"]), "story.txt");
-  await check(review).uncheck();
-  const committed = changedFilesList(review, "1 changed file");
-  await expectTreeRows(committed, ["story.txt"]);
-  await expectLineCounts(review, "Added story.txt", "+1 −0");
-  await expect(diff).toContainText("+story");
-  await expect(diff).not.toContainText("+more");
-  await expect(check(review)).not.toBeChecked();
+  await review.comparison.includeUncommitted(false);
+  await files.expectRows("1 changed file", ["story.txt"]);
+  await files.expectLineCounts(file, "+1 −0");
+  await diffs.expectShows(file, "+story");
+  await diffs.expectLacks(file, "+more");
+  await review.comparison.expectUncommittedIncluded(false);
   answers.answerFile(
     frontendFileDiff("story.txt", ["+story", "+more"]),
     "story.txt",
   );
-  await check(review).check();
-  await expect(whole).toBeVisible();
-  await expect(diff).toContainText("+more");
+  await review.comparison.includeUncommitted(true);
+  await files.expectListed("2 changed files");
+  await diffs.expectShows(file, "+more");
   expect(requests()).toEqual([]);
 });

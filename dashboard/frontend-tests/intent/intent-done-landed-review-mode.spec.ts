@@ -1,15 +1,9 @@
 import { prepareFrontendDoneReview } from "../../test-support/support/frontendDoneReview.ts";
 import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
-import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 // A captured run chosen by Done Intent cannot remain the ordinary Review's
 // selection when its readable workspace is requested in the same open panel.
-import {
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-  showReviewDetails,
-} from "../../test-support/support/reviewControls.ts";
 import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { assumeReviewChanges } from "../../test-support/reviewChangesPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 
@@ -19,12 +13,7 @@ import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   openReviewFromIntent,
-  reviewDiff,
 } from "../../test-support/support/intentStoryPage.ts";
-import {
-  reviewFeedback,
-  fileBrowser,
-} from "../../test-support/support/reviewContextLine.ts";
 import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
@@ -67,8 +56,8 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
   const { card, intent } = await selectDoneStoryInIntent(page);
   await chooseStoryTab(intent, "Changed tests");
   await openReviewFromIntent(page, intent);
-  const review = reviewRegion(page);
-  await expect(landedRunChoice(review)).toHaveValue(run);
+  const review = await assumeReviewChanges(page);
+  await review.landedRun.expectChosen(run);
 
   // Keep the captured panel open while its ordinary card asks for live Review.
   await parts(page).development.click();
@@ -93,33 +82,23 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     const ordinaryQuery = new URL((await ordinaryRequest).url()).searchParams;
     expect(ordinaryQuery.get("historical")).not.toBe("true");
     expect(ordinaryQuery.has("run")).toBe(false);
-    await expect(reviewFeedback(review)).toHaveText(
-      "Reading the story's changes…",
-    );
-    await expect(landedRunChoice(review, { includeHidden: true })).toHaveCount(
-      0,
-    );
-    await expect(
-      review.getByRole("heading", {
-        name: "Landed run",
-        exact: true,
-        includeHidden: true,
-      }),
-    ).toHaveCount(0);
-    await expect(fileBrowser(review)).toHaveCount(0);
+    await review.status.expectFeedback("Reading the story's changes…");
+    await review.landedRun.expectNoPicker();
+    await review.details.expectNoLandedRunFacts();
+    await review.files.expectNoBrowser();
     held.release();
     await held.delivered;
-    await showReviewDetails(review);
-    const live = await reviewDiff(page, modified);
-    expect(live).toContain("+local edit after captured landing");
-    await expect(
-      comparisonChoice(review, "All changes", { exact: true }),
-    ).toBeChecked();
-    await expect(landedRunChoice(review)).toHaveCount(0);
+    await review.files.chooseShown(modified);
+    await review.diffs.expectShows(
+      modified,
+      "+local edit after captured landing",
+    );
+    await review.comparison.expectChosen("All changes");
+    await review.landedRun.expectNoPicker();
   } finally {
     held.release();
     await held.delivered;
   }
-  await closeSidePanel(review);
+  await review.close();
   await expect(ordinary).toBeFocused();
 });

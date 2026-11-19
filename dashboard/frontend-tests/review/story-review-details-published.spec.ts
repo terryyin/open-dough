@@ -1,18 +1,11 @@
 // A published completion's facts wait behind the toolbar's eye like every
 // other review's details.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendPublishedReview,
 } from "../../test-support/support/frontendStoryReview.ts";
 import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import { expectToggleLeadsToolbar } from "../../test-support/support/reviewControls.ts";
-import {
-  expectDetailsCollapsed,
-  expectEyeBesideComparison,
-  revealDetails,
-} from "../../test-support/support/reviewDetails.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
 
 const added = (path: string) => ({
   kind: "added" as const,
@@ -25,7 +18,7 @@ test("a published completion keeps its facts behind the eye", async ({
   frontendServices,
 }) => {
   const published = frontendPublishedReview([added("first.txt")]);
-  const { review } = await openFrontendStoryReviewAsOpened(
+  const { reviewChanges: review } = await openFrontendStoryReviewAsOpened(
     page,
     frontendServices,
     published,
@@ -33,19 +26,15 @@ test("a published completion keeps its facts behind the eye", async ({
       initial.answerFile(frontendFileDiff("first.txt", ["+alpha"]));
     },
   );
-  await expect(fileDiff(review, "Added first.txt")).toContainText("+alpha");
-  await expectToggleLeadsToolbar(review, "Published completion");
-  await expectEyeBesideComparison(review, "Show review details");
-  await expectDetailsCollapsed(review);
-  await expect(review.locator("time")).toBeHidden();
-  const details = await revealDetails(review);
-  await expect(
-    details.getByRole("heading", { name: "Published completion", exact: true }),
-  ).toBeVisible();
-  await expect(details.locator("time")).toHaveAttribute(
-    "datetime",
-    published.completedAt,
-  );
-  await expect(details).toContainText(`Completion ${published.completion}.`);
-  await expect(details).toContainText("origin/main");
+  const { details } = review;
+  await review.diffs.expectShows("Added first.txt", "+alpha");
+  await review.expectFilesToggleLeads("Published completion");
+  await details.expectEyeBesideComparison("Show review details");
+  await review.details.expectCollapsed();
+  await details.expectNoTimeShown();
+  await details.reveal();
+  await details.expectHeading("Published completion");
+  await details.expectTime(published.completedAt);
+  await details.expectText(`Completion ${published.completion}.`);
+  await details.expectText("origin/main");
 });

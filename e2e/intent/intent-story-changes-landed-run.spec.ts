@@ -8,11 +8,9 @@
 // it, and returns the review to it from another landed run chosen there.
 // The marked journey without runs: ./intent-story-changes-marked.spec.ts.
 
-import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { rmSync } from "node:fs";
 import path from "node:path";
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { stored } from "../../dashboard/test-support/support/codexStart.ts";
 import {
@@ -45,17 +43,17 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import { storyALaunch } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import { branch } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
-  expectShown,
-  reviewRegion,
-  uncommittedCheck,
-  comparisonChoice,
-  landedRunChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
+  assumeReviewChanges,
+  type ReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 
 test.use({ preparationHost: "codex" });
 
-const landedRunHeading = (review: Locator) =>
-  review.getByRole("heading", { name: "Landed run", exact: true });
+// Follows Intent's Review changes link to the review it opens.
+async function reviewFromIntent(page: Page, intent: Locator) {
+  await openReviewFromIntent(page, intent);
+  return assumeReviewChanges(page);
+}
 
 // The landed run's tree the story's header in Intent shows beside its
 // changes.
@@ -103,25 +101,23 @@ test("Intent's Review changes link returns a review showing a chosen landed run 
   if (landed === undefined) throw new Error("No landed run");
   const { intent } = await selectTakenStoryInIntent(page, origin);
   const { intentChoice } = parts(page);
-  const review = reviewRegion(page);
   const inIntent = await intentDiff(intent, changed.modified);
   const added = await intentDiff(intent, changed.added);
 
   await test.step("Review changes, opened from Intent, is switched to the landed run", async () => {
-    await openReviewFromIntent(page, intent);
-    await expectShown(review, "All changes");
-    await comparisonChoice(review, "Landed runs", { exact: true }).check();
-    await expect(landedRunChoice(review)).toHaveValue(landed.key);
-    await expect(landedRunHeading(review)).toBeVisible();
-    await expect(review).toContainText(landed.receipt.revision);
+    const review = await reviewFromIntent(page, intent);
+    await review.comparison.expectChosen("All changes");
+    await review.comparison.choose("Landed runs");
+    await review.landedRun.expectChosen(landed.key);
+    await review.landedRun.expectShown(landed.receipt.revision);
   });
 
   await test.step("following Intent's link shows Intent's comparison: all changes, uncommitted ones included, with Intent's diff", async () => {
     await intentChoice.click();
-    await openReviewFromIntent(page, intent);
-    await expectShown(review, "All changes");
-    await expect(uncommittedCheck(review)).toBeChecked();
-    await expect(landedRunHeading(review)).toHaveCount(0);
+    const review = await reviewFromIntent(page, intent);
+    await review.comparison.expectChosen("All changes");
+    await review.comparison.expectUncommittedIncluded(true);
+    await review.landedRun.expectNotShown();
     expect(await reviewDiff(page, changed.modified)).toBe(inIntent);
     expect(await reviewDiff(page, changed.added)).toBe(added);
   });
@@ -158,23 +154,16 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
     .getByRole("heading", { level: 3 })
     .click();
   await intentChoice.click();
-  const review = reviewRegion(page);
-  const run = landedRunChoice(review);
   // The answer falls back to the newest landed run.
   const own = second;
   const other = first;
 
   // The review shows `shown`, the landed run whose file it lists.
-  const expectRun = async (shown: typeof own) => {
-    await expect(landedRunHeading(review)).toBeVisible();
-    await expectShown(review, "Landed runs");
-    await expect(run).toHaveValue(shown.key);
-    await expect(review).toContainText(shown.receipt.revision);
-    await expect(
-      listedFile(fileBrowser(review), `Added ${shown.name}.txt`, {
-        exact: true,
-      }),
-    ).toBeVisible();
+  const expectRun = async (review: ReviewChanges, shown: typeof own) => {
+    await review.landedRun.expectShown(shown.receipt.revision);
+    await review.comparison.expectChosen("Landed runs");
+    await review.landedRun.expectChosen(shown.key);
+    await review.files.expectShown(`Added ${shown.name}.txt`);
   };
 
   await test.step("Intent shows the answer's own landed run's tree", async () => {
@@ -186,19 +175,18 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
   });
 
   await test.step("Intent's link opens the review on that run", async () => {
-    await openReviewFromIntent(page, intent);
-    await expectRun(own);
+    await expectRun(await reviewFromIntent(page, intent), own);
   });
 
   await test.step("Intent's link followed again keeps that run", async () => {
     await intentChoice.click();
-    await openReviewFromIntent(page, intent);
-    await expectRun(own);
+    await expectRun(await reviewFromIntent(page, intent), own);
   });
 
   await test.step("the other landed run is chosen in the review", async () => {
-    await run.selectOption(other.key);
-    await expectRun(other);
+    const review = await assumeReviewChanges(page);
+    await review.landedRun.choose(other.key);
+    await expectRun(review, other);
   });
 
   await test.step("Intent's link returns the review to the run Intent shows", async () => {
@@ -207,7 +195,6 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
       "title",
       own.receipt.revision,
     );
-    await openReviewFromIntent(page, intent);
-    await expectRun(own);
+    await expectRun(await reviewFromIntent(page, intent), own);
   });
 });

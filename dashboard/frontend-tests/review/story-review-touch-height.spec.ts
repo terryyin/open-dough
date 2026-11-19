@@ -7,19 +7,6 @@ import {
   frontendReviewSnapshot,
 } from "../../test-support/support/frontendStoryReview.ts";
 import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import {
-  aboveBodyTouchBudget,
-  reviewFeedback,
-} from "../../test-support/support/reviewContextLine.ts";
-import { codePane } from "../../test-support/support/reviewPanes.ts";
-import {
-  expectDetailsCollapsed,
-  hideDetails,
-  revealDetails,
-} from "../../test-support/support/reviewDetails.ts";
-import { box } from "../../test-support/pageLayout.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
-import { reachReviewControl } from "../../test-support/support/reviewTouchReading.ts";
 
 test.use({
   hasTouch: true,
@@ -35,7 +22,7 @@ test("revealed details and status share one height budget above a usable code pa
   frontendServices,
 }) => {
   const path = "story.txt";
-  const { review } = await openFrontendStoryReviewAsOpened(
+  const { reviewChanges: review } = await openFrontendStoryReviewAsOpened(
     page,
     frontendServices,
     frontendReviewSnapshot({
@@ -49,32 +36,31 @@ test("revealed details and status share one height budget above a usable code pa
       answers.answerFile(frontendFileDiff(path, ["+kept line"]));
     },
   );
+  const { details, code, status } = review;
+  const file = `Added ${path}`;
 
-  await expect(reviewFeedback(review)).toContainText(keptStatus);
-  await expectDetailsCollapsed(review);
-  const code = codePane(fileDiff(review, `Added ${path}`));
-  await expect(code).toContainText("+kept line");
+  await status.expectFeedbackSays(keptStatus);
+  await review.details.expectCollapsed();
+  await code.expectShows(file, "+kept line");
 
-  const details = await revealDetails(review);
-  await expect(details).toBeVisible();
-  await expect(details).not.toContainText(keptStatus);
-  await expect(reviewFeedback(review)).toContainText(keptStatus);
+  await details.reveal();
+  await details.expectText(keptStatus, false);
+  await status.expectFeedbackSays(keptStatus);
 
-  const measured = await aboveBodyTouchBudget(review);
+  const measured = await details.measureAboveBody();
   expect(measured.visible).toBeLessThanOrEqual(measured.budget + 1);
   expect(measured.aboveHeight).toBeLessThanOrEqual(measured.budget + 1);
   // Two separate 30% caps at this viewport used ~176 px; one shared cap ~117.
   expect(measured.visible).toBeLessThan(150);
 
-  await reachReviewControl(review, reviewFeedback(review));
-  await expect(reviewFeedback(review)).toBeInViewport();
+  await details.reachFeedback();
 
-  expect((await box(code)).height).toBeGreaterThanOrEqual(44);
-  await expect(code.getByText("+kept line", { exact: true })).toBeInViewport();
+  expect(await code.height(file)).toBeGreaterThanOrEqual(44);
+  await code.expectLineInView(file, "+kept line");
 
-  await hideDetails(review);
-  await expect(reviewFeedback(review)).toContainText(keptStatus);
-  expect((await aboveBodyTouchBudget(review)).visible).toBeLessThanOrEqual(
+  await review.details.hide();
+  await status.expectFeedbackSays(keptStatus);
+  expect((await details.measureAboveBody()).visible).toBeLessThanOrEqual(
     measured.budget + 1,
   );
 });

@@ -2,7 +2,7 @@
 // name the toolbar only when the review on screen supplies a comparison.
 import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
 import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { test } from "../../test-support/support/frontendApp.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
@@ -11,9 +11,7 @@ import {
 } from "../../test-support/support/frontendStoryReview.ts";
 import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { reviewRegion } from "../../test-support/support/reviewControls.ts";
-import { revealDetails } from "../../test-support/support/reviewDetails.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { assumeReviewChanges } from "../../test-support/reviewChangesPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 
@@ -79,9 +77,8 @@ test("session commits name the toolbar Session commits", async ({
     pages.reviewToolbar.expectDetailsCollapsed();
     pages.reviewToolbar.expectFilesToggle(true);
   });
-  await expect(
-    fileDiff(reviewRegion(page), "Modified committed.txt"),
-  ).toContainText("+commit");
+  const review = await assumeReviewChanges(page);
+  await review.diffs.expectShows("Modified committed.txt", "+commit");
 });
 
 test("a selected landed gap offers Landed runs and the eye", async ({
@@ -118,10 +115,9 @@ test("a selected landed gap offers Landed runs and the eye", async ({
       pages.reviewToolbar.expectFilesToggle(false);
     },
   );
-  await revealDetails(reviewRegion(page));
-  await expect(
-    reviewRegion(page).getByRole("listbox", { name: "Landed run" }),
-  ).toBeVisible();
+  const review = await assumeReviewChanges(page);
+  await review.details.reveal();
+  await review.landedRun.expectChosen(gapKey);
 });
 
 test("a bare landing gap names Landed runs without an eye", async ({

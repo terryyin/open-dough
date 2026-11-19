@@ -2,8 +2,7 @@
 // picker and run facts wait behind the eye; choosing the older run updates
 // the details and the diff together, survives Refresh, and Escape returns
 // focus to the eye.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { reviewChanges } from "../../test-support/storyCardControls.ts";
+import { test } from "../../test-support/support/frontendApp.ts";
 import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
@@ -17,21 +16,7 @@ import {
   openFrontendBoardReview,
   storyA,
 } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import {
-  expectShown,
-  filesToggle,
-  landedRunChoice,
-  reviewRegion,
-  toolbarComparison,
-} from "../../test-support/support/reviewControls.ts";
-import {
-  escapeDetailsFrom,
-  expectDetailsCollapsed,
-  expectDetailsRevealed,
-  revealDetails,
-} from "../../test-support/support/reviewDetails.ts";
-import { refreshAndRead } from "../../test-support/support/reviewRead.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { openReviewChanges } from "../../test-support/reviewChangesPage.ts";
 
 const ids = frontendReviewIds;
 const older = {
@@ -97,48 +82,37 @@ test("a Done story opens on the newer of two captured runs and Escape from the p
     `${older.name}.txt`,
   );
   await openFrontendBoardReview(page, frontendServices);
-  await reviewChanges(doneCard(page, storyA.title)).click();
-  const review = reviewRegion(page);
+  const review = await openReviewChanges(page, doneCard(page, storyA.title));
+  const { details, diffs } = review;
 
   // Compact opening: Landed runs, files toggle, newest file and first diff;
   // picker and run facts wait behind the eye.
-  await expect(toolbarComparison(review)).toHaveText("Landed runs");
-  await expect(filesToggle(review)).toBeVisible();
-  await expect(fileDiff(review, `Added ${newer.name}.txt`)).toContainText(
-    `+${newer.name}.txt`,
-  );
-  await expectDetailsCollapsed(review);
-  await expect(landedRunChoice(review)).toHaveCount(0);
-  await expect(
-    review.locator("code", { hasText: newer.revision }),
-  ).toBeHidden();
+  await review.expectComparisonNamed("Landed runs");
+  await review.expectFilesToggleNamed("Hide files");
+  await diffs.expectShows(`Added ${newer.name}.txt`, `+${newer.name}.txt`);
+  await review.details.expectCollapsed();
+  await details.expectNoCodeShown(newer.revision);
 
-  const details = await revealDetails(review);
-  const picker = landedRunChoice(review);
-  await expect(picker).toHaveValue(newer.key);
-  await expectShown(review, "Landed runs");
+  await details.reveal();
+  await review.landedRun.expectChosen(newer.key);
+  await review.comparison.expectChosen("Landed runs");
   for (const run of [newer, older]) {
-    await picker.selectOption(run.key);
-    await expect(picker).toHaveValue(run.key);
-    await expect(toolbarComparison(review)).toHaveText("Landed runs");
-    await expectDetailsRevealed(review);
-    await expect(details).toContainText("Refinement launched");
-    await expect(details.locator("time")).toHaveAttribute(
-      "datetime",
-      run.launchedAt,
-    );
-    await expect(details).toContainText("origin/main");
-    await expect(details).toContainText(`From ${run.base} to ${run.revision}.`);
-    await expect(fileDiff(review, `Added ${run.name}.txt`)).toContainText(
-      `+${run.name}.txt`,
-    );
+    await review.landedRun.choose(run.key);
+    await review.landedRun.expectChosen(run.key);
+    await review.expectComparisonNamed("Landed runs");
+    await review.details.expectRevealed();
+    await details.expectText("Refinement launched");
+    await details.expectTime(run.launchedAt);
+    await details.expectText("origin/main");
+    await details.expectText(`From ${run.base} to ${run.revision}.`);
+    await diffs.expectShows(`Added ${run.name}.txt`, `+${run.name}.txt`);
   }
 
   // The revealed state and the older run last across Refresh.
-  await refreshAndRead(review);
-  await expectDetailsRevealed(review);
-  await expect(picker).toHaveValue(older.key);
+  await review.status.refreshAndRead();
+  await review.details.expectRevealed();
+  await review.landedRun.expectChosen(older.key);
 
-  await escapeDetailsFrom(review, picker);
-  await expect(fileDiff(review, `Added ${older.name}.txt`)).toBeVisible();
+  await details.escapeFromLandedRuns();
+  await diffs.expectShows(`Added ${older.name}.txt`);
 });

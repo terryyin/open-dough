@@ -1,6 +1,4 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   filesColumn,
   intentModeViews,
@@ -184,10 +182,11 @@ test("Intent highlights a selected Taken story's test changes over the published
   await test.step("a changed file's Purpose is Review changes' diff", async () => {
     const inIntent = await story.diff(changed.modified);
     expect(inIntent).toContain("more");
-    const review = await story.openReview();
-    await expect(
-      listedFile(review, "Modified dashboard/src/App.tsx", { exact: true }),
-    ).toBeVisible();
+    await story.openReview();
+    const review = await assumeReviewChanges(page);
+    await review.files.expectListed(/changed file/, [
+      "Modified dashboard/src/App.tsx",
+    ]);
     expect(await story.reviewDiff(changed.modified)).toBe(inIntent);
     expect(await story.diff(changed.added)).toBe(
       await story.reviewDiff(changed.added),
@@ -202,9 +201,7 @@ test("Intent highlights a selected Taken story's test changes over the published
 
   await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
     const { development, intentChoice } = parts(page);
-    const review = reviewRegion(page);
-    await closeSidePanel(review);
-    await expect(review).toHaveCount(0);
+    await (await assumeReviewChanges(page)).close();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(story.title).toHaveText("Story A");
     await development.click();

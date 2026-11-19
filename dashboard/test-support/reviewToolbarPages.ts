@@ -2,42 +2,33 @@
 // the Side panel journeys (./sidePanelPages.ts) beside the Story review
 // (./storyReviewPages.ts) it belongs to: the comparison it names, whether it
 // offers the file sidebar's toggle, and whether its eye has the review
-// details revealed.
+// details revealed. Each cue runs the one Review changes page object
+// (./reviewChangesPage.ts), which owns where these controls live.
 import { PageObject } from "./fluentPageObject.ts";
-import { expect } from "./support/preparationPage.ts";
-import {
-  detailsToggle,
-  filesToggle,
-  reviewRegion,
-  toolbarComparison,
-} from "./support/reviewControls.ts";
+import { assumeReviewChanges } from "./reviewChangesPage.ts";
 
 export class ReviewToolbar extends PageObject {
-  get #review() {
-    return reviewRegion(this.page);
+  #review() {
+    return assumeReviewChanges(this.page);
   }
 
   // The name of the comparison shown, and nothing else.
   expectName(name: string) {
-    return this.cueHere(`Review toolbar: names ${name}`, () =>
-      expect(toolbarComparison(this.#review)).toHaveText(name),
-    );
-  }
-
-  // No comparison name yet — before an answer or on a bare explanation.
-  expectNoName() {
-    return this.cueHere("Review toolbar: names no comparison", () =>
-      expect(toolbarComparison(this.#review)).toHaveCount(0),
-    );
+    return this.cueHere(`Review toolbar: names ${name}`, async () => {
+      await (await this.#review()).expectComparisonNamed(name);
+    });
   }
 
   // Whether the toolbar offers Hide files for the shown file sidebar.
   expectFilesToggle(offered: boolean) {
-    const toggle = filesToggle(this.#review);
     return this.cueHere(
       `Review toolbar: ${offered ? "offers" : "does not offer"} Hide files`,
-      () =>
-        offered ? expect(toggle).toBeVisible() : expect(toggle).toHaveCount(0),
+      async () => {
+        const review = await this.#review();
+        await (offered
+          ? review.expectFilesToggleNamed("Hide files")
+          : review.expectNoFilesToggle());
+      },
     );
   }
 
@@ -46,12 +37,7 @@ export class ReviewToolbar extends PageObject {
     return this.cueHere(
       "Review toolbar: review details collapsed",
       async () => {
-        const eye = detailsToggle(this.#review);
-        await expect(eye).toHaveAccessibleName("Show review details");
-        await expect(eye).toHaveAttribute("aria-expanded", "false");
-        await expect(
-          this.#review.getByRole("group", { name: "Review details" }),
-        ).toBeHidden();
+        await (await this.#review()).details.expectCollapsed();
       },
     );
   }
@@ -61,10 +47,7 @@ export class ReviewToolbar extends PageObject {
     return this.cueHere(
       "Review toolbar: offers no review details",
       async () => {
-        await expect(detailsToggle(this.#review)).toHaveCount(0);
-        await expect(
-          this.#review.getByRole("group", { name: "Review details" }),
-        ).toHaveCount(0);
+        await (await this.#review()).details.expectNone();
       },
     );
   }

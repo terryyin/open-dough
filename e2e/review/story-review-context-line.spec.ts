@@ -10,13 +10,10 @@ import {
   test,
 } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import {
-  contextLine,
-  contextValues,
   contextWords,
   expectFixedWhileScrolled,
-  fileBrowser,
 } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { openReview } from "../../dashboard/test-support/support/reviewRead.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   branch,
@@ -32,17 +29,17 @@ test("a story review's context line keeps to one line until activated and stays 
   const { workspace, merged } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReview(page, card);
+  const review = await openReviewChanges(page, card);
+  await review.expectRead();
   const words = contextWords({
     branch,
     baseline: merged,
     workspace: "~/git/open-dough/.worktrees/story-a",
   });
-  const values = contextValues(review);
-  await expect(values).toHaveAccessibleName(words);
+  await review.context.expectWords(words);
+  const { line, values } = await review.context.toMeasure();
 
   await test.step("the context line keeps to one line, and the keyboard shows it in full and back", async () => {
-    const line = contextLine(review);
     const worktree = line.locator(".story-review-context-worktree > code");
     const shortened = () =>
       worktree.evaluate((value) => value.scrollWidth > value.clientWidth);
@@ -70,8 +67,7 @@ test("a story review's context line keeps to one line until activated and stays 
     await expect(line.locator("code", { hasText: merged })).toHaveCount(0);
 
     await values.focus();
-    await values.press("Enter");
-    await expect(values).toHaveAttribute("aria-expanded", "true");
+    await review.context.showInFull();
     await expect(line.locator("code", { hasText: merged })).toBeVisible();
     await expect(line).toContainText(
       `${merged} where ${branch} meets origin/main`,
@@ -82,8 +78,7 @@ test("a story review's context line keeps to one line until activated and stays 
     );
     await expect(values).toHaveAccessibleName(words);
 
-    await values.press("Enter");
-    await expect(values).toHaveAttribute("aria-expanded", "false");
+    await review.context.showInFull(false);
     await expect(values).toBeFocused();
     expect((await line.boundingBox())?.height ?? 0).toBe(oneLine);
     expect(await shortened()).toBe(true);
@@ -91,8 +86,10 @@ test("a story review's context line keeps to one line until activated and stays 
   });
 
   await test.step("the context line stays in place while the file browser scrolls beneath it", async () => {
-    await expectFixedWhileScrolled(page, fileBrowser(review), [
-      contextLine(review),
-    ]);
+    await expectFixedWhileScrolled(
+      page,
+      review.frame.partsToMeasure().fileBrowser,
+      [line],
+    );
   });
 });

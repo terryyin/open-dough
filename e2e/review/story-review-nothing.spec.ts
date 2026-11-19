@@ -1,13 +1,3 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import {
-  reviewRefresh,
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-  filesToggle,
-  toolbarComparison,
-  showReviewDetails,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 // An empty review explains the matching baseline or missing evidence below
 // its status, with the context line fixed on scroll. A removed worktree with
 // no captured landing offers Refresh and Close without invoking Git.
@@ -16,29 +6,20 @@ import {
 // discovery returning after Refresh when trunk is reachable. A kept launch
 // with no workspace is refused at the launch boundary.
 
-import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
-import { reviewAfter } from "../../dashboard/test-support/support/launchLandingReview.ts";
+import {
+  openReviewChanges,
+  reviewChangesAfter,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextLine,
-  contextValues,
-  contextWords,
-  expectFixedWhileScrolled,
-  reviewBody,
-  reviewFeedback,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectReviewRead,
-  openReview,
-} from "../../dashboard/test-support/support/reviewRead.ts";
+import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
@@ -67,19 +48,17 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   const { workspace, base: trunk } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReview(page, card);
-  await expect(contextValues(review)).toHaveAccessibleName(
+  const review = await openReviewChanges(page, card);
+  await review.expectRead();
+  await review.context.expectWords(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
-  const body = reviewBody(review);
-  await expect(body).toHaveText(
+  await review.files.expectNothingShown();
+  await review.expectComparisonNamed("All changes");
+  await review.expectNoFilesToggle();
+  await review.status.expectBodyFixedContext(
     `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
   );
-  await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(review.getByRole("region")).toHaveCount(0);
-  await expect(toolbarComparison(review)).toHaveText("All changes");
-  await expect(filesToggle(review)).toHaveCount(0);
-  await expectFixedWhileScrolled(page, body, [contextLine(review)]);
 });
 
 test.describe("from Story A's declared history", () => {
@@ -96,28 +75,15 @@ test.describe("from Story A's declared history", () => {
     const fetchedTrunk = () => git(origin.project, "rev-parse", "origin/main");
     expect(fetchedTrunk()).toBe(merged);
     const card = await openBacklog(page, origin);
-    await reviewChanges(card).click();
-    const review = await showReviewDetails(reviewRegion(page));
-    const status = reviewFeedback(review);
-    await expect(status).toHaveText(gapExplanation);
-    await expect(
-      comparisonChoice(review, "Landed runs", { exact: true }),
-    ).toBeChecked();
-    await expect(review.getByRole("radio")).toHaveCount(1);
+    const review = await openReviewChanges(page, card);
+    await review.status.expectFeedback(gapExplanation);
+    await review.comparison.expectOnly("Landed runs");
     // The explanation is the status above the work area; the body beneath it
     // shows nothing, and there is no context line.
-    const body = reviewBody(review);
-    await expect(body).toBeEmpty();
-    expect((await body.boundingBox())?.y).toBeGreaterThanOrEqual(
-      await status.evaluate((shown) => shown.getBoundingClientRect().bottom),
-    );
-    await expect(contextLine(review)).toHaveCount(0);
-    await expect(review.getByRole("list")).toHaveCount(0);
-    await expect(review.getByRole("region")).toHaveCount(0);
-    await expect(reviewRefresh(review)).toBeVisible();
-    await expect(
-      review.getByRole("button", { name: "Close", exact: true }),
-    ).toBeVisible();
+    await review.status.expectBodyEmptyBelowFeedback();
+    await review.status.expectNoContextLine();
+    await review.files.expectNothingShown();
+    await review.status.expectRefreshAndCloseOffered();
     expect(fetchedTrunk()).toBe(merged);
   });
 
@@ -140,18 +106,17 @@ test.describe("from Story A's declared history", () => {
     keepLaunchRecords(dashboard, [record]);
     const card = await openBacklog(page, origin);
     const open = reviewChanges(card);
-    const review = reviewRegion(page);
-    const live = await reviewAfter(page, open);
-    await showReviewDetails(review);
-    expect(live.kind).toBe("snapshot");
-    expect(live.runs).toBeUndefined();
-    await expect(review.getByRole("list")).not.toHaveCount(0);
-    await expect(comparisonChoice(review, "Landed runs")).toHaveCount(0);
+    const review = await reviewChangesAfter(page, open);
+    const live = review.answer;
+    expect(live?.kind).toBe("snapshot");
+    expect(live?.runs).toBeUndefined();
+    await review.files.expectListed(/changed file/);
+    await review.comparison.expectOffered("Landed runs", false);
 
     // The worktree is removed with nothing captured for the launch.
     rmSync(workspace, { recursive: true, force: true });
     git(origin.project, "worktree", "prune");
-    const gap = await reviewAfter(page, reviewRefresh(review));
+    const gap = (await review.refreshAndAnswer()).answer;
     expect(gap).toMatchObject({
       kind: "landing-unavailable",
       selectedRun: reference,
@@ -166,26 +131,25 @@ test.describe("from Story A's declared history", () => {
         },
       ],
     });
-    expect(gap.runs?.[0]?.comparison).toBeUndefined();
-    await expect(reviewFeedback(review)).toHaveText(gapExplanation);
-    await expect(
-      comparisonChoice(review, "Landed runs", { exact: true }),
-    ).toBeChecked();
-    await expect(landedRunChoice(review).getByRole("option")).toHaveText([
+    expect(gap?.runs?.[0]?.comparison).toBeUndefined();
+    await review.status.expectFeedback(gapExplanation);
+    await review.comparison.expectChosen("Landed runs");
+    await review.landedRun.expectOptions([
       /^Execution — .+ — No captured comparison$/,
     ]);
-    await expect(review).toContainText("Execution launched");
-    await expect(review).toContainText("target origin/main");
-    await expect(reviewBody(review)).toBeEmpty();
-    await expect(review.getByRole("list")).toHaveCount(0);
+    await review.expectText("Execution launched");
+    await review.expectText("target origin/main");
+    await review.status.expectBodyEmpty();
+    await review.files.expectNoLists();
 
     // A later opening reads the same gap.
-    await closeSidePanel(review);
-    expect(await reviewAfter(page, open)).toMatchObject({
+    await review.close();
+    const reopened = await reviewChangesAfter(page, open);
+    expect(reopened.answer).toMatchObject({
       kind: "landing-unavailable",
       selectedRun: reference,
     });
-    await expect(review.getByRole("list")).toHaveCount(0);
+    await reopened.files.expectNoLists();
   });
 
   test("a trunk that cannot be fetched names its remote and target and shows no list until Refresh reaches it", async ({
@@ -196,32 +160,28 @@ test.describe("from Story A's declared history", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    const review = await openReview(page, card);
-    const files = changedFilesList(review, "7 changed files");
-    await expect(files).toBeVisible();
-    const refresh = reviewRefresh(review);
+    const review = await openReviewChanges(page, card);
+    await review.expectRead();
+    await review.files.expectListed("7 changed files");
 
     // The story's remote points at nothing reachable.
     const reachable = git(workspace, "config", "--get", "remote.origin.url");
     const unreachable = `${origin.machine}/unreachable.git`;
     git(workspace, "config", "remote.origin.url", unreachable);
-    await refresh.press("Enter");
-    await expectReviewRead(review);
-    const status = reviewFeedback(review);
-    await expect(status).toContainText(
+    await review.status.refreshByKeyboard();
+    await review.status.expectFeedbackSays(
       "Trunk could not be fetched (target main from remote origin), so there is no baseline to compare with:",
     );
-    await expect(status).toContainText(`Worktree ${shownWorkspace}.`);
-    await expect(review.getByRole("list")).toHaveCount(0);
-    await expect(contextLine(review)).toHaveCount(0);
-    await expect(refresh).toBeFocused();
+    await review.status.expectFeedbackSays(`Worktree ${shownWorkspace}.`);
+    await review.files.expectNoLists();
+    await review.status.expectNoContextLine();
+    await review.status.expectRefreshFocused();
 
     git(workspace, "config", "remote.origin.url", reachable);
-    await refresh.press("Enter");
-    await expectReviewRead(review);
+    await review.status.refreshByKeyboard();
     // The list, named by its seven files, is back.
-    await expect(files).toBeVisible();
-    await expect(status).not.toContainText("could not be fetched");
+    await review.files.expectListed("7 changed files");
+    await review.status.expectFeedbackSays("could not be fetched", false);
   });
 });
 
