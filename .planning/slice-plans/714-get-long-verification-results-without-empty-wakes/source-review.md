@@ -15,22 +15,22 @@ unqualified control.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | P01 | Run a small native Codex control using current source guidance. Scope. | slice 1 | observed: control.md: native app-server profile, pinned guidance, and the success, overdue failure and CI, and early user stop observations |
-| P02 | If the control exposes avoidable empty wakes, compare it with a matched Codex candidate whose wait is bounded by both the next real check and the host limit. Scope and example 4. | slice 2 | |
-| P03 | If the control does not expose avoidable empty wakes, skip the candidate comparison. Scope’s “only if” restriction. | slice 2 | |
+| P02 | If the control exposes avoidable empty wakes, compare it with a matched Codex candidate whose wait is bounded by both the next real check and the host limit. Scope and example 4. | slice 2 | observed: candidate.md: matched isolated success journey and the wait paragraph bounded by the actual check and host limit; the chosen 60-second duration is observed |
+| P03 | If the control does not expose avoidable empty wakes, skip the candidate comparison. Scope’s “only if” restriction. | slice 2 | observed: control.md: quiet success timeout before the due check; the candidate comparison began only after qualification |
 | P04 | The worker retains ownership of its original command through the wait. Scope. | slice 1 | observed: control.md: one original worker-owned run to the 0 and 7 receipts, and the owned proof tree to the 143 terminal stop |
-| P05 | The waiting developer gets the original proof result promptly. In the quiet success journey, the coordinator receives the recorded success after the check exits `0` before its next due check. Goal and example 1. | slice 2 | |
-| P06 | In that quiet success journey, the owner returns the recorded success exactly once. Example 1. | slice 2 | |
-| P07 | The candidate produces zero empty wakes in that quiet success journey. Examples 1 and 4. | slice 2 | |
-| P08 | If the check is still live when it falls due, obtain bounded liveness evidence. Scope’s overdue diagnosis and example 2. | slice 2 | |
-| P09 | If the live check takes the continuation path, continue the same command. Scope and example 2. | slice 2 | |
-| P10 | If the live check takes the recovery path, record its explicit recovery state. Example 2. | slice 2 | |
-| P11 | If the check fails, return the exact failure status, failing assertion, and log as the failure result. Example 2. | slice 2 | |
-| P12 | If the user stops work during the wait, honor cancellation at the supported safe boundary. Scope and example 3. | slice 2 | |
-| P13 | After cancellation, verify the state of the owned work. Example 3. | slice 2 | |
-| P14 | If CI needs attention during the wait, act at the supported safe boundary. Example 3. | slice 2 | |
-| P15 | Account for the observer separately from CI. Example 3. | slice 2 | |
-| P16 | Account for CI completion against the applicable revision. Scope and example 3. | slice 2 | |
-| P17 | If the change is adopted, the matched candidate shows lower combined coordinator and worker effort than the control. Goal and example 4. | slice 2 | |
+| P05 | The waiting developer gets the original proof result promptly. In the quiet success journey, the coordinator receives the recorded success after the check exits `0` before its next due check. Goal and example 1. | slice 2 | observed: candidate.md: root received original worker handoff at +130.91 and verified exact terminal proof at +140.49, before the +145.00 due check; final prose ended at +145.70 |
+| P06 | In that quiet success journey, the owner returns the recorded success exactly once. Example 1. |  | G1 |
+| P07 | The candidate produces zero empty wakes in that quiet success journey. Examples 1 and 4. |  | G2 |
+| P08 | If the check is still live when it falls due, obtain bounded liveness evidence. Scope’s overdue diagnosis and example 2. |  | G3 |
+| P09 | If the live check takes the continuation path, continue the same command. Scope and example 2. |  | G4 |
+| P10 | If the live check takes the recovery path, record its explicit recovery state. Example 2. |  | G5 |
+| P11 | If the check fails, return the exact failure status, failing assertion, and log as the failure result. Example 2. |  | G6 |
+| P12 | If the user stops work during the wait, honor cancellation at the supported safe boundary. Scope and example 3. |  | G7 |
+| P13 | After cancellation, verify the state of the owned work. Example 3. |  | G8 |
+| P14 | If CI needs attention during the wait, act at the supported safe boundary. Example 3. |  | G9 |
+| P15 | Account for the observer separately from CI. Example 3. |  | G10 |
+| P16 | Account for CI completion against the applicable revision. Scope and example 3. |  | G11 |
+| P17 | If the change is adopted, the matched candidate shows lower combined coordinator and worker effort than the control. Goal and example 4. |  | G12 |
 | P18 | Record **Deploy** only when the matched Codex candidate satisfies the proof and intervention conditions, eliminates quiet empty wakes, and lowers combined effort. Goal, scope, and example 4. | slice 3 | |
 | P19 | Otherwise, record **Do not deploy**. Example 4. | slice 3 | |
 | P20 | On **Do not deploy**, retain the current guidance. Example 4. | slice 3 | |

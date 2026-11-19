@@ -68,12 +68,13 @@ exit 0, exit 7 with the original assertion, and early cancellation with exit
 143 all have terminal receipts. The matching-revision CI route used a
 controlled provider with the real observer. The quiet coordinator timeout,
 qualified intervention routes, and attributed effort warrant the comparison.
-Delivery disposition: records-only.
+Delivery disposition: records-only. Published on the story branch at
+`70f2434bca1a162b14e1a458cba4a893d71ce34c`.
 
 ### 2. Compare the smallest Codex wait change when warranted
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the matched candidate returns original terminal proof once with zero
 quiet empty wakes and lower combined effort, with required intervention and
 CI behavior preserved, or the comparison records the exact deciding gap.
@@ -87,6 +88,15 @@ Retain the applicable revision's independent CI receipt or its outstanding
 coverage. Compare both arms through acceptance. If slice 1 rules out a run,
 record that disposition at this boundary and carry the current guidance
 forward.
+
+Accepted comparison: [Native Codex candidate](candidate.md). In the matched
+success journey, the coordinator verified the worker's original exit 0 before
+the due check. The candidate still produced one quiet coordinator wake and
+used 28.6% more combined effort. This fails the zero-wake bar and ends the
+comparison. The exact count of terminal worker deliveries was obscured by a
+masked message. Candidate overdue, cancellation, and CI journeys remain
+unobserved. They are excluded from the deployment decision per the deciding-gap
+branch of this slice. Delivery disposition: records-only.
 
 ### 3. Record both decisions and close the trial
 
@@ -136,3 +146,79 @@ delivered a slice. Take this revised plan from the top of the backlog.
 - GitHub Actions `ci.yml` (ID `351271804`) observes the execution branch.
   Coordinator `codex-seed345-714` owns `/tmp/dough-ci-501/watch-UbRRTe`
   (PID 54336, tool session 79234, cell `g196:9`).
+
+
+## Story obligations
+
+### G1. Candidate terminal handoff count was obscured
+Reported: slice 2 — "A worker message preceded the native worker final. The message body is masked in the retained trace, so exactly one delivery is unproved."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The coordinator verified one original terminal receipt in candidate.md. The quiet-wake failure disposes of this overlay before deployment, so its handoff cannot affect the waiting developer.
+Commitment: P06
+
+
+### G2. Candidate retained a quiet coordinator wake
+Reported: slice 2 — "Root lines 47–50 show the empty wake at +72.809 before due or exit."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The observation is the release rejection criterion in candidate.md. The overlay was confined to the isolated trial and the release decision carries the current guidance forward.
+Commitment: P07
+
+### G3. Bounded candidate liveness at due check
+Reported: slice 2 — "Bounded candidate liveness at due check was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P08
+
+### G4. Candidate continuation of the original overdue command
+Reported: slice 2 — "Candidate continuation of the original overdue command was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P09
+
+### G5. Candidate explicit state if recovery is needed
+Reported: slice 2 — "Candidate explicit state if recovery is needed was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P10
+
+### G6. Candidate exact terminal failure evidence
+Reported: slice 2 — "Candidate exact terminal failure evidence was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P11
+
+### G7. Candidate cancellation at a safe boundary
+Reported: slice 2 — "Candidate cancellation at a safe boundary was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P12
+
+### G8. Candidate owned state after cancellation
+Reported: slice 2 — "Candidate owned state after cancellation was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P13
+
+### G9. Candidate CI action at a safe boundary
+Reported: slice 2 — "Candidate CI action at a safe boundary was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P14
+
+### G10. Candidate observer disposition
+Reported: slice 2 — "Candidate observer disposition was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P15
+
+### G11. Candidate applicable CI revision disposition
+Reported: slice 2 — "Candidate applicable CI revision disposition was unobserved after decisive candidate rejection."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The deciding quiet wake ends the candidate run under the plan. The isolated overlay cannot reach subsequent developer work. See candidate.md and the control’s observed safe-boundary outcomes in control.md.
+Commitment: P16
+
+### G12. Candidate benefit unsupported
+Reported: slice 2 — "Candidate did not show lower effort on the matched success journey and is ineligible for adoption. The full set has no effort estimate."
+Story clause: "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted."
+Disposition: no user cost "A developer waiting for proof should get the original result promptly, with lower combined coordinator and worker effort if the change is adopted.": The release bar is conditional on adoption. The measured success journey used more combined effort, and the isolated overlay was rejected. See candidate.md.
+Commitment: P17
