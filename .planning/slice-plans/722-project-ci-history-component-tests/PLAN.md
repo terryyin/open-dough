@@ -12,7 +12,7 @@ the production components receive. Migrate the five cases in
 Their independent wording, accessibility, layout, ordering and chart assertions
 belong to the slices below. The old cases use a built app and route substitutes.
 
-The [Story Notes pilot](../720-pilot-direct-dashboard-unit-tests/PLAN.md)
+The Story Notes pilot
 owns the shared browser MakeMe entry and the frontend page-object opt-out.
 The seed records that dependency. The existing frontend runner can already
 execute and report this family. Backend collection, wire admission, Done

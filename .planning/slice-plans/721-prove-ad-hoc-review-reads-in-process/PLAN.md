@@ -21,7 +21,7 @@ Done, the branch result, manual landing and handoff journeys,
 those import them, `backend.playwright.config.ts`, and `Distribution/src/`.
 
 This story waits on the pilot
-([plan 720](../720-pilot-direct-dashboard-unit-tests/PLAN.md)) for the backend
+(plan 720) for the backend
 group's Node Vitest run; the seed records the agreement.
 
 ## Approach and reuse

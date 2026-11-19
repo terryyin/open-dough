@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_pilot-direct-dashboard-unit-tests.json",
+      "identity": "SEED-413#pilot-direct-dashboard-unit-tests",
+      "completedAt": "2026-11-19T12:54:59.417Z",
+      "blob": "12b99a1afef8571fd06f72ad43eb126a710c8458"
+    },
+    {
       "fileName": "SEED-412_keep-dashboard-tests-off-the-developers-real-cursor-runner.json",
       "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
       "completedAt": "2026-11-19T11:07:39.350Z",
@@ -2670,18 +2676,6 @@
       "identity": "SEED-145#quiet-execution-and-retrospective",
       "completedAt": "2026-10-20T13:00:40.914Z",
       "blob": "91e5c505d2311c4bf695dc071ed62da0ae4c6c2f"
-    },
-    {
-      "fileName": "SEED-146_gate-local-prerequisites-before-commit-and-delivery.json",
-      "identity": "SEED-146#gate-local-prerequisites-before-commit-and-delivery",
-      "completedAt": "2026-10-20T12:48:19.939Z",
-      "blob": "1d895b22e5e9e5d32050fa9af5d479355b4d42d5"
-    },
-    {
-      "fileName": "SEED-052_cursor-scope-terminal-refusal-explanation.json",
-      "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
-      "completedAt": "2026-10-20T11:29:50.319Z",
-      "blob": "c20116abfbcd5c008d8b37e969ff2423f62e3b6e"
     }
   ],
   "unreadable": []
