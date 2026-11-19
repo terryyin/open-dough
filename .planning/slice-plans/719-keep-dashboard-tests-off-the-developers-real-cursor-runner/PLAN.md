@@ -165,3 +165,15 @@ and run `npm run lint` and `npm run typecheck:dashboard`.
 Refinement pass not needed: Slice 1 is already delivered on `main` (`7ce5da1c7`),
 and Slice 2 is one cohesive ~30-line Behavior slice inside existing config files
 with all decisive premises settled at `35301ad92`. Remaining concerns: none.
+
+## Execution complete
+
+Product advice: keep the current backlog order. The two runner entry points
+share one disposable-home lifecycle, the original comparison renderer proof
+holds, and the isolation tests leave the planned SEED-413 unit-test work
+independent. The direct Vitest proof used the project's runner loader. The
+default bundle-loader error also occurred at the starting revision.
+
+The trunk-attributed renderer slice is `7ce5da1c7`. The story branch accepted
+the disposable-home slice at `944fdaeea27b3a64fa9fd1f366fee9fabc40875b`.
+The Bash prerequisite finding is [DD-588](../../../DearDough.md#dd-588--a-missing-bash-prerequisite-surfaced-as-three-admission-timeouts).
