@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "SEED-404#run-the-story-notes-checks-in-a-third-of-their-time",
+  "mode": "story-branch",
+  "branch": "claude/run-the-story-notes-checks-in-half-their-time",
+  "host": "claude"
+}
