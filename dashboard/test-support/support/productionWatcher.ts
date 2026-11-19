@@ -11,6 +11,11 @@ import { processRunning } from "./processGroup.ts";
 import { recordedBuilds } from "./productionBuildGate.ts";
 import { waitForWatcherFile, waitForWatcherOutput } from "./watcherEvents.ts";
 
+// Budget for one case that awaits a real deployment (git fetch, npm ci, Vite
+// build, preview start): about twice the slowest such case serially (27 s),
+// since concurrent production chains on CI runners slow these files about 2x.
+export const realDeploymentTimeout = 60_000;
+
 export type ProductionWatcher = ReturnType<typeof startProductionWatcher>;
 // A preview the watcher reported serving: its URL and process.
 export type ProductionActivation = { url: string; pid: number };
