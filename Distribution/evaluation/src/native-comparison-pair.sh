@@ -90,16 +90,16 @@ native_comparison_pair_freeze() {
   git -C "${repository}" archive "${commit}" | tar -x -C "${work}/payload-${arm}"
 }
 
-# Runs ARM's journey under WORK/ARM with its frozen payload.
-native_comparison_pair_arm() {
+# Starts ARM's journey under WORK/ARM with its frozen payload.
+native_comparison_pair_start_arm() {
   local case_name=$1 source_dir=$2 work=$3 results_dir=$4 arm=$5
   local native_guidance_check_payload_dir="${work}/payload-${arm}" native_guidance_check_payload_revision
   local tree native_guidance_check_payload_requested
   read -r native_guidance_check_payload_revision tree native_guidance_check_payload_requested \
     < "${work}/payload-${arm}.id"
   mkdir -p -- "${work}/${arm}"
-  native_guidance_check_run_case "${case_name}" "${source_dir}" "${work}/${arm}" "${results_dir}" \
-    > "${work}/${arm}/run.log" 2>&1 || true
+  native_guidance_check_start_arm "${case_name}" "${source_dir}" "${work}/${arm}" "${results_dir}" \
+    > "${work}/${arm}/run.log" 2>&1
 }
 
 native_comparison_pair() {
@@ -132,19 +132,20 @@ native_comparison_pair() {
   native_comparison_pair_declare "${case_name}" "${source_dir}" "${work}" > "${dest}/record"
   native_comparison_baseline_acquire "${case_name}" "${source_dir}" "${work}" "${dest}"
   if [[ ${native_comparison_baseline_reused} == true ]]; then
-    native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate
+    native_comparison_pair_start_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate
   else
     native_comparison_pair_freeze baseline "${native_comparison_pair_baseline}" "${work}" || return
     if [[ ${native_comparison_pair_arms} == concurrent ]]; then
-      native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" baseline &
-      native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate &
-      wait
+      native_comparison_pair_start_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" baseline
+      native_comparison_pair_start_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate
     else
       for arm in baseline candidate; do
-        native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" "${arm}"
+        native_comparison_pair_start_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" "${arm}"
+        native_guidance_check_wait_arms || true
       done
     fi
   fi
+  native_guidance_check_wait_arms || true
   observations="${dest}/pair-observations.txt"
   {
     printf 'case: %s\n' "${case_name}"

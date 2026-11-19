@@ -11,6 +11,7 @@ native_guidance_check_turn() {
   output_file="${native_guidance_check_controller}/response-turn-${turn}.md"
   : > "${transcript}"
   start=$(native_guidance_check_now)
+  native_run_interrupt_status=0
   native_run_controller_command=()
   if declare -F case_prepare_turn > /dev/null; then
     case_prepare_turn "${root}" "${turn}" "${transcript}" "${native_guidance_check_controller}" "${start}" || return
@@ -26,6 +27,7 @@ native_guidance_check_turn() {
     native_run_owned_or_fail "${transcript}" "${native_stderr}" \
       "${native_guidance_check_workspace}" "${native_codex_command[@]}" || true
   fi
+  ((native_run_interrupt_status == 0)) || return "${native_run_interrupt_status}"
   native_run_classify_stream codex "${transcript}"
   case ${native_run_outcome} in
     timeout) status=timeout stopped="no completion within the ${native_case_deadline:-3600} s deadline; the runner stopped the session" ;;

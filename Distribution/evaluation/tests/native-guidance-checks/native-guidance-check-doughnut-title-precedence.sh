@@ -11,6 +11,7 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 source "${source_dir}/Distribution/evaluation/src/native-guidance-check-run.sh"
 source "${source_dir}/Distribution/evaluation/tests/native-harness/support/native-assessor-counterexample.sh"
+source "${source_dir}/Distribution/tests/helpers/wait-for.bash"
 case_path="${source_dir}/Distribution/evaluation/cases/guidance-checks/doughnut-title-precedence"
 source "${case_path}/case.bash"
 source "${case_path}/assess.bash"
@@ -110,3 +111,21 @@ no-verdict verdict turn-1-verdict: missing | reported verdict (missing)
 inspected-harness harness turn-1-harness-inspected: true | inspected the native harness
 unfinished-session session turn-1-status: timeout | did not complete (timeout)
 ROWS
+
+# A failed migration leaves the server PID but no mysqladmin path.
+(
+  mysql="${work}/partial-arm/mysql"
+  mkdir -p "${mysql}"
+  mkfifo "${mysql}/hold"
+  (
+    exec 8<> "${mysql}/hold"
+    read -r -u 8 _
+  ) &
+  database_pid=$!
+  trap 'kill -KILL "${database_pid}" 2>/dev/null || true; wait "${database_pid}" 2>/dev/null || true' EXIT
+  printf '%s\n' "${database_pid}" > "${mysql}/mysql.pid"
+  case_mysql_admin=''
+  case_cleanup "${work}/partial-arm" > "${work}/partial-cleanup"
+  grep -Fxq 'cleanup: database-server-killed' "${work}/partial-cleanup"
+  wait_for 'the partial arm database to exit' 5 "! kill -0 ${database_pid} 2>/dev/null"
+)

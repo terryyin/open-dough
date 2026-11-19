@@ -1,9 +1,16 @@
 # Close native comparison harness gaps
 
 **Source:** [correction story](../../seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps)
+**Source review:** [source-only commitments](source-review.md)
 **Identity:** SEED-346#close-native-comparison-harness-gaps
 
 [Retained provenance, findings, PFE, decisive premises and verification decisions](preparation-evidence.md).
+Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md) to local and published proof.
+
+## Execution context
+
+- Story Branch Mode, `origin/codex/close-native-comparison-harness-gaps`, with `origin/main` as the integration target. The dashboard-owned worktree starts from the published Take `76fb0f9947ab4743202d99e152f4a9f9d02913e0` following `f731dab6c63b91e9499eb4355aab6cfb5a16c7f8`. Publisher `dashboard-territory.local-open-dough`, agent Maki-chan.
+- Story branch observer uses GitHub Actions `ci.yml`, coordinator `Maki-chan`, mailbox `/tmp/dough-ci-501/watch-9g3qxP`.
 
 Paths below are retraced at `86c4e9647` (Native guidance checks layout):
 entry `Distribution/evaluation/src/native-guidance-check.sh` with its
@@ -50,7 +57,7 @@ as historical evidence.
 
 ### 1. Arm-owned processes stop whenever a started arm ends early
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new credential-free cleanup journey test (stand-in case and stand-in host) for failed materialization, a refused host route and interrupts; Doughnut's partial-arm cleanup check; the family's existing journeys still green.
 
 Behavior: an arm whose case has started `case_materialize` either fails to
@@ -133,6 +140,17 @@ script and run the consumers it lists.
 This slice changes the runner, a recorded input. Afterwards, rerun `--recover`
 on all three kept `.txt` records and confirm every tracked record is
 byte-identical.
+
+Accepted proof: the cleanup journey failed at the Take for missing cleanup
+and a surviving interrupted host. All 51 selected native and shared test-runner
+checks passed after the change, with the final cleanup, controlled-turn and
+watchdog checks repeated after trap restoration was simplified. The three
+records recovered to the expected revisions and their comparisons diff was
+empty. See the source review and the worktree's `slice-1-return.md` Git evidence.
+
+Learning: the shared process-group helper's duplicate TERM could interrupt
+the host exit handler after the group signal. The isolated observation
+missed 20 of 60 exit receipts before the repair and none of 60 after.
 
 ### 2. Catalog host selection names qualified hosts only
 Type: Behavior
