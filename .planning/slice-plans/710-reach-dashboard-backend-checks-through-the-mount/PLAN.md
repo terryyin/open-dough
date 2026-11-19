@@ -196,7 +196,7 @@ Evidence is under `slice-4-` in the worktree's Git evidence directory.
 ### 5. Process identity, restart and incident-record proofs ask for the live server
 
 Type: Structure
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 From [MOUNT-TRIAL.md](MOUNT-TRIAL.md): the `launches/`, `sessions/` and
@@ -215,6 +215,19 @@ worker. Include this case in the slice 5 selection.
 
 Proof: the listed specs pass on the live default, and each request sits on
 a case whose description or assertions name the process fact.
+
+The live selection passed 59 cases across 22 specs. The three acceptance
+cases passed again with their final routing. Dashboard typecheck passed.
+The G2 scratch check ran one mounted failure and then the output-bound
+case in the same worker. The latter started a separate child and observed
+exactly its own diagnostic. The dispatcher was restored byte for byte.
+Run records and the consumer trace are under `slice-5-` in Git evidence.
+
+Slice 6 carries the quiet-closure case's initial server, which explicitly
+requires the worker HOME to differ from the dashboard HOME. `ghRead.ts`
+constructs `GitHubRequests` once with both the timeout and backoff values.
+Its short-bound consumers and the one-shot delivery child environment are
+the remaining diagnosis leads.
 
 ### 6. Cases held for another reason ask for the live server and say why
 
@@ -316,6 +329,8 @@ spec alone before reading it as a defect of the change.
   `d1b17dbaa0798fa256f27a389f2c7f138c9ad7db` and registered with this observer.
 - Slice 3 was accepted on the story branch at
   `5986f220a1452459fe4b62c6cd46c7d7e1d840b8` and registered with this observer.
+- Slice 4 was accepted on the story branch at
+  `4a754c19f05e4e2d0011d22f836936f4d2836512` and registered with this observer.
 - Checkout preparation passed the locked npm install, Chromium prerequisite
   check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
 
@@ -331,7 +346,7 @@ Disposition: receiving slice 7
 
 Reported: slice 4 — "authenticated-read-output-bound.spec.ts expects one fresh process diagnostic and sees prior entries."
 Story clause: "A proof that needs an empty process is a separate-process proof."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: `slice-5-g2.routes` and `slice-5-g2.log.run.json`, paired with the existing one-entry assertion in `authenticated-read-output-bound.spec.ts`
 
 ## Plan review
 

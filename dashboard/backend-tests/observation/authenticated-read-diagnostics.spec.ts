@@ -43,7 +43,10 @@ test.describe("authenticated read diagnostics (development environment)", () => 
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      liveServer: "separate process",
+    });
   });
 
   test.afterAll(async () => {

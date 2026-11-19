@@ -179,6 +179,7 @@ test.describe("authenticated read boundary: subprocess ownership across server s
     test(`ends a held ${label} when the server itself closes`, async () => {
       const server = await startDashboardServer({
         ...developmentBoundary,
+        liveServer: "separate process",
         ghTransport: "cli",
       });
       server.github.serve(everyRepository, hangs);

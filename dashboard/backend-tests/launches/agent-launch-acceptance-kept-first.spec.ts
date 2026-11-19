@@ -77,6 +77,7 @@ test.describe("an accepted launch whose change is being kept", () => {
     acquired.origin = origin;
     server = await startDashboardServer({
       mode: "boundary",
+      liveServer: "separate process",
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,

@@ -24,6 +24,7 @@ test("stalls past the third in one window are folded into one entry, with the lo
     // A window no loaded machine ends between the blocks.
     const server = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
       extraEnv: {
         DOUGH_TEST_EVENT_LOOP_BLOCK: "allow",

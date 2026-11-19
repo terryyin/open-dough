@@ -9,9 +9,8 @@
 // same pending story start is refused as already starting. An
 // acceptance that cannot be kept starts nothing, and a failure after
 // acceptance is the owner's kept outcome rather than a crashed server.
-// Open-session refusal of a story start is
-// `./agent-launch-open-session.spec.ts` and
-// `./agent-launch-open-session-continue.spec.ts`.
+// Open-session refusal: agent-launch-open-session.spec.ts and
+// agent-launch-open-session-continue.spec.ts.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
@@ -63,16 +62,17 @@ test.describe("an accepted launch", () => {
   let server: DashboardServer;
   let push: PushHold;
 
-  test.beforeEach(async () => {
+  async function serve(liveServer?: string) {
     origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
+      liveServer,
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,
     });
     push = origin.holdPushes();
-  });
+  }
 
   test.afterEach(async () => {
     if (existsSync(machineStore())) chmodSync(machineStore(), 0o755);
@@ -95,6 +95,7 @@ test.describe("an accepted launch", () => {
   };
 
   test("is kept before publication and settles after its caller is gone, one start across workflows", async () => {
+    await serve("separate process");
     server.claudeScenario("held");
 
     const answered = await answerOf(accept(server, request));
@@ -185,6 +186,7 @@ test.describe("an accepted launch", () => {
   });
 
   test("that cannot be kept starts nothing", async () => {
+    await serve();
     mkdirSync(machineStore(), { recursive: true });
     chmodSync(machineStore(), 0o555);
     server.claudeScenario("launched");
@@ -205,6 +207,7 @@ test.describe("an accepted launch", () => {
   });
 
   test("whose publication receipt cannot be kept retains the known recording stop while the server goes on", async () => {
+    await serve("separate process");
     server.claudeScenario("launched");
     const answered = await answerOf(accept(server, request));
     expect(answered.kind).toBe("accepted");
