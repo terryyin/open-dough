@@ -219,7 +219,7 @@ and `story-notes-changes.spec.ts` is gone.
 ### 4. Story notes dialog behaviors are proven on the mounted dialog
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given `StoryNotesDialog` mounted with MakeMe notes from the
 page-loadable entry and a case-supplied `onChange`, a user adding, editing,
@@ -235,6 +235,11 @@ Proof: The new cases pass through
 scratch edit of the dialog behavior it names. `makeMe.mjs` consumers still
 get `aStoryNote`: the backend notes cases and
 `Distribution/tests/makeme/` pass.
+
+Learning: browser cases import `Distribution/tests/support/pageMakeMe.mjs`.
+`story-notes-dialog.mounted.spec.ts` holds 13 one-behavior cases (about 57 ms
+summed) and reads expected messages from `dashboard/src/storyNotes.ts`;
+`story-notes-add` and `story-notes-edit` are gone.
 
 ### 5. The notes control's count, refresh and focus are proven on the mounted control
 
@@ -367,3 +372,8 @@ slice-specific concern.
 Reported: slice 3 — "Removing `durable: true` was not caught, because no rule in `storyNotes.ts` produces the unwritable refusal; the store's write produces it."
 Story clause: "an unreadable file reported and preserved, and an unwritable store refused"
 Disposition: no user cost "the backend cases call a typed notes handler in-process": the durable write is the shared machine store's crash-safety option, unchanged by this story; the deleted HTTP cases did not observe it either, and the unwritable refusal itself is proven.
+
+### G2. Dialog focus after the delete question and a deletion
+Reported: slice 4 — "The old cases' focus checks after delete (focus on the delete question's Cancel, then Delete, then Add note) were not carried over."
+Story clause: "has one owner, and none is lost"
+Disposition: proved by slice 4: dashboard/frontend-tests/stories/story-notes-dialog.mounted.spec.ts focus checks in the cancelling, deleting, editing and refused-deletion cases, each failing under its scratch break (evidence s4-g2-break-* and the refactor pass breaks)

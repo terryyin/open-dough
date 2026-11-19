@@ -26,15 +26,15 @@ judgment, "first Node Vitest run", the Doughnut pointer, and the scope limits.
 | 7 | No CI job is added | slice 2 | observed: .github/workflows/ci.yml unchanged: dashboard-backend keeps 3 shards running test:dashboard:backend |
 | 8 | Each of the eleven Story Notes behaviors in story-notes-*.mounted.spec.ts has exactly one owner, and none is lost | slice 6 |  |
 | 9 | A behavior a rendered Story Notes component owns is a plain Vitest case mounting StoryNotesDialog or the StoryNotes control with MakeMe notes and typed inputs | slice 5 |  |
-| 9.1 | StoryNotesDialog mounted with no notes, user adds "First observation" and saves: the dialog asks for one add change with that text and the story's identity | slice 4 |  |
-| 9.2 | When that change is refused, the draft stays and "The note could not be saved." shows | slice 4 |  |
+| 9.1 | StoryNotesDialog mounted with no notes, user adds "First observation" and saves: the dialog asks for one add change with that text and the story's identity | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-dialog.mounted.spec.ts adding case: changes equal one add with text First observation and the story identity; blank save records nothing; breaks of blank and add identity failed it |
+| 9.2 | When that change is refused, the draft stays and "The note could not be saved." shows | slice 4 | observed: dashboard/frontend-tests/stories/story-notes-dialog.mounted.spec.ts refuse and unreachable cases: alert The note could not be saved., textarea keeps the draft, saving again saves; draft-dropped and no-problem breaks failed them |
 | 9.3 | The control's source answers an earlier read after a later save: the control keeps the save's notes and count | slice 5 |  |
 | 9.4 | The control gets an unreadable answer: it shows "The notes could not be read." in place of a count | slice 5 |  |
 | 10 | Server-owned behaviors such as newest-first order are proven by the backend cases alone, with no frontend duplicate | slice 6 |  |
 | 11 | One step in the E2E terminal-lifetime journey owns Story Notes leaving an attached terminal mounted and connected: open and close notes on a card, the same terminal keeps printing and is not attached again | slice 6 |  |
 | 12 | The board keyboard spec (Backlog, Taken) and the Recently done follow-up E2E journey (Done) keep owning that each card kind hosts the control | slice 6 |  |
-| 13 | MakeMe gains a page-loadable entry for builders a browser case needs, starting with aStoryNote | slice 4 |  |
-| 14 | makeMe.mjs keeps exposing the same builders from that one definition | slice 4 |  |
+| 13 | MakeMe gains a page-loadable entry for builders a browser case needs, starting with aStoryNote | slice 4 | observed: Distribution/tests/support/pageMakeMe.mjs Node-free entry over storyNoteMakeMeProperties(); imported by dashboard/frontend-tests/stories/story-notes-dialog.mounted.spec.ts, which passes in Chromium |
+| 14 | makeMe.mjs keeps exposing the same builders from that one definition | slice 4 | observed: Distribution/tests/support/makeMe.mjs spreads the same storyNoteMakeMeProperties(); backend review/story-notes and Distribution/tests/makeme files pass (s4-backend, s4-makeme-*) |
 | 15 | The StoryNotes control reads and changes notes through a typed source (change?: StoryNoteChange) => Promise<StoryNotesAnswer> for one project, which production binds to the notes endpoint | slice 5 |  |
 | 16 | A case supplies its own source, so pending, refused, unreachable and out-of-order answers need no route substitute and no held-answer helper | slice 5 |  |
 | 17 | Cases deliver input in the page; real pointer or keyboard delivery only where native input is the behavior under test | slice 5 |  |
