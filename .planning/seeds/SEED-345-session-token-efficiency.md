@@ -152,54 +152,6 @@ Each trial is judged with the
   as compaction settings are trial variants, not defaults.
   [Context growth](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
-<a id="get-long-verification-results-without-empty-wakes"></a>
-
-### Trial a quieter Codex wait for long verification
-
-**Identity:** SEED-345#get-long-verification-results-without-empty-wakes
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/714-get-long-verification-results-without-empty-wakes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"dcd86361f28f5fe648c88ce8532a8bbbf381b6ae3eb598c45a03aa763ee9c3a5","plan":"cb5fd51d87573ce14b254ab410d62c5e9428486b867559f7c45db2b52db92908"}}
-```
-
-- **Goal.** Give the maintainer two decisions backed by the Codex trial and
-  retained evidence. Decide whether to deploy the Codex wait guidance and
-  whether a separate Claude Code trial is worth funding. A developer waiting
-  for proof should get the original result promptly, with lower combined
-  coordinator and worker effort if the change is adopted.
-- **Scope.** Run a small native Codex control with current source guidance.
-  Compare a wait bounded by the next real check and the host limit only if the
-  control exposes avoidable empty wakes. The worker owns its original command.
-  Preserve command continuation, overdue diagnosis, user cancellation, and
-  revision-specific CI completion. Use retained Claude Code evidence to decide
-  whether to queue a separate trial. This story includes the release decision.
-  Client rollout, a native Claude Code run, Cursor changes, supplier
-  publication, cache settings, new monitors, and Dashboard measurement are
-  outside its scope.
-- **Key examples.**
-  1. A quiet check exits 0 before its next due check. The owner returns the
-     recorded success once and the coordinator receives it with zero empty
-     wakes in the candidate.
-  2. A check is still live when its check falls due. Obtain bounded liveness
-     evidence and continue the same command or record its explicit recovery
-     state. If it fails, return its exact status, failing assertion and log.
-  3. A user stops the work or CI needs attention during the wait. Act at the
-     supported safe boundary, verify the owned work's state after cancellation,
-     and account separately for the observer and applicable CI revision.
-  4. Record **Deploy** only when the matched Codex candidate meets these proof
-     and intervention conditions, eliminates quiet empty wakes, and lowers
-     combined effort. Otherwise record **Do not deploy** and keep the current
-     guidance.
-  5. Record **Run the Claude Code trial** only when retained Claude Code evidence
-     supports repeatable, recoverable savings from an eligible alternate owner
-     large enough to justify the trial. Otherwise record **Drop the Claude Code
-     trial**, including where the evidence is inconclusive. Queue a separate
-     follow-up only on a Run decision. The Codex outcome does not determine
-     the Claude Code decision.
-- **Evidence and approach.** See the [trial plan](../slice-plans/714-get-long-verification-results-without-empty-wakes/PLAN.md)
-  for the frozen control, retained traces, proof boundaries, and decision
-  criteria. Apply [ADR 0005, Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-  and [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
 ### Load execution guidance for the current phase

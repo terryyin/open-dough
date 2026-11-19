@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-345#get-long-verification-results-without-empty-wakes",
+  "title": "Trial a quieter Codex wait for long verification",
+  "completedAt": "2026-11-19T03:50:45.463Z",
+  "developer": "Terry Yin",
+  "agent": "Ai-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
