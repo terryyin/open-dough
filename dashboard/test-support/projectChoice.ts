@@ -61,6 +61,28 @@ export async function expectProjectChoice(
   ).toBeVisible(options);
 }
 
+// The projects offered for selection, whether the banner shows tab radios or
+// the compact title list (when Recent stories, a Sessions sidebar, or a
+// narrow column leave too little room for the tabs).
+export async function expectVisibleProjectLabels(
+  page: Page,
+  labels: readonly string[],
+): Promise<void> {
+  const { project, projectCompact, projectCompactList } = parts(page);
+  await expect(async () => {
+    if (await projectCompact.isVisible()) {
+      await projectCompact.click({ timeout: 2_000 });
+      await expect(projectCompactList.getByRole("option")).toHaveText([
+        ...labels,
+      ]);
+      await page.keyboard.press("Escape");
+      await expect(projectCompactList).toHaveCount(0);
+    } else {
+      await expect(project.locator("label")).toHaveText([...labels]);
+    }
+  }).toPass();
+}
+
 const defaultVisibleProjectLabels = [
   "Open Dough",
   "Doughnut",

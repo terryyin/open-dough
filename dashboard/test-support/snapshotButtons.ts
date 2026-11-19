@@ -1,6 +1,7 @@
 // Every button a shown snapshot offers, and nothing else: the banner's
-// Sessions, System settings, Start session, the badge legend, each Backlog
-// card's launch actions, and each card's detail toggle and Notes.
+// Sessions, Recent stories (when a project is selected), System settings,
+// Start session, the badge legend, each Backlog card's launch actions, and
+// each card's detail toggle and Notes.
 import { expect, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
 import { detailToggle, storyCardLaunchActions } from "./storyCardControls.ts";
@@ -14,12 +15,16 @@ export async function expectSnapshotButtons(
 ) {
   const button = (name: string) =>
     page.getByRole("button", { name, exact: true });
-  await expect(button("Sessions")).toHaveCount(1);
-  await expect(button("System settings")).toHaveCount(1);
-  await expect(
+  const fixedBannerButtons = [
+    button("Sessions"),
+    parts(page).recentStories,
+    button("System settings"),
     page.getByRole("button", { name: /^Start session in / }),
-  ).toHaveCount(1);
-  await expect(parts(page).preparationHelp).toHaveCount(1);
+    parts(page).preparationHelp,
+  ];
+  for (const control of fixedBannerButtons) {
+    await expect(control).toHaveCount(1);
+  }
   for (const action of storyCardLaunchActions) {
     await expect(button(action)).toHaveCount(shown.backlogCards);
   }
@@ -28,6 +33,8 @@ export async function expectSnapshotButtons(
   );
   await expect(button("Notes")).toHaveCount(shown.cards);
   await expect(page.getByRole("button")).toHaveCount(
-    4 + shown.backlogCards * storyCardLaunchActions.length + shown.cards * 2,
+    fixedBannerButtons.length +
+      shown.backlogCards * storyCardLaunchActions.length +
+      shown.cards * 2,
   );
 }

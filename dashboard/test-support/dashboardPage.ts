@@ -149,12 +149,15 @@ export async function expectWholeSnapshot(
   }
 }
 
-// Snapshot controls exclude the banner's machine Sessions and System
-// settings, and Start session, which needs no published read.
-export const controlsBesideSessions = (page: Page) =>
+// Buttons that appear only with a usable published snapshot. Excludes the
+// banner's machine Sessions, Recent stories (present whenever a project is
+// selected, including a failed published read), System settings, and Start
+// session, which need no published read.
+export const snapshotDependentControls = (page: Page) =>
   page
     .getByRole("button")
     .and(page.locator(":not([aria-label='Sessions'])"))
+    .and(page.locator(":not([aria-label^='Recent stories'])"))
     .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
@@ -175,7 +178,7 @@ export async function expectProblemAndNoSnapshot(
     "No published work is shown, because none has been read.",
   );
   await expect(problem).toContainText(recovery);
-  await expect(controlsBesideSessions(page)).toHaveCount(0);
+  await expect(snapshotDependentControls(page)).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
   await expect(board).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);

@@ -33,15 +33,23 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     .route("https://github.com/**", (route) => route.fulfill({ body: "" }));
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { project, development, directionToggle, backlog, taken } = parts(page);
+  const {
+    project,
+    development,
+    recentStories,
+    directionToggle,
+    preparationHelp,
+    backlog,
+    taken,
+  } = parts(page);
 
   // Reading order is the order of the page's source: Sessions, the
-  // perspective, the project selector, System settings, then direction, Start session and the badge
-  // legend, then each card's controls by column (Backlog, then Taken): a
-  // Backlog card's enabled launch actions, then Inspect story and Notes. A card's recorded
-  // links are in its detail, not its scan view. In a wide window Taken stands
-  // beside Backlog's first card, so position on screen would order them
-  // differently.
+  // perspective, Recent stories, the project selector, System settings, then
+  // direction, Start session and the badge legend, then each card's controls
+  // by column (Backlog, then Taken): a Backlog card's enabled launch actions,
+  // then Inspect story and Notes. A card's recorded links are in its detail,
+  // not its scan view. In a wide window Taken stands beside Backlog's first
+  // card, so position on screen would order them differently.
   const stopsFor = async (column: Locator) => {
     const stops: Locator[] = [];
     for (const card of await column.getByRole("article").all()) {
@@ -69,18 +77,20 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
     development,
+    recentStories,
     selectedProject,
     page.getByRole("button", { name: "System settings", exact: true }),
     directionToggle,
     page.getByRole("button", { name: "Start session in Open Dough" }),
-    parts(page).preparationHelp,
+    preparationHelp,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + selected perspective radio + selected project radio + System
-  // settings + Direction + Start session + Legend + two Backlog cards' enabled
-  // launch actions + four pairs of Inspect story and Notes.
-  expect(stops).toHaveLength(7 + 2 + 4 * 2);
+  // Sessions + selected perspective radio + Recent stories + selected project
+  // radio + System settings + Direction + Start session + Legend + two
+  // Backlog cards' enabled launch actions + four pairs of Inspect story and
+  // Notes.
+  expect(stops).toHaveLength(8 + 2 + 4 * 2);
 
   await test.step("Tab stops at Sessions, the banner's controls, and each card's controls, and nowhere else", async () => {
     await expectTabOrder(page, stops);
