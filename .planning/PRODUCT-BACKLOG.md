@@ -33,13 +33,13 @@ intent introduced or affected by a newly developed story.
 - [Reach dashboard backend checks through the mounted boundary](seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary) — SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary ([plan](slice-plans/710-reach-dashboard-backend-checks-through-the-mount/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Declare merged review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-merged-review-histories) — SEED-353#declare-merged-review-histories ([plan](slice-plans/709-declare-merged-review-histories/PLAN.md))
+- [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship ([plan](slice-plans/711-declare-trunk-review-authorship/PLAN.md))
 
 ## Backlog list
 
 - [Run the other frontend families at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) — SEED-404#run-the-other-frontend-families-at-the-mounted-boundary
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
-- [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship
 - [Declare completed-story review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-completed-story-review-histories) — SEED-353#declare-completed-story-review-histories
 - [Declare retained landing and recovery state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-retained-landing-recovery-state) — SEED-353#declare-retained-landing-recovery-state
 - [Declare launch and session repository state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-launch-session-repository-state) — SEED-353#declare-launch-session-repository-state
