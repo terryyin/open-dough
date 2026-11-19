@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-397#evaluate-recoverable-proof-evidence",
+  "title": "Evaluate recoverable proof evidence in the next real planned execution",
+  "completedAt": "2026-11-19T10:36:30.632Z",
+  "developer": "Terry Yin",
+  "agent": "Honoka-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

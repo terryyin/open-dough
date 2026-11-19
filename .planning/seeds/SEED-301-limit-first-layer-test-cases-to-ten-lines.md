@@ -27,10 +27,11 @@ handlers and UI components directly testable with thin
 under the [Architectural North Star](../NORTH-STAR.md) and installed
 [test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary),
 never by hiding test orchestration or assertions inside `test-support/`
-wrappers. (`SEED-301#publish-intent-projects-through-makeme` was folded into
-[`SEED-413#renovate-dashboard-frontend-unit-tests`](SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests)
-on 2026-11-19 so Intent MakeMe inputs target narrow Intent components rather
-than `putFrontend*` whole-app substitutes.)
+wrappers. On 2026-11-19 the frontend renovation absorbed
+`SEED-301#publish-intent-projects-through-makeme`. The remaining frontend
+families own the move from whole-app `putFrontend*` substitutes to narrow
+Intent component inputs.
+[Remaining dashboard frontend unit-test families](SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-frontend-unit-tests).
 
 #### Refinement reminder for Terry
 

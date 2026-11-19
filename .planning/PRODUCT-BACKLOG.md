@@ -30,16 +30,14 @@ intent introduced or affected by a newly developed story.
 
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
-- [Express submit-and-close test intent](seeds/SEED-411-express-submit-and-close-test-intent.md#express-submit-and-close-test-intent) — SEED-411#express-submit-and-close-test-intent
-- [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Pilot direct backend handler and narrow UI component tests on one dashboard family](seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests) — SEED-413#pilot-direct-dashboard-unit-tests ([plan](slice-plans/720-pilot-direct-dashboard-unit-tests/PLAN.md))
 
 ## Backlog list
 
-- [Keep dashboard tests off the developer's real Cursor runner](seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md#keep-dashboard-tests-off-the-developers-real-cursor-runner) — SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner ([plan](slice-plans/719-keep-dashboard-tests-off-the-developers-real-cursor-runner/PLAN.md))
-- [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
-- [Renovate dashboard backend unit tests around strongly typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests) — SEED-413#renovate-dashboard-backend-unit-tests
-- [Renovate dashboard frontend unit tests around narrow owning components](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests) — SEED-413#renovate-dashboard-frontend-unit-tests
+- [Prove ad hoc session review reads in-process through a typed review handler](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests) — SEED-413#renovate-dashboard-backend-unit-tests
+- [Renovate the remaining dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
+- [Prove Project CI history through the components that show it](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-frontend-unit-tests) — SEED-413#renovate-dashboard-frontend-unit-tests
+- [Renovate the remaining dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-frontend-unit-tests) — SEED-413#renovate-remaining-dashboard-frontend-unit-tests
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
@@ -52,6 +50,7 @@ intent introduced or affected by a newly developed story.
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Wait for required conditions before load-sensitive proof](seeds/SEED-367-bounded-slice-active-time.md#wait-for-a-quiet-machine-before-load-sensitive-proof) — SEED-367#wait-for-a-quiet-machine-before-load-sensitive-proof
 - [Simplify the remaining session tests](seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests) — SEED-341#simplify-remaining-session-tests
+- [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Show GitHub retry on the dashboard](seeds/SEED-336-live-dashboard-status.md#show-github-retry-on-the-dashboard) — SEED-336#show-github-retry-on-the-dashboard
 - [Keep review cues current with SSE](seeds/SEED-336-live-dashboard-status.md#keep-review-cues-current-with-sse) — SEED-335#keep-review-cues-current-with-sse
 - [See session status change live](seeds/SEED-336-live-dashboard-status.md#stream-session-status) — SEED-336#stream-session-status

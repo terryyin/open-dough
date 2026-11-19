@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-412_keep-dashboard-tests-off-the-developers-real-cursor-runner.json",
+      "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+      "completedAt": "2026-11-19T11:07:39.350Z",
+      "blob": "bbf977e930ee229cbe33c5bfe60f531745846fcb"
+    },
+    {
+      "fileName": "SEED-411_express-submit-and-close-test-intent.json",
+      "identity": "SEED-411#express-submit-and-close-test-intent",
+      "completedAt": "2026-11-19T11:07:34.654Z",
+      "blob": "f39c7227025befced5675668ecf01abcad49558b"
+    },
+    {
+      "fileName": "SEED-397_evaluate-recoverable-proof-evidence.json",
+      "identity": "SEED-397#evaluate-recoverable-proof-evidence",
+      "completedAt": "2026-11-19T10:36:30.632Z",
+      "blob": "8e925dd0e2cf2185d7c8f025cf831e536e76e283"
+    },
+    {
       "fileName": "SEED-382_type-check-reports-after-a-lint-failure.json",
       "identity": "SEED-382#type-check-reports-after-a-lint-failure",
       "completedAt": "2026-11-19T09:52:27.206Z",
@@ -2664,12 +2682,6 @@
       "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
       "completedAt": "2026-10-20T11:29:50.319Z",
       "blob": "c20116abfbcd5c008d8b37e969ff2423f62e3b6e"
-    },
-    {
-      "fileName": "SEED-052_cursor-chosen-model-unconfirmed-start.json",
-      "identity": "SEED-052#cursor-chosen-model-unconfirmed-start",
-      "completedAt": "2026-10-20T10:38:06.856Z",
-      "blob": "4269bbc243d2209267ed749c16cb253d4a123060"
     }
   ],
   "unreadable": []
