@@ -51,12 +51,15 @@ export { backlogPath } from "./repository-revision-facts.mjs";
 
 /**
  * The execution workspace: a branch that starts from a named trunk revision
- * and holds ordered revisions the origin does not have.
+ * and holds ordered revisions the origin does not have. Its `agent`, when
+ * stated, is the roster agent whose real per-worktree authorship the
+ * materializer applies; `checkoutIdentity` remains the committer only.
  * @template {string} [Name=string]
  * @typedef {{
  *   branch: string,
  *   from: Name,
  *   checkoutIdentity?: GitPerson,
+ *   agent?: string,
  *   revisions: readonly NamedRevision<Name>[],
  * }} RepositoryWorkspace
  */
@@ -162,9 +165,12 @@ export class RepositoryBuilder {
    * An execution workspace on `branch`, starting from the named trunk
    * revision. Its `checkoutIdentity`, when stated, is the committer Git
    * configures for that worktree only and the default committer of its
-   * revisions; the integration checkout keeps its own identity.
+   * revisions; the integration checkout keeps its own identity. Its
+   * `agent`, when stated, is materialized through the real
+   * `configureAgentAuthorship` (per-worktree `author.*`), not as
+   * `checkoutIdentity`.
    * @param {string} branch
-   * @param {{ from: Name, checkoutIdentity?: GitPerson }} facts
+   * @param {{ from: Name, checkoutIdentity?: GitPerson, agent?: string }} facts
    * @returns {RepositoryBuilder<Name>}
    */
   withWorkspace(branch, facts) {

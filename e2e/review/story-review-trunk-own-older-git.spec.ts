@@ -26,19 +26,20 @@ import {
 } from "../../dashboard/test-support/support/reviewRead.ts";
 import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import {
-  commitUnpublished,
   openTaken,
   shownWorkspace,
-  trunkModeRepository,
   trunkModeStory,
 } from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
+  storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
-// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
-olderGit.use({ originRepository: trunkModeRepository });
+// Declared two published commits, unpublished `u1`, and untracked notes.
+olderGit.use({
+  originRepository: trunkModeStory({ published: 2, unpublished: true }),
+});
 
 const keptIn = (commits: string) =>
   `This machine's Git cannot take the story's ${commits} out of trunk, so All changes shows only what is not yet published.`;
@@ -59,8 +60,8 @@ async function expectPlainContextLine(review: Locator, trunk: string) {
 olderGit(
   "a Git that cannot take a Trunk Mode story's published commits out of trunk lists what is not yet published and says why",
   async ({ page, dashboard, origin }) => {
-    const { workspace, trunk } = trunkModeStory(origin, { published: 2 });
-    commitUnpublished(workspace);
+    const { workspace } = storyWorktree(origin);
+    const trunk = origin.revision("s2");
     keepLaunchRecord(dashboard, workspace);
     const snapshot = await openStoryReview(page, await openTaken(page, origin));
     const review = reviewRegion(page);

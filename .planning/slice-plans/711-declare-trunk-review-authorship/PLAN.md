@@ -2,6 +2,7 @@
 
 **Identity:** SEED-353#declare-trunk-review-authorship
 **Source:** [Declare trunk review authorship through MakeMe](../../seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal, scope and evaluation
 
@@ -120,7 +121,7 @@ reused evidence, or excluded with the unreached boundary.
 
 ### 1. Read published Trunk Mode attribution from declared authors
 Type: Behavior
-Status: planned
+Status: done
 Proof: First consumer row and the builder row; S2, D1 and D2 establish the route.
 
 Behavior: Given trunk declared up to Yui-chan's claim, then her `s1`, another
@@ -215,3 +216,17 @@ ownership.
   slices, within the slice limit.
 - No remaining slice-specific concern was identified in this review.
 - No pre-Take human decision, trunk-only operation or execution authorization.
+
+## Learnings
+
+- Slice 1: `configureDeclaredAgentAuthorship` is the shared seam for a
+  workspace's declared `agent` (repository-history and start-origin). D1 with
+  the agent omitted still fails attribution (published story files absent from
+  All changes); restore re-passes.
+- Slice 1 removed the unused `trunkModeRepository` export after consumers
+  moved to `trunkModeStory`. Slice 4 must restore a claim-only description
+  (`trunkModeClaim().please()` or equivalent) for the ambiguity cases; do not
+  reintroduce the old name without callers.
+- Accepted slice-1 proof: own-changes + older-git (3), flagged setup compat
+  (2), builder suite (10), typecheck; evidence under the checkout's
+  `open-dough/evidence/slice-1/`.

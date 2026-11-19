@@ -5,6 +5,7 @@
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
+import { configureDeclaredAgentAuthorship } from "../../../Distribution/src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import {
   commitDeclaredRevision,
   configureIdentity,
@@ -39,11 +40,19 @@ export async function leaveTrunkUnfetched(
 }
 
 // The workspace's branch from its named trunk revision, checked out at
-// `.worktrees/<slug>`, with its revisions committed there and never pushed,
-// then its declared local state written over them.
+// `.worktrees/<slug>`, with its declared agent authorship when stated, its
+// revisions committed there and never pushed, then its declared local state
+// written over them.
 export async function materializeStartWorkspace(
   project: string,
-  { branch, from, checkoutIdentity, revisions, local }: WorkspaceWithLocalState,
+  {
+    branch,
+    from,
+    checkoutIdentity,
+    agent,
+    revisions,
+    local,
+  }: WorkspaceWithLocalState,
   commits: Map<string, string>,
 ) {
   const worktree = path.join(project, ".worktrees", path.basename(branch));
@@ -59,6 +68,8 @@ export async function materializeStartWorkspace(
   );
   if (checkoutIdentity)
     await configureIdentity(worktree, checkoutIdentity, { worktreeOnly: true });
+  if (agent !== undefined)
+    await configureDeclaredAgentAuthorship(worktree, agent);
   for (const revision of revisions)
     commits.set(
       revision.name,

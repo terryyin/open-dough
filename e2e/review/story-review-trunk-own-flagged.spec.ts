@@ -38,16 +38,16 @@ import {
   openTaken,
   publishRewrittenLine,
   shownWorkspace,
-  trunkModeRepository,
   trunkModeStory,
 } from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
+  storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
-// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
-test.use({ originRepository: trunkModeRepository });
+// One published story commit interleaved on trunk; rewrite actions stay below.
+test.use({ originRepository: trunkModeStory({ published: 1 }) });
 
 const flagged = "Modified src/c.ts, includes trunk's changes";
 
@@ -85,7 +85,8 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
   dashboard,
   origin,
 }) => {
-  const { workspace, trunk: first } = trunkModeStory(origin, { published: 1 });
+  const { workspace } = storyWorktree(origin);
+  const first = origin.revision("o2");
   keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
   const snapshot = await openStoryReview(page, card);
@@ -174,7 +175,7 @@ test("a flagged file two story commits changed is diffed from trunk before the o
   dashboard,
   origin,
 }) => {
-  const { workspace } = trunkModeStory(origin, { published: 1 });
+  const { workspace } = storyWorktree(origin);
   const { trunk, beforeStory } = publishRewrittenLine(origin, workspace, {
     earlier: true,
   });

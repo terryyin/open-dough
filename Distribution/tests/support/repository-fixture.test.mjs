@@ -4,6 +4,7 @@ import {
   exec,
   git,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "./makeMe.mjs";
 import { cli } from "./product-backlog-fixture.mjs";
 import { materializeRepository } from "./repository-fixture.mjs";
@@ -125,6 +126,31 @@ test("each copy of a described workspace is its own worktree whose later commits
         "branch refs/heads/exec/story",
       ].join("\n"),
     );
+});
+
+test("a workspace's declared agent is applied through real per-worktree authorship", async (t) => {
+  const { agent, email } = agentIdentity("Yui");
+  const { execution, cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("trunk")
+      .withWorkspace("exec/story", { from: "trunk", agent })
+      .please(),
+  );
+  t.after(cleanup);
+  const read = async (...args) => (await git(execution, ...args)).stdout.trim();
+
+  assert.equal(
+    await read("config", "--worktree", "--get", "author.name"),
+    agent,
+  );
+  assert.equal(
+    await read("config", "--worktree", "--get", "author.email"),
+    email,
+  );
+  assert.equal(
+    await read("config", "--get", "extensions.worktreeConfig"),
+    "true",
+  );
 });
 
 test("a workspace's declared checkout identity stays with its worktree and leaves the integration checkout's own", async (t) => {

@@ -7,6 +7,7 @@ import {
   exec,
   git,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { configureDeclaredAgentAuthorship } from "../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { writeLocalState } from "./repository-local-state.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import {
@@ -199,7 +200,8 @@ export async function buildRepository(
   // The workspace is a worktree of the integration checkout. Its revisions
   // are committed there and never pushed, then its declared local state is
   // written over them. The builder has checked that it starts from a trunk
-  // revision and that every revision name is new.
+  // revision and that every revision name is new. A declared `agent` is
+  // applied through the real configureAgentAuthorship before those revisions.
   const start = /** @type {string} */ (commits.get(workspace.from));
   await git(integration, "branch", workspace.branch, start);
   await git(integration, "worktree", "add", execution, workspace.branch);
@@ -207,6 +209,8 @@ export async function buildRepository(
     await configureIdentity(execution, workspace.checkoutIdentity, {
       worktreeOnly: true,
     });
+  if (workspace.agent !== undefined)
+    await configureDeclaredAgentAuthorship(execution, workspace.agent);
   let candidateSha = start;
   for (const revision of workspace.revisions) {
     candidateSha = await commitDeclaredRevision(
