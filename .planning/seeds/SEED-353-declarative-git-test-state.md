@@ -162,6 +162,9 @@ helpers, published-file follow-ups and completed-review consumers across tiers.
 **Evaluation.** Declared completion and interleaved/own/foreign merge histories
 preserve completion comparisons, attribution, file admission and gap/fallback
 refusals. Keep real publication/capture where that operation is the tested action.
+Delete `dashboard/test-support/support/storyReviewMergeDriver.ts` instead of
+migrating it: `printingMergeDriver` has had no consumer since review marks were
+removed, and it is the last importer of `sixth` outside the commit-trunk specs.
 **Safe stopping point.** Readable published-completion setup independent of local
 activity; retained-run recovery remains separate.
 
