@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule",
+  "host": "claude",
+  "model": "fable"
+}
