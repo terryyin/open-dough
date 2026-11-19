@@ -17,6 +17,20 @@ and a presentation case in `../frontend-tests/`.
 
 ## Which entry a case uses
 
+Call the typed handler in this process on plain Node Vitest, in a
+`*.unit.spec.ts` spec. Give the case a temporary machine home and store its
+data with a MakeMe stored document, such as
+`makeMe.aStoredStoryNotesDocument`. One wire check through a started server
+proves the handler is admitted at its route.
+
+Story Notes is the reference family: `review/story-notes.unit.spec.ts` calls
+`storyNotes(project, change?)` from `dashboard/server/storyNotes.ts`, and
+`review/story-notes-admission.spec.ts` is its wire check. Dashboard Test
+Support is frozen: new cases add only MakeMe builders to `../test-support/`.
+
+Older cases prove the boundary the server mounts, as below, until their
+folders move to this entry.
+
 Prove the boundary the server mounts, in this process. Call that boundary's
 exported install, mounted on an HTTP server the test owns
 (`../test-support/support/inProcessBoundaryHttp.ts`). The authenticated-read
@@ -67,8 +81,10 @@ boundary is a page the harness opens rather than a product workflow.
 
 ## Running
 
-`npm run test:dashboard:backend` runs only this group from its own
-configuration (`../backend.playwright.config.ts`). Its global setup
+`npm run test:dashboard:backend` runs only this group. Specs named
+`*.unit.spec.ts` run on Vitest in Node (`../backend.vitest.config.mts`); the
+rest run on Playwright from its own configuration
+(`../backend.playwright.config.ts`). Playwright's global setup
 (`../test-support/support/backendGlobalSetup.ts`) runs the fixture executables once,
 gives the run a GitHub request root that admits no owner, and registers only
 the artifacts backend specs request: the server bundle, the app build a
@@ -81,7 +97,7 @@ takes local full-suite admission only when unfiltered. Select files or tests
 as with any group, for example
 `npm run test:dashboard:backend -- sessions/ --grep 'alert'`; a direct
 `npx playwright test --config <repository>/dashboard/backend.playwright.config.ts`
-behaves the same from any working directory.
+runs the Playwright specs the same way from any working directory.
 
 CI runs this group as its own producer, the `dashboard-backend` job's shards
 (`.github/workflows/ci.yml`), and publishes its cases under the

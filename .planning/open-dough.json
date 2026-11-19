@@ -25,7 +25,7 @@
           "**/*.spec.ts"
         ],
         "makeMe": true,
-        "pageObjects": true
+        "pageObjects": false
       },
       {
         "path": "dashboard/backend-tests",

@@ -1,26 +1,28 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { browserGroupSelection, frontendGroup } from "./browserTestGroups.mjs";
+import { browserGroupSelection } from "./browserTestGroups.mjs";
 import { selectedFiles } from "./testFiles.mjs";
 
-const mountedSuffix = /\.mounted(?=\.(?:spec|test)\.[cm]?[jt]sx?$)/;
+// Transitional marker while a dashboard group holds both engines: a
+// `.mounted` frontend spec or a `.unit` backend spec runs on Vitest, and every
+// other spec on Playwright. The group command and the group's Playwright config
+// share this one predicate.
+const vitestMarker = /\.(?:mounted|unit)(?=\.(?:spec|test)\.[cm]?[jt]sx?$)/;
 
-export function isMountedSpec(file) {
-  return mountedSuffix.test(file);
+export function isVitestFile(file) {
+  return vitestMarker.test(file);
 }
 
-export function frontendFiles(split) {
-  const { directory } = frontendGroup;
-  return selectedFiles(
-    directory,
-    split,
-    browserGroupSelection(frontendGroup),
-  ).map((file) => ({
-    file: path.resolve(fileURLToPath(directory), file),
-    label: file,
-    logicalLabel: file.replace(mountedSuffix, ""),
-    mounted: isMountedSpec(file),
-  }));
+export function groupFiles(group, split) {
+  const { directory } = group;
+  return selectedFiles(directory, split, browserGroupSelection(group)).map(
+    (file) => ({
+      file: path.resolve(fileURLToPath(directory), file),
+      label: file,
+      logicalLabel: file.replace(vitestMarker, ""),
+      vitest: isVitestFile(file),
+    }),
+  );
 }
 
 // File and title filters use the same patterns as Playwright, including
@@ -32,7 +34,7 @@ function filterPattern(source) {
     : new RegExp(source, "i");
 }
 
-export function frontendArguments(argv) {
+export function groupArguments(argv) {
   const files = [];
   let grep, grepInvert, workers, reporter, project;
   let list = false;
@@ -104,18 +106,18 @@ export function frontendArguments(argv) {
 function fileMatches(entry, { pattern }) {
   return (
     pattern.test(entry.file) ||
-    (entry.mounted && pattern.test(entry.file.replace(mountedSuffix, "")))
+    (entry.vitest && pattern.test(entry.file.replace(vitestMarker, "")))
   );
 }
 
-export function matchesFrontendFile(entry, args) {
+export function matchesGroupFile(entry, args) {
   return (
     args.files.length === 0 ||
     args.files.some((filter) => fileMatches(entry, filter))
   );
 }
 
-export function matchesMountedCase(entry, args, title, location) {
+export function matchesVitestCase(entry, args, title, location) {
   const grepTitle = `chromium ${entry.logicalLabel} ${title}`;
   return (
     (args.grep?.test(grepTitle) ?? true) &&

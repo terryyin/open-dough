@@ -9,7 +9,7 @@ import {
 } from "./frontendStoryNotesRule.ts";
 
 export async function installFrontendStoryNotes(page: Page) {
-  const rule = new StoryNotesRule<never>(numberedNewStoryNotes());
+  const rule = new StoryNotesRule(numberedNewStoryNotes());
   await page.route(
     (url) => url.pathname === storyNotesEndpoint,
     async (route) => {
@@ -20,10 +20,6 @@ export async function installFrontendStoryNotes(page: Page) {
         method,
         body: method === "POST" ? request.postDataJSON() : undefined,
       });
-      if (answer.kind === "unreachable") {
-        await route.abort();
-        return;
-      }
       await fulfillJson(route, answer.body, answer.status);
     },
   );

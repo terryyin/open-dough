@@ -36,13 +36,17 @@ async function request(project: string, change?: StoryNoteChange) {
   );
 }
 
-function projectNotes(project: string) {
-  return localSettingState<StoryNotesAnswer, StoryNoteChange>((change) =>
-    request(project, change),
-  );
+/** Reads one project's notes, or changes them and answers with the result. */
+export type StoryNotesSource = (
+  change?: StoryNoteChange,
+) => Promise<StoryNotesAnswer>;
+
+/** One project's subscribed notes over a source; production binds the endpoint. */
+export function storyNotesState(source: StoryNotesSource) {
+  return localSettingState<StoryNotesAnswer, StoryNoteChange>(source);
 }
 
-type ProjectNotes = ReturnType<typeof projectNotes>;
+type ProjectNotes = ReturnType<typeof storyNotesState>;
 export const StoryNotesOnPage = createContext<
   Map<string, ProjectNotes> | undefined
 >(undefined);
@@ -55,7 +59,7 @@ export function useStoryNotes(project: string): StoryNotes {
   const state = useMemo(() => {
     const existing = page?.get(project);
     if (existing !== undefined) return existing;
-    const created = projectNotes(project);
+    const created = storyNotesState((change) => request(project, change));
     page?.set(project, created);
     return created;
   }, [page, project]);

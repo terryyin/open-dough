@@ -13,7 +13,7 @@ import { join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { frontendGroup } from "../../../dashboard/test-support/support/browserTestGroups.mjs";
-import { finishFrontendGroup } from "../../../dashboard/test-support/support/frontendOutputs.mjs";
+import { finishGroupRun } from "../../../dashboard/test-support/support/groupOutputs.mjs";
 import {
   browserWorkflow,
   locations,
@@ -48,7 +48,7 @@ test("each browser group's job names its own command, settings, root and shards"
     );
 });
 
-test("the frontend times report records mounted durations under runner-relative spec labels", (t) => {
+test("the frontend times report records Vitest durations under runner-relative spec labels", (t) => {
   const directory = fileURLToPath(frontendGroup.directory);
   const specLabel = posix.join(frontendGroup.root, "timed.mounted.spec.ts");
   const temp = mkdtempSync(join(tmpdir(), "frontend-ci-times-"));
@@ -57,7 +57,8 @@ test("the frontend times report records mounted durations under runner-relative 
   const { run } = makeMe.aDashboardProofRecord
     .from(fileURLToPath(root))
     .please();
-  const status = finishFrontendGroup({
+  const status = finishGroupRun({
+    engine: "mounted-chromium",
     run: {
       ...run,
       rootDir: directory,
@@ -66,7 +67,7 @@ test("the frontend times report records mounted durations under runner-relative 
     },
     nativeTimes: join(temp, "retained-times.txt"),
     times,
-    mounted: {
+    vitestRun: {
       status: 0,
       report: {
         testResults: [

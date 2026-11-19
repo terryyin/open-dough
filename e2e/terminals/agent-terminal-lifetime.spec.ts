@@ -1,6 +1,7 @@
 // The page's one terminal (./agent-terminal.spec.ts) over its lifetime, on
 // the committed story-columns origin (../../dashboard/test-support/launchJourney.ts): switching projects
-// keeps it attached to the same session; when the dashboard server restarts,
+// keeps it attached to the same session, and so does opening and closing
+// Story notes on a card; when the dashboard server restarts,
 // the panel says it is disconnected, and Reconnect attaches to the same
 // session again; when the attached CLI exits on its own (Ctrl+Z), the panel
 // says the terminal ended, and Open again reattaches; a reload shows no
@@ -36,6 +37,8 @@ import {
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
+import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -127,6 +130,20 @@ test.describe("the terminal's lifetime", () => {
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo and back");
       await expect(status).toBeEmpty();
+      expect(attaches()).toEqual([true]);
+    });
+
+    await test.step("opening and closing Story notes on a card", async () => {
+      const notes = storyNotesPage(page);
+      await notes.open(card(readyStory));
+      await notes.close();
+    });
+
+    await test.step("the terminal still prints on its one attachment", async () => {
+      const terminal = await terminalScreen(page).clickScreen();
+      await (
+        await terminal.typeLine("after notes")
+      ).expectText("echo after notes");
       expect(attaches()).toEqual([true]);
     });
 

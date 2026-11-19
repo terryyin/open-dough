@@ -28,7 +28,7 @@ Remove `@playwright/test` completely from `dashboard/frontend-tests/` (and
 `@playwright/test` imports, `page.route(...)`, `test.step(...)`, or page
 objects), deleting `dashboard/frontend.playwright.config.ts`, `.mounted.spec.ts`
 split naming, and the dual-runner glue in `scripts/test-frontend.mjs`,
-`frontendMounted.mjs`, `frontendOutputs.mjs`, and `frontendSelection.mjs`; move
+`scripts/dashboard-group-run.mjs`, `scripts/retained-playwright.mjs`, `groupVitest.mjs`, `groupOutputs.mjs`, and `groupSelection.mjs`; move
 any true multi-service or full-reload straggler to `e2e/` (or drop duplicates)
 rather than retaining Playwright in `frontend-tests/`. Run
 `dashboard/backend-tests/` on plain Vitest in Node, deleting
