@@ -2,15 +2,14 @@
 import { launchSubject } from "../src/launchWorkflow.ts";
 import {
   sessionBranchRun,
-  sessionComparisonKeySchema,
   sessionDeliveryRun,
   type SessionComparisonKey,
 } from "../src/sessionReviewComparisons.ts";
 import { branchResultAtDone } from "../src/sessionBranchResult.ts";
+import type { ReviewedSessionSubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { queriedReviewedSessionSubject } from "./reviewedWorkSubjectAdmission.ts";
-import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
+import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
 import { hasBranchReview } from "./sessionBranchCapture.ts";
 import { branchResultReview } from "./storyReviewBranchResult.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
@@ -27,20 +26,16 @@ export type AdmittedSessionReview = {
   readonly readSession: (signal: AbortSignal) => Promise<StoryReview>;
 };
 
-export async function sessionReviewRequest(
-  url: URL,
+// The kept session record admits the session subject and its named run key.
+export async function admittedSessionReview(
+  subject: ReviewedSessionSubject,
+  named: string | undefined,
 ): Promise<AdmittedSessionReview> {
-  const named = url.searchParams.get("run");
-  requireExactQuery(
-    url,
-    ["source", "host", "session", ...(named === null ? [] : ["run"])],
-    "review",
-  );
-  if (named !== null && !sessionComparisonKeySchema.safeParse(named).success)
-    throw new RefusedRequest(400, "The review run is malformed.");
-
-  const { source, host, session } = queriedReviewedSessionSubject(url);
-  const record = await namedKeptSession(source, { host, sessionId: session });
+  const source = knownSource(subject.source);
+  const record = await namedKeptSession(source, {
+    host: subject.host,
+    sessionId: subject.session,
+  });
   if (launchSubject(record.request).identity !== undefined)
     throw new RefusedRequest(
       400,
@@ -97,7 +92,7 @@ export async function sessionReviewRequest(
     readSession: async (signal) => ({
       ...(await read(signal)),
       ...(mixed ? { sessionComparisonKeys: choices } : {}),
-      ...(selected !== undefined && (mixed || named !== null)
+      ...(selected !== undefined && (mixed || named !== undefined)
         ? { selectedRun: selected }
         : {}),
     }),

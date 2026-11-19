@@ -15,10 +15,8 @@ import {
   sessionRunKeys,
   sessionRunsOf,
 } from "./StoryReviewSessionRuns.tsx";
-import {
-  reviewedWorkQuery,
-  type ReviewedWorkSubject,
-} from "./reviewedWorkSubject.ts";
+import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
+import { storyReviewQuery } from "./storyReviewRead.ts";
 
 export function useStoryReviewSelection({
   subject,
@@ -85,7 +83,7 @@ export function useStoryReviewSelection({
     selection.run !== undefined && answered !== selection.run;
   const runRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
-    { ...reviewedWorkQuery(subject), run: selection.run ?? "" },
+    storyReviewQuery({ subject, run: selection.run ?? "" }),
     storyReviewSchema,
     {
       round,

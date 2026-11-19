@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#renovate-dashboard-backend-unit-tests
 **Source:** [Prove ad hoc session review reads in-process through a typed review handler](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -107,7 +108,7 @@ Vitest 5.1.0. Scratch files were removed after each run.
 ### 1. The review read answers through a typed handler under its adapter
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Split `storyReviewRequest` and `storyReviewResponse` into the
 adapter's part (query shape into the typed read, response signal, status) and
@@ -238,6 +239,19 @@ count, worker count and load against the baseline row. `npm run lint` and
   `dashboard/backend-tests/review/`.
 - Partly moved specs (`ad-hoc-review-unavailable`, `ad-hoc-session-commits`)
   keep their remaining Playwright cases in place.
+- Slice 1 placed the typed read `StoryReviewRead` with `storyReviewQuery` in
+  `dashboard/src/storyReviewRead.ts`, the adapter in
+  `dashboard/server/storyReviewRequest.ts`, the handler
+  `storyReview(read, signal)` in `storyReviewSnapshot.ts`, record admission
+  `keptStoryReview` in `storyReviewRecordAdmission.ts`, and the session's
+  check against its kept record in `storyReviewSessionAdmission.ts`. The
+  session-subject and story-identity query parses live once in
+  `reviewedWorkSubjectAdmission.ts`. Because the adapter now
+  refuses every query-shape fault before any record is read, a request that
+  is wrong in both ways answers the shape's 400 where it answered the
+  record's 404: an unknown source with a malformed identity, and a
+  `reference` with an unmatched run. This follows the story's "two
+  admissions, separated"; no suite or page sends either request.
 
 ## Proof and local gates
 

@@ -190,8 +190,3 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedReviewedFile> {
 export async function fileTextRequest(url: URL): Promise<AdmittedReviewedFile> {
   return admitReviewedFile(url, "story-review-file-text", "file text");
 }
-
-export {
-  storyReviewRequest,
-  type AdmittedStoryReview,
-} from "./storyReviewRequest.ts";

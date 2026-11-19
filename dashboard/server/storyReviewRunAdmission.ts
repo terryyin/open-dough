@@ -1,6 +1,5 @@
 // Resolve historical choices from retained launch identity, never caller paths.
 import { z } from "zod";
-import { workIdentitySchema } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   reviewLandedRunsOf,
@@ -10,17 +9,13 @@ import {
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
+import { queriedStoryIdentity } from "./reviewedWorkSubjectAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 
 // Source and story identity named on a review URL, never a repository path.
 export function queriedReviewIdentity(url: URL) {
   const source = knownSource(url.searchParams.get("source"));
-  const identity = workIdentitySchema.safeParse(
-    url.searchParams.get("identity"),
-  );
-  if (!identity.success)
-    throw new RefusedRequest(400, "The review identity is malformed.");
-  return { source, identity: identity.data };
+  return { source, identity: queriedStoryIdentity(url) };
 }
 
 // Landed runs for this source and story from retained records.
@@ -57,13 +52,15 @@ export function reviewedLandedRunByReference(
 }
 
 // A named run is admitted only from this source and story's retained records.
-export async function queriedRun(url: URL) {
-  const { source, identity } = queriedReviewIdentity(url);
+export async function namedReviewRun(
+  sourceId: string,
+  identity: string,
+  named: { readonly run?: string; readonly reference?: string },
+) {
+  const source = knownSource(sourceId);
   const { records, runs } = await reviewedLandedRuns(source, identity);
-  const reference = url.searchParams.get("reference");
-  const key = url.searchParams.get("run");
-  if (key !== null) {
-    const run = runs.find(({ record }) => reviewRunKey(record) === key);
+  if (named.run !== undefined) {
+    const run = runs.find(({ record }) => reviewRunKey(record) === named.run);
     if (run === undefined)
       throw new RefusedRequest(
         404,
@@ -71,8 +68,8 @@ export async function queriedRun(url: URL) {
       );
     return { source, identity, records, runs, run };
   }
-  if (reference !== null) {
-    const run = reviewedLandedRunByReference(runs, reference);
+  if (named.reference !== undefined) {
+    const run = reviewedLandedRunByReference(runs, named.reference);
     return { source, identity, records, runs, run };
   }
   return { source, identity, records, runs };
