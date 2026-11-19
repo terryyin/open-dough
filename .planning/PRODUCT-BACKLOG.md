@@ -34,11 +34,11 @@ intent introduced or affected by a newly developed story.
 - [Run the Story Notes checks at about 100 ms per case](seeds/SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case) — SEED-407#run-the-story-notes-checks-at-about-100-ms-per-case ([plan](slice-plans/717-run-the-story-notes-checks-at-about-100-ms-per-case/PLAN.md))
 - [Express submit-and-close test intent](seeds/SEED-411-express-submit-and-close-test-intent.md#express-submit-and-close-test-intent) — SEED-411#express-submit-and-close-test-intent
 - [Return to recently selected stories](seeds/SEED-409-return-to-recently-selected-stories.md#return-to-recently-selected-stories) — SEED-409#return-to-recently-selected-stories ([plan](slice-plans/718-return-to-recently-selected-stories/PLAN.md))
+- [Default dashboard backend checks to the mounted boundary](seeds/SEED-408-default-dashboard-backend-checks-to-the-mounted-boundary.md#default-dashboard-backend-checks-to-the-mounted-boundary) — SEED-408#default-dashboard-backend-checks-to-the-mounted-boundary ([plan](slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md))
 
 ## Backlog list
 
 - [Keep dashboard tests off the developer's real Cursor runner](seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md#keep-dashboard-tests-off-the-developers-real-cursor-runner) — SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner
-- [Default dashboard backend checks to the mounted boundary](seeds/SEED-408-default-dashboard-backend-checks-to-the-mounted-boundary.md#default-dashboard-backend-checks-to-the-mounted-boundary) — SEED-408#default-dashboard-backend-checks-to-the-mounted-boundary
 - [Run the other frontend families at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) — SEED-404#run-the-other-frontend-families-at-the-mounted-boundary
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
