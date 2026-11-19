@@ -19,8 +19,11 @@ capture the decision, baseline, and limits in the seed until a plan exists.
 Keep any working evidence the execution still needs with that plan. For
 evidence shared across stories, link to one recoverable source and carry only
 the relevant excerpt into each plan. Remove spent evidence at wrap-up and use
-Git for recovery. Use `docs/` and `docs/maintainer/` for maintained guidance,
-decisions, and findings with an ongoing owner.
+Git for recovery. Use `docs/adrs/` for human-controlled ADRs (with
+human-permitted area-specific extensions in `docs/`) and `docs/maintainer/` for
+maintainer findings; shipped guidance under `Distribution/src/` is product code,
+while enduring behavior, architecture, and setup live in automated tests, code,
+and configuration.
 
 ## Test automation
 

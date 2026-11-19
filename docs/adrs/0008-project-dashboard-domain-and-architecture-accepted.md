@@ -53,7 +53,9 @@ structural elements. Mapping and filtering remain design possibilities.
 Product intents describe the current product and evolve with intentional
 changes. A regression supplies evidence against fulfillment while the product
 intent remains the expectation to evaluate. Completing and removing planning
-records must leave lasting product knowledge in its maintained home. Future possibilities stay in planning.
+records leaves enduring behavior in automated tests and enduring structure in
+code ([ADR 0000](./0000-use-adrs-accepted.md)). Future possibilities stay in
+planning.
 
 Each Product intent contains **Purpose**, the
 expected behavior and why it matters, and **Proof**, executable verification
@@ -171,7 +173,7 @@ Keep record maintenance, remote integration, and local workspace management in
 the workflow. Let the dashboard observe their evidence without requiring a GUI
 for agent cooperation.
 
-Prefer server-sent events (SSE) for live dashboard status updates and WebSocket for interactive terminal input and output, as described in the [Architectural North Star](../../.planning/NORTH-STAR.md#dashboard-status-delivery).
+Prefer server-sent events (SSE) for live dashboard status updates and WebSocket for interactive terminal input and output.
 Dashboard data maps directly to the domain model across the wire and in each layer, with the minimum necessary translation under [ADR 0002](./0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
 
 Owned workspaces publish to remote destinations; remote trunk is the shared
@@ -202,16 +204,15 @@ local mutations and preserve changes from human developers and other tools.
 The implemented dashboard presents Development through story planning,
 execution progress, and local-session capabilities. Published progress remains
 independently readable from Git; local observations add information about this
-machine without becoming the authority for project state. The
-[dashboard guide](../../dashboard/README.md) and
-[agent launch contract](../../dashboard/AGENT-LAUNCH.md) own current capabilities.
+machine without becoming the authority for project state. Current capabilities
+are documented by the dashboard's code, automated tests, and configuration
+([ADR 0000](./0000-use-adrs-accepted.md)).
 
 The Product intent and Structure perspectives remain design direction.
 Their meaning constrains how we understand the product without requiring their
 machinery in advance. Their UX/UI, proof information, and architectural North
 Star placement remain open. Presentation and storage choices belong to that
-design work; capabilities of the current Development view follow their
-delivered contracts.
+design work.
 
 ## Consequences
 

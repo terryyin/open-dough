@@ -125,7 +125,7 @@ This procedure preserves the full payload and immutable release identity
 ([ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md),
 [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)). It follows
 [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md#5-assess-now-and-delete-spent-evidence):
-keep active comparisons in the plan, assimilate lasting knowledge into maintained
-tests and documentation, and remove spent execution evidence at wrap-up with Git
+keep active comparisons in the plan, assimilate lasting knowledge into automated
+tests and the code, and remove spent execution evidence at wrap-up with Git
 history available for recovery. This adds no permanent evidence registry and
 changes neither ordinary installation nor native execution.
