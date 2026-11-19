@@ -55,7 +55,10 @@ Cursor. Remove case-table loops, shorten cases through clean production seams
 and MakeMe defaults while retiring session `test-support` wrappers and
 whole-app substitutes, and move single-service session behavior to strongly
 typed backend handler tests or narrow owning UI component mounts while keeping
-a few representative end-to-end journeys.
+a few representative end-to-end journeys. Apply the
+[production testability rule](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+to each family. For example, the Recently done paging view should render
+from its typed page data and paging actions without setting up host discovery.
 
 #### Starting evidence
 

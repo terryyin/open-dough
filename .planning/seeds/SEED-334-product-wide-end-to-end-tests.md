@@ -44,6 +44,9 @@ scope: story
   in plain Node Vitest on strongly typed backend handlers and plain Vitest +
   embedded headless Chromium on narrow owning Intent UI components, adding no
   wrappers to `test-support` ([Architectural North Star](../NORTH-STAR.md)).
+  The [Intent reading contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+  should let the unit test suite render a changed scope from its typed proof
+  data without arranging an installed workflow or agent launch.
 - **Value / learning.** Completes the product-wide E2E goal's installed and
   Intent-reading promises on the runners SEED-334 delivered.
 - **Safe stopping point.** The tagged journey alone, or the Intent naming and

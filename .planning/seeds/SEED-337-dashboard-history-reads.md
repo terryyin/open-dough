@@ -48,7 +48,10 @@ CI evidence when they need it.
   strongly typed handlers and narrow owning components (embedded Chromium, no
   `@playwright/test` or new `test-support` wrappers;
   [Architectural North Star](../NORTH-STAR.md)).
-  Keep the underlying retained evidence available for authorized inspection.
+  The [initial view’s typed inputs](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+  should let its unit test suite render the list or chart before any report
+  or build-detail answer exists. Keep the underlying retained evidence
+  available for authorized inspection.
 
 #### Key examples to refine
 

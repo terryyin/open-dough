@@ -39,9 +39,11 @@ apply, and no Accepted ADR conflicts.
   (`dashboard/server/recordDoneAt.ts`, exported by `launchRecordStore.ts`)
   writes the mark and starts the capture in `doneCapture.ts`,
   `sessionCommitsCapture.ts` and `launchRecordPins.ts`. None reads HTTP or an
-  agent host. This plan changes no server module. If a case cannot state a
-  fact through these functions, the slice reshapes the production seam and
-  adds no wrapper.
+  agent host. Use the [existing production contract](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+  directly. A capture-only case supplies the kept session and real checkout
+  without mounting project configuration or initializing native Done services.
+  If a case needs unrelated setup to use this entry, narrow the production
+  contract instead of adding a wrapper.
 - **Review reads (reuse, from plan 721).** The handlers plan 721 exports answer
   the review, file diff and file text of a session subject. A case mounts the
   project list through `mountProjectConfiguration` only when it reads a
@@ -217,7 +219,8 @@ keeps its pair when the repository is also reachable through the old path;
 and deleting a record whose later capture failed releases what its earlier
 Done created. `kept-commits-release-after-done.spec.ts` is deleted.
 
-Proof: The four cases pass through the focused backend run and each fails
+Proof: Run these four cases with only the launch store and real Git state
+the capture and release use. Each passes in the focused backend run and fails
 under a scratch edit to the keep or release it depends on in
 `launchRecordPins.ts` or `doneCapture.ts`. `kept-commits-release.spec.ts`
 passes.

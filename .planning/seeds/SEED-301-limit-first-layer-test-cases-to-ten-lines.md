@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-301#limit-first-layer-test-cases-to-ten-lines
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred until after SEED-413 unit-test renovation; refinement must define Lizard counting via Nix/Python and achieve <=10-line cases through clean production seams rather than test-support wrappers."],"basis":{"document":"308a46de16fe90f101ed5d36a744b71905de9c0418ed5efdf40c36006f97fe78"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred until after SEED-413 unit-test renovation; refinement must define Lizard counting via Nix/Python and achieve <=10-line cases through clean production seams rather than test-support wrappers."],"basis":{"document":"5e17515717648b8cd97e0dcf596f6cb4d6f05d0628d0548fe8ad67a15e984f1f"}}
 ```
 
 #### Goal
@@ -36,7 +36,8 @@ Intent component inputs.
 #### Refinement reminder for Terry
 
 Sequence after `SEED-413` so clean production entry points already exist before
-enforcing a numeric cap. Agree how Lizard will count lines of code in
-individual test case bodies and verify that a 10-line case passes and an
+enforcing a numeric cap. Check the [production contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+when a short case relies on a builder to initialize unrelated services.
+Agree how Lizard will count lines of code in individual test case bodies and verify that a 10-line case passes and an
 11-line case is flagged. Set up the tooling in dependency order: Nix for the
 development environment, Python through Nix, then Lizard.

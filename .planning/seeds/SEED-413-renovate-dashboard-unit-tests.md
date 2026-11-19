@@ -222,7 +222,7 @@ it.
 {"schemaVersion":1,"identity":"SEED-413#renovate-remaining-dashboard-backend-unit-tests","dependencies":[{"supplier":{"identity":"SEED-413#renovate-dashboard-backend-unit-tests","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests"},"implementation":"The first family exports typed review, file diff and file text handlers that answer a session subject in-process, gives MakeMe stored-document builders for the launch store and the project list, and states its entry rules in dashboard/backend-tests/README.md.","rationale":"This story's cases read what Done kept through those review handlers and keep their sessions as the stored launch document. Before the handlers exist the cases would call the unsplit request functions with a stand-in for the response, and adding the stored-document builders here would duplicate the first family's Taken slices in the same files.","condition":"On trunk, exported typed handlers answer an ad hoc session's review, file diff and file text in-process from a ReviewedWorkSubject and an AbortSignal, and MakeMe builds the launch store and the project list as stored documents.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/723-prove-done-capture-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cf512dacfa2f083d06c0825b21a0ff1608e4a9dc50a6b179ec5e947c6ba50c67","plan":"527a80b81e32c5fd29c649a555273c8a8623bd678bcda41432099d96070c70a8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/723-prove-done-capture-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bcb95e5637419ddfa16a29efeb3d465cc75cc1f98274d5b60ee5d4d5278fb9b7","plan":"96443df5b32862dd5825a10611377a5e579ea81fc9e35b840dce44444e2fe36a"}}
 ```
 
 Second family of the backend renovation, split from the remaining families;
@@ -257,8 +257,10 @@ follow it.
     be read: about 25 cases and about 40 s of CI.
   - A case marks the session Done through `setRecordDoneAt`, the store
     function that writes the mark and starts the capture, with the Done time
-    the case states. It deletes a record only where the release of the
-    references is the behavior under test.
+    the case states. The [Done capture contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+    needs the kept launch record and real checkout. Only a case that also
+    reads the review sets up the project list. A case deletes a record only
+    where the release of the references is the behavior under test.
   - A case states its times against its own clock: a launch earlier than its
     work, the work after the launch, and a Done after the work and no later
     than now.
@@ -405,7 +407,10 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
   arrangement; a feature folder holds several (`review/` alone holds seven).
   For each family:
   - Keep wire transport thin over exported strongly typed handlers sharing
-    one typed contract with `dashboard/src/`.
+    one typed contract with `dashboard/src/`. For each family, check that its
+    unit test suite can [call the handler directly](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+    with the stores and services that operation uses. If setup requires an
+    unrelated service, narrow the handler’s production contract.
   - Give each behavior one owner. Move single-service cases to plain Node
     Vitest through the handlers; keep one focused wire check where admission,
     origin refusal, status or framing is the behavior; drop a case another
@@ -556,8 +561,10 @@ specs. The root contains no product specs. Reassess the order by measured
 cost and which shared contracts are available as families finish.
 
 - Mount the smallest rendered owner with typed inputs. Keep an enclosing view
-  when its children coordinate. Use the backend's existing shared contract
-  where coupled. Preserve distinct assertions and remove a duplicate only
+  when its children coordinate. Its unit test suite should be able to
+  [render that view](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+  without preparing answers for unrelated dashboard features. Use the
+  backend's existing shared contract where coupled. Preserve distinct assertions and remove a duplicate only
   after locating its equivalent proof. For example, reloading an encoded story
   URL and traversing Back and Forward needs a real E2E browser journey.
   Account for the cost of any checks moved there.

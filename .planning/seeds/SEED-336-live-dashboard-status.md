@@ -44,6 +44,9 @@ SSE framing), prove UI status/cue components in plain Vitest + embedded headless
 Chromium without `@playwright/test` or page objects, and add no wrappers or
 instrumentation to `test-support` (only MakeMe data builders and `e2e/` page
 objects are permitted; any touch outside them removes from `test-support`).
+For each status, the unit test suite should be able to
+[render the owning view](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability) from its typed status
+and construct the observation handler with only that status’s dependencies.
 [History payloads](SEED-337-dashboard-history-reads.md#read-only-the-history-the-dashboard-needs)
 have their own story.
 
@@ -55,7 +58,7 @@ have their own story.
 
 **Identity:** SEED-336#show-github-retry-on-the-dashboard
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/612-show-github-retry-on-the-dashboard/PLAN.md","assessment":"not-ready","reasons":["Realign plan 612 proof rows with plain Vitest unit tests (Node Vitest for typed observation handlers, Vitest + Chromium for UI notice states, e2e/ only for representative stream journeys) and zero test-support wrappers."],"basis":{"document":"e43ff75983f8779d2564e4b313e0a8ac7eedf7642e0624962a768711ee6c3d41","plan":"4e21b5fc0000ae495fc572af6182d86cd931d73774771c5cd2706ce07058b255"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/612-show-github-retry-on-the-dashboard/PLAN.md","assessment":"not-ready","reasons":["Realign plan 612 proof rows with plain Vitest unit tests (Node Vitest for typed observation handlers, Vitest + Chromium for UI notice states, e2e/ only for representative stream journeys) and zero test-support wrappers."],"basis":{"document":"94ec0694b0aeaaab9e15682a4cf24982fcbfdccef569aa8c573005c8c6865b6c","plan":"569740ee29d8583a3c5e301607f8956881be0f3c2dc897af45ff728900e35f64"}}
 ```
 
 #### Goal

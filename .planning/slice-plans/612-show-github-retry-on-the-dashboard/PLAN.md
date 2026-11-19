@@ -99,6 +99,12 @@ credentialed or developer-operated probe is required for this story's proof.
 
 ## Outside-in proof and consumer trace
 
+For the unit proof of waiting, retrying and recovery,
+[render the notice](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability) from the typed observation status without
+starting a stream or arranging a GitHub response. Exercise scheduling through
+the observation owner with its clock and request owner. The streaming journey
+still proves delivery to the page.
+
 | Promise | Owning slice | Observable proof |
 | --- | --- | --- |
 | Example 1: same connection, retained A/time, wait → real attempt → success, no browser request at T | 2 | New real-boundary streaming journey plus controlled backend test: pause browser clock/request activity, advance backend/owner clock to T, block and then release fake GitHub so retrying is observable; upstream request starts once, same connection survives until recovery, notice clears only on success. Include unchanged-revision success. |

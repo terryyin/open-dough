@@ -41,7 +41,8 @@ affected by the story, including older overlapping cases. Enter replacement
 unit tests in plain Vitest — plain Node Vitest on strongly typed backend
 handlers, and plain Vitest + embedded headless Chromium (no `@playwright/test`
 or page objects) on the smallest owning rendered UI components — reshaping the
-production seam when needed and adding zero wrappers to `test-support` (only
+[production seam](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability) when a unit test suite needs unrelated data
+or services to construct the handler or render the component. Add zero wrappers to `test-support` (only
 MakeMe data builders and `e2e/` page objects are allowed; any other touch only
 removes from `test-support`). Prove the replacement unit coverage before
 narrowing or removing an E2E case. Retain
