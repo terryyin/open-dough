@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-353#declare-completed-story-review-histories",
+  "mode": "story-branch",
+  "branch": "cursor/declare-completed-story-review-histories-through",
+  "host": "cursor",
+  "model": "auto"
+}
