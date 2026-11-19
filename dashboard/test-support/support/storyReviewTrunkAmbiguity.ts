@@ -59,10 +59,6 @@ export const trunkModeClaimBuilder = () =>
       agentProfiles: [yuiExecuting(storyA.identity)],
     });
 
-// Claim-only trunk for cases that declare their own agent-authored worktrees.
-export const trunkModeClaim = (): StartRepository =>
-  trunkModeClaimBuilder().please();
-
 // The claim on trunk, Yui-chan's `trunk-a` with one unpublished slice, and
 // agent-authored worktrees beside it that the review passes over: one at
 // trunk before the claim with an untracked file, one holding her unpublished
