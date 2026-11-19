@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Airi-chan",
-  "email": "airi-chan@example.org",
-  "identity": "SEED-408#default-dashboard-backend-checks-to-the-mounted-boundary",
-  "mode": "story-branch",
-  "branch": "claude/default-dashboard-backend-checks-to-the-mounted",
-  "host": "claude"
-}
