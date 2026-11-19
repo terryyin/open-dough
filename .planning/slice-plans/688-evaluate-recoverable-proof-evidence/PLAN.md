@@ -69,7 +69,7 @@ at `25a24391b`.
 
 #### Selected execution
 
-- Release proof: `git tag --contains 45ff02fee774a270826cd7507fee2ce1c9d077cc`
+- `git tag --contains 45ff02fee774a270826cd7507fee2ce1c9d077cc`
   returned v0.3.105 through v0.3.108. The first rollout was v0.3.105.
   `git -C "$HOME/git/<project>" log --all -1 --format='%h %ci %s' --grep='Update Open Dough guidance to 0.3.105'`
   returned clipboard `004cb5f` (08:50:03), doughnut `bf6ae30876` (08:48:59),
@@ -78,7 +78,7 @@ at `25a24391b`.
   all on 2026-11-18 +0800. At the sample's own Take,
   `git show 02e33c0182e14a7862af44f2424b7442135b:.claude/skills/dough-update/VERSION`
   returned `0.3.105`.
-- Selection: `node dashboard/server/compareAgentEffort.ts --list --from 2026-11-18T00:48:59+00:00 --json`
+- `node dashboard/server/compareAgentEffort.ts --list --from 2026-11-18T00:48:59+00:00 --json`
   exited 0. Before 01:34:44.715Z the catalog lists Codex
   `01a1ec2d-2f93-7753-8556-de8c0c2041be` (an automation watching OpenGSD)
   and Claude Code `e670e246-9628-4476-926c-85edae91434e` and
@@ -88,7 +88,8 @@ at `25a24391b`.
   window confirmed the same order. The Cursor catalog lists families without
   timestamps. No retained Cursor root transcript file was created in the
   window, using local file birth times as the Cursor observation.
-- Sample: Claude Code, open-dough, `SEED-334#share-one-executing-agent-roster-arrangement`,
+- The sample is the Claude Code execution of
+  `SEED-334#share-one-executing-agent-roster-arrangement` in open-dough,
   plan 694, task ID
   `["open-dough","claude","139586cf-01ce-4b0d-9d06-987375063a2f","2026-11-18T01:34:44.715Z"]`.
   The coordinator trace is under
@@ -104,7 +105,7 @@ Delivery disposition: records-only.
 
 ### 2. Hand-back sizes and total effort are recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: recorded commands, trace paths and figures; rerunning the commands
 gives the same figures.
 
@@ -120,6 +121,79 @@ unavailable with the reason; report sizes without the median comparison. For
 comparable-work context, cite the effort report's totals beside the scope of
 the execution (slices, workers); claim no saving from a single execution
 without a comparable earlier one, and say so as a limit.
+
+#### Hand-back sizes
+
+Count Unicode characters in each worker's `SubagentHandback.input.message`.
+The coordinator's received hand-back frames identify the same five workers.
+
+| Worker trace under `subagents/` | Call line | Coordinator receipt line | Characters |
+| --- | ---: | ---: | ---: |
+| `agent-a9174da98aa29c1b1.jsonl` (source review) | 17 | 210 | 2,983 |
+| `agent-a6344a5de0cd970e2.jsonl` (slice implementation) | 156 | 284 | 4,478 |
+| `agent-ad95292cc3436ea66.jsonl` (slice refactor review) | 54 | 524 | 2,754 |
+| `agent-accf8901126c18f3b.jsonl` (CI repair) | 264 | 1,086 | 4,513 |
+| `agent-a0d018af08829d007.jsonl` (CI repair refactor review) | 88 | 1,143 | 3,496 |
+
+Five hand-backs, 18,224 characters total. Median 3,496 and nearest-rank
+90th percentile 4,513. The median is about 55% below 7,800, from 315
+Claude Code hand-backs across whole sessions in the seed's baseline. That
+comparison is descriptive. This one-slice sample includes two CI-repair
+hand-backs and has no comparable earlier execution, so it supplies no
+estimate of token or elapsed-time savings. It supplies no result for Codex
+or Cursor.
+
+Rerun the character count from the coordinator path in slice 1:
+
+```sh
+python3 - "$HOME/.claude/projects/-Users-terryyin-git-open-dough--worktrees-share-one-frontend-arrangement-of-an-agent-execu/139586cf-01ce-4b0d-9d06-987375063a2f.jsonl" <<'PYCOUNT'
+import json, math, statistics, sys
+from pathlib import Path
+
+coordinator = Path(sys.argv[1])
+sizes = []
+for trace in sorted((coordinator.parent / coordinator.stem / "subagents").glob("agent-*.jsonl")):
+    for line_number, line in enumerate(trace.open(), 1):
+        content = json.loads(line).get("message", {}).get("content")
+        if not isinstance(content, list):
+            continue
+        for item in content:
+            if item.get("type") == "tool_use" and item.get("name") == "SubagentHandback":
+                size = len(item["input"]["message"])
+                print(trace.name, line_number, size)
+                sizes.append(size)
+sizes.sort()
+print(len(sizes), statistics.median(sizes), sizes[math.ceil(0.9 * len(sizes)) - 1], sum(sizes))
+PYCOUNT
+```
+
+#### Task effort
+
+```sh
+node dashboard/server/compareAgentEffort.ts --task '["open-dough","claude","139586cf-01ce-4b0d-9d06-987375063a2f","2026-11-18T01:34:44.715Z"]' --from 2026-11-18T00:48:59+00:00 --json
+```
+
+The task-mode run exited 0 and selected the expected story, root session
+and one native turn. It reported these partial subtotals across one Structure
+slice, its source review, its refactor review, and its subsequent CI repair
+and repair refactor:
+
+| Role | Agents | Requests | Input tokens | Output tokens | Total tokens |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Coordinator | 1 | 98 | 15,469,910 | 43,787 | 15,513,697 |
+| Workers | 5 | 68 | 4,124,545 | 47,635 | 4,172,180 |
+| Execution | 6 | 166 | 19,594,455 | 91,422 | 19,685,877 |
+
+The workers row sums the five worker entries. Claude input includes cache
+reads and writes. The report lists `auxiliary-usage-not-covered`,
+`idle-wake-evidence-unavailable` and `retained-native-evidence-only`; it
+reported zero unowned responses in the selected family. The initial
+all-history scan was stopped after over nine minutes without a report.
+The completed rerun applies a lower time bound before this task launched and
+leaves its upper bound open. The slice ran from published selection
+`ca78bb1cb7268c6074cb745dc125e4fe129c8282`.
+
+Delivery disposition: records-only.
 
 ### 3. Acceptance observations and the verdict are recorded
 Type: Behavior
