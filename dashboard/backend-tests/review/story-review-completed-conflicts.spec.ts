@@ -5,11 +5,13 @@ import {
   completedReviewQuery,
 } from "../../test-support/support/completedReviewRequests.ts";
 import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { nonOwningForeignMergeCompletedHistory } from "../../test-support/support/completedForeignMergeHistory.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
+import { declaredParentsConflict } from "../../test-support/support/storyReviewTrunk.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -159,13 +161,19 @@ test("an integration merge's own edits are delivered while its conflict stays mi
   });
 });
 
-for (const mode of ["story-branch", "trunk"] as const) {
-  test(`a non-owning merge resolution on a story file keeps the ${mode} comparison`, async ({
+test.describe("non-owning foreign merge (story-branch)", () => {
+  test.use({
+    originRepository: nonOwningForeignMergeCompletedHistory("story-branch"),
+  });
+
+  test("a non-owning merge resolution on a story file keeps the story-branch comparison", async ({
     request,
     dashboard,
     origin,
   }) => {
-    await completedPublishedStory(origin, mode, "non-owning-story-file");
+    expect(
+      declaredParentsConflict(origin, "foreign trunk", "foreign branch"),
+    ).toBe(true);
     const response = await getReview(
       request,
       dashboard,
@@ -177,23 +185,61 @@ for (const mode of ["story-branch", "trunk"] as const) {
     if (review.kind !== "published")
       throw new Error(`No published review: ${JSON.stringify(review)}`);
     const shared = review.files.find((file) => file.path === "shared.txt");
-    // Separable in Story Branch Mode; the foreign resolution rewrote the
-    // story's line already on trunk in Trunk Mode.
-    const [mixed, shown] =
-      mode === "story-branch"
-        ? [undefined, "+story first"]
-        : [expect.any(String), "+foreign rewrites story"];
-    expect(shared?.includesTrunkFrom).toEqual(mixed);
-    const diff = await getReview(request, dashboard, storyReviewFileEndpoint, {
-      ...completedStoryQuery,
-      completion: review.completion,
-      baseline: shared?.includesTrunkFrom ?? review.baseline,
-      tree: review.tree,
-      path: "shared.txt",
-    });
-    const printed = ((await diff.json()) as { printed: string }).printed;
-    expect(printed).toContain(shown);
-    if (mode === "story-branch")
-      expect(printed).not.toContain("foreign resolution");
+    // Separable: the foreign resolution did not rewrite the story's line.
+    expect(shared?.includesTrunkFrom).toBeUndefined();
+    const printed = (
+      (await (
+        await getReview(request, dashboard, storyReviewFileEndpoint, {
+          ...completedStoryQuery,
+          completion: review.completion,
+          baseline: review.baseline,
+          tree: review.tree,
+          path: "shared.txt",
+        })
+      ).json()) as { printed: string }
+    ).printed;
+    expect(printed).toContain("+story first");
+    expect(printed).not.toContain("foreign resolution");
   });
-}
+});
+
+test.describe("non-owning foreign merge (trunk)", () => {
+  test.use({
+    originRepository: nonOwningForeignMergeCompletedHistory("trunk"),
+  });
+
+  test("a non-owning merge resolution on a story file keeps the trunk comparison", async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    expect(
+      declaredParentsConflict(origin, "foreign trunk", "foreign branch"),
+    ).toBe(true);
+    const response = await getReview(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completedReviewQuery,
+    );
+    expect(response.status()).toBe(200);
+    const review = storyReviewSchema.parse(await response.json());
+    if (review.kind !== "published")
+      throw new Error(`No published review: ${JSON.stringify(review)}`);
+    const shared = review.files.find((file) => file.path === "shared.txt");
+    // The foreign resolution rewrote the story's line already on trunk.
+    expect(shared?.includesTrunkFrom).toEqual(expect.any(String));
+    const printed = (
+      (await (
+        await getReview(request, dashboard, storyReviewFileEndpoint, {
+          ...completedStoryQuery,
+          completion: review.completion,
+          baseline: shared?.includesTrunkFrom ?? review.baseline,
+          tree: review.tree,
+          path: "shared.txt",
+        })
+      ).json()) as { printed: string }
+    ).printed;
+    expect(printed).toContain("+foreign rewrites story");
+  });
+});

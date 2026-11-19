@@ -8,23 +8,32 @@ import { branch, git, lines } from "./storyReviewWorktree.ts";
 export const sixth = (word: string, line = `${word} 5`) =>
   lines(word).replace(`${word} 5\n`, `${line}\n`);
 
-// Whether Git, merging the story merge's named `story` parent with trunk's
-// `trunk changes` itself, conflicts: `merge-tree` exits 1 for a conflict; any
+// Whether Git merging two named parents conflicts: `merge-tree` exits 1; any
 // other failure is not an answer.
-export function parentsConflict(origin: StartOrigin, story: string) {
+export function declaredParentsConflict(
+  origin: StartOrigin,
+  first: string,
+  second: string,
+) {
   try {
     git(
       origin.project,
       "merge-tree",
       "--write-tree",
-      origin.revision(story),
-      origin.revision("trunk changes"),
+      origin.revision(first),
+      origin.revision(second),
     );
     return false;
   } catch (error) {
     if ((error as { status?: number }).status === 1) return true;
     throw error;
   }
+}
+
+// Whether Git, merging the story merge's named `story` parent with trunk's
+// `trunk changes` itself, conflicts.
+export function parentsConflict(origin: StartOrigin, story: string) {
+  return declaredParentsConflict(origin, story, "trunk changes");
 }
 
 // Story A's declared history: trunk's `README.md` and `src/{a,b,c}.ts`, then

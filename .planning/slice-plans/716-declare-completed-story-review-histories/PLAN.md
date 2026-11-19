@@ -165,7 +165,7 @@ before exceeding 250.
 ### 4. Another writer's merges are declared on trunk
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: another writer's declared merges on trunk → the attribution and
 refusal answers are unchanged. The merges are:
@@ -180,6 +180,10 @@ Migrate those cases in `story-review-completed-attribution.spec.ts` and
 confirmed independently with `merge-tree`.
 
 Proof: those specs pass.
+Accepted (reusable): `completedForeignMergeHistory.ts` + shared
+`completedStoryThroughInterleaving.ts`; `declaredParentsConflict` in
+`storyReviewTrunk.ts`. Unrelated / non-owning (both modes) / foreign octopus /
+inseparable declared; merge-tree confirms conflicted parents.
 
 ### 5. The story's own integrations are declared merges
 

@@ -9,53 +9,26 @@ import {
   storyA,
   storyB,
   storyPlanPath,
-  takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
-import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { laterBranchMergesTrunkAndFastForwards } from "./laterStoryMergesTrunk.ts";
-import { git, lines } from "./storyReviewWorktree.ts";
+import {
+  author,
+  claimant,
+  developer,
+  integrated,
+  otherStory,
+  storyBranchThroughInterleaving,
+  trunkThroughInterleaving,
+  trunkWriterShared,
+  yuiCompletion,
+} from "./completedStoryThroughInterleaving.ts";
+import { git } from "./storyReviewWorktree.ts";
 
-const claimantName = "Yui";
-const claimant = agentIdentity(claimantName);
-const author = { name: claimant.agent, email: claimant.email };
 const akihoName = "Akiho";
 const akiho = agentIdentity(akihoName);
 const akihoAuthor = { name: akiho.agent, email: akiho.email };
-const storyBranch = "claude/another-agent";
-const implemented = {
-  "shared.txt": lines("line").replace("line 0\n", "story first\n"),
-  "[literal]*.txt": "delivered on another machine\n",
-} as const;
-const interleavedShared = lines("line")
-  .replace("line 0\n", "story first\n")
-  .replace("line 11\n", "other last\n");
-const trunkWriterShared = lines("line").replace("line 11\n", "other last\n");
-const integrated = {
-  ...implemented,
-  "shared.txt": interleavedShared,
-  "other-story.txt": "another story\n",
-} as const;
-const developer = dashboardDeveloper.name;
-const yuiClaim = (branch?: string) =>
-  takeRevision({
-    story: storyA,
-    queued: [storyB],
-    agent: claimantName,
-    committer: dashboardDeveloper,
-    host: "claude",
-    publisher: "another-publisher",
-    ...(branch === undefined ? {} : { branch }),
-  });
-const yuiCompletion = () =>
-  completionRevision({
-    story: storyA,
-    queued: [storyB],
-    developer,
-    agent: claimantName,
-    host: "claude",
-  });
 const akihoCompletion = () =>
   completionRevision({
     story: storyA,
@@ -107,26 +80,6 @@ const returnReleased = (ownerPath: string) => ({
   remove: [ownerPath],
 });
 
-function trunkThroughInterleaving<Name extends string>(
-  base: RepositoryBuilder<Name> = queuedReadyRepository() as RepositoryBuilder<Name>,
-) {
-  return base
-    .withRevision("shared", { files: { "shared.txt": lines("line") } })
-    .withRevision("claim", yuiClaim())
-    .withRevision("implementation", {
-      message: "story implementation",
-      author,
-      files: implemented,
-    })
-    .withRevision("interleaving", {
-      message: "another writer interleaves",
-      files: {
-        "shared.txt": interleavedShared,
-        "other-story.txt": "another story\n",
-      },
-    });
-}
-
 function ordinaryTrunkModeCompletedBuilder<Name extends string>(
   base: RepositoryBuilder<Name>,
 ) {
@@ -137,28 +90,12 @@ function ordinaryTrunkModeCompletedBuilder<Name extends string>(
 }
 
 function storyBranchThroughIntegration() {
-  return queuedReadyRepository()
-    .withRevision("shared", { files: { "shared.txt": lines("line") } })
-    .withRevision("claim", yuiClaim(storyBranch))
-    .withRevision("implementation", {
-      message: "story implementation",
-      author,
-      files: implemented,
-    })
-    .withRevision("interleaving", {
-      parents: ["claim"],
-      message: "another writer interleaves",
-      files: {
-        "shared.txt": trunkWriterShared,
-        "other-story.txt": "another story\n",
-      },
-    })
-    .withRevision("integration", {
-      parents: ["implementation", "interleaving"],
-      message: "merge trunk into the story",
-      author,
-      files: integrated,
-    });
+  return storyBranchThroughInterleaving().withRevision("integration", {
+    parents: ["implementation", "interleaving"],
+    message: "merge trunk into the story",
+    author,
+    files: integrated,
+  });
 }
 
 function storyBranchLanding(branchCompletion: object) {
@@ -169,7 +106,7 @@ function storyBranchLanding(branchCompletion: object) {
       message: "trunk advances before story integration",
       files: {
         "shared.txt": trunkWriterShared,
-        "other-story.txt": "another story\n",
+        ...otherStory,
         "integration-other.txt": "another change before integration\n",
       },
     })
