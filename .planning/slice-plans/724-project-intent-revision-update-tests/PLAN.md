@@ -88,6 +88,33 @@ were reverted.
 | Compare the preserved cases (slices 1 and 5) | At the same revision, `caffeinate -s -i /usr/bin/time -p npm run test:dashboard:frontend -- intent/intent-revision --workers=2` with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` set to a fresh output path produced nine first-attempt passes in 7.72 s elapsed on AC power. The five moved cases took 1,431, 935, 1,595, 1,232 and 900 ms respectively, 6.093 s summed. Wall time covers all nine. Execution captures its own comparable pre-change run before migrating the first case. |
 | Pre-change baseline for the comparison (finish) | Execution, 2026-11-19 at `9a78cd913`, AC power, load average 2.6–3.1. Same command and fresh proof record: nine first-attempt passes, 11.40 s elapsed. The five moved cases took 1,629, 838, 1,662, 1,200 and 949 ms in plan-table order, 6.278 s summed. |
 
+## Developer amendment (2026-11-19)
+
+The developer asked during execution, before wrap-up: "Apply the new
+production-code testability guidance to the current Project Intent frontend
+story now, ahead of release and installation. Give each UI component an
+explicit, strongly typed contract for the data and services its
+responsibility requires. Its unit test suite should be able to render it
+without supplying unrelated data or initializing unrelated services. Please
+check the component and mounted setup already touched in this story before
+wrap-up. If a fixture or provider supplies unrelated dependencies, revisit the
+production contract." The guidance is "Design production code for
+testability" in `Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md`
+at `d49d119a5`.
+
+The delivered mount violates it. `IntentPerspective` needs story selection,
+`IntentModeProvider`, the scope bridge, launch records and workspaces for the
+story lens. Its project `IntentCiEvidenceProvider` starts the trunk's CI
+status and history reads, so the read service answers CI. Applying a
+revision needs none of these. It needs the reading place and scope, read
+recovery, workspace selection, a `main` ancestor with the perspective's
+column layout, and the locations and file reads. This amendment narrows the
+earlier "mount production `IntentPerspective`" approach. The cases render the
+production component that owns applying a revision, and `IntentPerspective`
+composes it unchanged in behavior. The read services stay at the
+authenticated fetch boundary. The client parsing, memo, file cache and
+`ReadProblem` wording are collaborators the cases prove.
+
 ## Ordered slices
 
 ### 1. Apply the latest offer and stay at the same reading place
@@ -226,6 +253,62 @@ each case. Each browser-driven click takes about 150 ms, and the shared
 take 1 ms. No cut inside these case files keeps the reader-operated clicks
 and focus they prove. Whether a click that changes nothing can skip the
 settle frame round is a candidate follow-up for the later families.
+
+### 6. Give the project's followed reading its own typed contract
+
+Type: Structure
+Status: done
+
+Structure: Add `dashboard/src/ProjectIntentReading.tsx`. It calls
+`useShownIntentLocations(source, work)` once and renders the project
+`IntentPage` in `IntentWorkspaceSelectionProvider` when Project Intent shows.
+Its typed props are `source`, `work`, `project: ModeChoice`, `projectShown`,
+`onBackToStory` and a `storyPages` render function. Through `storyPages` the
+selected story's pages read the same followed reading under the `story`
+reading scope. `IntentBody` composes it inside the project
+`IntentCiEvidenceProvider` and passes `work` exactly as it computes it today.
+The story scope keeps its own nested CI provider. The `main`, story lens,
+selection, mode choice, scope chooser and arrival focus stay in
+`IntentPerspective`. Update the comment pointers in
+`useShownIntentLocations.tsx`, `IntentRevisionNotice.tsx`,
+`useIntentLocations.ts` and `IntentPerspective.tsx`. `IntentPerspective.tsx`
+stays at or under 250 lines.
+
+Proof: unchanged behavior through the perspective's consumers. Run
+`intent/intent-revision`, `intent/intent-project-visit`,
+`intent/intent-selection-reads`, `intent/intent-home-activation`,
+`intent/intent-ci-comparison-locations`, `intent/intent-gherkin` and
+`intent/intent-story-views` at two workers. Also run the focused E2E
+`e2e/intent/intent-project-visit-ci.spec.ts` and
+`e2e/intent/intent-gherkin-browse.spec.ts`, the typecheck and the
+consumer trace. Commitment C23.
+
+Accepted proof: the whole `intent/` frontend folder (249 cases at two
+workers), the six reached Intent E2E files and the typecheck passed. Learning:
+the component renders without any CI provider, because CI evidence defaults
+to inactive. It still needs the page's `ReadingPlaceOnPage`, the reading
+place and `project` scope, and read recovery from its caller.
+
+### 7. Render the followed reading alone in its mounted cases
+
+Type: Structure
+Status: planned
+
+Structure: Move the five mounted cases' mount onto `ProjectIntentReading`
+with only the reading place and `project` scope, `IntentReadRecovery` and a
+`main.intent-perspective` host labelled Intent. Supply `project` as a typed
+`ModeChoice` value. Remove `StorySelectionProvider`, `IntentPageProviders`,
+`records`, `workspaces` and the read service's CI answers. Dispatch the
+service on the server's shared typed request contract (`parseRequestedRead`)
+in place of handwritten parameter names if it loads in the browser. The
+empty `service.unexpected` then shows that no CI read starts. Every
+observation and literal title stays.
+
+Proof: the five mounted cases and the group, typecheck, and the
+sensitivity check. With the production Show latest invocation removed, all
+five cases fail on their expected update signals. Then restore it. Record the
+mounted cases' two-worker summed time beside the family finish. Commitments
+C18, C21, C22, C24, C25.
 
 ## Local gates and delivery
 

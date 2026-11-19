@@ -1,6 +1,6 @@
 // The Intent perspective of the selected project: Purpose reads configured
-// test-source locations at Project Intent's reading revision
-// (`./useShownIntentLocations.tsx`) or the Done story's landed result
+// test-source locations at Project Intent's followed reading revision
+// (`./ProjectIntentReading.tsx`) or the Done story's landed result
 // (`./useHistoricalIntentLocations.tsx`) through the authenticated read boundary
 // (`./IntentBrowser.tsx`). The project alone shows its refresh notice under
 // its tabs. Intent shows either
@@ -53,7 +53,7 @@ import {
 } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { useShownIntentLocations } from "./useShownIntentLocations.tsx";
+import { ProjectIntentReading } from "./ProjectIntentReading.tsx";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import { useHistoricalIntentLocations } from "./useHistoricalIntentLocations.tsx";
 import "./intent-perspective.css";
@@ -99,12 +99,10 @@ function IntentBody({
   // Project Intent's trunk evidence is read from its first showing on.
   const [projectVisited, setProjectVisited] = useState(!storyShown);
   if (!storyShown && !projectVisited) setProjectVisited(true);
-  // A Done story reads its own source. The project's browser starts on its
+  // A Done story reads its own source. The project's reading starts on its
   // first visit, retaining any earlier project reading when one exists.
-  const shown = useShownIntentLocations(
-    source,
-    projectVisited || storySummary?.story.completed !== true ? work : undefined,
-  );
+  const followed =
+    projectVisited || storySummary?.story.completed !== true ? work : undefined;
   // CI starts independently of the locations read. The same mounted owner
   // supplies the loading explanation and the browser once locations settle.
   const projectCiActive = projectVisited && work !== undefined;
@@ -137,61 +135,58 @@ function IntentBody({
   const doneEndpointReason = publishedDoneEndpointReasonOf(storySummary);
 
   return (
-    <>
-      <IntentReadingScope name="story">
-        <IntentCiEvidenceProvider
-          source={source}
-          work={work}
-          selectedIdentity={selection?.identity}
-          active={storySummary !== undefined && work !== undefined}
-          {...(doneEndpoint === undefined ? {} : { doneEndpoint })}
-          {...(doneEndpointReason === undefined ? {} : { doneEndpointReason })}
-        >
-          {storyPage !== undefined && (
-            <IntentWorkspaceSelectionProvider>
-              {storyPage.summary.story.completed ? (
-                <HistoricalStoryPage
-                  key={storyPage.summary.story.identity}
-                  source={source}
-                  project={project}
-                  story={storyPage}
-                />
-              ) : (
-                <IntentPage
-                  source={source}
-                  shown={shown}
-                  project={project}
-                  story={storyPage}
-                />
-              )}
-            </IntentWorkspaceSelectionProvider>
-          )}
-        </IntentCiEvidenceProvider>
-      </IntentReadingScope>
-      <IntentCiEvidenceProvider
+    <IntentCiEvidenceProvider
+      source={source}
+      work={work}
+      selectedIdentity={undefined}
+      active={projectCiActive}
+    >
+      <ProjectIntentReading
         source={source}
-        work={work}
-        selectedIdentity={undefined}
-        active={projectCiActive}
-      >
-        {!storyShown && (
-          <IntentWorkspaceSelectionProvider>
-            <IntentPage
-              source={source}
-              shown={shown}
-              project={project}
-              onBackToStory={
-                storySummary === undefined
-                  ? undefined
-                  : () => {
-                      visit("story");
-                    }
+        work={followed}
+        project={project}
+        projectShown={!storyShown}
+        onBackToStory={
+          storySummary === undefined
+            ? undefined
+            : () => {
+                visit("story");
               }
-            />
-          </IntentWorkspaceSelectionProvider>
+        }
+        storyPages={(reading) => (
+          <IntentCiEvidenceProvider
+            source={source}
+            work={work}
+            selectedIdentity={selection?.identity}
+            active={storySummary !== undefined && work !== undefined}
+            {...(doneEndpoint === undefined ? {} : { doneEndpoint })}
+            {...(doneEndpointReason === undefined
+              ? {}
+              : { doneEndpointReason })}
+          >
+            {storyPage !== undefined && (
+              <IntentWorkspaceSelectionProvider>
+                {storyPage.summary.story.completed ? (
+                  <HistoricalStoryPage
+                    key={storyPage.summary.story.identity}
+                    source={source}
+                    project={project}
+                    story={storyPage}
+                  />
+                ) : (
+                  <IntentPage
+                    source={source}
+                    shown={reading}
+                    project={project}
+                    story={storyPage}
+                  />
+                )}
+              </IntentWorkspaceSelectionProvider>
+            )}
+          </IntentCiEvidenceProvider>
         )}
-      </IntentCiEvidenceProvider>
-    </>
+      />
+    </IntentCiEvidenceProvider>
   );
 }
 

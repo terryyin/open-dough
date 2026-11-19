@@ -1,5 +1,5 @@
 // Intent's reading revision against the page's observed one
-// (`./IntentPerspective.tsx`): Intent reads one published revision, held with
+// (`./ProjectIntentReading.tsx`): Intent reads one published revision, held with
 // the project's reading place (`./pageIntentReading.tsx`) from the first time
 // its Intent opens (`useIntentReadingRevision`). A newer observed revision
 // only offers itself here, as a polite status beside the reading that takes

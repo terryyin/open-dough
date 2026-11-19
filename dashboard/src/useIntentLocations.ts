@@ -1,5 +1,5 @@
 // The Intent locations of Intent's reading revision
-// (`./IntentPerspective.tsx`), read through the authenticated read boundary
+// (`./ProjectIntentReading.tsx`), read through the authenticated read boundary
 // (`./authenticatedIntentRead.ts`): reading, failed with the read problem
 // that says why, or the answer, with manual or scheduled Retry. Locations
 // are read per revision and only when the reading revision changes, never

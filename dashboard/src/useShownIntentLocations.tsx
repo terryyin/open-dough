@@ -1,4 +1,4 @@
-// Intent's locations as the perspective shows them (`./IntentPerspective.tsx`):
+// Intent's locations as the project follows them (`./ProjectIntentReading.tsx`):
 // read at Intent's reading revision, behind whose notice a newer observed
 // revision waits until **Show latest** (`./IntentRevisionNotice.tsx`). Once
 // they settle (work read, answer shown), the configured locations to browse,
