@@ -3,6 +3,7 @@
 // site; this only shapes the substitute publication.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { recentStoriesLimit } from "../src/recentStories.ts";
 import { backlogApart, describedRevision } from "./describedRevisions.ts";
 import {
   frontendRevision,
@@ -14,6 +15,15 @@ export type RecentHistoryStory = {
   readonly identity: string;
   readonly title: string;
 };
+
+// One more than the kept cap; after reload the earliest is gone and the
+// Selected story is page state only.
+export const beyondCapHistoryStories: readonly RecentHistoryStory[] = [
+  ...Array(recentStoriesLimit + 1).keys(),
+].map((index) => ({
+  identity: `SEED-${900 + index}#story`,
+  title: `Recent history ${String(index + 1)}`,
+}));
 
 export function putRecentHistoryStories(
   services: FrontendServiceState,

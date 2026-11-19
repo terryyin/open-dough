@@ -12,7 +12,7 @@ export type RecentStory = {
 
 export const recentStoriesLimit = 10;
 
-const recentStoriesKey = "open-dough.recentStories";
+export const recentStoriesKey = "open-dough.recentStories";
 
 // Whether two project and story pairs name the same story (ADR 0008 Selected
 // story / Recent stories). `a` may be absent when nothing is selected.

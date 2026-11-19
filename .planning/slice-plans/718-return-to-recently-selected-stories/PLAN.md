@@ -43,10 +43,7 @@ new handling for a story that has left the Board, and no shortcut.
 - **Vocabulary.** ADR 0008
   [Dashboard UI concepts](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts)
   gains **Recent stories**, and its Selected story entry gains the new way
-  of setting it. [Board interaction](../../../docs/dashboard-board-interaction.md)
-  describes the banner order and selection. Each matching sentence lands in
-  the slice that delivers the behavior. (`docs/dashboard-navigation.md` was
-  removed by SEED-410; banner-order guidance lives with board interaction.)
+  of setting it. Banner order and selection land with the UI and its tests.
 
 No Accepted decision conflicts, and no North Star topic is needed.
 
@@ -144,8 +141,11 @@ enables slice 4.
 ### 4. Choosing a recent story reveals it in Development
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a test in `recent-stories.spec.ts` that uses two projects.
+Accepted proof: `open-dough/evidence/slice4-refactor-frontend-proof.json`
+(3 recent-stories tests after page-object extraction); lint/typecheck exit 0.
+G1 keeps Intent unavailable-row half interim until slice 6.
 
 Behavior: example 6. Showing project P in Development's Roster view, with
 history holding story C of project Q, choosing C's row closes the
@@ -230,3 +230,12 @@ Refinement was not needed: each slice has one outcome and one proof loop.
 Slices 4–6 share one rule ("select, then reveal in the current
 perspective"), and slice 5 reuses slice 4's reveal for the button. This
 review found no remaining slice-specific concern.
+
+
+## Story obligations
+
+### G1. Intent unavailable Recent stories row
+Reported: slice 4 — "Intent half of commitment 21 not claimed; Development unavailable notice proved."
+Story clause: "In Intent, the story is selected with nothing new added."
+Disposition: interim until slices 6
+Commitment: 21

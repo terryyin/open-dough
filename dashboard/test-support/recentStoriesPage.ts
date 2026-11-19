@@ -2,8 +2,13 @@
 // recently selected stories (../src/recentStoriesControl.tsx).
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { parts } from "./dashboardParts.ts";
-import { emptyArea } from "./storyCardSelection.ts";
+import { expectRoute } from "./agentRosterRecords.ts";
+import { parts, rosterParts } from "./dashboardParts.ts";
+import { expectDestinationCue } from "./destinationCue.ts";
+import { expectProjectChoice, projectTab } from "./projectChoice.ts";
+import { expectReadingTop } from "./readingPlace.ts";
+import { recentStoriesKey, type RecentStory } from "../src/recentStories.ts";
+import { emptyArea, expectSelected } from "./storyCardSelection.ts";
 import { storyCard } from "./storyCardControls.ts";
 
 export function recentStoriesButton(page: Page): Locator {
@@ -89,6 +94,94 @@ export async function expectRecentStoriesList(
       row.checked ? "true" : "false",
     );
   }
+}
+
+export function recentStoriesRow(
+  page: Page,
+  {
+    project,
+    identity,
+  }: {
+    readonly project: string;
+    readonly identity: string;
+  },
+): Locator {
+  return recentStoriesPopover(page)
+    .getByRole("option")
+    .filter({ hasText: project })
+    .filter({ hasText: identity });
+}
+
+// Chooses the Recent stories row for that project and story identity, then
+// waits until the popover has closed.
+export async function chooseRecentStory(
+  page: Page,
+  row: { readonly project: string; readonly identity: string },
+) {
+  const popover = recentStoriesPopover(page);
+  if ((await popover.count()) === 0) await openRecentStories(page);
+  await recentStoriesRow(page, row).click();
+  await expectRecentStoriesClosed(page);
+}
+
+// Writes the Recent stories disposable-storage history for journeys that need
+// an entry the Board cannot select (for example a gone identity).
+export async function seedRecentStoriesHistory(
+  page: Page,
+  history: readonly RecentStory[],
+) {
+  await page.evaluate(
+    ({ key, entries }) => {
+      localStorage.setItem(key, JSON.stringify(entries));
+    },
+    { key: recentStoriesKey, entries: [...history] },
+  );
+}
+
+// Shows Development's Roster for `projectId` without clearing the Selected
+// story (client history, not a full navigation).
+export async function showRosterKeepingSelection(
+  page: Page,
+  projectId: string,
+) {
+  await page.evaluate((id) => {
+    window.history.pushState(null, "", `/?project=${id}&view=roster`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }, projectId);
+  await expect(rosterParts(page).roster).toBeVisible();
+  expectRoute(page, { project: projectId, view: "roster" });
+}
+
+export async function selectStoryOnProject(
+  page: Page,
+  projectLabel: string,
+  card: Locator,
+) {
+  await projectTab(page, projectLabel).check();
+  await expectProjectChoice(page, projectLabel);
+  await emptyArea(card).click();
+  await expectSelected(card, true);
+}
+
+export async function expectColumnsForProject(
+  page: Page,
+  project: { readonly id: string; readonly label: string },
+) {
+  await expect(rosterParts(page).roster).toHaveCount(0);
+  await expectProjectChoice(page, project.label);
+  expectRoute(page, { project: project.id, view: null });
+}
+
+// Selected, focused, at the reading top, and destination-cued — the
+// Development reveal a Recent stories choose shares with a story reference.
+export async function expectStoryRevealedInDevelopment(
+  page: Page,
+  card: Locator,
+) {
+  await expectSelected(card, true);
+  await expect(card).toBeFocused();
+  await expectReadingTop(card);
+  await expectDestinationCue(page, card, { motion: true });
 }
 
 // Selects each story in order by its Backlog card's empty area.

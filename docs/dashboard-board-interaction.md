@@ -29,7 +29,7 @@ they do not establish physical-device keyboard or remote-connectivity behavior.
 
 The selected story's card is highlighted with an inset accent ring and pale blue fill; inspecting a card opens its detail without it. Opening a story's terminal, final report, or review in the Side panel selects that story, and showing a session attached to no story clears it. Closing the Side panel, including through **Mark as done** or deleting the shown session's record, keeps the story selected at that moment, so Intent stays on it; with no story selected, Intent stays at project scope. A Session entry the Side panel shows keeps its own outline and "Shown in" mark, which identifies the session.
 
-The pinned banner places a **Recent stories** icon button in its own group immediately after the Development/Intent Perspective choice and before the project control. That button shows whether a Selected story is set and opens the Recent stories list.
+The pinned banner places a **Recent stories** icon button in its own group immediately after the Development/Intent Perspective choice and before the project control. That button shows whether a Selected story is set and opens the Recent stories list. Choosing a Recent stories row sets the Selected story, closes the list, and in Development reveals that story through the same story-reference journey a dependency link uses (switching project when needed, leaving Roster for Columns, focusing and cueing the card, or reporting an unavailable story).
 
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.

@@ -40,6 +40,11 @@
   align-items: baseline;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.banner .recent-stories-row:hover {
+  background: var(--hover);
 }
 
 .banner .recent-stories-row[data-checked="true"] {

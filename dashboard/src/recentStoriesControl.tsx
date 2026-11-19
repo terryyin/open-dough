@@ -1,18 +1,27 @@
 // The banner's Recent stories control (`./recentStories.ts` shapes the list):
 // a bookmark that shows whether a story is selected, and a popover listing
-// recent selections (ADR 0008). Choosing a row and reveal-on-click belong to
-// later slices; this control only lists and dismisses.
+// recent selections (ADR 0008). Choosing a row selects that story and follows
+// it through the story-reference journey so Development reveals it.
 
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  useContext,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import { projectLabel, useVisibleProjects } from "./projectList.tsx";
 import {
   sameSelectedStory,
+  StorySelectionOnPage,
   useRecentStories,
   useSelectedStory,
   type SelectedStory,
 } from "./pageStorySelection.tsx";
+import { StoryNavigationOnPage } from "./storyNavigation.tsx";
 import "./recent-stories.css";
 
 function recentStoriesLabel(selected: SelectedStory | undefined): string {
@@ -24,6 +33,8 @@ function recentStoriesLabel(selected: SelectedStory | undefined): string {
 export function RecentStories() {
   const selected = useSelectedStory();
   const recent = useRecentStories();
+  const selection = useContext(StorySelectionOnPage);
+  const navigation = useContext(StoryNavigationOnPage);
   const projects = useVisibleProjects();
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -42,6 +53,12 @@ export function RecentStories() {
   const dismiss = () => {
     setOpen(false);
     button.current?.focus();
+  };
+
+  const choose = (entry: SelectedStory) => {
+    selection?.select(entry);
+    navigation?.follow(entry);
+    dismiss();
   };
 
   useEffect(() => {
@@ -124,6 +141,9 @@ export function RecentStories() {
                     aria-selected={checked}
                     className="recent-stories-row"
                     data-checked={checked ? "true" : undefined}
+                    onClick={() => {
+                      choose(entry);
+                    }}
                   >
                     <span className="recent-stories-check" aria-hidden="true">
                       {checked ? "✓" : ""}

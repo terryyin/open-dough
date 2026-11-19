@@ -21,9 +21,9 @@ files.
 | 7 | Earlier selections follow most recent first; each project+story pair appears once. Sources: Required behavior; Ex. 4, 6. | slice 1 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts + slice1-frontend-proof-2.json (promise 7) |
 | 8 | Each row is labelled with its project and story identity. Sources: Required behavior; UI; Scope limits (rows show only project and story identity). | slice 1 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts + slice1-frontend-proof-2.json (promise 8) |
 | 9 | An empty history is stated as empty in the popover. Sources: Required behavior; Ex. 1. | slice 1 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts + slice1-frontend-proof-2.json (promise 9) |
-| 10 | Choosing a row selects that story. Sources: Required behavior; Ex. 6. | slice 4 | |
-| 11 | Choosing a row closes the popover. Sources: Required behavior; Ex. 6. | slice 4 | |
-| 12 | If the chosen story belongs to another project, the Dashboard switches to that project. Sources: Required behavior; Ex. 6. | slice 4 | |
+| 10 | Choosing a row selects that story. Sources: Required behavior; Ex. 6. | slice 4 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts choose/reveal steps + slice4-frontend-proof.json (promise 10) |
+| 11 | Choosing a row closes the popover. Sources: Required behavior; Ex. 6. | slice 4 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts choose/reveal steps + slice4-frontend-proof.json (promise 11) |
+| 12 | If the chosen story belongs to another project, the Dashboard switches to that project. Sources: Required behavior; Ex. 6. | slice 4 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts choose/reveal steps + slice4-frontend-proof.json (promise 12) |
 | 13 | After choosing a row, the current perspective stays. Sources: Required behavior; Ex. 6 (Development stays). | slice 6 | |
 | 14 | After choosing a row, the story is revealed (same reveal / in-view meaning as **4**). Qualification: works like choosing a linked Recently done sessions row. Sources: Required behavior; Ex. 6. | slice 6 | |
 | 15 | Every way of setting the Selected story adds that story to the history, including Side panel openings and Recently done rows. Source: Required behavior. | slice 1 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts + slice1-frontend-proof-2.json (promise 15) |
@@ -32,7 +32,7 @@ files.
 | 18 | When storage is unavailable, the history lasts only for the page. Source: Retention. | slice 2 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts reload/storage steps + slice2-frontend-proof.json (promise 18) |
 | 19 | The selection itself is page state and is lost on reload (reload → no story selected). Sources: Retention; Ex. 8. | slice 2 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts reload/storage steps + slice2-frontend-proof.json (promise 19) |
 | 20 | Pressing Escape or clicking outside closes the popover without changing anything. Source: UI. | slice 1 | observed: observed: dashboard/frontend-tests/navigation/recent-stories.spec.ts + slice1-frontend-proof-2.json (promise 20) |
-| 21 | Choosing a history row whose story is no longer on the Board: in Development, follows the story the way a story reference does so the existing reference notice reports it unavailable; in Intent, the story is selected with nothing new added. Source: Scope limits (unavailable-row handling). | slice 4 | |
+| 21 | Choosing a history row whose story is no longer on the Board: in Development, follows the story the way a story reference does so the existing reference notice reports it unavailable; in Intent, the story is selected with nothing new added. Source: Scope limits (unavailable-row handling). | slice 4 | G1 |
 
 ## Unnumbered source context
 

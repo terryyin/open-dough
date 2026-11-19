@@ -1,8 +1,9 @@
 // Recent stories in the banner (../../src/recentStoriesControl.tsx): outline vs
-// filled bookmark, empty and ordered history, Escape/outside dismiss, and
-// disposable-storage retention across a reload (capped at 10). Selections come
-// from a card empty area and from opening a Side panel terminal. ADR 0008
-// names the control.
+// filled bookmark, empty and ordered history, Escape/outside dismiss,
+// disposable-storage retention across a reload (capped at 10), and choosing a
+// row that selects and reveals the story in Development. Selections come from
+// a card empty area and from opening a Side panel terminal. ADR 0008 names the
+// control.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
@@ -22,6 +23,7 @@ import {
 } from "../../test-support/storyCardSelection.ts";
 import { storyCard } from "../../test-support/storyCardControls.ts";
 import {
+  chooseRecentStory,
   dismissRecentStoriesByBannerClick,
   dismissRecentStoriesWithEscape,
   expectRecentStoriesButton,
@@ -30,7 +32,16 @@ import {
   openRecentStories,
   selectStoriesInTurn,
 } from "../../test-support/recentStoriesPage.ts";
-import { putRecentHistoryStories } from "../../test-support/recentStoriesHistory.ts";
+import {
+  beyondCapHistoryStories,
+  putRecentHistoryStories,
+} from "../../test-support/recentStoriesHistory.ts";
+import {
+  chooseUnavailableRecentStory,
+  expectChoseDoughnutFromRoster,
+  openOpenDoughWithDoughnutBoard,
+  rememberDoughnutThenShowOpenDoughRoster,
+} from "../../test-support/recentStoriesChoosePage.ts";
 import { expectBannerRow } from "../../test-support/bannerReading.ts";
 import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import { settings } from "../../test-support/support/systemSettingsPage.ts";
@@ -38,6 +49,7 @@ import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
 import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
 import { watchPageErrors } from "../../test-support/pageErrors.ts";
 import { recentStoriesLimit } from "../../src/recentStories.ts";
+import { doughnutTakenIdentity } from "../../test-support/projectSelectionProjects.ts";
 
 test("the banner Recent stories control shows selection state and lists recent stories from card and Side panel selection", async ({
   page,
@@ -120,15 +132,6 @@ test("the banner Recent stories control shows selection state and lists recent s
   });
 });
 
-// One more than the kept cap; after reload the earliest is gone and the
-// Selected story is page state only.
-const beyondCapHistoryStories = [...Array(recentStoriesLimit + 1).keys()].map(
-  (index) => ({
-    identity: `SEED-${900 + index}#story`,
-    title: `Recent history ${String(index + 1)}`,
-  }),
-);
-
 test("recent stories survive a reload, capped at the 10 most recent, and last only for the page when storage throws", async ({
   page,
   frontendServices,
@@ -204,5 +207,27 @@ test("recent stories survive a reload, capped at the 10 most recent, and last on
     await reloadUntilRead(page);
     await expectRecentStoriesEmpty(page);
     expect(errors).toEqual([]);
+  });
+});
+
+const goneIdentity = "GONE-1#nope";
+
+test("choosing a Recent stories row selects and reveals that story in Development, including across projects and when unavailable", async ({
+  page,
+  frontendServices,
+}) => {
+  const board = await openOpenDoughWithDoughnutBoard(page, frontendServices);
+
+  await test.step("from Open Dough's Roster, choosing Doughnut's taken story closes the popover, switches project, and reveals the card focused and cued", async () => {
+    await rememberDoughnutThenShowOpenDoughRoster(page, board);
+    await chooseRecentStory(page, {
+      project: "Doughnut",
+      identity: doughnutTakenIdentity,
+    });
+    await expectChoseDoughnutFromRoster(page, board.doughnutTaken);
+  });
+
+  await test.step("choosing a row whose story is no longer on the Board shows the story-reference unavailable notice", async () => {
+    await chooseUnavailableRecentStory(page, goneIdentity);
   });
 });
