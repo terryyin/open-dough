@@ -126,19 +126,15 @@ export function keepSessionWithKeptRun(
   { base, revision }: { base: string; revision: string },
 ): string {
   const sessionId = "session-with-kept-run";
-  keepLaunchRecords(dashboard, [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Session with a kept run" })
-      .inDefaultCheckout({
-        workspace: repository,
-        landing: "review",
-        revision: base,
+  keepLaunchRecords(
+    dashboard,
+    makeMe.aSessionReviewRead
+      .ofAdHocSessionWithKeptRun(sessionId, {
+        repository,
+        run: { base, revision },
       })
-      .inClaudeSession({ sessionId })
-      .keptSessionCommits({ repository, runs: [{ base, revision }] })
-      .markedDone()
-      .please(),
-  ]);
+      .please().kept.records,
+  );
   return sessionId;
 }
 

@@ -184,7 +184,7 @@ Proof: The same suites as slice 1 pass unchanged, with lint and typecheck.
 ### 5. Ad hoc file reads are proven in-process, and the wire check covers them
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a kept landed session whose comparison renames a file, when
 the handlers are asked for the diff and text of the rename's old path, then
@@ -292,6 +292,15 @@ count, worker count and load against the baseline row. `npm run lint` and
   shape's 400. No wire spec refuses an unknown source for a session
   subject (only `story-review-refusal.spec.ts` does, for a story), so slice
   5's wire check adds that case for commitment 4.
+- Slice 5 moved the file cases to `review/ad-hoc-review-file.unit.spec.ts`
+  with MakeMe steps `ofAdHocSessionWithKeptRun`, `alsoKeeping` and
+  `readingFile` on `aSessionReviewRead`; `keepSessionWithKeptRun` in
+  `test-support/support/adHocReview.ts` now builds its record through that
+  step. The wire check's file rows use a kept Done ad hoc session.
+  Observed product behavior left unchanged: a file read of a story
+  launch's session is not refused as the review read refuses it (400 "This
+  session belongs to a story launch…"); it reaches the kept-commits 409.
+  Wrap-up settles whether that becomes a follow-up.
 
 ## Proof and local gates
 
