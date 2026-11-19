@@ -1,38 +1,24 @@
-// Typed answer buckets and holds shared by the story-review service routes.
-import type { Page, Route } from "@playwright/test";
+// The story-review service's answer buckets held through the Playwright page.
+import type { Page } from "@playwright/test";
 import {
-  reviewedFileTextSchema,
-  type ReviewedFileDiff,
-  type ReviewedFileText,
-  type ReviewRange,
-  type StoryReview,
-} from "../../src/storyReviewContract.ts";
+  createReviewBuckets as createRuleBuckets,
+  keyFor,
+  type Bucket as RuleBucket,
+  type ReviewBuckets as RuleBuckets,
+} from "./frontendStoryReviewRule.ts";
+import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
-  frontendFileDiff,
-  frontendReviewIds,
-} from "./frontendStoryReviewFixtures.ts";
-import {
-  answerHeld,
-  fulfillJson,
   holdAnswer,
   type AnswerHold,
   type HeldAnswer,
 } from "./frontendSubstituteAnswers.ts";
 
-export type Bucket<T> = {
-  readonly next: Map<string, T>;
-  readonly holds: Map<string, AnswerHold>;
-  settle: () => T;
-};
+export { keyFor };
+export type Bucket<T> = RuleBucket<T, AnswerHold>;
+export type ReviewBuckets = RuleBuckets<AnswerHold>;
 
-export const keyFor = (value: string | undefined) => value ?? "*";
-
-function takeQueued<T>(map: Map<string, T>, key: string) {
-  const staged = map.get(key) ?? map.get("*");
-  if (map.has(key)) map.delete(key);
-  else if (staged !== undefined) map.delete("*");
-  return staged;
-}
+export const createReviewBuckets = (initial: StoryReview): ReviewBuckets =>
+  createRuleBuckets<AnswerHold>(initial);
 
 export function controls<T>(page: Page, bucket: Bucket<T>) {
   return {
@@ -44,93 +30,5 @@ export function controls<T>(page: Page, bucket: Bucket<T>) {
       bucket.holds.set(keyFor(key), hold);
       return held;
     },
-  };
-}
-
-// One ask of a story-review endpoint, with the query it named.
-export type ReviewAsk = {
-  readonly endpoint: string;
-  readonly query: Readonly<Record<string, string>>;
-};
-
-export async function answerBucket<T>(
-  route: Route,
-  asked: ReviewAsk[],
-  endpoint: string,
-  key: string,
-  bucket: Bucket<T>,
-  settle: () => T = () => bucket.settle(),
-) {
-  asked.push({
-    endpoint,
-    query: Object.fromEntries(new URL(route.request().url()).searchParams),
-  });
-  const planned = takeQueued(bucket.next, key);
-  const hold = takeQueued(bucket.holds, key);
-  await answerHeld(hold, async () => {
-    await fulfillJson(route, planned ?? settle());
-  });
-}
-
-export type ReviewBuckets = {
-  readonly asked: ReviewAsk[];
-  snapshot: StoryReview;
-  readonly snapshots: Bucket<StoryReview>;
-  readonly historicalSnapshots: Map<string, StoryReview>;
-  // The answer for an ask naming `run`, by that run.
-  readonly runSnapshots: Map<string, StoryReview>;
-  readonly ranges: Bucket<ReviewRange>;
-  readonly files: Bucket<ReviewedFileDiff>;
-  readonly texts: Bucket<ReviewedFileText>;
-  readonly fileByPath: Map<string, ReviewedFileDiff>;
-  readonly textByPath: Map<string, ReviewedFileText>;
-};
-
-const emptyBucket = <T>(settle: () => T): Bucket<T> => ({
-  next: new Map(),
-  holds: new Map(),
-  settle,
-});
-
-export function createReviewBuckets(initial: StoryReview): ReviewBuckets {
-  const asked: ReviewAsk[] = [];
-  let snapshot = initial;
-  return {
-    asked,
-    get snapshot() {
-      return snapshot;
-    },
-    set snapshot(value) {
-      snapshot = value;
-    },
-    snapshots: emptyBucket(() => snapshot),
-    historicalSnapshots: new Map(),
-    runSnapshots: new Map(),
-    ranges: emptyBucket(() => ({
-      kind: "comparison" as const,
-      from: frontendReviewIds.baseline,
-      tree: frontendReviewIds.tree,
-      files:
-        snapshot.kind === "snapshot"
-          ? snapshot.files
-          : [
-              {
-                kind: "added" as const,
-                path: "story.txt",
-                lines: { added: 1, removed: 0 },
-              },
-            ],
-      trunkIntegrated: false,
-    })),
-    files: emptyBucket(() => frontendFileDiff("story.txt", ["+story"])),
-    texts: emptyBucket(() =>
-      reviewedFileTextSchema.parse({
-        kind: "text",
-        baseline: null,
-        tree: "story\n",
-      }),
-    ),
-    fileByPath: new Map(),
-    textByPath: new Map(),
   };
 }

@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
-import { phoneBoardCommands } from "./test-support/support/mountedPhoneBoardCommands.ts";
+import { mountedDashboardCommands } from "./test-support/support/mountedDashboardCommands.ts";
 
 export default defineConfig({
   plugins: [react()],
@@ -20,7 +20,7 @@ export default defineConfig({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true },
       }),
-      commands: phoneBoardCommands,
+      commands: mountedDashboardCommands,
       instances: [{ browser: "chromium" }],
     },
   },

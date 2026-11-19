@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-404_run-the-remaining-dashboard-frontend-checks-at-doughnut-speed.json",
+      "identity": "SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed",
+      "completedAt": "2026-11-19T00:01:50.955Z",
+      "blob": "1c4507d9652e6aedf2bc1e1bbef2553795b3226d"
+    },
+    {
       "fileName": "SEED-379_keep-own-branch-session-results-for-review.json",
       "identity": "SEED-379#keep-own-branch-session-results-for-review",
       "completedAt": "2026-11-18T19:34:40.654Z",
@@ -2664,18 +2670,6 @@
       "identity": "SEED-119#align-story-top",
       "completedAt": "2026-10-20T00:57:31.838Z",
       "blob": "dff37c47be8368277ada1734fb328101b399cde7"
-    },
-    {
-      "fileName": "SEED-010_run-combined-project-and-shared-feedback-cycle.json",
-      "identity": "SEED-010#run-combined-project-and-shared-feedback-cycle",
-      "completedAt": "2026-10-19T22:27:08.171Z",
-      "blob": "0686a95327e390cf3f708d27d5eb1c8465cb4274"
-    },
-    {
-      "fileName": "SEED-141_open-referenced-story-in-dashboard.json",
-      "identity": "SEED-141#open-referenced-story-in-dashboard",
-      "completedAt": "2026-10-19T21:23:15.517Z",
-      "blob": "891dae4dc3548d5d31801bbde2af603d70815693"
     }
   ],
   "unreadable": []

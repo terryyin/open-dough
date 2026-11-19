@@ -11,6 +11,7 @@
   "include": [
     "src",
     "test-support/comparison-mount",
+    "test-support/mounted-dashboard",
     "test-support/phone-board-mount",
     "frontend-tests/**/*.mounted.spec.ts"
   ]

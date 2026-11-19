@@ -1,10 +1,7 @@
-import { act, createElement } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { onTestFinished, vi } from "vitest";
+import { act } from "react";
+import { vi } from "vitest";
 import { commands, page } from "vitest/browser";
-import { App } from "../../src/App.tsx";
-import "../../src/dashboardStyles.ts";
-import { answerPhoneBoardServices } from "./phoneBoardServices.ts";
+import { mountAnsweredDashboard } from "../mounted-dashboard/mountedDashboard.ts";
 import { phoneBoardPage } from "./phoneBoardPage.ts";
 
 const portrait = { width: 390, height: 844 };
@@ -47,75 +44,33 @@ export async function mountPhoneBoard(
     reducedMotion?: "reduce";
   } = {},
 ) {
-  const original = viewport();
-  if (
-    original.width !== portrait.width ||
-    original.height !== portrait.height
-  ) {
-    await page.viewport(portrait.width, portrait.height);
-  }
   const publication = await commands.phoneBoardPublication(
     options.backlog === "long",
   );
-  const { boardPositionKey } = publication;
-  const storage = Object.entries<string>(localStorage);
-  localStorage.clear();
-  localStorage.setItem(boardPositionKey, "0");
-  const url = location.href;
-  const historyState: unknown = history.state;
-  history.replaceState(null, "", "/");
-
-  vi.useFakeTimers({
-    toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"],
+  let measure = () => {};
+  let media: { mockRestore: () => void } | undefined;
+  const dashboard = await mountAnsweredDashboard({
+    answers: publication.answers,
+    boardPositionKey: publication.boardPositionKey,
+    viewport: portrait,
+    style: "#root .board-row { transition-duration: 0s !important; }",
+    arrange: () => {
+      const browserMedia = window.matchMedia.bind(window);
+      media = vi.spyOn(window, "matchMedia").mockImplementation((query) => {
+        const answer = browserMedia(query);
+        return query === "(prefers-reduced-motion: reduce)"
+          ? (Object.create(answer, {
+              matches: { value: options.reducedMotion === "reduce" },
+            }) as MediaQueryList)
+          : answer;
+      });
+      measure = controlResize();
+    },
+    restore: () => media?.mockRestore(),
   });
-  vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
-  const browserMedia = window.matchMedia.bind(window);
-  const media = vi.spyOn(window, "matchMedia").mockImplementation((query) => {
-    const answer = browserMedia(query);
-    return query === "(prefers-reduced-motion: reduce)"
-      ? (Object.create(answer, {
-          matches: { value: options.reducedMotion === "reduce" },
-        }) as MediaQueryList)
-      : answer;
-  });
-  const measure = controlResize();
-  const launchAcceptances = answerPhoneBoardServices(publication.answers);
-
-  const container = document.createElement("div");
-  container.id = "root";
-  const animationClock = document.createElement("style");
-  animationClock.textContent =
-    "#root .board-row { transition-duration: 0s !important; }";
-  document.body.append(animationClock, container);
-  let root: Root | undefined;
-  onTestFinished(async () => {
-    try {
-      act(() => root?.unmount());
-    } finally {
-      container.remove();
-      animationClock.remove();
-      media.mockRestore();
-      vi.unstubAllGlobals();
-      vi.useRealTimers();
-      localStorage.clear();
-      for (const [key, value] of storage) localStorage.setItem(key, value);
-      history.replaceState(historyState, "", url);
-      if (
-        viewport().width !== original.width ||
-        viewport().height !== original.height
-      ) {
-        await page.viewport(original.width, original.height);
-      }
-    }
-  });
-  await act(() => {
-    root = createRoot(container);
-    root.render(createElement(App));
-    return Promise.resolve();
-  });
-  if (!container.querySelector(".board-row"))
+  if (dashboard.boardRows() === 0)
     throw new Error(
-      `Expected the mounted board: ${container.textContent.trim()}`,
+      `Expected the mounted board: ${dashboard.container.textContent.trim()}`,
     );
   const resize = async (width: number, height: number) => {
     await act(async () => {
@@ -125,9 +80,9 @@ export async function mountPhoneBoard(
     return viewport();
   };
   return {
-    ...phoneBoardPage(container, publication.titles),
+    ...phoneBoardPage(dashboard.container, publication.titles),
     readyStory: publication.readyStory,
-    launchAcceptances,
+    launchAcceptances: dashboard.launchAcceptances,
     resize,
     viewport,
   };

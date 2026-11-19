@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 581. Removed numbers are never reused.
-- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss.
+- Highest allocated local number: 583. Removed numbers are never reused.
+- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -610,24 +610,6 @@ correction found no product defect.
   - Observed effect: one acceptance return on the same uncommitted slice before delivery; active time remained about 14 of 15 minutes after correction; no product-behavior change beyond adding the missing narrow observation.
   - Inference: possible kinship to ODF-314 (plan-owned observation missing until acceptance returned it), qualified because the return already named unfinished/gap status and the aria-hidden constraint. Split narrow keyboard from covering-panel preservation on first return when co-observation is impossible.
 
-## DD-562 — Replay value is reconsidered only after reconstructing the paid-run setup
-
-A planned full historical redo was prepared before its marginal value for a
-two-sentence clarification was assessed. Terry then asked whether another long
-run would benefit this change and accepted keeping the reviewed clarification
-with agent behavior explicitly unverified. This is a proof-cost/value decision,
-not evidence that native evaluation is generally unnecessary.
-
-### Occurrences
-
-- Execution: SEED-393#tests-ignore-unrelated-launch-changes-without-losing-proof (first implementation `c9b39e4b8300ec00a9cff1b95b659d44d8a22209`)
-  - Timestamp: unknown (2026-11-17, after redo preparation and before closure)
-  - Tool: Codex
-  - Open Dough release: 0.3.104 (checkout-bound installed guidance at Take `c35afa491`)
-  - Evidence: `56856821c:.planning/slice-plans/675-tests-protect-their-own-behavior/redo-launch.md` retains clone, dependency/browser setup and exact-input conflict; the slice clock paused preparation at 8.2 active minutes. The existing `fbfaa116b:.planning/slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/claude-metrics.md` recorded 104.49 minutes for the frozen Claude redo. Terry asked to evaluate whether another run would benefit this change, then accepted skipping it.
-  - Observed effect: scratch setup was built but no paid participant run occurred. The accepted proof became the six-example wording review and existing payload link check; improved agent behavior and effort savings remain unverified.
-  - Inference: deciding the marginal learning and acceptable cost before rebuilding a historical replay could avoid unused setup. The executor followed the then-required plan; no total saving or guidance-effect estimate is established. Distinct from DD-559’s CI-deadline feasibility issue.
-
 ## DD-563 — Removing a copied-data assertion also drops the behavior it bundled <a id="dd-563"></a>
 
 Assertion-removal slices were proved by a green focused run plus, where
@@ -730,25 +712,6 @@ departed read show "could not be read at this revision" after Show latest.
   - Evidence: slice 8 Accepted note at `309dacb4` PLAN.md; Intent Coverage verdict "Assertion gap" at `309dacb4`; queued SEED-334#observe-no-stale-candidate-failure-after-show-latest.
   - Observed effect: an assertion gap shipped behind a passing scratch break; one queued test-strengthening story.
   - Inference: a scratch break that changes several mechanisms shows only that some of them matter; a single-mechanism break per promised guard would have exposed the gap at slice acceptance.
-
-## DD-567 — Guidance structure-test regexes that pin soft-wrap points break under file-size reflow <a id="dd-567"></a>
-
-A new guidance-structure test asserted phrases with `\s+` across the soft-wrap
-breaks that existed at write time. The post-change file-size reflow of
-`executable-proof.md` to 250 lines rearranged those wraps, so the refactor pass
-had to re-align wrap points (or would have needed a test update) before the
-subject test stayed green.
-
-### Occurrences
-
-- Execution: SEED-345#reach-a-proof-decision-from-retained-evidence (plan 681; first implementation `9ecfd26602618771a60d89acca3ad1016b6e4d15`)
-  - Timestamp: unknown (2026-11-17; refactor pass after slice-1 acceptance, before increment `9ecfd2660`)
-  - Tool: Cursor
-  - Open Dough release: unknown (checkout-bound installed guidance at Take `cc96c5515`; Distribution sources published at `9ecfd2660`)
-  - Evidence: plan 681 Learnings (“Structure-test regexes that pin wrap points are brittle under file-size reflow”); refactor agent `8afc6ef3-96e3-4595-b23b-40b4171e0f52` (“Fixing wrap breaks so the structure-test regexes still match”; file 253→250 lines); subject test re-run exit 0 after reflow.
-  - Observed effect: extra refactor edits and a subject-test rerun to keep wrap-sensitive assertions matching; no product wording change beyond layout.
-  - Inference: structure tests that pin soft-wrap boundaries couple proof to physical line breaks the file-size check is allowed to change; contiguous asserted phrases (or updating the test with the reflow) avoids that churn. Total token/time cost unmeasured.
-  - **Response:** Observable cases now refuse a test whose assertion is the guidance file's own wording. The inference's repair — contiguous phrases, or updating the regex after reflow — keeps that test and is withdrawn. The guidance-structure tests and the phrase matches beside behavioral checks are removed. The watch-ci export check and the readiness gate's ecosystem refusal remain.
 
 ## ODF-443 — Refactor return reports an oversized module as within the 250-line limit <a id="odf-443"></a>
 
@@ -902,6 +865,14 @@ could fail there.
   - Observed effect: ten break runs to establish that the break could not bite; the slice accepted the step with a recorded limitation.
   - Inference: checking a planned break's ability to fail, at the asserted state, while settling premises would have reworded or dropped it before execution. Run time sat outside the slice clock; slice active time was 5.8 min.
 
+- Execution: SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed (plan 707; first implementation `91e716f20`)
+  - Timestamp: unknown (2026-11-19 +08:00, slice 5)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `e8e01643a`)
+  - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` slice 5 proof "Releasing the older read before the save in a scratch edit fails the older-read case"; `s5-discrimination` passed, and the implementer explained that a read answered before the save is not older; `s5-discrimination-guard` (removing `sequence <= shown`) failed instead.
+  - Observed effect: one wasted scratch run; the substitute discrimination was accepted.
+
 ## DD-575 — A plan prescribes a new promise as a step of another behaviour's test <a id="dd-575"></a>
 
 The plan said an existing paging test "gains its final step" for a separate
@@ -996,3 +967,33 @@ A refactor narrowed a shared test-support return type. Guarded delivery's format
   - Evidence: slice 2's refactor made `publishCodeLandedBeforeCompletion` return `Required<Pick<…>>`; delivery `11239b2` passed formatting and the hook; CI "Lint and type-check" failed with four `no-unnecessary-condition` errors in three unedited specs; repair `eea3134`. Later briefs required full `npm run lint` after shared type or export changes, and no further lint failure reached CI.
   - Observed effect: one red CI run, a writer pause and stash of slice 3's work, a delegated repair and an extra publication.
   - Inference: a full check-only lint at delivery when a shared export or type changes would catch this before publication; the repair cycle cost about 10 minutes, not precisely measured.
+
+## DD-582 — A moved case is planned from its arrangement while its journey crosses another service <a id="dd-582"></a>
+
+The plan judged the retained-note case only on whether a fresh mount reads the same note. The case also saves that note from a review diff and asserts the recorded add, which needed a story-review answer the mounted board lacked.
+
+### Occurrences
+
+- Execution: SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed (plan 707; first implementation `91e716f20`)
+  - Timestamp: unknown (2026-11-19 +08:00, slice 6)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `e8e01643a`)
+  - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` "Slice 6 refinement" learning; the first port arranged the note and dropped `saveDiffNote` and the recorded add, so coordinator acceptance returned it; the second return stopped; slice 6 was split into a review-rule slice and slice 7 (`a1fa7a1d4`, `e3398ed26`).
+  - Observed effect: two returns, a removed attempt and one extra slice; no observation was lost.
+  - Inference: listing every service a moved case's journey touches while planning would have sized the review rule up front.
+
+## DD-583 — A speed goal is sized from a probe that skipped the settling real cases need <a id="dd-583"></a>
+
+The story promised a third of the story-notes time on the strength of phone-board cases at about 0.15 s and a two-case scratch probe. Real notes cases needed act settling across frames to avoid act warnings and a dialog that skipped `showModal`, and then took 0.5–1.5 s each.
+
+### Occurrences
+
+- Execution: SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed (plan 707; first implementation `91e716f20`)
+  - Timestamp: unknown (2026-11-19 +08:00, slices 5 and 8)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `e8e01643a`)
+  - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` "Observations used for sizing" (scratch probe of 82 ms, phone-board 7 cases) against slice 5 learning (`actSettled`) and the slice 8 comparison (0.80 and 0.86 of baseline); Terry changed the promise and queued `SEED-404#run-the-story-notes-checks-in-a-third-of-their-time`.
+  - Observed effect: the goal was missed and a further story is needed.
+  - Inference: a probe that holds answers and refreshes reads, as real cases do, would have exposed the settling cost before the third was promised. Close to DD-553 and DD-554 (premises settled on an unrepresentative stage).
