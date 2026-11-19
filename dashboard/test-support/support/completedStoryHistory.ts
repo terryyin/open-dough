@@ -1,14 +1,14 @@
-// Ordinary completed Story A histories for review cases: Trunk Mode and Story
-// Branch Mode, declared as named repository revisions. Completion facts come
-// from completionRevision. Mid-test later merges that must stay real Git merges
-// use laterDeveloperCarriesDoneRecord (not a declared first-parent overlay).
+// Completed Story A histories for review: ordinary Trunk/Story Branch, takeover,
+// return, return-then-takeover, and agentless (missing-agent) records.
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   completionRevision,
   queuedReadyRepository,
   storyA,
   storyB,
+  storyPlanPath,
   takeRevision,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
@@ -20,6 +20,9 @@ import { git, lines } from "./storyReviewWorktree.ts";
 const claimantName = "Yui";
 const claimant = agentIdentity(claimantName);
 const author = { name: claimant.agent, email: claimant.email };
+const akihoName = "Akiho";
+const akiho = agentIdentity(akihoName);
+const akihoAuthor = { name: akiho.agent, email: akiho.email };
 const storyBranch = "claude/another-agent";
 const implemented = {
   "shared.txt": lines("line").replace("line 0\n", "story first\n"),
@@ -28,12 +31,13 @@ const implemented = {
 const interleavedShared = lines("line")
   .replace("line 0\n", "story first\n")
   .replace("line 11\n", "other last\n");
+const trunkWriterShared = lines("line").replace("line 11\n", "other last\n");
 const integrated = {
   ...implemented,
   "shared.txt": interleavedShared,
   "other-story.txt": "another story\n",
 } as const;
-
+const developer = dashboardDeveloper.name;
 const yuiClaim = (branch?: string) =>
   takeRevision({
     story: storyA,
@@ -44,21 +48,67 @@ const yuiClaim = (branch?: string) =>
     publisher: "another-publisher",
     ...(branch === undefined ? {} : { branch }),
   });
-
 const yuiCompletion = () =>
   completionRevision({
     story: storyA,
     queued: [storyB],
-    developer: dashboardDeveloper.name,
+    developer,
     agent: claimantName,
     host: "claude",
   });
+const akihoCompletion = () =>
+  completionRevision({
+    story: storyA,
+    queued: [storyB],
+    developer,
+    agent: akihoName,
+    host: "claude",
+  });
+const agentlessCompletion = () =>
+  completionRevision({
+    story: storyA,
+    queued: [storyB],
+    developer,
+    agentless: true,
+  });
+const missingAgentCompletion = () => ({
+  ...agentlessCompletion(),
+  remove: [`.planning/${claimant.path}`],
+});
+const storyAWithPlan = () =>
+  makeMe.aBacklogEntry
+    .with({
+      ...storyA,
+      plan: { label: "plan", target: storyPlanPath(storyA) },
+    })
+    .please();
+const akihoTakeover = () => ({
+  message: "take over the story",
+  remove: [`.planning/${claimant.path}`],
+  agentProfiles: [
+    makeMe.anAgentProfile
+      .executing({
+        name: akihoName,
+        identity: storyA.identity,
+        host: "claude",
+      })
+      .please(),
+  ],
+  author: akihoAuthor,
+});
+const takeoverWork = {
+  message: "finish after takeover",
+  author: akihoAuthor,
+  files: { "takeover.txt": "second agent work\n" },
+} as const;
+const returnReleased = (ownerPath: string) => ({
+  message: "return the story and release its execution profile",
+  backlog: { direction, queued: [storyAWithPlan(), storyB] },
+  remove: [ownerPath],
+});
 
-// Ordinary Trunk Mode revisions onto a base builder: claim, Yui's
-// implementation, another writer's interleaving, then the completion.
-// Shared by the origin-history and mid-test onto-tip composition routes only.
-function ordinaryTrunkModeCompletedBuilder<Name extends string>(
-  base: RepositoryBuilder<Name>,
+function trunkThroughInterleaving<Name extends string>(
+  base: RepositoryBuilder<Name> = queuedReadyRepository() as RepositoryBuilder<Name>,
 ) {
   return base
     .withRevision("shared", { files: { "shared.txt": lines("line") } })
@@ -74,26 +124,19 @@ function ordinaryTrunkModeCompletedBuilder<Name extends string>(
         "shared.txt": interleavedShared,
         "other-story.txt": "another story\n",
       },
-    })
-    .withRevision("completion", yuiCompletion());
+    });
 }
 
-// Ordinary Trunk Mode: full origin history from a queued-ready base.
-export function ordinaryTrunkModeCompletedHistory() {
-  return ordinaryTrunkModeCompletedBuilder(queuedReadyRepository()).please();
+function ordinaryTrunkModeCompletedBuilder<Name extends string>(
+  base: RepositoryBuilder<Name>,
+) {
+  return trunkThroughInterleaving(base).withRevision(
+    "completion",
+    yuiCompletion(),
+  );
 }
 
-// Same Trunk Mode completion chain for mid-test publishDeclaredTrunk onto an
-// origin that already holds the queued-ready prefix (and any earlier captures).
-export function ordinaryTrunkModeCompletionOntoTip() {
-  return ordinaryTrunkModeCompletedBuilder(makeMe.aRepository);
-}
-
-// Ordinary Story Branch Mode: Yui's claim on a branch, implementation,
-// interleaved trunk writer from the claim, story merge of trunk, branch-side
-// completion, trunk advance, and trunk-first landing authored by Yui.
-export function ordinaryStoryBranchCompletedHistory() {
-  const trunkWriterShared = lines("line").replace("line 11\n", "other last\n");
+function storyBranchThroughIntegration() {
   return queuedReadyRepository()
     .withRevision("shared", { files: { "shared.txt": lines("line") } })
     .withRevision("claim", yuiClaim(storyBranch))
@@ -115,8 +158,12 @@ export function ordinaryStoryBranchCompletedHistory() {
       message: "merge trunk into the story",
       author,
       files: integrated,
-    })
-    .withRevision("branch completion", { ...yuiCompletion(), author })
+    });
+}
+
+function storyBranchLanding(branchCompletion: object) {
+  return storyBranchThroughIntegration()
+    .withRevision("branch completion", { ...branchCompletion, author })
     .withRevision("trunk before landing", {
       parents: ["interleaving"],
       message: "trunk advances before story integration",
@@ -127,16 +174,26 @@ export function ordinaryStoryBranchCompletedHistory() {
       },
     })
     .withRevision("completion", {
-      ...yuiCompletion(),
+      ...branchCompletion,
       parents: ["trunk before landing", "branch completion"],
       author,
       committer: author,
       files: integrated,
-    })
-    .please();
+    });
 }
 
-/** Ordinary Trunk and Story Branch completed histories, paired by mode name. */
+export function ordinaryTrunkModeCompletedHistory() {
+  return ordinaryTrunkModeCompletedBuilder(queuedReadyRepository()).please();
+}
+
+export function ordinaryTrunkModeCompletionOntoTip() {
+  return ordinaryTrunkModeCompletedBuilder(makeMe.aRepository);
+}
+
+export function ordinaryStoryBranchCompletedHistory() {
+  return storyBranchLanding(yuiCompletion()).please();
+}
+
 export function ordinaryCompletedReviewHistories() {
   return [
     ["trunk", ordinaryTrunkModeCompletedHistory()],
@@ -144,10 +201,42 @@ export function ordinaryCompletedReviewHistories() {
   ] as const;
 }
 
-// After the review was first read: another developer's branch that started
-// before completion merges trunk as its second parent and fast-forwards trunk,
-// carrying Story A's existing done record onto a new first-parent path. This
-// stays a visible mid-test Git action (not a declared starting history).
+function throughAkihoTakeoverWork() {
+  return trunkThroughInterleaving()
+    .withRevision("takeover", akihoTakeover())
+    .withRevision("takeover work", takeoverWork);
+}
+
+export function takeoverCompletedHistory() {
+  return throughAkihoTakeoverWork()
+    .withRevision("completion", akihoCompletion())
+    .please();
+}
+
+export function returnedCompletedHistory() {
+  return trunkThroughInterleaving()
+    .withRevision("return", returnReleased(`.planning/${claimant.path}`))
+    .withRevision("completion", agentlessCompletion())
+    .please();
+}
+
+export function returnedThenTakeoverCompletedHistory() {
+  return throughAkihoTakeoverWork()
+    .withRevision("return", returnReleased(`.planning/${akiho.path}`))
+    .withRevision("completion", agentlessCompletion())
+    .please();
+}
+
+export function missingAgentTrunkCompletedHistory() {
+  return trunkThroughInterleaving()
+    .withRevision("completion", missingAgentCompletion())
+    .please();
+}
+
+export function missingAgentStoryBranchCompletedHistory() {
+  return storyBranchLanding(missingAgentCompletion()).please();
+}
+
 export function laterDeveloperCarriesDoneRecord(
   origin: StartOrigin,
   completion: string,

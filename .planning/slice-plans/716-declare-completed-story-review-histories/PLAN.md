@@ -137,7 +137,7 @@ capture-fallback (8) and deferred replay (3) passed.
 ### 3. Attribution reads declared takeover, return and agentless records
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Akiho's declared takeover (the profile swap, then `takeover.txt`),
 a declared return (Story A queued first again, its profile removed), return
@@ -155,6 +155,12 @@ attribution and agent-recovery answers stay as they are today.
 
 Proof: those specs pass, and so does the backlog completion check, run with
 `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh <file>`.
+Accepted (reusable): declared takeover / return / return-then-takeover /
+missing-agent histories; agent-recovery reads declared agentless done
+record; review recovers Yui-chan. Backlog credit test proves CLI
+agentless-after-return (profile released before complete). `completedStoryHistory.ts`
+at 248 — next foreign-merge shapes need a cohesive split or reorganization
+before exceeding 250.
 
 ### 4. Another writer's merges are declared on trunk
 

@@ -5,7 +5,11 @@ import {
   completedReviewQuery as completed,
 } from "../../test-support/support/completedReviewRequests.ts";
 import { keepUnusableCompletedCapture } from "../../test-support/support/completedPublishedStory.ts";
-import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
+import {
+  missingAgentStoryBranchCompletedHistory,
+  missingAgentTrunkCompletedHistory,
+  ordinaryTrunkModeCompletedHistory,
+} from "../../test-support/support/completedStoryHistory.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -21,129 +25,200 @@ import {
 } from "../../test-support/support/agentAuthoredWorktree.ts";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
-test.use({
-  serverMode: "boundary",
-  originRepository: ordinaryTrunkModeCompletedHistory(),
-});
+test.use({ serverMode: "boundary" });
 
 const agent = agentIdentity("Yui").agent;
 
-test("a published completion remains reviewable while local workspaces are ambiguous", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const completion = origin.revision("completion");
-  const original = storyReviewSchema.parse(
-    await (
-      await get(request, dashboard, storyReviewEndpoint, completed)
-    ).json(),
-  );
-  expect(original.kind).toBe("published");
-  if (original.kind !== "published")
-    throw new Error("No initial published review");
-  const first = await claimWorktree(
-    origin,
-    agent,
-    "ambiguous-a",
-    completion,
-    named.identity,
-  );
-  git(first, "push", "--quiet", "origin", "HEAD:main");
-  const second = await agentWorktree(
-    origin,
-    agent,
-    "ambiguous-b",
-    git(first, "rev-parse", "HEAD"),
-  );
-  writeAt(first, "local-a.txt", "first workspace only\n");
-  writeAt(second, "local-b.txt", "second workspace only\n");
-  const active = await get(request, dashboard, storyReviewEndpoint, named);
-  expect(active.status()).toBe(200);
-  const ambiguity = {
-    kind: "unavailable",
-    explanation: `Several worktrees on this machine hold this story's claim for ${agent}: ~/git/open-dough/.worktrees/ambiguous-a, ~/git/open-dough/.worktrees/ambiguous-b. The review cannot choose one.`,
-  };
-  expect(await active.json()).toEqual(ambiguity);
-  const historical = await get(
+test.describe("ordinary trunk", () => {
+  test.use({ originRepository: ordinaryTrunkModeCompletedHistory() });
+
+  test("a published completion remains reviewable while local workspaces are ambiguous", async ({
     request,
     dashboard,
-    storyReviewEndpoint,
-    completed,
-  );
-  expect(historical.status()).toBe(200);
-  expect(storyReviewSchema.parse(await historical.json())).toEqual(original);
-  const file = await get(request, dashboard, storyReviewFileEndpoint, {
-    ...named,
-    completion: original.completion,
-    baseline: original.baseline,
-    tree: original.tree,
-    path: "[literal]*.txt",
+    origin,
+  }) => {
+    const completion = origin.revision("completion");
+    const original = storyReviewSchema.parse(
+      await (
+        await get(request, dashboard, storyReviewEndpoint, completed)
+      ).json(),
+    );
+    expect(original.kind).toBe("published");
+    if (original.kind !== "published")
+      throw new Error("No initial published review");
+    const first = await claimWorktree(
+      origin,
+      agent,
+      "ambiguous-a",
+      completion,
+      named.identity,
+    );
+    git(first, "push", "--quiet", "origin", "HEAD:main");
+    const second = await agentWorktree(
+      origin,
+      agent,
+      "ambiguous-b",
+      git(first, "rev-parse", "HEAD"),
+    );
+    writeAt(first, "local-a.txt", "first workspace only\n");
+    writeAt(second, "local-b.txt", "second workspace only\n");
+    const active = await get(request, dashboard, storyReviewEndpoint, named);
+    expect(active.status()).toBe(200);
+    const ambiguity = {
+      kind: "unavailable",
+      explanation: `Several worktrees on this machine hold this story's claim for ${agent}: ~/git/open-dough/.worktrees/ambiguous-a, ~/git/open-dough/.worktrees/ambiguous-b. The review cannot choose one.`,
+    };
+    expect(await active.json()).toEqual(ambiguity);
+    const historical = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completed,
+    );
+    expect(historical.status()).toBe(200);
+    expect(storyReviewSchema.parse(await historical.json())).toEqual(original);
+    const file = await get(request, dashboard, storyReviewFileEndpoint, {
+      ...named,
+      completion: original.completion,
+      baseline: original.baseline,
+      tree: original.tree,
+      path: "[literal]*.txt",
+    });
+    expect(file.status()).toBe(200);
+    expect(await file.json()).toMatchObject({
+      kind: "diff",
+      printed: expect.stringContaining("+delivered on another machine"),
+    });
+    expect(
+      await (await get(request, dashboard, storyReviewEndpoint, named)).json(),
+    ).toEqual(ambiguity);
   });
-  expect(file.status()).toBe(200);
-  expect(await file.json()).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining("+delivered on another machine"),
-  });
-  expect(
-    await (await get(request, dashboard, storyReviewEndpoint, named)).json(),
-  ).toEqual(ambiguity);
-});
 
-test("an unusable local captured run falls back to published completion while its explicit choice retains its gap", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const completion = origin.revision("completion");
-  const baseline = origin.revision("interleaving");
-  // Launch record names a retired workspace path; only the missing capture is
-  // the visible unusable precondition (same shape as after worktree remove).
-  keepUnusableCompletedCapture(dashboard, origin, {
-    workspace: `${origin.machine}/retired-completion-workspace`,
-    completion,
-    baseline,
-  });
-  const review = storyReviewSchema.parse(
-    await (
-      await get(request, dashboard, storyReviewEndpoint, completed)
-    ).json(),
-  );
-  expect(review).toMatchObject({
-    kind: "published",
-    completion,
-  });
-  expect(review.selectedRun).toBeUndefined();
-  expect(review.runs).toHaveLength(1);
-  const explicit = await get(request, dashboard, storyReviewEndpoint, {
-    ...completed,
-    run: review.runs?.[0]?.key ?? "",
-  });
-  expect(await explicit.json()).toMatchObject({
-    kind: "landing-unavailable",
-    explanation: "The captured landing repository is missing or unreadable.",
-  });
-});
-
-test("missing claim history explains the gap rather than showing a partial comparison", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
-  expect(git(origin.project, "rev-parse", "--is-shallow-repository")).toBe(
-    "true",
-  );
-  const response = await get(
+  test("an unusable local captured run falls back to published completion while its explicit choice retains its gap", async ({
     request,
     dashboard,
-    storyReviewEndpoint,
-    completed,
-  );
-  expect(response.status()).toBe(200);
-  expect(await response.json()).toMatchObject({
-    kind: "unavailable",
-    explanation: expect.stringMatching(/claim|history/),
+    origin,
+  }) => {
+    const completion = origin.revision("completion");
+    const baseline = origin.revision("interleaving");
+    keepUnusableCompletedCapture(dashboard, origin, {
+      workspace: `${origin.machine}/retired-completion-workspace`,
+      completion,
+      baseline,
+    });
+    const review = storyReviewSchema.parse(
+      await (
+        await get(request, dashboard, storyReviewEndpoint, completed)
+      ).json(),
+    );
+    expect(review).toMatchObject({
+      kind: "published",
+      completion,
+    });
+    expect(review.selectedRun).toBeUndefined();
+    expect(review.runs).toHaveLength(1);
+    const explicit = await get(request, dashboard, storyReviewEndpoint, {
+      ...completed,
+      run: review.runs?.[0]?.key ?? "",
+    });
+    expect(await explicit.json()).toMatchObject({
+      kind: "landing-unavailable",
+      explanation: "The captured landing repository is missing or unreadable.",
+    });
   });
-  expect(await response.json()).not.toHaveProperty("files");
+
+  test("missing claim history explains the gap rather than showing a partial comparison", async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+    expect(git(origin.project, "rev-parse", "--is-shallow-repository")).toBe(
+      "true",
+    );
+    const response = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completed,
+    );
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toMatchObject({
+      kind: "unavailable",
+      explanation: expect.stringMatching(/claim|history/),
+    });
+    expect(await response.json()).not.toHaveProperty("files");
+  });
+});
+
+test.describe("missing-agent trunk", () => {
+  test.use({ originRepository: missingAgentTrunkCompletedHistory() });
+
+  test("an unreadable workspace preserves active captured gaps and completed review recovers the published owner", async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    const completion = origin.revision("completion");
+    const baseline = origin.revision("interleaving");
+    keepUnusableCompletedCapture(dashboard, origin, {
+      workspace: `${origin.machine}/unreadable-workspace`,
+      completion,
+      baseline,
+    });
+    const active = storyReviewSchema.parse(
+      await (await get(request, dashboard, storyReviewEndpoint, named)).json(),
+    );
+    expect(active).toMatchObject({
+      kind: "landing-unavailable",
+      explanation: "The captured landing repository is missing or unreadable.",
+    });
+    expect(active.selectedRun).toBe(active.runs?.[0]?.key);
+    const historical = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completed,
+    );
+    expect(historical.status()).toBe(200);
+    expect(await historical.json()).toMatchObject({
+      kind: "published",
+      agent,
+    });
+    expect(await historical.json()).not.toHaveProperty("selectedRun");
+    expect(await historical.json()).toHaveProperty("files");
+    const absent = { source: "open-dough", identity: "SEED-B#b" };
+    expect(
+      (await get(request, dashboard, storyReviewEndpoint, absent)).status(),
+    ).toBe(404);
+    const missingRecord = await get(request, dashboard, storyReviewEndpoint, {
+      ...absent,
+      completed: "true",
+    });
+    expect(missingRecord.status()).toBe(200);
+    expect(await missingRecord.json()).toMatchObject({
+      kind: "unavailable",
+      explanation: expect.stringContaining("No published completion record"),
+    });
+    expect(await missingRecord.json()).not.toHaveProperty("files");
+  });
+});
+
+test.describe("missing-agent story-branch", () => {
+  test.use({ originRepository: missingAgentStoryBranchCompletedHistory() });
+
+  test("an agentless story-branch completion recovers its unique claim", async ({
+    request,
+    dashboard,
+  }) => {
+    const response = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completed,
+    );
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toMatchObject({ kind: "published" });
+    expect(await response.json()).toHaveProperty("files");
+  });
 });

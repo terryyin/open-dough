@@ -5,6 +5,7 @@ import {
   completedReviewQuery as completed,
 } from "../../test-support/support/completedReviewRequests.ts";
 import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { takeoverCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -14,42 +15,44 @@ import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 
-test("published attribution includes both historical owners after a story takeover", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  await completedPublishedStory(origin, "trunk", "takeover");
-  const review = storyReviewSchema.parse(
-    await (
-      await get(request, dashboard, storyReviewEndpoint, completed)
-    ).json(),
-  );
-  expect(review.kind).toBe("published");
-  if (review.kind !== "published") throw new Error("No takeover review");
-  expect(review.files.map((file) => file.path)).toEqual(
-    expect.arrayContaining(["[literal]*.txt", "shared.txt", "takeover.txt"]),
-  );
-  expect(review.files.map((file) => file.path)).not.toContain(
-    "other-story.txt",
-  );
-  for (const [path, added] of [
-    ["[literal]*.txt", "+delivered on another machine"],
-    ["takeover.txt", "+second agent work"],
-  ]) {
-    const response = await get(request, dashboard, storyReviewFileEndpoint, {
-      ...named,
-      completion: review.completion,
-      baseline: review.baseline,
-      tree: review.tree,
-      path: path ?? "",
-    });
-    expect(response.status()).toBe(200);
-    expect(await response.json()).toMatchObject({
-      kind: "diff",
-      printed: expect.stringContaining(added ?? ""),
-    });
-  }
+test.describe("takeover", () => {
+  test.use({ originRepository: takeoverCompletedHistory() });
+
+  test("published attribution includes both historical owners after a story takeover", async ({
+    request,
+    dashboard,
+  }) => {
+    const review = storyReviewSchema.parse(
+      await (
+        await get(request, dashboard, storyReviewEndpoint, completed)
+      ).json(),
+    );
+    expect(review.kind).toBe("published");
+    if (review.kind !== "published") throw new Error("No takeover review");
+    expect(review.files.map((file) => file.path)).toEqual(
+      expect.arrayContaining(["[literal]*.txt", "shared.txt", "takeover.txt"]),
+    );
+    expect(review.files.map((file) => file.path)).not.toContain(
+      "other-story.txt",
+    );
+    for (const [path, added] of [
+      ["[literal]*.txt", "+delivered on another machine"],
+      ["takeover.txt", "+second agent work"],
+    ]) {
+      const response = await get(request, dashboard, storyReviewFileEndpoint, {
+        ...named,
+        completion: review.completion,
+        baseline: review.baseline,
+        tree: review.tree,
+        path: path ?? "",
+      });
+      expect(response.status()).toBe(200);
+      expect(await response.json()).toMatchObject({
+        kind: "diff",
+        printed: expect.stringContaining(added ?? ""),
+      });
+    }
+  });
 });
 
 test("another story's conflict resolution does not hide this story's attributable changes", async ({
