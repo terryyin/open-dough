@@ -103,7 +103,7 @@ Proof:
 ### 3. Fail unsettled mounted cases and describe the support as it is
 
 Type: Structure
-Status: planned
+Status: done
 
 Removes a silent settle cap and a README that overstates the support. Make `actSettled` throw a named error when it reaches its round cap, with a maintained case in the isolation spec whose page changes every frame. Name the card's "Review changes" action once in `storyReviewNames.ts` and read it in `mountedStoryReviewPage.ts` and `storyCardControls.ts`. In the README's mounted support section, say that only the next notes answer can be held and a kept hold is abandoned at cleanup, that the revision stream is unreachable, that an unsettled page fails, and that a remount resets page state and carries only the services passed in.
 
@@ -118,5 +118,7 @@ Proof:
 Refinement was not needed: the three slices each own one outcome and proof loop, and every premise above was observed in the form its slice uses. This review found no remaining slice-specific concern.
 
 ## Learnings
+
+- A passing `npm run test:dashboard:frontend -- review/` prints no per-test summary; its proof is the exit status plus the `--list` selection count (47 tests at slice 3).
 
 ## Story obligations

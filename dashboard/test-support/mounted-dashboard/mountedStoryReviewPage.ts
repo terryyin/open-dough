@@ -15,7 +15,7 @@ export const fileDiff = (review: Locator, name: string) =>
 
 // Opens Review changes on a card with the review's details readable.
 export async function openStoryReview(card: Locator) {
-  await click(card.getByRole("button", { name: "Review changes" }));
+  await click(card.getByRole("button", { name: n.cardAction }));
   const review = reviewRegion();
   await expect.element(review).toBeVisible();
   const eye = review

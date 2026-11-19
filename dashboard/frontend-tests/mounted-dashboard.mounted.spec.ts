@@ -2,7 +2,11 @@ import { act } from "react";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { commands } from "vitest/browser";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import { actSettled } from "../test-support/mounted-dashboard/mountedActInput.ts";
+import {
+  actSettled,
+  settleRounds,
+  UnsettledPageError,
+} from "../test-support/mounted-dashboard/mountedActInput.ts";
 import {
   mountAnsweredDashboard,
   mountDefaultDashboard,
@@ -68,4 +72,23 @@ test("a case that mounts the board twice leaves the page as it found it", async 
   });
   expect(again.connection()).toBe("disconnected");
   expect(again.boardRows()).toBeGreaterThan(0);
+});
+
+test("a page that changes every frame fails the case by name", async () => {
+  const dashboard = await mountDefaultDashboard();
+  expect(dashboard.connection()).toBe("disconnected");
+  let changing = true;
+  const changeEveryFrame = (frame: number) => {
+    if (!changing) return;
+    document.body.setAttribute("data-frame", String(frame));
+    requestAnimationFrame(changeEveryFrame);
+  };
+  try {
+    const settling = actSettled(() => requestAnimationFrame(changeEveryFrame));
+    await expect(settling).rejects.toBeInstanceOf(UnsettledPageError);
+    await expect(settling).rejects.toThrow(`${settleRounds} rounds`);
+  } finally {
+    changing = false;
+    document.body.removeAttribute("data-frame");
+  }
 });

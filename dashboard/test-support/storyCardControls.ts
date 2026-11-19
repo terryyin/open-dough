@@ -10,6 +10,7 @@ import { tooltipOf } from "./frameIconControl.ts";
 import { box } from "./partArrangement.ts";
 import { tapWhereShown } from "./pageLayout.ts";
 import { storyNotesNames } from "./storyNotesNames.ts";
+import { storyReviewNames } from "./storyReviewNames.ts";
 
 // A Story card in `region` (the Board or one of its columns), by its title.
 export const storyCard = (region: Locator, title: string) =>
@@ -41,7 +42,7 @@ export async function tapInspectStory(card: Locator, page?: Page) {
 
 // The card's Review changes action; pressing and waiting stay with its caller.
 export const reviewChanges = (card: Locator) =>
-  card.getByRole("button", { name: "Review changes" });
+  card.getByRole("button", { name: storyReviewNames.cardAction });
 
 // A card's detail, opened unless it is already open.
 export async function inspectedDetail(card: Locator): Promise<Locator> {
