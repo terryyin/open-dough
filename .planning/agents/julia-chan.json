@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Julia-chan",
+  "email": "julia-chan@example.org",
+  "identity": "SEED-410#remove-redundant-dashboard-navigation-doc",
+  "mode": "story-branch",
+  "branch": "cursor/remove-redundant-dashboard-navigation-doc",
+  "host": "cursor",
+  "model": "composer"
+}
