@@ -916,7 +916,7 @@ could fail there.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout-bound installed guidance at Take `e8e01643a`)
-  - Evidence: plan 707 slice 5 proof "Releasing the older read before the save in a scratch edit fails the older-read case"; `s5-discrimination` passed, and the implementer explained that a read answered before the save is not older; `s5-discrimination-guard` (removing `sequence <= shown`) failed instead.
+  - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` slice 5 proof "Releasing the older read before the save in a scratch edit fails the older-read case"; `s5-discrimination` passed, and the implementer explained that a read answered before the save is not older; `s5-discrimination-guard` (removing `sequence <= shown`) failed instead.
   - Observed effect: one wasted scratch run; the substitute discrimination was accepted.
 
 ## DD-575 — A plan prescribes a new promise as a step of another behaviour's test <a id="dd-575"></a>
@@ -980,7 +980,7 @@ The plan judged the retained-note case only on whether a fresh mount reads the s
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout-bound installed guidance at Take `e8e01643a`)
-  - Evidence: plan 707 "Slice 6 refinement" learning; the first port arranged the note and dropped `saveDiffNote` and the recorded add, so coordinator acceptance returned it; the second return stopped; slice 6 was split into a review-rule slice and slice 7 (`a1fa7a1d4`, `e3398ed26`).
+  - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` "Slice 6 refinement" learning; the first port arranged the note and dropped `saveDiffNote` and the recorded add, so coordinator acceptance returned it; the second return stopped; slice 6 was split into a review-rule slice and slice 7 (`a1fa7a1d4`, `e3398ed26`).
   - Observed effect: two returns, a removed attempt and one extra slice; no observation was lost.
   - Inference: listing every service a moved case's journey touches while planning would have sized the review rule up front.
 
@@ -995,6 +995,6 @@ The story promised a third of the story-notes time on the strength of phone-boar
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout-bound installed guidance at Take `e8e01643a`)
-  - Evidence: plan 707 "Observations used for sizing" (scratch probe of 82 ms, phone-board 7 cases) against slice 5 learning (`actSettled`) and the slice 8 comparison (0.80 and 0.86 of baseline); Terry changed the promise and queued `SEED-404#run-the-story-notes-checks-in-a-third-of-their-time`.
+  - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` "Observations used for sizing" (scratch probe of 82 ms, phone-board 7 cases) against slice 5 learning (`actSettled`) and the slice 8 comparison (0.80 and 0.86 of baseline); Terry changed the promise and queued `SEED-404#run-the-story-notes-checks-in-a-third-of-their-time`.
   - Observed effect: the goal was missed and a further story is needed.
   - Inference: a probe that holds answers and refreshes reads, as real cases do, would have exposed the settling cost before the third was promised. Close to DD-553 and DD-554 (premises settled on an unrepresentative stage).

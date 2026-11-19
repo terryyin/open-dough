@@ -6,7 +6,7 @@
 ## Provenance and findings
 
 The execution retrospective reviewed
-[the story-notes story](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed),
+the story-notes story (`7df4ade39b5f415c379f12615957ec779f6d93a5:.planning/seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md`, section `run-the-remaining-dashboard-frontend-checks-at-doughnut-speed`),
 commits `91e716f20`..`f3e1e44d1`. At `f3e1e44d1` the review found:
 
 1. **Two hold mechanisms; the isolation case proves the unused one.**

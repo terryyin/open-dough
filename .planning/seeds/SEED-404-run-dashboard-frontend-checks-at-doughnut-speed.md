@@ -107,92 +107,6 @@ separately. [Doughnut configuration](https://github.com/nerds-odd-e/doughnut/blo
 [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
-<a id="run-the-remaining-dashboard-frontend-checks-at-doughnut-speed"></a>
-
-### Run the story-notes frontend checks at the mounted boundary
-
-**Identity:** SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"30c2f392949e4f12d73eb5eb00e96f8aceb369db71995b8a58d31031db35f74d","plan":"5a9ff4a4a4175bc6c9d8e24ea8a376cd137d2eb3bbafbe3ad01287940c747c57"}}
-```
-
-Terry narrowed this story on 2026-11-18 from the whole remaining group to one
-family, starting in `stories/`. Planning then found that mounted specs cannot
-import the Node-side test data, so this story takes the four story-notes
-specs. The whole-group minute stays this seed's ambition, and
-[the other families](#run-the-other-frontend-families-at-the-mounted-boundary)
-carry the rest, including the other `stories/` specs.
-
-Terry changed the speed promise on 2026-11-19. In matched alternating runs the
-story-notes command took 0.80 and 0.86 of its baseline: the mounted cases
-spend most of their time settling inside React's act, and the attached-terminal
-case keeps a Playwright phase in the command. This story closes on that
-measured gain, and
-[the next story](#run-the-story-notes-checks-in-a-third-of-their-time)
-carries the third.
-
-**Goal.** A developer running the story-notes specs gets their answer faster
-than today at the usual two-worker local budget, with every
-original product assertion accounted for. The seed gains the measured cost of
-real specs at the mounted boundary, and later families gain the mounted
-fixture these specs need.
-
-**Scope.** Move the cases in `stories/story-notes.spec.ts`,
-`story-notes-edit.spec.ts`, `story-notes-retained.spec.ts` and
-`story-notes-unreadable.spec.ts` from the built-app fixture to mounted specs
-that render the production app with prepared service answers and deliver input
-directly, as the phone-board checks do. Each case keeps its observations. A
-case stays on the built-app fixture, or moves to `e2e/`, only where its
-behavior needs a real page load, native input or a live socket; record each
-such case with its reason, destination and cost. Every case starts from a
-fresh mount and default service answers.
-
-Arranged data comes from the same state builders and MakeMe data the built-app
-specs use, built in Node and handed to the mounted case. The notes service
-answers by one rule in both engines. The notes page object keeps one
-vocabulary of phases, cues and control names. Both file and `--grep` selection
-continue to work through `npm run test:dashboard:frontend`.
-
-Set the comparison before changing anything: the four specs' whole command,
-and the whole-group command, at two workers in one session on the same
-machine, with the load recorded. Keep the change when the four specs' command
-is faster than its matched baseline and the whole-group command is no slower. Report the summed case time and the per-file import cost beside it,
-and update the refinement evidence above with the per-file figure.
-
-Deferred: the other `stories/` specs and families, the whole-group minute,
-making the test data importable in the browser, merging spec files or sharing
-file isolation, and rebalancing the CI shards.
-
-**Key examples.**
-
-- A saved line note is edited by keyboard and saved. The mounted case shows
-  the saved text, the focus returning to Edit, and the same change request
-  the built-app case recorded.
-- A save is refused while a draft holds typed text. The draft and the
-  original note remain and the failure is announced.
-- Notes are unreadable for a project. Every card kind says so in place of a
-  count, and a later project read does not restore a count.
-- One case ends while a notes answer is still held. The next case in the same
-  file opens the board with default answers and no late update.
-- A Taken note survives a new launch and appears on Done. If a fresh mount
-  reads the same app-owned state, the case moves; if the proof needs the
-  browser's reload, it stays where a real page exists and is recorded with
-  its reason. The attached-terminal case is judged the same way for its live
-  socket.
-- `npm run test:dashboard:frontend -- stories/ --grep 'unreadable'` selects
-  the moved case.
-- Before: the four specs' command took 22.1 s at load 21. After, in a matched
-  session, the same command reports all accounted cases faster than its
-  matched baseline.
-
-**Architecture.** The phone-board delivery kept its own in-page page objects
-and service answers. These specs must not grow a parallel copy of Dashboard
-Test Support. The notes service has one answering rule that the route
-substitute and the mounted answers both use, and the notes page object names
-its phases, cues and controls once. No Accepted decision conflicts.
-[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
-requires the comparison basis above before the observed run.
-
 <a id="hold-and-settle-mounted-frontend-cases-by-one-rule"></a>
 
 ### Hold and settle mounted frontend cases by one rule
@@ -203,7 +117,7 @@ requires the comparison basis above before the observed run.
 ```
 
 Correction from the execution retrospective of
-[the story-notes story](#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed),
+the story-notes story (`7df4ade39b5f415c379f12615957ec779f6d93a5:.planning/seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md`, section `run-the-remaining-dashboard-frontend-checks-at-doughnut-speed`),
 2026-11-19.
 
 **Goal.** A developer writing a mounted frontend case can rely on the mounted
@@ -225,8 +139,8 @@ observation; product code is unchanged. [Plan](../slice-plans/711-hold-and-settl
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-Split from the story above on 2026-11-19, when its matched comparison measured
-0.83 of the baseline instead of a third.
+Split on 2026-11-19 from the story-notes story, whose matched comparison
+measured 0.83 of the baseline instead of a third.
 
 **Goal.** A developer running the story-notes specs gets their answer in at
 most a third of the 2026-11-19 matched baseline at the usual two-worker local
@@ -245,8 +159,8 @@ in act" warnings or the reopened Story notes dialog that skipped `showModal`.
 Take the Playwright phase out of the command by answering the attached
 terminal's socket in the mounted board through the engine-free
 `TerminalApplication` rule, or record why the case stays with its cost.
-Compare in matched alternating runs against `e8e01643a`, as the story above
-did. Deferred: the other families and the whole-group minute.
+Compare in matched alternating runs against `e8e01643a`, as the story-notes
+story did. Deferred: the other families and the whole-group minute.
 
 **Key examples.**
 
@@ -276,7 +190,7 @@ did. Deferred: the other families and the whole-group minute.
 roughly a minute at the usual two-worker local budget, including setup, with
 the original product assertions accounted for.
 
-**Scope.** Split from the story above on 2026-11-18. Once the story-notes
+**Scope.** Split from the story-notes story on 2026-11-18. Now that the story-notes
 specs have delivered the mounted fixture and its measured per-file cost, split
 this story by family in the order of removable cost in the refinement evidence
 table, starting with the other `stories/` specs. Decide then whether the test
