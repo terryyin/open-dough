@@ -128,6 +128,19 @@ async function changeNotes(
   return answer;
 }
 
+// The typed notes handler: reads (no change) or changes one admitted project's
+// notes and answers them. A change to a note that no longer exists is refused.
+export async function storyNotes(
+  project: string,
+  change?: StoryNoteChange,
+): Promise<StoryNotesAnswer> {
+  if (change !== undefined) return changeNotes(project, change);
+  const read = await readMachineJson(notesStore());
+  return read.kind === "unreadable" ? read : answerOf(read.document, project);
+}
+
+// The wire adapter: method, the `?id=` project and its admission, and the
+// change body parsed against the shared schema.
 export async function answerStoryNotes(
   req: IncomingMessage,
   signal: AbortSignal,
@@ -139,13 +152,10 @@ export async function answerStoryNotes(
     throw new RefusedRequest(400, "The notes request names one project.");
   if (configuredProject(project) === undefined)
     throw new RefusedRequest(404, "The project is not configured.");
-  if (req.method === "GET") {
-    const read = await readMachineJson(notesStore());
-    return read.kind === "unreadable" ? read : answerOf(read.document, project);
-  }
+  if (req.method === "GET") return storyNotes(project);
   const change = storyNoteChangeSchema.safeParse(await jsonBody(req, signal));
   if (!change.success)
     throw new RefusedRequest(400, "The notes request is malformed.");
   signal.throwIfAborted();
-  return changeNotes(project, change.data);
+  return storyNotes(project, change.data);
 }

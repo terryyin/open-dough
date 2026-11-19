@@ -67,8 +67,10 @@ boundary is a page the harness opens rather than a product workflow.
 
 ## Running
 
-`npm run test:dashboard:backend` runs only this group from its own
-configuration (`../backend.playwright.config.ts`). Its global setup
+`npm run test:dashboard:backend` runs only this group. Specs named
+`*.unit.spec.ts` run on Vitest in Node (`../backend.vitest.config.mts`); the
+rest run on Playwright from its own configuration
+(`../backend.playwright.config.ts`). Playwright's global setup
 (`../test-support/support/backendGlobalSetup.ts`) runs the fixture executables once,
 gives the run a GitHub request root that admits no owner, and registers only
 the artifacts backend specs request: the server bundle, the app build a
@@ -81,7 +83,7 @@ takes local full-suite admission only when unfiltered. Select files or tests
 as with any group, for example
 `npm run test:dashboard:backend -- sessions/ --grep 'alert'`; a direct
 `npx playwright test --config <repository>/dashboard/backend.playwright.config.ts`
-behaves the same from any working directory.
+runs the Playwright specs the same way from any working directory.
 
 CI runs this group as its own producer, the `dashboard-backend` job's shards
 (`.github/workflows/ci.yml`), and publishes its cases under the

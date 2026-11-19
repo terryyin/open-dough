@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { formatTimes } from "../../../scripts/spec-times-format.mjs";
-import { combineFrontendProof } from "./frontendProof.mjs";
+import { combineGroupProof } from "./groupProof.mjs";
 
 function writeTimes(destination, nativeTimes, tests, dashboard, engine) {
   const times = new Map();
@@ -30,9 +30,9 @@ function writeTimes(destination, nativeTimes, tests, dashboard, engine) {
   );
 }
 
-export function finishFrontendGroup({
+export function finishGroupRun({
   native,
-  mounted,
+  vitestRun,
   engine,
   run,
   nativeTimes,
@@ -46,17 +46,17 @@ export function finishFrontendGroup({
   if (optionalReporter && !destination && !times && native && !native.record) {
     return (
       native.status ||
-      (mounted
-        ? combineFrontendProof({ mounted, engine, run, finishedAt }).status
+      (vitestRun
+        ? combineGroupProof({ vitestRun, engine, run, finishedAt }).status
         : 0)
     );
   }
   const nativeWasListed = run.listing && native?.record?.phase === "listed";
-  const result = combineFrontendProof({
+  const result = combineGroupProof({
     playwright: nativeWasListed
       ? { ...native, record: { ...native.record, phase: "completed" } }
       : native,
-    mounted,
+    vitestRun,
     engine,
     run,
     finishedAt,

@@ -12,18 +12,18 @@ judgment, "first Node Vitest run", the Doughnut pointer, and the scope limits.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | storyNotes.ts is split into a thin wire adapter (method, ?id= project and admission, body parsing against the shared change schema, abort) and a typed handler taking an admitted project and a typed StoryNoteChange, answering a StoryNotesAnswer, keeping every store rule | slice 2 |  |
-| 2 | Both types come from the shared contract in dashboard/src/storyNote.ts; no second contract is added | slice 2 |  |
+| 1 | storyNotes.ts is split into a thin wire adapter (method, ?id= project and admission, body parsing against the shared change schema, abort) and a typed handler taking an admitted project and a typed StoryNoteChange, answering a StoryNotesAnswer, keeping every store rule | slice 2 | observed: dashboard/server/storyNotes.ts storyNotes(project, change?) under answerStoryNotes; Playwright review/story-notes specs unchanged and passing (evidence s2-proof.log) |
+| 2 | Both types come from the shared contract in dashboard/src/storyNote.ts; no second contract is added | slice 2 | observed: storyNotes.ts imports StoryNoteChange and StoryNotesAnswer from dashboard/src/storyNote.ts; typecheck:dashboard exit 0 |
 | 3 | Plain Node Vitest cases prove the store rules in-process, no server, against the real durable store under their own machine home | slice 3 |  |
-| 3.1 | Ids and times assigned, notes kept by project and identity, newest first: two saved notes plus an add answer the new note first with id and time, and the file holds the three notes | slice 2 |  |
+| 3.1 | Ids and times assigned, notes kept by project and identity, newest first: two saved notes plus an add answer the new note first with id and time, and the file holds the three notes | slice 2 | observed: dashboard/backend-tests/review/story-notes.unit.spec.ts "adding a note answers it first ..." asserts new note first with id and savedAt, saved notes following, file holds the three; scratch ordering break failed it (s2-break.log) |
 | 3.2 | The edit and delete rules hold | slice 3 |  |
 | 3.3 | The delivered-notes and versions rules hold | slice 3 |  |
 | 3.4 | An unreadable file is reported and preserved: read answers unreadable, a following add is refused, the file's bytes are unchanged | slice 3 |  |
 | 3.5 | An unwritable store is refused | slice 3 |  |
 | 4 | One focused wire check through a started server covers refused methods, missing or unconfigured project, malformed and non-JSON bodies, foreign origin, no-store, and each refusal's status; PUT, extra field and foreign origin give 405, 400, 403 and no notes file exists | slice 3 |  |
-| 5 | The Node Vitest cases live under dashboard/backend-tests/ and run in npm run test:dashboard:backend | slice 2 |  |
+| 5 | The Node Vitest cases live under dashboard/backend-tests/ and run in npm run test:dashboard:backend | slice 2 | observed: npm run test:dashboard:backend -- review/story-notes ran the unit spec beside 7 Playwright specs, proof record 7 chromium + 1 node (s2-proof.log) |
 | 6 | The same cases run in the dashboard-backend CI job beside the Playwright specs, inside the group's split, times and proof record | slice 2 |  |
-| 7 | No CI job is added | slice 2 |  |
+| 7 | No CI job is added | slice 2 | observed: .github/workflows/ci.yml unchanged: dashboard-backend keeps 3 shards running test:dashboard:backend |
 | 8 | Each of the eleven Story Notes behaviors in story-notes-*.mounted.spec.ts has exactly one owner, and none is lost | slice 6 |  |
 | 9 | A behavior a rendered Story Notes component owns is a plain Vitest case mounting StoryNotesDialog or the StoryNotes control with MakeMe notes and typed inputs | slice 5 |  |
 | 9.1 | StoryNotesDialog mounted with no notes, user adds "First observation" and saves: the dialog asks for one add change with that text and the story's identity | slice 4 |  |

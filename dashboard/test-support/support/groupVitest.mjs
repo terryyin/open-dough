@@ -1,5 +1,5 @@
 import path from "node:path";
-import { matchesMountedCase } from "./frontendSelection.mjs";
+import { matchesVitestCase } from "./groupSelection.mjs";
 
 function caseTitles(test) {
   const parts = [test.name];
@@ -12,7 +12,7 @@ function caseTitles(test) {
   return parts;
 }
 
-export async function prepareMounted({
+export async function prepareVitest({
   config,
   files,
   args,
@@ -65,7 +65,7 @@ export async function prepareMounted({
           parts: caseTitles(test),
         }))
         .filter(({ test, parts }) =>
-          matchesMountedCase(entry, args, parts.join(" "), test.location),
+          matchesVitestCase(entry, args, parts.join(" "), test.location),
         );
       // A broken file must reach the runner and leave a failed collection,
       // even when its cases cannot be read during title discovery.
@@ -135,7 +135,7 @@ export async function prepareMounted({
   }
 }
 
-export function printMountedListing(files, directory, engine) {
+export function printVitestListing(files, directory, engine) {
   for (const file of files) {
     for (const test of file.assertionResults) {
       const at = test.location;

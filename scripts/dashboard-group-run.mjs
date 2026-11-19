@@ -10,15 +10,15 @@ import { fileURLToPath } from "node:url";
 import { acquireLocalSuite } from "./local-test-suite.mjs";
 import { readJson, retainedPlaywright } from "./retained-playwright.mjs";
 import {
-  prepareMounted,
-  printMountedListing,
-} from "../dashboard/test-support/support/frontendMounted.mjs";
-import { finishFrontendGroup } from "../dashboard/test-support/support/frontendOutputs.mjs";
+  prepareVitest,
+  printVitestListing,
+} from "../dashboard/test-support/support/groupVitest.mjs";
+import { finishGroupRun } from "../dashboard/test-support/support/groupOutputs.mjs";
 import {
-  frontendArguments,
-  frontendFiles,
-  matchesFrontendFile,
-} from "../dashboard/test-support/support/frontendSelection.mjs";
+  groupArguments,
+  groupFiles,
+  matchesGroupFile,
+} from "../dashboard/test-support/support/groupSelection.mjs";
 import { fullDashboardSuite } from "../dashboard/test-support/support/fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "../dashboard/test-support/support/suiteDeadline.mjs";
 
@@ -100,7 +100,7 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
       process.env.NODE_DISABLE_COMPILE_CACHE = "1";
       if (fullDashboardSuite(argv, process.env, splitSetting))
         release = await acquireLocalSuite(repository, { signal: stop.signal });
-      vitest = await prepareMounted({
+      vitest = await prepareVitest({
         config: vitestConfigFile,
         files: files.filter((file) => file.vitest),
         args,
@@ -127,19 +127,19 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
           console.log(
             `  [${test.project}] › ${test.titlePath.slice(2).join(" › ")}`,
           );
-        printMountedListing(vitest.files, dashboard, engine);
+        printVitestListing(vitest.files, dashboard, engine);
       } else mkdirSync(results, { recursive: true });
-      const mounted = args.list
+      const vitestRun = args.list
         ? { status: 0, report: { testResults: vitest.files } }
         : {
             status: stop.signal.aborted ? 1 : await vitest.run(),
             report: readJson(report),
             selected: vitest.selected,
           };
-      keep = !args.list && mounted.status !== 0;
-      const status = finishFrontendGroup({
+      keep = !args.list && vitestRun.status !== 0;
+      const status = finishGroupRun({
         native,
-        mounted,
+        vitestRun,
         engine,
         nativeTimes,
         optionalReporter: args.reporter,
@@ -174,12 +174,12 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   process.once("SIGINT", interrupt);
   process.once("SIGTERM", interrupt);
   try {
-    const all = frontendFiles(group, process.env[splitSetting]);
+    const all = groupFiles(group, process.env[splitSetting]);
     const args = all.some((file) => file.vitest)
-      ? frontendArguments(argv)
+      ? groupArguments(argv)
       : undefined;
     const files = args
-      ? all.filter((file) => matchesFrontendFile(file, args))
+      ? all.filter((file) => matchesGroupFile(file, args))
       : [];
     if (!args || !files.some((file) => file.vitest)) {
       return await playwright.run(argv);

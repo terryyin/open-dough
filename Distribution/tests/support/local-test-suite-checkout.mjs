@@ -57,7 +57,7 @@ export function suiteRunnerLayer() {
       "dashboard/test-support/support/browserArgs.ts",
       "dashboard/test-support/support/browserTestGroups.mjs",
       "dashboard/test-support/support/fullSuiteSelection.mjs",
-      "dashboard/test-support/support/frontendSelection.mjs",
+      "dashboard/test-support/support/groupSelection.mjs",
       "dashboard/test-support/support/runnerConfig.mjs",
     ]);
     const withFramework = (config) =>

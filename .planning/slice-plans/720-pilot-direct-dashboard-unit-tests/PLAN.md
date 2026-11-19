@@ -167,6 +167,18 @@ one shard. `ci-browser-groups.test.mjs` agrees with the backend command and
 `ci.yml`. The whole backend group passes, since the command every backend
 spec runs through changes.
 
+Learning: the handler is `storyNotes(project, change?)` in
+`dashboard/server/storyNotes.ts`; `npm run test:dashboard:backend` is
+`node scripts/test-backend.mjs` over `dashboard/backend.vitest.config.mts`
+(engine `node`), and the first case is
+`dashboard/backend-tests/review/story-notes.unit.spec.ts`. `bash scripts/test.sh`
+refuses dashboard specs; run one through
+`npm run test:dashboard:backend -- <path>`. The backend group has three CI
+shards and the case falls in shard 2. Under a backend `_SPLIT`, Playwright's
+`--list` prints nothing, as before this plan.
+After SEED-412 landed (merged at `f7aa7dbd9`), `backend.vitest.config.mts` calls
+`useDisposableTestHome()` as the frontend Vitest config does.
+
 ### 3. Every notes store rule is proven in-process, with one wire check
 
 Type: Behavior
@@ -182,6 +194,11 @@ then accepted once writable. One Playwright wire check keeps refused methods,
 a missing or unconfigured project, malformed and non-JSON bodies, a foreign
 origin, `no-store`, and the status an unreadable store and an unknown note
 map to. The HTTP versions of the moved cases are deleted.
+
+The in-process cases seed the notes file from a MakeMe stored-document
+builder that returns the document as data, in place of
+`test-support/support/storyNotesStore.ts`'s `seedStoryNotes`, which keeps its
+other importers.
 
 Proof: `npm run test:dashboard:backend -- review/story-notes` passes. Each
 moved rule's case fails under a scratch edit that disables the rule in
@@ -313,7 +330,10 @@ test sources and
 [dough-page-objects](../../../.agents/skills/dough-page-objects/SKILL.md) to
 the E2E step.
 
-- **Focused:** `bash scripts/test.sh <paths>` from the repository root, with
+- **Focused:** `bash scripts/test.sh <paths>` for Distribution tests and
+  `npm run test:dashboard:backend -- <path>` or
+  `node scripts/test-frontend.mjs <path>` for dashboard specs, from the
+  repository root, with
   `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`.
 - **Whole runs:** `npm run test:dashboard:frontend` in slice 1 and
   `npm run test:dashboard:backend` in slice 2, because those slices change

@@ -13,7 +13,7 @@ export function isVitestFile(file) {
   return vitestMarker.test(file);
 }
 
-export function frontendFiles(group, split) {
+export function groupFiles(group, split) {
   const { directory } = group;
   return selectedFiles(directory, split, browserGroupSelection(group)).map(
     (file) => ({
@@ -34,7 +34,7 @@ function filterPattern(source) {
     : new RegExp(source, "i");
 }
 
-export function frontendArguments(argv) {
+export function groupArguments(argv) {
   const files = [];
   let grep, grepInvert, workers, reporter, project;
   let list = false;
@@ -110,14 +110,14 @@ function fileMatches(entry, { pattern }) {
   );
 }
 
-export function matchesFrontendFile(entry, args) {
+export function matchesGroupFile(entry, args) {
   return (
     args.files.length === 0 ||
     args.files.some((filter) => fileMatches(entry, filter))
   );
 }
 
-export function matchesMountedCase(entry, args, title, location) {
+export function matchesVitestCase(entry, args, title, location) {
   const grepTitle = `chromium ${entry.logicalLabel} ${title}`;
   return (
     (args.grep?.test(grepTitle) ?? true) &&

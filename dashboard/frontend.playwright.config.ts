@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import { prepareFocusedRun } from "./test-support/support/runnerConfig.mjs";
 import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
-import { isVitestFile } from "./test-support/support/frontendSelection.mjs";
+import { isVitestFile } from "./test-support/support/groupSelection.mjs";
 
 // Retained Playwright specs for Dashboard Frontend Test. The npm command also
 // runs mounted specs. Both owners share OPEN_DOUGH_DASHBOARD_FRONTEND_*

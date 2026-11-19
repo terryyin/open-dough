@@ -1,6 +1,6 @@
-// Combine the frontend runners' reports without replacing Playwright's case
-// identities, retry semantics, or file attribution. The existing CI producer
-// reads the combined dashboard record once per shard.
+// Combine a dashboard group's two runners' reports without replacing
+// Playwright's case identities, retry semantics, or file attribution. The
+// existing CI producer reads the combined dashboard record once per shard.
 import { relative, sep } from "node:path";
 
 /**
@@ -13,19 +13,19 @@ import { relative, sep } from "node:path";
  *   status: "passed" | "failed" | "skipped" | "todo" | "pending",
  *   duration?: number,
  *   location?: { line: number, column: number },
- * }} MountedCase
+ * }} VitestCase
  * @typedef {{
  *   name: string,
  *   status: "passed" | "failed",
  *   message: string,
- *   assertionResults: MountedCase[],
- * }} MountedFile
+ *   assertionResults: VitestCase[],
+ * }} VitestFile
  * @typedef {{
  *   status: number | null,
- *   report?: { testResults: MountedFile[] },
+ *   report?: { testResults: VitestFile[] },
  *   // Exact selected titles keyed by each absolute spec path, when known.
  *   selected?: ReadonlyMap<string, ReadonlySet<string>>,
- * }} MountedRun
+ * }} VitestRun
  */
 
 const outcome = {
@@ -37,14 +37,14 @@ const outcome = {
 };
 
 /**
- * @param {MountedFile} file
- * @param {MountedCase} test
+ * @param {VitestFile} file
+ * @param {VitestCase} test
  * @param {number} index
  * @param {string} rootDir
  * @param {string} engine
  * @returns {Selection}
  */
-function mountedSelection(file, test, index, rootDir, engine) {
+function vitestSelection(file, test, index, rootDir, engine) {
   const spec = relative(rootDir, file.name).split(sep).join("/");
   const testId = JSON.stringify([engine, spec, index]);
   const observed = outcome[test.status];
@@ -78,12 +78,12 @@ function mountedSelection(file, test, index, rootDir, engine) {
 }
 
 /**
- * @param {MountedRun} mounted
+ * @param {VitestRun} vitestRun
  * @param {string} rootDir
  * @param {string} engine
  */
-function mountedEvidence(mounted, rootDir, engine) {
-  const files = mounted.report?.testResults;
+function vitestEvidence(vitestRun, rootDir, engine) {
+  const files = vitestRun.report?.testResults;
   if (!Array.isArray(files)) {
     return {
       tests: [],
@@ -99,7 +99,7 @@ function mountedEvidence(mounted, rootDir, engine) {
       new Set(file.assertionResults.map((test) => test.fullName)),
     ]),
   );
-  for (const [file, titles] of mounted.selected ?? []) {
+  for (const [file, titles] of vitestRun.selected ?? []) {
     const found = reported.get(file);
     if (found === undefined) {
       diagnostics.push(`Vitest reported no collection for ${file}.`);
@@ -113,7 +113,7 @@ function mountedEvidence(mounted, rootDir, engine) {
   }
   let failed = false;
   for (const file of files) {
-    const selected = mounted.selected?.get(file.name);
+    const selected = vitestRun.selected?.get(file.name);
     const failedCase = file.assertionResults.some(
       (test) => test.status === "failed",
     );
@@ -123,21 +123,21 @@ function mountedEvidence(mounted, rootDir, engine) {
       );
     } else if (
       file.assertionResults.length === 0 &&
-      (mounted.selected === undefined || selected !== undefined)
+      (vitestRun.selected === undefined || selected !== undefined)
     ) {
       diagnostics.push(`Vitest reported no cases for ${file.name}.`);
     }
     for (const [index, test] of file.assertionResults.entries()) {
       // Vitest includes deselected assertions with skipped status.
-      if (mounted.selected !== undefined && !selected?.has(test.fullName)) {
+      if (vitestRun.selected !== undefined && !selected?.has(test.fullName)) {
         continue;
       }
       failed ||= test.status === "failed" || test.status === "pending";
-      tests.push(mountedSelection(file, test, index, rootDir, engine));
+      tests.push(vitestSelection(file, test, index, rootDir, engine));
     }
   }
   // A browser or setup error can fail the command after all known cases pass.
-  if (mounted.status !== 0 && !failed && diagnostics.length === 0) {
+  if (vitestRun.status !== 0 && !failed && diagnostics.length === 0) {
     diagnostics.push(
       "Vitest failed without reporting a failed or unfinished case.",
     );
@@ -156,23 +156,23 @@ function mountedEvidence(mounted, rootDir, engine) {
  *
  * @param {{
  *   playwright?: {status: number | null, record?: ProofRecord},
- *   mounted?: MountedRun,
+ *   vitestRun?: VitestRun,
  *   engine: string,
  *   run: ProofRecord["run"],
  *   finishedAt: string,
  * }} input
  * @returns {{ status: number, record: ProofRecord, diagnostics: string[] }}
  */
-export function combineFrontendProof({
+export function combineGroupProof({
   playwright,
-  mounted,
+  vitestRun,
   engine,
   run,
   finishedAt,
 }) {
   const native = playwright?.record;
   const nativeStatus = playwright === undefined ? 0 : (playwright.status ?? 1);
-  if (mounted === undefined && native?.phase === "completed") {
+  if (vitestRun === undefined && native?.phase === "completed") {
     return { status: nativeStatus, record: native, diagnostics: [] };
   }
   const diagnostics = [];
@@ -181,19 +181,19 @@ export function combineFrontendProof({
   } else if (native?.tests.length === 0) {
     diagnostics.push("Playwright reported no selected cases.");
   }
-  const mount =
-    mounted === undefined
+  const vitest =
+    vitestRun === undefined
       ? undefined
-      : mountedEvidence(mounted, run.rootDir, engine);
-  diagnostics.push(...(mount?.diagnostics ?? []));
-  const tests = [...(native?.tests ?? []), ...(mount?.tests ?? [])];
+      : vitestEvidence(vitestRun, run.rootDir, engine);
+  diagnostics.push(...(vitest?.diagnostics ?? []));
+  const tests = [...(native?.tests ?? []), ...(vitest?.tests ?? [])];
   if (tests.length === 0 && diagnostics.length === 0) {
-    diagnostics.push("No frontend test case was reported.");
+    diagnostics.push("No test case was reported.");
   }
   const status =
     nativeStatus ||
-    (mounted === undefined ? 0 : (mounted.status ?? 1)) ||
-    (mount?.failed || diagnostics.length > 0 ? 1 : 0);
+    (vitestRun === undefined ? 0 : (vitestRun.status ?? 1)) ||
+    (vitest?.failed || diagnostics.length > 0 ? 1 : 0);
   const verdict = status === 0 ? "passed" : "failed";
   return {
     status,
