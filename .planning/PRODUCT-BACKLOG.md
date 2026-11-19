@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Return to recently selected stories](seeds/SEED-409-return-to-recently-selected-stories.md#return-to-recently-selected-stories) — SEED-409#return-to-recently-selected-stories
 - [Default dashboard backend checks to the mounted boundary](seeds/SEED-408-default-dashboard-backend-checks-to-the-mounted-boundary.md#default-dashboard-backend-checks-to-the-mounted-boundary) — SEED-408#default-dashboard-backend-checks-to-the-mounted-boundary
 - [Run the other frontend families at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) — SEED-404#run-the-other-frontend-families-at-the-mounted-boundary
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
