@@ -5,6 +5,7 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import {
   author,
+  freshYuiCompletion,
   implemented,
   integrated,
   otherStory,
@@ -12,13 +13,8 @@ import {
   storyBranchThroughInterleaving,
   trunkWriterShared,
   yuiClaim,
-  yuiCompletion,
 } from "./completedStoryThroughInterleaving.ts";
 import { lines } from "./storyReviewWorktree.ts";
-
-// Recently done keeps only the last 30 days; a fixed January stamp falls out.
-const freshYuiCompletion = () =>
-  yuiCompletion({ completedAt: new Date().toISOString() });
 
 const agentOnly = '{"agent":"only"}\n';
 const otherProfile = '{"agent":"other"}\n';

@@ -58,6 +58,9 @@ export const yuiCompletion = (facts: { completedAt?: string } = {}) =>
     host: "claude",
     ...facts,
   });
+// Recently done keeps only the last 30 days; a fixed January stamp falls out.
+export const freshYuiCompletion = () =>
+  yuiCompletion({ completedAt: new Date().toISOString() });
 export const implementation = {
   message: "story implementation",
   author,

@@ -218,7 +218,7 @@ completion-conflict declared; driver config stays a visible harness action;
 ### 6. Follow-up and review journeys read declared completions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a follow-up or review journey's completed story is declared, with
 its `change` and `integrate` edits as revision files → the journeys' pages
@@ -230,6 +230,10 @@ and follow-up admissions are unchanged.
   `story-review-diff-line-follow-up` and `story-review-diff-add-note` specs.
 
 Proof: those backend and E2E specs pass.
+Accepted (reusable): `completedFollowUpHistory.ts` (rename / ordinary /
+expand-context) with shared `freshYuiCompletion` for Recently done; backend
+launches 9 + E2E journeys 6 passed. Retained snapshot still uses a visible
+`agentWorktree`.
 
 ### 7. Intent's completed stories publish declared completions
 
