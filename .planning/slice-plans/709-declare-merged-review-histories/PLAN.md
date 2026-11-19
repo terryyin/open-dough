@@ -180,6 +180,18 @@ are independent observations. Learning: a story that renames a file before a
 declared merge keeps trunk's bytes only at the new path, or the merge re-adds
 the old path. The refactor pass found nothing further.
 
+## Execution complete
+
+Product advice: no product change. The completed-story sibling
+(SEED-353#declare-completed-story-review-histories) should delete
+`dashboard/test-support/support/storyReviewMergeDriver.ts` rather than migrate
+it: `printingMergeDriver` has had no consumer since `6b9aeef56` removed review
+marks, and it is the only remaining importer of `sixth` outside this story's
+specs. Optional cleanup for wrap-up: one domain-named Story commits row reader
+in `reviewRead.ts` for the locator repeated across about 10 `e2e/review`
+commit specs. Process review is deferred into wrap-up with its Intent Coverage
+check, since this execution rewrote existing tests' setup.
+
 ## Verification and execution gates
 
 Apply [AGENTS.md](../../../AGENTS.md#test-automation), installed MakeMe and
