@@ -1,6 +1,7 @@
 // The pinned banner in each of its page-column layouts (../../src/banner.css,
 // ../../src/project-select.css): always one row, Sessions (Open Dough mark as
-// its visual), icon-only perspective, project choices, and System settings.
+// its visual), icon-only perspective, Recent stories, project choices, and
+// System settings.
 // The project tabs show while they fit on that row; otherwise the compact
 // title select takes their place, even well above phone width. One journey
 // per layout walks the keyboard back up a long page: the banner stays pinned
@@ -85,8 +86,14 @@ for (const viewport of layouts) {
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const { banner, project, projectCompact, backlog, perspective } =
-      parts(page);
+    const {
+      banner,
+      project,
+      projectCompact,
+      backlog,
+      perspective,
+      recentStories,
+    } = parts(page);
     const sessions = sessionsSidebarParts(page).button;
     // The last card's last control.
     const last = backlog
@@ -138,7 +145,13 @@ for (const viewport of layouts) {
 
     await test.step("the column lays the banner in one row, from Sessions to System settings", async () => {
       const gear = settings(page);
-      await expectBannerRow([sessions, perspective, titleControl, gear]);
+      await expectBannerRow([
+        sessions,
+        perspective,
+        recentStories,
+        titleControl,
+        gear,
+      ]);
       const stops = bannerStops(page);
       await expect(stops.last()).toHaveAccessibleName("System settings");
       // Sessions (mark) leads the banner as the first keyboard stop.

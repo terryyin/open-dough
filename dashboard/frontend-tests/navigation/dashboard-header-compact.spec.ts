@@ -1,9 +1,10 @@
 // Compact title select on a phone-width column (../../src/banner.css):
-// one-line banner with mark-as-Sessions toggle, labelled perspective, compact
-// project select (may truncate), and settings; touch and keyboard choose a
-// project, Escape leaves the selection, resize keeps it across tab radios and
-// compact control, and page-wide arrow cycling focuses the shown compact title
-// control. No separate panel icon or level-1 project title.
+// one-line banner with mark-as-Sessions toggle, labelled perspective, Recent
+// stories, compact project select (may truncate), and settings; touch and
+// keyboard choose a project, Escape leaves the selection, resize keeps it
+// across tab radios and compact control, and page-wide arrow cycling focuses
+// the shown compact title control. No separate panel icon or level-1 project
+// title.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
@@ -42,13 +43,14 @@ test.describe("compact project title select on a phone-width column", () => {
   test.describe("touch", () => {
     test.use({ viewport: portrait, hasTouch: true });
 
-    test("one-line banner: mark-as-Sessions, perspective, project select, settings", async ({
+    test("one-line banner: mark-as-Sessions, perspective, Recent stories, project select, settings", async ({
       page,
       frontendServices,
     }) => {
       await answerCatalogProjects(page, frontendServices);
       await page.goto("/");
-      const { banner, projectCompact, perspective } = parts(page);
+      const { banner, projectCompact, perspective, recentStories } =
+        parts(page);
       const sessions = sessionsSidebarParts(page).button;
       await expectCompactProjectSelect(page, "Open Dough");
       await expectCatalogStories(page, openDoughProject);
@@ -59,7 +61,13 @@ test.describe("compact project title select on a phone-width column", () => {
       ).toHaveCount(0);
       await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
       const gear = settings(page);
-      const inOrder = [sessions, perspective, projectCompact, gear];
+      const inOrder = [
+        sessions,
+        perspective,
+        recentStories,
+        projectCompact,
+        gear,
+      ];
       await expectBannerRow(inOrder);
       await expectPinnedShortBanner(page, portrait.height);
       await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);

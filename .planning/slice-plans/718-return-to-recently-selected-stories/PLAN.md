@@ -2,6 +2,7 @@
 
 **Identity:** SEED-409#return-to-recently-selected-stories
 **Source:** [Return to recently selected stories](../../seeds/SEED-409-return-to-recently-selected-stories.md#return-to-recently-selected-stories)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -42,11 +43,10 @@ new handling for a story that has left the Board, and no shortcut.
 - **Vocabulary.** ADR 0008
   [Dashboard UI concepts](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts)
   gains **Recent stories**, and its Selected story entry gains the new way
-  of setting it. [Dashboard navigation](../../../docs/dashboard-navigation.md)
-  describes the banner order, and
-  [Board interaction](../../../docs/dashboard-board-interaction.md)
-  describes selection. Each gets the matching sentence in the slice that
-  delivers the behavior.
+  of setting it. [Board interaction](../../../docs/dashboard-board-interaction.md)
+  describes the banner order and selection. Each matching sentence lands in
+  the slice that delivers the behavior. (`docs/dashboard-navigation.md` was
+  removed by SEED-410; banner-order guidance lives with board interaction.)
 
 No Accepted decision conflicts, and no North Star topic is needed.
 
@@ -88,10 +88,13 @@ Observed on 2026-11-19 at `d6159c217`, Node 24.21.0, in this worktree.
 ### 1. The banner shows the selection and lists recent stories
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `frontend-tests/navigation/recent-stories.spec.ts`, plus
 `navigation/dashboard-header.spec.ts` and
 `navigation/dashboard-header-compact.spec.ts` still passing.
+Accepted proof: `open-dough/evidence/slice1-frontend-proof-2.json` (headers)
+and `refactor-frontend-proof.json` (recent-stories after refactor); selection
+consumer `slice1-selection-consumer-proof.json`; lint/typecheck exit 0.
 
 Behavior: covers seed examples 1, 4 and 5 within one page. With no
 selection, the bookmark is an outline, and its accessible name says no
@@ -104,8 +107,9 @@ outline bookmark, and the popover lists A unchecked. Escape or an outside
 click closes the popover without changing the selection. The button sits
 in its own group right after the Perspective group, and the banner stays
 on one row at the compact widths. ADR 0008 adds **Recent stories**, and
-dashboard navigation adds the button. Browser storage is not used yet;
-slice 2 adds it.
+board interaction records the banner button. Browser storage is not used
+yet; slice 2 adds it. Control file is `recentStoriesControl.tsx` (macOS
+case clash with `recentStories.ts`).
 
 ### 2. Recent stories survive a reload, capped at 10
 
@@ -202,6 +206,16 @@ awake macOS on AC with `caffeinate -s -i`. On battery, follow the
   the current one. The selection itself stays page state.
 - In Development, revealing a story reuses the story-reference journey. A
   Recent stories reveal opens no card detail.
+
+## Learnings
+
+- On macOS case-insensitive FS, do not place `RecentStories.tsx` beside
+  `recentStories.ts`; use `recentStoriesControl.tsx`.
+- Banner-order docs belong in `docs/dashboard-board-interaction.md` after
+  SEED-410 removed `docs/dashboard-navigation.md`.
+- Optional later Structure: denser page-object journeys for
+  `recent-stories.spec.ts` step bodies (same pattern as neighboring
+  navigation specs).
 
 ## Plan review
 

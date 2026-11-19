@@ -11,10 +11,12 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { rememberRecentStory, sameRecentStory } from "./recentStories.ts";
 
 // The selected story names its project, since one page serves every project.
 export type SelectedStory = {
@@ -38,32 +40,56 @@ export const StorySelectionOnPage = createContext<
 // The selected story; changes force consumers to re-render.
 const StorySelectionState = createContext<SelectedStory | undefined>(undefined);
 
-// Whether a selection, if any, is this story of the same project.
-export const sameSelectedStory = (
-  a: SelectedStory | undefined,
-  b: SelectedStory,
-) => a?.project === b.project && a.identity === b.identity;
+// Most-recent-first history of selections on this page (ADR 0008 Recent
+// stories); clearing the selection leaves this list as it is.
+const RecentStoriesState = createContext<readonly SelectedStory[]>([]);
 
-// The page's selected story and its mutators, owned by PageFrame.
+// Whether a selection, if any, is this story of the same project.
+export const sameSelectedStory = sameRecentStory;
+
+function initialSelectedStory(): SelectedStory | undefined {
+  const params = new URLSearchParams(window.location.search);
+  const project = params.get("project"),
+    identity = params.get("followUp");
+  return project && identity && params.get("landing")
+    ? { project, identity }
+    : undefined;
+}
+
+// The page's selected story, its mutators, and Recent stories history, owned
+// by PageFrame. Every selection goes through one state writer here.
 export function usePageStorySelection() {
-  const [selected, setSelected] = useState<SelectedStory | undefined>(() => {
-    const params = new URLSearchParams(window.location.search);
-    const project = params.get("project"),
-      identity = params.get("followUp");
-    return project && identity && params.get("landing")
-      ? { project, identity }
-      : undefined;
+  const [selected, setSelected] = useState<SelectedStory | undefined>(
+    initialSelectedStory,
+  );
+  const [recent, setRecent] = useState<readonly SelectedStory[]>(() => {
+    const initial = initialSelectedStory();
+    return initial === undefined ? [] : [initial];
   });
-  const toggle = useCallback((story: SelectedStory) => {
-    setSelected((current) =>
-      sameSelectedStory(current, story) ? undefined : story,
-    );
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+  const remember = useCallback((story: SelectedStory) => {
+    setRecent((history) => rememberRecentStory(history, story));
   }, []);
-  const select = useCallback((story: SelectedStory) => {
-    setSelected((current) =>
-      sameSelectedStory(current, story) ? current : story,
-    );
-  }, []);
+  const toggle = useCallback(
+    (story: SelectedStory) => {
+      if (sameSelectedStory(selectedRef.current, story)) {
+        setSelected(undefined);
+        return;
+      }
+      remember(story);
+      setSelected(story);
+    },
+    [remember],
+  );
+  const select = useCallback(
+    (story: SelectedStory) => {
+      if (sameSelectedStory(selectedRef.current, story)) return;
+      remember(story);
+      setSelected(story);
+    },
+    [remember],
+  );
   const clear = useCallback(() => {
     setSelected(undefined);
   }, []);
@@ -71,11 +97,11 @@ export function usePageStorySelection() {
     () => ({ toggle, select, clear }),
     [toggle, select, clear],
   );
-  return { selected, api };
+  return { selected, recent, api };
 }
 
 export function StorySelectionProvider({
-  selection: { selected, api },
+  selection: { selected, recent, api },
   children,
 }: {
   readonly selection: ReturnType<typeof usePageStorySelection>;
@@ -83,9 +109,21 @@ export function StorySelectionProvider({
 }) {
   return (
     <StorySelectionOnPage value={api}>
-      <StorySelectionState value={selected}>{children}</StorySelectionState>
+      <StorySelectionState value={selected}>
+        <RecentStoriesState value={recent}>{children}</RecentStoriesState>
+      </StorySelectionState>
     </StorySelectionOnPage>
   );
+}
+
+// The page's Recent stories history, for the banner list.
+export function useRecentStories() {
+  return useContext(RecentStoriesState);
+}
+
+// The page's selected story, or none, for banner and other page-wide readers.
+export function useSelectedStory() {
+  return useContext(StorySelectionState);
 }
 
 // The selected story as one project reads it: none unless that project owns
