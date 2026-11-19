@@ -421,6 +421,14 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
     place.
   - Delete retired `dashboard/test-support/` wrappers, add none, and leave no
     behavioral regression gap.
+- **Revisit the completed Story Notes pilot.** The
+  [handler](../../dashboard/server/storyNotes.ts) chooses its file through the
+  machine home, so the [unit test suite](../../dashboard/backend-tests/review/story-notes.unit.spec.ts)
+  changes `process.env.HOME` for every case. Let the production caller bind the
+  default notes store and the suite supply its own temporary notes file or
+  file-backed store explicitly. Run the existing persistence, isolation and
+  unreadable-file cases against real files with the process home untouched.
+  Keep the wire check for project admission, request parsing and HTTP responses.
 - **Order.** Highest CI seconds first among the families whose seam the
   earlier ones have shown, as a railway converts its busiest lines first
   while both gauges run. The count of specs still on `@playwright/test` is
@@ -586,6 +594,26 @@ cost and which shared contracts are available as families finish.
   already helps one developer on one family. It cannot measure the cost of
   the full group. Each completed family delivers usable feedback on its own.
   Effort L across families, to be refined as each one is reached.
+
+#### Rework from the completed frontend families
+
+- **Story Notes control.** The [mounted control suite](../../dashboard/frontend-tests/stories/story-notes-control.mounted.spec.ts)
+  builds a page-wide project map and passes the project key again to render
+  one story's control. Have the production page resolve the project's shared
+  notes state and let the suite render the same control with that state
+  explicitly. Keep the refresh and late-read-after-save cases on the real
+  subscribed state. The dialog already renders from notes and callbacks.
+- **Project CI history.** [JudgedBranch](../../dashboard/src/IntentCiJudgedBranch.tsx)
+  requires the judgment hook's refresh `round` for rendering. The evidence
+  reader uses that field and the panel never reads it. Narrow the panel's
+  typed input so its suite can omit the round. Move the seven gap rows,
+  run links, keyboard traversal within the
+  history, and phone overflow proof in the [gap-only case](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts)
+  to the history-only mount already demonstrated by the
+  [evidence suite](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts).
+  It should need only the history reading. Keep the [panel cases](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts)
+  that prove judgment and Proof beside history, including keyboard movement
+  from **Check again** to **Builds and evidence**.
 
 #### Frontend campaign baseline
 
