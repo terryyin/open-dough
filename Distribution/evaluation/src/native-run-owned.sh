@@ -23,7 +23,7 @@ native_run_start_owned() {
   native_run_spawn_group "${workdir}" "$@" > "${stdout_file}" 2>> "${stderr_file}" &
   pid=$!
   # Wait until setsid/setpgrp detaches; do not sample the caller's group.
-  pgid=$(native_run_child_pgid "${pid}" "$(native_run_pgid_of $$)")
+  pgid=$(native_run_child_pgid "${pid}" "${supervisor_pgid}")
 }
 
 native_run_watch_owned() {
@@ -57,6 +57,7 @@ native_run_owned() {
   local stdout_file=$1 stderr_file=$2 workdir=$3
   shift 3
   local pid pgid='' controller='' controller_pgid='' watchdog='' sentinel timeout_flag wait_fifo
+  local supervisor_pid=${BASHPID} supervisor_pgid
   local status=0 saved_int saved_term
   native_run_interrupt_status=0
   native_run_failure_reason=
@@ -64,11 +65,12 @@ native_run_owned() {
   trap 'native_run_interrupt_owned 130' INT
   trap 'native_run_interrupt_owned 143' TERM
 
+  supervisor_pgid=$(native_run_pgid_of "${supervisor_pid}")
   native_run_start_owned "${stdout_file}" "${stderr_file}" "${workdir}" "$@"
   if ((native_run_interrupt_status == 0)) && [[ -n ${native_run_controller_command[0]-} ]]; then
     native_run_spawn_group '' "${native_run_controller_command[@]}" >> "${stderr_file}" 2>&1 &
     controller=$!
-    controller_pgid=$(native_run_child_pgid "${controller}" "$(native_run_pgid_of $$)")
+    controller_pgid=$(native_run_child_pgid "${controller}" "${supervisor_pgid}")
   fi
   if ((native_run_interrupt_status == 0)); then
     native_run_watch_owned

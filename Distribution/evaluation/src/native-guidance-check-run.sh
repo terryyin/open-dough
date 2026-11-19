@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 # One native journey of a versioned guidance-check case
-# (Distribution/evaluation/cases/guidance-checks/<case>/, see its case.md): materialize the case's
-# project and payload, start one Codex session with the case's neutral task,
+# (Distribution/evaluation/cases/guidance-checks/<case>/): materialize its
+# project and payload, start one Codex session with the neutral task,
 # then for each controlled event change the environment and continue the
 # same session with the case's wake message (wake.txt; a case without events
 # needs none). After each turn the case observes. After cleanup, its
 # assessor judges the observations and the attempt is
-# retained with its exact case, project, payload and runtime identities
-# (native-guidance-check-retain.sh). The assessor and every controller file stay
-# outside the agent's workspace.
+# retained with its exact input identities (native-guidance-check-retain.sh).
+# The assessor and controller files stay outside the agent's workspace.
 #
 # A turn that does not complete stops the journey: its `turn-N-stopped:`
 # field names why (deadline, the host's exit, a missing, truncated or
@@ -73,7 +72,7 @@ native_guidance_check_now() {
 
 # The host's load averages, as each record shows them at start and end.
 native_guidance_check_load() {
-  sysctl -n vm.loadavg 2> /dev/null | tr -d '{}' | xargs
+  node -p 'require("node:os").loadavg().map(load => load.toFixed(2)).join(" ")'
 }
 
 native_guidance_check_seconds() {
@@ -88,15 +87,21 @@ native_guidance_check_unstarted() {
   printf '%s\n' fail "$3; no session started" '' > "$2/verdict"
 }
 
-# Owned arm children are joined by the entry before its EXIT trap removes work.
 native_guidance_check_arms=()
 native_guidance_check_launching=false
 native_guidance_check_interrupt_status=0
 
 native_guidance_check_start_arm() {
+  local shell_options=$-
   native_guidance_check_launching=true
-  native_guidance_check_arm "$@" <&0 &
+  # Only the entry receives terminal INT. Each arm gets one forwarded TERM.
+  set -m
+  (
+    set +m
+    native_guidance_check_arm "$@"
+  ) <&0 &
   native_guidance_check_arms+=("$!")
+  [[ ${shell_options} == *m* ]] || set +m
   native_guidance_check_launching=false
   ((native_guidance_check_interrupt_status == 0)) \
     || native_guidance_check_interrupt "${native_guidance_check_interrupt_status}"
@@ -117,7 +122,6 @@ native_guidance_check_interrupt() {
   # If a signal interrupted the launch, the entry must first record the child.
   [[ ${native_guidance_check_launching} == false ]] || return 0
   trap '' INT TERM
-  # Async Bash arms may ignore INT. TERM reaches each arm even on Ctrl-C.
   for pid in "${native_guidance_check_arms[@]}"; do
     kill -TERM "${pid}" 2> /dev/null || true
   done

@@ -36,8 +36,8 @@ owned_process_group_terminate() {
   local pgid=$1
   local pid=$2
   local grace=$3
-  local caller_pgid
-  caller_pgid=$(owned_process_group_pgid_of $$)
+  local caller_pid=${BASHPID} caller_pgid
+  caller_pgid=$(owned_process_group_pgid_of "${caller_pid}")
 
   owned_process_group_signal TERM "${pgid}" "${pid}" "${caller_pgid}"
   if ((grace > 0)); then

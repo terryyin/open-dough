@@ -141,16 +141,22 @@ This slice changes the runner, a recorded input. Afterwards, rerun `--recover`
 on all three kept `.txt` records and confirm every tracked record is
 byte-identical.
 
-Accepted proof: the cleanup journey failed at the Take for missing cleanup
+The cleanup journey failed at the Take for missing cleanup
 and a surviving interrupted host. All 51 selected native and shared test-runner
 checks passed after the change, with the final cleanup, controlled-turn and
 watchdog checks repeated after trap restoration was simplified. The three
 records recovered to the expected revisions and their comparisons diff was
 empty. See the source review and the worktree's `slice-1-return.md` Git evidence.
 
-Learning: the shared process-group helper's duplicate TERM could interrupt
+The shared process-group helper's duplicate TERM could interrupt
 the host exit handler after the group signal. The isolated observation
 missed 20 of 60 exit receipts before the repair and none of 60 after.
+
+The [Linux CI repair](diagnosis-native-linux-arm.md) gives each arm its own
+process group, checks detachment against the supervisor's group, and reads
+load averages through Node. The three original Linux failures were reproduced
+and the 15-check affected Linux selection passed after repair. The macOS
+archive deadlines in larger batches remain timing evidence from the repair.
 
 ### 2. Catalog host selection names qualified hosts only
 Type: Behavior
