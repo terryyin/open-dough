@@ -22,7 +22,7 @@ judgment, "first Node Vitest run", the Doughnut pointer, and the scope limits.
 | 3.5 | An unwritable store is refused | slice 3 |  |
 | 4 | One focused wire check through a started server covers refused methods, missing or unconfigured project, malformed and non-JSON bodies, foreign origin, no-store, and each refusal's status; PUT, extra field and foreign origin give 405, 400, 403 and no notes file exists | slice 3 |  |
 | 5 | The Node Vitest cases live under dashboard/backend-tests/ and run in npm run test:dashboard:backend | slice 2 | observed: npm run test:dashboard:backend -- review/story-notes ran the unit spec beside 7 Playwright specs, proof record 7 chromium + 1 node (s2-proof.log) |
-| 6 | The same cases run in the dashboard-backend CI job beside the Playwright specs, inside the group's split, times and proof record | slice 2 |  |
+| 6 | The same cases run in the dashboard-backend CI job beside the Playwright specs, inside the group's split, times and proof record | slice 2 | observed: CI run 44515013156 on ef180d573: dashboard-backend shard 2/3 ran backend-tests/review/story-notes.unit.spec.ts (job 135528652875, success), shards 1 and 3 did not; local proof record 7 chromium + 1 node with times file (s2m-focused.log) |
 | 7 | No CI job is added | slice 2 | observed: .github/workflows/ci.yml unchanged: dashboard-backend keeps 3 shards running test:dashboard:backend |
 | 8 | Each of the eleven Story Notes behaviors in story-notes-*.mounted.spec.ts has exactly one owner, and none is lost | slice 6 |  |
 | 9 | A behavior a rendered Story Notes component owns is a plain Vitest case mounting StoryNotesDialog or the StoryNotes control with MakeMe notes and typed inputs | slice 5 |  |

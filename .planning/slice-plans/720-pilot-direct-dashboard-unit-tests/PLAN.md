@@ -142,7 +142,7 @@ group passes.
 ### 2. The backend group runs a Node Vitest case through the typed notes handler
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a project with two saved notes for one story in a temporary
 machine home, when a plain Node Vitest case asks the typed handler to add a
@@ -178,6 +178,8 @@ shards and the case falls in shard 2. Under a backend `_SPLIT`, Playwright's
 `--list` prints nothing, as before this plan.
 After SEED-412 landed (merged at `f7aa7dbd9`), `backend.vitest.config.mts` calls
 `useDisposableTestHome()` as the frontend Vitest config does.
+Branch CI run 44515013156 on `ef180d573` passed, with the unit case in
+`dashboard-backend` shard 2 only.
 
 ### 3. Every notes store rule is proven in-process, with one wire check
 
