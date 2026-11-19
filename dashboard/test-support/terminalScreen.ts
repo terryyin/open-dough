@@ -17,6 +17,7 @@ import {
   expectTerminalIdentity,
   expectTerminalInputDescription,
   expectTerminalInputFocused,
+  expectTerminalInputNotFocused,
   expectTerminalPromptChoices,
   expectTerminalPromptFocused,
   expectTerminalPromptsClosed,
@@ -78,6 +79,27 @@ class SessionTerminalScreen {
   async expectInputFocused() {
     await expectTerminalInputFocused(this.panel);
     return this;
+  }
+
+  async expectInputNotFocused() {
+    await expectTerminalInputNotFocused(this.panel);
+    return this;
+  }
+
+  async expectShown() {
+    await expect(this.panel).toBeVisible();
+    return this;
+  }
+
+  async expectClosed() {
+    await expect(this.panel).toHaveCount(0);
+    return this;
+  }
+
+  containsKeyboard() {
+    return this.panel.evaluate((element) =>
+      element.contains(document.activeElement),
+    );
   }
 
   async expectInputDescription(description: string | RegExp) {
