@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-345#get-long-verification-results-without-empty-wakes",
+  "mode": "story-branch",
+  "branch": "codex/get-long-verification-results-without-empty-wake",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
