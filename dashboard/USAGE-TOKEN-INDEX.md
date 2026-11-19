@@ -24,6 +24,22 @@ option. Answers for an older selection are discarded. A failed read names its
 tool and is never shown as empty; a tool that answered with no priced task says
 so. With no tool selected, the view asks for one and shows no measurements.
 
+A named model its tool's tariff does not list is estimated with every rate of
+one listed model (`server/tariffSubstitute.ts`): the family member on that card
+uniquely closest by major, then minor, version number (`gpt-6.2-astra` from
+`gpt-6-astra`, read as 6.0; `gpt-6.10-sol` from `gpt-6.2-sol`, not 6.1),
+otherwise, on a tie, an unfamiliar family or an unclear version, the tariff's
+reference model. Each response group
+is weighed separately, so a mixed task sums its rated and estimated parts. An
+estimated point is marked ≈ and "Estimated rate", its detail names each model
+with its substitute, and the tool's summary warns once per affected model that
+the rate card needs an update. An estimated task stays out of the median. Once
+a newer tariff lists the model, the next read weighs the same stored counters at
+its own rates (GPT-6.2 Astra's regression counters: 12,000 from GPT-6 Astra on
+the 2026-11-15 card, 7,800 on the 2026-11-19 card); its warning clears, and the
+task joins the median when no substitution remains and its usage is complete.
+Nothing is written back to usage history.
+
 A Claude response at an unpriced speed, or whose cache writes were stored
 without that split, leaves its task unpriced. The index is an observation, not
 a bill or a claim of improvement. A Claude launch whose root transcript has no

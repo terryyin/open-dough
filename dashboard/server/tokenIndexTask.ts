@@ -8,7 +8,7 @@
 // shows when it is selected: its story, project, launch workflow, outcome,
 // end time, requested and primary observed model and effort, its index under
 // one tariff version (./tokenIndex.ts) and its coverage, with the recorded
-// gaps that make it partial.
+// gaps that make it partial, and any model weighed at a substitute's rates.
 import { launchWorkflowNames, launchWorkflows } from "../src/launchWorkflow.ts";
 import {
   usageWorkflowOf,
@@ -100,8 +100,9 @@ export function tokenIndexTask(
   task: SummaryTask,
   { projects, tariff }: UsageReading,
 ): TokenIndexTask | "unpriced" | undefined {
-  const index = tokenIndex(task.usage, tariff);
-  if (index === undefined) return "unpriced";
+  const weighed = tokenIndex(task.usage, tariff);
+  if (weighed === undefined) return "unpriced";
+  const { index, substitutes } = weighed;
   const endedAt = taskEndedAt(task);
   const label = task.project === null ? undefined : projects.get(task.project);
   const workflow = launchWorkflowOf(task.workflow);
@@ -135,6 +136,14 @@ export function tokenIndexTask(
       tariff,
     ),
     index,
+    ...(substitutes.size === 0
+      ? {}
+      : {
+          substitutions: [...substitutes].map(([model, substitute]) => ({
+            model: usageModel(model, tariff),
+            substitute: usageModel(substitute, tariff),
+          })),
+        }),
     coverage:
       task.gaps.length === 0
         ? { kind: "measured" }

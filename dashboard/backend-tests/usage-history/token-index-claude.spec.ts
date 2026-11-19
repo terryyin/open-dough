@@ -150,14 +150,17 @@ test("a one-hour cache write weighs more than the same five-minute write", async
   ]);
 });
 
-test("an unpriced model, fast speed or unsplit cache write leaves its Claude task without a point, counted unpriced", async ({
+test("a fast speed or an unsplit cache write, even at an estimated model's rates, leaves its Claude task without a point, counted unpriced", async ({
   machine,
 }) => {
   const tasks = [
     makeMe.aUsageTaskHistory
-      .identifiedAs("unknown-model")
+      .identifiedAs("unknown-model-unsplit-write")
       .inClaudeCode()
-      .withResponse({ model: "claude-mystery-9" })
+      .withResponse({
+        model: "claude-mystery-9",
+        tokens: { uncachedInput: 1_000, cacheWrite: 500, output: 0 },
+      })
       .please(),
     makeMe.aUsageTaskHistory
       .identifiedAs("fast-worker")
@@ -193,4 +196,42 @@ test("an unpriced model, fast speed or unsplit cache write leaves its Claude tas
     ["no-write-and-synthetic", 1_950],
   ]);
   expect(answer.unpriced).toBe(3);
+});
+
+test("an unlisted Claude model is estimated at the reference model's rates, cache writes included", async ({
+  machine,
+}) => {
+  const cohort = await readCohort(
+    machine.home,
+    makeMe.aUsageHistory
+      .with({
+        tasks: [
+          makeMe.aUsageTaskHistory
+            .identifiedAs("mystery")
+            .inClaudeCode()
+            .withResponse({
+              model: "claude-mystery-9",
+              tokens: {
+                uncachedInput: 1_000,
+                cacheRead: 0,
+                cacheWrite: 10_000,
+                cacheWrite5m: 4_000,
+                cacheWrite1h: 6_000,
+                output: 0,
+              },
+            })
+            .please(),
+        ],
+      })
+      .please(),
+  );
+  const [task] = cohort({ tool: "claude" }).tasks;
+  // (1,000×4 + 4,000×5 + 6,000×8) / 4 at Claude Opus 5.5 rates
+  expect(task?.index).toBe(18_000);
+  expect(task?.substitutions).toEqual([
+    {
+      model: { id: "claude-mystery-9", name: "claude-mystery-9" },
+      substitute: { id: "claude-opus-5-5", name: "Claude Opus 5.5" },
+    },
+  ]);
 });

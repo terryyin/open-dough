@@ -136,6 +136,24 @@ export type UsageTaskCoverage =
   | { readonly kind: "measured" }
   | { readonly kind: "partial"; readonly gaps: readonly UsageCoverageGap[] };
 
+// A model the tariff does not list, weighed at the substitute's rates until
+// the rate card is updated.
+export type UsageSubstitution = {
+  readonly model: UsageModel;
+  readonly substitute: UsageModel;
+};
+
+// Each distinct actual model of the tasks, with its substitute, once.
+export function usageSubstitutions(
+  tasks: readonly TokenIndexTask[],
+): UsageSubstitution[] {
+  const each = new Map<string, UsageSubstitution>();
+  for (const task of tasks)
+    for (const substitution of task.substitutions ?? [])
+      each.set(substitution.model.id, substitution);
+  return [...each.values()];
+}
+
 export type TokenIndexTask = {
   readonly id: string;
   readonly project: { readonly id: string; readonly label: string };
@@ -150,6 +168,8 @@ export type TokenIndexTask = {
   readonly requested: UsageSetting;
   readonly observed: UsageSetting;
   readonly index: number;
+  // Present when part or all of the index is estimated at substitute rates.
+  readonly substitutions?: readonly UsageSubstitution[];
   readonly coverage: UsageTaskCoverage;
 };
 
@@ -167,7 +187,7 @@ export type TokenIndexAnswer = {
   // Priced tasks in the requested period (all history without bounds), including partial ones.
   readonly tasks: readonly TokenIndexTask[];
   // How many finished tasks of the cohort have no point because a response
-  // lacks a rate under the tariff, such as an unknown model or speed tier.
+  // lacks a rate under the tariff, such as an absent model or a speed tier.
   readonly unpriced: number;
   // From the tenth eligible task on, the median of each one's latest ten
   // eligible tasks: priced and measured with no known gap. Earlier history still

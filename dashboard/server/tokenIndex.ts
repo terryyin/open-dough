@@ -12,6 +12,12 @@
 // the same as its responses one by one. A response at a speed tier the
 // tariff does not price has no rate rather than a standard one, since faster
 // tiers cost more; one with no recorded tier is at the tariff's tier.
+// A named model the tariff does not list takes, as an estimate, all the rates
+// of its closest listed family version or else the reference model's
+// (./tariffSubstitute.ts): the weighing carries each actual model with its
+// substitute so the view can ask for the rate card to be updated. An absent
+// model has no rate.
+import { substituteModel } from "./tariffSubstitute.ts";
 import type { SummaryUsage } from "./usageTaskSummary.ts";
 import type { TokenRates, UsageTariff } from "./usageTariffs.ts";
 
@@ -32,27 +38,45 @@ function writeCredits(
   );
 }
 
+// The group's rates and, when they stand in for an unlisted model's, the
+// substitute model they belong to.
 function ratesOf(
   { model, tier }: SummaryUsage,
   tariff: UsageTariff,
-): TokenRates | undefined {
+): { rates: TokenRates; substitute?: string } | undefined {
   if (tier !== null && !tariff.speedTier.recorded.includes(tier))
     return undefined;
-  return model === null ? undefined : tariff.models[model];
+  if (model === null) return undefined;
+  const listed = tariff.models[model];
+  if (listed !== undefined) return { rates: listed };
+  const substitute = substituteModel(model, tariff);
+  const rates = tariff.models[substitute];
+  return rates === undefined ? undefined : { rates, substitute };
 }
+
+type WeighedUsage = {
+  readonly index: number;
+  // Each distinct actual model weighed at another model's rates, by id, with
+  // that substitute model's id.
+  readonly substitutes: ReadonlyMap<string, string>;
+};
 
 // Undefined when the task is unpriced: a response has no rate. A task with
 // no response weighs nothing.
 export function tokenIndex(
   usage: readonly SummaryUsage[],
   tariff: UsageTariff,
-): number | undefined {
+): WeighedUsage | undefined {
   const reference = tariff.models[tariff.reference.model];
   if (reference === undefined) return undefined;
   let credits = 0;
+  const substitutes = new Map<string, string>();
   for (const group of usage) {
-    const rates = ratesOf(group, tariff);
-    if (rates === undefined) return undefined;
+    const priced = ratesOf(group, tariff);
+    if (priced === undefined) return undefined;
+    const { rates, substitute } = priced;
+    if (substitute !== undefined && group.model !== null)
+      substitutes.set(group.model, substitute);
     const writes = writeCredits(group.tokens, rates);
     if (writes === undefined) return undefined;
     const { tokens } = group;
@@ -62,5 +86,5 @@ export function tokenIndex(
       tokens.cacheRead * rates.cachedInput +
       tokens.output * rates.output;
   }
-  return credits / reference.input;
+  return { index: credits / reference.input, substitutes };
 }

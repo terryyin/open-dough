@@ -131,6 +131,16 @@ export function usageView(page: Page) {
     async showsPartialPoints(count: number) {
       await expect(chart.partial).toHaveCount(count);
     },
+    // How many points carry the visible estimate cue (≈) beside them.
+    async showsEstimatedPoints(count: number) {
+      await expect(chart.box.locator(".history-chart-estimate")).toHaveCount(
+        count,
+      );
+      if (count > 0)
+        await expect(
+          trend.getByText(/≈ marks an estimated rate\.$/),
+        ).toBeVisible();
+    },
     async showsNoPoints(words: string) {
       await expect(trend.getByText(words, { exact: true })).toBeVisible();
       await expect(chart.marks).toHaveCount(0);

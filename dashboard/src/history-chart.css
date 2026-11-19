@@ -56,6 +56,13 @@
   stroke-width: 2;
 }
 
+/* A point whose value is partly or wholly estimated: an ≈ beside it. */
+.history-chart-estimate {
+  fill: var(--history-chart-partial);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 /* A point whose value is known to be incomplete: hollow, in caution. */
 .history-chart-partial {
   fill: var(--history-chart-ring);

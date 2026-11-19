@@ -1,7 +1,8 @@
 // System settings → Usage's Token index trend for each selected tool's answer
 // (`./usageTokenIndex.ts`): one point per task over its end time on the
 // shared history chart (`./HistoryChart.tsx`), every tool a named trace on
-// one numeric scale and one time axis, partial ones hollow, each tool's own
+// one numeric scale and one time axis, partial ones hollow, estimated ones
+// with ≈ beside them, each tool's own
 // rolling median above dots, independent of their scale; ↑ labels and dated
 // values identify median overflow. Each tool's summary
 // (`./UsageToolSummary.tsx`) counts its tasks and names the reference unit
@@ -23,7 +24,11 @@ import type {
 import { HistoryChart } from "./HistoryChart.tsx";
 import { usageToolName } from "./usageComparison.ts";
 import { UsageLegend } from "./UsageLegend.tsx";
-import { partialWords, UsageTaskDetail } from "./UsageTaskDetail.tsx";
+import {
+  estimatedWords,
+  partialWords,
+  UsageTaskDetail,
+} from "./UsageTaskDetail.tsx";
 import { rollingMedianWords, UsageToolSummary } from "./UsageToolSummary.tsx";
 import {
   usageTools,
@@ -44,6 +49,7 @@ function point(
   selected: string | undefined,
 ): HistoryChartPoint {
   const partial = task.coverage.kind === "partial";
+  const estimated = task.substitutions !== undefined;
   const key = markKey(tool, task);
   return {
     kind: "point",
@@ -52,9 +58,16 @@ function point(
     date: task.endedAt,
     value: task.index,
     ...(task.index > largeTaskThreshold ? { overflow: largeTaskWords } : {}),
-    description: `${usageToolName(tool)} · ${task.title ?? task.identity ?? "Untitled task"} · ${countWords(task.index)}${partial ? ` · ${partialWords}` : ""}`,
+    description: [
+      usageToolName(tool),
+      task.title ?? task.identity ?? "Untitled task",
+      countWords(task.index),
+      ...(partial ? [partialWords] : []),
+      ...(estimated ? [estimatedWords] : []),
+    ].join(" · "),
     selected: key === selected,
     ...(partial ? { partial: partialWords } : {}),
+    ...(estimated ? { estimate: estimatedWords } : {}),
   };
 }
 
@@ -175,6 +188,8 @@ export function TokenIndexTrend({
         <p className="settings-note">
           × {largeTaskWords}; labels show actual values. Partial coverage
           remains marked.
+          {tasks.some((task) => task.substitutions !== undefined) &&
+            " ≈ marks an estimated rate."}
         </p>
         <UsageLegend tools={answers.map(({ cohort }) => cohort.tool)} />
       </section>
