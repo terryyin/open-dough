@@ -87,6 +87,10 @@ final timing. Record both ratios, test counts and elapsed ms per case. If a
 comparable pair exceeds half, record the residual cost for the 100 ms
 follow-up and report it instead of broadening this story.
 
+## Execution complete
+
+Product advice: no change to priorities. The [rollout story](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) should name each mounted case with a static title, since the runner selects by the titles Vitest reads without running the file (G3). The [100 ms follow-up](../../seeds/SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case) starts from about 0.9 s runner startup, 0.2 s npm, 1.1 s import and the terminal case's 1.1 s in a 5.0 s run at load 8.4.
+
 ## Local gate and review
 
 Run `npm run test:dashboard:frontend -- mounted-dashboard stories/story-notes board-swipe board-indicators`
