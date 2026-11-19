@@ -1,0 +1,30 @@
+/* Intent's explanations in place of what it cannot read or show: unset or
+   unusable location settings (./IntentLocationsUnavailable.tsx,
+   ./useHistoricalIntentLocations.tsx), a location's or file's failed read
+   (./IntentLocationGroup.tsx, ./IntentSummaryView.tsx,
+   ./IntentFileReading.tsx) and the candidates record's
+   (./IntentCandidatesRecord.tsx), each with its retry beside the words. */
+
+.intent-not-configured,
+.intent-settings-problem {
+  margin: var(--space-3) clamp(0.75rem, 4vw, 1.5rem);
+}
+
+.intent-not-configured,
+.intent-settings-problem,
+.intent-location-problem,
+.intent-file-problem {
+  max-width: 42rem;
+  line-height: 1.5;
+}
+
+.intent-location-problem,
+.intent-file-problem {
+  margin: var(--space-2) 0 0;
+}
+
+.intent-settings-problem button,
+.intent-file-problem button,
+.intent-candidates-problem button {
+  margin-left: var(--space-1);
+}

@@ -11,6 +11,7 @@ import {
 } from "./IntentFileComparisonContent.tsx";
 import type { ComparisonPreference } from "./IntentCiComparisonPreference.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
+import "./intent-summary.css";
 
 export function IntentFileProofView({
   path,

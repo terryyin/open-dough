@@ -57,7 +57,6 @@ import { ProjectIntentReading } from "./ProjectIntentReading.tsx";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import { useHistoricalIntentLocations } from "./useHistoricalIntentLocations.tsx";
 import "./intent-perspective.css";
-import "./intent-candidates.css";
 
 function HistoricalStoryPage({
   source,

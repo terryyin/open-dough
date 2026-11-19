@@ -32,6 +32,8 @@ import {
   parseTestOptimizationCandidates,
   testOptimizationCandidatesPath,
 } from "./testOptimizationCandidates.ts";
+import "./intent-candidates.css";
+import "./intent-explanations.css";
 
 export function IntentCandidatesRecord({
   source,

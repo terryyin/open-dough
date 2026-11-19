@@ -292,7 +292,7 @@ place and `project` scope, and read recovery from its caller.
 ### 7. Render the followed reading alone in its mounted cases
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Move the five mounted cases' mount onto `ProjectIntentReading`
 with only the reading place and `project` scope, `IntentReadRecovery` and a
@@ -309,6 +309,20 @@ sensitivity check. With the production Show latest invocation removed, all
 five cases fail on their expected update signals. Then restore it. Record the
 mounted cases' two-worker summed time beside the family finish. Commitments
 C18, C21, C22, C24, C25.
+
+Accepted proof: the five mounted cases render `ProjectIntentReading` alone
+and pass in the group. With Show latest disabled, all five fail on their
+update signals. The whole `intent/` frontend folder, the
+development-intent-frame specs, 13 Intent E2E files and the typecheck pass.
+The five cases summed 8.002 s at load 3.7–4.9, with no measurable speed gain
+over the perspective mount. Learning: each Intent component now imports the
+stylesheet for what it renders, and `intent-perspective.css` keeps only the
+perspective's frame. Two `intent-page.css` declarations never applied: the
+crumb and CI-return `inline-flex` alignment lost to `.intent-open-link`. They
+were deleted to keep rendering identical. Whether those links should get that
+alignment is a visible design choice left for the developer.
+`parseRequestedRead` pulls Node modules and does not load in the browser, so
+the read service keeps its parameter dispatch.
 
 ## Local gates and delivery
 

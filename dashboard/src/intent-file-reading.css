@@ -1,6 +1,6 @@
 /* Purpose and Proof of the selected file (./IntentFileReading.tsx) in the
    Intent reading area, the `intent-reading` size container
-   (./intent-perspective.css), as tabs. The tabs stay in sight while the
+   (./intent-browser.css), as tabs. The tabs stay in sight while the
    chosen tab scrolls, and a positioned case comes into view below them. */
 .intent-reading-bar {
   position: sticky;

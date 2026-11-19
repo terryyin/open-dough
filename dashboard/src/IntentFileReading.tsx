@@ -35,6 +35,8 @@ import { useStoryCiReturn } from "./intentStoryTabs.tsx";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import "./intent-file-reading.css";
+import "./intent-explanations.css";
+import "./intent-open-link.css";
 
 export type IntentReadingTab = "purpose" | "proof";
 

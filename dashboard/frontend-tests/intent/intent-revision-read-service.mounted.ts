@@ -39,38 +39,6 @@ const answer = (body: unknown, status = 200) =>
     headers: { "content-type": "application/json" },
   });
 
-// The trunk's unchanged CI judgment, of its head, freshly read with nothing
-// kept, and empty history, which Intent reads beside every published revision.
-function trunkCiAnswer(params: URLSearchParams) {
-  const revision = params.get("revision") ?? "";
-  if (params.get("intent") === "ci-status")
-    return params.has("kept")
-      ? { none: true }
-      : makeMe.anIntentCiStatus
-          .with({
-            branch: "main",
-            revision: "c1".repeat(20),
-            state: "unread",
-            subject: "No readable result",
-            laterWithoutResult: 0,
-            reason:
-              "No result of the selected check was found in the readable history",
-            checkedAt: "2026-11-01T00:00:00.000Z",
-            freshness: "fresh",
-          })
-          .please();
-  if (params.get("intent") !== "ci-history") return undefined;
-  if (!params.has("scope")) return makeMe.aCiHistoryAnswer.please();
-  return makeMe.aScopeHistoryGlance
-    .with({
-      path: params.get("scope") ?? "",
-      selectedRevision: revision,
-      availability: "empty",
-      entries: [],
-    })
-    .please();
-}
-
 const locationsOf = (
   revision: string,
   files: Snapshot,
@@ -94,8 +62,8 @@ const locationsOf = (
 // the locations answer the case gives.
 type HoldOutcome = "published" | "unreachable" | IntentLocationsAnswer;
 
-// The read service answering Intent's locations and file reads at each published revision and
-// the trunk's CI. `reads` lists Intent's reads as `<what>@<revision>`;
+// The read service answering Intent's locations and file reads at each
+// published revision. `reads` lists Intent's reads as `<what>@<revision>`;
 // `unexpected` any other call; `holdRead` keeps the next such read until the
 // case releases or fails it. Each service starts the browser session's read
 // caches and transient failures empty, so every read a case causes reaches it.
@@ -130,8 +98,6 @@ export function publishedReadService(published: Map<string, Snapshot>) {
       if (url.pathname !== authenticatedReadEndpoint)
         return realFetch(input, init);
       const params = url.searchParams;
-      const ci = trunkCiAnswer(params);
-      if (ci !== undefined) return answer(ci);
       const [intent, path] = [params.get("intent"), params.get("path")];
       const revision = params.get("revision") ?? "";
       const files = published.get(revision);

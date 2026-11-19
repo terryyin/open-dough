@@ -1,7 +1,7 @@
 /* One configured Intent location in the locations column
    (./IntentLocationGroup.tsx): a section header band over its folder and file
    rows. The column itself and its scrolling are the browser's
-   (./intent-perspective.css). */
+   (./intent-browser.css). */
 
 /* A location header's own band colour comes from --location-header in
    ./appearance.css: a muted violet apart from the selected accent fill, the

@@ -10,6 +10,7 @@ import type {
   IntentSettingsProblem,
 } from "./authenticatedIntentRead.ts";
 import type { IntentLocationsFailure } from "./useIntentLocations.ts";
+import "./intent-explanations.css";
 
 // A settled locations answer: the configured locations to browse, or the
 // explanation shown in their place.

@@ -1,19 +1,20 @@
-// Production Intent mounted on an open published reading, as the reader finds
-// and operates it, for the cases that apply a newer revision
-// (./intent-revision-*.mounted.spec.ts).
+// The project's followed Intent reading (production `ProjectIntentReading`)
+// mounted on an open published reading, as the reader finds and operates it,
+// for the cases that apply a newer revision (./intent-revision-*.mounted.spec.ts).
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { expect, onTestFinished, vi } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import "../../src/dashboardStyles.ts";
-import { IntentPerspective } from "../../src/IntentPerspective.tsx";
-import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
+import type { ModeChoice } from "../../src/pageIntentMode.tsx";
 import {
-  StorySelectionProvider,
-  usePageStorySelection,
-} from "../../src/pageStorySelection.tsx";
+  IntentReadingPlace,
+  IntentReadingProvider,
+  IntentReadingScope,
+} from "../../src/pageIntentReading.tsx";
+import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { actSettled } from "../../test-support/mounted-dashboard/mountedActSettled.ts";
 import {
@@ -39,41 +40,53 @@ export const workAt = (revision: string): PublishedWork =>
     })
     .please();
 
-// The page's story selection and Intent providers around production Intent.
+// Project Intent on its default CI status view, as the page first shows it.
+const projectView: ModeChoice = {
+  mode: "ci",
+  modeIdPrefix: "project-intent",
+  onModeChange: () => {},
+};
+
+// The project's followed reading under what it requires: the page's reading
+// place, the perspective's `project` scope and read recovery, in a labelled
+// `main`, where its notice returns focus, that gives it the available
+// viewport as a column, as the page frame and the perspective do.
 function Reading({ work }: { readonly work: PublishedWork }) {
-  const perspective = createElement(IntentPerspective, {
+  const reading = createElement(ProjectIntentReading, {
     source,
     work,
-    records: [],
-    workspaces: [],
+    project: projectView,
+    projectShown: true,
   });
-  const recovering = createElement(IntentReadRecovery, {
+  const place = createElement(IntentReadingProvider, {
+    project: source.id,
+    children: createElement(IntentReadingPlace, {
+      project: source.id,
+      story: undefined,
+      children: createElement(IntentReadingScope, {
+        name: "project",
+        children: reading,
+      }),
+    }),
+  });
+  return createElement(IntentReadRecovery, {
     visibility: "visible",
     limitStands: false,
-    children: perspective,
-  });
-  return createElement(StorySelectionProvider, {
-    selection: usePageStorySelection(),
-    children: createElement(IntentPageProviders, {
-      project: source.id,
-      children: recovering,
+    children: createElement("main", {
+      "aria-label": "Intent",
+      style: { display: "flex", flexDirection: "column", height: "100dvh" },
+      children: place,
     }),
   });
 }
 
-// Production Intent at the desktop size the built-app journey read it. The
+// The followed reading at the desktop size the built-app journey read it. The
 // returned `show` offers another published work to the same reading; each
 // render settles with the reads it starts.
 export async function mountReading(work: PublishedWork) {
   const [width, height] = [window.innerWidth, window.innerHeight];
   await page.viewport(1280, 600);
   const host = document.body.appendChild(document.createElement("div"));
-  // The page frame gives Intent the available viewport, as a column.
-  Object.assign(host.style, {
-    display: "flex",
-    flexDirection: "column",
-    height: "100dvh",
-  });
   const root: Root = createRoot(host);
   onTestFinished(async () => {
     act(() => {
