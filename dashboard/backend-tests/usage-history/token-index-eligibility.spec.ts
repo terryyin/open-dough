@@ -9,7 +9,7 @@ import {
   readCohort,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
 
-test("standard and unrecorded tiers are priced; an unrated model or fast worker leaves the entire task unpriced", async ({
+test("standard and unrecorded tiers are priced; a fast worker leaves the entire task unpriced", async ({
   home,
 }) => {
   const tasks = [
@@ -23,10 +23,6 @@ test("standard and unrecorded tiers are priced; an unrated model or fast worker 
       .withResponse({ serviceTier: "default" })
       .withWorkerResponse({ serviceTier: "fast" })
       .please(),
-    makeMe.aUsageTaskHistory
-      .identifiedAs("unrated")
-      .withResponse({ model: "gpt-5-nova" })
-      .please(),
   ];
   const cohort = await readCohort(
     home,
@@ -37,7 +33,63 @@ test("standard and unrecorded tiers are priced; an unrated model or fast worker 
     ["standard", 1_950],
     ["unrecorded", 1_950],
   ]);
-  expect(answer.unpriced).toBe(2);
+  expect(answer.unpriced).toBe(1);
+});
+
+test("an unrated worker model is estimated at the reference rates beside its rated root, kept under the root's model", async ({
+  home,
+}) => {
+  const cohort = await readCohort(
+    home,
+    makeMe.aUsageHistory
+      .with({
+        tasks: [
+          makeMe.aUsageTaskHistory
+            .identifiedAs("mixed")
+            .withResponse({ model: "gpt-6-astra" })
+            .withWorkerResponse({ model: "gpt-9-nova" })
+            .withWorkerResponse({ model: "gpt-9-nova" })
+            .please(),
+        ],
+      })
+      .please(),
+  );
+  const [task] = cohort({ model: "gpt-6-astra" }).tasks;
+  // Astra root (1,000×250 + 9,000×25 + 100×1,250) / 50 = 12,000, plus two
+  // worker groups at GPT-6.1 Sol rates, 1,950 each.
+  expect(task?.index).toBe(15_900);
+  expect(task?.observed.model?.id).toBe("gpt-6-astra");
+  expect(task?.substitutions).toEqual([
+    {
+      model: { id: "gpt-9-nova", name: "gpt-9-nova" },
+      substitute: { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" },
+    },
+  ]);
+});
+
+test("a wholly estimated complete task plots without joining the ten-task rolling median", async ({
+  home,
+}) => {
+  const exact = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((date) =>
+    makeMe.aUsageTaskHistory
+      .identifiedAs(`exact-${date}`)
+      .endedAt(day(date))
+      .please(),
+  );
+  const estimated = makeMe.aUsageTaskHistory
+    .identifiedAs("estimated")
+    .endedAt(day(10))
+    .withResponse({ model: "gpt-9-nova" })
+    .please();
+  const answer = (
+    await readCohort(
+      home,
+      makeMe.aUsageHistory.with({ tasks: [...exact, estimated] }).please(),
+    )
+  )();
+  expect(answer.tasks).toHaveLength(10);
+  expect(answer.tasks.at(-1)?.coverage).toEqual({ kind: "measured" });
+  expect(answer.average).toEqual([]);
 });
 
 test("only complete tasks, including a measured zero, fill the ten-task rolling median window", async ({

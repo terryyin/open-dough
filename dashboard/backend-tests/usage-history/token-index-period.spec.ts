@@ -43,9 +43,17 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
       makeMe.aUsageTaskHistory
         .identifiedAs(id)
         .endedAt(at)
-        .withResponse({ model: "unrated-model" })
+        .withResponse({ serviceTier: "fast" })
         .please(),
     );
+  // An unrated model is estimated: plotted and dated, outside the median.
+  tasks.push(
+    makeMe.aUsageTaskHistory
+      .identifiedAs("estimated-in")
+      .endedAt("2026-11-15T11:00:00.000Z")
+      .withResponse({ model: "unrated-model" })
+      .please(),
+  );
   await writeTaskUsage(machine.home, tasks);
   const usage = await usageServer(machine);
   const read = async (from: string) => {
@@ -58,7 +66,11 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
     return result.body as TokenIndexAnswer;
   };
   const one = await read("2026-11-15T00:00:00.000Z");
-  expect(one.tasks.map(({ id }) => id)).toEqual(["start", "tenth"]);
+  expect(one.tasks.map(({ id }) => id)).toEqual([
+    "start",
+    "estimated-in",
+    "tenth",
+  ]);
   expect(
     one.tasks.filter(({ coverage }) => coverage.kind === "partial"),
   ).toHaveLength(1);
@@ -72,12 +84,13 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
     "earlier-9",
     "before",
     "start",
+    "estimated-in",
     "tenth",
   ]);
   expect(one.options).toEqual(seven.options);
   expect(one.options.models.map(({ id }) => id)).toContain("unrated-model");
   const all = await usage.chart();
-  expect(all.tasks).toHaveLength(13);
+  expect(all.tasks).toHaveLength(14);
   expect(all.unpriced).toBe(2);
   const empty = await usage.request(
     "GET",

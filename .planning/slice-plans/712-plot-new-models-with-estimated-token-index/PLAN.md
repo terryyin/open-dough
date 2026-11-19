@@ -2,6 +2,7 @@
 
 **Identity:** SEED-406#plot-new-models-with-estimated-token-index
 **Source:** [Plot new models with an estimated Token Index](../../seeds/SEED-406-plot-new-models-with-estimated-token-index.md#plot-new-models-with-estimated-token-index)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and current decisions
 
@@ -43,7 +44,7 @@ Observed in this worktree at `9116033882aa` on 2026-11-19, Node 24.21.0.
 | Project a previously unpriced task through HTTP and the visible period | Temporarily allowed unknown named models to use the reference rates at the existing lookup. In `npm run test:dashboard:backend -- usage-history/token-index --workers=2`, 33/36 passed. Eligibility, Claude pricing and period projection rejected the newly visible tasks. In `npm run test:e2e -- e2e/configuration/system-settings-usage --workers=2`, 3/4 passed. The period view reported “16 tasks · 5 partial · Last 30 days” where its case expected one unpriced. Reverting the lookup restored 36/36 and 4/4. Preserve the day-boundary and genuine unpriced assertions when adding estimates. |
 | Surface a rate-card update | The observed browser path reads the store through the real Usage server. Its existing point selection and period choices reach both task detail and the per-tool summary. Rendering fixtures can exercise a second answer on refresh. They do not prove tariff selection or reweighting. Use the stored-history boundary for those and the browser for the visible warning. |
 
-## Ordered slices and proof
+## Ordered slices
 
 Each slice has 15 active minutes. For every slice, begin fully awake and run
 its focused checks. For a full local run on AC use `caffeinate -s -i`. On
@@ -57,7 +58,7 @@ execution workflow.
 ### 1. See which rate card needs an update
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given otherwise usable counts for a named, unrated model, opening Usage
 shows the task at a provisional value and a visible instruction to update
@@ -126,5 +127,12 @@ actionable for both tools, and the second improves and retires the estimate
 through the same rate lookup. No remaining slice-specific concern.
 
 ## Learnings
+
+- Slice 1: the usage-history store builder rejects `model: null`, so an
+  absent model cannot be written through the store; its unchanged no-rate
+  path in `tokenIndex.ts` keeps it unpriced. Slice 1 proof lives in
+  `e2e/configuration/system-settings-usage-estimate.spec.ts` and the
+  eligibility, Claude and period Token Index backend specs; slice 2 can
+  extend those for close-family matching and the card-update refresh.
 
 ## Story obligations

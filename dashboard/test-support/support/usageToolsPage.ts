@@ -86,6 +86,15 @@ export function usageToolsView(
         .poll(async () => (await medianLine(name).boundingBox())?.width ?? 0)
         .toBeGreaterThan(0);
     },
+    // The rate-card update warnings, one per estimated model, in order.
+    async showsRateCardWarnings(
+      words: readonly string[],
+      name?: UsageToolName,
+    ) {
+      await expect(summary(name).locator(".usage-rate-warning")).toHaveText([
+        ...words,
+      ]);
+    },
     // No figure and no line, with the words saying why.
     async showsNoMedian(words: string, name?: UsageToolName) {
       const median = summary(name).locator(".usage-median");

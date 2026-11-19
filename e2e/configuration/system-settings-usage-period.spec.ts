@@ -52,7 +52,7 @@ test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history 
     const unpriced = makeMe.aUsageTaskHistory
       .identifiedAs("unpriced")
       .endedAt("2026-11-09T13:00:00.000Z")
-      .withResponse({ model: "unrated-model" })
+      .withResponse({ serviceTier: "fast" })
       .please();
     await writeUsageHistory(
       makeMe.aUsageHistory
