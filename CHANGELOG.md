@@ -1,3 +1,17 @@
+## 0.3.107 - 2026-11-19
+
+- Execute Plan keeps proof and CI waits inside the Codex host call where supported. If the host returns a live cell, resume that cell with its original deadline. The separate coordinator delegation experiment found a quiet wake and higher combined effort, so its overlay stayed out of the release.
+- Source freshness finds the shared Git base that holds the Taken entry after a sibling or contributor merge. It reports an ambiguous base when eligible bases disagree on a compared story or plan record. It still cannot distinguish a story retaken by a different publisher.
+- A recreated retrospective log recovers earlier finding IDs, aliases, and the allocation floor from Git history. Incomplete history that prevents safe numbering leaves the log absent.
+- Cucumber and Playwright scenarios express one domain intent per step. Playwright setup, actions, and assertions go inside named steps. Shared guidance defines the step body limits and groups UI interactions in page-object calls.
+- The Dashboard keeps an ad hoc session's own commits at Done and can discover a later manual delivery from an identified branch. Review details move behind a toolbar control and the Files sidebar remembers its width. The Token Index estimates rates for unrated models, marks the estimates, and excludes them from the median until rated. CI moves the retired Integrated UI group's coverage into the maintained suites and rebalances shards.
+
+The Promoted payload contains 383 files. It adds two source-freshness modules, revises twelve paths, and retires none. Dashboard, CI, and maintainer tooling changes are source-only.
+
+The self-installation baseline, eleven focused Distribution checks, and dashboard type-check passed locally. Representative review traced the Taken-base cases, recreated-log numbering, and the Cucumber and Playwright step boundaries. [Hosted CI passed for `fd6c41c43`](https://github.com/terryyin/open-dough/actions/runs/44464298941). The subsequent source candidate `d6159c217` adds a planning record.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the unchanged installation, discovery, and host-hook integrations reuse their native evidence. The [accepted Codex foreground-wait evidence](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/slice-plans/698-let-a-long-codex-wait-run-without-model-requests/PLAN.md#slice-2-accepted-verification) covers controlled proof, CI, and supplier waits on the tested host profile. Natural supplier-watch sampling and the previously pending native freshness-ordering and oversized-file observations remain open.
+
 ## 0.3.106 - 2026-11-18
 
 - Page-object guidance starts scenarios from one root and continues through the objects returned by actions. A disconnected step can resume from an explicitly assumed state. Inputs and expected outcomes stay visible in the scenario.
