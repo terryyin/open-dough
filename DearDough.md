@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 583. Removed numbers are never reused.
-- Recovery: `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.
+- Highest allocated local number: 585. Removed numbers are never reused.
+- Recovery: `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -69,23 +69,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: CI run [44128960353/1](https://github.com/terryyin/open-dough/actions/runs/44128960353/job/134200426222) failed `native-stream-replay.sh`: new `native-agent-return-inputs.sh:13` emitted a raw host-event literal. Public-entry transport and eight selected consumer checks had passed. Repair `45ff02fee774a270826cd7507fee2ce1c9d077cc` uses the documented jq construction, adds completed-execution/neutral-response facts, and passes guard plus 20 public scenarios; exact branch CI run 44132082409/1 then succeeds.
   - Observed effect: an unchanged repository-wide stream validator was omitted from the selected consumer proof, causing one CI failure and repair cycle before integration.
   - Inference: matches the existing global-validator form of ODF-150. Earlier guard selection could expose the defect before CI; isolated time or token saving is unmeasured.
-
-- Execution: SEED-382#give-the-frontend-group-headroom-on-slow-runners (first implementation `389b28dfc8380a49cd134c7d67d1ad8861f4a157`)
-  - Timestamp: unknown (2026-11-18; the coordinator's spec run started 2026-11-18T01:48:53Z, after the refactor return)
-  - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: unknown (checkout-bound installed guidance at Take `3d4487126`)
-  - Evidence: slice 1 changed the `dashboard-frontend` job's `shards` in `ci.yml`. The implementer's trace (terms `dashboard/frontend-tests=`, `dashboard-frontend`) selected the plan's six checks plus five more `ci.yml`-reading support checks, all passing, and did not name `splitExcluding` (`dashboard/tests/support/proofRecordRun.ts`), which reads that job's shards for `dashboard/backend-tests/runtime/runner-ownership.spec.ts`. The refactor pass named it; the coordinator ran the spec (5 tests, pass) before publication, and branch run 44218814549/1 passed.
-  - Observed effect: a browser-spec consumer of the changed declaration was missing from the implementation return and found one stage later, before publication; no failure or repair cycle.
-  - Inference: the same missed-consumer form, here through a TypeScript reader of the workflow file that neither search term names by path; the support-check selection the earlier rows recommend was applied and held. Cost was one extra local spec run.
-
-- Execution: SEED-400#keep-freshness-with-a-valid-take (plan 696; first implementation `03b29b34ee3cfdbe109111b86aba327e0691c277`)
-  - Timestamp: unknown (2026-11-18; CI run 44257111689 attempt 1 on `444c34536`)
-  - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: unknown (checkout-bound installed guidance at Take `3e19bc23e`)
-  - Evidence: slice 2 reworded `references/source-freshness.md`. The plan's gate was the two freshness tests and named no check for the reference; the implementer's trace (terms `not-taken-at-base`, `resolveTake`, `merge-base`) and the refactor pass ran only `payload-declaration-links.sh` for it. `read-budget.test.mjs` counts that whole file in the "Before finishing or stopping" row: CI failed at 30221 of 30000 bytes, and slice 3's uncommitted rewording stood at 30458. [ODF-446](docs/maintainer/findings/ODF-446.md) records the same row at its limit.
-  - Observed effect: one CI failure and one repair agent trimming three references to 29838 bytes. The coordinator delivered the repair with slice 3 (`969f4924f`) instead of the stash, repair and restore cycle, because slice 3's returned, uncommitted work edited the same paragraph.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -997,3 +980,17 @@ The story promised a third of the story-notes time on the strength of phone-boar
   - Evidence: `7df4ade39:.planning/slice-plans/707-run-story-notes-checks-at-the-mounted-boundary/PLAN.md` "Observations used for sizing" (scratch probe of 82 ms, phone-board 7 cases) against slice 5 learning (`actSettled`) and the slice 8 comparison (0.80 and 0.86 of baseline); Terry changed the promise and queued `SEED-404#run-the-story-notes-checks-in-a-third-of-their-time`.
   - Observed effect: the goal was missed and a further story is needed.
   - Inference: a probe that holds answers and refreshes reads, as real cases do, would have exposed the settling cost before the third was promised. Close to DD-553 and DD-554 (premises settled on an unrepresentative stage).
+
+## DD-585 — macOS signal proof missed Linux arm behavior
+
+A native harness change passed 51 macOS checks before hosted Linux exposed three arm failures. The repository's Ubuntu diagnostic reproduced them.
+
+### Occurrences
+
+- Execution: SEED-346#close-native-comparison-harness-gaps (plan 621, first implementation `73370177a`)
+  - Timestamp: unknown (2026-11-19 +08:00, CI run 44432359216/1)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `76fb0f994`)
+  - Evidence: [failed Linux shard](https://github.com/terryyin/open-dough/actions/runs/44432359216/job/135252647345) and `f768859be:.planning/slice-plans/621-close-native-comparison-harness-gaps/diagnosis-native-linux-arm.md`.
+  - Observed effect: a writer pause, one repair publication and 15 passing Linux checks after repair. The original proof had used macOS Bash and process groups.
+  - Inference: use the existing [Ubuntu diagnostic](Distribution/tests/ci/ci-container.md) before publishing a change to shell signal or process-group ownership that ships on Linux.

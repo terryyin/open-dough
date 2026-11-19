@@ -242,3 +242,9 @@ All 43 focused files passed. The incomplete-pair assertions observed
 partial effort. Doughnut and launch-command qualification exercised readable
 command and inspection facts. All three archives recovered at their expected
 bases and stayed byte-identical. See the source review and `slice-3-return.md`.
+
+## Execution complete
+
+Product advice: no change. The guides explain all three outcomes, and the
+baseline applicability rule requires a fresh arm when its inputs change.
+The retrospective recorded the Linux parity finding in DearDough.
