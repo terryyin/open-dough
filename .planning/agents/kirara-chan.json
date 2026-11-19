@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-413#renovate-remaining-dashboard-frontend-unit-tests",
+  "mode": "story-branch",
+  "branch": "claude/prove-how-project-intent-applies-a-newer-revisio",
+  "host": "claude"
+}
