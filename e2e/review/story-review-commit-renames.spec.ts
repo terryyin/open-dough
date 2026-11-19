@@ -13,14 +13,11 @@ import {
   comparisonChoice,
 } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
-  worktreeWithStoryCommits,
+  parentsConflict,
   sixth,
+  trunkIntegrationRepository,
 } from "../../dashboard/test-support/support/storyReviewTrunk.ts";
-import {
-  commitAll,
-  git,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
   expectTreeRows,
   changedFilesList,
@@ -29,33 +26,35 @@ import {
   fileDiff,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 
+// The story renames `src/c.ts` to `d.ts`, settles trunk's conflicting edit
+// there in its integration, then renames it to `e.ts`.
+test.use({
+  originRepository: trunkIntegrationRepository("c story and trunk", {
+    story: {
+      name: "rename c to d",
+      remove: ["src/c.ts"],
+      files: { "src/d.ts": sixth("c", "c story") },
+    },
+    renamed: "src/d.ts",
+    after: {
+      name: "rename d to e",
+      remove: ["src/d.ts"],
+      files: { "src/e.ts": sixth("c", "c story and trunk") },
+    },
+  }),
+});
+
 test("a file renamed before and after conflicted integration stays flagged with its original old path and diff", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const story = worktreeWithStoryCommits(origin);
-  git(story.workspace, "mv", "src/c.ts", "src/d.ts");
-  commitAll(story.workspace, "rename c to d");
-  git(origin.project, "merge", "--quiet", "--ff-only", story.landed);
-  writeAt(origin.project, "README.md", sixth("readme", "readme trunk"));
-  writeAt(origin.project, "src/c.ts", sixth("c", "c trunk"));
-  commitAll(origin.project, "trunk changes c");
-  git(origin.project, "push", "--quiet", "origin", "main");
-  git(story.workspace, "fetch", "--quiet", "origin", "main");
-  expect(() =>
-    git(story.workspace, "merge", "--quiet", "--no-edit", "origin/main"),
-  ).toThrow();
-  writeAt(story.workspace, "src/d.ts", sixth("c", "c story and trunk"));
-  commitAll(story.workspace, "merge trunk with renamed conflict");
-  git(story.workspace, "mv", "src/d.ts", "src/e.ts");
-  commitAll(story.workspace, "rename d to e");
-
-  keepLaunchRecord(dashboard, story.workspace);
+  expect(parentsConflict(origin, "rename c to d")).toBe(true);
+  keepLaunchRecord(dashboard, storyWorktree(origin).workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   expect(snapshot.commits.map(({ subject }) => subject)).toEqual([
     "rename d to e",
-    "merge trunk with renamed conflict",
+    "merge trunk",
     "rename c to d",
     "story changes c",
   ]);

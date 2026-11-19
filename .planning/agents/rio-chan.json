@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "identity": "SEED-353#declare-merged-review-histories",
-  "mode": "story-branch",
-  "branch": "claude/declare-merged-review-histories-through-makeme",
-  "host": "claude"
-}

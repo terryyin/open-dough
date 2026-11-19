@@ -17,8 +17,13 @@ it. Use `materializeRepository` for a bare origin and checkout, or
 Both materializers return commit IDs in `revisions`; a dashboard case reads
 one as `origin.revision(name)` from its start origin, whether prepared, private
 or kept. For merged starting
-history, list earlier `parents` in Git order. Files inherit from the first
-parent, and the revision states the resolved changes.
+history, list earlier `parents` in Git order; a workspace merge may name a
+trunk revision. Files inherit from the first parent, and the revision states
+the full resolved bytes of every file it changes from that parent. The
+materializer does not merge, so a case about a conflict confirms it
+independently, with `git merge-tree --write-tree` of the named parents
+exiting 1.
+[Declared conflicted integration](../../e2e/review/story-review-commit-renames.spec.ts)
 [Builder](support/repositoryTestData.mjs) ·
 [Repository harness](support/repository-fixture.mjs)
 
@@ -42,7 +47,8 @@ branch, and a case reads it and its named revisions through
 and tracking ref on the revision before it.
 `withLocalState(description, { staged, unstaged, untracked, ignored, modes })`
 states what the workspace leaves uncommitted; both write it after its
-revisions. A revision's
+revisions, so a starting commit beside uncommitted state is a declared
+workspace revision, never a commit made after the state is written. A revision's
 `executables` lists files to commit with the executable mode. The first
 revision gets an empty backlog unless it states one, as `backlog` or as bytes
 at `.planning/PRODUCT-BACKLOG.md`; `backlog: null` states a trunk without

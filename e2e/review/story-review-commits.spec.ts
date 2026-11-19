@@ -4,8 +4,6 @@ import {
   changedFilesList,
   listedFile,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import {
   expect,
   test,
@@ -33,12 +31,22 @@ import {
   storyWorktree,
   unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+import {
+  storyARepository,
+  storyAWithNewestRepository,
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 
 test.use({ originRepository: unchangedRepository });
 
-test.describe("from Story A's declared history", () => {
-  test.use({ originRepository: storyARepository });
+// A new plain head after Story A's merge gives the default one plain
+// commit's changes beside the declared uncommitted state.
+test.describe("from Story A's declared history with a newest plain edit", () => {
+  test.use({
+    originRepository: storyAWithNewestRepository({
+      name: "newest story edit",
+      files: { "story.txt": "story\nnewest story\n" },
+    }),
+  });
 
   test("Commits lists the first-parent line below Uncommitted changes and shows a chosen commit's trees", async ({
     page,
@@ -46,18 +54,6 @@ test.describe("from Story A's declared history", () => {
     origin,
   }) => {
     const { workspace } = storyWorktree(origin);
-    // Leave the fixture's staged/unstaged/untracked files intact; a new plain
-    // head gives the default one plain commit's changes.
-    writeFileSync(path.join(workspace, "story.txt"), "story\nnewest story\n");
-    git(
-      workspace,
-      "commit",
-      "--quiet",
-      "-m",
-      "newest story edit",
-      "--",
-      "story.txt",
-    );
     keepLaunchRecord(dashboard, workspace);
     const before = observed(workspace);
     const card = await openBacklog(page, origin);
@@ -131,6 +127,10 @@ test.describe("from Story A's declared history", () => {
     await expect(review.locator(".story-review-diff")).toBeVisible();
     expect(observed(workspace)).toEqual(before);
   });
+});
+
+test.describe("from Story A's declared history", () => {
+  test.use({ originRepository: storyARepository });
 
   test("a clean merge selected alone changed nothing by itself", async ({
     page,
