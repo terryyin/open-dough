@@ -36,6 +36,24 @@ Effort bands are relative. Small means one scoped host workflow. Medium means
 a shared workflow with a representative host comparison. They carry no time
 commitment.
 
+### November 18–19 Codex execution baseline
+
+Using the November 19 Usage snapshot at 08:42 Singapore time, the audit
+compared the last ten eligible Codex Plan Execution tasks at November 18
+17:52 with the last ten at November 19 07:54. Four tasks appear in both
+windows. The rolling median rose from 2.51M to 13.42M and the mean from 5.60M
+to 10.68M index units per task. In the preceding week, 22 of 63 GPT-6.1 Sol
+`xhigh` executions had already exceeded 13M. Task mix matters when choosing
+a comparison.
+
+GPT-6.1 Sol and GPT-6.2 Sol at standard speed weight a cached input token at
+0.05, fresh input at 1 and output at 5. Use the same versioned rate card for
+both arms of each comparison. The largest execution in the later window was
+Open Dough `SEED-379#keep-own-branch-session-results-for-review`, Codex session
+`01a1ef2f-03bc-7f72-b131-aa967975fa9f`. Its retained coordinator and worker
+traces supply the examples below. [Token Index](../../dashboard/USAGE-TOKEN-INDEX.md)
+and [retained trace selection](../../dashboard/AGENT-EFFORT.md).
+
 ## Proposed stories in initial priority order
 
 Each trial is judged with the
@@ -90,7 +108,26 @@ Each trial is judged with the
   continuing from recorded execution state at a slice boundary. Outcomes,
   proof, judgment and interventions match the baseline; peak context and
   total effort fall. A loss of needed judgment rejects the variant.
-- **Priority.** Second, after the role-sized tool set. Smaller stories remain
+- **Priority, November 19.** Queue this trial after the real-execution
+  evaluation of recoverable proof evidence. The potential saving spans many
+  worker requests. A shorter handoff can also omit a decision or trigger
+  expensive fresh reads, so the trial needs the same review and proof.
+- **Codex evidence.** Across the two ten-task windows, mean cached-input
+  contribution rose from 3.46M to 8.15M index units per execution, accounting
+  for 92% of the increase in the mean total. In the 23.26M execution, 20 of
+  22 workers inherited the full conversation. Their first requests had a
+  median of 309k input tokens. The trace establishes the size of the handoff.
+  A matched trial must establish how much of it workers need.
+- **Codex handoff trial.** On comparable well-defined slices, compare full
+  history with a brief containing the original requirements, current decisions,
+  relevant files and required checks. Give the worker access to supporting
+  context on demand. Hold model, effort, independent review and tests
+  constant. Count coordinator and worker usage through rereads, repairs and
+  acceptance. At Sol rates, 15k fresh tokens cost the same as 300k cached.
+  Adopt the brief only if combined index falls and the trial preserves
+  required behavior, acceptance evidence and material review findings.
+  [Earlier compact-handoff trial](../../docs/maintainer/findings/ODF-150.md).
+- **Earlier evidence.** Smaller stories remain
   the preferred policy; use a current baseline under that policy on each host.
   The 8-slice cap and `medium` effort reduced Claude Code's observed exposure;
   that does not establish the remaining Codex exposure. It was the largest
@@ -113,9 +150,6 @@ Each trial is judged with the
   handling ([ODF-206](../../docs/maintainer/findings/ODF-206.md),
   [ODF-260](../../docs/maintainer/findings/ODF-260.md)). Host mechanisms such
   as compaction settings are trial variants, not defaults.
-  Compact Codex worker handoffs are another variant within this story, judged
-  on coordinator plus worker effort, uncached input and cached input as well
-  as quality. A fresh worker that processes fewer tokens can still cost more.
   [Context growth](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
 <a id="get-long-verification-results-without-empty-wakes"></a>
@@ -137,8 +171,24 @@ Each trial is judged with the
   completion notification costs least. Keep the overdue, cancellation and
   CI completion behavior. Compare idle-wake requests, rebuilds and total
   effort on matched runs, with the same proof decisions.
-- **Priority.** Fourth, after the proof decision; measure residual exposure
-  under each host's currently installed guidance. Codex recorded 2,303 requests
+- **Priority, November 19.** Queue this first after the new-model Token Index
+  story moves to Taken. The worker can run the same checks and return the same
+  evidence while the coordinator waits, so try this before changing the
+  context workers receive.
+- **Codex evidence.** Across the two ten-task windows, responses immediately
+  after an empty agent wait rose from 18.3 to 50.3 per execution on average,
+  or 0.20M to 0.70M index units. The largest execution had 165 such responses
+  totaling 2.53M. The audit counted each response once when the preceding
+  batch contained only timed-out `wait_agent` calls and no user, developer or
+  worker message intervened. These figures measure usage after timeouts.
+  Estimate achievable savings from the difference between matched runs.
+- **Codex wait trial.** Have the coordinator wait for a worker result, user
+  intervention or the next due progress check. Exercise both a quiet successful
+  wait and a worker that fails or becomes overdue. Compare timeout-following
+  requests and combined coordinator and worker index. Require the same terminal
+  result, failure evidence and timely handling of overdue work, cancellation
+  and CI completion. Keep the worker responsible for its original command.
+- **Earlier evidence.** Codex recorded 2,303 requests
   (446.5M tokens, 7.6%) after empty subprocess output or agent-wait timeouts.
   Claude Code paid about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
   In Claude Code's later cohort, shell `sleep` calls fell from 18.4 per
