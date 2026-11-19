@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-382_type-check-reports-after-a-lint-failure.json",
+      "identity": "SEED-382#type-check-reports-after-a-lint-failure",
+      "completedAt": "2026-11-19T09:52:27.206Z",
+      "blob": "471e3820ee92170d498a41c46f6ce7e4becaaccf"
+    },
+    {
       "fileName": "SEED-409_return-to-recently-selected-stories.json",
       "identity": "SEED-409#return-to-recently-selected-stories",
       "completedAt": "2026-11-19T08:45:34.948Z",
