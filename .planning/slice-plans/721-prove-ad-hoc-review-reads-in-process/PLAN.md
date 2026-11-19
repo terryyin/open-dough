@@ -329,3 +329,31 @@ and slice 6 removes them. The plan was reviewed again on 2026-11-19 with the
 pilot on trunk: its entry naming, refusal convention and stored-document
 builder replaced the placeholders here, and the group-run premise is now
 observed. This review found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice:
+- The retrospective's independent outcome review found no bug or wire
+  regression. It found residue against the amended contract: the session
+  read shapes still accept story-only fields, file admission ignores the
+  handler's abort signal, adapter and handler code share modules, and two
+  launch-record scenarios live on the review-read builder. These are planned
+  as the correction `SEED-413#narrow-ad-hoc-review-handler-contracts`
+  (`../724-narrow-ad-hoc-review-handler-contracts/PLAN.md`, ready); queue it
+  ahead of the next backend family.
+- Carry this family's rule into
+  `SEED-413#renovate-remaining-dashboard-backend-unit-tests` before its next
+  family is refined: each handler's typed contract holds only what it reads,
+  and only its adapter reads process-wide stores, so a case builds exactly
+  that input through MakeMe. This may replace "giving the module-level memos
+  an owner" for the `intent/` landed CI family with typed handler inputs.
+  The next ad hoc family should also take
+  `ad-hoc-session-commits-file-text.spec.ts` and the Default main landing
+  case of `ad-hoc-session-commits.spec.ts`, which only kept records and a
+  repository decide.
+- Product question, unchanged here: a file read of a story launch's session
+  is not refused as the review read refuses it (400 "This session belongs to
+  a story launch…"); it reaches the kept-commits 409. Decide whether the
+  file reads should share that refusal.
+- Feed this story's experience into the Distribution test-automation
+  guidance, as Terry asked; see the wrap-up reminder.

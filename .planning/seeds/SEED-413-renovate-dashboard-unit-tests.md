@@ -224,6 +224,47 @@ it.
 - **Safe stopping point.** The review handlers and their cases stand on
   their own, and the README carries the rules the other families need.
 
+<a id="narrow-ad-hoc-review-handler-contracts"></a>
+
+### Narrow the ad hoc review handlers' contracts to what they read
+
+**Identity:** SEED-413#narrow-ad-hoc-review-handler-contracts
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/724-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2dec45ebed1e102a783d0d786655f85daeed2f59bc6ac3e5b5304565e685f695","plan":"d93ea5d9097ee47757dfd4585557ad64842fb040413a66d67cacc36d9968cd16"}}
+```
+
+Correction of the
+[typed ad hoc review handlers](#renovate-dashboard-backend-unit-tests) after
+their execution's retrospective.
+
+- **Goal.** Developers who call the ad hoc review handlers, or copy them as
+  the reference family, get a contract that holds only what each read uses,
+  so a case cannot build input the handler ignores or refuses. A departed
+  reader's file read also stops its admission Git reads. The wire answers
+  every non-aborted read as it does today.
+- **Scope.**
+  - A session review read and a session file read get their own typed
+    shapes. These carry no story-only field. The handler's copy of the
+    adapter's refusal for a published completion on a session read is
+    deleted.
+  - Admission takes the file handlers' signal. Only follow-up admission,
+    which has no response, keeps its own 30 s bound.
+  - Placement and naming: the reading of process-wide stores sits in adapter
+    modules. File admission is separate from the range read's adapter. The
+    admitted-file type is named for every file read, the session lookup is
+    written once, and the stale comment is fixed. The backend README points
+    at the moved module.
+  - The landed ad hoc session and the session with a kept run become
+    `LaunchRecordBuilder` steps, and the session review read builder
+    composes them.
+- **Scope limits.** Moving `ad-hoc-session-commits-file-text.spec.ts` and the
+  Default main landing case to unit cases stays with the
+  [remaining families](#renovate-remaining-dashboard-backend-unit-tests). This
+  correction does not change whether the file read refuses a story launch's
+  session; that refusal is a product question. Story subjects keep their
+  admission path.
+- **Plan.** [724](../slice-plans/724-narrow-ad-hoc-review-handler-contracts/PLAN.md)
+
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
 ### Renovate the remaining dashboard backend unit-test families around typed server handlers
