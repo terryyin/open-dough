@@ -16,7 +16,11 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import { rememberRecentStory, sameRecentStory } from "./recentStories.ts";
+import {
+  readRecentStories,
+  rememberKeptRecentStory,
+  sameRecentStory,
+} from "./recentStories.ts";
 
 // The selected story names its project, since one page serves every project.
 export type SelectedStory = {
@@ -40,8 +44,10 @@ export const StorySelectionOnPage = createContext<
 // The selected story; changes force consumers to re-render.
 const StorySelectionState = createContext<SelectedStory | undefined>(undefined);
 
-// Most-recent-first history of selections on this page (ADR 0008 Recent
-// stories); clearing the selection leaves this list as it is.
+// Most-recent-first history of selections (ADR 0008 Recent stories), kept in
+// this browser's disposable storage so it survives a reload; clearing the
+// selection leaves this list as it is. The Selected story itself stays page
+// state.
 const RecentStoriesState = createContext<readonly SelectedStory[]>([]);
 
 // Whether a selection, if any, is this story of the same project.
@@ -63,13 +69,16 @@ export function usePageStorySelection() {
     initialSelectedStory,
   );
   const [recent, setRecent] = useState<readonly SelectedStory[]>(() => {
+    const kept = readRecentStories();
     const initial = initialSelectedStory();
-    return initial === undefined ? [] : [initial];
+    return initial === undefined
+      ? kept
+      : rememberKeptRecentStory(kept, initial);
   });
   const selectedRef = useRef(selected);
   selectedRef.current = selected;
   const remember = useCallback((story: SelectedStory) => {
-    setRecent((history) => rememberRecentStory(history, story));
+    setRecent((history) => rememberKeptRecentStory(history, story));
   }, []);
   const toggle = useCallback(
     (story: SelectedStory) => {

@@ -1,15 +1,16 @@
 // Recent stories in the banner (../../src/recentStoriesControl.tsx): outline vs
-// filled bookmark, empty and ordered history, and Escape/outside dismiss,
-// with selections from a card empty area and from opening a Side panel
-// terminal. ADR 0008 names the control; browser storage is a later slice.
+// filled bookmark, empty and ordered history, Escape/outside dismiss, and
+// disposable-storage retention across a reload (capped at 10). Selections come
+// from a card empty area and from opening a Side panel terminal. ADR 0008
+// names the control.
 
-import { test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   openFrontendTakenBacklog,
   takenStoryCard,
 } from "../../test-support/support/frontendApp.ts";
 import { takenStoryWorkingSession } from "../../test-support/support/frontendCardSessions.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
+import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
 import {
   readyIdentity,
   readyStory,
@@ -27,11 +28,16 @@ import {
   expectRecentStoriesEmpty,
   expectRecentStoriesList,
   openRecentStories,
+  selectStoriesInTurn,
 } from "../../test-support/recentStoriesPage.ts";
+import { putRecentHistoryStories } from "../../test-support/recentStoriesHistory.ts";
 import { expectBannerRow } from "../../test-support/bannerReading.ts";
 import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
 import { settings } from "../../test-support/support/systemSettingsPage.ts";
 import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
+import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
+import { watchPageErrors } from "../../test-support/pageErrors.ts";
+import { recentStoriesLimit } from "../../src/recentStories.ts";
 
 test("the banner Recent stories control shows selection state and lists recent stories from card and Side panel selection", async ({
   page,
@@ -111,5 +117,92 @@ test("the banner Recent stories control shows selection state and lists recent s
     await openRecentStories(page);
     await dismissRecentStoriesByBannerClick(page);
     await expectSelected(storyA, true);
+  });
+});
+
+// One more than the kept cap; after reload the earliest is gone and the
+// Selected story is page state only.
+const beyondCapHistoryStories = [...Array(recentStoriesLimit + 1).keys()].map(
+  (index) => ({
+    identity: `SEED-${900 + index}#story`,
+    title: `Recent history ${String(index + 1)}`,
+  }),
+);
+
+test("recent stories survive a reload, capped at the 10 most recent, and last only for the page when storage throws", async ({
+  page,
+  frontendServices,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  putRecentHistoryStories(frontendServices, beyondCapHistoryStories);
+  await page.goto("/");
+  await expectSettledPage(page, {
+    taken: [],
+    backlog: beyondCapHistoryStories.map(({ title }) => title),
+  });
+
+  await test.step("after eleven distinct selections and a reload, no story is selected and the popover lists the last 10 newest first", async () => {
+    await selectStoriesInTurn(
+      page,
+      beyondCapHistoryStories.map(({ title }) => title),
+    );
+    await expectRecentStoriesButton(page, {
+      selected: beyondCapHistoryStories[recentStoriesLimit]?.identity,
+      filled: true,
+    });
+    await reloadUntilRead(page);
+    await expectSettledPage(page, {
+      taken: [],
+      backlog: beyondCapHistoryStories.map(({ title }) => title),
+    });
+    await expectRecentStoriesButton(page, {
+      selected: undefined,
+      filled: false,
+    });
+    await expectRecentStoriesList(
+      page,
+      beyondCapHistoryStories
+        .slice(-recentStoriesLimit)
+        .reverse()
+        .map(({ identity }) => ({
+          project: "Open Dough",
+          identity,
+          checked: false,
+        })),
+    );
+    await dismissRecentStoriesWithEscape(page);
+  });
+
+  await test.step("when storage throws, the history lasts for the page", async () => {
+    await page.addInitScript(() => {
+      const refused = () => {
+        throw new DOMException("Storage is refused.", "SecurityError");
+      };
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        get: refused,
+      });
+    });
+    const errors = watchPageErrors(page);
+    const first = beyondCapHistoryStories[0];
+    const second = beyondCapHistoryStories[1];
+    if (first === undefined || second === undefined) {
+      throw new Error("Expected beyond-cap history stories.");
+    }
+    await reloadUntilRead(page);
+    await expectSettledPage(page, {
+      taken: [],
+      backlog: beyondCapHistoryStories.map(({ title }) => title),
+    });
+    await expectRecentStoriesEmpty(page);
+    await dismissRecentStoriesWithEscape(page);
+    await selectStoriesInTurn(page, [first.title, second.title]);
+    await expectRecentStoriesList(page, [
+      { project: "Open Dough", identity: second.identity, checked: true },
+      { project: "Open Dough", identity: first.identity, checked: false },
+    ]);
+    await reloadUntilRead(page);
+    await expectRecentStoriesEmpty(page);
+    expect(errors).toEqual([]);
   });
 });

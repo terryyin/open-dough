@@ -114,9 +114,11 @@ case clash with `recentStories.ts`).
 ### 2. Recent stories survive a reload, capped at 10
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a test in `recent-stories.spec.ts` that selects eleven stories,
 reloads, and lists ten.
+Accepted proof: `open-dough/evidence/slice2-refactor-frontend-proof.json`
+(recent-stories after persistence refactor); lint/typecheck exit 0.
 
 Behavior: example 8. After eleven distinct stories are selected in turn
 and the page reloads, no story is selected and the popover lists the last
@@ -216,6 +218,9 @@ awake macOS on AC with `caffeinate -s -i`. On battery, follow the
 - Optional later Structure: denser page-object journeys for
   `recent-stories.spec.ts` step bodies (same pattern as neighboring
   navigation specs).
+- Persistence remember+keep is one rule (`rememberKeptRecentStory`); optional
+  later Structure could share the in-page localStorage-refusal helper with
+  other kept-preference specs.
 
 ## Plan review
 

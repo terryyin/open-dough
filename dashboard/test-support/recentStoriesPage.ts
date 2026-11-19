@@ -3,6 +3,8 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
+import { emptyArea } from "./storyCardSelection.ts";
+import { storyCard } from "./storyCardControls.ts";
 
 export function recentStoriesButton(page: Page): Locator {
   return parts(page).recentStories;
@@ -86,5 +88,16 @@ export async function expectRecentStoriesList(
       "aria-selected",
       row.checked ? "true" : "false",
     );
+  }
+}
+
+// Selects each story in order by its Backlog card's empty area.
+export async function selectStoriesInTurn(
+  page: Page,
+  titles: readonly string[],
+) {
+  const { backlog } = parts(page);
+  for (const title of titles) {
+    await emptyArea(storyCard(backlog, title)).click();
   }
 }
