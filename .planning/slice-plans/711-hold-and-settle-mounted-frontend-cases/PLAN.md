@@ -19,6 +19,11 @@ commits `91e716f20`..`f3e1e44d1`. At `f3e1e44d1` the review found:
    - Only the next notes answer can be held.
    - `mountedStoryReviewPage.ts` repeats the "Review changes" name instead of reading `storyReviewNames.ts`.
 
+5. **Intent Coverage at `7740fc354` (2026-11-19): Insufficient evidence** for "one case ends while a notes answer is still held; the next case opens with default answers and no late update".
+   - No maintained case ends with a `holdNextNotes` hold still kept.
+   - Settling held answers before unmounting (`await actSettled(() => endHeldAnswers())`) delivered a stale notes answer into the ending case's still-mounted board, and no maintained check noticed.
+   - Under that fault the isolation pair failed once in 7 runs: the banner flipped from `data-connection="awaiting"` to `"disconnected"` after `advanceTimersByTimeAsync(0)`. Seven unfaulted runs passed, and nothing tied the flip to the held answer.
+
 ## Preserved promises and constraints
 
 - Every story-notes case keeps its observations and passes: `npm run test:dashboard:frontend -- stories/story-notes`, with no "not wrapped in act" line.
@@ -39,6 +44,7 @@ commits `91e716f20`..`f3e1e44d1`. At `f3e1e44d1` the review found:
 | Promise | Owning slice | Observable proof |
 | --- | --- | --- |
 | A held notes answer cannot leak into the next case | 1 | Isolation pair on the shared hold; a scratch edit ending holds before unmounting fails it |
+| A stale held notes answer cannot reach a mounted board unnoticed, and the isolation pair is stable | 1 | Kept-hold isolation pair; scratch settle-before-unmount fails it; banner flip explained |
 | A double hold fails by name | 1 | A focused case holding twice fails with the named error |
 | An unsettled page fails by name | 2 | A scratch case changing an attribute every frame fails with the settle error |
 | README matches the support | 2 | README section names hold, settle and remount limits; review names read from `storyReviewNames.ts` |
@@ -58,6 +64,8 @@ Proof:
 - `npm run test:dashboard:frontend -- mounted-dashboard stories/story-notes board-swipe board-indicators` passes, with no act warnings.
 - A scratch edit that ends holds before unmounting fails the isolation pair.
 - A focused case that holds twice fails with the named error.
+- The isolation pair ends its first case with a story-notes hold still kept. Settling held answers before unmounting, in a scratch edit, fails that pair.
+- Find the cause of the connection-banner flip. Repeat the isolation pair until the flip reproduces or is ruled out, and fix any instability under the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 - `npm run typecheck:dashboard` and ESLint pass.
 
 ### 2. Fail unsettled mounted cases and describe the support as it is
