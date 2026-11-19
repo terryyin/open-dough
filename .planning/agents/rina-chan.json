@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+  "mode": "story-branch",
+  "branch": "codex/keep-dashboard-tests-off-the-developer-s-real-cu",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
