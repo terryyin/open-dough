@@ -1,20 +1,45 @@
 // The typed notes handler in-process, against the machine store under a
 // temporary HOME: no server.
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { RefusedRequest } from "../../server/localOrigin.ts";
 import { storyNotes } from "../../server/storyNotes.ts";
-import type { StoryNote } from "../../src/storyNote.ts";
 import {
-  seedStoryNotes,
-  storyNotesFile,
-} from "../../test-support/support/storyNotesStore.ts";
+  storyNoteChangeSchema,
+  type StoryNote,
+  type StoryNotesAnswer,
+} from "../../src/storyNote.ts";
+import { storyNotesFile } from "../../test-support/support/storyNotesStore.ts";
 
+const project = "open-dough";
 const identity = "SEED-348#collect-notes-for-story-follow-ups";
+const otherIdentity = "SEED-348#attach-story-notes-to-follow-ups";
+const lineContext = {
+  view: "Review changes",
+  path: "src/result.ts",
+  oldPath: "src/before.ts",
+  comparison: {
+    name: "Published completion",
+    baseline: "abc123",
+    tree: "def456",
+  },
+  line: { number: 7, side: "new", text: "return result;" },
+} as const;
 let home: string;
 const realHome = process.env.HOME;
+const notesFile = () => storyNotesFile(home);
 
 beforeEach(() => {
   home = mkdtempSync(path.join(tmpdir(), "story-notes-unit-"));
@@ -25,8 +50,31 @@ afterEach(() => {
   rmSync(home, { recursive: true, force: true });
 });
 
-test("adding a note answers it first with an assigned id and time and stores all three", async () => {
-  const saved = [
+function writeStore(bytes: string) {
+  mkdirSync(path.dirname(notesFile()), { recursive: true });
+  writeFileSync(notesFile(), bytes);
+}
+const storeNotes = (notes: StoryNote[], story = identity) => {
+  writeStore(
+    `${JSON.stringify(
+      makeMe.aStoredStoryNotesDocument
+        .withNotes(project, story, notes)
+        .please(),
+    )}\n`,
+  );
+};
+const storedDocument = () =>
+  JSON.parse(readFileSync(notesFile(), "utf8")) as unknown;
+// A change as the shared schema admits it from the wire.
+const change = (body: unknown) =>
+  storyNoteChangeSchema.parse({ identity, ...(body as object) });
+function notesOf(answer: StoryNotesAnswer) {
+  if (answer.kind !== "notes") throw new Error(`Answered ${answer.kind}`);
+  return answer.notes;
+}
+
+describe("Given notes already saved for a story", () => {
+  const saved = () => [
     makeMe.aStoryNote
       .identifiedAs("34830000-0000-4000-8000-000000000002")
       .withText("Second saved")
@@ -34,24 +82,160 @@ test("adding a note answers it first with an assigned id and time and stores all
     makeMe.aStoryNote
       .identifiedAs("34830000-0000-4000-8000-000000000001")
       .withText("First saved")
+      .withContext(lineContext)
       .please(),
   ];
-  seedStoryNotes(home, { [identity]: saved });
-
-  const answer = await storyNotes("open-dough", {
-    action: "add",
-    identity,
-    text: "Newly added",
+  beforeEach(() => {
+    storeNotes(saved());
   });
 
-  if (answer.kind !== "notes") throw new Error(`Answered ${answer.kind}`);
-  const [added, ...rest] = answer.notes[identity] ?? [];
-  expect(added?.text).toBe("Newly added");
-  expect(added?.id).toMatch(/^[0-9a-f-]{36}$/);
-  expect(Number.isNaN(Date.parse(added?.savedAt ?? ""))).toBe(false);
-  expect(rest).toEqual(saved);
-  const stored = JSON.parse(
-    readFileSync(storyNotesFile(home), "utf8"),
-  ) as Record<string, Record<string, StoryNote[]>>;
-  expect(stored["open-dough"]?.[identity]).toEqual(answer.notes[identity]);
+  test("when a note is added, then it comes first with an assigned id and time, trimmed text and kept line context, and is stored", async () => {
+    const notes = notesOf(
+      await storyNotes(
+        project,
+        change({
+          action: "add",
+          text: "  Keep this line's meaning.  ",
+          context: lineContext,
+        }),
+      ),
+    );
+
+    const [added, ...rest] = notes[identity] ?? [];
+    expect(added).toEqual({
+      id: expect.stringMatching(/^[0-9a-f-]{36}$/) as unknown,
+      savedAt: expect.any(String) as unknown,
+      text: "Keep this line's meaning.",
+      context: lineContext,
+    });
+    expect(Number.isNaN(Date.parse(added?.savedAt ?? ""))).toBe(false);
+    expect(rest).toEqual(saved());
+    expect(storedDocument()).toEqual({ [project]: notes });
+  });
+
+  test("when notes are added to another story, then each project and identity keeps its own and they are read again from the file", async () => {
+    await storyNotes(
+      project,
+      change({ action: "add", identity: otherIdentity, text: "Other story" }),
+    );
+
+    expect(notesOf(await storyNotes("doughnut"))).toEqual({});
+    const reread = notesOf(await storyNotes(project));
+    expect(reread[identity]).toEqual(saved());
+    expect(reread[otherIdentity]?.map(({ text }) => text)).toEqual([
+      "Other story",
+    ]);
+    expect(storedDocument()).toEqual({ [project]: reread });
+  });
+
+  test("when a note is edited, then only its text changes and it keeps id, saved time and line context", async () => {
+    const [, first] = saved();
+    const notes = notesOf(
+      await storyNotes(
+        project,
+        change({ action: "edit", id: first?.id, text: "  Revised  " }),
+      ),
+    );
+
+    expect(notes[identity]).toEqual([
+      saved()[0],
+      { ...first, text: "Revised", editedAt: expect.any(String) as unknown },
+    ]);
+    expect(storedDocument()).toEqual({ [project]: notes });
+  });
+
+  test("when an unknown or other-story note is edited or deleted, then the handler refuses it and nothing is written", async () => {
+    const [, first] = saved();
+    const keptBytes = readFileSync(notesFile(), "utf8");
+    for (const body of [
+      { action: "edit", id: makeMe.aStoryNote.please().id, text: "Unknown" },
+      { action: "delete", id: makeMe.aStoryNote.please().id },
+      { action: "edit", identity: otherIdentity, id: first?.id, text: "Wrong" },
+      { action: "delete", identity: otherIdentity, id: first?.id },
+    ]) {
+      const refused = storyNotes(project, change(body));
+      await expect(refused, JSON.stringify(body)).rejects.toBeInstanceOf(
+        RefusedRequest,
+      );
+      await expect(refused).rejects.toMatchObject({ status: 404 });
+      expect(readFileSync(notesFile(), "utf8")).toBe(keptBytes);
+    }
+  });
+
+  test("when a note is deleted, then the other entries are kept and stored", async () => {
+    const [second, first] = saved();
+    const notes = notesOf(
+      await storyNotes(project, change({ action: "delete", id: first?.id })),
+    );
+
+    expect(notes[identity]).toEqual([second]);
+    expect(storedDocument()).toEqual({ [project]: notes });
+  });
+});
+
+test("Given a delivered note, when it is edited, even to unchanged text, then it keeps delivered and gets a new version each time", async () => {
+  const delivered = "2026-11-17T00:10:00.000Z";
+  const note = makeMe.aStoryNote
+    .withText("Delivered observation")
+    .savedAt(delivered)
+    .deliveredAs(delivered)
+    .please();
+  storeNotes([note]);
+  const edit = { action: "edit", id: note.id, text: "Revised" };
+
+  const [afterChange] =
+    notesOf(await storyNotes(project, change(edit)))[identity] ?? [];
+  const [afterSame] =
+    notesOf(await storyNotes(project, change(edit)))[identity] ?? [];
+
+  expect(afterChange).toEqual({
+    ...note,
+    text: "Revised",
+    delivered,
+    editedAt: expect.any(String) as unknown,
+  });
+  expect(afterChange?.editedAt).not.toBe(delivered);
+  expect(afterSame).toEqual({
+    ...afterChange,
+    editedAt: expect.any(String) as unknown,
+  });
+  expect(afterSame?.editedAt).not.toBe(afterChange?.editedAt);
+});
+
+for (const [kind, bytes] of [
+  ["not JSON", "{not json"],
+  ["wrong shape", '{"open-dough": ["lost note"]}\n'],
+] as const)
+  test(`Given an unreadable notes file (${kind}), when read and then added to, then it answers unreadable, refuses the add and keeps its bytes in place`, async () => {
+    writeStore(bytes);
+
+    expect(await storyNotes(project)).toEqual({ kind: "unreadable" });
+    await expect(
+      storyNotes(project, change({ action: "add", text: "Refused" })),
+    ).rejects.toThrow(
+      `Machine evidence is unreadable; writing is blocked: ${notesFile()}`,
+    );
+    expect(readFileSync(notesFile(), "utf8")).toBe(bytes);
+    expect(
+      readdirSync(path.dirname(notesFile())).filter((name) =>
+        name.startsWith("story-notes.json"),
+      ),
+    ).toEqual(["story-notes.json"]);
+  });
+
+test("Given an unwritable store, when a note is added, then it is refused without a note and accepted once the store is writable", async () => {
+  const add = change({ action: "add", text: "Saved once writable." });
+  mkdirSync(path.dirname(notesFile()), { recursive: true });
+  chmodSync(path.dirname(notesFile()), 0o555);
+  try {
+    await expect(storyNotes(project, add)).rejects.toThrow();
+    expect(existsSync(notesFile())).toBe(false);
+  } finally {
+    chmodSync(path.dirname(notesFile()), 0o755);
+  }
+
+  const notes = notesOf(await storyNotes(project, add));
+  expect(notes[identity]?.map(({ text }) => text)).toEqual([
+    "Saved once writable.",
+  ]);
 });

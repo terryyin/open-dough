@@ -1,5 +1,5 @@
 // Mounted board with the notes service's unreadable answer; the real store's
-// refusal and preservation are proved in story-notes-admission.spec.ts.
+// refusal and preservation are proved in story-notes.unit.spec.ts.
 import { test } from "vitest";
 import { mountStoryNotesBoard } from "../../test-support/mounted-dashboard/mountedStoryNotesBoard.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";

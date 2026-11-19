@@ -184,7 +184,7 @@ Branch CI run 44515013156 on `ef180d573` passed, with the unit case in
 ### 3. Every notes store rule is proven in-process, with one wire check
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Node Vitest cases through the handler prove the store rules the
 seed lists: assigned ids and times with trimmed text and kept line context,
@@ -208,6 +208,13 @@ moved rule's case fails under a scratch edit that disables the rule in
 4.5 s baseline. `backend-tests/launches/followUpNotesCases.ts` consumers and
 `e2e/stories/recently-done-follow-up.spec.ts`, which read the same store,
 pass.
+
+Learning: `makeMe.aStoredStoryNotesDocument` builds the stored document, and
+the story-note getters live in `storyNoteMakeMeProperties()` in the Node-free
+`Distribution/tests/support/storyNoteTestData.mjs`, which `makeMe.mjs` spreads.
+The nine in-process cases sum 83 ms against the 4.5 s HTTP baseline; the wire
+check is one Playwright test in named steps in `story-notes-admission.spec.ts`,
+and `story-notes-changes.spec.ts` is gone.
 
 ### 4. Story notes dialog behaviors are proven on the mounted dialog
 
@@ -353,3 +360,10 @@ the full rule set with the wire check reduced. Slices 4 and 5 follow the two
 components that own the behaviors. Until slice 6, the old terminal case and
 its support remain, and slice 6 removes them. This review found no remaining
 slice-specific concern.
+
+## Story obligations
+
+### G1. Durable write option unobserved in-process
+Reported: slice 3 — "Removing `durable: true` was not caught, because no rule in `storyNotes.ts` produces the unwritable refusal; the store's write produces it."
+Story clause: "an unreadable file reported and preserved, and an unwritable store refused"
+Disposition: no user cost "the backend cases call a typed notes handler in-process": the durable write is the shared machine store's crash-safety option, unchanged by this story; the deleted HTTP cases did not observe it either, and the unwritable refusal itself is proven.

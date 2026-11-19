@@ -45,3 +45,53 @@ export class StoryNoteBuilder {
     return structuredClone(this.#note);
   }
 }
+
+// The machine notes store document (`story-notes.json`) as data: project →
+// story identity → notes, newest first.
+export class StoredStoryNotesBuilder {
+  /** @type {Record<string, Record<string, StoryNote[]>>} */
+  #document = {};
+
+  /**
+   * @param {string} project
+   * @param {string} identity
+   * @param {StoryNote[]} notes
+   */
+  withNotes(project, identity, notes) {
+    this.#document[project] = {
+      ...this.#document[project],
+      [identity]: structuredClone(notes),
+    };
+    return this;
+  }
+
+  /** @returns {Record<string, Record<string, StoryNote[]>>} */
+  please() {
+    return structuredClone(this.#document);
+  }
+}
+
+/**
+ * Story-note builders exposed on MakeMe (fresh on each access).
+ * @typedef {object} StoryNoteMakeMe
+ * @property {StoryNoteBuilder} aStoryNote
+ * @property {StoredStoryNotesBuilder} aStoredStoryNotesDocument
+ */
+
+/** @returns {PropertyDescriptorMap} */
+export function storyNoteMakeMeProperties() {
+  return {
+    aStoryNote: {
+      enumerable: true,
+      get() {
+        return new StoryNoteBuilder();
+      },
+    },
+    aStoredStoryNotesDocument: {
+      enumerable: true,
+      get() {
+        return new StoredStoryNotesBuilder();
+      },
+    },
+  };
+}
