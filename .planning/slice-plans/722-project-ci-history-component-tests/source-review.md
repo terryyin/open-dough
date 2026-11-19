@@ -18,17 +18,17 @@ retirement have other owners.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 01 | The five cases in the four `intent-ci-wall-time-history*` specs run in plain Vitest Browser Mode in headless Chromium using prepared history, judgment, and proof. This is a migration from the built app. | slice 3 | |
-| 02 | The existing family filter still selects the CI wall-time history family. | slice 3 | |
-| 03 | The existing case listing still lists the family’s cases. | slice 3 | |
-| 04 | CI still provides the existing proof for the family. | slice 3 | |
-| 05 | Summed case time is compared with the built-app baseline for the same family. | slice 3 | |
-| 06 | Command elapsed time is reported separately from summed case time. | slice 3 | |
-| 07 | Unit cases use typed MakeMe inputs. | slice 3 | |
-| 08 | The unit cases add zero test-support wrappers. | slice 3 | |
-| 09 | Support retired by the migration has lost its last consumer. | slice 3 | |
-| 10 | Evidence keeps its exact existing wording. The story source does not supply the literal strings. | slice 3 | |
-| 11 | Run links keep their existing destinations. | slice 3 | |
+| 01 | The five cases in the four `intent-ci-wall-time-history*` specs run in plain Vitest Browser Mode in headless Chromium using prepared history, judgment, and proof. This is a migration from the built app. | slice 3 | observed: slice3-timing-1-proof.json and slice3-timing-2-proof.json in checkout Git evidence: all five original titles passed once each in headless mounted Chromium |
+| 02 | The existing family filter still selects the CI wall-time history family. | slice 3 | observed: Both timing records use the original family filter and select the exact same five titles as the warmed built-app record |
+| 03 | The existing case listing still lists the family’s cases. | slice 3 | observed: slice3-list.log in checkout Git evidence lists the five original titles under mounted-chromium |
+| 04 | CI still provides the existing proof for the family. | slice 3 | observed: dashboard-frontend shard 1 selects all mounted specs; the workflow converter emitted a five-pass frontend case fragment from the final frontend run in slice3-proof-fragment |
+| 05 | Summed case time is compared with the built-app baseline for the same family. | slice 3 | observed: Both warm mounted runs totaled 0.807 and 0.844 s across cases, compared with the warmed same-runner built-app baseline of 2.225 s |
+| 06 | Command elapsed time is reported separately from summed case time. | slice 3 | observed: The wall-clock wrapper recorded 2.18 and 2.24 s separately from summed case time; same-runner built-app wall time was 3.88 s |
+| 07 | Unit cases use typed MakeMe inputs. | slice 3 | observed: The mounted specs import the shared typed pageMakeMe entry and dashboard typecheck passed |
+| 08 | The unit cases add zero test-support wrappers. | slice 3 | observed: The delivered diff adds only mounted specs and exposes existing builder definitions; no new test-support wrapper or route |
+| 09 | Support retired by the migration has lost its last consumer. | slice 3 | observed: The consumer trace confirms the route substitute and E2E page object are still used and both are retained |
+| 10 | Evidence keeps its exact existing wording. The story source does not supply the literal strings. | slice 3 | observed: All evidence-bearing cases compare the original exact wording: the order and window rows, the measured row, and the seven gap rows |
+| 11 | Run links keep their existing destinations. | slice 3 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts checks run 41 href; dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts checks each original run 301–305 href after native Tab |
 | 12 | When the reader opens **Builds and evidence** for two measured builds flanking a gap, all three rows appear in answer order even though the build dates run backwards in landing order. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts, order case checks three row labels and datetime attributes in answer order |
 | 13 | In that same history, the heading spans the actual build dates. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts, order case checks heading text and the earliest and latest build datetime attributes |
 | 14 | In that same history, no line connects the measured points across the gap. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts, order case checks that neither SVG stroke joins points |
@@ -41,8 +41,8 @@ retirement have other owners.
 | 21 | With empty history, no evidence disclosure is offered. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, empty case checks that history has no summary or chart |
 | 22 | At a 390 px viewport, with focus on **Check again**, Shift+Tab opens the keyboard path to **Builds and evidence**. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, measured case checks 390 × 844, focuses Check again, sends Shift+Tab, and observes the disclosure focused |
 | 23 | From the resulting position in that phone journey, Enter expands **Builds and evidence**. | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts, measured case sends Enter from the focused disclosure and observes the visible list and exact row |
-| 24 | The run links reached in that journey have their expected names. | slice 3 | |
-| 25 | After expansion in the phone journey, successive Tabs reach the run links in order. | slice 3 | |
-| 26 | The gap-only answer explains each gap. | slice 3 | |
-| 27 | The page fits the 390 px viewport. | slice 3 | |
-| 28 | The history fits the 390 px viewport. | slice 3 | |
+| 24 | The run links reached in that journey have their expected names. | slice 3 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts, five expected names Run N · attempt 1 selected exactly and each focused |
+| 25 | After expansion in the phone journey, successive Tabs reach the run links in order. | slice 3 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts, native Shift+Tab and Enter open the disclosure, then five native Tabs reach runs 301 to 305 in order |
+| 26 | The gap-only answer explains each gap. | slice 3 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts, full exact ordered list explains each final or pending gap and names build provenance |
+| 27 | The page fits the 390 px viewport. | slice 3 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts, 390 × 844 viewport and document scroll-width check after opening evidence |
+| 28 | The history fits the 390 px viewport. | slice 3 | observed: dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts, history and all descendants fit their own client widths after opening evidence |

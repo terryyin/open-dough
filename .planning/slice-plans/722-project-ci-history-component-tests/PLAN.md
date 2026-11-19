@@ -142,11 +142,12 @@ case kept the matching judgment and three Proof labels and offered no chart
 or disclosure. The focused frontend run (26 cases), backend proof consumers
 (10), five-title listing and dashboard typecheck passed. Local evidence is
 in the checkout's Git evidence directory in `slice2-return.md`.
+Published branch revision: `ab72ee637f1f6c777e46a921bebaf87d7beb6a80`.
 
 ### 3. Reach the evidence for each unmeasured landing on a phone
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the seven unmeasured landings in the existing case, opening Builds
 and evidence lists each landing with the exact reason and the build that stood
@@ -169,6 +170,25 @@ behaviors are accounted for, their replacement cases list and report under
 Dashboard Frontend Test, summed case time improves, and the family uses zero
 built-app routes or frontend page objects. Report any command-start cost
 separately. This family adds no E2E cases.
+
+The five original titles passed on mounted Chromium and listed under the
+unchanged family filter. Dashboard typecheck passed. The workflow's proof
+converter accepted the local record with five passes and complete times.
+The gap case exercised the seven exact rows, the absent chart, five ordered
+native focus stops with their original names and URLs, and both overflow
+checks at 390 × 844. The substitute and E2E page object still have callers.
+The gap spec stays separate to retain its file filter and keep both parent
+specs readable within the file-size limit.
+
+The warmed same-runner built-app baseline at `a354099b4` summed 2.225 s
+across five cases and took 3.88 s end to end. The two warmed mounted runs
+summed 0.807 and 0.844 s and took 2.18 and 2.24 s end to end, respectively.
+The group recorded 2.011 and 2.066 s elapsed within those commands. The
+two-worker Mac runs were on AC at a natural one-minute load of 4.07–4.62.
+The earlier preparation baseline was 3.37 s summed and 4.21 s end to end.
+Local evidence is in the checkout's Git evidence directory in
+`slice3-return.md`, including the exact listing, workflow converter and
+timing records.
 
 ## Local gates and delivery
 
