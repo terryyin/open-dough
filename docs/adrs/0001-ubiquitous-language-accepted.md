@@ -110,9 +110,9 @@ stories connecting development work to the product it affects. The current
 dashboard presents Development through stories, recorded progress, and local
 sessions; the Product intent and Structure perspectives remain design work.
 [ADR 0008](./0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
-owns their cross-task relationships and state boundaries. The
-[requirements](../project-visibility-requirements.md#three-perspectives) own the
-detailed meaning, examples, and open design choices.
+owns their cross-task relationships and state boundaries. Open design choices
+stay in the
+[requirements](../project-visibility-requirements.md#three-perspectives).
 
 ### Dashboard UI vocabulary
 

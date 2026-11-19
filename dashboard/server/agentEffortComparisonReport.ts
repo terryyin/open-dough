@@ -1,4 +1,4 @@
-// Public comparison output (dashboard/AGENT-EFFORT.md). Internal group
+// Public comparison output of compareAgentEffort.ts. Internal group
 // results reach JSON and readable output only through these explicit
 // mappings; each execution reuses the single-report projection.
 import type { compareEffort } from "./agentEffortComparison.ts";

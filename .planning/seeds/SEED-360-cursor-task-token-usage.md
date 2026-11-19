@@ -26,7 +26,7 @@ Extend the [dashboard usage view](../../dashboard/src/SystemSettingsUsage.tsx) (
 to Cursor story workflows and ad hoc tasks on the current interactive launcher.
 Persist the reported usage and available settings. Measure the whole task where
 requests can be attributed. Include related continuations and late worker usage.
-Store usage in the shared [usage records](../../dashboard/USAGE-HISTORY.md).
+Store usage in the shared usage records the Usage view already reads.
 
 #### Key examples
 

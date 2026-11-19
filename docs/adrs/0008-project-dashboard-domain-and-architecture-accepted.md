@@ -10,15 +10,13 @@ while multiple developers progress different work. A graphical view should help
 developers understand the project's work and progress.
 
 The [project visibility requirements](../project-visibility-requirements.md)
-retain the detailed behavior, examples, and exploratory ideas. This decision
-records the stable domain distinctions and architectural intentions. It
-does not select an implementation or authorize execution.
+keep open questions that are not implemented yet. This decision records the
+stable domain distinctions and architectural intentions. It does not select an
+implementation or authorize execution.
 
-The living [Dashboard UX/UI North Star](../dashboard-ux-ui-north-star.md)
-provides temporary interface direction and review criteria. Update it through
-actual use without treating its design hypotheses as accepted architecture.
-The [dashboard technology recommendation](../dashboard-tech-stack.md) separately
-proposes a strongly typed stack; its tool choices are not accepted by this ADR.
+The [Dashboard UX/UI North Star](../dashboard-ux-ui-north-star.md) holds
+temporary interface direction that is not implemented yet. It is not accepted
+architecture.
 
 ## Decision
 
@@ -103,8 +101,7 @@ Use these names directly across UI language, architecture, code, tests, and
 documentation, adapting casing only to programming syntax. Each concept has
 one name and responsibility; keep no competing synonym or alias layer. A Panel
 divider resizes; a Scrollbar scrolls. Terminals, final reports, and story reviews
-are Side panel contents, not names for the shared region. Layout and scrolling mechanics stay with the dashboard UI implementation and its
-[Board interaction](../dashboard-board-interaction.md) guidance.
+are Side panel contents, not names for the shared region. Layout and scrolling mechanics stay with the dashboard UI implementation.
 
 ### Durable project state and local operational state
 
@@ -195,9 +192,8 @@ prevent owned-workspace retirement. Explicit developer checkout edits use their
 existing task authority; this model requires no automated checkout coordination
 protocol.
 
-Use the [requirements](../project-visibility-requirements.md) for local-edit,
-freshness, and recovery examples. Recheck observable checkout state around
-local mutations and preserve changes from human developers and other tools.
+Recheck observable checkout state around local mutations and preserve changes
+from human developers and other tools.
 
 ### Incremental scope
 

@@ -17,8 +17,8 @@ import {
 // (../../dashboard/src/IntentCiProof.tsx): a running story branch shows its completed ancestor's run's proof,
 // naming that ancestor's revision and run, not the running commit's; and a
 // summary already read for that run attempt is remembered, so showing the
-// tab again judges again but never asks GitHub for the proof again
-// (../../dashboard/GITHUB-REQUESTS.md). A Summary names that same story-branch and
+// tab again judges again but never asks GitHub for the proof again.
+// A Summary names that same story-branch and
 // ancestor evidence (../../dashboard/src/IntentScopeProof.tsx). Why no proof can be shown:
 // ./intent-ci-proof-reasons.spec.ts.
 

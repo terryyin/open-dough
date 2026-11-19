@@ -51,13 +51,12 @@ GPT-6.1 Sol and GPT-6.2 Sol at standard speed weight a cached input token at
 both arms of each comparison. The largest execution in the later window was
 Open Dough `SEED-379#keep-own-branch-session-results-for-review`, Codex session
 `01a1ef2f-03bc-7f72-b131-aa967975fa9f`. Its retained coordinator and worker
-traces supply the examples below. [Token Index](../../dashboard/USAGE-TOKEN-INDEX.md)
-and [retained trace selection](../../dashboard/AGENT-EFFORT.md).
+traces supply the examples below. Token figures come from
+`dashboard/server/compareAgentEffort.ts`.
 
 ## Proposed stories in initial priority order
 
-Each trial is judged with the
-[retained effort command](../../dashboard/AGENT-EFFORT.md).
+Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 <a id="start-implementers-from-a-role-sized-tool-set"></a>
 

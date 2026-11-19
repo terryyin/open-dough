@@ -29,8 +29,7 @@ order of user value. Each story delivers a usable view when later work waits.
 Host status comes last because its current sampler is already shared and the
 browser only reads it while the sidebar is visible.
 
-Follow [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
-and the [Architectural North Star](../NORTH-STAR.md#dashboard-status-delivery).
+Follow [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them).
 Use [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md) to
 compare update latency, requests, transferred bytes, and backend work with the
 current behavior as the stories land. Terminal traffic stays on WebSocket.
@@ -139,8 +138,7 @@ Follow Accepted [ADR 0008 — Project dashboard domain and architecture](../../d
 and [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution):
 one backend observation status has the same meaning through SSE, HTTP, and
 the browser. Connection health is transport evidence, not GitHub success or
-story state. The existing [Dashboard status delivery](../NORTH-STAR.md#dashboard-status-delivery)
-topic supplies direction; no new ADR or architectural exception is needed.
+story state. No new ADR or architectural exception is needed.
 Backend recovery signals may trigger the browser's existing snapshot readers;
 this does not transfer published-work interpretation into the backend.
 
@@ -248,8 +246,8 @@ the cue. [The review store](../../dashboard/src/storyReviewStates.ts) polls
 once per project every 15 seconds. [The sidebar link reader](../../dashboard/src/recentlyDoneShownLinks.ts)
 also refreshes every 15 seconds and publishes partial results from a fresh
 map, which can briefly hide a label until its link resolves again. The
-[published observation stream](../../dashboard/PUBLISHED-OBSERVATION.md#published-dashboard-observation)
-owns connection limits, visibility and reconnect behavior. Today the browser
+The dashboard's published observation connection owns connection limits,
+visibility and reconnect behavior. Today the browser
 closes its EventSource when it receives a GitHub rate-limit event. This story
 delivers steadier review cues independently of the later status migrations.
 

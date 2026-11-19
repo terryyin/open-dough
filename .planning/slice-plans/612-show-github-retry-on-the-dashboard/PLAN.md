@@ -24,8 +24,7 @@ catch-up. This plan authorizes no implementation by itself.
 Follow Accepted [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them),
 [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
 and [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
-The existing [Dashboard status delivery](../../NORTH-STAR.md#dashboard-status-delivery)
-topic governs this work; no new topic or ADR exception is needed. Status is
+No new topic or ADR exception is needed. Status is
 machine-local observation evidence, never story state. SSE and HTTP carry
 the same domain meanings, including planned time versus attempt versus success.
 
@@ -160,7 +159,7 @@ source/scope observation lifecycle once: demand → observing/waiting → retryi
 and boundary shutdown. An asynchronous failure must be observed by this owner.
 Send transport liveness independently of GitHub progress. Separate browser status
 projection from stream effect dependencies, preserve content catch-up, and align
-the maintained `dashboard/PUBLISHED-OBSERVATION.md` contract and status wording.
+status wording.
 
 Interim boundary: existing HTTP fallback keeps its previous behavior until
 slice 3 joins it to the same lifecycle. Slice 2 must not remove fallback or

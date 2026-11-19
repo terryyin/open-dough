@@ -59,8 +59,7 @@ Rejection constraints:
 
 - Readiness is never inferred from reason text, queue membership, a supplier's
   disappearance, or an increment; only a published `satisfied` resolution
-  counts (dependency lifecycle in the
-  [visibility requirements](../../docs/project-visibility-requirements.md#blocking-story-dependencies)).
+  counts.
 - Becoming eligible grants no execution permission and launches nothing
   (ADR 0002, principle 5).
 

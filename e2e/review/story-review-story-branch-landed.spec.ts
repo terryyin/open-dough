@@ -1,6 +1,6 @@
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-// A claimed Story Branch Mode launch's landed integration in the story review
-// (../../dashboard/STORY-REVIEW-LANDED-RUNS.md): the real installed start, the installed
+// A claimed Story Branch Mode launch's landed integration in the story review:
+// the real installed start, the installed
 // `history-preserving-publication.mjs integrate` and `worktree-retirement.mjs`
 // against a real bare origin produce the launch record the review reads
 // (../../dashboard/test-support/support/storyBranchLandedReview.ts). Only the native Codex transport and

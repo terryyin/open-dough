@@ -3,8 +3,7 @@
 // by default, with the host and model choices of the launch dialog
 // (`./LaunchHostModel.tsx`), and a line naming the next due date read and the
 // last automatic launch's outcome from the machine's sessions answer
-// (`./feedbackMaintenanceState.ts`). The setting itself is described in
-// `../FEEDBACK-MAINTENANCE.md`.
+// (`./feedbackMaintenanceState.ts`).
 import { useEffect, useRef, useState } from "react";
 import { readMachineSessionsSince } from "./machineSessionsReads.ts";
 import {

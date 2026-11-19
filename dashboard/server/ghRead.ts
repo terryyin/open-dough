@@ -55,7 +55,7 @@ function limitBackoffBaseMs(): number {
 // local diagnostics (`./readDiagnostics.ts`), including a bound that ends
 // it; held-back and ordinary waiter departures are not. One answer may be up
 // to `maxAnswerBytes`, which bounds how many branches one unpaginated
-// branch-head listing can name (`../PUBLISHED-OBSERVATION.md`).
+// branch-head listing can name.
 const maxAnswerBytes = 32 * 1024 * 1024;
 const github = new GitHubRequests({
   boundMs: readTimeoutMs(),

@@ -51,12 +51,8 @@ Two questions need different scopes:
 Focus this effort on the first question and primarily on automated tests.
 Static typing and specifications remain longer-term extensions. Browsing the
 whole project's test files can support a selected review without making a
-comprehensive assessment of the whole product its goal.
-
-The [Intent workspace design](dashboard-ux-ui-north-star.md#initial-intent-workspace)
-provides the file browser, Purpose reading, CI proof and story scope for this
-review. These views are interface choices; they do not establish an intent
-coverage measure by themselves.
+comprehensive assessment of the whole product its goal. The current Intent
+reading does not by itself establish an intent coverage measure.
 
 ## Discovering what intent protection means
 

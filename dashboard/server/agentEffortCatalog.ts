@@ -1,4 +1,4 @@
-// Public selection catalog output (dashboard/AGENT-EFFORT.md).
+// Public selection catalog output of compareAgentEffort.ts.
 import type { UsageTask } from "./usageRecords.ts";
 
 export type NativeCatalogEntry = Pick<

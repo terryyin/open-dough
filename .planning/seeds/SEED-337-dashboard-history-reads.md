@@ -65,7 +65,7 @@ CI evidence when they need it.
 
 [Expanding the sidebar](../../dashboard/src/SessionsSidebarOptionalSections.tsx)
 currently triggers the full retained session-history read. A replay fixture
-measured [9.88 MB decoded and 1.25 MB compressed](../../dashboard/AGENT-LAUNCH-OBSERVATION.md#measuring-the-sessions-answer)
+measured 9.88 MB decoded and 1.25 MB compressed
 for that response. Project Intent's
 [history view](../../dashboard/src/IntentCiHistory.tsx) uses the richer answer
 for both its chart and evidence disclosure. These are separate read paths.

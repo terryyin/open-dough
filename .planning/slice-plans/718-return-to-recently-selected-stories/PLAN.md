@@ -42,11 +42,7 @@ new handling for a story that has left the Board, and no shortcut.
 - **Vocabulary.** ADR 0008
   [Dashboard UI concepts](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts)
   gains **Recent stories**, and its Selected story entry gains the new way
-  of setting it. [Dashboard navigation](../../../docs/dashboard-navigation.md)
-  describes the banner order, and
-  [Board interaction](../../../docs/dashboard-board-interaction.md)
-  describes selection. Each gets the matching sentence in the slice that
-  delivers the behavior.
+  of setting it. Banner order and selection land with the UI and its tests.
 
 No Accepted decision conflicts, and no North Star topic is needed.
 
