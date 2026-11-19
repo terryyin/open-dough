@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Ai-chan",
+  "email": "ai-chan@example.org",
+  "identity": "SEED-413#renovate-dashboard-frontend-unit-tests",
+  "mode": "story-branch",
+  "branch": "codex/prove-project-ci-history-through-the-components",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
