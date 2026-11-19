@@ -151,7 +151,7 @@ minutes, commands excluded.
 
 ### 3. Hold a description's workspace facts in their own module
 Type: Structure
-Status: planned
+Status: done
 Proof: Builder row, and slice 1's spec files rerun unchanged.
 
 Structure: Move `withWorkspace`, `withUnpublishedRevision` and the workspace
@@ -235,3 +235,8 @@ ownership.
   Flag baseline is `origin.revision("o2")^{tree}`. Removed `publishLater`.
   Accepted proof: flagged (2) + shared consumers (3); evidence
   `open-dough/evidence/slice-2/`.
+- Slice 3: workspace typedefs/checks/`withWorkspace`/`withUnpublishedRevision`
+  assembly live in `repository-workspace.mjs`; builder public chain unchanged.
+  Unique revision names share `assertNewRevisionName` in
+  `repository-revision-facts.mjs`. Accepted proof: builder (10) +
+  own-changes/older-git (3); evidence `open-dough/evidence/slice-3/`.

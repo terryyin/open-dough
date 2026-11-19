@@ -1,9 +1,16 @@
 // @ts-check
 import {
   assertKnownParents,
+  assertNewRevisionName,
   assertOneBacklogFact,
   statesBacklog,
 } from "./repository-revision-facts.mjs";
+import {
+  assertWorkspaceFromKnownTrunk,
+  declareUnpublishedRevision,
+  declareWorkspace,
+  workspaceWithRevisions,
+} from "./repository-workspace.mjs";
 export { backlogPath } from "./repository-revision-facts.mjs";
 
 /** @typedef {Parameters<typeof import("./published-backlog.mjs").renderPublishedBacklog>[0]} Backlog */
@@ -11,6 +18,14 @@ export { backlogPath } from "./repository-revision-facts.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs").renderDoneRecord>[0]} DoneRecord */
 /** @typedef {{ name: string, email: string, date?: string }} GitPerson */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
+/**
+ * @template {string} [Name=string]
+ * @typedef {import("./repository-workspace.mjs").RepositoryWorkspace<Name>} RepositoryWorkspace
+ */
+/**
+ * @template {string} [Name=string]
+ * @typedef {import("./repository-workspace.mjs").WorkspaceFacts<Name>} WorkspaceFacts
+ */
 
 /**
  * @typedef {{
@@ -50,21 +65,6 @@ export { backlogPath } from "./repository-revision-facts.mjs";
  */
 
 /**
- * The execution workspace: a branch that starts from a named trunk revision
- * and holds ordered revisions the origin does not have. Its `agent`, when
- * stated, is the roster agent whose real per-worktree authorship the
- * materializer applies; `checkoutIdentity` remains the committer only.
- * @template {string} [Name=string]
- * @typedef {{
- *   branch: string,
- *   from: Name,
- *   checkoutIdentity?: GitPerson,
- *   agent?: string,
- *   revisions: readonly NamedRevision<Name>[],
- * }} RepositoryWorkspace
- */
-
-/**
  * @template {string} [Name=string]
  * @typedef {{
  *   trunkBranch?: string,
@@ -79,7 +79,7 @@ export { backlogPath } from "./repository-revision-facts.mjs";
  * @typedef {{
  *   trunkBranch?: string,
  *   checkoutIdentity?: GitPerson,
- *   workspace?: Omit<RepositoryWorkspace<Name>, "revisions">,
+ *   workspace?: WorkspaceFacts<Name>,
  * }} RepositoryFacts
  */
 
@@ -103,16 +103,6 @@ export class RepositoryBuilder {
     this.#facts = facts;
   }
 
-  /** @param {string} name */
-  #assertNew(name) {
-    if (
-      [...this.#revisions, ...this.#unpublished].some(
-        (revision) => revision.name === name,
-      )
-    )
-      throw new Error(`Duplicate repository revision: ${name}`);
-  }
-
   /**
    * A named commit's changes, in publication order. The first commit has
    * an empty backlog unless the description supplies its membership or bytes,
@@ -128,7 +118,7 @@ export class RepositoryBuilder {
    * @returns {RepositoryBuilder<Name | NewName>}
    */
   withRevision(name, facts = {}) {
-    this.#assertNew(name);
+    assertNewRevisionName(name, [...this.#revisions, ...this.#unpublished]);
     assertKnownParents(name, facts, this.#revisions);
     /** @type {NamedRevision<Name | NewName>[]} */
     const revisions = [...this.#revisions, { ...facts, name }];
@@ -174,13 +164,9 @@ export class RepositoryBuilder {
    * @returns {RepositoryBuilder<Name>}
    */
   withWorkspace(branch, facts) {
-    if (this.#facts.workspace)
-      throw new Error(
-        `The repository already has workspace ${this.#facts.workspace.branch}`,
-      );
     return new RepositoryBuilder(this.#revisions, this.#unpublished, {
       ...this.#facts,
-      workspace: { ...facts, branch },
+      workspace: declareWorkspace(this.#facts.workspace, branch, facts),
     });
   }
 
@@ -193,14 +179,14 @@ export class RepositoryBuilder {
    * @returns {RepositoryBuilder<Name | NewName>}
    */
   withUnpublishedRevision(name, facts = {}) {
-    if (!this.#facts.workspace)
-      throw new Error(
-        `Unpublished revision ${name} needs a workspace: call withWorkspace first`,
-      );
-    this.#assertNew(name);
-    assertKnownParents(name, facts, [...this.#revisions, ...this.#unpublished]);
     /** @type {NamedRevision<Name | NewName>[]} */
-    const unpublished = [...this.#unpublished, { ...facts, name }];
+    const unpublished = declareUnpublishedRevision(
+      this.#facts.workspace,
+      name,
+      this.#revisions,
+      this.#unpublished,
+      facts,
+    );
     return new RepositoryBuilder(this.#revisions, unpublished, this.#facts);
   }
 
@@ -208,15 +194,10 @@ export class RepositoryBuilder {
   please() {
     const [first = { name: "base" }, ...later] = this.#revisions;
     const { workspace, ...facts } = this.#facts;
-    if (
-      workspace &&
-      !this.#revisions.some((revision) => revision.name === workspace.from)
-    )
-      throw new Error(
-        `Workspace ${workspace.branch} starts from unknown trunk revision ${workspace.from}`,
-      );
+    assertWorkspaceFromKnownTrunk(workspace, this.#revisions);
     for (const revision of [...this.#revisions, ...this.#unpublished])
       assertOneBacklogFact(revision);
+    const resolved = workspaceWithRevisions(workspace, this.#unpublished);
     /** @type {RepositoryDescription<Name | "base">} */
     const result = {
       ...facts,
@@ -224,12 +205,7 @@ export class RepositoryBuilder {
         statesBacklog(first) ? first : { backlog: {}, ...first },
         ...later,
       ],
-      ...(workspace && {
-        workspace: {
-          ...workspace,
-          revisions: this.#unpublished.map((revision) => ({ ...revision })),
-        },
-      }),
+      ...(resolved && { workspace: resolved }),
     };
     return /** @type {RepositoryDescription<[Name] extends [never] ? "base" : Name>} */ (
       result
