@@ -324,6 +324,29 @@ alignment is a visible design choice left for the developer.
 `parseRequestedRead` pulls Node modules and does not load in the browser, so
 the read service keeps its parameter dispatch.
 
+## Execution complete
+
+Product advice:
+
+- The five cases kept every observation in mounted Chromium. The summed
+  two-worker case time did not improve. It was 6.28 s in the built app
+  against 6.97–8.00 s mounted, and command elapsed held near 11.3 s.
+  Browser-driven clicks of about 150 ms each and the shared settle frame
+  round of about 85 ms after each take most of a case. A later family's gain
+  shows in group elapsed time, once no built-app case in the selection
+  needs the app build. Measure that instead of per-case time.
+- Before migrating the later families, evaluate whether `actSettled` can
+  skip its frame round after an action that changes nothing.
+- Plan later families against "Design production code for testability".
+  Mount the component that owns the behavior through its typed contract, as
+  `ProjectIntentReading` now is. Check each fixture for unrelated providers,
+  stylesheets or service answers before migrating.
+- Developer choice: should the Project Intent / Back to story crumb links
+  and the file's CI-return link get the `inline-flex` icon alignment their
+  never-applied CSS intended? The declarations were deleted to keep
+  rendering identical.
+- Process review is deferred into wrap-up with the Intent Coverage check.
+
 ## Local gates and delivery
 
 - Use `npm run test:dashboard:frontend -- intent/intent-revision --workers=2`
