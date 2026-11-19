@@ -42,7 +42,7 @@ Observed in this owned preparation workspace at
 
 ### 1. A qualifying execution is selected, or its absence recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: this plan records the installed release and the tag-containment result,
 then either the execution's host, project, story identity, task ID and trace
 paths, or the missing condition.
@@ -66,6 +66,41 @@ a later attempt through the human-decision stop in
 The preparation observation in the premise table names the candidate. The
 earlier attempt, before any release contained the revision, is in Git history
 at `25a24391b`.
+
+#### Selected execution
+
+- Release proof: `git tag --contains 45ff02fee774a270826cd7507fee2ce1c9d077cc`
+  returned v0.3.105 through v0.3.108. The first rollout was v0.3.105.
+  `git -C "$HOME/git/<project>" log --all -1 --format='%h %ci %s' --grep='Update Open Dough guidance to 0.3.105'`
+  returned clipboard `004cb5f` (08:50:03), doughnut `bf6ae30876` (08:48:59),
+  lizard `0dac4c96` (08:51:57), open-dough `3f10a59ab` (08:51:37),
+  pygardon `e0871522a` (08:51:37) and terry-talks `cd408e7` (08:53:30),
+  all on 2026-11-18 +0800. At the sample's own Take,
+  `git show 02e33c0182e14a7862af44f2424b7442135b:.claude/skills/dough-update/VERSION`
+  returned `0.3.105`.
+- Selection: `node dashboard/server/compareAgentEffort.ts --list --from 2026-11-18T00:48:59+00:00 --json`
+  exited 0. Before 01:34:44.715Z the catalog lists Codex
+  `01a1ec2d-2f93-7753-8556-de8c0c2041be` (an automation watching OpenGSD)
+  and Claude Code `e670e246-9628-4476-926c-85edae91434e` and
+  `b2e85b3d-e21f-437f-a44f-b4d5d2c8a6c6` (story refinement and slice
+  planning, each with zero worker traces). The first dated row of each retained
+  Claude coordinator and Codex live or archived rollout in the release-to-sample
+  window confirmed the same order. The Cursor catalog lists families without
+  timestamps. No retained Cursor root transcript file was created in the
+  window, using local file birth times as the Cursor observation.
+- Sample: Claude Code, open-dough, `SEED-334#share-one-executing-agent-roster-arrangement`,
+  plan 694, task ID
+  `["open-dough","claude","139586cf-01ce-4b0d-9d06-987375063a2f","2026-11-18T01:34:44.715Z"]`.
+  The coordinator trace is under
+  `~/.claude/projects/-Users-terryyin-git-open-dough--worktrees-share-one-frontend-arrangement-of-an-agent-execu/`
+  as `139586cf-01ce-4b0d-9d06-987375063a2f.jsonl`. Line 9 is its
+  planned-execution invocation (01:34:44.465Z in the transcript). Line 232
+  delegates slice 1, and lines 434–443 record proof acceptance. Worker
+  traces are in the sibling `139586cf-01ce-4b0d-9d06-987375063a2f/subagents/`
+  directory. The implementer's retained hand-back names the run records and
+  report, which establishes that this execution exercised the delivered workflow.
+
+Delivery disposition: records-only.
 
 ### 2. Hand-back sizes and total effort are recorded
 Type: Behavior
@@ -121,5 +156,10 @@ trace. No Structure slice and no interim behavior.
   through the slice clock's `run`, in the background.
 - Slice-plan refinement was not needed: three sequential read-and-record
   outcomes, each with its own proof.
+- Execution resumed from the published Take `0afa50da09802acefffcb99c0aae7146fc5b00c4`
+  in the owned `codex/evaluate-recoverable-proof-evidence-in-the-next` worktree.
+  Story Branch Mode publishes to the same remote branch before integration
+  into `origin/main`. Coordinator Honoka-chan, observer `honoka-seed397`
+  watches GitHub Actions `ci.yml` in `/tmp/dough-ci-501/watch-5x2fro`.
 - Remaining slice-specific concerns: none beyond the qualifying condition,
   which slice 1 bounds as the early probe.
