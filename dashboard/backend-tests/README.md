@@ -17,6 +17,20 @@ and a presentation case in `../frontend-tests/`.
 
 ## Which entry a case uses
 
+Call the typed handler in this process on plain Node Vitest, in a
+`*.unit.spec.ts` spec. Give the case a temporary machine home and store its
+data with a MakeMe stored document, such as
+`makeMe.aStoredStoryNotesDocument`. One wire check through a started server
+proves the handler is admitted at its route.
+
+Story Notes is the reference family: `review/story-notes.unit.spec.ts` calls
+`storyNotes(project, change?)` from `dashboard/server/storyNotes.ts`, and
+`review/story-notes-admission.spec.ts` is its wire check. Dashboard Test
+Support is frozen: new cases add only MakeMe builders to `../test-support/`.
+
+Older cases prove the boundary the server mounts, as below, until their
+folders move to this entry.
+
 Prove the boundary the server mounts, in this process. Call that boundary's
 exported install, mounted on an HTTP server the test owns
 (`../test-support/support/inProcessBoundaryHttp.ts`). The authenticated-read

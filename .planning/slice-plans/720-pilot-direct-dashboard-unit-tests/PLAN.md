@@ -302,7 +302,7 @@ answer. The frontend README still names `holdNextNotes`,
 ### 7. The test guidance states the entry rules and names the reference family
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A contributor reading `dashboard/backend-tests/README.md` or
 `dashboard/frontend-tests/README.md` finds the entry rules this family

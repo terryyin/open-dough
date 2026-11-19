@@ -58,42 +58,51 @@ observe recovery. Held answers go through `frontendSubstituteAnswers.ts`,
 which releases any still held when the page's case ends. Arrange the project's
 stories and machine reads through `frontendServiceState.ts`.
 
+## Which entry a case uses
+
+Mount the component that owns the behavior, in a Vitest browser-mode spec
+(`*.mounted.spec.ts`), with typed inputs. A component that reads a service
+through a hook takes a typed source behind that hook, such as
+`storyNotesState(source)` from `dashboard/src/storyNotes.ts`, which the case
+supplies. Deliver input in the page inside React `act`; use native keyboard
+or pointer input only where native input is the behavior. Build domain data
+with the page-loadable MakeMe entry
+(`Distribution/tests/support/pageMakeMe.mjs`).
+
+Story Notes is the reference family:
+`stories/story-notes-dialog.mounted.spec.ts` mounts the dialog,
+`stories/story-notes-control.mounted.spec.ts` mounts the control, and one
+step in
+[`e2e/terminals/agent-terminal-lifetime.spec.ts`](../../e2e/terminals/agent-terminal-lifetime.spec.ts)
+proves notes beside an attached terminal. Its service rules are proved in
+`../backend-tests/review/`.
+
+Dashboard Test Support is frozen: new cases add only MakeMe builders to
+`../test-support/`. The retained Playwright specs keep the page objects they
+use until their folders move to this entry.
+
 ## Mounted dashboard support
 
-Mounted board specs, such as the `stories/story-notes-*.mounted.spec.ts`
-family, mount the production app through
+The mounted dashboard specs in `test-harness/` and the phone board in
+`navigation/` mount the production app through
 [`mounted-dashboard/`](../test-support/mounted-dashboard/):
 `mountAnsweredDashboard` answers the board's service requests from prepared
 answers, and `mountDefaultDashboard` mounts the default board. Any unanswered
-`/__` request fails the case by name, so a family answers every service its
+`/__` request fails the case by name, so a spec answers every service its
 board reads.
 
 - Arrange data in Node through a command in
   `../test-support/support/mountedDashboardCommands.ts` (MakeMe and the
   service state import Node modules), and pass the result to the mount.
-- Each service rule both engines answer from lives once, free of Playwright
-  and Node, such as `frontendStoryNotesRule.ts` and
-  `frontendStoryReviewRule.ts`; control and region names live once in
-  `../test-support/*Names.ts`.
-- Run every mount, `runFor`, held-answer release and printed terminal output
-  through `actSettled` in `mountedActInput.ts`, which settles React with task
-  and frame rounds before the case observes the page. Input goes through its
-  `click`, `press` and `fill`, which settle with task rounds; an input after
-  which the product calls the dialog's `close()` goes through `closing`,
-  which finishes on that dialog's native `close` event inside `act`. A dialog
-  its parent unmounts fires no `close` event, so its input settles as
-  ordinary input. A page still changing after its round
+- The notes answers come from `../test-support/support/frontendStoryNotesRule.ts`,
+  which both engines use.
+- Run every mount, `runFor` and input through `actSettled` in
+  `mountedActSettled.ts`, which settles React with task and frame rounds
+  before the case observes the page. A page still changing after its round
   cap fails the case with `UnsettledPageError`, which names the cap.
-- Only the next notes answer can be held, through `holdNextNotes`, to observe
-  pending and recovery states. A second hold fails by name, and a hold still
-  kept at cleanup is abandoned as an aborted request.
 - The board's revision stream is unreachable, so the banner reads
   `disconnected` and the board reads project changes through its check
   schedule.
-- A case's terminal socket is answered on the provider's page through
-  `attachedTerminal` in `mountedSessionTerminal.ts`, which installs the
-  attached-terminal substitute for that case only and prints when the case
-  says so.
 - Give every case a literal title. The runner names and selects cases from
   the titles Vitest reads without running the file, so a title built in a
   loop or by `test.each` cannot be listed or selected by title; share the
