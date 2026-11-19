@@ -28,7 +28,9 @@ Use the [shared comparison](../../seeds/SEED-401-retrospective-finding-pilots.md
   Codex thread that owns the [Taken claim](https://github.com/terryyin/open-dough/commit/e2fc81fd43727f4d3ee44a0dba0ff481c5bdf9de).
   The assessment runs from `.worktrees/seed-401-first-report-assessment`, on
   `codex/seed-401-first-report-assessment`. Its `ci.yml` observer is
-  `seed401-assessment` at `/tmp/dough-ci-501/watch-PzNHTn`.
+  `seed401-assessment` at `/tmp/dough-ci-501/watch-aGOpCQ`, rearmed at the
+  first automated check after the previous worker ended. The prior mailbox
+  retained successful applicable CI for the last planning-only checkpoint.
 - The window starts at integration `211360795b04901fca1eefd95e1b4256d411024c`
   on 18 November 2026 at 23:43:11 Singapore time. It closes on 25 November
   at 23:43:11 Singapore time. The client first-parent revisions immediately
@@ -51,8 +53,10 @@ Use the [shared comparison](../../seeds/SEED-401-retrospective-finding-pilots.md
   pointer. Earlier sessions and branches may miss the notice. Client story
   slice 2 removes its two additions when its enrollment ends.
 - Doughnut’s client rollout [CI attempt](https://github.com/nerds-odd-e/doughnut/actions/runs/44423649370)
-  reported five CLI test timeouts. Its Codex-owned client story tracks diagnosis,
-  repair and CI proof. The rollout and any CI repair are pilot administration.
+  reported five CLI test timeouts. The fixture repair `47bf1d9532` passed its
+  [hosted run](https://github.com/nerds-odd-e/doughnut/actions/runs/44425172032),
+  including Other Unit Tests. Pygardon’s accepted rollout `823d385bd` passed
+  the configured `pygardon-ci` check. These deliveries are pilot administration.
 - The Codex heartbeat `complete-the-seed-401-first-report-pilot` resumes the
   work every six hours, checks for ordinary completions and closes the pilot
   at the cutoff. Stop the heartbeat after verified client cleanup and a landed
@@ -68,6 +72,62 @@ revision, preserving its identity, completed time and trunk revision. Ignore
 pilot administration and deduplicate by execution identity before taking the
 first two ordinary completion records. On 19 November at the first checkpoint,
 neither project had added an eligible completion in the window.
+
+### Ordinary cohort at 13:40 Singapore time on 19 November
+
+| Project | First-parent checkout consulted | Selected completions in trunk order |
+| --- | --- | --- |
+| Doughnut | `cf47f219e9` | 1. `SEED-073#renew-waiting-question-when-note-changes`, Codex, recorded complete at 08:49:47, added by integration `d3db25bda0f0e3ff52c920b2655c8efc8a418e3e` at 09:00. |
+| Pygardon | `7b526daf9` | None. |
+
+Selected from done-record additions before opening any findings. Both temporary
+routes are still present. Both clients installed Open Dough 0.3.107 after
+these observations. It changes history recovery and numbering in the recording
+reference (blob `31fe77694b7c1c94d7221c7d38ea20e8463ff759`), retaining the
+sentence the notice replaces. Use the review's actual installed base in each
+pair and keep history recovery and numbering identical across its two arms.
+
+### Doughnut completion 1, waiting-question renewal
+
+- **Actual route.** On Codex and Open Dough 0.3.106, the coordinator used
+  ordinary recording in deferred wrap-up after the Intent Coverage report.
+  Its checkout at `6f50812667` predates both project trials, and the review
+  transcript shows the baseline reference and no candidate instruction.
+  Hold ordinary repeat recording fixed in the comparison. The session
+  `01a1ef49-41fe-75e2-a2ca-c69e714c8155` records the review at lines 4286–4325.
+- **Execution evidence.** The [readiness diagnosis](https://github.com/nerds-odd-e/doughnut/blob/6f50812667ec9284bc6b55a54362dc21e24d27b9/.planning/slice-plans/111-renew-waiting-question-when-note-changes/diagnosis-startup-readiness-http.md)
+  reports an unexplained 404 during a held migration. Three rounds consumed
+  3.9 active minutes without exercising a competing responder. A controlled
+  bind reproduced 404 in round four. Explicit loopback binding recovered
+  the expected 503 and 200. The original listener remains unidentified.
+  The independent proof check also located two narrower setup lessons in
+  the package-source and mock-port repairs, and verified that the zero-case
+  Cypress invocation had existing terminal proof in Ink.
+- **Actual outcome and effort.** The ordinary writer added one new finding,
+  [DD-517](https://github.com/nerds-odd-e/doughnut/blob/3b37cd28f0b1ad0b3da094038d0255df02184ea5/DearDough.md#dd-517--a-competing-listener-hypothesis-was-exercised-only-on-a-quiet-port),
+  on testing address ownership earlier. No duplicate occurrence was added.
+  The record remained on trunk at the checkpoint, with no verified later
+  triage decision. The transcript exposes five tool-call envelopes over about
+  42 seconds from the first process input through the finding write. The span
+  and calls include other wrap-up tasks, so attributable active time, tokens
+  and downstream effort are unavailable.
+- **Isolated candidate replay.** A separate reviewer used the pinned
+  execution plan, three diagnosis notes, and the same starting logs. The
+  candidate admitted the readiness finding and would add first reports on
+  package-feed scope, mock-port handoff and probing consumers before slicing.
+  It would attach the CLI runner-selection observation to matched DD-496
+  under ordinary repeat recording. It kept the confirmatory Intent Coverage
+  result and ordinary ownership refusal in execution proof. The replay
+  identified potential decisions without publishing countable occurrences.
+  It used 89 seconds wall time, eight tool calls and 22 shell invocations.
+- **Assessment limit.** Both arms surfaced the strongest reusable lesson
+  found by the independent proof check. The audit used one tree listing and
+  four file reads and also found evidence for the two setup lessons. The
+  candidate replay selected more material for possible triage. Its reviewer
+  received a bounded record, while the actual wrap-up had live session
+  history and interleaved other work. Counts describe the two records. They
+  cannot isolate the wording's effect or establish a combined cost change.
+  This execution used the ordinary rule and supplies no live candidate use.
 
 ## Basis for the trial
 
