@@ -2,6 +2,16 @@
 
 **Identity:** SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner
 **Source:** [Keep dashboard tests off the developer's real Cursor runner](../../seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md#keep-dashboard-tests-off-the-developers-real-cursor-runner)
+**Source review:** [Independent review](source-review.md)
+
+## Execution context
+
+- Owned checkout: `/Users/terryyin/git/open-dough/.worktrees/keep-dashboard-tests-off-the-developer-s-real-cu`, branch `codex/keep-dashboard-tests-off-the-developer-s-real-cu`, established at starting revision `2ff7890804e1249ac58140afa72317e5f44cf2e7`.
+- Integration checkout: `/Users/terryyin/git/open-dough`. The origin of this established launch was the Dashboard.
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent Rina-chan. Story branch and trunk claim confirmed on `origin` at `a731e2e54e1fa2b74164ec9456173aac56a96f92`. Authorized trunk is `origin/main`.
+- Checkout setup passed `npm ci` and `npm run typecheck:dashboard`.
+- GitHub Actions `ci.yml` (CI), story branch observer `seed-412-rina`,
+  directory `/tmp/dough-ci-501/watch-XJafs3`, PID 41541, session 61370, cell `g212:9`.
 
 ## Goal and scope
 
@@ -92,7 +102,7 @@ cases) pass through `pageTest.ts`.
 ### 2. Every dashboard test run uses and cleans up its own disposable default HOME
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Invoking any Playwright dashboard group (`backend`, `frontend`, `e2e`,
 or `--list`) or Vitest frontend browser run (`frontend.vitest.config.mts` /
@@ -111,6 +121,35 @@ workers/commands resolves under `tmpdir()`, `readCursorRunnerAddress()` is
 plus `dashboard/backend-tests/runtime/comparison-renderer-vite-cache.spec.ts`,
 `dashboard/backend-tests/runtime/mounted-boundary-server.spec.ts`, and
 `npm run typecheck:dashboard`.
+
+Accepted proof on the execution worktree at `a731e2e54` with the two runner
+config edits:
+
+- Nine launches against a seeded invoking home and a logging Cursor stand-in
+  covered direct listing for all three Playwright groups, executing workers
+  in each group, direct Vitest Browser Mode, and both default and explicitly
+  configured browser caches in mixed frontend runs. Node setup, test module,
+  worker and browser command observations saw the disposable homes. Workers
+  and commands spawned children with those homes, and the worker verified
+  Git could not read the invoking home's marker. The invoking runner received
+  no requests and the fixture home stayed intact. Playwright removed its home
+  before the mixed run's Vitest command, which still saw its own home. Each
+  home disappeared at its owner's normal exit.
+- The comparison renderer, mounted boundary server and nested runner ownership
+  specs passed. Admission and shard checks passed 17 cases with the
+  repository-required Bash 5. The concurrent backend runner check and
+  Dashboard typecheck passed.
+- Direct Vitest proof used `--configLoader runner`, the loader already used by
+  the frontend driver. The default bundle loader reproduces the same parse
+  errors in the mounted fixture graph at the starting revision. The mixed
+  command's admission Git bookkeeping precedes Vitest runtime startup.
+- Review commitments and exact observations are mapped in
+  [the source review](source-review.md). The worktree Git evidence directory
+  holds the runner harness, terminal records, consumer trace, and
+  `seed-412-implementation-return.md` until retirement.
+- The independent refactor pass found no edit necessary. The existing
+  Playwright main-process check and an exit callback that captures the home
+  each process creates supply ownership without an environment marker.
 
 ## Local gates and failure policy
 
