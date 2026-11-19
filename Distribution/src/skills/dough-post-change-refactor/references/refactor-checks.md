@@ -41,9 +41,19 @@ Edit only after its scope and subsystem gates permit the candidates.
   boundary requires a transfer shape carrying a subset of domain data, preserve
   domain concepts and share or generate one typed contract across internal
   callers rather than translating by hand on each side.
+- When grouping operations behind a production boundary, use
+  [what the unit test suite needs to construct it](#design-production-code-for-testability)
+  to check whether those operations belong together.
 - **Action:** collapse unnecessary mapping layers, parallel handwritten payload
   shapes, and domain rules trapped inside untyped transport or command adapters
   behind the typed boundary that owns the concept.
+
+## Design production code for testability
+
+Give each handler, controller, or UI component an explicit, strongly typed
+contract for the data and services its responsibility requires. A unit test
+suite should be able to construct or render it without supplying unrelated
+data or initializing unrelated services.
 
 ## Shotgun surgery
 
@@ -98,6 +108,9 @@ and unit. Use this project's test conventions for the tests in scope.
   - Use a lower-level function only when it exposes a stable, domain-meaningful
     contract that alone proves the behavior, such as a pricing rule. Keep
     private helpers behind their production callers.
+
+  If setup at the chosen entry point requires unrelated data or services,
+  [review the production contract](#design-production-code-for-testability).
 - **Mocks.** Keep unit tests independent of other live services. Substitute an
   external dependency only when needed and only at its service boundary,
   through a shared or generated typed contract rather than handwritten URLs or
@@ -137,13 +150,13 @@ Use this project's test style and assert observable behavior.
   separate tests: write each one, sharing setup through a builder or helper.
   Keep distinct behaviors visible; do not turn unrelated tests into a
   branching scenario or one long journey to reduce the test count.
-- Use the project's builders and meaningful defaults for concise fixtures,
-  and give shared test entry points the same defaults. Specify only data
-  affecting the behavior or observation. Prefer builder
-  operations to post-construction mutation and domain-shaped helpers to repeated
-  field lists. Extend an existing builder for recurring setup rather than
-  introducing a parallel fixture framework. Share construction, not mutable
-  state that makes tests depend on order.
+- Use the project's builders and shared test entry points to give required
+  data the same meaningful defaults. Each case specifies only what affects
+  its behavior or observation. If a builder supplies unrelated dependencies,
+  [revisit the subject's contract](#design-production-code-for-testability).
+  Extend existing builders with domain-named operations for recurring setup.
+  Use them in place of repeated field lists and post-construction mutation.
+  Give each case its own mutable state.
 - Preserve fixture completeness for destructive operations: exercise every
   relevant relationship in the deletion or cascade path. For relational data,
   include rows throughout the affected foreign-key/cascade closure. A bare
