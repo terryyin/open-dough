@@ -561,6 +561,24 @@ cost and which shared contracts are available as families finish.
   after locating its equivalent proof. For example, reloading an encoded story
   URL and traversing Back and Forward needs a real E2E browser journey.
   Account for the cost of any checks moved there.
+- Mount the component that owns the behavior through an explicit typed
+  contract, under "Design production code for testability" in the
+  refactoring checks. When a fixture needs unrelated providers, stylesheets or
+  service answers, change the production contract first. The Project Intent
+  revision family did this with `ProjectIntentReading`. Measured there, a
+  mounted case was not faster per case. Five cases summed 6.97–8.00 s against
+  6.28 s built-app, because browser-driven clicks (about 150 ms) and the
+  `actSettled` frame round after each (about 85 ms) dominate. Expect the gain
+  in group elapsed time once a selection needs no app build. Evaluate letting
+  `actSettled` skip its frame round after an action that changes nothing. The
+  built-app `intent-read-recovery`, `intent-gherkin-settings-problems` and
+  `intent-revision-update-boundaries` specs still hand-write the
+  `IntentLocationsAnswer` that `makeMe.anIntentLocationsAnswer` now builds.
+  No maintained case completes a successful **Show latest** through the composed
+  `IntentPerspective`; the mounted cases render `ProjectIntentReading` alone.
+  Intent Coverage at `89401655a` found the remaining built-app cases catch a
+  composition fault only at the offer. When those cases move, keep one
+  composed journey that applies the latest revision successfully.
 - Retire a feature's app mount, route substitutes and page-object scaffolding
   when their last consumers move. For example, `frontendIntentCi.ts` still
   uses `serveFrontendCiHistory` after Project CI history migrates. Add zero
