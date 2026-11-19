@@ -471,57 +471,6 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="renovate-remaining-dashboard-frontend-unit-tests"></a>
-
-### Prove how Project Intent applies a newer revision
-
-**Identity:** SEED-413#renovate-remaining-dashboard-frontend-unit-tests
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/724-project-intent-revision-update-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ae5573ec90c68b94be1ad8eff745e64fb322c5b313404844a57a3c40701e5bc8","plan":"e9c7f7372035b0d57efb42a4e9dab04bdfa323962fd73ff9010d8e4ba3f78892"}}
-```
-
-Second frontend family, following Project CI history. This preparation
-keeps the five cases whose behavior is owned by the open Project Intent
-reading. The [later frontend families](#renovate-later-dashboard-frontend-unit-test-families)
-carry the rest of the suite and the campaign timing target.
-
-**Goal.** Developers changing how Project Intent follows a published revision
-can see, in a fast Chromium test of the production perspective, what the
-reader keeps while an update is offered, applied or retried. That gives the
-renovation a repeatable boundary for asynchronous, multi-component UI behavior.
-
-**Scope.** Replace five built-app cases about applying a revision in one open
-Project Intent reading with typed, direct Vitest Browser Mode cases. Preserve
-their distinct read sequences, selection, scroll, focus, and failure wording.
-Build published inputs and service answers with MakeMe. Keep the production
-Intent perspective, reading state, browser and read clients together, with
-prepared answers for the local authenticated read service. Use the maintained
-frontend command, discovery and CI proof. Compare the five cases' summed
-two-worker duration on the two engines under comparable conditions, recording
-command elapsed time separately. Add zero test-support wrappers and check
-consumers before deleting support.
-
-The later families own project and perspective switches, planning-only return,
-Optimization Candidates, the other frontend folders and runner retirement.
-
-**Key examples.**
-
-- A reader has a selected feature and has scrolled its source. Two new
-  revisions arrive, then the reader selects **Show latest**. One polite notice
-  keeps the old reading and focus until asked. The held answer keeps the old
-  source and selection. When the last revision answers, the same file and
-  scroll position remain, the new text appears, and focus is on that file.
-- The latest revision deleted the selected path. When the reader applies it,
-  Purpose names the missing file and revision, the reading pane takes focus,
-  and no other source is selected or requested.
-- The next locations read fails or reports unreadable settings. Applying it
-  keeps the old tree and text and offers **Retry**. A successful locations
-  retry applies the revision. If the selected file's new text read fails, its
-  own retry replaces the retained text on success.
-- The latest settings answer is malformed. Applying it shows the settings
-  explanation, names the new browser revision, and takes focus into the
-  explanation panel.
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -532,7 +481,7 @@ Optimization Candidates, the other frontend folders and runner retirement.
 ```
 
 Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
-kept the [Project Intent apply-and-retry cases](#renovate-remaining-dashboard-frontend-unit-tests).
+moved the Project Intent apply-and-retry cases.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
