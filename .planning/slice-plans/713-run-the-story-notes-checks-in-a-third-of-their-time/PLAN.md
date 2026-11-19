@@ -72,7 +72,7 @@ isolation and phone-board consumers as part of the local gate below.
 ### 3. Prove the half-time gain through the public command
 
 Type: Behavior
-Status: planned
+Status: done
 
 Keep the supported runtimes, file isolation, selection and CI proof
 contract. A developer needs neither a resident process nor a special
@@ -112,4 +112,21 @@ worker count and Node version slice 3 uses.
 - Slice 1: terminal output printed into a mounted page updates React outside input, so `attachedTerminal` prints and reads the terminal inside `actSettled`; without it the family printed two act warnings. Slice 2's settling changes must keep that path warning-free.
 - Slice 2: only a dialog the product closes with `dialog.close()` fires `close`; a line-note save unmounts the dialog through `onSaved`, so it settles as ordinary input. Family runs 4–6 took 5.09, 4.52 and 4.51 s (Vitest duration) at load about 9.
 
+- Slice 3: Vitest's static collector names a case from its raw title source, so a looped or `test.each` title cannot be selected by title in the mounted runner; story-notes now names each case. Matched rounds at load 11–13 came out at 0.51–0.54; at load 6.4–8.8 every pair was at most 0.495.
+
 ## Story obligations
+
+### G1. Looped story-notes cases cannot be selected by title
+Reported: slice 3 — "the two looped cases titled “`${failure}` keeps its draft…” in `story-notes-add.mounted.spec.ts:55` can't be selected by title"
+Story clause: "A developer running the story-notes specs gets their answer"
+Disposition: proved by slice 3: the spec names each case with a fixed title; through the public command `--list` gives the original eleven titles, `--grep 'keeps its draft'` runs both cases and file:line selects one (slice-3 selection run, exit 0)
+
+### G2. Round 1 pairs exceeded half at load 11–13
+Reported: slice 3 — "6 of the 8 timed pairs came in at or under half the baseline time, and the 2 pairs in round 1 did not"
+Story clause: "After, in a matched session at comparable load, each run takes at most half of its paired baseline"
+Disposition: proved by slice 3: three later A–B–B–A rounds at load 6.4–8.8 gave 0.407, 0.452, 0.419, 0.495, 0.457 and 0.411, all eleven titles green with no act warning in every run (slice-3 timing records s3-b1..b3); round 1 had run at load 11–13
+
+### G3. Looped or template titles in later mounted specs miss title selection
+Reported: slice 3 — "a future mounted spec with a looped or template title would again silently miss title selection"
+Story clause: "Deferred to the rollout story: the other families and the whole-group minute."
+Disposition: excluded "Deferred to the rollout story: the other families and the whole-group minute."
