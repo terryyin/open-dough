@@ -9,9 +9,9 @@ import type { StoryNotesRule } from "../support/frontendStoryNotesRule.ts";
 import type { AnswerHold } from "../support/frontendSubstituteAnswers.ts";
 import { actSettled } from "./mountedActInput.ts";
 import {
+  abandonKeptHold,
   answerMountedServices,
-  answersStillHeld,
-  endHeldAnswers,
+  refuseHoldFromEarlierCase,
 } from "./mountedServices.ts";
 
 async function showViewport({
@@ -46,7 +46,7 @@ function joinMountedCase(): MountedCase {
     try {
       for (const teardown of joined.teardowns.reverse()) await teardown();
     } finally {
-      endHeldAnswers();
+      abandonKeptHold();
       vi.unstubAllGlobals();
       vi.useRealTimers();
       localStorage.clear();
@@ -64,7 +64,6 @@ function joinMountedCase(): MountedCase {
 export async function mountAnsweredDashboard(options: {
   answers: MountedServiceAnswers;
   boardPositionKey: string;
-  held?: readonly string[];
   // The notes service an earlier mount in the case answered from.
   notes?: StoryNotesRule<AnswerHold>;
   arrange?: () => void;
@@ -73,9 +72,7 @@ export async function mountAnsweredDashboard(options: {
   // The viewport the case mounts at; the original returns at cleanup.
   viewport?: { width: number; height: number };
 }) {
-  const earlier = answersStillHeld();
-  if (earlier.length > 0)
-    throw new Error(`Answers held by an earlier case: ${earlier.join(", ")}`);
+  refuseHoldFromEarlierCase();
   const mounted = joinMountedCase();
   if (options.viewport) await showViewport(options.viewport);
   localStorage.clear();
@@ -87,11 +84,7 @@ export async function mountAnsweredDashboard(options: {
   });
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   options.arrange?.();
-  const services = answerMountedServices(
-    options.answers,
-    options.held,
-    options.notes,
-  );
+  const services = answerMountedServices(options.answers, options.notes);
 
   const container = document.createElement("div");
   container.id = "root";
@@ -125,15 +118,14 @@ export async function mountAnsweredDashboard(options: {
     launchAcceptances: services.launchAcceptances,
     notes: services.notes,
     holdNextNotes: services.holdNextNotes,
-    answersStillHeld,
     boardRows: () => container.querySelectorAll(".board-row").length,
     // Leaves the page, as a case that mounts the board again after it.
     unmount,
   };
 }
 
-export async function mountDefaultDashboard(held: readonly string[] = []) {
+export async function mountDefaultDashboard() {
   const { answers, boardPositionKey } =
     await commands.dashboardServiceAnswers();
-  return mountAnsweredDashboard({ answers, boardPositionKey, held });
+  return mountAnsweredDashboard({ answers, boardPositionKey });
 }

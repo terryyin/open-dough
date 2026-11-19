@@ -2,6 +2,7 @@
 
 **Identity:** SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule
 **Source:** [Hold and settle mounted frontend cases by one rule](../../seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#hold-and-settle-mounted-frontend-cases-by-one-rule)
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance and findings
 
@@ -77,7 +78,7 @@ Each slice has a 15-active-minute budget, excluding commands. Local gate for eve
 ### 1. Hold mounted answers by one mechanism
 
 Type: Structure
-Status: planned
+Status: done
 
 Removes two hold mechanisms whose isolation case proves the unused one. Make the isolation pair in `dashboard/frontend-tests/mounted-dashboard.mounted.spec.ts` keep the next notes answer through `holdNextNotes`, with its request received. Remove the `held` paths option from `answerMountedServices`, `mountAnsweredDashboard` and `mountDefaultDashboard`. Cleanup abandons a kept hold as an abort, `release` delivers, and the hold reports whether its answer was delivered. A second hold before the first is released fails with an error naming the notes answer.
 

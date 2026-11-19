@@ -32,32 +32,23 @@ function reply(body: unknown, status = 200) {
   });
 }
 
-const heldAnswers = new Map<string, () => void>();
-
-export function answersStillHeld() {
-  return [...heldAnswers.keys()];
-}
-
-export function endHeldAnswers() {
-  for (const end of heldAnswers.values()) end();
-  heldAnswers.clear();
-}
-
-function holdAnswer(pathname: string) {
-  return new Promise<Response>((...[, reject]) => {
-    const end = () => {
-      heldAnswers.delete(pathname);
-      reject(new DOMException(`Held ${pathname} ended`, "AbortError"));
-    };
-    heldAnswers.set(pathname, end);
-  });
-}
-
 const notesHold = "next notes answer";
+// Abandons the notes hold a case still keeps; unset once it is released or
+// abandoned.
+let keptHold: (() => void) | undefined;
+
+export function refuseHoldFromEarlierCase() {
+  if (keptHold) throw new Error(`The ${notesHold} is held by an earlier case.`);
+}
+
+// Ends a hold still kept by failing its request as an abort, as leaving a
+// page does, so its stale answer reaches no board.
+export function abandonKeptHold() {
+  keptHold?.();
+}
 
 export function answerMountedServices(
   state: MountedServiceAnswers,
-  held: readonly string[] = [],
   // The notes service a case carries from an earlier mount, as the app's
   // own notes outlive a page load; otherwise a fresh one.
   carried?: StoryNotesRule<AnswerHold>,
@@ -70,23 +61,50 @@ export function answerMountedServices(
   for (const [project, byStory] of Object.entries(state.notes ?? {}))
     notes.setNotes(project, byStory);
   // Holds the rule's next notes answer: `received` resolves when the request
-  // arrives and `release` sends its answer. A hold still kept ends at cleanup.
+  // arrives, `release` sends its answer and `delivered` reads whether it was
+  // sent. A hold still kept at cleanup is abandoned.
   const holdNextNotes = () => {
+    if (keptHold) throw new Error(`The ${notesHold} is already held.`);
     let received: () => void = () => undefined;
-    let release: () => void = () => undefined;
+    let deliver: () => void = () => undefined;
+    let fail: (reason: unknown) => void = () => undefined;
+    let sent = false;
     const arrived = new Promise<void>((resolve) => {
       received = resolve;
     });
-    const released = new Promise<void>((resolve) => {
-      release = resolve;
+    const released = new Promise<void>((resolve, reject) => {
+      deliver = resolve;
+      fail = reject;
     });
-    const end = () => {
-      heldAnswers.delete(notesHold);
-      release();
+    // A hold whose request never arrives is abandoned with nothing awaiting it.
+    void released.catch(() => undefined);
+    const hold = {
+      received,
+      released,
+      delivered: () => {
+        sent = true;
+      },
     };
-    heldAnswers.set(notesHold, end);
-    notes.nextHold = { received, released, delivered: () => undefined };
-    return { received: arrived, release: end };
+    const end = (outcome: () => void) => {
+      if (keptHold !== abandon) return;
+      keptHold = undefined;
+      if (notes.nextHold === hold) notes.nextHold = undefined;
+      outcome();
+    };
+    const abandon = () => {
+      end(() => {
+        fail(new DOMException(`Held ${notesHold} abandoned`, "AbortError"));
+      });
+    };
+    keptHold = abandon;
+    notes.nextHold = hold;
+    return {
+      received: arrived,
+      release: () => {
+        end(deliver);
+      },
+      delivered: () => sent,
+    };
   };
   const review =
     state.review && createReviewBuckets<never>(state.review.snapshot);
@@ -116,7 +134,6 @@ export function answerMountedServices(
         );
         return reply(body, status);
       }
-      if (held.includes(url.pathname)) return holdAnswer(url.pathname);
       const reviewAnswer =
         review && answerStoryReview(review, url.pathname, url.searchParams);
       if (reviewAnswer) return reply(reviewAnswer.body());
@@ -135,6 +152,7 @@ export function answerMountedServices(
         if (answer.hold) {
           answer.hold.received();
           await answer.hold.released;
+          answer.hold.delivered();
         }
         return reply(answer.body, answer.status);
       }

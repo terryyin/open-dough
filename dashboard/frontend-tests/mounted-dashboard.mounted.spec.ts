@@ -1,25 +1,41 @@
 import { act } from "react";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { commands } from "vitest/browser";
-import { storyNotesEndpoint } from "../src/storyNote.ts";
+import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
+import { actSettled } from "../test-support/mounted-dashboard/mountedActInput.ts";
 import {
   mountAnsweredDashboard,
   mountDefaultDashboard,
 } from "../test-support/mounted-dashboard/mountedDashboard.ts";
 
 test("a case may end while a notes answer is still held", async () => {
-  const dashboard = await mountDefaultDashboard([storyNotesEndpoint]);
+  const kept: { hold?: { delivered: () => boolean } } = {};
+  // Registered before the mount, so the runner calls it after its cleanup.
+  onTestFinished(() => {
+    expect(kept.hold?.delivered()).toBe(false);
+  });
+  const dashboard = await mountDefaultDashboard();
+  const hold = dashboard.holdNextNotes();
+  kept.hold = hold;
+  await actSettled(() => vi.advanceTimersByTimeAsync(checkIntervalMs));
+  await hold.received;
   expect(dashboard.boardRows()).toBeGreaterThan(0);
-  expect(dashboard.answersStillHeld()).toEqual([storyNotesEndpoint]);
 });
 
 test("the next case opens with default answers and no late update", async () => {
   const dashboard = await mountDefaultDashboard();
-  expect(dashboard.answersStillHeld()).toEqual([]);
   const opened = dashboard.container.innerHTML;
   expect(dashboard.boardRows()).toBeGreaterThan(0);
   await act(() => vi.advanceTimersByTimeAsync(0));
   expect(dashboard.container.innerHTML).toBe(opened);
+});
+
+test("a second hold of the next notes answer fails by name", async () => {
+  const dashboard = await mountDefaultDashboard();
+  dashboard.holdNextNotes();
+  expect(() => dashboard.holdNextNotes()).toThrow(
+    "The next notes answer is already held.",
+  );
 });
 
 test("a case that mounts the board twice leaves the page as it found it", async () => {
