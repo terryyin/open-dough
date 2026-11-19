@@ -6,10 +6,8 @@ import {
   storyReviewSchema,
   type StoryReview,
 } from "./storyReviewContract.ts";
-import {
-  reviewedWorkQuery,
-  type ReviewedWorkSubject,
-} from "./reviewedWorkSubject.ts";
+import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
+import { storyReviewQuery } from "./storyReviewRead.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 
 export function useDefaultStoryReview({
@@ -27,11 +25,7 @@ export function useDefaultStoryReview({
 }) {
   return useReviewRead<StoryReview>(
     storyReviewEndpoint,
-    {
-      ...reviewedWorkQuery(subject),
-      ...(completed ? { completed: "true" } : {}),
-      ...(historical ? { historical: "true" } : {}),
-    },
+    storyReviewQuery({ subject, completed, historical }),
     storyReviewSchema,
     { round, enabled },
   );

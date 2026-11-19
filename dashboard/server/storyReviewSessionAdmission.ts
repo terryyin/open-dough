@@ -2,15 +2,21 @@
 import { launchSubject } from "../src/launchWorkflow.ts";
 import {
   sessionBranchRun,
-  sessionComparisonKeySchema,
   sessionDeliveryRun,
   type SessionComparisonKey,
 } from "../src/sessionReviewComparisons.ts";
 import { branchResultAtDone } from "../src/sessionBranchResult.ts";
+import {
+  isReviewedSessionSubject,
+  type ReviewedSessionSubject,
+  type ReviewedStorySubject,
+  type ReviewedWorkSubject,
+} from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { queriedReviewedSessionSubject } from "./reviewedWorkSubjectAdmission.ts";
-import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
+import { knownSource, namedSessionRecord } from "./sessionAdmission.ts";
+import { keptRecords } from "./launchRecordStore.ts";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { hasBranchReview } from "./sessionBranchCapture.ts";
 import { branchResultReview } from "./storyReviewBranchResult.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
@@ -21,26 +27,51 @@ import {
   unavailableSessionCommitsReview,
 } from "./storyReviewSessionCommits.ts";
 
+// What a session review reads: the launch records kept for the subject's
+// project. Only the adapter reads the store for them.
+export interface KeptSessionState {
+  readonly records: readonly LaunchRecord[];
+}
+
+// A review handler's typed input: a story read, which today's admission path
+// admits, or a session read with the kept session state the adapter read.
+export type ReviewInput<R extends { readonly subject: ReviewedWorkSubject }> =
+  | { readonly read: R & { readonly subject: ReviewedStorySubject } }
+  | {
+      readonly read: R & { readonly subject: ReviewedSessionSubject };
+      readonly kept: KeptSessionState;
+    };
+
+// The adapters read a session's kept launch records on every request; an
+// unknown source is refused here, before any record is read.
+export async function reviewInput<
+  R extends { readonly subject: ReviewedWorkSubject },
+>(read: R): Promise<ReviewInput<R>> {
+  const subject: ReviewedWorkSubject = read.subject;
+  if (!isReviewedSessionSubject(subject)) return { read: { ...read, subject } };
+  const source = knownSource(subject.source);
+  return {
+    read: { ...read, subject },
+    kept: { records: await keptRecords(source.id) },
+  };
+}
+
 export type AdmittedSessionReview = {
   readonly kind: "story-review";
   readonly runs: readonly [];
   readonly readSession: (signal: AbortSignal) => Promise<StoryReview>;
 };
 
-export async function sessionReviewRequest(
-  url: URL,
-): Promise<AdmittedSessionReview> {
-  const named = url.searchParams.get("run");
-  requireExactQuery(
-    url,
-    ["source", "host", "session", ...(named === null ? [] : ["run"])],
-    "review",
-  );
-  if (named !== null && !sessionComparisonKeySchema.safeParse(named).success)
-    throw new RefusedRequest(400, "The review run is malformed.");
-
-  const { source, host, session } = queriedReviewedSessionSubject(url);
-  const record = await namedKeptSession(source, { host, sessionId: session });
+// The kept session record admits the session subject and its named run key.
+export function admittedSessionReview(
+  subject: ReviewedSessionSubject,
+  named: string | undefined,
+  kept: KeptSessionState,
+): AdmittedSessionReview {
+  const record = namedSessionRecord(kept.records, {
+    host: subject.host,
+    sessionId: subject.session,
+  });
   if (launchSubject(record.request).identity !== undefined)
     throw new RefusedRequest(
       400,
@@ -97,7 +128,7 @@ export async function sessionReviewRequest(
     readSession: async (signal) => ({
       ...(await read(signal)),
       ...(mixed ? { sessionComparisonKeys: choices } : {}),
-      ...(selected !== undefined && (mixed || named !== null)
+      ...(selected !== undefined && (mixed || named !== undefined)
         ? { selectedRun: selected }
         : {}),
     }),

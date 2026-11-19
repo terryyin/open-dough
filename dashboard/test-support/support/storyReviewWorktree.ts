@@ -39,12 +39,6 @@ export function writeAt(root: string, file: string, text: string) {
 const storyWorkspace = (project: string) =>
   path.join(project, ".worktrees", "story-a");
 
-export function addStoryWorktree(project: string) {
-  const workspace = storyWorkspace(project);
-  git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
-  return workspace;
-}
-
 // Story A's worktree as the review finds it, from an origin started with a
 // declared Story A workspace, and the queued trunk's revision `base`; with
 // ./storyAReviewRepository.ts or `admissionRepository`, also the trunk commit

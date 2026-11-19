@@ -29,21 +29,10 @@ import {
   type ReviewedFileDiff,
   type ReviewedFileText,
 } from "./storyReviewContract.ts";
-import {
-  reviewedStoryIdentity,
-  reviewedWorkQuery,
-  type ReviewedWorkSubject,
-} from "./reviewedWorkSubject.ts";
+import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
+import { reviewedFileQuery, type ReviewedWork } from "./reviewedFileRead.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { reviewedFilePaths } from "./reviewedFileContext.ts";
-
-// The reviewed work whose file diff is open: a story or ad hoc session,
-// with the retained pair a historical comparison names.
-export type ReviewedWork = {
-  readonly subject: ReviewedWorkSubject;
-  readonly reference?: string;
-  readonly completion?: string;
-};
 
 function reviewFileQuery(
   reviewed: ReviewedWork,
@@ -51,18 +40,12 @@ function reviewFileQuery(
   tree: string,
   file: ReviewedFile,
 ) {
-  return {
-    ...reviewedWorkQuery(reviewed.subject),
-    ...(reviewed.reference === undefined
-      ? {}
-      : { reference: reviewed.reference }),
-    ...(reviewed.completion === undefined
-      ? {}
-      : { completion: reviewed.completion }),
+  return reviewedFileQuery({
+    ...reviewed,
     baseline: from,
     tree,
     ...reviewedFilePaths(file),
-  };
+  });
 }
 
 const diffFixed = (answer: ReviewedFileDiff) => answer.kind === "diff";

@@ -50,7 +50,15 @@ export async function keptSession(
   sourceId: string,
   session: SessionReference,
 ): Promise<LaunchRecord | undefined> {
-  return (await keptRecords(sourceId)).find(
+  return sessionRecord(await keptRecords(sourceId), session);
+}
+
+// One host-qualified conversation among a project's kept records.
+export function sessionRecord(
+  records: readonly LaunchRecord[],
+  session: SessionReference,
+): LaunchRecord | undefined {
+  return records.find(
     (record) => sessionKey(record.session) === sessionKey(session),
   );
 }

@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 588. Removed numbers are never reused.
-- Recovery: `32a64ed10fa8cba776fc343e531c7bcb17642a82:DearDough.md` holds DD-555, removed to keep the SEED-409 row of ODF-150 under the 1000-line ceiling. `4a523c5f27fad2f21efba37925dfd1af65837654:DearDough.md` holds DD-585, removed for the SEED-409 row of ODF-150. `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574. `2b858d95899f43e92272253e623f146966c6900b:DearDough.md` retains the ODF-329 plan 679 shell-lint occurrence, replaced by direct browser-test lint evidence from plan 722. Earlier shell-lint cases remain in ODF-329. `89401655ab84526ec5256e9fbe503dffcf9656f3:DearDough.md` holds the ODF-264 SEED-374 occurrence, removed for the SEED-413 plan 724 row of DD-583.- Occurrence history is partial.
+- Highest allocated local number: 590. Removed numbers are never reused.
+- Recovery: `65d2adf21cbcabc849e721d12c2bf9d28bdf5083:DearDough.md` holds the ODF-264 SEED-334 occurrence, removed on merging DD-589 and DD-590 to keep the 1000-line ceiling. `89c95b6e2ee893d35938191dd29b5beea7455fd2:DearDough.md` holds the ODF-264 SEED-374, SEED-391, SEED-345 and SEED-388 occurrences, removed for DD-589 and DD-590. `32a64ed10fa8cba776fc343e531c7bcb17642a82:DearDough.md` holds DD-555, removed to keep the SEED-409 row of ODF-150 under the 1000-line ceiling. `4a523c5f27fad2f21efba37925dfd1af65837654:DearDough.md` holds DD-585, removed for the SEED-409 row of ODF-150. `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574. `2b858d95899f43e92272253e623f146966c6900b:DearDough.md` retains the ODF-329 plan 679 shell-lint occurrence, replaced by direct browser-test lint evidence from plan 722. Earlier shell-lint cases remain in ODF-329. `89401655ab84526ec5256e9fbe503dffcf9656f3:DearDough.md` holds the ODF-264 SEED-374 occurrence, removed for the SEED-413 plan 724 row of DD-583.- Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
@@ -98,14 +98,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: repeated context retrieval while execution and review continued. Narrow reads recovered the relevant guidance, source and process-record passages; no product or proof loss was established.
   - Inference: the installed boundary/targeted-retrieval instructions were available, but batching and broad single-line metadata results still exceeded the visible output budget. Total time and token cost of the recovery were not measured.
 
-- Execution: SEED-334#move-intent-reading-and-review-checks (first implementation `cd02f6a5171cf066ef111a467e12fd7492339171`)
-  - Timestamp: unknown (2026-11-16 +08:00, retrospective correction planning and wrap-up reads; exact tool-call times unavailable)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance at `7d8f624816ca582126fbba760075163a0d2b3993`)
-  - Evidence: dashboard launch `9503957a-a6a0-4b7b-9756-82de8bd4979c`; coordinator tool responses `cfcebc` and `77b299` truncated combined planning/reference reads, then repeated targeted premise, proof and workspace passages. A later whole-file catalog match read (`ca9cf5`) reported 26,091 original tokens and truncation.
-  - Observed effect: requested passages were omitted and reread during correction planning and review. This is the same over-batching deviation; the record does not establish a missing guidance rule.
-  - Inference: bound retrieval to the next required passages and account for the combined tool response budget before batching. No elapsed or total-token saving was measured. Earlier execution transcripts were unavailable in this continuation; no process claims about those turns are reconstructed from summaries.
-
 - Execution: SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool (first implementation 47478eacb64f35121d5cfafce24a87f391645db7; retained execution records at 3163559cf0f13169f136b0a195aeb4754bd63499:.planning/slice-plans/638-distribution-evaluation-tool/)
   - Timestamp: unknown (2026-11-15/16 execution and wrap-up; exact read-event times not retained)
   - Tool: Codex
@@ -113,30 +105,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator launch a6f339d0-f7b7-4741-81af-665f3195db73 combined CI/delivery/fresh-increment guidance with runtime files in a tool result reporting 14823 original tokens and truncation; a later combined backlog/record-preparation/closure-publication result reported 11701 and truncation. Targeted code/reference reads subsequently recovered affected decisions. The automatic discovery probe independently caught the complete-root omission and restored cleanly (469635 ms invocation-to-report; 7.715 s all focused commands; agent/human effort unavailable).
   - Observed effect: broad outputs omitted requested passages and required bounded recovery, including in the closing review. Command handles, rejected measurements, exact reversion, CI completion and probe restoration remained recoverable.
   - Inference: recurrence of known output-scoping deviation under existing targeted-reading guidance. Mandatory reviews themselves are not called waste; the avoidable share and isolated elapsed/token saving are unmeasured.
-- Execution: SEED-391#redo-the-effort-story-under-the-test-focus-guidance (plan 668; first research publication 5ea5ca123ecc8b5b87321adb69a3920bcec8f732)
-  - Timestamp: unknown (2026-11-17 continuation and wrap-up)
-  - Tool: Codex
-  - Open Dough release: unknown (coordinator's checkout-bound installed guidance; native replay patch provenance is separate)
-  - Evidence: this coordinator conversation/tool record. Combined skill/report reads exceeded the visible output budget; a broad search over the temporary consumer inventory reported about 79,676 original tokens. Later reads targeted the missing sections. The prior ODF-264 problem recurred during this review itself.
-  - Observed effect: avoidable retrieval and context churn; narrower reads recovered the decision-relevant instructions. No extra native trial, product change or proof loss is attributed to truncation.
-  - Inference: batch independent narrow reads, not unbounded inventories or several long references together. Token or monetary saving from that practice is not measured here.
-
-- Execution: SEED-345#compare-agent-effort-on-comparable-runs (first implementation `4f2059948d26b900bd1adcf090c12a93c62bdd2d`)
-  - Timestamp: unknown (2026-11-16 resumed execution and wrap-up reads)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound guidance at Take `f777c4aa2e9f3603a50603fb20e67c95ccbff290`)
-  - Evidence: resumed coordinator tool results `74cc5e` and `836310` reported20,909 and20,012 original tokens with truncation while reading a whole consumer trace and recursively locating a temporary report. Narrow section/exact-path reads recovered the needed evidence.
-  - Observed effect: broad retrieval repeatedly included lexical and parked-source matches, requiring follow-up reads. No product/proof loss was established. The retained aggregate trace and runtime proof were inspected separately.
-  - Inference: same bounded-retrieval deviation as this finding; complete trace discovery does not require printing every matching row. Token and elapsed savings remain unmeasured.
-
-- Execution: SEED-388#replace-native-reader-gaps-on-reread (first implementation `8e62635e227962d87359188b00f8a21f9c54aba1`)
-  - Timestamp: unknown (2026-11-17 execution and retrospective)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance at established claim `bd2e79cd90df5d7481fcecc0dcf3703e55e82529`)
-  - Evidence: launch `13944fac-dbe2-454e-8f90-3736a968a501`, coordinator tool results `25d1bb` and `27d978`: broad maintainer search reported 37,782 original tokens; printing the complete annotated consumer trace reported 56,939, both truncated. Later reads recovered required references and bounded runtime-consumer rows.
-  - Observed effect: avoidable output and repeated retrieval under existing targeted-retrieval guidance; no product or proof loss established.
-  - Inference: recurrence of ODF-264. Full trace discovery does not require printing every record-name match; token/time saving remains unmeasured.
-
 - Execution: SEED-348#collect-notes-for-story-follow-ups (plan 671; first implementation `ab91ef3234f6c1a496bf309932ba327ad09ebb44`)
   - Timestamp: unknown (2026-11-17; execution and closure record)
   - Tool: Codex
@@ -998,3 +966,33 @@ An execution aimed at ~100 ms Story Notes cases shipped layered settle helpers, 
 ### Occurrences
 
 - Execution: SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner (plan 719, `944fdaeea`). Timestamp: 2026-11-19T18:45:52+08:00. Tool: Codex. Open Dough release: unknown (checkout-bound guidance at Take `a731e2e54`). Evidence: `local-test-suite-focused-runners.test.mjs` waits for the repository witness after the Dashboard owner closes. The nested `scripts/test.sh` exited at its Bash floor with macOS Bash 3.2 first on PATH. The three waits expired in a 190-second run. All 17 admission and shard cases passed with the installed Bash 5.3.20 first on PATH. Checking the same PATH before launching that proof would expose the prerequisite before the waits.
+
+## DD-589 — A unit-test approach states a whole machine instead of the input its handler reads <a id="dd-589"></a>
+
+Plan 721's readiness-approved approach had each in-process case state a machine home through MakeMe stored documents and mount the project list through `mountProjectConfiguration`, which the plan called a production function though only test support called it. No planning or readiness check asked whether a case builds only the data its handler reads. The typed input later proposed in its place was again stated from the adapter's reads and named a source nothing under the handler reads.
+
+### Occurrences
+
+- Execution: SEED-413#renovate-dashboard-backend-unit-tests (plan 721; first implementation `42a8f2f96`)
+  - Timestamp: unknown (2026-11-19 +08:00, slice 2, between `42a8f2f96` at 21:37:01 and `8cafad2fc` at 23:31:12)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.108 (installed by `f9c22bd89`); the slice 2 refactor checks were modified; revision `d49d119a5`; base 0.3.108
+  - Evidence: `42a8f2f96^:.planning/slice-plans/721-prove-ad-hoc-review-reads-in-process/PLAN.md` Approach ("Machine state through MakeMe", `mountProjectConfiguration(environment)`) and proof map ("project list mounted through its production function"); SEED-413#renovate-dashboard-backend-unit-tests amendment ("*Amended 2026-11-19 by Terry during execution*", then "Narrowed the same day to the kept launch records alone … nothing under the session handler reads the published source"); plan 721 Approach "Typed kept state, read only by the adapter" and slice 2 Current decision; redo `8cafad2fc`; trunk `d49d119a5` "Define production code testability in refactoring guidance".
+  - Observed effect: slice 2 as planned was returned once by the coordinator (275-line spec; trunk advanced through test-support Git helpers), then stopped by the refactor pass (JIDOKA) on about 60 repeated setup lines per spec. The developer rejected deferral, a test-support exception and a production machine mount, and amended the story to typed handler input. The coordinator proposed "the published source and the kept launch records" without tracing the handler; the next refactor pass found the source unused and stopped for a second amendment. Slice 2 took three implementation attempts, two stopped refactor passes, two amendments and two fresh source reviews.
+  - Inference: both the plan's approach and the proposed contract defined test input from what the server or adapter reads, not from what the handler reads. A planning or readiness check that a unit case constructs only its handler's input would likely have caught both. The developer then added "Design production code for testability" to the refactor checks (`d49d119a5`), which apply after implementation, not at planning. Related to ODF-074 (the "production function" premise was unverified); no shared cause established.
+
+## DD-590 — Acceptance records a "carries only what it reads" commitment from one type while sibling shapes carry more <a id="dd-590"></a>
+
+Slice acceptance recorded source-review commitment 3.1 ("a handler's typed contract carries only the data its responsibility reads") as observed, citing `KeptSessionState = { records }`. The session variants of the typed read shapes still accepted story-only fields. Only the retrospective's independent outcome review found it.
+
+### Occurrences
+
+- Execution: SEED-413#renovate-dashboard-backend-unit-tests (plan 721; first implementation `42a8f2f96`)
+  - Timestamp: unknown (slice 4 acceptance, between `e964711a7` at 2026-11-19T23:41:41+08:00 and `1a54cf72c` at 2026-11-20T00:06:35+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.108 (installed by `f9c22bd89`); refactor checks modified; revision `d49d119a5`; base 0.3.108
+  - Evidence: plan 721 Current decisions, slice 2 (`KeptSessionState = { records }`) and slice 4 (`ReviewInput<R>`); plan 721 Execution complete ("the session read shapes still accept story-only fields"); correction SEED-413#narrow-ad-hoc-review-handler-contracts (plan 725, item 1: a session review read accepts `reference`, `completed` and `historical`; a session file read accepts `completion`).
+  - Observed effect: a commitment was recorded observed while the delivered result was narrower; one correction plan was queued after the execution-complete record. The fresh independent outcome review was the practice that caught it.
+  - Inference: the observation covered the kept-state half of the contract, not the read shapes, and the source-review rules treat a narrower result as a mismatch. Related to ODF-420 and ODF-469 (acceptance observing less than the commitment); the shape differs, so no shared cause is established.

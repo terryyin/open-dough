@@ -28,6 +28,18 @@ Story Notes is the reference family: `review/story-notes.unit.spec.ts` calls
 `review/story-notes-admission.spec.ts` is its wire check. Dashboard Test
 Support is frozen: new cases add only MakeMe builders to `../test-support/`.
 
+The ad hoc review family is the second reference, and adds three rules.
+A handler takes the state it reads as typed input, and only its adapter
+reads process-wide stores: `storyReview` (`dashboard/server/storyReviewSnapshot.ts`)
+and `reviewedFileDiff` and `reviewedFileText`
+(`dashboard/server/storyReviewFileResponse.ts`) take a `ReviewInput`
+(`dashboard/server/storyReviewSessionAdmission.ts`) that carries the kept
+records. A case constructs exactly that state and its repositories through
+MakeMe, here `makeMe.aSessionReviewRead`. A case calls another handler in
+its arrangement only when that step is the behavior under test. The
+`review/ad-hoc-review-*.unit.spec.ts` specs call these handlers, and
+`review/ad-hoc-review-wire.spec.ts` is their wire check.
+
 Older cases prove the boundary the server mounts, as below, until their
 folders move to this entry.
 
