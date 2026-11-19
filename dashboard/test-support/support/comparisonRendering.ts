@@ -1,6 +1,9 @@
 // One immutable Vite module graph and actual app CSS; every case renders afresh.
 // Each renderer owns a private Vite optimizer cache so concurrent Playwright
 // workers never race on the shared default under node_modules/.vite.
+// The compiler starts from the dashboard root with only the React transform,
+// never the dashboard's Vite config, whose local boundaries would reach this
+// machine's runner and write under its dashboard home.
 import { readFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -44,14 +47,19 @@ async function releaseComparisonVite(
 }
 
 export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
-  const { createServer } = await import("vite");
+  const [{ createServer }, { default: react }] = await Promise.all([
+    import("vite"),
+    import("@vitejs/plugin-react"),
+  ]);
   const viteCacheDir = await mkdtemp(
     path.join(tmpdir(), "dough-comparison-vite-"),
   );
   let compiler: Awaited<ReturnType<typeof createServer>> | undefined;
   try {
     compiler = await createServer({
-      configFile: path.join(repoRoot, "dashboard/vite.config.mts"),
+      configFile: false,
+      root: path.join(repoRoot, "dashboard"),
+      plugins: [react()],
       cacheDir: viteCacheDir,
       server: { middlewareMode: true, hmr: false, ws: false },
       appType: "custom",
