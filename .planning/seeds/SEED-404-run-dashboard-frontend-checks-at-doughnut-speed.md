@@ -254,7 +254,9 @@ the original product assertions accounted for.
 **Scope.** Split from the story-notes story on 2026-11-18. Now that the story-notes
 specs have delivered the mounted fixture and its measured per-file cost, split
 this story by family in the order of removable cost in the refinement evidence
-table, starting with the other `stories/` specs. Decide then whether the test
+table, starting with the other `stories/` specs. Each mounted case needs a literal title: the runner selects by the titles
+Vitest reads without running the file, so a looped or `test.each` title
+cannot be listed or selected. Decide then whether the test
 data should become importable in the browser, and whether one minute needs
 fewer larger spec files or shared file isolation. Retain representative end-to-end coverage for actual
 navigation, native interactions the product depends on, and service

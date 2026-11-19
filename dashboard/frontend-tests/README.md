@@ -52,9 +52,11 @@ board reads.
 - Run every mount, `runFor`, held-answer release and printed terminal output
   through `actSettled` in `mountedActInput.ts`, which settles React with task
   and frame rounds before the case observes the page. Input goes through its
-  `click`, `press` and `fill`, which settle with task rounds; an input that
-  closes a dialog goes through `closing`, which finishes on that dialog's
-  native `close` event inside `act`. A page still changing after its round
+  `click`, `press` and `fill`, which settle with task rounds; an input after
+  which the product calls the dialog's `close()` goes through `closing`,
+  which finishes on that dialog's native `close` event inside `act`. A dialog
+  its parent unmounts fires no `close` event, so its input settles as
+  ordinary input. A page still changing after its round
   cap fails the case with `UnsettledPageError`, which names the cap.
 - Only the next notes answer can be held, through `holdNextNotes`, to observe
   pending and recovery states. A second hold fails by name, and a hold still
@@ -66,6 +68,10 @@ board reads.
   `attachedTerminal` in `mountedSessionTerminal.ts`, which installs the
   attached-terminal substitute for that case only and prints when the case
   says so.
+- Give every case a literal title. The runner names and selects cases from
+  the titles Vitest reads without running the file, so a title built in a
+  loop or by `test.each` cannot be listed or selected by title; share the
+  steps in a helper and declare each case with its own title.
 - A mount is not a reload: every mount clears `localStorage`, resets the board
   position and sets history to `/`, and carries from an earlier mount only the
   services passed in, such as its notes rule. One cleanup tears all mounts
