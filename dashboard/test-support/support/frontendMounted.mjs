@@ -1,5 +1,4 @@
 import path from "node:path";
-import { mountedProject } from "./frontendProof.mjs";
 import { matchesMountedCase } from "./frontendSelection.mjs";
 
 function caseTitles(test) {
@@ -136,13 +135,13 @@ export async function prepareMounted({
   }
 }
 
-export function printMountedListing(files, directory) {
+export function printMountedListing(files, directory, engine) {
   for (const file of files) {
     for (const test of file.assertionResults) {
       const at = test.location;
       const location = at ? `:${at.line}:${at.column}` : "";
       console.log(
-        `  [${mountedProject}] › ${path.relative(directory, file.name)}${location} › ${[...test.ancestorTitles, test.title].join(" › ")}`,
+        `  [${engine}] › ${path.relative(directory, file.name)}${location} › ${[...test.ancestorTitles, test.title].join(" › ")}`,
       );
     }
   }

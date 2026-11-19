@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#pilot-direct-dashboard-unit-tests
 **Source:** [Pilot direct backend handler and narrow UI component tests on one dashboard family](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -113,15 +114,23 @@ Vitest 5.1.0, load about 4. Scratch files were removed after each run.
 ### 1. One group run serves both dashboard groups
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Reorganize `scripts/test-frontend.mjs` and its support modules into
-a two-engine group run that takes a group, its Vitest config and the
-Vitest-file predicate, and a retained Playwright child with its title
+a two-engine group run that takes a group and its Vitest config and uses
+the one shared Vitest-file predicate, and a retained Playwright child with its title
 selection. The frontend command stays `npm run test:dashboard:frontend` with
 unchanged selection, listing, split, times, proof record, deadline,
 interruption and exit status. The proof record names each case's engine.
 Enables slice 2, where the backend group uses the same run.
+
+Learning: the group run lives in `scripts/dashboard-group-run.mjs`, the
+retained Playwright child in `scripts/retained-playwright.mjs`, and
+`scripts/test-frontend.mjs` is an 11-line entry. The run takes a group, its
+Vitest config and an engine name; the one predicate, `isVitestFile` in
+`frontendSelection.mjs`, marks `.mounted` and `.unit` before `.spec`/`.test`,
+so backend Vitest files are `*.unit.spec.ts`. The Vitest results directory
+prefix is now `vitest-`. Lint uses globs, not the predicate.
 
 Proof: `Distribution/tests/support/ci-browser-groups.test.mjs` and the proof
 replay tests pass. `node scripts/test-frontend.mjs stories/story-notes`,
@@ -142,6 +151,12 @@ and the notes file holds the three notes, with no server started. The case
 runs in `npm run test:dashboard:backend` beside the Playwright specs, is
 listed by `--list`, obeys `_SPLIT`, and appears in the group's times and proof
 record.
+
+Structure carried from slice 1: once the backend group calls the run, rename
+the frontend- and mounted-named support modules and exports
+(`frontendSelection`, `frontendMounted`, `frontendOutputs`, `frontendProof`,
+`frontendFiles`, `finishFrontendGroup`, `prepareMounted`, `printMountedListing`
+and the `Mounted*` names) to group- and Vitest-named ones, with their importers.
 
 Proof: The new case passes through `bash scripts/test.sh` on its path and
 through `npm run test:dashboard:backend -- review/story-notes`, which also

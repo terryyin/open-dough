@@ -58,6 +58,7 @@ test("the frontend times report records mounted durations under runner-relative 
     .from(fileURLToPath(root))
     .please();
   const status = finishFrontendGroup({
+    engine: "mounted-chromium",
     run: {
       ...run,
       rootDir: directory,

@@ -28,7 +28,6 @@ import { relative, sep } from "node:path";
  * }} MountedRun
  */
 
-export const mountedProject = "mounted-chromium";
 const outcome = {
   passed: "expected",
   failed: "unexpected",
@@ -42,16 +41,17 @@ const outcome = {
  * @param {MountedCase} test
  * @param {number} index
  * @param {string} rootDir
+ * @param {string} engine
  * @returns {Selection}
  */
-function mountedSelection(file, test, index, rootDir) {
+function mountedSelection(file, test, index, rootDir, engine) {
   const spec = relative(rootDir, file.name).split(sep).join("/");
-  const testId = JSON.stringify([mountedProject, spec, index]);
+  const testId = JSON.stringify([engine, spec, index]);
   const observed = outcome[test.status];
   return {
-    project: mountedProject,
+    project: engine,
     location: { file: file.name, ...(test.location ?? { line: 0, column: 0 }) },
-    titlePath: ["", mountedProject, spec, ...test.ancestorTitles, test.title],
+    titlePath: ["", engine, spec, ...test.ancestorTitles, test.title],
     executions: [
       {
         testId,
@@ -80,8 +80,9 @@ function mountedSelection(file, test, index, rootDir) {
 /**
  * @param {MountedRun} mounted
  * @param {string} rootDir
+ * @param {string} engine
  */
-function mountedEvidence(mounted, rootDir) {
+function mountedEvidence(mounted, rootDir, engine) {
   const files = mounted.report?.testResults;
   if (!Array.isArray(files)) {
     return {
@@ -132,7 +133,7 @@ function mountedEvidence(mounted, rootDir) {
         continue;
       }
       failed ||= test.status === "failed" || test.status === "pending";
-      tests.push(mountedSelection(file, test, index, rootDir));
+      tests.push(mountedSelection(file, test, index, rootDir, engine));
     }
   }
   // A browser or setup error can fail the command after all known cases pass.
@@ -156,12 +157,19 @@ function mountedEvidence(mounted, rootDir) {
  * @param {{
  *   playwright?: {status: number | null, record?: ProofRecord},
  *   mounted?: MountedRun,
+ *   engine: string,
  *   run: ProofRecord["run"],
  *   finishedAt: string,
  * }} input
  * @returns {{ status: number, record: ProofRecord, diagnostics: string[] }}
  */
-export function combineFrontendProof({ playwright, mounted, run, finishedAt }) {
+export function combineFrontendProof({
+  playwright,
+  mounted,
+  engine,
+  run,
+  finishedAt,
+}) {
   const native = playwright?.record;
   const nativeStatus = playwright === undefined ? 0 : (playwright.status ?? 1);
   if (mounted === undefined && native?.phase === "completed") {
@@ -174,7 +182,9 @@ export function combineFrontendProof({ playwright, mounted, run, finishedAt }) {
     diagnostics.push("Playwright reported no selected cases.");
   }
   const mount =
-    mounted === undefined ? undefined : mountedEvidence(mounted, run.rootDir);
+    mounted === undefined
+      ? undefined
+      : mountedEvidence(mounted, run.rootDir, engine);
   diagnostics.push(...(mount?.diagnostics ?? []));
   const tests = [...(native?.tests ?? []), ...(mount?.tests ?? [])];
   if (tests.length === 0 && diagnostics.length === 0) {

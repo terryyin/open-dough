@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { formatTimes } from "../../../scripts/spec-times-format.mjs";
-import { combineFrontendProof, mountedProject } from "./frontendProof.mjs";
+import { combineFrontendProof } from "./frontendProof.mjs";
 
-function writeTimes(destination, nativeTimes, tests, dashboard) {
+function writeTimes(destination, nativeTimes, tests, dashboard, engine) {
   const times = new Map();
   if (existsSync(nativeTimes))
     for (const line of readFileSync(nativeTimes, "utf8").trim().split("\n")) {
@@ -11,7 +11,7 @@ function writeTimes(destination, nativeTimes, tests, dashboard) {
       if (label) times.set(label, Number(seconds));
     }
   for (const test of tests) {
-    if (test.project !== mountedProject || test.attempts.length === 0) continue;
+    if (test.project !== engine || test.attempts.length === 0) continue;
     const label = path
       .relative(dashboard, test.location.file)
       .split(path.sep)
@@ -33,6 +33,7 @@ function writeTimes(destination, nativeTimes, tests, dashboard) {
 export function finishFrontendGroup({
   native,
   mounted,
+  engine,
   run,
   nativeTimes,
   optionalReporter,
@@ -45,7 +46,9 @@ export function finishFrontendGroup({
   if (optionalReporter && !destination && !times && native && !native.record) {
     return (
       native.status ||
-      (mounted ? combineFrontendProof({ mounted, run, finishedAt }).status : 0)
+      (mounted
+        ? combineFrontendProof({ mounted, engine, run, finishedAt }).status
+        : 0)
     );
   }
   const nativeWasListed = run.listing && native?.record?.phase === "listed";
@@ -54,6 +57,7 @@ export function finishFrontendGroup({
       ? { ...native, record: { ...native.record, phase: "completed" } }
       : native,
     mounted,
+    engine,
     run,
     finishedAt,
   });
@@ -70,7 +74,7 @@ export function finishFrontendGroup({
     writeFileSync(destination, `${JSON.stringify(record)}\n`, { flag: "wx" });
   }
   if (times && !run.listing)
-    writeTimes(times, nativeTimes, record.tests, run.rootDir);
+    writeTimes(times, nativeTimes, record.tests, run.rootDir, engine);
   for (const message of result.diagnostics) console.error(message);
   return result.status;
 }
