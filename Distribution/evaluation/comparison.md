@@ -108,6 +108,9 @@ Then:
 - `effort-*` lines follow the verdict and never change it. An incomplete or
   not comparable pair computes no effort difference, and an arm that
   stopped is marked `partial`: its counts cover only the turns observed.
+  The runner records command count and harness inspection for each turn.
+  A stream that cannot establish those facts yields `unknown` for both
+  fields, and the effort count omits that turn's commands.
 - `unknown:` names each turn an arm did not observe and each arm whose
   applied settings and workers stay unknown without a readable session
   record. Nothing unknown is counted as zero.

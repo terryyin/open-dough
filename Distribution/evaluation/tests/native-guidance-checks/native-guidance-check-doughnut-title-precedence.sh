@@ -49,13 +49,29 @@ untracked backend/src/test/java/${witness//.//}.java
 " "FAILURE	${assertion}	Expected: every item is <490> but: an item was null
 SUCCESS	${witness}	observesDestinations()"
 record 3-restored '' "SUCCESS	${assertion}	" < /dev/null
-jq -nc '{type:"thread.started",thread_id:"t"}, {type:"item.completed",item:{type:"agent_message",text:"**Verdict: Caught.** ..."}}' \
-  > "${root}/stream.jsonl"
-observe() {
-  printf 'turn-1-status: completed\nturn-1-thread: t\n'
-  case_observe "${root}" 1 "${root}/stream.jsonl" "${work}" "${work}/controller"
+mkdir -p -- "${work}/bin" "${work}/controller"
+printf '#!/usr/bin/env bash\ncat -- %q\n' "${root}/stream.jsonl" > "${work}/bin/codex"
+chmod +x "${work}/bin/codex"
+stream_command() {
+  jq -nc --arg command "$1" '
+    {type:"thread.started",thread_id:"t"},
+    {type:"item.completed",item:{id:"1",type:"command_execution",command:$command,exit_code:0}},
+    {type:"item.completed",item:{type:"agent_message",text:"**Verdict: Caught.** ..."}},
+    {type:"turn.completed"}
+  ' > "${root}/stream.jsonl"
 }
+observe() {
+  local native_guidance_check_workspace="${root}/workspace" native_guidance_check_controller="${work}/controller"
+  local native_stderr="${work}/stderr.log" native_codex_state_dir="${work}" native_codex_isolate=0
+  local -a native_codex_settings=()
+  local harness="${work}/controller"
+  PATH="${work}/bin:${PATH}" native_guidance_check_turn 1 'Doughnut proof' | grep -v '^turn-1-seconds:'
+  case_observe "${root}" 1 "${native_guidance_check_controller}/events-turn-1.jsonl" "${work}"
+}
+stream_command 'git status --short'
 observe > "${root}/passing"
+[[ $(native_observation_field "${root}/passing" turn-1-commands) == 1 ]]
+[[ $(native_observation_field "${root}/passing" turn-1-harness-inspected) == false ]]
 # The recorded runs stay beside the observations for retention.
 cmp -s "${runs}/2-faulted/output" "${work}/case-evidence/test-runs-turn-1/2-faulted/output"
 # A stale summary is corrected from retained decisive run facts, while its
@@ -65,8 +81,7 @@ mkdir -p -- "${attempt}"
 cp -R -- "${work}/case-evidence" "${attempt}/"
 sed 's/^turn-1-fault: .*/turn-1-fault: green/' "${root}/passing" > "${attempt}/observations.txt"
 printf 'assessment-status: fail\n' >> "${attempt}/observations.txt"
-cat -- "${root}/stream.jsonl" > "${attempt}/events-turn-1.jsonl"
-jq -nc '{type:"turn.completed"}' >> "${attempt}/events-turn-1.jsonl"
+cp -- "${root}/stream.jsonl" "${attempt}/events-turn-1.jsonl"
 {
   printf 'case: native-comparison/doughnut-title-precedence\nthread: t\n'
   printf 'payload-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
@@ -83,6 +98,10 @@ jq -e --slurpfile archive "${work}/calibration-baseline.json" '.status == "pass"
 [[ ${original} == "$(shasum -a 256 "${work}/calibration-baseline.json")" ]]
 native_assessor_counterexamples "${case_path}/assess.bash" "${root}/passing" \
   --verdict case_assess_status case_assess_reason -- case_assess
+stream_command 'cat init.d/record-tests.gradle'
+native_assessor_rejects_observed inspected-harness harness "${root}/inspected" observe \
+  -- fail 'inspected the native harness'
+stream_command 'git status --short'
 # Plausible wrong decisions, observed from changed runs and checkout.
 sed -i.bak 's/^FAILURE\(.*\)\tExpected.*/SUCCESS\1\t/' "${runs}/2-faulted/results"
 native_assessor_rejects_observed green-fault destination-id "${root}/green" observe \
@@ -108,7 +127,6 @@ scratch-in-restored-proof restored-proof turn-1-restored: with-scratch | no rest
 narrower-restored-proof restored-proof turn-1-baseline-tests: 3111 | no restored proof as broad as the baseline
 gap-verdict verdict turn-1-verdict: assertion-gap | reported verdict (assertion-gap)
 no-verdict verdict turn-1-verdict: missing | reported verdict (missing)
-inspected-harness harness turn-1-harness-inspected: true | inspected the native harness
 unfinished-session session turn-1-status: timeout | did not complete (timeout)
 ROWS
 

@@ -45,7 +45,7 @@ native_comparison_pair_observe_arm() {
     match($1, /^turn-[0-9]+-/) {
       n = substr($1, 6) + 0; key = substr($1, RLENGTH + 1); sub(/:$/, "", key)
       if (key == "status") { seen++; st[n] = $2; if ($2 == "completed") completed++ }
-      if (key == "commands") { commands += $2; cmd[n] = $2 }
+      if (key == "commands" && $2 ~ /^[0-9]+$/) { commands += $2; cmd[n] = $2 }
       if (key == "seconds") sec[n] = $2
       if (key == "event") event[n] = $2
       if (key == "stopped" && stop == "") stop = "turn " n " " st[n] ": " substr($0, length($1) + 2)

@@ -116,17 +116,23 @@ grep -Eq '^baseline-outcome: fail: turn 4 did not complete \(incomplete\)' "${bo
 grep -Fq 'baseline-proof: observations.txt final-state.txt' "${both}"
 [[ -s $(attempt "${both}" baseline)/case-evidence/proof-1.log ]]
 grep -Fqx 'effort-difference: not computed: the pair is incomplete' "${both}"
-grep -Eq '^effort-candidate: partial, turns 2-4 unobserved, counts cover observed turns only: 2 turns, ' "${both}"
+grep -Eq '^effort-candidate: partial, turns 2-4 unobserved, counts cover observed turns only: 2 turns, .*\), 2 commands, ' "${both}"
 grep -Eq '^effort-baseline: partial, turn 4 unobserved, ' "${both}"
 grep -Fqx 'recovery: this record stays incomplete as observed; it claims no outcome, equivalence or saving' "${both}"
 grep -Fq 'recovery: the candidate arm stopped (turn 2 failed: native command exited 1; truncated terminal stream); the runner neither retried nor resumed it' "${both}"
 grep -Fqx "recovery: for a comparison, resolve the cause above and run a fresh pair of paused-supplier from the same frozen commits (--baseline ${silent} --candidate ${interrupted}) and the committed case basis; never resume a stopped session into this record" "${both}"
 grep -Fqx 'evidence: not native (baseline and candidate routes: substitute substitute): a substitute host proves the runner, observer and judge only, never native behavior' "${both}"
 # The unobserved turn's work stays in the retained final state, uncounted.
-grep -Fqx 'turn-4-stopped: missing terminal stream' "$(attempt "${both}" baseline)/observations.txt"
+baseline_observations="$(attempt "${both}" baseline)/observations.txt"
+candidate_observations="$(attempt "${both}" candidate)/observations.txt"
+grep -Fqx 'turn-4-stopped: missing terminal stream' "${baseline_observations}"
+grep -Fqx 'turn-4-commands: unknown' "${baseline_observations}"
+grep -Fqx 'turn-4-harness-inspected: unknown' "${baseline_observations}"
 grep -q 'repeat-verdict-stage' "$(attempt "${both}" baseline)/final-state.txt"
-grep -Fqx 'turn-2-status: failed' "$(attempt "${both}" candidate)/observations.txt"
-if grep -q '^turn-3-' "$(attempt "${both}" candidate)/observations.txt"; then
+grep -Fqx 'turn-2-status: failed' "${candidate_observations}"
+[[ $(native_observation_field "${candidate_observations}" turn-2-commands) == unknown ]]
+[[ $(native_observation_field "${candidate_observations}" turn-2-harness-inspected) == unknown ]]
+if grep -q '^turn-3-' "${candidate_observations}"; then
   echo 'FAIL: a turn ran after the interrupted one' >&2
   exit 1
 fi
@@ -139,6 +145,9 @@ fi
 other=$(stopped_pair other "${baseline}" "${stale}" sequential)
 thread=$(native_observation_value "${other}" candidate-thread)
 grep -Fqx "candidate-stopped: turn 2 incomplete: the stream names thread 00000000-0000-4000-8000-00000057a1e0, not the resumed ${thread}: it is not this session's evidence" "${other}"
+other_observations="$(attempt "${other}" candidate)/observations.txt"
+grep -Fqx 'turn-2-commands: unknown' "${other_observations}"
+grep -Fqx 'turn-2-harness-inspected: unknown' "${other_observations}"
 grep -Eq '^baseline-outcome: pass: ' "${other}"
 grep -Fqx 'verdict: incomplete' "${other}"
 

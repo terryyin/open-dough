@@ -31,14 +31,15 @@
 # the environment the agent's commands need, and leaves case_project_basis,
 # the identities of the project it built; when it fails, no session starts),
 # case_apply_event ROOT EVENT SCRATCH, case_observe ROOT TURN STREAM SCRATCH
-# HARNESS (which may keep raw evidence in SCRATCH/case-evidence for
-# retention) and optionally case_cleanup ROOT. Once materialization starts,
+# (which may keep raw evidence in SCRATCH/case-evidence for retention), and
+# optionally case_cleanup ROOT. Once materialization starts,
 # cleanup runs once even on an early exit and prints its own fields. The case's
 # assess.bash defines case_assess OBSERVATIONS, leaving case_assess_status
 # and case_assess_reason.
 # Optional case_prepare_run ROOT SCRATCH may refuse before any model starts.
 # case_prepare_turn ROOT TURN STREAM SCRATCH may supply the supervisor's
 # native_run_controller_command; case_observe_stopped observes an ended attempt.
+# Optional case_harness_paths extends the runner's inspection pattern.
 #
 # Leaves native_guidance_check_status (pass or fail), _reason and _attempt (the
 # retained attempt directory, when RESULTS_DIR is given). Codex only so far;
@@ -147,7 +148,7 @@ native_guidance_check_cleanup() {
 native_guidance_check_arm() {
   local case_name=$1 source_dir=$2 work=$3 results_dir=${4-}
   local case_path="${source_dir}/Distribution/evaluation/cases/guidance-checks/${case_name}"
-  local root observations start prepared turn=1 event prompt wake cleanup_pending=false
+  local root observations start prepared turn=1 event prompt wake cleanup_pending=false case_harness_paths=''
   unset -f case_cleanup case_prepare_run case_prepare_turn case_adjust_overlay case_observe_stopped
   source "${case_path}/case.bash"
   source "${case_path}/assess.bash"
@@ -199,8 +200,7 @@ native_guidance_check_arm() {
     printf 'preparation-seconds: %s\n' "$(native_guidance_check_seconds "${start}" "${prepared}")"
   } > "${observations}"
   if native_guidance_check_turn 1 "${prompt}" >> "${observations}"; then
-    case_observe "${root}" 1 "${transcript}" "${native_guidance_check_controller}" \
-      "${harness}" >> "${observations}"
+    case_observe "${root}" 1 "${transcript}" "${native_guidance_check_controller}" >> "${observations}"
     for event in ${case_events}; do
       turn=$((turn + 1))
       printf 'turn-%s-event: %s\n' "${turn}" "${event}" >> "${observations}"
@@ -209,12 +209,11 @@ native_guidance_check_arm() {
         ((native_run_interrupt_status == 0)) || exit "${native_run_interrupt_status}"
         if declare -F case_observe_stopped > /dev/null; then
           case_observe_stopped "${root}" "${turn}" "${transcript}" \
-            "${native_guidance_check_controller}" "${harness}" >> "${observations}"
+            "${native_guidance_check_controller}" >> "${observations}"
         fi
         break
       fi
-      case_observe "${root}" "${turn}" "${transcript}" \
-        "${native_guidance_check_controller}" "${harness}" >> "${observations}"
+      case_observe "${root}" "${turn}" "${transcript}" "${native_guidance_check_controller}" >> "${observations}"
     done
   else
     ((native_run_interrupt_status == 0)) || exit "${native_run_interrupt_status}"

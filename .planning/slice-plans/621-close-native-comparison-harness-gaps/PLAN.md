@@ -196,7 +196,7 @@ review and the worktree's `slice-2-return.md` Git evidence.
 
 ### 3. The runner owns per-turn command and harness facts
 Type: Structure
-Status: planned
+Status: done
 Proof: The incomplete journey's `unknown` check, the four cases' credential-free proofs (including their harness-inspected counterexamples), and the family's journeys green.
 
 Behavior: every turn the runner runs records `turn-N-commands` and
@@ -236,3 +236,9 @@ This slice changes the runner, turn module, Doughnut `case.bash` and
 is byte-identical. No agent-facing case input changes, so no paid run. Keep
 the runner and turn module under the 250-line check together with Slice 1's
 growth; if one would pass, settle a cohesive reorganization first.
+
+All 43 focused files passed. The incomplete-pair assertions observed
+`unknown` for missing, truncated and wrong-thread streams and preserved
+partial effort. Doughnut and launch-command qualification exercised readable
+command and inspection facts. All three archives recovered at their expected
+bases and stayed byte-identical. See the source review and `slice-3-return.md`.

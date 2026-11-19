@@ -124,6 +124,12 @@ not the decision being measured. Keep expected answers in the assessor and
 `case.bash` controller, never in the agent's workspace, and leave the project's
 ordinary requirements and tests available to the agent.
 
+The runner records command count and harness inspection for each turn from
+its session stream. Both fields read `unknown` when the stream cannot establish
+them. A case can extend the runner's inspection pattern with
+`case_harness_paths`. Its `case_observe ROOT TURN STREAM SCRATCH` reports
+project observations.
+
 A case that starts services can define `case_cleanup ROOT` to stop them and
 print its own observation fields. The runner calls it once after
 `case_materialize` starts, including on failed materialization, refusal by
