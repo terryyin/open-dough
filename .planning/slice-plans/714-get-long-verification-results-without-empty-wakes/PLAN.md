@@ -2,6 +2,7 @@
 
 **Identity:** SEED-345#get-long-verification-results-without-empty-wakes
 **Source:** [Selected story, scope and examples](../../seeds/SEED-345-session-token-efficiency.md#get-long-verification-results-without-empty-wakes)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -46,7 +47,7 @@ A client rollout and a new Claude Code session are outside the story.
 ### 1. Observe the current native Codex coordinator wait
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: an isolated trace associates the coordinator wait, worker receipt and
 both agents' requests with the actual proof and its next genuine deadline.
 
@@ -61,6 +62,13 @@ running worker. Establish which native routes actually deliver each event.
 If the control already avoids empty wakes, the necessary route is unavailable,
 or the trace cannot support comparison, record that terminal control result
 and proceed to the two decisions without a candidate run.
+
+Accepted control evidence: [Native Codex control](control.md). The worker-owned
+exit 0, exit 7 with the original assertion, and early cancellation with exit
+143 all have terminal receipts. The matching-revision CI route used a
+controlled provider with the real observer. The quiet coordinator timeout,
+qualified intervention routes, and attributed effort warrant the comparison.
+Delivery disposition: records-only.
 
 ### 2. Compare the smallest Codex wait change when warranted
 
@@ -117,3 +125,14 @@ candidate and final decisions have separate proof boundaries. Missing native
 or attributed cost evidence has a defined negative disposition for either
 decision. The previous claim ended after the local preflight and never
 delivered a slice. Take this revised plan from the top of the backlog.
+
+## Execution context
+
+- Story Branch Mode, `codex/trial-a-quieter-codex-wait-for-long-verification` in
+  `/Users/terryyin/git/open-dough/.worktrees/trial-a-quieter-codex-wait-for-long-verification`.
+  Publisher `dashboard-territory.local-open-dough`, agent Ai-chan, target
+  `origin/main`. Starting revision `3a5f1ca2d97caa99fa52cd6fac31186f7f904574`.
+  The established Take and initial branch head are `fad7d53dff7cc6373a16b39969addd1538e8a5de`.
+- GitHub Actions `ci.yml` (ID `351271804`) observes the execution branch.
+  Coordinator `codex-seed345-714` owns `/tmp/dough-ci-501/watch-UbRRTe`
+  (PID 54336, tool session 79234, cell `g196:9`).
