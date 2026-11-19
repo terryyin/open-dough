@@ -15,14 +15,14 @@ scope: one story
 
 **Identity:** SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/719-keep-dashboard-tests-off-the-developers-real-cursor-runner/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a7bb54047dee295a41f834f7e3213b9620ce615c8e635abfaf1169c55e86b0c","plan":"7c47c86980210df5ab31503c9915bf3ca4d036a36ad4792c748cf83103e2a337"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/719-keep-dashboard-tests-off-the-developers-real-cursor-runner/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"37de870630d03eb5b6beb47b963c071318429c6a8021f275cd92ab4cfc5978b6","plan":"c9a22b9bcf8ff05a144e71eff602ad9e492efaa2b7c199c8a4c07cc5740f8759"}}
 ```
 
 **Goal:** A developer can run dashboard tests on the same machine where they
-use the Dashboard and Cursor. No test reaches that machine's real Cursor
-runner, real home, or any other network service outside the test's own
-stand-ins. A test that tries to fails with a named cause instead of silently
-reading or changing the developer's live sessions.
+use the Dashboard and Cursor. Test code gets a disposable default home, and
+its Node TCP connections and browser requests reach only the run's own
+listeners. An accidental attempt to use the default Cursor runner or an
+unrelated listener fails the run with a named cause.
 
 **Observed defect:** During a whole Dashboard Backend Test run on 2026-11-19,
 made while SEED-408 was being made ready, a test process (pid 21529, started
@@ -66,15 +66,15 @@ runner.
   calls `homedir()` without choosing a home gets that test-owned home, never
   the real one. Specs and fixtures that already choose their own home keep it.
 - That default home holds a canary Cursor runner address. Any contact with it
-  is recorded with its method, path and the process and test that made it,
-  and fails the run. Contact during global setup, fixture teardown or after
-  the last test still fails the run.
-- A network guard runs in every Node test process: workers, the main process,
-  and the Node children they start. Any listener opened by a process of the
-  run is a declared stand-in. A TCP connection to any other address, loopback
-  or remote, is refused. The error names the destination and the process and
-  test that made it. Browser pages opened by the run's Playwright contexts
-  follow the same rule.
+  fails the run and is recorded with its method, path, process and test, or
+  the active runner phase outside a case. This includes global setup,
+  fixture teardown and the time between the last test and run shutdown.
+- A network guard covers Node runner processes, workers and their Node
+  children, as well as pages opened by the Playwright and Vitest browser
+  runs. A connection can reach a live listener owned by that run at the
+  destination address and port. A refused connection fails the run even if
+  the caller catches the error. The report names the destination, process
+  and test, or the active runner phase outside a case.
 - The comparison renderer compiles without mounting the dashboard's local
   boundaries.
 - The fix lives at the starts: run config, global setup and shared fixtures.
@@ -93,29 +93,28 @@ runner.
 - A spec opens `http://127.0.0.1:4173/` (the production Dashboard) from the
   worker or from a test page → the connection is refused, naming
   `127.0.0.1:4173` and the spec.
+- A run-owned server redirects a test page to an unrelated local service →
+  the destination receives nothing and the run reports the refusal.
 - A spec starts a fake GitHub and a dashboard server that reads it → both
   listeners belong to the run → every request proceeds as today.
 - A spec sets `process.env.HOME` to its own temporary home → it keeps that
   home, and the canary sees nothing.
-- The proof run: whole backend, frontend and E2E runs end with zero canary
-  contacts and zero guard refusals.
+- Whole backend, frontend (Playwright and Vitest mounted) and E2E runs end
+  with zero canary contacts and zero guard refusals.
 
 **Scope limits:** This story does not change how the production Dashboard
 finds the real runner or any other machine-local state. It also does not
 change which tests run live or mounted; that stays with SEED-408. Non-Node
-processes that tests start, such as `git` or shell fakes, are not intercepted
-by the network guard. They still get the test-owned home, so they cannot read
-the developer's credentials. Unix-domain sockets are left to the test-owned home and
-temporary directories rather than the network guard. Kernel-level sandboxing
-is not attempted.
+helpers such as `git` and shell fakes inherit the test-owned home. Unix-domain
+sockets use the test-owned home and temporary directories. The guard covers
+the test runners' Node TCP and browser traffic. A kernel sandbox that also
+restricts arbitrary file paths or native helper traffic is outside this story.
 
 **Architecture:** The test-owned home and the guard are run-level test
-infrastructure, set up once per run where processes start and inherited by
-children through the environment (`HOME`, `NODE_OPTIONS`). The listener
-register is run-scoped. A process of the run adds a port when it listens, so
-fixtures need no declaration step. Playwright's browser cache and other tool
-caches that the runner itself needs are located before `HOME` changes, from
-explicit variables. The guard is installed in the Playwright main process by
-the run config itself, because listeners that global setup opens there must
-be registered too. Production code keeps its `homedir()` defaults
-(ADR 0008, machine-local operational state under the machine's home).
+infrastructure. Runner entry points establish them before test code loads
+and pass them to children. The listener register tracks bound endpoints for
+one run and registers fixture listeners automatically. The run owns the
+canary and the final verdict through child and browser shutdown. Playwright
+uses an explicit browser cache path resolved before `HOME` changes.
+Production continues to resolve its machine-local operational state under
+its own home as described in [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).

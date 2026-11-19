@@ -5,83 +5,93 @@
 
 ## Goal and scope
 
-Every Dashboard Backend, Dashboard Frontend and E2E run starts its processes
-with a test-owned home. A canary Cursor runner address in that home fails the
-run on any contact. A network guard refuses TCP connections to anything other
-than the run's own listeners. The comparison renderer stops mounting the
-dashboard's local boundaries. The seed owns the key examples and scope
-limits: production home resolution is unchanged, the live or mounted choice
-stays with SEED-408, and non-Node processes and Unix-domain sockets are not
-intercepted by the guard.
+Developers can run Dashboard Backend Test, Dashboard Frontend Test
+(Playwright and Vitest mounted), and E2E beside their live Dashboard and
+Cursor. Every test process inherits a disposable default home. The default
+Cursor canary and refused connections fail the run, even when a test has
+passed or the caller handled the error. The seed defines coverage for Node
+TCP, browser requests, explicit fixture homes, and native helpers.
+[SEED-408](../../seeds/SEED-408-default-dashboard-backend-checks-to-the-mounted-boundary.md#default-dashboard-backend-checks-to-the-mounted-boundary)
+owns the backend live or mounted default.
 
 ## Approach and reuse
 
-- **Existing solutions.** `startDashboardServer`
-  ([`dashboardServer.ts`](../../../dashboard/test-support/support/dashboardServer.ts))
-  already gives each dashboard server a test-owned home. The runner stand-in
-  ([`cursorRunnerStandIn.ts`](../../../dashboard/test-support/support/cursorRunnerStandIn.ts))
-  already writes an address file and records unexpected Cursor protocol
-  work. The canary reuses that recording and address-writing shape for the
-  run's default home instead of adding a second protocol imitation. Specs
-  that set and restore `process.env.HOME` keep doing so; the run default
-  only replaces the real home underneath them.
-- **One run-isolation module.** A new
-  `dashboard/test-support/support/testRunIsolation.ts` is imported first by
-  each Playwright run config (`dashboard/backend.playwright.config.ts`,
-  `dashboard/frontend.playwright.config.ts`, `e2e/playwright.config.ts`)
-  and by `scripts/test-frontend.mjs` before it creates the Vitest mounted
-  run. The Vitest config itself is bundled by Vite's config loader, so it is
-  not the place for this start. It runs once in the main process before
-  global setup:
-  1. records the real Playwright browser cache in
-     `PLAYWRIGHT_BROWSERS_PATH` when unset;
-  2. creates a run home under `tmpdir()` and sets `HOME` to it;
-  3. starts the canary runner listener and writes its address into that home;
-  4. installs the network guard in the main process and adds its
-     `--import` preload to `NODE_OPTIONS`, so workers and the Node servers
-     they spawn inherit it.
-  Global teardown reads the canary and guard records and fails the run with
-  each request or destination, the process and the test.
-- **Listener register.** The preload records each port a run process
-  listens on in a run-scoped register directory named by an environment
-  variable. A TCP connect to a port not in the register, or to a
-  non-loopback host, throws, naming the destination and the current test.
-  Workers publish the current test title to the preload through a fixture
-  in the shared `pageTest.ts` base; spawned servers carry the title of the
-  test that started them in their environment.
-- **Browser pages.** The existing context hook `noteRequestsInEveryPage`
-  ([`pageRequestNotes.ts`](../../../dashboard/test-support/pageRequestNotes.ts))
-  is where every test page's requests already pass. Add the same rule there:
-  a request to a host and port outside the register is aborted and recorded.
-- **Comparison renderer.** `createComparisonRenderer`
-  ([`comparisonRendering.ts`](../../../dashboard/test-support/support/comparisonRendering.ts))
-  creates its Vite server with `configFile: false` and only the React
-  plugin and the dashboard root it needs to compile the comparison markup.
+- Start the default home and isolation for Playwright in
+  [prepareFocusedRun](../../../dashboard/test-support/support/runnerConfig.mjs),
+  before global setup. Install Node hooks immediately in that process and
+  preload them in workers and their Node children. Resolve Playwright's
+  browser cache before changing `HOME` and preserve explicit fixture homes.
+  A worker reloading the config joins its existing run.
+- Let the shared [run lifecycle](../../../dashboard/test-support/support/runLifecycle.ts)
+  own the Playwright verdict and resource cleanup. Its current GitHub
+  request-owner check is the precedent for a leak affecting the entire run.
+  Check the isolation record after fixtures, artifacts, browsers and child
+  processes have settled. Preserve cleanup and all diagnosed causes when
+  another run failure is present. Cover config and setup failure and the
+  `--list` path, which bypasses global setup.
+- Use the existing production
+  [address writer](../../../dashboard/server/hosts/cursor/runnerPaths.ts)
+  in test support for the default home's canary. The
+  [runner stand-in](../../../dashboard/test-support/support/cursorRunnerStandIn.ts)
+  serves protocol tests, including permitted release calls. The canary
+  counts every request, including those calls, before replying. Record its
+  method and path and associate the caller with the process and case or
+  phase. Run the test's own server fixture with its
+  [private home](../../../dashboard/test-support/support/dashboardServer.ts)
+  as today.
+- Give Node and the browser proxy one run-scoped rule for live TCP
+  destinations. Register the bound address and port before listen callers
+  can connect, and remove the registration when the listener closes or its
+  process ends. Validate the actual loopback endpoint, including address
+  family and localhost resolution. A different local bind address, a
+  closed listener, or another run cannot grant access by port alone.
+- Set the browser proxy at Chromium launch through the shared runner
+  options. Fresh contexts and popups inherit it. Disable Chromium's
+  implicit loopback bypass. Authorize each HTTP request or CONNECT target
+  before forwarding. Both adapters use the same listener rule and
+  violation record. `noteRequestsInEveryPage` observes fetch timing by
+  init script and remains a timing observer. The
+  [completion fault proxy](../../../dashboard/test-support/support/completionRecovery.ts)
+  is tied to a fixed receiver and its fault sequence. It is a forwarding
+  reference, while the run needs its own destination policy and lifecycle.
+- Start the mounted Node side before
+  [prepareMounted](../../../dashboard/test-support/support/frontendMounted.mjs)
+  imports Vitest or discovers tests. Its final check follows provider close.
+  Keep ownership explicit when the frontend coordinator launches retained
+  Playwright alongside the mounted path. A run ends only the resources it
+  owns. Leave browser task attribution in the runner integration and reuse
+  the Node-side lookup and recorder.
+- Start the comparison renderer with `configFile: false`, the dashboard
+  root and the compilation plugins the fixture needs. Keep the private Vite
+  optimizer cache, rendered markup, and production CSS reading.
 
-ADR 0008 places machine-local operational state under the machine's home;
-production defaults stay as they are, so no Accepted decision conflicts. No
-North Star topic is needed.
+[ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+places operational state on the dashboard machine. Isolation belongs to test
+entry points and leaves production resolution intact. The responsibility fits
+the existing runner lifecycle and needs no North Star topic.
 
-`pageTest.ts` (205 lines) and `pageRequestNotes.ts` (200 lines) gain small
-additions. If either would pass 250 lines, the new part moves into
-`testRunIsolation.ts` or its own page-request guard module.
+`scripts/test-frontend.mjs` is already 253 lines. Keep the mounted lifecycle
+in the mounted support path. If its coordinator needs an edit, extract its
+retained Playwright spawn and title selection together in slice 6. Preserve
+retained-only selection, mixed run and list behavior, interruption forwarding,
+and proof and timing records through the same frontend command.
 
 ## Decisive premises
 
-Observed on 2026-11-19 at `a35acb326`, Node 24.21.0, in this worktree, with
-scratch edits reverted afterwards. The scratch preload logged each `listen` and
-TCP `connect` with its process; the scratch canary was a logging listener named
-in the scratch home's `cursor-runner.json`.
+Retained preparation observations on 2026-11-19 at `a35acb326` used Node
+24.21.0, an isolated home, a logging Cursor listener, and, where noted,
+a preload logging listen and connect operations. Current runner entry points
+were reviewed at `120b60826`. The fresh browser observations below used that
+checkout, Node 24.21.0, Playwright 1.65.0 and Chromium 158.0.8127.18.
 
-| Operation | Observed result and remaining question |
+| Consuming operation | Observed result and limit |
 | --- | --- |
-| Comparison renderer reaches the runner of the worker's home | `HOME=<scratch home> npx playwright test -c backend.playwright.config.ts backend-tests/runtime/comparison-renderer-vite-cache.spec.ts`, with a logging listener named in the scratch home's `cursor-runner.json`: two `POST /release-handoffs`. Today that home is the real one. |
-| `HOME` set at the top of the run config reaches workers and their in-process boundaries, and browsers still launch | Scratch edit at the top of `backend.playwright.config.ts` set `PLAYWRIGHT_BROWSERS_PATH` from the real home, then `HOME` to a scratch home. `comparison-renderer-vite-cache.spec.ts` and `observation/private-http-stand-in-runner.spec.ts` passed (exit 0). The canary recorded two `POST /release-handoffs`, and the scratch home gained `incidents/` and `projects-development.json`. |
-| A `NODE_OPTIONS --import` preload added in the run config reaches workers and spawned dashboard servers | Same scratch run with a connect/listen logging preload: entries from `workerProcessEntry.js` and the spawned `boundaryServer.mjs` bundle. |
-| Run processes connect only to run-owned listeners | Same run: every TCP connect went to a port a preloaded process listened on, except the canary port and one port both workers reached that no preloaded process listened on. That port is opened in the Playwright main process during global setup, before the config's `NODE_OPTIONS` change applies. So the main process must install the guard directly, as the approach says. Two Unix-domain sockets under `tmpdir()` were also reached; the guard leaves those alone. |
-| Whole Dashboard Backend Test under the scratch run home | Same scratch config and preload, `npx playwright test -c backend.playwright.config.ts` from `dashboard/`: the canary recorded only the comparison renderer's two `POST /release-handoffs`. The only TCP destination outside the run's listeners was the canary port. The 73 `usage-history` failures came from running in `dashboard/` (their CLIs resolve `dashboard/server/...` from the repository root). Rerun from the root with `npx playwright test -c dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history` and a live canary: 0 failures, no canary contact, no outside destination. So slices 2 and 3 have no backend leak beyond slice 1's. |
-| Whole Dashboard Frontend Playwright and E2E runs under scratch run homes | Same scratch edit in `dashboard/frontend.playwright.config.ts` and `e2e/playwright.config.ts`, run from the root with `caffeinate -s -i`: both exited 0 with no failures. Frontend: only the comparison renderer's two `POST /release-handoffs`, and the canary was the only outside destination. E2E: no canary contact and no outside destination. |
-| Vitest mounted run under a scratch run home | `HOME=<scratch home> NODE_OPTIONS='--import <preload>' npx vitest run --configLoader runner --config dashboard/frontend.vitest.config.mts` (the loader `frontendMounted.mjs` uses): 9 files, 23 tests passed, no canary contact. The only outside destination was `npx` itself reaching `registry.npmjs.org:443`; `scripts/test-frontend.mjs` runs under `node`, so it is not part of the run. Without `--configLoader runner`, Vite's bundled config loader fails on a server module's top-level `await`, with or without the scratch edit. |
+| Comparison renderer starts and closes in a home with a runner address | Running the backend cache spec with a scratch `HOME` at `a35acb326` sent two `POST /release-handoffs` and created `incidents/` and `projects-development.json` under that home. The renderer and Vite config are unchanged on this path at `120b60826`. |
+| Playwright config changes the run home and propagates a preload | The earlier scratch config captured the browser cache, set `HOME` and appended `NODE_OPTIONS=--import …`. The comparison cache and private HTTP stand-in specs passed, the canary saw the two release calls, and the preload logged both `workerProcessEntry.js` and `boundaryServer.mjs`. The main process opened a setup listener absent from the worker preload's record, so it needs a direct install. The shared runner now configures all three groups through `prepareFocusedRun`. |
+| Broad discovery of paths that use the default home and local TCP | The previous instrumented backend run from `dashboard/` observed only the renderer's canary requests and no other outside TCP destination. It had 73 usage-history failures from that working directory. The same usage-history group passed from the repository root with zero canary or outside contacts. Full frontend Playwright and E2E runs from the root exited zero. Only frontend's renderer contacted the canary. These observations detect existing paths and leave enforcing verdicts to the slices. |
+| Node clients pass the TCP hook before dialing | A scratch `node node-paths.mjs` spawned Node with `NODE_OPTIONS=--import <scratch-refuse.mjs>`. An override of `Socket.prototype.connect` refused `net.connect`, `node:http` and `fetch` aimed at a disposable outside listener, which counted zero TCP connections. `fetch` exposed the refusal as its cause. Slice 3 owns the destination rule and the run verdict. |
+| Chromium reaches the guard for additional contexts and redirects | A scratch `node browser.mjs` launched Chromium with `--proxy-server=http://127.0.0.1:<proxy-port>` and `--proxy-bypass-list=<-loopback>`. In a fresh `browser.newPage()`, an owned HTTP listener answered. Direct HTTP, an HTTP redirect and a WebSocket handshake to an unrelated loopback HTTP listener were denied by the proxy. The outside listener counted zero requests or upgrades. |
+| The mounted provider can boot and run through the same browser transport | With a scratch `HOME`, browser cache path, and those Chromium arguments added to the shared browser options, `node --import <scratch-mounted-proxy.mjs> scripts/test-frontend.mjs dashboard/frontend-tests/test-harness/mounted-dashboard.mounted.spec.ts` passed five cases. The proxy forwarded 723 HTTP requests and four CONNECT tunnels to listeners registered by the Node side, with zero refusals. This exercised the actual `configLoader: "runner"` entry and Vite's browser channel. Slice 7 proves mounted case attribution and refusal in the final lifecycle. |
 
 ## Ordered slices
 
@@ -89,98 +99,146 @@ in the scratch home's `cursor-runner.json`.
 
 Type: Behavior
 Status: planned
-Proof: a new spec beside
-`backend-tests/runtime/comparison-renderer-vite-cache.spec.ts` sets the
-worker's `HOME` to a temporary home whose runner address names a listener
-that records every request. A renderer starts and closes. The listener
-records nothing, and the home gains no `.open-dough/dashboard` files other
-than the address. The runner stand-in in `cursorRunnerStandIn.ts` is not
-enough here, because it accepts `POST /release-handoffs` without recording
-it. With today's renderer the spec fails on two `POST /release-handoffs`,
-as the premise run showed. Frontend specs that use the `comparisonRenderer`
-fixture still pass.
 
-Behavior: seed examples 1 and 2 for the observed path. A comparison
-renderer starts and closes under a home with a runner address; the runner
-receives nothing and no runner starts.
+Behavior: Rendering starts and closes in a scratch home with a runner address.
+It compiles normal comparison markup and leaves the runner and that home alone.
 
-### 2. Dashboard Backend Test runs in a test-owned home with a canary runner
+Proof: Extend the existing renderer cache proof or add a neighboring focused
+journey. Keep a recording listener in the scratch home's address file, assert
+zero requests on close and no generated machine-local state beyond the address.
+The baseline above shows the existing renderer violates both checks. Exercise
+comparison markup and tree rendering in the affected frontend fixtures and
+keep the cache cleanup assertion.
+
+### 2. The backend run owns its default home and canary verdict
 
 Type: Behavior
 Status: planned
-Proof: a new `backend-tests/runtime/test-run-isolation.spec.ts` shows that
-`homedir()` in the worker is the run home, not the home the run started
-with, and that a `readCursorRunnerSessions()` call with no home is recorded
-by the canary as `GET /sessions` with that spec's title. The teardown report
-is tested directly through its formatting function. Then a whole Dashboard
-Backend Test run ends with zero canary contacts.
 
-Behavior: seed examples 3 and 6, and the backend half of example 7. Any
-canary contact, including one during global setup or fixture teardown,
-fails the run naming the request, the process and the test. Specs that set
-their own `HOME` keep it. Leaks the whole run finds are fixed at their
-start, not by per-spec opt-outs.
+Behavior: The backend main process, workers and children use the run home
+unless their fixture chooses its own. The canary counts every request and the
+run owner reports it after cleanup, including traffic during setup or teardown.
 
-### 3. A network guard refuses connections outside the run's listeners
+Proof: Use a disposable runner harness outside the tested run, with
+[distribution runner tests](../../../Distribution/tests/test-runner/) as the
+pattern for launching the real command and asserting its status and output.
+Prove that a worker and child see the run's home, a fixture keeps its chosen
+home, and a no-home `readCursorRunnerSessions()` call yields a failing
+command with `GET /sessions`, worker PID and case title. Exercise a late
+fixture or global teardown request in a separate invocation and observe the
+nonzero exit, phase or case attribution, and removal of the run resources.
+Then run the whole backend suite with zero canary contacts. Playwright
+browser enforcement arrives in slice 4.
 
-Type: Behavior
-Status: planned
-Proof: `test-run-isolation.spec.ts` adds: a worker connect to a loopback
-port that no run process listens on is refused with an error naming
-`127.0.0.1:<port>` and the spec; a fake GitHub started by the spec and a
-dashboard server reading it work as today; a test page fetching an
-unregistered loopback port is aborted and recorded. Then a whole Dashboard
-Backend Test run ends with zero refusals.
-
-Behavior: seed examples 4 and 5, for the backend run.
-
-### 4. Frontend and E2E runs share the same isolation
+### 3. The backend run refuses Node TCP outside its live listeners
 
 Type: Behavior
 Status: planned
-Proof: whole Dashboard Frontend Test (`npm run test:dashboard:frontend`,
-Playwright and Vitest mounted) and whole E2E (`npm run test:e2e`) runs end
-with zero canary contacts and zero guard refusals. One frontend spec and one
-E2E spec read `homedir()` in the worker and see their run home.
 
-Behavior: the rest of seed example 7. `frontend.playwright.config.ts`,
-`e2e/playwright.config.ts` and `scripts/test-frontend.mjs` (for the Vitest
-mounted run) start the run-isolation module. `Distribution/tests/README.md` or the dashboard
-test documentation names the run home, the canary and the guard where test
-infrastructure is described.
+Behavior: The main process, workers and Node descendants allow the run's own
+live TCP listeners. A refusal survives a caught client error and fails the
+command. Concurrent runs own independent listeners and evidence.
+
+Proof: A fake GitHub and its dashboard client still communicate, and a worker
+can reach a main-process setup listener. Launch a scratch outside listener
+from the harness. Attempt a worker request and a Node-child connection to it,
+assert zero hits and a failed run with endpoint and caller details. Cover a
+closed listener whose port is reused and two overlapping runs. Run the whole
+backend suite with zero refusals. Browser enforcement arrives in slice 4.
+
+### 4. Backend Chromium pages use the same network boundary
+
+Type: Behavior
+Status: planned
+
+Behavior: Regular pages, fresh contexts and browser WebSockets reach owned
+fixtures through the guard. Attempts to reach an unrelated service fail the
+run even when the page handles the error.
+
+Proof: Exercise an owned HTTP request and a terminal WebSocket exchange.
+From a fresh browser context, try direct and redirected requests and a
+WebSocket to a disposable listener outside the run. Assert zero hits,
+nonzero run verdict and the destination and spec in the report. Exercise a
+page route that forwards to preserve the existing request substitutions.
+Run the whole backend suite with both records empty.
+
+### 5. Frontend Playwright and E2E use the same run isolation
+
+Type: Behavior
+Status: planned
+
+Behavior: Both Playwright groups start with the same home, canary, Node guard
+and browser policy. The groups retain their own setup, selection and reports.
+
+Proof: Observe the home in a retained frontend worker and an E2E worker.
+Prove each entry surfaces a representative refusal, then run the whole
+retained frontend Playwright suite and E2E with zero canary contacts and
+refusals. Include one E2E production-mode fixture opening a fresh browser
+page. Vitest mounted remains outside the guard until slices 6 and 7.
+
+### 6. The mounted frontend run owns its Node isolation and verdict
+
+Type: Behavior
+Status: planned
+
+Behavior: The mounted Node side has the same disposable home, canary and
+TCP guard before Vitest is created. The owner checks after the provider
+closes. A retained Playwright subprocess cannot remove the mounted owner's
+resources during a mixed run.
+
+Proof: From the ordinary frontend command, use a mounted browser command to
+observe the Node-side home and verify a refused Node request fails the
+command with its mounted case and destination. Exercise mounted-only and
+mixed selection, list and cleanup. Browser enforcement for the mounted run
+arrives in slice 7.
+
+### 7. Mounted frontend pages use the network guard
+
+Type: Behavior
+Status: planned
+
+Behavior: Vitest's real Chromium provider reaches the run's Vite server and
+WebSocket. Mounted browser requests outside the run fail with their
+destination and mounted spec. Use the provider's launch and session
+boundaries to correlate browser violations, including parallel specs.
+
+Proof: Run a mounted case through the normal frontend command that reaches
+Vite and then attempts a connection to the harness's unrelated listener.
+Observe zero outside hits and a failing run with the destination and the
+responsible spec. Run the whole frontend command with retained Playwright and
+Vitest mounted. Both records are empty, completing the whole-run proof
+alongside the backend and E2E checks.
 
 ## Proof and local gates
 
 Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
-Keep default test timeouts and never use `test.slow()`. Apply
-[`dough-makeme`](../../../.agents/skills/dough-makeme/SKILL.md) and
-[`dough-page-objects`](../../../.agents/skills/dough-page-objects/SKILL.md)
-to new specs.
+Keep default timeouts and omit `test.slow()`. Apply
+[dough-makeme](../../../.agents/skills/dough-makeme/SKILL.md) and
+[dough-page-objects](../../../.agents/skills/dough-page-objects/SKILL.md) to
+affected test sources.
 
-- **Focused specs:** `bash scripts/test.sh <paths>`, with
+- **Focused:** `bash scripts/test.sh <paths>`, with
   `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`.
-- **Whole runs:** slices 2 and 3 run the whole Dashboard Backend Test, and
-  slice 4 the whole frontend and E2E runs, because this change alters the
-  start of every process in those runs. Use Homebrew bash 5 and run on awake
-  macOS on AC with `caffeinate -s -i`; on battery, follow the
+  Use the repository root for runner invocations.
+- **Whole runs:** use `npm run test:dashboard:backend`,
+  `npm run test:dashboard:frontend`, and `npm run test:e2e` as mapped to
+  the slices. The retained frontend group can be checked directly with
+  `node node_modules/playwright/cli.js test -c dashboard/frontend.playwright.config.ts`.
+  These checks cover distributed consumers of the common run setup.
+  Use Homebrew bash 5 and run on awake macOS on AC with `caffeinate -s -i`.
+  On battery, follow the
   [open-lid procedure](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 - **Lint and typecheck:** `npm run lint` and `npm run typecheck:dashboard`.
 
-## Current decisions
-
-- The guard covers TCP connections from Node processes and requests from
-  test pages. Unix-domain sockets and non-Node processes rely on the
-  test-owned home (seed scope limits).
-- A listener belongs to the run when a run process opened it. Fixtures add
-  no declaration step.
-- The main process installs the guard itself from the run config, so global
-  setup's listeners are registered.
+The log and hit counters in the failing-run proofs use disposable external
+listeners to represent the real Dashboard or Cursor runner. No regression
+command sends traffic to the developer's service.
 
 ## Plan review
 
-Refinement was not needed: each slice has one outcome and one proof loop,
-and slices 2–4 extend one rule (run home, canary, register) to more runs
-rather than adding recognizers. The whole-run observations above found only
-the comparison renderer's leak, which slice 1 removes, so slices 2–4 carry
-no unknown leak work. This review found no remaining slice-specific
-concern.
+Slice-plan refinement kept the renderer and backend home outcomes and split
+Node admission, browser admission, and mounted lifecycle where each has a
+different entry-point verdict. The same destination and reporting rules carry
+through seven bounded slices. The unfinished coverage at each intermediate
+step is named with its owning slice. The review found no remaining
+slice-specific planning blocker.
