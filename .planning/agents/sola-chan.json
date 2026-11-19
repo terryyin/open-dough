@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Sola-chan",
-  "email": "sola-chan@example.org",
-  "identity": "SEED-413#renovate-dashboard-backend-unit-tests",
-  "mode": "story-branch",
-  "branch": "claude/prove-ad-hoc-session-review-reads-in-process-thr",
-  "host": "claude"
-}

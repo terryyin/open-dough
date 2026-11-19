@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-dashboard-backend-unit-tests.json",
+      "identity": "SEED-413#renovate-dashboard-backend-unit-tests",
+      "completedAt": "2026-11-19T16:51:33.747Z",
+      "blob": "cccebba0f1aad91f89b586420d62a4e122c3020e"
+    },
+    {
       "fileName": "SEED-413_pilot-direct-dashboard-unit-tests.json",
       "identity": "SEED-413#pilot-direct-dashboard-unit-tests",
       "completedAt": "2026-11-19T12:54:59.417Z",
@@ -2664,18 +2670,6 @@
       "identity": "SEED-147#running-cursor-session-reads-working",
       "completedAt": "2026-10-21T06:33:23.594Z",
       "blob": "1d4df194e28e928737d21ab2254d010c77e72bb9"
-    },
-    {
-      "fileName": "SEED-145_continue-execution-into-wrap-up.json",
-      "identity": "SEED-145#continue-execution-into-wrap-up",
-      "completedAt": "2026-10-20T13:39:37.550Z",
-      "blob": "9b106565b9fcb126239e65b7dc70869dca05c5ea"
-    },
-    {
-      "fileName": "SEED-145_quiet-execution-and-retrospective.json",
-      "identity": "SEED-145#quiet-execution-and-retrospective",
-      "completedAt": "2026-10-20T13:00:40.914Z",
-      "blob": "91e5c505d2311c4bf695dc071ed62da0ae4c6c2f"
     }
   ],
   "unreadable": []

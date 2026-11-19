@@ -7,13 +7,15 @@
 
 This plan corrects a completed execution.
 
-- **Story:** `SEED-413#renovate-dashboard-backend-unit-tests`, as Terry
+- **Story:** `SEED-413#renovate-dashboard-backend-unit-tests`
+  (`b3b57f9f92ff351d1abf1df189e994954fc3e4f8:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md`), as Terry
   amended it on 2026-11-19: "A handler's typed contract carries only the data
   its responsibility reads."
 - **Trunk guidance:** "Design production code for testability" in
   `Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md`
   on `origin/main`.
-- **Plan:** 721, `prove-ad-hoc-review-reads-in-process`.
+- **Plan:** 721,
+  `b3b57f9f92ff351d1abf1df189e994954fc3e4f8:.planning/slice-plans/721-prove-ad-hoc-review-reads-in-process/PLAN.md`.
 - **Manifest:** `a354a3ef8..b9ea7f5`: `42a8f2f`, `8cafad2`, `e964711`,
   `1a54cf7`, `62793b0` and `b9ea7f5`.
 
