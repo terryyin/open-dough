@@ -203,7 +203,7 @@ pass.
 ### 6. The backend guidance states the family's rules, and spent support is gone
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A contributor reading `dashboard/backend-tests/README.md` finds the
 rules this family adds under "Which entry a case uses", beside the Story
