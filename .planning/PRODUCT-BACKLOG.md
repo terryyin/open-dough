@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Declare completed-story review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-completed-story-review-histories) — SEED-353#declare-completed-story-review-histories ([plan](slice-plans/716-declare-completed-story-review-histories/PLAN.md))
 - [Run the Story Notes checks at about 100 ms per case](seeds/SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case) — SEED-407#run-the-story-notes-checks-at-about-100-ms-per-case ([plan](slice-plans/717-run-the-story-notes-checks-at-about-100-ms-per-case/PLAN.md))
-- [Remove redundant dashboard navigation doc](seeds/SEED-410-remove-redundant-dashboard-navigation-doc.md#remove-redundant-dashboard-navigation-doc) — SEED-410#remove-redundant-dashboard-navigation-doc
 
 ## Backlog list
 
