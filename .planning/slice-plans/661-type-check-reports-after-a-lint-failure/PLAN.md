@@ -127,3 +127,20 @@ This review identified no remaining concern for slice 1.
 - Hibiki-chan (`dashboard-territory.local-open-dough`) is executing in Story Branch Mode in the linked worktree `/Users/terryyin/git/open-dough/.worktrees/prove-the-type-check-reports-after-a-lint-failur`, whose creation record names this story. The integration checkout is `/Users/terryyin/git/open-dough`.
 - `origin/main` accepted the Take at `6c628be4a85e225a1c09dfefb900b238300f919e`, based on `2b737cabf546af8e4731f8db9e16f756eae8c504`. The same Take is the published base on `origin/codex/prove-the-type-check-reports-after-a-lint-failur`.
 - The Codex observer for that story branch watches GitHub Actions `ci.yml` (CI) as `seed-382-hibiki-chan`, directory `/tmp/dough-ci-501/watch-gEq6No`, PID `60825`, session `49295`, cell `g208:11`.
+- `23f7981658b6a074809e0a9bd7bc5042bf31da96` was accepted on the story branch with its revision attached to that observer.
+
+## Execution complete
+
+Product advice: no change. The maintained Node test protects the delivered
+lint job by reading the workflow declaration through the existing CI test
+fixture. The positive run and six distinguishing faults cover the original
+scope, and the standard scheduler includes the check. Earlier hosted job
+conclusions remain the runtime proof, so a new hosted failure fixture would
+repeat the settled observation at greater cost. The change fits the North
+Star's direction to exercise production inputs directly without adding test
+support. No temporary direction is realized or needs retirement.
+
+The first focused invocation stopped before discovery on macOS Bash 3.2.
+Prepending `/opt/homebrew/bin` selected Bash 5.3.20 for all seven decisive runs.
+The runner's existing prerequisite diagnostic identified the issue and recovery
+on the first attempt, and the process review found no change to propose.
