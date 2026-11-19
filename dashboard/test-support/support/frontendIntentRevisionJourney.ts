@@ -3,10 +3,7 @@ import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import type { CatalogPublication } from "../catalogProjectRecords.ts";
-import type {
-  IntentLocation,
-  IntentLocationsAnswer,
-} from "../../server/intentLocationsRead.ts";
+import type { IntentLocation } from "../../server/intentLocationsRead.ts";
 import { putFrontendIntentSources } from "./frontendIntentSources.ts";
 import { installFrontendIntentRevisionAnswers } from "./frontendIntentRevisionAnswers.ts";
 import { answerFrontendIntentCi } from "./frontendIntentCi.ts";
@@ -60,14 +57,10 @@ export async function openWithFeatureSelected(
   const moveTrunk = async (
     revision: string,
     moved: Readonly<Record<string, string>>,
-    locations: IntentLocationsAnswer = {
-      revision,
-      locations: jobsLocations(moved),
-    },
   ) => {
     answers.publish({
       project: { ...pygardon, revision },
-      locations,
+      locations: { revision, locations: jobsLocations(moved) },
       files: moved,
     });
     await passTimeUntilChecked(page);

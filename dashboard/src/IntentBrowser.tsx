@@ -1,21 +1,20 @@
 // Configured Intent locations browser, drawn once for each reading scope
 // (`./pageIntentReading.tsx`), each with its own selection, reading and
-// arrangement: Project Intent's CI status view (`./IntentPage.tsx`),
-// beside its Test Optimization Candidates record (`./IntentPage.tsx`), or
-// the selected story's **Changed tests** view (`./IntentPage.tsx`), its
-// panel named by the caller and hidden, still mounted, while another view
-// shows. Locations (book icon) and folders (folder icon) share toggle
-// (expansion only) and name (select; toggle once selected) controls; a toggle
-// never changes selection or the reading pane. What a selection reads is
-// `./IntentSelectionReading.tsx`'s; a Summary's child names open their target
-// as the record's links do (`./IntentCandidatesRecord.tsx`). A failed file
-// read keeps its own explanation and retry. Selection is owned by the scope's
-// Intent workspace (`./intentWorkspaceSelection.ts`). With a selected story's
-// comparison, the trees follow it (`./useIntentStoryTree.ts`) under its
-// "Selected story only" choice. A file the published revision does not list
-// is never read. The browser unmounts with its scope, whose reading place
-// keeps the selection, expanded location, reveal, Purpose/Proof choice and
-// scroll; a story selected while Intent is hidden starts its tree's
+// arrangement: Project Intent's CI status view, beside its Test Optimization
+// Candidates record, or the selected story's **Changed tests** view (each
+// `./IntentPage.tsx`'s), its panel named by the caller and hidden, still
+// mounted, while another view shows. Locations (book icon) and folders (folder
+// icon) share toggle (expansion only) and name (select; toggle once selected)
+// controls; a toggle never changes selection or the reading pane. What a
+// selection reads is `./IntentSelectionReading.tsx`'s; a Summary's child names
+// open their target as the record's links do (`./IntentCandidatesRecord.tsx`).
+// A failed file read keeps its own explanation and retry. Selection is owned by
+// the scope's Intent workspace (`./intentWorkspaceSelection.ts`). With a
+// selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
+// under its "Selected story only" choice. A file the published revision does
+// not list is never read. The browser unmounts with its scope, whose reading
+// place keeps the selection, expanded location, reveal, Purpose/Proof choice
+// and scroll; a story selected while Intent is hidden starts its tree's
 // arrangement afresh, toggle off. Hide files hides the column, still mounted.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -47,6 +46,7 @@ import {
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
+import "./intent-browser.css";
 
 // The browser's tabpanel: its id, naming tab, and whether it is hidden.
 export type IntentBrowserPanel = {

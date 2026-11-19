@@ -8,6 +8,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
 import { useIntentLocations } from "./useIntentLocations.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
+import "./intent-explanations.css";
 
 export function useHistoricalIntentLocations(
   source: PublishedSource,

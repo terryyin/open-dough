@@ -39,12 +39,6 @@
   font-size: var(--text-xs);
 }
 
-.intent-story-crumb-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
 .intent-story-title-line {
   display: flex;
   align-items: center;
@@ -171,7 +165,10 @@
   }
 }
 
+/* Positioned, it keeps screen-reader labels inside the pane that scrolls
+   them. */
 .intent-page-panel {
+  position: relative;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -232,13 +229,6 @@
 
 .intent-story-diff > .story-review-diff-heading {
   margin: 0 0 var(--space-2);
-}
-
-.intent-story-ci-return {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: var(--space-2);
 }
 
 /* An explanation in place of the locations keeps the panel's inset. */

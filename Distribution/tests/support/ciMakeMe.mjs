@@ -19,7 +19,6 @@ import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
 import {
   intentCiStatusMakeMeProperties,
-  PublishedWorkBuilder,
   StoryCiComparisonBuilder,
 } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
@@ -33,7 +32,6 @@ import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData
 import { copyFacts } from "./factBuilder.mjs";
 import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 
-/** @typedef {import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance} ScopeHistoryGlance */
 /** @typedef {import("../../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
 /**
  * @template {object} Facts
@@ -51,8 +49,6 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
  * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
  * @property {import("./landedCiProofTestData.mjs").LandedCiResolutionBuilder} aLandedCiResolution
- * @property {FactBuilder<ScopeHistoryGlance>} aScopeHistoryGlance
- * @property {import("./comparisonViewTestData.mjs").PublishedWorkBuilder} aPublishedWork
  * @property {import("./comparisonViewTestData.mjs").StoryCiComparisonBuilder} aStoryCiComparison
  * @property {import("./ciComparisonTestData.mjs").PublishedStoryEndpointBuilder} aPublishedStoryEndpoint
  * @property {import("./ciComparisonTestData.mjs").TakenStoryEndpointBuilder} aTakenStoryEndpoint
@@ -99,19 +95,6 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new LandedCiResolutionBuilder();
-      },
-    },
-    aScopeHistoryGlance: {
-      enumerable: true,
-      /** @returns {FactBuilder<ScopeHistoryGlance>} */
-      get() {
-        return { with: copyFacts };
-      },
-    },
-    aPublishedWork: {
-      enumerable: true,
-      get() {
-        return new PublishedWorkBuilder();
       },
     },
     aStoryCiComparison: {

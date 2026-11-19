@@ -4,12 +4,8 @@ import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { FileFollowUpBuilder } from "./followUpFileTestData.mjs";
 import { FollowUpBuilder } from "./followUpTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
-import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
-import {
-  IntentLocationBuilder,
-  IntentSettingsBuilder,
-} from "./intentLocationTestData.mjs";
+import { IntentSettingsBuilder } from "./intentLocationTestData.mjs";
 import { optionsDefinitionMakeMeProperties } from "./optionsDefinitionTestData.mjs";
 import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
 import { projectCiSettingsMakeMeProperties } from "./projectCiSettingsTestData.mjs";
@@ -28,6 +24,7 @@ import { usageMakeMeProperties } from "./usageMakeMe.mjs";
 import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
+import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../../dashboard/test-support/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -55,7 +52,6 @@ import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
  * @property {RepositoryBuilder} aRepository
  * @property {AgentProfileBuilder} anAgentProfile
  * @property {FactBuilder<BacklogEntry>} aBacklogEntry
- * @property {PublishedSourceBuilder} aPublishedSource
  * @property {ConfiguredProjectBuilder} aConfiguredProject
  * @property {FactBuilder<PublishedRevision>} aPublishedRevision
  * @property {StoryPreparationBuilder} aStoryPreparation
@@ -64,7 +60,6 @@ import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
  * @property {DoneRecordBuilder} aDoneRecord
  * @property {FileFollowUpBuilder} aFileFollowUp
  * @property {FollowUpBuilder} aFollowUp
- * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentSettingsBuilder} intentSettings
  * @property {TestOptimizationCandidatesRecordBuilder} aTestOptimizationCandidatesRecord
  * @property {FactBuilder<import("../../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} aReviewedStory
@@ -78,9 +73,9 @@ import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
  * @property {HostHookSettingsBuilder} hostHookSettings
  */
 
-/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe} */
+/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe} */ ({}),
+  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe} */ ({}),
   {
     hostHookSettings: {
       enumerable: true,
@@ -110,12 +105,6 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return { with: copyFacts };
-      },
-    },
-    aPublishedSource: {
-      enumerable: true,
-      get() {
-        return new PublishedSourceBuilder();
       },
     },
     aConfiguredProject: {
@@ -164,12 +153,6 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new FollowUpBuilder();
-      },
-    },
-    anIntentLocation: {
-      enumerable: true,
-      get() {
-        return new IntentLocationBuilder();
       },
     },
     intentSettings: {
@@ -241,5 +224,6 @@ export const makeMe = Object.defineProperties(
     ...feedbackMakeMeProperties(),
     ...storyNoteMakeMeProperties(),
     ...projectRevisionMakeMeProperties(),
+    ...publishedReadingMakeMeProperties(),
   },
 );

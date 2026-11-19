@@ -35,6 +35,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
 import "./intent-page.css";
+import "./intent-open-link.css";
 
 export const toProjectIntentId = (idPrefix: string) => `${idPrefix}-to-project`;
 

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#renovate-remaining-dashboard-frontend-unit-tests",
+  "title": "Prove how Project Intent applies a newer revision",
+  "completedAt": "2026-11-19T16:19:01.406Z",
+  "developer": "Terry Yin",
+  "agent": "Kirara-chan",
+  "host": "claude",
+  "intentCoverage": {
+    "report": "Dough Intent Coverage: Project Intent applies a newer revision through the IntentPerspective composition\n\nVerdict: Caught. Checked revision 89401655ab84526ec5256e9fbe503dffcf9656f3 in an isolated scratch worktree.\nPromise (Key example 1): two new revisions arrive while the reader has Project Intent open in the real dashboard; one notice is offered, and Show latest applies the latest revision in the same reading.\nFault: in dashboard/src/IntentPerspective.tsx IntentBody, the work passed to ProjectIntentReading was frozen to the first observed work.\nIndependent witness (temporary built-app journey, removed): baseline passed; under the fault the notice \"New revision available — showing d4d4d4d\" never rendered; restored passed.\nMaintained checks (npm run test:dashboard:frontend -- intent/intent-revision --workers=2): baseline 9/9; under the fault intent-revision-planning-only.spec.ts:59 (revision notice visible) failed, intent-revision-update-outcomes.spec.ts:59 and intent-revision-update-boundaries.spec.ts:78 timed out on Show latest; intent-revision-notice.spec.ts and the five mounted cases passed; restored 9/9.\nLimit: no maintained built-app case completes a successful Show latest through IntentPerspective; this probe gives no evidence about a composition fault that keeps the offer but breaks a successful apply.\nNext proof action: no repair for this fault. To protect the composed successful apply, probe a fault that keeps the offer but breaks the apply, or add the success transition to an existing built-app journey.\nCost: about 80 s test runtime; elapsed 266942 ms; scratch worktree removed.\n\nWrap-up disposition (checked revision 89401655a): the probed fault fails the ordinary frontend test entry, so nothing is queued for it. The composed successful-apply gap matches queued work and is added to SEED-413#renovate-later-dashboard-frontend-unit-tests's scope. That story owns the four remaining composed built-app revision cases and must keep a successful Show latest through IntentPerspective when they move.\n"
+  }
+}

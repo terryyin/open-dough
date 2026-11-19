@@ -16,6 +16,7 @@ import {
   isComparisonCells,
   type ComparisonEntryCells,
 } from "./storyCiComparisonEntries.ts";
+import "./intent-summary.css";
 
 // The label of a Summary's table of PATH's immediate folders and files, below
 // PATH's own figures.

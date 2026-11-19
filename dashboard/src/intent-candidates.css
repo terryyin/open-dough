@@ -1,10 +1,12 @@
 /* Test Optimization Candidates record and its location text within Intent
    (`./IntentCandidatesRecord.tsx`, `./IntentCandidatesLocationsText.tsx`); the
-   open-link control is shared with summaries (`./intent-perspective.css`). */
+   open-link control is shared (`./intent-open-link.css`). */
 
 /* The Optimization Candidates reading mode (`./IntentPage.tsx`): the
-   record across the Intent content area, scrolling on its own. */
+   record across the Intent content area, scrolling on its own, positioned
+   to keep its screen-reader labels inside. */
 .intent-candidates-panel {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;

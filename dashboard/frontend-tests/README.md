@@ -121,7 +121,8 @@ Representative workflows live in
 ## Running the tests
 
 `npm run test:dashboard:frontend` runs the full group. Specs named
-`*.mounted.spec.ts` use Vitest browser mode with Playwright Chromium.
+`*.mounted.spec.ts` use Vitest browser mode with Playwright Chromium; the
+case-owned modules they import beside them are named `*.mounted.ts`.
 Retained specs use Playwright, whose setup prepares the app and comparison
 mount builds on demand. Both engines share the group's worker limit and
 `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`, `_PROOF_RECORD` and

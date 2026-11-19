@@ -1,6 +1,6 @@
 // Holds authenticated reads, of one path or matching a query, until release
 // or failure, for Intent journeys that observe a read still in flight
-// (`../frontend-tests/intent/intent-selection-reads.spec.ts`, `../frontend-tests/intent/intent-revision-notice.spec.ts`,
+// (`../frontend-tests/intent/intent-selection-reads.spec.ts`,
 // `../frontend-tests/intent/intent-revision-update-outcomes.spec.ts`,
 // `../frontend-tests/intent/intent-revision-update-boundaries.spec.ts`,
 // `../frontend-tests/intent/intent-story-coverage.spec.ts`), and of one

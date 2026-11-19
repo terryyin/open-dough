@@ -4,6 +4,7 @@
 import { ScopePath } from "./CiProofTable.tsx";
 import type { SummaryChild } from "./ciScopeProof.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
+import "./intent-open-link.css";
 
 export function ChildName({
   child,
