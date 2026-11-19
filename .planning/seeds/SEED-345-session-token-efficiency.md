@@ -154,92 +154,51 @@ Each trial is judged with the
 
 <a id="get-long-verification-results-without-empty-wakes"></a>
 
-### Get long verification results without empty wakes
+### Trial a quieter Codex wait for long verification
 
 **Identity:** SEED-345#get-long-verification-results-without-empty-wakes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/714-get-long-verification-results-without-empty-wakes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7d99670d098211ef8648dfc5c382657fc4014b9fb98c6ad2d0ffb3c1b5d59224","plan":"2be2066d220d6a4603231fa91a4c5ab1895c2dc036d3a3d9dc5eee43ab4e6934"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/714-get-long-verification-results-without-empty-wakes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"dcd86361f28f5fe648c88ce8532a8bbbf381b6ae3eb598c45a03aa763ee9c3a5","plan":"cb5fd51d87573ce14b254ab410d62c5e9428486b867559f7c45db2b52db92908"}}
 ```
 
-- **Goal.** A developer waiting for a long verification gets the original
-  command's terminal result and decisive failure evidence at lower combined
-  coordinator and worker cost. During a quiet run the model has no reason to
-  wake until a result or intervention arrives or a real check falls due.
-- **Scope.** Start with a running Codex proof and its waiting coordinator.
-  The worker keeps the command it launched. The coordinator waits for the
-  worker, user input or the earliest applicable proof, progress or CI check.
-  Keep command continuation, overdue diagnosis, cancellation and revision-specific
-  CI completion. On Claude Code choose where a cache-crossing wait will be
-  observed before launching the proof, with the existing five-minute worker
-  cache. Cursor retains its supported foreground or bounded exit-file wait.
-  Paused suppliers, general monitoring, cache settings and shorter worker
-  context are separate work.
+- **Goal.** Give the maintainer two decisions backed by the Codex trial and
+  retained evidence. Decide whether to deploy the Codex wait guidance and
+  whether a separate Claude Code trial is worth funding. A developer waiting
+  for proof should get the original result promptly, with lower combined
+  coordinator and worker effort if the change is adopted.
+- **Scope.** Run a small native Codex control with current source guidance.
+  Compare a wait bounded by the next real check and the host limit only if the
+  control exposes avoidable empty wakes. The worker owns its original command.
+  Preserve command continuation, overdue diagnosis, user cancellation, and
+  revision-specific CI completion. Use retained Claude Code evidence to decide
+  whether to queue a separate trial. This story includes the release decision.
+  Client rollout, a native Claude Code run, Cursor changes, supplier
+  publication, cache settings, new monitors, and Dashboard measurement are
+  outside its scope.
 - **Key examples.**
-  1. A worker runs a quiet check that will finish before its next due check →
-     it exits 0 → the owner returns the recorded success once. The coordinator
-     can receive it early without a model request that only sees “still running.”
-  2. The same check exits nonzero → the worker returns its exact status, failing
-     assertion and log. If the check falls due first, the coordinator obtains
-     bounded liveness evidence and the owner continues the same live command.
-     A due check, silence, or a host handback alone establishes no verdict.
-  3. A user intervenes or CI needs attention during the wait → act at the
-     host's supported safe boundary. Honor cancellation for the owned work,
-     verify its state, and account separately for the observer and the
-     applicable accepted revision. Local proof cannot settle CI.
-  4. A Claude Code proof will outlast the worker cache → choose the eligible
-     launch owner and native notification → the owner reads the terminal proof.
-     Compare the resume request's cache reads and writes and both agents'
-     total effort. A silent interval followed by a costly rebuild can lose.
-- **Architecture and alternatives.** Compare today's host wait with a timed
-  wait borrowed from event loops. A worker result or user message makes the
-  wait return early. The next genuine deadline is its timer. The notification
-  prompts the owner to read proof. Host delivery, interruptibility and time
-  limits vary, so a timer expiry or message is insufficient evidence of exit.
-  On Claude Code, placing a separable proof with an already-authorized,
-  longer-lived owner before launch can avoid resuming a large cold worker.
-  Compare that cost, including any handoff or reread, with leaving it at
-  the worker. Prefer the existing wait when it already meets the criteria.
-  Keep one shared rule in [delegation](../../Distribution/src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls)
-  and the host-specific mechanics in [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md).
-  This follows [ADR 0006, Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
-- **Priority, November 19.** Queue this first after the new-model Token Index
-  story moves to Taken. The worker can run the same checks and return the same
-  evidence while the coordinator waits, so try this before changing the
-  context workers receive.
-- **Codex evidence.** Across the two ten-task windows, responses immediately
-  after an empty agent wait rose from 18.3 to 50.3 per execution on average,
-  or 0.20M to 0.70M index units. The largest execution had 165 such responses
-  totaling 2.53M. The audit counted each response once when the preceding
-  batch contained only timed-out `wait_agent` calls and no user, developer or
-  worker message intervened. These figures measure usage after timeouts.
-  Estimate achievable savings from the difference between matched runs.
-- **Trial decision.** Use the same workload, outcome and proof in each host's
-  baseline and candidate. Count requests after empty subprocess returns and
-  delegated timeouts separately, cache rebuilds, combined effort and any
-  delayed action or human rescue. Keep a change only where the quiet example
-  has no empty wake, the other proof decisions hold, and total effort falls.
-  An unavoidable host wake remains visible. A missing trace or unmatched
-  run leaves the saving unknown. Use current source guidance in the control
-  so the trial cannot claim a saving from an earlier foreground-wait change.
-  [ADR 0005, Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+  1. A quiet check exits 0 before its next due check. The owner returns the
+     recorded success once and the coordinator receives it with zero empty
+     wakes in the candidate.
+  2. A check is still live when its check falls due. Obtain bounded liveness
+     evidence and continue the same command or record its explicit recovery
+     state. If it fails, return its exact status, failing assertion and log.
+  3. A user stops the work or CI needs attention during the wait. Act at the
+     supported safe boundary, verify the owned work's state after cancellation,
+     and account separately for the observer and applicable CI revision.
+  4. Record **Deploy** only when the matched Codex candidate meets these proof
+     and intervention conditions, eliminates quiet empty wakes, and lowers
+     combined effort. Otherwise record **Do not deploy** and keep the current
+     guidance.
+  5. Record **Run the Claude Code trial** only when retained Claude Code evidence
+     supports repeatable, recoverable savings from an eligible alternate owner
+     large enough to justify the trial. Otherwise record **Drop the Claude Code
+     trial**, including where the evidence is inconclusive. Queue a separate
+     follow-up only on a Run decision. The Codex outcome does not determine
+     the Claude Code decision.
+- **Evidence and approach.** See the [trial plan](../slice-plans/714-get-long-verification-results-without-empty-wakes/PLAN.md)
+  for the frozen control, retained traces, proof boundaries, and decision
+  criteria. Apply [ADR 0005, Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md)
   and [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-- **Earlier evidence.** Codex recorded 2,303 requests
-  (446.5M tokens, 7.6%) after empty subprocess output or agent-wait timeouts.
-  Claude Code paid about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
-  In Claude Code's later cohort, shell `sleep` calls fell from 18.4 per
-  execution (Nov 13–15) to 3.4 after the waiting changes; the tasks also changed.
-  This is neither a measured Codex saving nor proof that most removable wait
-  cost is gone. Codex's rebaseline counts empty subprocess returns and
-  agent-wait timeouts, not only shell sleeps, and records the installed
-  guidance version. Measure what remains against those host-specific baselines
-  ([waiting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)).
-- **Effort and boundary.** Medium, medium confidence. Distinct from a paused
-  supplier, which the first story owns. Keep the five-minute Claude Code
-  subagent cache; a longer lifetime cost more than it saved. Starts from the
-  per-host [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
-  guidance and measures what it leaves.
-  [Waiting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
-  and [cache](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
 
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
