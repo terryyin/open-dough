@@ -1,0 +1,104 @@
+// Intent applies an offered published revision to an open reading: newer
+// revisions wait behind one polite notice, and Show latest reads only the
+// latest, keeping the old reading until it answers
+// (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
+// Companion built-app cases: ./intent-revision-notice.spec.ts.
+import { expect, test, vi } from "vitest";
+import {
+  featurePath,
+  longFeature,
+  otherFeature,
+  otherPath,
+  publishedReadService,
+  type Snapshot,
+} from "./intent-revision-read-service.mounted.ts";
+import {
+  click,
+  intentReading,
+  mountReading,
+  openFeature,
+  scrollReadingHalfway,
+  short,
+  workAt,
+} from "./intent-revision-reading.mounted.ts";
+
+vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+
+test("newer revisions wait behind one notice, and Show latest keeps the reading while the latest is read", async () => {
+  const [a, b, c] = ["d4".repeat(20), "e7".repeat(20), "e8".repeat(20)];
+  const at = (scenario: string): Snapshot => ({
+    [featurePath]: longFeature(scenario),
+    [otherPath]: otherFeature,
+  });
+  const service = publishedReadService(
+    new Map([
+      [a, at("Archive a job")],
+      [b, at("Restore a job")],
+      [c, at("Purge a job")],
+    ]),
+  );
+  const show = await mountReading(workAt(a));
+  const reading = intentReading();
+  const { toggle, feature, shownSource, browserRevision, notice } = reading;
+  await openFeature(reading);
+  await expect.poll(shownSource).toContain("Scenario: Archive a job");
+  const { pane, scrolled } = await scrollReadingHalfway();
+  // The expanded group, the selected feature and the pane's scroll stay.
+  const expectReadingKept = async () => {
+    await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect.element(feature).toHaveAttribute("aria-pressed", "true");
+    expect(pane.scrollTop).toBe(scrolled);
+  };
+  const focused = () => document.activeElement?.textContent ?? "";
+  const focusedBefore = focused();
+  await expect
+    .element(browserRevision)
+    .toHaveTextContent(`Test browser at ${short(a)}`);
+  expect(service.reads).toEqual([`locations@${a}`, `${featurePath}@${a}`]);
+
+  await show(workAt(b));
+  await show(workAt(c));
+  await expect.element(notice).toBeInTheDocument();
+  expect(notice.elements()).toHaveLength(1);
+  await expect.element(notice).toHaveAttribute("aria-live", "polite");
+  await expect
+    .poll(reading.noticeText)
+    .toContain(`New revision available — showing ${short(a)}`);
+  expect(
+    notice
+      .getByRole("button")
+      .elements()
+      .map((button) => button.textContent),
+  ).toEqual(["Show latest"]);
+  await expect
+    .element(browserRevision)
+    .toHaveTextContent(`Test browser at ${short(a)}`);
+  expect(focused()).toBe(focusedBefore);
+  await expect.poll(shownSource).toContain("Scenario: Archive a job");
+  await expectReadingKept();
+  expect(service.reads).toHaveLength(2);
+
+  const releaseLatest = service.holdLocationsOf(c);
+  await click(reading.showLatest);
+  await expect.poll(service.held).toBe(1);
+  await expect.poll(reading.noticeText).toContain("Updating…");
+  await expect
+    .element(browserRevision)
+    .toHaveTextContent(`Test browser at ${short(a)}`);
+  await expect.poll(shownSource).toContain("Scenario: Archive a job");
+  await expect.element(feature).toHaveAttribute("aria-pressed", "true");
+
+  await releaseLatest();
+  await expect.poll(shownSource).toContain("Scenario: Purge a job");
+  await expect.element(notice).not.toBeInTheDocument();
+  await expect
+    .element(browserRevision)
+    .toHaveTextContent(`Test browser at ${short(c)}`);
+  await expectReadingKept();
+  await expect.element(feature).toHaveFocus();
+  expect(service.reads.slice(2)).toEqual([
+    `locations@${c}`,
+    `${featurePath}@${c}`,
+  ]);
+  expect(service.unexpected).toEqual([]);
+});

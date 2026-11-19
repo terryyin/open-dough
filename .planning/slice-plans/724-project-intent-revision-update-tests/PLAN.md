@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#renovate-remaining-dashboard-frontend-unit-tests
 **Source:** [Prove how Project Intent applies a newer revision](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-frontend-unit-tests)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -85,13 +86,14 @@ were reverted.
 | Focus the malformed-settings explanation (slice 5) | Same run. Resolving the held C locations read to a malformed settings answer after Show latest rendered the invalid JSON explanation and focused its tab panel. |
 | Route and sensitivity of the proof (all slices) | The family-shaped scratch spec listed five literal titles under `mounted-chromium` with the same command plus `--list --reporter=line`. `npm run typecheck:dashboard` passed with the probe and temporary MakeMe exports. Removing the production Show latest callback invocation made all five fail on their expected update signals, including the missing Updating cue, unreadable settings and missing-file results. After restoration all five passed and the strict group proof recorded five passes in 2.07 s. The probes establish the usable boundary and do not measure the delivered migration. |
 | Compare the preserved cases (slices 1 and 5) | At the same revision, `caffeinate -s -i /usr/bin/time -p npm run test:dashboard:frontend -- intent/intent-revision --workers=2` with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` set to a fresh output path produced nine first-attempt passes in 7.72 s elapsed on AC power. The five moved cases took 1,431, 935, 1,595, 1,232 and 900 ms respectively, 6.093 s summed. Wall time covers all nine. Execution captures its own comparable pre-change run before migrating the first case. |
+| Pre-change baseline for the comparison (finish) | Execution, 2026-11-19 at `9a78cd913`, AC power, load average 2.6–3.1. Same command and fresh proof record: nine first-attempt passes, 11.40 s elapsed. The five moved cases took 1,629, 838, 1,662, 1,200 and 949 ms in plan-table order, 6.278 s summed. |
 
 ## Ordered slices
 
 ### 1. Apply the latest offer and stay at the same reading place
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A reader selects a long feature, scrolls, and two published
 revisions arrive. One polite notice names the shown revision and preserves
@@ -105,6 +107,16 @@ read sequence, status, one-button, expansion, selected, focus and scroll
 assertions at their observed transitions. Compare against independent
 text and revisions. Move the first notice case only. This slice establishes
 the MakeMe inputs and direct mount that the succeeding cases use.
+
+Accepted proof: `intent-revision-apply.mounted.spec.ts` passed in the
+`intent/intent-revision` group with the other eight cases, with the
+wall-time-history and story-notes mounted consumers, and with the dashboard
+typecheck. Learning for slices 2–5: extend the case-owned
+`intent-revision-read-service.mounted.ts` (answers, holds, failures) and
+`intent-revision-reading.mounted.ts` (mount, locators, settled actions).
+Render, click and release through `actSettled` so React logs no act warnings.
+The published-reading MakeMe accessors now have one home,
+`publishedReadingMakeMe.mjs`, shared by `makeMe.mjs` and `pageMakeMe.mjs`.
 
 ### 2. Explain a selected path that the new revision deleted
 
