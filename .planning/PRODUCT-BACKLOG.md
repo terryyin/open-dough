@@ -31,9 +31,8 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Express submit-and-close test intent](seeds/SEED-411-express-submit-and-close-test-intent.md#express-submit-and-close-test-intent) — SEED-411#express-submit-and-close-test-intent
-- [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
-- [Pilot direct backend handler and narrow UI component tests on one dashboard family](seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests) — SEED-413#pilot-direct-dashboard-unit-tests ([plan](slice-plans/720-pilot-direct-dashboard-unit-tests/PLAN.md))
 - [Keep dashboard tests off the developer's real Cursor runner](seeds/SEED-412-keep-dashboard-tests-off-the-developers-real-cursor-runner.md#keep-dashboard-tests-off-the-developers-real-cursor-runner) — SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner ([plan](slice-plans/719-keep-dashboard-tests-off-the-developers-real-cursor-runner/PLAN.md))
+- [Pilot direct backend handler and narrow UI component tests on one dashboard family](seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests) — SEED-413#pilot-direct-dashboard-unit-tests ([plan](slice-plans/720-pilot-direct-dashboard-unit-tests/PLAN.md))
 
 ## Backlog list
 

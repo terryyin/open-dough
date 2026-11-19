@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-397_evaluate-recoverable-proof-evidence.json",
+      "identity": "SEED-397#evaluate-recoverable-proof-evidence",
+      "completedAt": "2026-11-19T10:36:30.632Z",
+      "blob": "8e925dd0e2cf2185d7c8f025cf831e536e76e283"
+    },
+    {
       "fileName": "SEED-382_type-check-reports-after-a-lint-failure.json",
       "identity": "SEED-382#type-check-reports-after-a-lint-failure",
       "completedAt": "2026-11-19T09:52:27.206Z",
