@@ -1,6 +1,9 @@
 # Retained correction preparation evidence
 
-Location alignment for the evaluation home preserves these findings, decisions and proof.
+Findings were first verified at `6a2931f8` under the earlier `native-comparison-*` names and
+retraced on 2026-11-19 at `86c4e9647` (Native guidance checks layout); see
+[Retrace at 86c4e9647](#retrace-at-86c4e9647). Line numbers in the 2026-11-14 rows
+refer to the earlier files.
 
 ## Source and provenance
 
@@ -26,15 +29,6 @@ repair `e8e5eac2` is unrelated. Findings were verified at HEAD `6a2931f8`
    (113-115), which can fail, so each such arm leaves an orphan `mysqld`. This
    breaks the original restriction "isolate arm writes from each other and live
    projects to prevent contamination" and its G2 isolation and cleanup.
-2. **Free pair checks test the committed HEAD, not the working tree.**
-   `native_comparison_pair_fixture` (`native-comparison-pair-fixture.sh` 66-67)
-   clones `source_dir` for payloads with `baseline=HEAD`, and
-   `native_comparison_fixture_rule` writes its substitute rule into HEAD's
-   `Distribution/src/skills/...`. The pair, refresh and incomplete journeys
-   therefore pass or fail on committed payload content. This produced branch CI
-   run 43562552359's failure after a local pre-commit pass (plan 618 Learnings).
-   Under [the project's failure policy](../../../AGENTS.md#failing-and-flaky-tests),
-   a local/CI difference is a test-environment defect.
 3. **Host selection names unqualified hosts.** The catalog
    (`native-comparison-catalog.sh` 37-39) keeps a case when a trait contains the
    filter text. Both `case.md` files read
@@ -86,7 +80,7 @@ PFE (existing owners to reuse):
   partially materialized arm (no pid file prints `no-database-server`; a started
   server with an unknown `mysqladmin` path falls back to `kill`), so
   `case.bash` (232 lines) is not expected to change.
-- **Interrupt handling and observation:** `Distribution/tests/test-runner-interrupt.sh`
+- **Interrupt handling and observation:** `Distribution/tests/test-runner/test-runner-interrupt.sh`
   is the project's pattern for interrupt journeys (`set -m` own process group,
   a FIFO no one writes, ready markers). `Distribution/tests/helpers/wait-for.bash`
   is the sanctioned bounded wait for an observable condition.
@@ -95,13 +89,6 @@ PFE (existing owners to reuse):
   `native_run_terminate_group`) already owns the host command's process group
   for its deadline. An interrupted arm stops its host session through that
   same owner. Do not add a second process tracker.
-- **Working-tree copy:** the pair fixture already copies the working tree's
-  harness paths into a fresh one-commit repository (`git ls-files --cached
-  --others --exclude-standard`, skipping deleted files, fixed fixture identity
-  and clock). The payload repository reuses that same routine, factored once in
-  the fixture, over the installer's inputs: `install.sh`, `VERSION`,
-  `CHANGELOG.md` and `Distribution/src`. The same input set is used by
-  `git_publication_installer_input_hash_lines` and `native-identity-source.mjs`.
 - **Per-turn host facts:** the runner's `native_comparison_turn` already
   owns the turn stream, its classification, status, thread and seconds, and
   the harness pattern. It records the command count and harness inspection
@@ -125,12 +112,10 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
 | Arm subshells can run cleanup when signalled (Slice 1 approach) | Bash 5.3 scratch: an async `( … ) &` subshell ran its own INT trap and its own TERM trap (exit 143). Asynchronous arms are not deaf to INT. Bash defers the parent's trap while a *foreground* child runs, but `wait` on a background job is interruptible. A single journey (foreground subshell) or sequential arms therefore need the entry to hand the signal to the arm and wait for its cleanup before the EXIT trap removes `work`. This is a design constraint, not a remaining unknown. |
 | The arm can reach its host's owned group when interrupted (Slice 1 host-session stop) | Read at `6a2931f8`: `native_run_owned` (`native-run-supervise.sh` 96-126) starts the host in its own group, keeps that group in a function-local `pgid`, and starts a background watchdog. It then blocks in `wait "${pid}"`, which a trap can interrupt. A trap firing there runs in that function's context, so `pgid` and `watchdog` are visible to it. Both are arm-owned processes the interrupt must stop. Bash 5.3 scratch: a TERM trap set inside a background arm subshell fired during a function's `wait "$pid"` and printed that function's locals (`pgid=4242 watchdog=77`), with arm status 143. A trap set in the *parent* did not carry into a `&` subshell, which died on TERM's default action. So the trap belongs inside the arm subshell. **Settled.** |
 | Doughnut's `case_cleanup` stops a server left by a failed migration (Slice 1 reaches the Doughnut impact) | Bash 5 `set -euo pipefail`, sourced `doughnut-title-precedence/case.bash`. `ROOT/mysql/mysql.pid` named a live stand-in process and `case_mysql_admin` was empty. Result: `cleanup: database-server-killed`, process stopped. **True with no case change.** A real `mysqld` shutdown is not re-observed. It was observed as `database-server-stopped` in plan 618's paid pairs, and the code path is unchanged. |
-| The pair fixture freezes the committed HEAD, not the working tree (Slice 2 discrimination) | Scratch `git clone --shared` of this checkout at `6a2931f8` with an uncommitted marker appended to `Distribution/src/skills/dough-execute-plan/SKILL.md`. `native_comparison_pair_fixture` was run on it. Result: baseline = `6a2931f8…`, and the marker count in the frozen baseline's file was 0. **True; the planned check discriminates.** |
-| The installer's inputs are `install.sh`, `VERSION`, `CHANGELOG.md` and `Distribution/src` (Slice 2 payload repository) | Those paths only, copied from the scratch working tree (`git ls-files --cached --others --exclude-standard`). Ran `bash install.sh --target <git repo> --source <copy> --platform codex --force`, the form `delivery_evidence_install_payload … --force` uses on the arms' `git archive` copies. Result: rc 0, hooks registered, and the installed `SKILL.md` carried the working-tree marker. **True.** |
-| `--where hosts=cursor` and `hosts=claude` select both cases (Slice 3 discrimination) | Bash 5 `native-comparison.sh --list --where hosts=cursor`, `hosts=claude` and `hosts=codex`. Each listed `doughnut-title-precedence` and `paused-supplier`. **True.** |
+| `--where hosts=cursor` and `hosts=claude` select both cases (Slice 2 discrimination) | Bash 5 `native-comparison.sh --list --where hosts=cursor`, `hosts=claude` and `hosts=codex`. Each listed `doughnut-title-precedence` and `paused-supplier`. **True.** |
 | The kept records recover to `9c20a808` (preserved promise, baseline) | `native-comparison.sh --recover <record>` for both records: `record-history: unchanged since 9c20a808…`, `case-basis-revision: 9c20a808…`, `recovery: pass`, rc 0. Recovery searches history by recorded hashes, so later edits to the runner (a recorded input) do not move it. |
-| The two cases' command and harness fields differ only in Doughnut's extra pattern (Slice 4 moves them unchanged) | Read at `55da0eec`: paused-supplier `case.bash` 217-220 and Doughnut 227-231 print the same two fields from `native_host_stream codex STREAM commands`; HARNESS is used nowhere else in either case. Field names stay, so both assessors' `harness` signal, `native-comparison-pair-observe.sh` (reads `turn-N-commands`) and the kept records' grammar are unaffected. **Settled.** |
-| A missing or truncated stream reads as an observed zero today (Slice 4 discrimination) | Bash 5.3, sourced `native-host-stream.sh` and `native-observation.sh`, on a nonexistent stream and on a stream cut mid-JSON in the job scratch: reader rc 0, `wc -l` gives `0`, `native_harness_inspected` gives `false`. **True; the planned `unknown` check discriminates.** The incomplete journey's stopped arms (`native-comparison-incomplete.sh` 112-119) already hold such streams. |
+| The two cases' command and harness fields differ only in Doughnut's extra pattern (Slice 3 moves them unchanged) | Read at `55da0eec`: paused-supplier `case.bash` 217-220 and Doughnut 227-231 print the same two fields from `native_host_stream codex STREAM commands`; HARNESS is used nowhere else in either case. Field names stay, so both assessors' `harness` signal, `native-comparison-pair-observe.sh` (reads `turn-N-commands`) and the kept records' grammar are unaffected. **Settled.** |
+| A missing or truncated stream reads as an observed zero today (Slice 3 discrimination) | Bash 5.3, sourced `native-host-stream.sh` and `native-observation.sh`, on a nonexistent stream and on a stream cut mid-JSON in the job scratch: reader rc 0, `wc -l` gives `0`, `native_harness_inspected` gives `false`. **True; the planned `unknown` check discriminates.** The incomplete journey's stopped arms (`native-comparison-incomplete.sh` 112-119) already hold such streams. |
 | Test conventions | `node .claude/skills/dough-execute-plan/scripts/test-entry-rules.mjs --project . --source <path>`: `native-comparison.sh`, `-pairs.sh` and `-incomplete.sh` resolve `makeMe: true`. The fixture and runner resolve `makeMe: false` but follow their consuming tests' MakeMe convention (AGENTS.md "Test automation"). Resolve any new test path the same way before authoring. |
 
 | Correction outcome / preserved promise | Owning slice and observable proof |
@@ -139,10 +124,9 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
 | Cleanup runs on maintainer interrupt, single journey and concurrent pair | 1: interrupt journeys; sentinels stopped, entry exits with the signal status, nothing of the arm left |
 | An interrupted arm's host session stops before its work directory is removed | 1: each interrupt journey asserts that every arm's stand-in `codex` process group is gone, observed before the entry removes `work` |
 | Doughnut arm server stopped after a failed migration | 1: runner contract (above) plus Doughnut's credential-free proof calling `case_cleanup` on a partially materialized stand-in arm |
-| Free pair, refresh and incomplete journeys test the working tree's payload | 2: an uncommitted working-tree payload change reaches the frozen baseline payload; existing pair, refresh and incomplete journeys stay green on the new fixture |
-| Host selection matches qualified hosts only | 3: entry's credential-free catalog checks; `hosts=cursor` and `hosts=claude` select nothing (nonzero), `hosts=codex` still selects |
-| The runner records each turn's commands and harness inspection, `unknown` when its stream cannot show them | 4: incomplete journey asserts the stopped turn's `unknown` fields and unchanged partial effort; both cases' harness counterexamples and the family journeys stay green with no case printing either field |
-| Kept records byte-identical and recoverable | 1, 3 and 4 (the slices touching recorded inputs or case files): `git diff --exit-code` on both records and `--recover` on both, `case-basis-revision: 9c20a808…`, `recovery: pass` |
+| Host selection matches qualified hosts only | 2: entry's credential-free catalog checks; `hosts=cursor` and `hosts=claude` select nothing (nonzero), `hosts=codex` still selects |
+| The runner records each turn's commands and harness inspection, `unknown` when its stream cannot show them | 3: incomplete journey asserts the stopped turn's `unknown` fields and unchanged partial effort; both cases' harness counterexamples and the family journeys stay green with no case printing either field |
+| Kept records byte-identical and recoverable | 1, 2 and 3 (the slices touching recorded inputs or case files): `git diff --exit-code` on every tracked record and `--recover` on the three `.txt` records, each recovering its recorded case basis with rc 0 |
 
 ## Current decisions, verification and concern review
 
@@ -159,11 +143,11 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
   ready marker through `wait-for.bash`). Never use `test.slow()`. Keep the
   default timeouts with no suite, file, group or hook override.
 - Focused proof per slice:
-  `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh`,
-  plus the new cleanup test from Slice 1 on. Also run the consumer trace for
-  each slice, the `--recover` and `git diff --exit-code` check of both kept
-  records after Slices 1, 3 and 4, and `npm run --silent lint`, or
-  `npm run --silent format` before it.
+  `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/evaluation/tests/native-guidance-checks/*.sh Distribution/evaluation/tests/native-harness/*.sh`
+  (the guidance-check and native-harness families, including the new cleanup
+  test from Slice 1 on). Also run the consumer trace for each slice, the
+  `--recover` and `git diff --exit-code` check of the kept records after every
+  slice, and `npm run --silent lint`, or `npm run --silent format` before it.
 - Local gate: no whole-suite run is required by this plan. Run any long or
   full local run under the
   [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
@@ -174,9 +158,9 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
 - No paid native run. No agent-facing case input changes, and the paid
   baseline (`database-server-stopped` in plan 618's Doughnut pairs) still covers
   the normal cleanup path.
-- Slice-plan refinement was not needed. The four findings are independent
-  outcomes, each with its own proof loop and one shared owner per concern
-  (runner and entry, pair fixture, case traits, runner turn facts). There is no preparatory
+- Slice-plan refinement was not needed. The three remaining outcomes are
+  independent, each with its own proof loop and one shared owner per concern
+  (runner, entry and supervisor; case traits; runner turn facts). There is no preparatory
   Structure and no special-case machinery: cleanup is a runner guarantee for
   every case, the copy routine is shared, and the catalog stays generic.
 - Slice 1 includes the arm's host session (finding 4). The coordinator
@@ -185,4 +169,21 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
 - Remaining slice-specific concerns: none identified. Slice 1 carries the most
   design (signal handling across foreground and background arms, through the
   supervisor's existing group ownership). Its constraint is observed above and
-  bounded by the 250-line check and the supervisor consumer trace.
+  bounded by the 250-line check and the `native-run-owned.sh` consumer trace.
+
+## Retrace at 86c4e9647
+
+Observed 2026-11-19 in this workspace at `86c4e9647a107ba29cf11ebd971f8b12b99db362`
+(trunk had no later change to these paths), Homebrew Bash 5.3. Scratch work ran
+under the job's temporary directory and was removed.
+
+| Premise and consuming operation | Observation and result |
+| --- | --- |
+| Finding 2 (pair fixture freezes the committed HEAD) still holds | Scratch `git clone --shared` with an uncommitted marker appended to `Distribution/src/skills/dough-execute-plan/SKILL.md`; ran `native_comparison_pair_fixture` from `tests/native-guidance-checks/support/native-comparison-pair-fixture.sh`. The frozen baseline's file carried the marker (count 1). **Resolved on trunk** by `c4259d055` (payloads built by `Distribution/tests/support/release-source.mjs` from the working tree); dropped from the story's scope. |
+| Finding 1: unstarted paths and interrupts skip cleanup | Read: `native-guidance-check-run.sh` 109-130 end failed materialization and a refusing `case_prepare_run` with `exit 0` before `case_cleanup` (160-162, normal path only); the entry's traps (92, 112, 150) only remove `work`. **Unchanged; the refused-route path is a new instance.** `case_cleanup` exists in Doughnut and `launch-command-tests` (`case-environment.bash`). |
+| Finding 4: the host session survives an interrupt | Read: plain `native_run_owned` (`native-run-owned.sh` 34-53) sets no INT/TERM trap. `native_run_owned_controlled` (75-127, used when a case supplies `native_run_controller_command`, today supplier-watch) already stops both groups on INT/TERM, returns 130/143 and restores the caller's traps, proven by `native-guidance-check-inflight.sh` 68-91. **Holds for the plain route; the controlled route is the reusable owner.** The runner then continues to assessment after such a turn instead of ending. |
+| Slice 2 discrimination | `native-guidance-check.sh --list --where hosts=cursor` and `hosts=claude` each listed doughnut-title-precedence, launch-command-tests, paused-supplier and unblocked-supplier, rc 0; `hosts=codex` listed those and supplier-watch. **True.** |
+| Slice 3 discrimination | Sourced `native-host-stream.sh` and `native-observation.sh`: a missing stream and one cut mid-JSON each gave `commands=0`, `harness=false`. **True.** It is now live, not latent: supplier-watch's `case_observe_stopped` runs `supplier_case_observe` on a stopped turn's stream. `launch-command-tests` prints neither field. |
+| Kept records recover | `native-guidance-check.sh --recover` on the three `.txt` records: rc 0 each; the two `20261114T045440-*` records give `case-basis-revision: 9c20a808…`, `20261114T102744-1921.txt` gives `764c4e0f…`. |
+| Saved baselines' material inputs | `jq .inputs` on `launch-command-tests` and `unblocked-supplier` `comparisons/20261117-codex-baseline.json`: both include `native-guidance-check-run.sh`, `-turn.sh`, `native-run-supervise.sh` and `native-run-owned.sh`, plus their `case.bash` or `supplier-fixture.sh`. `native-comparison-baseline-applicability.mjs` treats these as material, so this correction ends their reuse (accepted consequence in the plan). |
+

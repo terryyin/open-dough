@@ -5,83 +5,102 @@
 
 [Retained provenance, findings, PFE, decisive premises and verification decisions](preparation-evidence.md).
 
-Paths below predate the move to Native guidance checks: the entry is now
-`Distribution/evaluation/src/native-guidance-check.sh` (with its `-catalog`,
-`-run`, `-turn`, `-retain` modules), cases live in
-`Distribution/evaluation/cases/guidance-checks/` and their tests in
-`Distribution/evaluation/tests/native-guidance-checks/`
-(`native-guidance-check-<case>.sh`). Retrace them when this plan is refined.
+Paths below are retraced at `86c4e9647` (Native guidance checks layout):
+entry `Distribution/evaluation/src/native-guidance-check.sh` with its
+`-catalog`, `-run`, `-turn` and `-retain` modules; supervisor
+`native-run-supervise.sh` with `native-run-owned.sh`; cases in
+`Distribution/evaluation/cases/guidance-checks/`; tests in
+`Distribution/evaluation/tests/native-guidance-checks/`.
 
 ## Goal and scope
 
-A maintainer running native comparison cases gets four fixes. Arm-owned
-processes are stopped when materialization fails or the run is interrupted:
-both the services a case started and the arm's host session. The
-credential-free pair, refresh and incomplete journeys install payloads from
-the working tree they are about to commit. Catalog host selection names only
-qualified hosts. The runner records every turn's command count and harness
-inspection itself, as `unknown` when the turn's stream cannot show them, so a
-case observes only its own project.
+A maintainer running Native guidance checks gets three fixes. Arm-owned
+processes are stopped whenever a started arm ends before its normal end:
+both the services a case started and the arm's host session. Catalog host
+selection names only qualified hosts. The runner records every turn's command
+count and harness inspection itself, as `unknown` when the turn's stream
+cannot show them, so a case observes only its own project.
 
 **Preserved promises and constraints:**
 
-- The two tracked records
-  `Distribution/evaluation/cases/comparison/*/comparisons/20261114T045440-*.txt`
-  stay byte-for-byte, and `--recover` on each still recovers case basis
-  `9c20a8086fe48e2bd60f283f478607440a057216` with `recovery: pass`.
+- Every tracked record under
+  `Distribution/evaluation/cases/guidance-checks/*/comparisons/` stays
+  byte-for-byte. `--recover` on each `.txt` record still passes: the two
+  `20261114T045440-*` records recover case basis
+  `9c20a8086fe48e2bd60f283f478607440a057216`, and paused-supplier's
+  `20261114T102744-1921.txt` recovers `764c4e0fe0ce9f478750323de6a9f30c76a7e61a`.
 - Paid native runs stay manual-only. This correction needs no paid run: every
   proof is deterministic, and no agent-facing case input (task, wake, overlays,
   assessor) changes.
 - Every family test stays credential-free. Case identity excludes `case.md` and
-  `comparisons/` (`native-comparison-basis.sh` 30).
+  `comparisons/`.
 - Runner, case-agnostic contract: `case_cleanup` stays optional and prints its
-  own fields. Paused-supplier defines none and is unaffected.
+  own fields. Cases without one are unaffected by Slice 1's cleanup.
+
+**Accepted consequence:** the runner, turn and supervisor files and
+`case.bash`/`supplier-fixture.sh` are material inputs of the saved
+2026-11-17 baselines (`launch-command-tests` and `unblocked-supplier`
+`comparisons/20261117-codex-baseline.json`). After this correction those
+baselines no longer apply under
+[baselines.md](../../../Distribution/evaluation/baselines.md), so the next
+comparison of either case observes a fresh baseline arm. The saved files stay
+as historical evidence.
 
 ## Ordered slices
 
-### 1. Arm-owned processes stop whenever an arm ends early
+### 1. Arm-owned processes stop whenever a started arm ends early
 Type: Behavior
 Status: planned
-Proof: A new credential-free cleanup journey test (stand-in case and stand-in host) for failed materialization and interrupts, Doughnut's partial-arm cleanup check, and the family's existing journeys still green.
+Proof: A new credential-free cleanup journey test (stand-in case and stand-in host) for failed materialization, a refused host route and interrupts; Doughnut's partial-arm cleanup check; the family's existing journeys still green.
 
 Behavior: an arm whose case has started `case_materialize` either fails to
-materialize or is interrupted by the maintainer, and the run ends. The
-case's `case_cleanup` has run exactly once and what it started is stopped.
+materialize, is refused by the case's `case_prepare_run`, or is interrupted by
+the maintainer, and the run ends. The case's `case_cleanup` has run exactly
+once and what it started is stopped.
 
-- **Failed materialization:** still records `unstarted`, with no session and
-  no retained attempt; its observations also carry the cleanup's fields. No
-  host session exists on this path.
+- **Failed materialization or refused route:** still records `unstarted`,
+  with no session and no retained attempt; its observations also carry the
+  cleanup's fields. No host session exists on these paths.
 - **Interrupt:** each arm running a turn first has its host session's owned
   process group stopped, then its case cleanup runs. Both happen before the
-  entry removes the work directory. The entry then exits with the signal's
-  status (130 or 143).
+  entry removes the work directory. No later turn starts. The entry then exits
+  with the signal's status (130 or 143).
 - **Normal path:** unchanged.
 
-Approach: the runner marks materialization as started and guarantees cleanup
-on every exit of the arm subshell: the unstarted path, the normal path, and
-INT or TERM delivered to the arm.
+Approach: the runner (`native-guidance-check-run.sh`) marks materialization
+as started and guarantees cleanup on every exit of the arm subshell: the
+unstarted paths, the normal path, and INT or TERM delivered to the arm.
 
-- **Host session:** on INT or TERM during a turn, the arm terminates its host
-  command's owned process group through the supervisor's existing
-  termination (`native_run_terminate_group` and the group `native_run_owned`
-  recorded). It does not kill by name, and it does not retry or resume the
-  stopped turn.
+- **Host session:** `native_run_owned_controlled` (`native-run-owned.sh`
+  85-87, 120-126) already stops both owned groups on INT or TERM through
+  `native_run_terminate_group`, reports 130 or 143, and restores the caller's
+  traps; `native-guidance-check-inflight.sh` 68-91 proves it. Give the plain
+  `native_run_owned` route the same interrupt stop by sharing that handling
+  between both routes in `native-run-owned.sh`, not a second tracker. It does
+  not kill by name and does not retry or resume the stopped turn.
+- **Runner:** after a turn reports an interrupt, the arm ends instead of
+  observing, assessing or continuing; cleanup runs, then the arm re-raises or
+  exits with the signal status.
 - **Entry:** passes an interrupt to its running arms (single journey,
-  sequential or concurrent pair) and waits for them. Bash holds a trap while
-  a foreground child runs, so run the arm where `wait` can be interrupted.
-- **Docs:** update the contract text in the runner and supervisor headers,
-  the entry header's interrupt and test listing, and the cleanup and
-  interrupt paragraph of `Distribution/evaluation/comparison.md`.
+  sequential or concurrent pair in `native-comparison-pair.sh`) and waits for
+  them. Bash holds a trap while a foreground child runs, so run the arm where
+  `wait` can be interrupted.
+- **Docs:** update the contract text in the runner header, the
+  `native-run-owned.sh` header, the entry header's interrupt and test listing,
+  and the interrupt and cleanup text of
+  `Distribution/evaluation/guidance-checks.md` and `comparison.md`.
 
-Proof: a new test (recommended `Distribution/tests/native-comparison/native-comparison-cleanup.sh`,
+Proof: a new test (recommended
+`Distribution/evaluation/tests/native-guidance-checks/native-guidance-check-cleanup.sh`,
 a cohesive "an arm cleans up what its case started" journey; resolve its
-conventions first). It adds a stand-in case inside the fixture's copied
-harness, as `native-comparison-incomplete.sh` already alters the copied
-`case.bash`, so the real catalog never lists it. The stand-in's
-`case_materialize` starts a sentinel that ignores INT, TERM and HUP, and its
-`case_cleanup` stops it.
+conventions with `test-entry-rules.mjs` first). It adds a stand-in case inside
+the fixture's copied harness, as `native-comparison-incomplete.sh` already
+alters a copied `case.bash`, so the real catalog never lists it. The
+stand-in's `case_materialize` starts a sentinel that ignores INT, TERM and HUP,
+and its `case_cleanup` stops it.
 
-- The test drives failed materialization through the entry.
+- The test drives failed materialization and a refusing `case_prepare_run`
+  through the entry.
 - It drives three interrupt forms during turn 1, once the substitute host
   signals ready: INT to the entry's process group, as from a terminal, on a
   concurrent pair; INT to the group on a single journey; TERM to the entry
@@ -93,117 +112,97 @@ harness, as `native-comparison-incomplete.sh` already alters the copied
   whether its workspace still existed. The test requires "existed", so the
   host stopped before the work directory was removed, and requires that no
   stand-in host process remains after the entry exits.
-- Wait with `wait-for.bash` or a FIFO read, never a sleep. The test's own
-  EXIT trap force-kills any sentinel or stand-in host, because a
-  signal-ignoring sentinel outlives an ordinary TERM.
+- Wait with `Distribution/tests/helpers/wait-for.bash` or a FIFO read, never
+  a sleep. The test's own EXIT trap force-kills any sentinel or stand-in host,
+  because a signal-ignoring sentinel outlives an ordinary TERM.
 - The proof must fail on the current runner, as the premise rows observed for
   both the sentinel and the host.
 
-In `native-comparison-doughnut-title-precedence.sh`, add one check:
+In `native-guidance-check-doughnut-title-precedence.sh`, add one check:
 `case_cleanup` on a stand-in arm whose server started but whose migration
 failed (pid file present, admin path unknown) stops that process.
 
-File sizes: the runner (207 lines), entry (182), pair module (200), supervisor
-(`native-run-supervise.sh`, 235, if touched) and Doughnut proof (89) should
-stay under the 250-line check. The supervisor has the least room. If the
-host-session stop would take it over 250, settle its cohesive reorganization
-in this slice before implementing, for example separating spawning and waiting
-from termination. Do not split it mechanically. Any change to the supervisor reaches its other
-native-family consumers. Trace them with the consumer-trace script and run the
-consumers it lists. If an edit takes any
-of them over, settle its cohesive reorganization in this slice before
-continuing. Do not split it mechanically.
+File sizes: the runner (182 lines), entry (186), pair module (229),
+`native-run-owned.sh` (128), supervisor (203) and Doughnut proof (112) stay
+under the 250-line check. The pair module has the least room. If an edit would
+take any file over, settle its cohesive reorganization in this slice before
+implementing; do not split it mechanically. Changes to `native-run-owned.sh`
+reach its other native-family consumers: trace them with the consumer-trace
+script and run the consumers it lists.
 
 This slice changes the runner, a recorded input. Afterwards, rerun `--recover`
-on both kept records and confirm they are byte-identical.
+on all three kept `.txt` records and confirm every tracked record is
+byte-identical.
 
-### 2. Free pair journeys install the working tree's payload
+### 2. Catalog host selection names qualified hosts only
 Type: Behavior
 Status: planned
-Proof: A discriminating working-tree check plus `native-comparison-pairs.sh`, `-refresh.sh` and `-incomplete.sh` green on the new fixture.
-
-Behavior: a checkout whose payload or installer has uncommitted changes →
-the credential-free pair, refresh or incomplete journeys run → the frozen
-baseline payload, and so each arm's installed guidance, carries the
-working-tree content, not the committed HEAD's.
-
-Approach: `native_comparison_pair_fixture` builds `WORK/payloads` as a fresh
-one-commit repository from the working tree's installer inputs (`install.sh`,
-`VERSION`, `CHANGELOG.md`, `Distribution/src`). It uses the same copy routine
-as `WORK/source`, factored once in the fixture, with the fixture's identity and
-clock. `native_comparison_fixture_baseline` is that commit, and
-`native_comparison_fixture_rule` commits onto it. Update the fixture header.
-
-Trace consumers: pairs line 34 compares the baseline tree against
-`source_dir`; it moves to the payload repository. The refresh test tags the
-baseline and recovers with `--payload-repo` in both repositories, and the
-incomplete test reads `baseline`. Run
-`node .claude/skills/dough-execute-plan/scripts/consumer-trace.mjs --checkout . --base HEAD`
-with terms such as `native_comparison_fixture_baseline` and `WORK/payloads`.
-
-Proof: one check in `native-comparison-pairs.sh` (or the fixture's consuming
-test that fits best). It builds a scratch source checkout whose working tree
-holds an uncommitted marker in a payload file, runs the fixture on it, and
-requires the frozen baseline commit's file to carry the marker. The planning
-observation showed this check fails today. Then the three journeys run green.
-No recorded input or case file changes here.
-
-### 3. Catalog host selection names qualified hosts only
-Type: Behavior
-Status: planned
-Proof: The entry's credential-free catalog checks, with negative host filters.
+Proof: The entry's credential-free catalog checks, with negative host filters, plus `--list` on the real catalog.
 
 Behavior: cases qualified natively on Codex only → a maintainer runs
 `--list --where hosts=cursor` or `--where hosts=claude` → no case is listed and
-the command fails, while `--where hosts=codex` still selects both, and
-`hosts=codex --where workflow=blocked` still selects `paused-supplier`. The
-listing still shows each case's unqualified hosts, so the scope limit stays
-visible.
+the command fails, while `--where hosts=codex` selects the four natively
+qualified cases, and `hosts=codex --where workflow=blocked` still selects
+`paused-supplier`. The listing still shows each case's unqualified hosts, so
+the scope limit stays visible.
 
-Approach: in both `case.md` Selection sections, `hosts` names only qualified
+Approach: in each `case.md` Selection section, `hosts` names only qualified
 hosts, for example `codex (qualified natively 2026-11-14)`. Move `claude,
 cursor` to their own trait, for example `unqualified hosts: claude, cursor
-(no native observations yet)`. Update the trait lists in the catalog header,
-the entry header and `native-comparison.md`, and the entry's trait-name check
-(line 176) if it names the new trait. `case.md` is outside case identity, so
-records and recovery are unaffected; confirm with `--recover` on both records.
+(no native observations yet)`. `supplier-watch` has no natively qualified
+host (its native profile is retired), so its `hosts` names none and the new
+trait carries `codex controlled substitute only; native execution is retired`.
+Update the trait lists in the catalog header, the entry header (line 23) and
+`guidance-checks.md` (line 87). `case.md` is outside case identity, so records
+and recovery are unaffected; confirm with `--recover` on the kept records.
 
-Proof: in `Distribution/evaluation/tests/native-comparison/native-comparison.sh` default mode, add
-`--where hosts=cursor` and `--where hosts=claude` as nonzero, listing nothing,
-beside the existing positive checks. The planning observation showed the
-negatives fail today.
+Proof: in `native-guidance-check.sh` (the test) default mode, its synthetic
+catalog gains a case whose unqualified trait names a host its `hosts` does
+not; add that host as a `--where hosts=` filter that is nonzero and lists
+nothing, beside the existing positive checks. Then on the real catalog,
+`--where hosts=cursor` and `hosts=claude` list nothing and fail, and
+`hosts=codex` lists exactly the four qualified cases. The planning observation
+showed the negatives fail today.
 
-### 4. The runner owns per-turn command and harness facts
+### 3. The runner owns per-turn command and harness facts
 Type: Structure
 Status: planned
-Proof: The incomplete journey's `unknown` check, both cases' credential-free proofs (including their harness-inspected counterexamples), and the family's journeys green.
+Proof: The incomplete journey's `unknown` check, the four cases' credential-free proofs (including their harness-inspected counterexamples), and the family's journeys green.
 
 Behavior: every turn the runner runs records `turn-N-commands` and
 `turn-N-harness-inspected` from the runner, after its status, thread and
 seconds. A turn whose stream is not complete records `unknown` for both,
-never `0` or `false`. Field names, completed-turn values and both assessors
+never `0` or `false`. Field names, completed-turn values and the assessors
 are unchanged, and effort still counts only observed turns: an `unknown`
-count is never summed.
+count is never summed. `launch-command-tests`, which records neither field
+today, gains both.
 
-Approach: `native_comparison_turn` prints both fields from the stream it
-classified, using the run's harness pattern plus the case's optional
-addition (for example `case_harness_paths='init\.d|test-runs'` in Doughnut's
-`case.bash`). Remove the two fields and the HARNESS argument from both
-`case_observe` functions and from the runner's case contract header. Update
-`native-comparison-pair-observe.sh` if it would sum a non-numeric count, and
-the case-contract text in `Distribution/evaluation/comparison.md`.
+Approach: `native_guidance_check_turn` (`native-guidance-check-turn.sh`)
+prints both fields from the stream it classified, using the run's harness
+pattern plus the case's optional addition (for example
+`case_harness_paths='init\.d|test-runs'` in Doughnut's `case.bash`). Remove
+the two fields from Doughnut's `case_observe` (`case.bash` 229-233) and from
+`supplier_case_observe` (`supplier-fixture.sh` 229-233, shared by
+paused-supplier, unblocked-supplier and supplier-watch, including
+supplier-watch's `case_observe_stopped`). Drop the HARNESS argument from
+`case_observe`/`case_observe_stopped` and from the runner's case contract
+header. Update `native-comparison-pair-observe.sh` (line 48 sums
+`turn-N-commands`) so a non-numeric count is not summed, and the
+case-contract text in `guidance-checks.md` and `comparison.md`.
 
 Proof: in `native-comparison-incomplete.sh`, the stopped candidate arm's
-turn 2 (truncated stream) records `turn-2-commands: unknown` and
-`turn-2-harness-inspected: unknown`, and its partial effort line is
-unchanged (lines 112-119). The planning observation showed the reader
-yields `0` and `false` there today. The existing harness counterexamples
-(`native-comparison-paused-supplier.sh` 128,
-`native-comparison-doughnut-title-precedence.sh` 87) now exercise the
-runner's fields and stay green.
+turn 2 (stopped, `turn-2-status: failed`, line 128) records
+`turn-2-commands: unknown` and `turn-2-harness-inspected: unknown`, and its
+partial effort line is unchanged (lines 118-120). The planning observation
+showed the reader yields `0` and `false` there today. The existing harness
+counterexamples (`native-guidance-check-paused-supplier.sh` 128,
+`native-guidance-check-doughnut-title-precedence.sh` 110) and the
+supplier-watch and unblocked-supplier proofs now exercise the runner's fields
+and stay green.
 
-This slice changes the runner and both `case.bash` files, recorded inputs
-and case identity. Afterwards, rerun `--recover` on both kept records and
-confirm they are byte-identical. No agent-facing case input changes, so no
-paid run. Keep the runner under the 250-line check together with Slice 1's
-growth; if it would pass, settle a cohesive reorganization first.
+This slice changes the runner, turn module, Doughnut `case.bash` and
+`supplier-fixture.sh`, recorded inputs and case identity. Afterwards, rerun
+`--recover` on all three kept `.txt` records and confirm every tracked record
+is byte-identical. No agent-facing case input changes, so no paid run. Keep
+the runner and turn module under the 250-line check together with Slice 1's
+growth; if one would pass, settle a cohesive reorganization first.
