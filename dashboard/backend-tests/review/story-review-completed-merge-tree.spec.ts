@@ -11,12 +11,13 @@ import {
   getReview,
   completedReviewQuery,
 } from "../../test-support/support/completedReviewRequests.ts";
-import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { plainMergeEditCompletedHistory } from "../../test-support/support/completedOwnMergeHistory.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { writeAt } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({
   serverMode: "boundary",
+  originRepository: plainMergeEditCompletedHistory(),
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   pathPrefix: async ({}, use) => {
@@ -44,9 +45,7 @@ test.use({
 test("a Git that cannot write merge trees explains the merge resolution gap without files", async ({
   request,
   dashboard,
-  origin,
 }) => {
-  await completedPublishedStory(origin, "story-branch", "merge-edit");
   const response = await getReview(
     request,
     dashboard,

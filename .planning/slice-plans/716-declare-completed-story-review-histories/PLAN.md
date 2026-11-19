@@ -188,7 +188,7 @@ inseparable declared; merge-tree confirms conflicted parents.
 ### 5. The story's own integrations are declared merges
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the story's own declared merges → the delivered file lists,
 renames, trunk flags and driver reads are unchanged. The merges are:
@@ -209,6 +209,11 @@ renames, trunk flags and driver reads are unchanged. The merges are:
 
 Proof: those backend specs and the E2E spec pass. `merge-tree` confirms each
 conflict.
+Accepted (reusable): `completedOwnMergeHistory.ts` with `freshYuiCompletion`
+for Recently done's 30-day window; landing overlays `remove` trunk-only paths
+so the tip matches merge-tree. Own-conflict / plain merge-edit / own octopus /
+completion-conflict declared; driver config stays a visible harness action;
+`storyReviewMergeDriver.ts` deleted.
 
 ### 6. Follow-up and review journeys read declared completions
 

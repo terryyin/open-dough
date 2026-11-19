@@ -49,13 +49,14 @@ export const yuiClaim = (branch?: string) =>
     publisher: "another-publisher",
     ...(branch === undefined ? {} : { branch }),
   });
-export const yuiCompletion = () =>
+export const yuiCompletion = (facts: { completedAt?: string } = {}) =>
   completionRevision({
     story: storyA,
     queued: [storyB],
     developer,
     agent: claimantName,
     host: "claude",
+    ...facts,
   });
 export const implementation = {
   message: "story implementation",

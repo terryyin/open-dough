@@ -4,13 +4,13 @@ import {
   completedStoryQuery as named,
   completedReviewQuery as completed,
 } from "../../test-support/support/completedReviewRequests.ts";
-import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
 import { takeoverCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
 import {
   foreignOctopusCompletedHistory,
   inseparableRewriteCompletedHistory,
   unrelatedForeignMergeCompletedHistory,
 } from "../../test-support/support/completedForeignMergeHistory.ts";
+import { ownOctopusCompletedHistory } from "../../test-support/support/completedOwnMergeHistory.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -180,22 +180,24 @@ test.describe("foreign octopus", () => {
   });
 });
 
-test("the story's own octopus integration explains why its changes cannot be attributed", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  await completedPublishedStory(origin, "story-branch", "own-octopus");
-  const response = await get(
+test.describe("own octopus", () => {
+  test.use({ originRepository: ownOctopusCompletedHistory() });
+
+  test("the story's own octopus integration explains why its changes cannot be attributed", async ({
     request,
     dashboard,
-    storyReviewEndpoint,
-    completed,
-  );
-  expect(response.status()).toBe(200);
-  expect(await response.json()).toEqual({
-    kind: "unavailable",
-    explanation:
-      "Published execution history contains a merge whose story changes cannot be attributed safely.",
+  }) => {
+    const response = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completed,
+    );
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({
+      kind: "unavailable",
+      explanation:
+        "Published execution history contains a merge whose story changes cannot be attributed safely.",
+    });
   });
 });
