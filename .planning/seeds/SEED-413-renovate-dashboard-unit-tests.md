@@ -471,73 +471,6 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="renovate-dashboard-frontend-unit-tests"></a>
-
-### Prove Project CI history through the components that show it
-
-**Identity:** SEED-413#renovate-dashboard-frontend-unit-tests
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#renovate-dashboard-frontend-unit-tests","dependencies":[{"supplier":{"identity":"SEED-413#pilot-direct-dashboard-unit-tests","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests"},"implementation":"The pilot publishes the browser-loadable MakeMe entry and configures Dashboard Frontend Test to use MakeMe without frontend page objects.","rationale":"The history cases must be selected by Intent as *.spec.ts and exercise their components directly. Today that selection requires page objects, and the aggregate MakeMe entry loads Node modules. Supplying another browser entry or changing the conventions in this family would duplicate the pilot's assigned change.","condition":"On trunk a Dashboard Frontend Test case uses the shared browser-loadable MakeMe entry, and the project selector reports makeMe true and pageObjects false for that case.","state":"satisfied","resolution":{"revision":"6723c8e2c2d65e78fa11aad404c69660030f5633","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests","summary":"Satisfied: Distribution/tests/support/pageMakeMe.mjs is the shared browser-loadable MakeMe entry, imported by dashboard/frontend-tests/stories/story-notes-dialog.mounted.spec.ts and story-notes-control.mounted.spec.ts, which pass; .planning/open-dough.json sets pageObjects false on dashboard/frontend-tests and test-entry-rules reports makeMe true, pageObjects false for a frontend spec.\nCondition satisfied: On trunk a Dashboard Frontend Test case uses the shared browser-loadable MakeMe entry, and the project selector reports makeMe true and pageObjects false for that case.\nAccepted integration: 36d7dfa9e3f39ea4767cafc7848349ffdddd490e on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/722-project-ci-history-component-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"391bd9a4717d51ba30aaab5449cc5690a367fddebb65b9876e03d3dbd8a260c4","plan":"eebd29e314cf98279bc4bda637cb60deeb7ce9a4342a9c04b2474d5e665b2885"}}
-```
-
-**Goal.** A developer changing Project Intent's CI history can check its
-display, evidence and keyboard access in headless Chromium using prepared
-history, judgment and proof. This is the first Intent family after the Story
-Notes pilot. The remaining families carry the full-suite timing target.
-[Remaining frontend renovation](#renovate-remaining-dashboard-frontend-unit-tests).
-
-**Scope.** Migrate the five cases in the four `intent-ci-wall-time-history*`
-specs from the built app to plain Vitest Browser Mode. Preserve each distinct
-assertion, including phone layout, exact evidence wording, run links, dates
-and the shape of the chart. Keep the existing family filter, case listing and
-CI proof. Compare summed case time to the same family's built-app baseline
-and report command elapsed time separately. Unit cases use typed MakeMe inputs
-and add zero test-support wrappers. Retire only support that loses its last
-consumer. History collection, the size of the server's retained window,
-Done-story and scope histories, and final runner retirement have other owners.
-
-**Key examples.**
-
-- Two measured builds flank a gap, with build dates running backwards in
-  landing order → the reader opens Builds and evidence → all three rows keep
-  the answer order, the heading spans the actual build dates, and no line
-  connects the points across the gap. A supplied measured time can differ
-  from the run's wall time.
-- The supplied window contains twenty measured builds and six gaps →
-  the reader views the chart and expands its evidence → the duration rises
-  and falls with the measured values, every break is visible, and all 26
-  entries have their evidence. An empty history leaves the judgment and
-  Proof visible and offers no evidence disclosure.
-- On a 390 px phone the reader focuses Check again → Shift+Tab opens the
-  path to Builds and evidence, Enter expands it, and successive Tabs reach
-  the named run links in order. The gap-only answer still explains each gap,
-  and the page and the history fit the viewport.
-
-**Architecture.** `IntentCiHistory` owns the evidence rows, date extent and
-chart. Its `HistoryReading` input already represents what a successful read
-supplies. Use the existing CI history builder and production conversion
-`measuredHistoryOf`; expected dates, values and chart breaks come from the
-case. `JudgedBranch` owns the combination of judgment, Proof, history and
-Check again, so it is the smallest owner for keyboard order and sibling
-visibility. A whole-board mount would keep unrelated route substitutes.
-Mounting only the child would lose the keyboard transition. This is the same
-division as an instrument calibration using a known input at the display
-and checking the connections on the assembled instrument. Backend collection
-and wire admission still need their own evidence.
-[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
-[ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-and [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-
-**Baseline and choice.** The existing five cases took 3.37 summed seconds
-and 4.21 s wall in a focused two-worker run at `267a27502`. CI recorded
-5.73 summed seconds. Terry selected this family ahead of revision updates
-(nine cases, 22.03 summed CI seconds) because the existing typed inputs allow
-both proof boundaries to be tested directly. The plan holds the Chromium
-observations. Effort M with high confidence in the tested boundaries.
-
 <a id="renovate-remaining-dashboard-frontend-unit-tests"></a>
 
 ### Prove how Project Intent applies a newer revision
@@ -547,8 +480,7 @@ observations. Effort M with high confidence in the tested boundaries.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/724-project-intent-revision-update-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ae5573ec90c68b94be1ad8eff745e64fb322c5b313404844a57a3c40701e5bc8","plan":"e9c7f7372035b0d57efb42a4e9dab04bdfa323962fd73ff9010d8e4ba3f78892"}}
 ```
 
-Second frontend family after
-[Project CI history](#renovate-dashboard-frontend-unit-tests). This preparation
+Second frontend family, following Project CI history. This preparation
 keeps the five cases whose behavior is owned by the open Project Intent
 reading. The [later frontend families](#renovate-later-dashboard-frontend-unit-test-families)
 carry the rest of the suite and the campaign timing target.
@@ -604,8 +536,7 @@ kept the [Project Intent apply-and-retry cases](#renovate-remaining-dashboard-fr
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
-including preparation. This carries the suite-wide commitments split from
-[Project CI history](#renovate-dashboard-frontend-unit-tests), including
+including preparation. This carries the suite-wide commitments, including
 SEED-404's timing goal and SEED-301's Intent MakeMe work.
 
 **Scope and order.** Select families by feature folder and the interaction
