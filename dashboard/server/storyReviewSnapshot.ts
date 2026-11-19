@@ -12,11 +12,17 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import type { StoryReviewRead } from "../src/storyReviewRead.ts";
+import { keptRecords } from "./launchRecordStore.ts";
+import {
+  isReviewedSessionSubject,
+  type ReviewedSessionSubject,
+} from "../src/reviewedWorkSubject.ts";
+import type { KeptSessionState } from "./storyReviewSessionAdmission.ts";
 import type { AdmittedStoryReview } from "./storyReviewRequest.ts";
 import {
   keptStoryReview,
   type KeptStoryReview,
+  type StoryReviewInput,
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
@@ -27,21 +33,35 @@ export async function storyReviewResponse(
   { read }: AdmittedStoryReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
+  const { subject } = read;
+  const input: StoryReviewInput = isReviewedSessionSubject(subject)
+    ? { read: { ...read, subject }, kept: await keptSessionState(subject) }
+    : { read: { ...read, subject } };
   const body = await withResponseSignal(
     res,
-    (signal) => storyReview(read, signal),
+    (signal) => storyReview(input, signal),
     storyReviewWaitMs,
   );
   return { status: 200, body };
 }
 
-// Answers one review read for a story or an ad hoc session. A refusal the
-// kept records decide is thrown as `RefusedRequest` with its status.
+// The adapter reads the session's kept launch records on every request; an
+// unknown source is refused here, before any record is read.
+async function keptSessionState(
+  subject: ReviewedSessionSubject,
+): Promise<KeptSessionState> {
+  const source = knownSource(subject.source);
+  return { records: await keptRecords(source.id) };
+}
+
+// Answers one review read for a story or an ad hoc session. A session read
+// answers from the kept session state it carries. A refusal the kept state
+// decides is thrown as `RefusedRequest` with its status.
 export async function storyReview(
-  read: StoryReviewRead,
+  input: StoryReviewInput,
   signal: AbortSignal,
 ): Promise<StoryReview> {
-  const request = await keptStoryReview(read);
+  const request = await keptStoryReview(input);
   const choices =
     request.runs.length === 0
       ? {}

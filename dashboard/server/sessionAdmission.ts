@@ -21,7 +21,11 @@ import type { Recorded } from "./recordedSessionLookup.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { launchHost } from "./launchHosts.ts";
 import { projectFolder } from "./projectFolders.ts";
-import { keptSession } from "./launchRecordStore.ts";
+import {
+  keptRecords,
+  keptSession,
+  sessionRecord,
+} from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { sessionKey } from "../src/sessionReference.ts";
@@ -84,7 +88,16 @@ export async function namedKeptSession(
   source: PublishedSource,
   session: SessionReference,
 ): Promise<LaunchRecord> {
-  const record = await keptSession(source.id, session);
+  return namedSessionRecord(await keptRecords(source.id), session);
+}
+
+// The same session among the records kept for its project, which the caller
+// has read.
+export function namedSessionRecord(
+  records: readonly LaunchRecord[],
+  session: SessionReference,
+): LaunchRecord {
+  const record = sessionRecord(records, session);
   if (record === undefined) throw noSuchSession();
   return record;
 }

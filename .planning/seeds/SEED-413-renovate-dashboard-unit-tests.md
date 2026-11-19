@@ -95,8 +95,9 @@ it.
   plain Node Vitest, with MakeMe records and real Git repositories and no
   server or request wrapper. Story Notes proves the pattern on one JSON
   endpoint over one file. This family adds what the other backend families
-  need and Story Notes cannot show: server state held for the whole process,
-  real Git collaborators, and several endpoints admitted by one boundary.
+  need and Story Notes cannot show: server state held for the whole process
+  kept behind the adapter, real Git collaborators, and several endpoints
+  admitted by one boundary.
   Speed, clarity, and deleted `test-support` surface are judged together under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Scope: server.**
@@ -107,7 +108,12 @@ it.
     `ReviewedWorkSubject` (with the run or the file pair the read names) and
     an `AbortSignal`, answers `StoryReview`, `ReviewedFileDiff` or
     `ReviewedFileText`, and keeps every rule about what a kept record admits
-    and what its repository can still answer. The types already come from
+    and what its repository can still answer. For a session subject the
+    handler also takes, as typed input, the kept state it reads: the kept
+    launch records. Only the adapter reads them from the server's
+    process-wide stores, and it still refuses an unknown source before
+    reading them. A handler's typed contract carries only the data its
+    responsibility reads. The types already come from
     `dashboard/src/reviewedWorkSubject.ts` and
     `dashboard/src/storyReviewContract.ts`; the story adds no second contract.
   - The handlers serve story subjects through the same admission path as
@@ -121,10 +127,10 @@ it.
     `ad-hoc-review-subject.spec.ts`, the three kept-record cases of
     `ad-hoc-review-unavailable.spec.ts`, and the unreadable kept comparison
     case of `ad-hoc-session-commits.spec.ts`: about fourteen cases.
-  - A case states its machine through MakeMe: the configured project, the
-    kept launch records as the stored document, and the repository with its
-    revisions. It mounts the project configuration through the production
-    function a server uses, under a machine home of its own.
+  - A case constructs only the typed state its handler takes, through
+    MakeMe: the kept launch records and the repository with its
+    revisions. It sets no machine home, writes no stored
+    document, and mounts no process-wide server state.
   - One focused wire check through a started server keeps what only the wire
     owns for these reads: a refused method, a foreign origin, a query naming
     both a story and a session, a malformed run or file pair, and the status
@@ -132,10 +138,10 @@ it.
   - The moved cases total at most about 3 s summed case time at two workers.
 - **Scope: guidance and removal.**
   - `dashboard/backend-tests/README.md` adds the rules this family follows
-    beyond the reference family: state a case's machine and repositories
-    through MakeMe; call another handler in arrangement only when that step
-    is the behavior under test; mount process-wide server state through its
-    production function.
+    beyond the reference family: a handler takes the state it reads as typed
+    input and only the adapter reads process-wide stores; a case constructs
+    exactly that state and its repositories through MakeMe; call another
+    handler in arrangement only when that step is the behavior under test.
   - Every `dashboard/test-support/` function and module with no importer
     left is deleted, and nothing is added outside MakeMe builders.
 - **Scope limits.** Ad hoc cases that work in a checkout and mark Done, the
@@ -176,18 +182,23 @@ it.
     responses take a `ServerResponse` only to end the read when the response
     closes or the bounded wait passes. The handler takes the signal; the
     adapter makes it.
-  - *Process-wide state has a production owner.* The project list is module
-    state that `mountProjectConfiguration` mounts and closes, and twenty
-    more server modules hold module-level state. A case uses the owner the
-    server uses. A family whose state has no owner yet, such as the landed
-    CI memos, gives it one in production code.
-  - *MakeMe owns stored documents.* The launch store and the project list are
-    files under the machine home. MakeMe builds each as a stored document, as
-    `makeMe.aStoredStoryNotesDocument` does for notes, and the case keeps it
-    under its own machine home, so `launchStore.ts` loses users family by
-    family. This is the kept-record
-    part of `SEED-353#declare-launch-session-repository-state`; that story
-    keeps the launch and session repository state.
+  - *Typed state, not a mounted machine.* The project list and the launch
+    store are process-wide state under the machine home, beside about twenty
+    more server modules. A session review reads only the kept launch
+    records, so the handler takes those as typed input and the adapter
+    reads them from the stores on every request, after refusing an unknown
+    source. A case builds that
+    input with MakeMe and needs no machine home, stored document or mount;
+    a test depends on no service or data it does not need. `launchStore.ts`
+    loses users family by family. This is the kept-record part of
+    `SEED-353#declare-launch-session-repository-state`; that story keeps the
+    launch and session repository state.
+    *Amended 2026-11-19 by Terry during execution:* this replaces mounting
+    the project configuration and keeping MakeMe stored documents under a
+    machine home, which repeated a general server environment in every case.
+    Narrowed the same day to the kept launch records alone, under the
+    refactoring guidance's "Design production code for testability": nothing
+    under the session handler reads the published source.
 - **Baseline and observations** (2026-11-19).
   - CI medians over five main runs: the 23 `review/ad-hoc-*` files take
     264 s for 65 cases. The three files that move whole take 5.7 s for nine
@@ -208,8 +219,8 @@ it.
     times record gave 0.1 s for the file and its proof record named the
     Vitest configuration.
 - **Effort hypothesis.** S to M, medium confidence. The seam and the
-  in-process read are observed; the MakeMe step for the stored documents is
-  the least observed part; the pilot's stored-document builder shows its form.
+  in-process read are observed; narrowing the handler's input to the typed
+  kept state is the least observed part.
 - **Safe stopping point.** The review handlers and their cases stand on
   their own, and the README carries the rules the other families need.
 

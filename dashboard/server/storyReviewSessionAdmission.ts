@@ -9,7 +9,8 @@ import { branchResultAtDone } from "../src/sessionBranchResult.ts";
 import type { ReviewedSessionSubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
+import { namedSessionRecord } from "./sessionAdmission.ts";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { hasBranchReview } from "./sessionBranchCapture.ts";
 import { branchResultReview } from "./storyReviewBranchResult.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
@@ -20,6 +21,12 @@ import {
   unavailableSessionCommitsReview,
 } from "./storyReviewSessionCommits.ts";
 
+// What a session review reads: the launch records kept for the subject's
+// project. Only the adapter reads the store for them.
+export interface KeptSessionState {
+  readonly records: readonly LaunchRecord[];
+}
+
 export type AdmittedSessionReview = {
   readonly kind: "story-review";
   readonly runs: readonly [];
@@ -27,12 +34,12 @@ export type AdmittedSessionReview = {
 };
 
 // The kept session record admits the session subject and its named run key.
-export async function admittedSessionReview(
+export function admittedSessionReview(
   subject: ReviewedSessionSubject,
   named: string | undefined,
-): Promise<AdmittedSessionReview> {
-  const source = knownSource(subject.source);
-  const record = await namedKeptSession(source, {
+  kept: KeptSessionState,
+): AdmittedSessionReview {
+  const record = namedSessionRecord(kept.records, {
     host: subject.host,
     sessionId: subject.session,
   });

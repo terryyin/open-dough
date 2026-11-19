@@ -55,18 +55,20 @@ conflicts.
   Refusals a record decides stay in the handler as they are thrown today:
   `RefusedRequest` with its message and status, the convention `storyNotes`
   follows. A handler case asserts both.
-- **Process-wide state through its owner (reuse).**
-  `mountProjectConfiguration(environment)` mounts the project list from the
-  machine home and answers its close. A case calls it under its own `HOME`.
-- **Machine state through MakeMe (change).** `makeMe.aLaunchRecord`,
-  `makeMe.aLaunchLanding`, `makeMe.aConfiguredProject` and
-  `makeMe.aRepository` with `materializeLocalCheckout` already build the
-  values. MakeMe gains stored-document builders for the launch store and the
-  project list, the documents the server reads, in the form of
-  `makeMe.aStoredStoryNotesDocument`: the builder answers the document as
-  data and the case keeps it under its machine home.
-  `Distribution/tests/test-data-architecture.md` names them. `launchStore.ts`
-  keeps its remaining users.
+- **Typed kept state, read only by the adapter (change; story amended
+  2026-11-19).** A session read's handler takes, beside the typed read and
+  the signal, the kept state it reads: the kept launch records (from
+  `keptRecords()`). The adapter refuses an unknown source through
+  `knownSource` and reads the records from the store on every request; the
+  handler and the modules under it read no project list or launch store.
+  The contract carries only what the handler reads (refactoring guidance,
+  "Design production code for testability", on trunk at `d49d119a5`).
+  Story subjects keep their current path.
+- **Case state through MakeMe (reuse).** `makeMe.aLaunchRecord`,
+  `makeMe.aLaunchLanding` and `makeMe.aRepository` with
+  `materializeLocalCheckout` build the records and repositories. A case
+  sets no `HOME`, writes no stored document and mounts nothing.
+  `launchStore.ts` keeps its remaining users.
 - **Group run (reuse).** The cases run through the two-engine backend group
   run (`scripts/test-backend.mjs`), which sends `*.unit.spec.ts` specs to
   Vitest in Node (`dashboard/backend.vitest.config.mts`). This plan adds no
@@ -74,9 +76,7 @@ conflicts.
 - **File sizes.** Every file named above is under the 250-line check.
   `launchBoundaryAnswer.ts` at 238 and `makeMe.mjs` at 245 are the closest; a
   slice that would take either over the check moves a cohesive part out in
-  the same slice (the review reads' adapter beside the review modules; the
-  stored-document builders in their own test-data module that `makeMe.mjs`
-  exposes, as `storyNoteTestData.mjs` is).
+  the same slice (the review reads' adapter beside the review modules).
 
 ## Owner of each moved case
 
@@ -98,7 +98,7 @@ Vitest 5.1.0. Scratch files were removed after each run.
 | Consuming operation | Observed result and limit |
 | --- | --- |
 | A Node Vitest case reads an ad hoc review in-process with MakeMe state and real Git (slices 2, 3, 5) | `vitest run --root .` on a scratch spec under `dashboard/backend-tests/review/`, load about 9: a temporary `HOME`, `materializeLocalCheckout(makeMe.aRepository…)`, the project list and one `makeMe.aLaunchRecord…withLanding(…)` written under that home, `mountProjectConfiguration("development")`, then `storyReviewRequest(url)` and `storyReviewResponse(admitted, <event emitter>)`. Three cases answered `landed` with the expected baseline, tree and file at 295, 84 and 65 ms; the read took 56–79 ms. The handler split moves code inside the same modules. Not observed: the file reads in-process, which use the same admission and `withResponseSignal`. |
-| The project list mounts and closes per case in one worker (slices 2, 3, 5) | Same run: each of the three cases mounted under a new home and closed; a second mount without the close throws by design. |
+| The project list mounts and closes per case in one worker | Same run: each of the three cases mounted under a new home and closed. No longer consumed: the 2026-11-19 story amendment gives the handler typed kept state instead of a mounted machine. |
 | Baseline for the timing promise (slice 6) | `playwright test --config dashboard/backend.playwright.config.ts review/ad-hoc-review.spec.ts review/ad-hoc-review-file.spec.ts review/ad-hoc-review-subject.spec.ts` with the proof record, load about 6: 10 cases passed, run 9.3 s, 9.8 s wall. The record at this revision carries no per-case time, so the comparison is run time for these ten cases. CI medians over five main runs: 5.7 s for the three files. |
 | Which suites read the review reads at the wire (slices 1, 4) | Search for the endpoints and their request helpers: 39 specs in `dashboard/backend-tests/review/`, one in `launches/`, 16 in `e2e/review/` and `e2e/intent/`. The 11 `dashboard/frontend-tests/` matches answer the reads from route substitutes and never reach the server. |
 | The backend group runs Node Vitest cases (slices 2–6) | Observed on 2026-11-19 at `78126b37f` in this workspace, load about 3: `npm run test:dashboard:backend -- review/story-notes` with `_TIMES` and `_PROOF_RECORD` set ran the nine cases of `story-notes.unit.spec.ts` on Vitest 5.1.0 in Node, 2–18 ms each; the times record gave `0.1 backend-tests/review/story-notes.unit.spec.ts` and the proof record named `dashboard/backend.vitest.config.mts`. This workspace has no `node_modules` of its own, so the Playwright half of that command did not start here; the slices' Playwright proof needs `npm ci` in the execution checkout. |
@@ -124,24 +124,28 @@ and `npm run typecheck:dashboard` pass.
 ### 2. Landed and unavailable ad hoc reviews are proven in-process from MakeMe machine state
 
 Type: Behavior
-Status: planned
+Status: done
 
-Behavior: Given a machine home that MakeMe states (a configured project, a
-kept Done ad hoc session with a captured landing, and its repository whose
-trunk advanced afterwards), when a plain Node Vitest case asks the handler for
-that session's review, then it answers `landed` with the captured baseline,
+Behavior: Given typed kept state that MakeMe builds (a kept Done ad hoc
+session with a captured landing, and its
+repository whose trunk advanced afterwards), when a plain Node Vitest case
+asks the handler for that session's review with that state, then it answers `landed` with the captured baseline,
 tree and changed file, and the repository's `HEAD` and index are unchanged,
 with no server started. The cases live in `*.unit.spec.ts` specs. The same entry proves the same-tree landing, the
 session without a landing, the landing whose repository is gone, the landing
 whose comparison objects are gone, and the unreadable kept comparison. The
-HTTP versions of these six cases are deleted.
+HTTP versions of these six cases are deleted. The handler takes the
+kept records as typed input and the adapter reads them from the
+stores; the cases set no `HOME`, write no stored document and mount nothing.
 
 Proof: The cases pass through `npm run test:dashboard:backend --
 review/ad-hoc-review` and appear in the group's times and proof record. Each
 fails under a scratch edit disabling its rule in the review modules. The
 remaining Playwright cases of `ad-hoc-review-unavailable` and
-`ad-hoc-session-commits` pass. The stored-document builders' own cases under
-`Distribution/tests/` pass.
+`ad-hoc-session-commits` pass, as do the whole backend `review/` folder and
+the `launches/` specs that read a review, because the session admission now
+takes its state from the adapter. `npm run lint` and
+`npm run typecheck:dashboard` pass.
 
 ### 3. Session subject refusals are proven in-process, with one wire check
 
@@ -170,8 +174,10 @@ Status: planned
 Structure: Split `fileDiffRequest`, `fileTextRequest` and the two file
 responses the same way as slice 1: the adapter parses the named pair and path
 into the typed read and owns the signal and status; exported handlers answer
-`ReviewedFileDiff` and `ReviewedFileText`. Wire behavior is unchanged.
-Enables slice 5.
+`ReviewedFileDiff` and `ReviewedFileText`. For a session subject the
+handlers take the same typed kept state as slice 2's review handler, which
+the adapter reads from the stores. Wire behavior is unchanged. Enables
+slice 5.
 
 Proof: The same suites as slice 1 pass unchanged, with lint and typecheck.
 
@@ -201,10 +207,10 @@ Status: planned
 
 Behavior: A contributor reading `dashboard/backend-tests/README.md` finds the
 rules this family adds under "Which entry a case uses", beside the Story
-Notes reference family: state a case's machine and
-repositories through MakeMe; call another handler in arrangement only when
-that step is the behavior under test; mount process-wide server state through
-its production function. Every `dashboard/test-support/` function and module
+Notes reference family: a handler takes the state it reads as typed input
+and only the adapter reads process-wide stores; a case constructs exactly
+that state and its repositories through MakeMe; call another handler in
+arrangement only when that step is the behavior under test. Every `dashboard/test-support/` function and module
 with no importer left is deleted. The moved cases total at most about 3 s
 summed case time at two workers.
 
@@ -223,7 +229,7 @@ count, worker count and load against the baseline row. `npm run lint` and
 | Thin wire adapter over typed handlers on the shared contract | 1, 4 |
 | Handlers serve story subjects through the same admission path | 1, 4 (existing `story-review-*` specs) |
 | Every kept-record ad hoc review case moves, none lost | 2, 3, 5 and the owner table |
-| Machine stated through MakeMe; project list mounted through its production function | 2 |
+| Typed kept state built through MakeMe; only the adapter reads the stores | 2, 4 |
 | One focused wire check | 3, 5 |
 | About 3 s summed at two workers | 6 |
 | README rules | 6 |
@@ -252,6 +258,21 @@ count, worker count and load against the baseline row. `npm run lint` and
   record's 404: an unknown source with a malformed identity, and a
   `reference` with an unmatched run. This follows the story's "two
   admissions, separated"; no suite or page sends either request.
+- Slice 2 (after the story amendments): `storyReview(input, signal)` takes
+  one `StoryReviewInput` union, the story variant `{ read }` or the session
+  variant `{ read, kept: KeptSessionState }` with `KeptSessionState =
+  { records }`, so the compiler requires the kept records for a session
+  read; a catch-all overload had cancelled that. The adapter
+  `storyReviewResponse` refuses an unknown source with `knownSource` and
+  reads `keptRecords(source.id)` per request. The session lookup lives once
+  in `sessionRecord` (launchRecordStore.ts) and `namedSessionRecord`
+  (sessionAdmission.ts). Cases build the input with
+  `makeMe.aSessionReviewRead` (`Distribution/tests/support/sessionReviewTestData.mjs`).
+- Slice 3 owns a MakeMe step for the `gone`, `review` and `landedSession`
+  arrangement both slice 2 unit specs repeat (about 25 lines each), for
+  example a landed ad hoc session in a retired isolated workspace;
+  `launchTestData.mjs` is at 244 lines, so the step goes with a cohesive
+  split of that builder file.
 
 ## Proof and local gates
 

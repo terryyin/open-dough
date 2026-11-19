@@ -6,7 +6,7 @@
 // into the checkout is no session commit, and the kept comparison stays
 // readable from the saved repository alone after trunk advances and the
 // commit leaves every branch. A kept landing answers as
-// ./ad-hoc-review.spec.ts states.
+// ./ad-hoc-review-landed.unit.spec.ts states.
 
 import path from "node:path";
 import { readFileSync } from "node:fs";
@@ -122,31 +122,6 @@ test("a session established in the Default main checkout without a landing answe
     session: { launchedAt, doneAt },
     baseline: start,
     tree: committed,
-  });
-});
-
-test("an unreadable kept comparison still identifies the session's commits", async ({
-  dashboard,
-  request,
-}) => {
-  const sessionId = "unreadable-kept-commits";
-  keepLaunchRecords(dashboard, [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Missing kept repository" })
-      .inClaudeSession({ sessionId })
-      .keptSessionCommits({
-        repository: path.join(dashboard.home, "gone-kept-repo"),
-        runs: [{ base: "a".repeat(40), revision: "b".repeat(40) }],
-      })
-      .markedDone()
-      .please(),
-  ]);
-
-  expect(await adHocReview(request, dashboard, sessionId)).toEqual({
-    kind: "landing-unavailable",
-    comparison: "session-commits",
-    explanation:
-      "The repository that kept this session's commits is missing or unreadable.",
   });
 });
 

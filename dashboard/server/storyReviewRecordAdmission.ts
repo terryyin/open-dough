@@ -15,11 +15,12 @@ import { RefusedRequest } from "./localOrigin.ts";
 import {
   admittedSessionReview,
   type AdmittedSessionReview,
+  type KeptSessionState,
 } from "./storyReviewSessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  isReviewedSessionSubject,
-  type ReviewedStorySubject,
+import type {
+  ReviewedSessionSubject,
+  ReviewedStorySubject,
 } from "../src/reviewedWorkSubject.ts";
 import type { StoryReviewRead } from "../src/storyReviewRead.ts";
 
@@ -142,12 +143,31 @@ async function admittedIdentityReview(
   };
 }
 
-// Admits a typed review read against the kept records.
+// The review handler's typed input: a story read, which the kept records
+// admit, or a session read with the kept session state the adapter read.
+export type StoryReviewInput =
+  | {
+      readonly read: StoryReviewRead & {
+        readonly subject: ReviewedStorySubject;
+      };
+    }
+  | {
+      readonly read: StoryReviewRead & {
+        readonly subject: ReviewedSessionSubject;
+      };
+      readonly kept: KeptSessionState;
+    };
+
+// Admits a typed review read against the kept records; a session read
+// against its kept session state.
 export async function keptStoryReview(
-  read: StoryReviewRead,
+  input: StoryReviewInput,
 ): Promise<KeptStoryReview> {
-  const { subject } = read;
-  if (isReviewedSessionSubject(subject))
-    return admittedSessionReview(subject, read.run);
-  return admittedIdentityReview({ ...read, subject });
+  if ("kept" in input)
+    return admittedSessionReview(
+      input.read.subject,
+      input.read.run,
+      input.kept,
+    );
+  return admittedIdentityReview(input.read);
 }
