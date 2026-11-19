@@ -1,5 +1,5 @@
 // Literal editable quick replies, and explicit recovery after an attachment ends.
-// Connecting/refused recovery stays with ../terminal-prompts-recovery.spec.ts.
+// Connecting/refused recovery stays with ./terminal-prompts-recovery.spec.ts.
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";

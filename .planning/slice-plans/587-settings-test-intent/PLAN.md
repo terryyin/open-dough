@@ -84,7 +84,7 @@ color scheme and relevant dimensions. Terminal screen controls reuse the
 Terminal owner. Illustrative:
 `npm run test:e2e -- 'e2e/configuration/system-settings-terminal-theme' 'e2e/configuration/system-settings-feedback-maintenance.spec.ts'`,
 `npm run test:dashboard:integrated -- 'tests/configuration/system-settings-terminal-theme' 'tests/intent/intent-story-dark-appearance.spec.ts'` and
-`npm run test:dashboard:frontend -- 'frontend-tests/dashboard-system-appearance.spec.ts'`.
+`npm run test:dashboard:frontend -- 'frontend-tests/configuration/dashboard-system-appearance.spec.ts'`.
 
 Behavior: A developer reads a preference or appearance case → follows named
 option and reading observations → the source states the chosen value and

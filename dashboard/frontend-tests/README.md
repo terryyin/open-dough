@@ -5,18 +5,44 @@ Frontend-only dashboard specs live here, beside [Dashboard Test Support](../test
 explicit route/WebSocket service substitutes, without starting
 `dashboardServer`, `fake-gh`, `fake-claude`, `fake-codex`, or `FakeGitHub`.
 
-- DOM-only specs import `test` from `../test-support/support/pageTest.ts` and use
+## Placement
+
+Put every spec and every module that registers test cases inside the folder
+for the behavior it proves. The `dashboard/frontend-tests/` root is reserved
+for this README and generated test output.
+
+Use an existing feature group whenever it covers the behavior. Add a folder
+only for a distinct area that none of the existing groups covers.
+
+| Folder | Behavior |
+| --- | --- |
+| `configuration/` | Project setup, system settings, appearance and usage history. |
+| `intent/` | Intent browsing, Proof, CI comparisons and timing history. |
+| `launches/` | Launch choices, instructions, startup and launch recovery. |
+| `navigation/` | Dashboard frame, header, board movement and destinations. |
+| `review/` | Story review, comparisons and diffs. |
+| `sessions/` | Session listings, status, completion and history. |
+| `stories/` | Story content, notes and execution progress. |
+| `terminals/` | Terminal attachment, input, selection and recovery. |
+| `test-harness/` | Tests of browser measurement, touch and mount helpers. |
+
+Reusable harness helpers and fixtures live in [Dashboard Test Support](../test-support/).
+Use the shared [MakeMe library](../../Distribution/tests/README.md#test-data-architecture)
+for domain data.
+
+## Frontend test fixtures
+
+- DOM-only specs import `test` from [pageTest.ts](../test-support/support/pageTest.ts) and use
   `page.setContent(...)`.
-- Built-app UI specs import `test` from `../test-support/support/frontendApp.ts`,
+- Built-app UI specs import `test` from [frontendApp.ts](../test-support/support/frontendApp.ts),
   which requests the run's shared app build, serves it as static files and installs
   substitutes from `../test-support/support/frontendServiceSubstitutes.ts`.
-
 - Mounted production-component specs import `test` from
-  `../../Distribution/tests/support/comparisonMountPage.ts` or take `comparisonRenderer`
+  [comparisonMountPage.ts](../test-support/support/comparisonMountPage.ts) or take `comparisonRenderer`
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
-The two mounted phone-board specs render the production app with prepared
+The mounted phone-board specs in `navigation/` render the production app with prepared
 service answers in the browser. They deliver touch events directly, control
 the transition and click-suppression clocks, and measure the real layout.
 [`e2e/navigation/phone-board.spec.ts`](../../e2e/navigation/phone-board.spec.ts)
@@ -68,12 +94,10 @@ A case stays on a built-app page only when its behavior needs the real page:
 a real page load or reload, native input the mount cannot deliver, or a live
 socket, such as the attached terminal that Story notes must leave connected.
 
-Dashboard harness helpers and fixtures stay in Dashboard Test Support. Use the shared
-[MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
-Keep specs and the modules that register their cases in the feature folder
-whose behavior they prove, such as `intent/`, `configuration/`, `launches/`
-or `sessions/`. Representative workflows live in
+Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).
+
+## Running the tests
 
 `npm run test:dashboard:frontend` runs the full group. Specs named
 `*.mounted.spec.ts` use Vitest browser mode with Playwright Chromium.

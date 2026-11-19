@@ -119,7 +119,7 @@ The unchanged baseline selection passed all six cases in two files on
 `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-mounted-units.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts --workers=1`.
 That umbrella command was removed by SEED-334; both files are now in
 Dashboard Frontend Test, so the same selection is
-`npm run test:dashboard:frontend -- frontend-tests/intent/intent-ci-comparison-mounted-units.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts --workers=1`.
+`npm run test:dashboard:frontend -- frontend-tests/intent/intent-ci-comparison-mounted-units.spec.ts frontend-tests/sessions/sessions-sidebar-host-status.spec.ts --workers=1`.
 This observes static comparison figures and frontend host-status readings,
 not a completed shared API or suite-wide regression coverage. The host had
 16 logical CPUs, 48 GiB RAM, AC power and a competing SEED-287 pressure probe;
@@ -278,7 +278,7 @@ execution prerequisite on another story.
   focus and gesture distinctions in the cases.
   [Attachment cancellation](../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L40),
   [Cursor attachments](../../e2e/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts#L45),
-  [frontend refusal](../../dashboard/frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts#L59),
+  [frontend refusal](../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-refusal.spec.ts#L59),
   [voice overflow](../../dashboard/frontend-tests/launches/session-instruction-voice-overflow.spec.ts#L122),
   [touch dialog](../../dashboard/frontend-tests/launches/agent-launch-dialog-touch.spec.ts#L47).
 
@@ -291,7 +291,7 @@ execution prerequisite on another story.
   [preparation retry](../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
   [responsive access](../../dashboard/frontend-tests/launches/responsive-session-access.spec.ts#L102),
   [recovery verification](../../e2e/launches/responsive-session-recovery-verification.spec.ts#L93),
-  [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L59).
+  [frontend startup words](../../dashboard/frontend-tests/launches/startup-host-words.spec.ts#L59).
   Two siblings of this finding remain. `recoveryOf` is a pure alias of
   `parts(page).startupRecovery` in both `responsiveRecovery.ts` and
   `claudeVerification.ts`. `agent-launch-claude-verification`,
@@ -351,7 +351,7 @@ execution prerequisite on another story.
   [Credential recovery](../../dashboard/frontend-tests/configuration/system-settings-openai.spec.ts#L104),
   [terminal theme](../../e2e/configuration/system-settings-terminal-theme.spec.ts#L30),
   [feedback maintenance](../../e2e/configuration/system-settings-feedback-maintenance.spec.ts#L57),
-  [frontend system appearance](../../dashboard/frontend-tests/dashboard-system-appearance.spec.ts#L126),
+  [frontend system appearance](../../dashboard/frontend-tests/configuration/dashboard-system-appearance.spec.ts#L126),
   [Intent dark appearance](../../dashboard/tests/intent/intent-story-dark-appearance.spec.ts#L48).
 
 <a id="express-browser-measurement-test-intent"></a>
@@ -395,7 +395,7 @@ execution prerequisite on another story.
   utility call and independent measurement evidence visible. Runtime specs
   use browser turns, trace reporting, document metadata and request draining
   as their proof. Their direct observations serve the tested contract.
-  [Observation measurements](../../dashboard/frontend-tests/observation-measurements.spec.ts#L13),
-  [reachability](../../dashboard/frontend-tests/control-reachability-observation.spec.ts#L99),
-  [touch reading](../../dashboard/frontend-tests/touch-reading-observation.spec.ts#L37),
+  [Observation measurements](../../dashboard/frontend-tests/test-harness/observation-measurements.spec.ts#L13),
+  [reachability](../../dashboard/frontend-tests/test-harness/control-reachability-observation.spec.ts#L99),
+  [touch reading](../../dashboard/frontend-tests/test-harness/touch-reading-observation.spec.ts#L37),
   [runtime browser turn](../../dashboard/backend-tests/runtime/observation-measurements.spec.ts#L43).

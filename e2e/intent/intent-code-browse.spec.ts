@@ -87,8 +87,10 @@ test("Intent lists matched code test files under include patterns, omits helpers
     ),
     "dashboard/test-support/intentPerspectivePage.ts":
       "export const helper = 1;\n",
-    "dashboard/frontend-tests/touch-reading-observation.spec.ts": browseSpec,
-    "dashboard/frontend-tests/pageLayout.ts": "export const helper = 1;\n",
+    "dashboard/frontend-tests/test-harness/touch-reading-observation.spec.ts":
+      browseSpec,
+    "dashboard/frontend-tests/test-harness/pageLayout.ts":
+      "export const helper = 1;\n",
     ...Object.fromEntries(
       backendGroupedSources.map(([group, file]) => [
         `dashboard/backend-tests/${group}/${file}`,
@@ -160,8 +162,8 @@ test("Intent lists matched code test files under include patterns, omits helpers
       intent,
       "dashboard/frontend-tests",
       "Dashboard Frontend Test",
-      "touch-reading-observation.spec.ts",
-      "pageLayout.ts",
+      "test-harness/touch-reading-observation.spec.ts",
+      "test-harness/pageLayout.ts",
       browseSpec.split("\n"),
     );
   });

@@ -7,7 +7,7 @@ import { comparisonReading } from "../../dashboard/test-support/intentCiComparis
 // A selected landing collected without its proof summary leaves the existing
 // Done comparison readable through the real retained read of the Done story
 // the worker keeps (../../dashboard/test-support/support/keptPublishedStory.ts). Each history state's
-// readout is in ../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts.
+// readout is in ../../dashboard/frontend-tests/intent/intent-ci-compact-readout.spec.ts.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,

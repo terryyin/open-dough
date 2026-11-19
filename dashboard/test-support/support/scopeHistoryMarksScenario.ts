@@ -1,7 +1,7 @@
 // One retained scope history whose chart shows every kind of history mark,
 // with the readouts and drawing a reader expects of it, for the Done and
 // Project Intent chart-mark specs
-// (../../frontend-tests/intent-*ci-history-chart-marks.spec.ts).
+// (../../frontend-tests/intent/intent-*ci-history-chart-marks.spec.ts).
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { ScopeGlanceEntry } from "../../src/ciScopeHistory.ts";

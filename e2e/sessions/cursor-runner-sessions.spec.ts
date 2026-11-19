@@ -3,7 +3,7 @@
 // lists nothing and starts no agent. Expanded reading follows each later answer,
 // showing reading until answered and restoring rows after a successful read.
 // Bounded slow-answer demand and synthetic feedback UI live in
-// dashboard/frontend-tests/cursor-runner-sessions-ui.spec.ts.
+// dashboard/frontend-tests/sessions/cursor-runner-sessions-ui.spec.ts.
 import {
   parts,
   sessionEntriesIn,
