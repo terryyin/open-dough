@@ -96,12 +96,13 @@ used 28.6% more combined effort. This fails the zero-wake bar and ends the
 comparison. The exact count of terminal worker deliveries was obscured by a
 masked message. Candidate overdue, cancellation, and CI journeys remain
 unobserved. They are excluded from the deployment decision per the deciding-gap
-branch of this slice. Delivery disposition: records-only.
+branch of this slice. Delivery disposition: records-only. Published on the
+story branch at `70db7200eb433793b3419584552d5f6ffeb7bf49`.
 
 ### 3. Record both decisions and close the trial
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outcome explicitly records one decision from each row below and
 links the observations that determined it. Any queued Claude Code follow-up
 has its own identity and cites the positive evidence.
@@ -117,6 +118,13 @@ conservative estimate, and state the observed repeat opportunities used.
 Assess this row independently of the Codex result. The release row records
 the recommendation and its scope. Actual client rollout and launching a
 separate Claude Code trial are separate work.
+
+Accepted decisions: [Long verification trial decisions](decisions.md). **Do
+not deploy** follows the observed quiet wake in the matched candidate.
+**Drop the Claude Code trial** follows the retained family’s one cache-crossing
+paired proof, zero confirmed repeat opportunities, and unestablished alternate
+ownership and costs. The focused readback verified the unchanged runtime
+and backlog through the decision. Delivery disposition: records-only.
 
 ## Local gates and concern review
 

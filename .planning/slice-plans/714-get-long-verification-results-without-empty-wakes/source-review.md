@@ -31,11 +31,11 @@ unqualified control.
 | P15 | Account for the observer separately from CI. Example 3. |  | G10 |
 | P16 | Account for CI completion against the applicable revision. Scope and example 3. |  | G11 |
 | P17 | If the change is adopted, the matched candidate shows lower combined coordinator and worker effort than the control. Goal and example 4. |  | G12 |
-| P18 | Record **Deploy** only when the matched Codex candidate satisfies the proof and intervention conditions, eliminates quiet empty wakes, and lowers combined effort. Goal, scope, and example 4. | slice 3 | |
-| P19 | Otherwise, record **Do not deploy**. Example 4. | slice 3 | |
-| P20 | On **Do not deploy**, retain the current guidance. Example 4. | slice 3 | |
-| P21 | Record **Run the Claude Code trial** only when retained Claude Code evidence supports repeatable, recoverable savings from an eligible alternate owner large enough to justify the trial. Goal, scope, and example 5. | slice 3 | |
-| P22 | Otherwise, record **Drop the Claude Code trial**, including when the retained evidence is inconclusive. Example 5. | slice 3 | |
-| P23 | On **Run the Claude Code trial**, queue a separate follow-up. Scope and example 5. | slice 3 | |
-| P24 | Queue no Claude Code trial follow-up on **Drop the Claude Code trial**. Example 5’s “only on a Run decision” restriction. | slice 3 | |
-| P25 | Make the Claude Code decision independently of the Codex outcome. Example 5. | slice 3 | |
+| P18 | Record **Deploy** only when the matched Codex candidate satisfies the proof and intervention conditions, eliminates quiet empty wakes, and lowers combined effort. Goal, scope, and example 4. | slice 3 | observed: decisions.md: release bar applied to the observed quiet wake and increased effort in candidate.md; remaining candidate routes untested after rejection |
+| P19 | Otherwise, record **Do not deploy**. Example 4. | slice 3 | observed: decisions.md: Do not deploy |
+| P20 | On **Do not deploy**, retain the current guidance. Example 4. | slice 3 | observed: decisions.md and s3-decisions read-decisions receipt: the guidance diff from the Take was empty after the isolated overlay was rejected |
+| P21 | Record **Run the Claude Code trial** only when retained Claude Code evidence supports repeatable, recoverable savings from an eligible alternate owner large enough to justify the trial. Goal, scope, and example 5. | slice 3 | observed: decisions.md: retained native family, versioned owner effort, unknown comparable authority and overhead, and zero established repeat opportunities below the cost bar |
+| P22 | Otherwise, record **Drop the Claude Code trial**, including when the retained evidence is inconclusive. Example 5. | slice 3 | observed: decisions.md: Drop the Claude Code trial |
+| P23 | On **Run the Claude Code trial**, queue a separate follow-up. Scope and example 5. | slice 3 | observed: decisions.md: Run condition did not arise; the backlog diff verified no follow-up was queued |
+| P24 | Queue no Claude Code trial follow-up on **Drop the Claude Code trial**. Example 5’s “only on a Run decision” restriction. | slice 3 | observed: decisions.md and s3-decisions read-decisions receipt: Drop with no backlog changes |
+| P25 | Make the Claude Code decision independently of the Codex outcome. Example 5. | slice 3 | observed: decisions.md: the Claude assessment derives from the native Claude family, role and repeat observations, and the funded-work criterion |
