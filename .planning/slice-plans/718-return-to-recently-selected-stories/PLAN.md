@@ -145,7 +145,7 @@ Status: done
 Proof: a test in `recent-stories.spec.ts` that uses two projects.
 Accepted proof: `open-dough/evidence/slice4-refactor-frontend-proof.json`
 (3 recent-stories tests after page-object extraction); lint/typecheck exit 0.
-G1 keeps Intent unavailable-row half interim until slice 6.
+G1 Intent unavailable-row half proved in slice 6.
 
 Behavior: example 6. Showing project P in Development's Roster view, with
 history holding story C of project Q, choosing C's row closes the
@@ -176,16 +176,19 @@ shown, the first click follows it there.
 ### 6. Recent stories reveal the story view in Intent
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `frontend-tests/intent/intent-recent-stories.spec.ts`, using the
 `intentModePage.ts` helpers `openProjectIntent`, `backToStory` and
 `expectIntentModeChosen`.
+Accepted proof: `open-dough/evidence/refactor-intent-proof.json` and
+`refactor-recent-stories-proof.json`; lint/typecheck exit 0. Banner reaches
+`chooseScope` via `IntentScopeBridgeProvider`. G1 proved.
 
 Behavior: example 7 and choosing a row in Intent. With A selected and
 Project Intent chosen, clicking the button shows A's story view from its
 start and leaves the popover closed. With A's story view already in view,
 the first click opens the popover. Choosing B's row keeps the Intent
-perspective and shows B's story view from its start. Dashboard navigation
+perspective and shows B's story view from its start. Board interaction
 records that the button follows the current perspective.
 
 ## Proof and local gates
@@ -216,6 +219,9 @@ awake macOS on AC with `caffeinate -s -i`. On battery, follow the
 
 ## Learnings
 
+- Banner sits above Intent, so `chooseScope` reaches Recent stories via
+  `IntentScopeBridgeProvider` (PageFrame ref bridge), not a downward context.
+
 - On macOS case-insensitive FS, do not place `RecentStories.tsx` beside
   `recentStories.ts`; use `recentStoriesControl.tsx`.
 - Banner-order docs belong in `docs/dashboard-board-interaction.md` after
@@ -240,5 +246,5 @@ review found no remaining slice-specific concern.
 ### G1. Intent unavailable Recent stories row
 Reported: slice 4 — "Intent half of commitment 21 not claimed; Development unavailable notice proved."
 Story clause: "In Intent, the story is selected with nothing new added."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: dashboard/frontend-tests/intent/intent-recent-stories.spec.ts chooseUnavailableInIntent + slice6-intent-proof-final.json
 Commitment: 21

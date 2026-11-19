@@ -1,8 +1,9 @@
 // The banner's Recent stories control (`./recentStories.ts` shapes the list):
 // a bookmark that shows whether a story is selected, and a popover listing
 // recent selections (ADR 0008). Choosing a row, or clicking the button while
-// the selected card's start is out of view, selects and follows through the
-// story-reference journey so Development reveals it.
+// the selected story's start is out of view, selects and reveals it in the
+// current perspective: Development via the story-reference journey, Intent via
+// chooseScope("story") and the Intent view start (`intentHomeMarks`).
 
 import {
   useContext,
@@ -14,7 +15,9 @@ import {
 } from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
-import { startIsReadable } from "./pageMovement.ts";
+import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
+import { useIntentScopeChooser } from "./intentStoryTabs.tsx";
+import { keepInView, startIsReadable } from "./pageMovement.ts";
 import { projectLabel, useVisibleProjects } from "./projectList.tsx";
 import {
   sameSelectedStory,
@@ -23,7 +26,8 @@ import {
   useSelectedStory,
   type SelectedStory,
 } from "./pageStorySelection.tsx";
-import { storyCard } from "./storyCardFocus.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import { intentStoryViewStart, storyCard } from "./storyCardFocus.ts";
 import { StoryNavigationOnPage } from "./storyNavigation.tsx";
 import "./recent-stories.css";
 
@@ -33,11 +37,18 @@ function recentStoriesLabel(selected: SelectedStory | undefined): string {
     : `Recent stories, ${selected.identity} selected`;
 }
 
-export function RecentStories() {
+export function RecentStories({
+  perspective,
+  onSelectProject,
+}: {
+  readonly perspective: DashboardPerspective;
+  readonly onSelectProject: (next: PublishedSource) => void;
+}) {
   const selected = useSelectedStory();
   const recent = useRecentStories();
   const selection = useContext(StorySelectionOnPage);
   const navigation = useContext(StoryNavigationOnPage);
+  const chooseIntentScope = useIntentScopeChooser();
   const projects = useVisibleProjects();
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -58,22 +69,51 @@ export function RecentStories() {
     button.current?.focus();
   };
 
-  const choose = (entry: SelectedStory) => {
+  const bringIntentStartIntoView = () => {
+    requestAnimationFrame(() => {
+      const start = intentStoryViewStart();
+      if (start !== undefined) keepInView(start);
+    });
+  };
+
+  // Intent: select, keep the perspective, choose the story scope, and bring
+  // the Intent view start into view. A new selection already opens on story.
+  const revealInIntent = (entry: SelectedStory) => {
+    const same = sameSelectedStory(selected, entry);
     selection?.select(entry);
-    navigation?.follow(entry);
+    const project = projects.find((shown) => shown.id === entry.project);
+    if (project !== undefined) onSelectProject(project);
+    if (same) chooseIntentScope?.("story");
+    bringIntentStartIntoView();
+  };
+
+  const choose = (entry: SelectedStory) => {
+    if (perspective === "intent") {
+      revealInIntent(entry);
+    } else {
+      selection?.select(entry);
+      navigation?.follow(entry);
+    }
     dismiss();
   };
 
-  // When the selected story's card start is not in the region's readingBounds
+  // When the selected story's start is not in the region's readingBounds
   // (same rule keepInView uses for readable), return via choose and leave the
   // popover closed; otherwise toggle the list.
+  const selectedStartOutOfView = () => {
+    if (selected === undefined) return false;
+    if (perspective === "intent") {
+      const start = intentStoryViewStart();
+      return start === undefined || !startIsReadable(start);
+    }
+    const card = storyCard(selected.identity);
+    return card === undefined || !startIsReadable(card);
+  };
+
   const onButtonClick = () => {
-    if (selected !== undefined) {
-      const card = storyCard(selected.identity);
-      if (card === undefined || !startIsReadable(card)) {
-        choose(selected);
-        return;
-      }
+    if (selected !== undefined && selectedStartOutOfView()) {
+      choose(selected);
+      return;
     }
     setOpen((was) => !was);
   };

@@ -146,6 +146,15 @@ const shown = (element: HTMLElement | null | undefined) =>
     ? element
     : undefined;
 
+// The selected story's Intent view start (its tabbar), while Intent shows it.
+export function intentStoryViewStart(): HTMLElement | undefined {
+  return shown(
+    document.querySelector<HTMLElement>(
+      `.intent-page-frame[data-intent-context="story"] [${intentHomeAttribute}]`,
+    ),
+  );
+}
+
 // Where the keyboard is useful once what held it left the page: the work's
 // card while the page shows it, else the Board, else, in the Intent
 // perspective, which shows neither, the chosen tab of Intent's view row.

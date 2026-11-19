@@ -21,8 +21,8 @@ export function recentStoriesPopover(page: Page): Locator {
 
 // Browser mirror of ../src/pageMovement.ts `startIsReadable` (readingBounds
 // start rule) for Recent stories return settle and scroll preconditions.
-export async function cardStartIsReadable(card: Locator): Promise<boolean> {
-  return card.evaluate((element) => {
+export async function startIsReadable(part: Locator): Promise<boolean> {
+  return part.evaluate((element) => {
     const region = element.closest<HTMLElement>(
       ".board-scroll, .roster-scroll",
     );
@@ -50,7 +50,7 @@ export async function cardStartIsReadable(card: Locator): Promise<boolean> {
 async function selectedCardStartReadable(page: Page): Promise<boolean> {
   const selected = page.locator(".story-card-selected");
   if ((await selected.count()) === 0) return true;
-  return cardStartIsReadable(selected.first());
+  return startIsReadable(selected.first());
 }
 
 export async function openRecentStories(page: Page): Promise<Locator> {

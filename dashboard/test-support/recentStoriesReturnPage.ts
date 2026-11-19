@@ -14,13 +14,13 @@ import {
 } from "./dashboardPage.ts";
 import { describedRevision } from "./describedRevisions.ts";
 import {
-  cardStartIsReadable,
   expectRecentStoriesButton,
   expectRecentStoriesClosed,
   expectRecentStoriesList,
   expectStoryRevealedInDevelopment,
   recentStoriesButton,
   selectStoryOnProject,
+  startIsReadable,
 } from "./recentStoriesPage.ts";
 import {
   doughnutPublication,
@@ -127,7 +127,7 @@ export async function scrollCardStartOutOfView(page: Page, card: Locator) {
     const scrolled = region;
     scrolled.scrollTop = 0;
   });
-  await expect.poll(() => cardStartIsReadable(card)).toBe(false);
+  await expect.poll(() => startIsReadable(card)).toBe(false);
 }
 
 export async function lengthenCardPastFold(card: Locator) {
@@ -135,7 +135,7 @@ export async function lengthenCardPastFold(card: Locator) {
     const cardEl = element as HTMLElement;
     cardEl.style.minHeight = "200vh";
   });
-  await expect.poll(() => cardStartIsReadable(card)).toBe(true);
+  await expect.poll(() => startIsReadable(card)).toBe(true);
   await expect
     .poll(() =>
       card.evaluate((element) => {

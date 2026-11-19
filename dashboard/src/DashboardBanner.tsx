@@ -58,7 +58,7 @@ export function DashboardBanner({
             perspective={perspective}
             onSelect={onSelectPerspective}
           />
-          <RecentStories />
+          <RecentStories perspective={perspective} onSelectProject={onSelect} />
           <ProjectSelect source={source} onSelect={onSelect} />
         </>
       )}
