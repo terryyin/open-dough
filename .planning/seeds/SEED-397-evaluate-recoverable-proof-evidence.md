@@ -15,7 +15,7 @@ scope: one evaluation
 
 **Identity:** SEED-397#evaluate-recoverable-proof-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"110f9abde4918fdfc9b07e401fb75b3cc44c4cc230469803c55c451d2bb38d18","plan":"737c5cf191c788e7c8c976b23b99a6bec1b444f3c2c0ab12313c6d9259167720"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6dda89b8b3b00af4454b0a3cb1c3d1cf057c1b8810382a1379171e34daeee212","plan":"737c5cf191c788e7c8c976b23b99a6bec1b444f3c2c0ab12313c6d9259167720"}}
 ```
 
 **Goal.** Open Dough maintainers decide, from one real planned execution, whether to keep, revise or stop the retained run records and compact hand-backs from the [delivered source](https://github.com/terryyin/open-dough/blob/45ff02fee774a270826cd7507fee2ce1c9d077cc/.planning/seeds/SEED-345-session-token-efficiency.md#recover-decisive-verification-evidence). Developers whose stories a coordinator executes benefit when the change reduces rereading and recovery with every required proof row kept.
