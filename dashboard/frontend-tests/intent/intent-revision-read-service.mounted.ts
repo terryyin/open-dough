@@ -6,6 +6,7 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { forgetAnswers } from "../../src/answerMemo.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
+import { clearAllTransientFailures } from "../../src/transientRecovery.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
 import { actSettled } from "../../test-support/mounted-dashboard/mountedActSettled.ts";
 
@@ -82,16 +83,27 @@ const locationsOf = (
 
 // The read service answering Intent's locations and file reads at each published revision and
 // the trunk's CI. `reads` lists Intent's reads as `<what>@<revision>`;
-// `unexpected` any other call; `holdLocationsOf` keeps one revision's
-// locations read until the case releases it. Each service starts the
-// browser session's read caches empty, so every read a case causes reaches it.
+// `unexpected` any other call; `holdRead` keeps the next such read until the
+// case releases or fails it. Each service starts the browser session's read
+// caches and transient failures empty, so every read a case causes reaches it.
 export function publishedReadService(published: Map<string, Snapshot>) {
   forgetAnswers();
   forgetCachedFiles();
+  clearAllTransientFailures();
   const reads: string[] = [];
   const unexpected: string[] = [];
-  const holds = new Map<string, Promise<void>>();
+  // Each hold settles true when the case fails its read.
+  const holds = new Map<string, Promise<boolean>>();
   const held: string[] = [];
+  // Waits out a hold on the read, which then rejects as unreachable if failed.
+  const answering = async (read: string) => {
+    reads.push(read);
+    const hold = holds.get(read);
+    if (hold === undefined) return;
+    holds.delete(read);
+    held.push(read);
+    if (await hold) throw new TypeError("Failed to fetch");
+  };
   const realFetch = window.fetch.bind(window);
   const fetchSpy = vi
     .spyOn(window, "fetch")
@@ -109,16 +121,11 @@ export function publishedReadService(published: Map<string, Snapshot>) {
       const revision = params.get("revision") ?? "";
       const files = published.get(revision);
       if (files !== undefined && intent === "locations") {
-        reads.push(`locations@${revision}`);
-        const hold = holds.get(revision);
-        if (hold !== undefined) {
-          held.push(revision);
-          await hold;
-        }
+        await answering(`locations@${revision}`);
         return answer(locationsOf(revision, files));
       }
       if (files !== undefined && path !== null && path in files) {
-        reads.push(`${path}@${revision}`);
+        await answering(`${path}@${revision}`);
         return answer({ revision, path, text: files[path] });
       }
       unexpected.push(url.search);
@@ -131,20 +138,30 @@ export function publishedReadService(published: Map<string, Snapshot>) {
     reads,
     unexpected,
     held: () => held.length,
-    // Holds the revision's locations read; the returned release lets it
-    // answer and settles the reading it updates.
-    holdLocationsOf(revision: string) {
-      let release = () => {};
+    // Holds the next read named `<what>@<revision>`. `release` lets it
+    // answer and `fail` makes it unreachable; each settles the reading it
+    // updates. Later reads of the same name answer at once.
+    holdRead(read: string) {
+      let settle: (failed: boolean) => void = () => {};
       holds.set(
-        revision,
-        new Promise<void>((resolve) => {
-          release = resolve;
+        read,
+        new Promise<boolean>((resolve) => {
+          settle = resolve;
         }),
       );
       onTestFinished(() => {
-        release();
+        settle(false);
       });
-      return () => actSettled(release);
+      return {
+        release: () =>
+          actSettled(() => {
+            settle(false);
+          }),
+        fail: () =>
+          actSettled(() => {
+            settle(true);
+          }),
+      };
     },
   };
 }

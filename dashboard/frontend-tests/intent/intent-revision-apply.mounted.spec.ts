@@ -2,7 +2,10 @@
 // revisions wait behind one polite notice, and Show latest reads only the
 // latest, keeping the old reading until it answers
 // (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
-// Companion built-app case: ./intent-revision-notice.spec.ts.
+// A failed update keeps the reading and offers Retry, at the locations and at
+// the selected file (../../src/useIntentLocations.ts,
+// ../../src/useIntentFileRead.ts). Companion built-app cases:
+// ./intent-revision-notice.spec.ts, ./intent-revision-update-outcomes.spec.ts.
 import { expect, test, vi } from "vitest";
 import {
   featurePath,
@@ -41,7 +44,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   );
   const show = await mountReading(workAt(a));
   const reading = intentReading();
-  const { toggle, feature, shownSource, browserRevision, notice } = reading;
+  const { toggle, feature, shownSource, notice } = reading;
   await openFeature(reading);
   await expect.poll(shownSource).toContain("Scenario: Archive a job");
   const { pane, scrolled } = await scrollReadingHalfway();
@@ -53,9 +56,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   };
   const focused = () => document.activeElement?.textContent ?? "";
   const focusedBefore = focused();
-  await expect
-    .element(browserRevision)
-    .toHaveTextContent(`Test browser at ${short(a)}`);
+  await reading.expectBrowserAt(a);
   expect(service.reads).toEqual([`locations@${a}`, `${featurePath}@${a}`]);
 
   await show(workAt(b));
@@ -66,36 +67,25 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await expect
     .poll(reading.noticeText)
     .toContain(`New revision available — showing ${short(a)}`);
-  expect(
-    notice
-      .getByRole("button")
-      .elements()
-      .map((button) => button.textContent),
-  ).toEqual(["Show latest"]);
-  await expect
-    .element(browserRevision)
-    .toHaveTextContent(`Test browser at ${short(a)}`);
+  expect(reading.noticeButtons()).toEqual(["Show latest"]);
+  await reading.expectBrowserAt(a);
   expect(focused()).toBe(focusedBefore);
   await expect.poll(shownSource).toContain("Scenario: Archive a job");
   await expectReadingKept();
   expect(service.reads).toHaveLength(2);
 
-  const releaseLatest = service.holdLocationsOf(c);
+  const latest = service.holdRead(`locations@${c}`);
   await click(reading.showLatest);
   await expect.poll(service.held).toBe(1);
   await expect.poll(reading.noticeText).toContain("Updating…");
-  await expect
-    .element(browserRevision)
-    .toHaveTextContent(`Test browser at ${short(a)}`);
+  await reading.expectBrowserAt(a);
   await expect.poll(shownSource).toContain("Scenario: Archive a job");
   await expect.element(feature).toHaveAttribute("aria-pressed", "true");
 
-  await releaseLatest();
+  await latest.release();
   await expect.poll(shownSource).toContain("Scenario: Purge a job");
   await expect.element(notice).not.toBeInTheDocument();
-  await expect
-    .element(browserRevision)
-    .toHaveTextContent(`Test browser at ${short(c)}`);
+  await reading.expectBrowserAt(c);
   await expectReadingKept();
   await expect.element(feature).toHaveFocus();
   expect(service.reads.slice(2)).toEqual([
@@ -129,13 +119,80 @@ test("a selected feature the latest revision deleted is explained, with nothing 
   const pane = reading.readingPane();
   expect(pane).not.toBeNull();
   await expect.poll(() => document.activeElement).toBe(pane);
-  await expect
-    .element(reading.browserRevision)
-    .toHaveTextContent(`Test browser at ${short(c)}`);
+  await reading.expectBrowserAt(c);
   expect(service.reads).toEqual([
     `locations@${a}`,
     `${featurePath}@${a}`,
     `locations@${c}`,
+  ]);
+  expect(service.unexpected).toEqual([]);
+});
+
+test("a failed update keeps the shown reading with its failure and Retry, which applies the update", async () => {
+  const [a, c] = ["d7".repeat(20), "eb".repeat(20)];
+  const service = publishedReadService(
+    new Map([
+      [a, at("Archive a job")],
+      [c, at("Purge a job")],
+    ]),
+  );
+  const show = await mountReading(workAt(a));
+  const reading = intentReading();
+  const { toggle, feature, shownSource } = reading;
+  await openFeature(reading);
+  await expect.poll(shownSource).toContain("Scenario: Archive a job");
+  await show(workAt(c));
+  const latest = service.holdRead(`locations@${c}`);
+  await click(reading.showLatest);
+  await expect.poll(service.held).toBe(1);
+  await reading.expectBrowserAt(a);
+  await latest.fail();
+
+  // The locations at the shown revision stay browsable, with the selection,
+  // its text and the focus; the failure and Retry stand beside the notice.
+  await expect
+    .poll(reading.noticeText)
+    .toContain(`New revision available — showing ${short(a)}`);
+  expect(reading.noticeText()).toContain(
+    `Revision ${short(c)} could not be read: The local authenticated read could not be reached`,
+  );
+  expect(reading.noticeText()).not.toContain("Updating…");
+  expect(reading.noticeButtons()).toEqual(["Retry"]);
+  await reading.expectBrowserAt(a);
+  expect(shownSource()).toContain("Scenario: Archive a job");
+  await expect.element(feature).toHaveAttribute("aria-pressed", "true");
+  await expect.element(feature).toHaveFocus();
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+  await click(reading.otherFile);
+  await expect.poll(reading.otherSource).toContain("Report free space");
+  await click(feature);
+  await expect.poll(shownSource).toContain("Scenario: Archive a job");
+
+  // The selected file's read at the latest revision fails too: its earlier
+  // text stays under the failure, and its own Retry reads it.
+  const latestText = service.holdRead(`${featurePath}@${c}`);
+  await click(reading.retryUpdate);
+  await expect.poll(service.held).toBe(2);
+  await reading.expectBrowserAt(c);
+  await expect.element(reading.notice).not.toBeInTheDocument();
+  await expect.element(feature).toHaveFocus();
+  await latestText.fail();
+  await expect
+    .poll(() => reading.readFailure.query()?.textContent)
+    .toBe(
+      `${featurePath} could not be read at revision ${short(c)}; showing ${short(a)}. Retry`,
+    );
+  expect(shownSource()).toContain("Scenario: Archive a job");
+  await reading.expectBrowserAt(c);
+  await click(reading.retryRead);
+  await expect.poll(shownSource).toContain("Scenario: Purge a job");
+  await expect.element(reading.readFailure).not.toBeInTheDocument();
+  expect(service.reads.slice(2)).toEqual([
+    `locations@${c}`,
+    `${otherPath}@${a}`,
+    `locations@${c}`,
+    `${featurePath}@${c}`,
+    `${featurePath}@${c}`,
   ]);
   expect(service.unexpected).toEqual([]);
 });

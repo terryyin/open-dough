@@ -101,12 +101,20 @@ const readingPane = () =>
 // The mounted Intent reading as a reader finds it.
 export function intentReading() {
   const intent = page.getByRole("main", { name: "Intent", exact: true });
-  const featureSource = intent.getByLabelText(`${featurePath} source`, {
-    exact: true,
-  });
+  // A file's source as read, without the line breaking hints it renders.
+  const sourceText = (path: string) => () =>
+    (
+      intent.getByLabelText(`${path} source`, { exact: true }).query()
+        ?.textContent ?? ""
+    ).replace(/[\u200B\u00AD]/g, "");
   const notice = intent
     .getByRole("status")
     .filter({ hasText: "New revision available" });
+  const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
+  const retry = { name: "Retry", exact: true } as const;
+  const browserRevision = intent.getByLabelText("Test browser revision", {
+    exact: true,
+  });
   return {
     // The location's disclosure, named Expand or Collapse by its state.
     toggle: intent.getByRole("button", {
@@ -120,15 +128,25 @@ export function intentReading() {
     pressedFiles: () =>
       document.querySelectorAll('.intent-locations [aria-pressed="true"]'),
     readingPane,
-    purpose: intent.getByRole("region", { name: "Purpose", exact: true }),
-    // The source as read, without the line breaking hints it renders.
-    shownSource: () =>
-      (featureSource.query()?.textContent ?? "").replace(/[\u200B\u00AD]/g, ""),
-    browserRevision: intent.getByLabelText("Test browser revision", {
-      exact: true,
-    }),
+    purpose,
+    shownSource: sourceText(featurePath),
+    otherSource: sourceText(otherPath),
+    // The selected file's failed read and its own Retry.
+    readFailure: purpose.getByRole("alert"),
+    retryRead: purpose.getByRole("button", retry),
+    // Waits for the test browser to name the revision the reading shows.
+    expectBrowserAt: (revision: string) =>
+      expect
+        .element(browserRevision)
+        .toHaveTextContent(`Test browser at ${short(revision)}`),
     notice,
     noticeText: () => notice.query()?.textContent ?? "",
+    noticeButtons: () =>
+      notice
+        .getByRole("button")
+        .elements()
+        .map((button) => button.textContent),
+    retryUpdate: notice.getByRole("button", retry),
     showLatest: notice.getByRole("button", {
       name: "Show latest",
       exact: true,

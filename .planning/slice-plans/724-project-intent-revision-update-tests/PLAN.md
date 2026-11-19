@@ -142,7 +142,7 @@ the retry cases leave failure state behind.
 ### 3. Retry locations and source at the revision each read owns
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A failed locations update keeps the old reading navigable and
 offers **Retry**. After Retry accepts the new locations, a distinct failed
@@ -157,6 +157,14 @@ new revision and cleared notice, then fail the file read. Assert retained
 text and its distinct failure, apply its Retry and check recovery. Preserve
 the original ordered locations/file request sequence. The latter
 Development → Intent case remains in the built app.
+
+Accepted proof: the update-outcomes case passed in the `intent/intent-revision`
+group (three mounted cases took 1,856, 1,001 and 2,066 ms) with the typecheck.
+Learning: `holdRead("<what>@<revision>")` holds the next read of that name and
+returns `release` and `fail`; `fail` rejects the fetch. The read service also
+clears transient failures at start. Slice 4 will take the mounted spec past 250
+lines: split it by outcome, applying the latest (slices 1–2) against failed or
+unreadable updates and their Retry (slices 3–5), keeping the shared modules.
 
 ### 4. Keep the current reading when settings cannot be read
 
