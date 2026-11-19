@@ -7,7 +7,7 @@
 // ./intent-revision-apply.mounted.spec.ts. Companion built-app cases:
 // ./intent-revision-update-outcomes.spec.ts and
 // ./intent-revision-update-boundaries.spec.ts.
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   at,
@@ -24,8 +24,6 @@ import {
   workAt,
 } from "./intent-revision-reading.mounted.ts";
 
-vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
-
 // The feature read at `shown` and offered at `latest`, whose Show latest waits
 // on the held locations read at `latest`.
 async function showLatestHeld(shown: string, latest: string) {
@@ -39,7 +37,7 @@ async function showLatestHeld(shown: string, latest: string) {
   const reading = intentReading();
   await openFeature(reading);
   await expect.poll(reading.shownSource).toContain("Scenario: Archive a job");
-  await show(workAt(latest));
+  show(workAt(latest));
   const held = service.holdRead(`locations@${latest}`);
   await click(reading.showLatest);
   await expect.poll(service.held).toBe(1);
@@ -51,15 +49,17 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   const { service, reading, latest } = await showLatestHeld(a, c);
   const { toggle, feature, shownSource } = reading;
   await reading.expectBrowserAt(a);
-  await latest.fail();
+  latest.fail();
 
   // The locations at the shown revision stay browsable, with the selection,
   // its text and the focus; the failure and Retry stand beside the notice.
   await expect
     .poll(reading.noticeText)
-    .toContain(`New revision available — showing ${short(a)}`);
+    .toContain(
+      `Revision ${short(c)} could not be read: The local authenticated read could not be reached`,
+    );
   expect(reading.noticeText()).toContain(
-    `Revision ${short(c)} could not be read: The local authenticated read could not be reached`,
+    `New revision available — showing ${short(a)}`,
   );
   expect(reading.noticeText()).not.toContain("Updating…");
   expect(reading.noticeButtons()).toEqual(["Retry"]);
@@ -81,7 +81,7 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   await reading.expectBrowserAt(c);
   await expect.element(reading.notice).not.toBeInTheDocument();
   await expect.element(feature).toHaveFocus();
-  await latestText.fail();
+  latestText.fail();
   await expect
     .poll(() => reading.readFailure.query()?.textContent)
     .toBe(
@@ -106,7 +106,7 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
   const [a, c] = ["d8".repeat(20), "ef".repeat(20)];
   const { service, reading, latest } = await showLatestHeld(a, c);
   const { feature, shownSource } = reading;
-  await latest.answerLocations(
+  latest.answerLocations(
     makeMe.anIntentLocationsAnswer.at(c).withUnreadableSettings().please(),
   );
 
@@ -141,7 +141,7 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
 test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async () => {
   const [a, c] = ["d9".repeat(20), "ec".repeat(20)];
   const { service, reading, latest } = await showLatestHeld(a, c);
-  await latest.answerLocations(
+  latest.answerLocations(
     makeMe.anIntentLocationsAnswer.at(c).withMalformedSettings().please(),
   );
 

@@ -8,7 +8,6 @@ import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
 import { clearAllTransientFailures } from "../../src/transientRecovery.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
-import { actSettled } from "../../test-support/mounted-dashboard/mountedActSettled.ts";
 
 export const featuresFolder = "e2e_test/features";
 export const featurePath = `${featuresFolder}/jobs.feature`;
@@ -121,8 +120,8 @@ export function publishedReadService(published: Map<string, Snapshot>) {
     held: () => held.length,
     // Holds the next read named `<what>@<revision>`. `release` lets it
     // answer, `fail` makes it unreachable and `answerLocations` answers a
-    // locations read with the given answer; each settles the reading it
-    // updates. Later reads of the same name answer at once.
+    // locations read with the given answer; the case waits for what each
+    // changes. Later reads of the same name answer at once.
     holdRead(read: string) {
       let settle: (outcome: HoldOutcome) => void = () => {};
       holds.set(
@@ -134,14 +133,16 @@ export function publishedReadService(published: Map<string, Snapshot>) {
       onTestFinished(() => {
         settle("published");
       });
-      const settled = (outcome: HoldOutcome) =>
-        actSettled(() => {
-          settle(outcome);
-        });
       return {
-        release: () => settled("published"),
-        fail: () => settled("unreachable"),
-        answerLocations: (given: IntentLocationsAnswer) => settled(given),
+        release: () => {
+          settle("published");
+        },
+        fail: () => {
+          settle("unreachable");
+        },
+        answerLocations: (given: IntentLocationsAnswer) => {
+          settle(given);
+        },
       };
     },
   };

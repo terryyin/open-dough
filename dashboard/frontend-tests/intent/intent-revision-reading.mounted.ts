@@ -1,7 +1,7 @@
 // The project's followed Intent reading (production `ProjectIntentReading`)
 // mounted on an open published reading, as the reader finds and operates it,
 // for the cases that apply a newer revision (./intent-revision-*.mounted.spec.ts).
-import { act, createElement } from "react";
+import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { expect, onTestFinished, vi } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
@@ -16,7 +16,6 @@ import {
 } from "../../src/pageIntentReading.tsx";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { actSettled } from "../../test-support/mounted-dashboard/mountedActSettled.ts";
 import {
   featurePath,
   featuresFolder,
@@ -81,31 +80,27 @@ function Reading({ work }: { readonly work: PublishedWork }) {
 }
 
 // The followed reading at the desktop size the built-app journey read it. The
-// returned `show` offers another published work to the same reading; each
-// render settles with the reads it starts.
+// returned `show` offers another published work to the same reading; cases
+// wait for what it changes.
 export async function mountReading(work: PublishedWork) {
   const [width, height] = [window.innerWidth, window.innerHeight];
   await page.viewport(1280, 600);
   const host = document.body.appendChild(document.createElement("div"));
   const root: Root = createRoot(host);
   onTestFinished(async () => {
-    act(() => {
-      root.unmount();
-    });
+    root.unmount();
     host.remove();
     await page.viewport(width, height);
   });
-  const show = (shown: PublishedWork) =>
-    actSettled(() => {
-      root.render(createElement(Reading, { work: shown }));
-    });
-  await show(work);
+  const show = (shown: PublishedWork) => {
+    root.render(createElement(Reading, { work: shown }));
+  };
+  show(work);
   return show;
 }
 
-// Clicks as the reader does, settling what the click starts.
-export const click = (target: Locator) =>
-  actSettled(() => userEvent.click(target));
+// Clicks as the reader does, as soon as the target can take the click.
+export const click = (target: Locator) => userEvent.click(target);
 
 // The pane the selected file's reading scrolls in.
 const readingPane = () =>
@@ -190,9 +185,7 @@ export async function scrollReadingHalfway() {
   if (pane === null) throw new Error("Intent shows no reading pane");
   const most = pane.scrollHeight - pane.clientHeight;
   expect(most).toBeGreaterThan(40);
-  await actSettled(() => {
-    pane.scrollTo({ top: Math.floor(most / 2) });
-  });
+  pane.scrollTo({ top: Math.floor(most / 2) });
   await vi.waitUntil(() => pane.scrollTop > 20);
   return { pane, scrolled: pane.scrollTop };
 }

@@ -18,6 +18,20 @@ and command adapters thin over strongly typed handlers, and give UI components
 narrow typed inputs and shared boundary contracts so specs mount the owning
 component rather than `<App />`.
 
+## Act as soon as the page allows; retire `actSettled`
+
+UI tests act as the reader does: render and deliver input as soon as the page
+allows it, and wait only for what the action changes through retrying
+assertions, as
+[Which entry a case uses](../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
+describes. Waiting for the whole page to settle is a large source of delay:
+removing `actSettled` from the five Project Intent revision cases cut their
+median summed time from 7.16 s to 5.75 s. New cases use neither `actSettled`
+nor React `act` wrapping. Remove the existing uses one at a time, each with the
+family or support it belongs to, until none remain; then delete
+`dashboard/test-support/mounted-dashboard/mountedActSettled.ts` and its harness
+case.
+
 ## Plain Vitest for unit tests; Playwright only for E2E
 
 Remove `@playwright/test` completely from `dashboard/frontend-tests/` (and

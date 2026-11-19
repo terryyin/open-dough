@@ -5,7 +5,7 @@
 // Failed, unreadable and malformed-settings updates:
 // ./intent-revision-update-failures.mounted.spec.ts.
 // Companion built-app case: ./intent-revision-notice.spec.ts.
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import {
   at,
   featurePath,
@@ -22,8 +22,6 @@ import {
   short,
   workAt,
 } from "./intent-revision-reading.mounted.ts";
-
-vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
 
 test("newer revisions wait behind one notice, and Show latest keeps the reading while the latest is read", async () => {
   const [a, b, c] = ["d4".repeat(20), "e7".repeat(20), "e8".repeat(20)];
@@ -51,8 +49,8 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await reading.expectBrowserAt(a);
   expect(service.reads).toEqual([`locations@${a}`, `${featurePath}@${a}`]);
 
-  await show(workAt(b));
-  await show(workAt(c));
+  show(workAt(b));
+  show(workAt(c));
   await expect.element(notice).toBeInTheDocument();
   expect(notice.elements()).toHaveLength(1);
   await expect.element(notice).toHaveAttribute("aria-live", "polite");
@@ -74,7 +72,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await expect.poll(shownSource).toContain("Scenario: Archive a job");
   await expect.element(feature).toHaveAttribute("aria-pressed", "true");
 
-  await latest.release();
+  latest.release();
   await expect.poll(shownSource).toContain("Scenario: Purge a job");
   await expect.element(notice).not.toBeInTheDocument();
   await reading.expectBrowserAt(c);
@@ -99,7 +97,7 @@ test("a selected feature the latest revision deleted is explained, with nothing 
   const reading = intentReading();
   await openFeature(reading);
   await expect.poll(reading.shownSource).toContain("Scenario: Archive a job");
-  await show(workAt(c));
+  show(workAt(c));
 
   await click(reading.showLatest);
   await expect

@@ -432,12 +432,20 @@ cost and which shared contracts are available as families finish.
   contract, under "Design production code for testability" in the
   refactoring checks. When a fixture needs unrelated providers, stylesheets or
   service answers, change the production contract first. The Project Intent
-  revision family did this with `ProjectIntentReading`. Measured there, a
-  mounted case was not faster per case. Five cases summed 6.97–8.00 s against
-  6.28 s built-app, because browser-driven clicks (about 150 ms) and the
-  `actSettled` frame round after each (about 85 ms) dominate. Expect the gain
-  in group elapsed time once a selection needs no app build. Evaluate letting
-  `actSettled` skip its frame round after an action that changes nothing. The
+  revision family did this with `ProjectIntentReading`.
+- Render and act in each moved case as soon as the page allows, under
+  [Which entry a case uses](../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
+  and the [North Star](../NORTH-STAR.md#act-as-soon-as-the-page-allows-retire-actsettled).
+  Remove `actSettled`, React `act` wrapping and `IS_REACT_ACT_ENVIRONMENT`
+  from the mounted families already moved (Story Notes, Project CI history,
+  the phone board) when the family is next touched. Retire
+  `mountedActSettled.ts` and its harness case with `mountedDashboard.ts`.
+  Measured on the five Project Intent revision cases on 2026-11-20, removing
+  `actSettled` cut the median summed case time from 7.16 s to 5.75 s (10
+  runs each, five interleaved pairs all faster) with 31 consecutive green
+  runs. The built app summed 6.28 s for the same cases. The remaining cost is
+  mostly browser-driven clicks of about 150 ms each. Expect the gain
+  in group elapsed time once a selection needs no app build. The
   built-app `intent-read-recovery`, `intent-gherkin-settings-problems` and
   `intent-revision-update-boundaries` specs still hand-write the
   `IntentLocationsAnswer` that `makeMe.anIntentLocationsAnswer` now builds.

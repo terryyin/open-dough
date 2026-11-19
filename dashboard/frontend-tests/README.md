@@ -64,10 +64,18 @@ Mount the component that owns the behavior, in a Vitest browser-mode spec
 (`*.mounted.spec.ts`), with typed inputs. A component that reads a service
 through a hook takes a typed source behind that hook, such as
 `storyNotesState(source)` from `dashboard/src/storyNotes.ts`, which the case
-supplies. Deliver input in the page inside React `act`; use native keyboard
-or pointer input only where native input is the behavior. Build domain data
-with the page-loadable MakeMe entry
+supplies. Use native keyboard or pointer input only where native input is
+the behavior. Build domain data with the page-loadable MakeMe entry
 (`Distribution/tests/support/pageMakeMe.mjs`).
+
+Act as the reader does, as soon as the page allows it. Render and deliver
+input directly, with `IS_REACT_ACT_ENVIRONMENT` unset, and wait only for what
+the action changes through retrying assertions (`expect.element`,
+`expect.poll`). A synchronous read follows a retrying assertion on the same
+render. Locator input such as `userEvent.click` already waits until its
+target can take it. The Project Intent revision cases
+(`intent/intent-revision-*.mounted.*`) are the example: rendering and
+clicking without a settle wait cut their summed time by about a fifth.
 
 Story Notes is the reference family:
 `stories/story-notes-dialog.mounted.spec.ts` mounts the dialog,
@@ -96,10 +104,10 @@ board reads.
   service state import Node modules), and pass the result to the mount.
 - The notes answers come from `../test-support/support/frontendStoryNotesRule.ts`,
   which both engines use.
-- Run every mount, `runFor` and input through `actSettled` in
-  `mountedActSettled.ts`, which settles React with task and frame rounds
-  before the case observes the page. A page still changing after its round
-  cap fails the case with `UnsettledPageError`, which names the cap.
+- `mountAnsweredDashboard` settles its mount through `actSettled` in
+  `mountedActSettled.ts` until both retire with this support. A page still
+  changing after its round cap fails the case with `UnsettledPageError`,
+  which names the cap.
 - The board's revision stream is unreachable, so the banner reads
   `disconnected` and the board reads project changes through its check
   schedule.
