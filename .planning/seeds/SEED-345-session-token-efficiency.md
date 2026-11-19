@@ -158,19 +158,50 @@ Each trial is judged with the
 
 **Identity:** SEED-345#get-long-verification-results-without-empty-wakes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/714-get-long-verification-results-without-empty-wakes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7d99670d098211ef8648dfc5c382657fc4014b9fb98c6ad2d0ffb3c1b5d59224","plan":"2be2066d220d6a4603231fa91a4c5ab1895c2dc036d3a3d9dc5eee43ab4e6934"}}
 ```
 
-- **Scope and beneficiary.** Shared, with Codex evidence leading and a Claude
-  Code cache-lifetime adaptation. A developer gets the terminal result of a
-  genuinely running verification at less cost while it runs.
-- **Evaluation.** While a selected proof command or delegated run is still
-  running, its owner obtains the exact terminal result and failure evidence
-  without model requests that only observe “still running”. A wait expected
-  to outlast the host's cache lifetime is owned where waking or the host's
-  completion notification costs least. Keep the overdue, cancellation and
-  CI completion behavior. Compare idle-wake requests, rebuilds and total
-  effort on matched runs, with the same proof decisions.
+- **Goal.** A developer waiting for a long verification gets the original
+  command's terminal result and decisive failure evidence at lower combined
+  coordinator and worker cost. During a quiet run the model has no reason to
+  wake until a result or intervention arrives or a real check falls due.
+- **Scope.** Start with a running Codex proof and its waiting coordinator.
+  The worker keeps the command it launched. The coordinator waits for the
+  worker, user input or the earliest applicable proof, progress or CI check.
+  Keep command continuation, overdue diagnosis, cancellation and revision-specific
+  CI completion. On Claude Code choose where a cache-crossing wait will be
+  observed before launching the proof, with the existing five-minute worker
+  cache. Cursor retains its supported foreground or bounded exit-file wait.
+  Paused suppliers, general monitoring, cache settings and shorter worker
+  context are separate work.
+- **Key examples.**
+  1. A worker runs a quiet check that will finish before its next due check →
+     it exits 0 → the owner returns the recorded success once. The coordinator
+     can receive it early without a model request that only sees “still running.”
+  2. The same check exits nonzero → the worker returns its exact status, failing
+     assertion and log. If the check falls due first, the coordinator obtains
+     bounded liveness evidence and the owner continues the same live command.
+     A due check, silence, or a host handback alone establishes no verdict.
+  3. A user intervenes or CI needs attention during the wait → act at the
+     host's supported safe boundary. Honor cancellation for the owned work,
+     verify its state, and account separately for the observer and the
+     applicable accepted revision. Local proof cannot settle CI.
+  4. A Claude Code proof will outlast the worker cache → choose the eligible
+     launch owner and native notification → the owner reads the terminal proof.
+     Compare the resume request's cache reads and writes and both agents'
+     total effort. A silent interval followed by a costly rebuild can lose.
+- **Architecture and alternatives.** Compare today's host wait with a timed
+  wait borrowed from event loops. A worker result or user message makes the
+  wait return early. The next genuine deadline is its timer. The notification
+  prompts the owner to read proof. Host delivery, interruptibility and time
+  limits vary, so a timer expiry or message is insufficient evidence of exit.
+  On Claude Code, placing a separable proof with an already-authorized,
+  longer-lived owner before launch can avoid resuming a large cold worker.
+  Compare that cost, including any handoff or reread, with leaving it at
+  the worker. Prefer the existing wait when it already meets the criteria.
+  Keep one shared rule in [delegation](../../Distribution/src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls)
+  and the host-specific mechanics in [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md).
+  This follows [ADR 0006, Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
 - **Priority, November 19.** Queue this first after the new-model Token Index
   story moves to Taken. The worker can run the same checks and return the same
   evidence while the coordinator waits, so try this before changing the
@@ -182,12 +213,16 @@ Each trial is judged with the
   batch contained only timed-out `wait_agent` calls and no user, developer or
   worker message intervened. These figures measure usage after timeouts.
   Estimate achievable savings from the difference between matched runs.
-- **Codex wait trial.** Have the coordinator wait for a worker result, user
-  intervention or the next due progress check. Exercise both a quiet successful
-  wait and a worker that fails or becomes overdue. Compare timeout-following
-  requests and combined coordinator and worker index. Require the same terminal
-  result, failure evidence and timely handling of overdue work, cancellation
-  and CI completion. Keep the worker responsible for its original command.
+- **Trial decision.** Use the same workload, outcome and proof in each host's
+  baseline and candidate. Count requests after empty subprocess returns and
+  delegated timeouts separately, cache rebuilds, combined effort and any
+  delayed action or human rescue. Keep a change only where the quiet example
+  has no empty wake, the other proof decisions hold, and total effort falls.
+  An unavoidable host wake remains visible. A missing trace or unmatched
+  run leaves the saving unknown. Use current source guidance in the control
+  so the trial cannot claim a saving from an earlier foreground-wait change.
+  [ADR 0005, Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+  and [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Earlier evidence.** Codex recorded 2,303 requests
   (446.5M tokens, 7.6%) after empty subprocess output or agent-wait timeouts.
   Claude Code paid about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
