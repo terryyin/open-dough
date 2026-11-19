@@ -36,7 +36,8 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
-- [Renovate the remaining dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
+- [Prove what Done keeps of a Default main session's commits in-process](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
+- [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the remaining dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-frontend-unit-tests) — SEED-413#renovate-remaining-dashboard-frontend-unit-tests
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
