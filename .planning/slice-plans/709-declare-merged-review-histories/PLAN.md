@@ -142,7 +142,7 @@ candidate for one domain-named reader in `reviewRead.ts`.
 
 ### 2. Read renamed and starting story commits from declared revisions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Second through fourth consumer rows.
 
 Behavior: Given `src/c.ts` renamed to `d.ts`, a declared conflicted
@@ -154,6 +154,31 @@ the push to trunk and Refresh after opening stay written in the scenario.
 Remove superseded plumbing, update the guide with declared merges and the
 independent conflict observation, and finish this story's candidate audit. One
 range-history loop; 15 active minutes, commands excluded.
+
+Accepted proof (2026-11-19): `trunkIntegrationRepository` gained `renamed`
+and `after` for the renames history; `parentsConflict` is shared beside it and
+`worktreeWithStoryCommits` is gone. `storyAReviewRepository.ts` shares
+`storyAHistory` and its uncommitted state, and `storyAWithNewestRepository`
+declares the newest plain edit as a workspace revision before that state; the
+empty commit and the refresh case's first commit were already declared through
+`storyFromBase()`. The four commit specs passed 11/11 strict; the 12 other
+`storyARepository` E2E consumers passed 24/24 strict and the backend
+file-text admission spec passed. `Distribution/tests/repository-test-data.md`
+documents declared merges, full resolved bytes, the independent `merge-tree`
+observation and starting commits before local state. ADR 0010: the renames
+setup's 17 imperative lines and 16-line helper with a failing merge became a
+17-line declaration plus one conflict assertion, and the newest edit's 10-line
+in-test commit became one `test.use`. The renames merge's subject is now
+"merge trunk". Candidate audit: only the renames merge and newest plain edit
+belonged here; post-open commits in the refresh specs stay actions; Trunk Mode
+(`storyReviewTrunkMode.ts`, `storyReviewTrunkCommits.ts`, `trunk-own-*`,
+`trunk-worktree*`) and completed-story merges (`storyReviewMergeDriver.ts`,
+`laterStoryMergesTrunk.ts`, trunk commits in `follow-up`, `diff-add-note`,
+`diff-line-follow-up`) stay with their siblings; remaining `rev-parse` calls in
+`story-review.spec`, `nothing`, `one-shot-landing` and `story-branch-landed`
+are independent observations. Learning: a story that renames a file before a
+declared merge keeps trunk's bytes only at the new path, or the merge re-adds
+the old path. The refactor pass found nothing further.
 
 ## Verification and execution gates
 

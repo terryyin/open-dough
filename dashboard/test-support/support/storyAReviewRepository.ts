@@ -6,6 +6,7 @@
 // origin from it.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 import { test as base } from "./preparationPage.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
@@ -58,19 +59,33 @@ const storyAHistory = queuedReadyRepository()
   .withUnpublishedRevision("merge trunk", {
     parents: ["redrawn", "merged"],
     files: { "other.txt": "other story\n" },
-  })
-  .please();
+  });
 
 // Uncommitted: one file staged, one edited with the wide line, a nested
 // untracked file and a file ignored through info/exclude.
-export const storyARepository: StartRepository = withLocalState(storyAHistory, {
+const uncommitted = {
   staged: { "staged.txt": `${lines("staged")}more\n` },
   unstaged: {
     "unstaged.txt": `${lines("unstaged").replace("unstaged 5\n", "unstaged five\n")}${wideLine}\n`,
   },
   untracked: { "fresh/new.txt": "untracked\n" },
   ignored: { "ignored.log": "ignored\n" },
-});
+};
+
+export const storyARepository: StartRepository = withLocalState(
+  storyAHistory.please(),
+  uncommitted,
+);
+
+// Story A with a `newest` plain story commit after its trunk merge, committed
+// before the same uncommitted state.
+export const storyAWithNewestRepository = (
+  newest: RepositoryRevision,
+): StartRepository =>
+  withLocalState(
+    storyAHistory.withUnpublishedRevision(newest.name, newest).please(),
+    uncommitted,
+  );
 
 export { expect } from "./preparationPage.ts";
 export const test = base.extend({

@@ -13,6 +13,7 @@ import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
+  parentsConflict,
   sixth,
   trunkIntegrationRepository,
 } from "../../dashboard/test-support/support/storyReviewTrunk.ts";
@@ -26,29 +27,8 @@ import {
   fileLineCounts,
   listedFile,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import {
-  git,
-  storyWorktree,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
-
-// Whether Git, merging the story merge's named parents itself, conflicts:
-// `merge-tree` exits 1 for a conflict; any other failure is not an answer.
-function parentsConflict(origin: StartOrigin, story: string) {
-  try {
-    git(
-      origin.project,
-      "merge-tree",
-      "--write-tree",
-      origin.revision(story),
-      origin.revision("trunk changes"),
-    );
-    return false;
-  } catch (error) {
-    if ((error as { status?: number }).status === 1) return true;
-    throw error;
-  }
-}
 
 // Story A's review opened on Commits, with its story commit rows.
 async function openStoryCommits(
