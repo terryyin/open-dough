@@ -12,10 +12,12 @@
 // the same as its responses one by one. A response at a speed tier the
 // tariff does not price has no rate rather than a standard one, since faster
 // tiers cost more; one with no recorded tier is at the tariff's tier.
-// A named model the tariff does not list takes the reference model's rates
-// as an estimate: the weighing carries each actual model with its substitute
-// so the view can ask for the rate card to be updated. An absent model has no
-// rate.
+// A named model the tariff does not list takes, as an estimate, all the rates
+// of its closest listed family version or else the reference model's
+// (./tariffSubstitute.ts): the weighing carries each actual model with its
+// substitute so the view can ask for the rate card to be updated. An absent
+// model has no rate.
+import { substituteModel } from "./tariffSubstitute.ts";
 import type { SummaryUsage } from "./usageTaskSummary.ts";
 import type { TokenRates, UsageTariff } from "./usageTariffs.ts";
 
@@ -47,9 +49,9 @@ function ratesOf(
   if (model === null) return undefined;
   const listed = tariff.models[model];
   if (listed !== undefined) return { rates: listed };
-  const substitute = tariff.reference.model;
-  const reference = tariff.models[substitute];
-  return reference === undefined ? undefined : { rates: reference, substitute };
+  const substitute = substituteModel(model, tariff);
+  const rates = tariff.models[substitute];
+  return rates === undefined ? undefined : { rates, substitute };
 }
 
 type WeighedUsage = {

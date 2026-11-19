@@ -89,7 +89,7 @@ a genuinely unpriceable task alongside the newly visible estimate.
 ### 2. Use the closest family rate until the explicit update
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a missing rate for a version of a known family, open the same chart.
 Only the substitute and resulting index change. The warning names the
@@ -134,5 +134,10 @@ through the same rate lookup. No remaining slice-specific concern.
   `e2e/configuration/system-settings-usage-estimate.spec.ts` and the
   eligibility, Claude and period Token Index backend specs; slice 2 can
   extend those for close-family matching and the card-update refresh.
+- Slice 2: the Token Index harness `readCohort` rewrites the store on every
+  call, so it cannot observe "no history rewrite"; the chart route's
+  unchanged store hashes in `token-index.spec.ts` do. Close-family proof lives in
+  `token-index-estimate-family.spec.ts`; the refresh warning proof in the
+  frontend `system-settings-usage-estimate.spec.ts`.
 
 ## Story obligations
