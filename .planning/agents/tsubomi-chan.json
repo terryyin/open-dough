@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsubomi-chan",
-  "email": "tsubomi-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-408#default-dashboard-backend-checks-to-the-mounted-boundary",
-  "host": "claude"
-}
