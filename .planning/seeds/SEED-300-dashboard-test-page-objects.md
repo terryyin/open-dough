@@ -22,11 +22,11 @@ this seed is **deferred until after Frontend Renovation** and narrowed strictly
 to surviving **`e2e/`** workflows:
 
 - Single-service `dashboard/frontend-tests/` specs move to narrow owning
-  component mounts under `SEED-413#renovate-dashboard-frontend-unit-tests` and
+  component mounts under `SEED-413#renovate-remaining-dashboard-frontend-unit-tests` and
   do **not** receive whole-app page-object hand-offs.
 - `SEED-300#express-browser-measurement-test-intent` was dropped on 2026-11-19
   (auditing and retiring `frontend-tests/test-harness/` belongs to
-  `SEED-413#renovate-dashboard-frontend-unit-tests` rather than building shared
+  `SEED-413#renovate-remaining-dashboard-frontend-unit-tests` rather than building shared
   setup to test test-harness code).
 - Keep page objects thin; weigh every helper against the
   [Architectural North Star](../NORTH-STAR.md) and

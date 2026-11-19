@@ -459,38 +459,150 @@ it.
 
 <a id="renovate-dashboard-frontend-unit-tests"></a>
 
-### Renovate dashboard frontend unit tests around narrow owning components
+### Prove Project CI history through the components that show it
 
 **Identity:** SEED-413#renovate-dashboard-frontend-unit-tests
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#renovate-dashboard-frontend-unit-tests","dependencies":[{"supplier":{"identity":"SEED-413#pilot-direct-dashboard-unit-tests","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests"},"implementation":"The pilot publishes the browser-loadable MakeMe entry and configures Dashboard Frontend Test to use MakeMe without frontend page objects.","rationale":"The history cases must be selected by Intent as *.spec.ts and exercise their components directly. Today that selection requires page objects, and the aggregate MakeMe entry loads Node modules. Supplying another browser entry or changing the conventions in this family would duplicate the pilot's assigned change.","condition":"On trunk a Dashboard Frontend Test case uses the shared browser-loadable MakeMe entry, and the project selector reports makeMe true and pageObjects false for that case.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/722-project-ci-history-component-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"391bd9a4717d51ba30aaab5449cc5690a367fddebb65b9876e03d3dbd8a260c4","plan":"eebd29e314cf98279bc4bda637cb60deeb7ce9a4342a9c04b2474d5e665b2885"}}
+```
+
+**Goal.** A developer changing Project Intent's CI history can check its
+display, evidence and keyboard access in headless Chromium using prepared
+history, judgment and proof. This is the first Intent family after the Story
+Notes pilot. The remaining families carry the full-suite timing target.
+[Remaining frontend renovation](#renovate-remaining-dashboard-frontend-unit-tests).
+
+**Scope.** Migrate the five cases in the four `intent-ci-wall-time-history*`
+specs from the built app to plain Vitest Browser Mode. Preserve each distinct
+assertion, including phone layout, exact evidence wording, run links, dates
+and the shape of the chart. Keep the existing family filter, case listing and
+CI proof. Compare summed case time to the same family's built-app baseline
+and report command elapsed time separately. Unit cases use typed MakeMe inputs
+and add zero test-support wrappers. Retire only support that loses its last
+consumer. History collection, the size of the server's retained window,
+Done-story and scope histories, and final runner retirement have other owners.
+
+**Key examples.**
+
+- Two measured builds flank a gap, with build dates running backwards in
+  landing order → the reader opens Builds and evidence → all three rows keep
+  the answer order, the heading spans the actual build dates, and no line
+  connects the points across the gap. A supplied measured time can differ
+  from the run's wall time.
+- The supplied window contains twenty measured builds and six gaps →
+  the reader views the chart and expands its evidence → the duration rises
+  and falls with the measured values, every break is visible, and all 26
+  entries have their evidence. An empty history leaves the judgment and
+  Proof visible and offers no evidence disclosure.
+- On a 390 px phone the reader focuses Check again → Shift+Tab opens the
+  path to Builds and evidence, Enter expands it, and successive Tabs reach
+  the named run links in order. The gap-only answer still explains each gap,
+  and the page and the history fit the viewport.
+
+**Architecture.** `IntentCiHistory` owns the evidence rows, date extent and
+chart. Its `HistoryReading` input already represents what a successful read
+supplies. Use the existing CI history builder and production conversion
+`measuredHistoryOf`; expected dates, values and chart breaks come from the
+case. `JudgedBranch` owns the combination of judgment, Proof, history and
+Check again, so it is the smallest owner for keyboard order and sibling
+visibility. A whole-board mount would keep unrelated route substitutes.
+Mounting only the child would lose the keyboard transition. This is the same
+division as an instrument calibration using a known input at the display
+and checking the connections on the assembled instrument. Backend collection
+and wire admission still need their own evidence.
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+[ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+and [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+**Baseline and choice.** The existing five cases took 3.37 summed seconds
+and 4.21 s wall in a focused two-worker run at `267a27502`. CI recorded
+5.73 summed seconds. Terry selected this family ahead of revision updates
+(nine cases, 22.03 summed CI seconds) because the existing typed inputs allow
+both proof boundaries to be tested directly. The plan holds the Chromium
+observations. Effort M with high confidence in the tested boundaries.
+
+<a id="renovate-remaining-dashboard-frontend-unit-tests"></a>
+
+### Renovate the remaining dashboard frontend unit-test families
+
+**Identity:** SEED-413#renovate-remaining-dashboard-frontend-unit-tests
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why.** Developers changing `dashboard/src/` get Doughnut-speed
-  (~1 minute full two-worker run, absorbing `SEED-404`'s goal recoverable at
-  `986aad0f1:.planning/seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md`)
-  and readable UI unit tests that mount the smallest rendered component or view
-  owning the interaction instead of `<App />` and fake backend mini-servers.
-- **Evaluation.** Decompose by feature folder (`intent/`, `navigation/`,
-  `sessions/`, `launches/`, `review/`, `configuration/`, `terminals/`, top-level,
-  and auditing/retiring `test-harness/` — 302 `.spec.ts` files), starting with
-  the highest case-second families (`intent/` — absorbing
-  `SEED-301#publish-intent-projects-through-makeme` onto narrow typed Intent
-  component inputs rather than `putFrontend*` — and `sessions/` alongside
-  `SEED-341`). For each folder:
-  - Give components narrow typed props or shared typed boundary contracts so
-    plain Vitest + headless Chromium specs mount the owning component/view
-    directly without `@playwright/test`, `page.route(...)`, or `test.step(...)`
-    (mounting an enclosing container only when focus return or cross-child
-    coordination is the contract, and moving any true multi-service or
-    full-reload straggler to `e2e/` or dropping duplicates).
-  - Retire `dashboard/frontend.playwright.config.ts`, `.mounted.spec.ts` split
-    naming, dual-runner glue (`scripts/test-frontend.mjs`,
-    `frontendMounted.mjs`, `frontendOutputs.mjs`, `frontendSelection.mjs`),
-    `frontendApp.ts`, `mountedDashboard.ts`, `frontendServiceSubstitutes.ts`,
-    `frontend*Rule.ts`, and `frontend-tests` page-object scaffolding.
-- **Effort hypothesis.** L across the suite — split by folder during refinement,
-  following each folder's shared typed contract from Backend Renovation where
-  coupled.
-- **Safe stopping point.** Each migrated folder drops its multi-second `<App />`
-  tax and deletes its route-substitute rules independently.
+**Goal.** Give dashboard developers readable UI unit tests and feedback from
+the complete frontend group in roughly a minute at the usual two workers,
+including preparation. This carries the suite-wide commitments split from
+[Project CI history](#renovate-dashboard-frontend-unit-tests), including
+SEED-404's timing goal and SEED-301's Intent MakeMe work.
+
+**Scope and order.** Select families by feature folder and the interaction
+each view owns. Continue in Intent and Sessions. Revision updates are a
+candidate within Intent, with selection, focus and recovery across views.
+Use shared typed Intent inputs in place of `putFrontend*` project arrangements;
+coordinate session proof with [SEED-341](SEED-341-simplify-session-tests.md).
+The family map includes Navigation, Launches, Review, Configuration, Terminals,
+the Stories cases left by the pilot, and the audit of the four test-harness
+specs. The root contains no product specs. Reassess the order by measured
+cost and which shared contracts are available as families finish.
+
+- Mount the smallest rendered owner with typed inputs. Keep an enclosing view
+  when its children coordinate. Use the backend's existing shared contract
+  where coupled. Preserve distinct assertions and remove a duplicate only
+  after locating its equivalent proof. For example, reloading an encoded story
+  URL and traversing Back and Forward needs a real E2E browser journey.
+  Account for the cost of any checks moved there.
+- Retire a feature's app mount, route substitutes and page-object scaffolding
+  when their last consumers move. For example, `frontendIntentCi.ts` still
+  uses `serveFrontendCiHistory` after Project CI history migrates. Add zero
+  new wrappers. Audit harness cases against the product behavior they protect
+  before retiring machinery whose only checks exercise the harness itself.
+- At the last frontend migration retire `frontend.playwright.config.ts`,
+  `.mounted.spec.ts` split naming, frontend dual-engine dispatch and its
+  dedicated selection/output glue, `frontendApp.ts`, `mountedDashboard.ts`,
+  `frontendServiceSubstitutes.ts` and spent `frontend*Rule.ts` modules.
+  Preserve shared runner behavior still used by the backend, the frontend npm
+  command, filtering, listing, worker budget, shards, timings and CI proof.
+  `@playwright/test` remains the E2E runner. The frontend group runs entirely
+  on plain Vitest with headless Chromium.
+- Finish by comparing a full two-worker run against the baseline below and
+  checking the surviving behavior and support surface. A fast filtered run
+  already helps one developer on one family. It cannot measure the cost of
+  the full group. Each completed family delivers usable feedback on its own.
+  Effort L across families, to be refined as each one is reached.
+
+#### Frontend campaign baseline
+
+At `267a27502` there are 304 frontend spec files, including nine
+`.mounted.spec.ts` files. The root holds no specs. The CI proof also names
+five Intent modules that register cases for other spec files. The frontend
+sources match the measured revision. Summed case time identifies expensive
+families. The campaign's roughly one-minute goal is elapsed time for the
+complete local group at two workers, including preparation.
+[CI run 44503789713, attempt 1, frontend-test-proof artifact](https://github.com/terryyin/open-dough/actions/runs/44503789713/artifacts/14518967274)
+
+| Folder | Specs | Cases | CI summed seconds | Local summed seconds |
+| --- | ---: | ---: | ---: | ---: |
+| Intent | 110 | 249 | 321.3 | 214.2 |
+| Navigation | 49 | 123 | 282.4 | 212.3 |
+| Sessions | 46 | 97 | 164.2 | 108.4 |
+| Launches | 29 | 81 | 125.6 | 74.7 |
+| Review | 21 | 47 | 98.7 | 75.8 |
+| Configuration | 19 | 49 | 95.0 | 64.1 |
+| Terminals | 12 | 41 | 81.4 | 58.4 |
+| Stories, including the Story Notes pilot | 14 | 28 | 34.2 | 26.3 |
+| Test harness | 4 | 16 | 4.2 | 3.6 |
+
+The local baseline on 2026-11-19 at `267a27502` was **7 min 15 s** for
+the complete command. All 731 cases passed on the first attempt (837.8
+summed case-seconds). This was one run after focused checks in this
+worktree, using `caffeinate -s -i npm run test:dashboard:frontend -- --workers=2`
+on AC power. Natural one-minute load was 5.83 at start and 4.80 at finish.
+
+A scratch experiment in this checkout ran 24 copies of one history-render
+case at two workers. It took 3.63 s wall in separate files and 2.32 s together.
+This establishes a file cost for that component. Measure the full group to
+judge the campaign outcome.
