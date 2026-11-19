@@ -1,65 +1,20 @@
-# Reach dashboard backend checks through the mounted boundary
+# Enable opt-in mounting for dashboard backend checks
 
 **Identity:** SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary
-**Source:** [Reach dashboard backend checks through the mounted boundary](../../seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary)
+**Source:** [Enable opt-in mounting for dashboard backend checks](../../seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary)
 **Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
-In Dashboard Backend Test, a boundary-mode start mounts the local boundaries
-in the test process on the Cursor runner stand-in, and each case keeps its
-assertions. A case whose proof is a separate process, a live connection, the
-server program, or Cursor work asks for the live server by name. A case that
-fails on the mount for another reason also asks, naming that reason.
+An explicit boundary-mode request mounts the local dashboard boundaries in
+the test worker on the Cursor stand-in. The existing Java, project list and
+Claude acceptance assertions hold. Cases that need a live process can name
+their reason per start. Live is the default.
 
-Excluded: returning the cases held for another reason, preview-mode cases,
-mounting one boundary alone, and boundary-mode starts made by E2E Test or
-Dashboard Frontend Test. The seed records these as deferred.
-
-## Current decisions and proof boundaries
-
-- **The start chooses the entry.** Cases keep calling the start they call
-  today. The scratch trial passed 1,545 of 1,634 cases that way, so moving
-  cases one by one buys nothing.
-- **Reuse.** Extend `dashboard/test-support/support/inProcessBoundaryHttp.ts`
-  to mount a list of boundaries, pass them the HTTP server for upgrades, and
-  take the project environment. `inProcessAuthenticatedRead.ts` keeps using
-  it. Reuse `cursorRunnerStandIn.ts`, `withRestoredEnv`
-  (`testEnv.ts`) and `dashboardFixtureLifetime.ts` as they are.
-- **A new module holds the mounted server.**
-  `dashboard/test-support/support/dashboardServer.ts` is 241 lines against
-  the 250-line check, so the mount lives beside it and
-  `startDashboardServer` selects between the two launches.
-- **The live request is one option on the start** that carries its reason:
-  `separate process`, `connection`, `server program`, or a free-text reason
-  for a case held for another cause. Wrappers pass it through per call, so a
-  wrapper shared with mounted cases is not pinned whole.
-- **One mounted server per test process at a time.** A second mounted start
-  while one is up refuses and names the live request.
-- **Only the backend run mounts.** The backend configuration selects the
-  mounted default; other groups keep the live server.
-- No Accepted ADR governs the test entry.
-  [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
-  sets the comparison the seed records. No North Star topic applies.
-- [MOUNT-TRIAL.md](MOUNT-TRIAL.md) lists the cases that failed on the mount
-  and the specs that ran a second server. Slices 4, 5 and 6 start from it.
-
-## Premises and observations
-
-All observed on 2026-11-18 at `901d7c3b9` in this story's worktree, on AC
-power under `caffeinate -s -i`, two workers, with other sessions loading the
-machine (load average 7 to 16). Scratch edits were reverted.
-
-| Premise and operation | Observed result and limits |
-| --- | --- |
-| Every boundary except the incident record mounts in a Playwright worker and answers. A scratch spec under the backend configuration installed `localBoundaries` without `dough-incident-record` through `installBoundary` on its own `http.Server`, private `HOME`, fake `gh`, stand-in runner, six mounts in one worker, and asked `/__project-configuration`. | 200 each time; start 2–4 ms, close 1–9 ms. |
-| The Cursor runner, not the child process, is most of a start. Same spec, interleaved six rounds. | Live with real runner 358–595 ms; live with stand-in 157–358 ms; mounted with real runner 426–665 ms; mounted with stand-in 2–4 ms. |
-| A process keeps one project environment. Read `initializeProjectConfiguration` in `dashboard/server/projectConfiguration.ts`; in the scratch trial a production mount ran in a worker before `configuration/project-add-validation.spec.ts`, whose fixture initializes development. | `A dashboard server cannot use both project environments.` The trial reset the two module variables before each mount; slice 1 replaces that reset. |
-| Boundary-mode cases pass on the mount with the stand-in. `npm run test:dashboard:backend -- --grep-invert '[Cc]ursor'` with the scratch routing. | 1,545 of 1,634 passed, 74 failed in 59 files, 900 starts mounted at a median 6 ms start and 3 ms close. Classes: process identity, restart and shutdown; the incident record; a test's own child command inheriting the mount's environment; backoff timing. Cases naming Cursor did not run. |
-| A Cursor case cannot use the stand-in. The whole suite with the scratch routing; read `stopCursorRunner` in `dashboard/server/hosts/cursor/runnerProcess.ts`. | Cursor cases failed with `Unexpected Cursor protocol work on the runner stand-in: GET /sessions`, and the run ended abruptly during `terminals/agent-terminal-cursor-exit.spec.ts`. The stop sends SIGTERM to the pid in the runner address, which a stand-in writes as the worker's. Which call ended the run was not isolated. |
-| The mount is faster under equal load. `npm run test:dashboard:backend -- review/ --grep-invert '[Cc]ursor\|one-shot-landing\|completed-capture-fallback\|one-shot-admission'`, live then mounted, three times. | 136 passed each time. Wall 145, 108, 116 s live; 91, 97, 85 s mounted. |
-| Baseline for the seed's comparison. One whole backend run with each start timed. | 1,110 starts: 1,028 boundary, 76 preview, 6 dev. Start and close summed to 532 s of 2,116 s of case time; wall 1,114 s. One case failed, `sessions/agent-launch-codex-observation-wait.spec.ts`, under load. |
-| Server settings are read when used, so a mount can set them per case. `grep -nE '^(export )?(const\|let) .*process\.env' dashboard/server/*.ts`. | No match at module level in `server/*.ts`. `server/hosts/` and the backoff failures were not traced; slice 6 traces the failures. |
+The developer authorized closing this opt-in outcome after the sixth
+delivered slice. Original slices 7 and 8, including the adoption and timing
+gates, belong to [SEED-408](../715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md).
+The existing opt-in evidence and production entry contracts apply independently.
 
 ## Ordered slices
 
@@ -269,75 +224,13 @@ path-scoped cache premise. The affected tests need an empty process and
 request one explicitly. The mount and product cache policy stay scoped to
 their existing responsibilities.
 
-### 7. Dashboard Backend Test mounts boundary-mode starts by default
+## Verification
 
-Type: Behavior
-Status: planned
-Budget: 15 active minutes, excluding commands.
-
-Behavior: a backend case starts a boundary-mode server without asking →
-the boundaries mount in the worker → its assertions are unchanged. A case
-that asked for the live server gets one. E2E Test and Dashboard Frontend
-Test keep the live server.
-
-The shared Playwright fixture attaches diagnostics on an unexpected test
-status. When it receives a mounted server, attach the available fake GitHub
-calls without requesting a child process's output, and guarantee fixture
-close even when diagnostics fail. This path must preserve the case's original
-failure and restore the worker before it can serve another mount.
-
-Proof: the whole backend suite passes. A case that newly fails gets its
-cause found and the live request with that cause, under the failure policy;
-it is not skipped or loosened. Record every start's entry and its start and
-close time for this run through a temporary recorder and compare with the
-baseline row: at least 800 mounted starts and their summed start and close
-time under a quarter of the baseline's for the same starts. Alternate the
-live and mounted defaults three times over `review/` and record both wall
-times. Run `npm run test:dashboard:frontend` and `npm run test:e2e`, since
-the start is shared with them, and confirm neither mounted a server.
-
-The retained November 18 baseline is aggregate. For a matched-start
-comparison, collect a live-default run on the same implementation with the
-temporary recorder's default override, and pair the originally live starts
-by case and call order with the starts the mounted default routed in-process.
-Explicit mount-only runtime checks keep their requested entry in both runs
-and have no live mate. Retain any unpaired rows for review.
-
-### 8. The entry rule names the mount and the live request
-
-Type: Behavior
-Status: planned
-Budget: 15 active minutes, excluding commands.
-
-Behavior: a developer reads
-[which entry a case uses](../../../dashboard/backend-tests/README.md#which-entry-a-case-uses)
-→ it says a boundary-mode start mounts in the test process on the stand-in,
-how a case asks for the live server and with which reasons, that Cursor
-work is such a reason, and that a test's own child command needs its own
-environment → the link to this story's migration is gone and the header
-comment of `dashboardServer.ts` agrees.
-
-Proof: the README and the fixture comments match the delivered option names;
-`npm run lint` passes. The CI comparison in the seed's goal is owed to
-target CI: the median `dashboard-backend` test step time over the five main
-runs after landing against the five before, read from CI.
-
-## Verification and review
-
-Every slice runs its named specs with
-`npm run test:dashboard:backend -- <paths>` under the strict backend
-configuration, `npm run lint`, and `npm run --silent typecheck:dashboard`.
-Slice 7 runs the three browser groups whole because the shared start
-changes its default. Apply the
-[consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace),
-the shared test-entry selection and the MakeMe convention. Keep default test
-timeouts and the
-[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
-Local gate uses `caffeinate -s -i` on awake macOS on AC power. On battery,
-use the maintained open-lid `caffeinate -i` procedure and sleep-log read
-under [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
-Other sessions load this machine: classify a local failure by rerunning its
-spec alone before reading it as a defect of the change.
+The focused Dashboard Backend Test selections, dashboard typecheck, and lint
+passed at delivery for each retained slice. Local proof used the project's
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+and the [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
+with `caffeinate -s -i` on AC.
 
 ## Execution context
 
@@ -360,34 +253,25 @@ spec alone before reading it as a defect of the change.
   `4a754c19f05e4e2d0011d22f836936f4d2836512` and registered with this observer.
 - Slice 5 was accepted on the story branch at
   `ed000275896c0d2b89ded0d81703c0b2f5c28b30` and registered with this observer.
-- Checkout preparation passed the locked npm install, Chromium prerequisite
-  check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
+- Slice 6 was accepted on the story branch at
+  `73f859a5da6e9e45f6bb6c194693b23e685f713c` and registered with this observer.
 
 ## Story obligations
-
-### G1. Mounted fixture failures preserve their diagnostics and cleanup
-
-Reported: slice 3 — "dashboardTest.ts attaches server.output() on unexpected status before closing the fixture, and mounted output throws."
-Story clause: "Each case keeps its product assertion."
-Disposition: receiving slice 7
 
 ### G2. The output-bound diagnostics start with an empty failure record
 
 Reported: slice 4 — "authenticated-read-output-bound.spec.ts expects one fresh process diagnostic and sees prior entries."
-Story clause: "A proof that needs an empty process is a separate-process proof."
+Story clause: "Existing cases with Cursor, separate-process, connection, server-program or other demonstrated fixture requirements can explicitly request the live server and state why."
 Disposition: proved by slice 5: `slice-5-g2.routes` and `slice-5-g2.log.run.json`, paired with the existing one-entry assertion in `authenticated-read-output-bound.spec.ts`
 
 ### G3. CI comparison cases start with an empty process cache
 
 Reported: slice 6 — "two later checks expected a pending or unavailable build and immediately read a previous final build."
-Story clause: "A proof that needs an empty process is a separate-process proof."
+Story clause: "Existing cases with Cursor, separate-process, connection, server-program or other demonstrated fixture requirements can explicitly request the live server and state why."
 Disposition: proved by slice 6: the final mounted-default selection kept the existing pending-proof and receipt assertions on their explicit live starts, as recorded in `slice-6-final.log.run.json` and `slice-6-final.routes`
 
-## Plan review
+## Execution complete
 
-Refinement was not needed: each slice has one outcome and one proof loop.
-Slices 3 to 6 are Structure so the default can change in slice 7 without a
-red suite; each is bounded by a named list in
-[MOUNT-TRIAL.md](MOUNT-TRIAL.md) or by the Cursor fixtures. This review
-identified no remaining slice-specific concern. Cursor cases stay on the
-live server, so the plan does not depend on the stand-in serving them.
+Product advice: Keep the opt-in mount and live default. The developer
+requested closing this delivered outcome and queueing the remaining migration
+separately. SEED-408 carries the adoption decision and the unfinished proof.
