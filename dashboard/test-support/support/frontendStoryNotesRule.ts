@@ -24,6 +24,9 @@ export function numberedNewStoryNotes(): NewStoryNote {
   };
 }
 
+// How the next note save fails: the service refuses it or cannot be reached.
+export type StoryNoteSaveFailure = "refused" | "unreachable";
+
 export type StoryNotesRuleAnswer<Hold> =
   | { kind: "unreachable" }
   | { kind: "answer"; status: number; body: unknown; hold?: Hold | undefined };
@@ -36,7 +39,7 @@ export class StoryNotesRule<Hold> {
   readonly asked: { project: string; method: string }[] = [];
   readonly changes: StoryNoteChange[] = [];
   nextHold: Hold | undefined;
-  failNext: "refused" | "unreachable" | undefined;
+  failNext: StoryNoteSaveFailure | undefined;
 
   constructor(private readonly newNote: NewStoryNote) {}
 

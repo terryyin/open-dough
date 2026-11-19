@@ -75,24 +75,36 @@ board reads.
   and Node, such as `frontendStoryNotesRule.ts` and
   `frontendStoryReviewRule.ts`; control and region names live once in
   `../test-support/*Names.ts`.
-- Run every mount, input, `runFor` and held-answer release through
-  `actSettled` in `mountedActInput.ts`, which settles React before the case
-  observes the page. A page still changing after its round cap fails the
-  case with `UnsettledPageError`, which names the cap.
+- Run every mount, `runFor`, held-answer release and printed terminal output
+  through `actSettled` in `mountedActInput.ts`, which settles React with task
+  and frame rounds before the case observes the page. Input goes through its
+  `click`, `press` and `fill`, which settle with task rounds; an input after
+  which the product calls the dialog's `close()` goes through `closing`,
+  which finishes on that dialog's native `close` event inside `act`. A dialog
+  its parent unmounts fires no `close` event, so its input settles as
+  ordinary input. A page still changing after its round
+  cap fails the case with `UnsettledPageError`, which names the cap.
 - Only the next notes answer can be held, through `holdNextNotes`, to observe
   pending and recovery states. A second hold fails by name, and a hold still
   kept at cleanup is abandoned as an aborted request.
 - The board's revision stream is unreachable, so the banner reads
   `disconnected` and the board reads project changes through its check
   schedule.
+- A case's terminal socket is answered on the provider's page through
+  `attachedTerminal` in `mountedSessionTerminal.ts`, which installs the
+  attached-terminal substitute for that case only and prints when the case
+  says so.
+- Give every case a literal title. The runner names and selects cases from
+  the titles Vitest reads without running the file, so a title built in a
+  loop or by `test.each` cannot be listed or selected by title; share the
+  steps in a helper and declare each case with its own title.
 - A mount is not a reload: every mount clears `localStorage`, resets the board
   position and sets history to `/`, and carries from an earlier mount only the
   services passed in, such as its notes rule. One cleanup tears all mounts
   down and restores the page.
 
 A case stays on a built-app page only when its behavior needs the real page:
-a real page load or reload, native input the mount cannot deliver, or a live
-socket, such as the attached terminal that Story notes must leave connected.
+a real page load or reload or native input the mount cannot deliver.
 
 Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).

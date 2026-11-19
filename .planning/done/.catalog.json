@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-404_run-the-story-notes-checks-in-a-third-of-their-time.json",
+      "identity": "SEED-404#run-the-story-notes-checks-in-a-third-of-their-time",
+      "completedAt": "2026-11-19T03:09:39.106Z",
+      "blob": "20835ffeb33e608dd5c36bbfb639e436c038aa24"
+    },
+    {
       "fileName": "SEED-346_close-native-comparison-harness-gaps.json",
       "identity": "SEED-346#close-native-comparison-harness-gaps",
       "completedAt": "2026-11-19T02:29:04.336Z",

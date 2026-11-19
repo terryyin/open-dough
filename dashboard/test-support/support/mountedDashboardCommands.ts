@@ -140,13 +140,26 @@ function arrangedNotes(arranged: StoryNotesArrangement) {
 }
 
 // The recently done board with its arranged notes, its project, and the card
-// and identity of each kind the notes cases read.
+// and identity of each kind the notes cases read; with `openSession`, the
+// machine also observes an open session of that title.
 function storyNotesBoard(
-  ...[, arranged = {}]: [BrowserCommandContext, StoryNotesArrangement?]
+  ...[, arranged = {}, openSession]: [
+    BrowserCommandContext,
+    StoryNotesArrangement?,
+    string?,
+  ]
 ) {
   const project = openDoughSource.id;
   const state = defaultFrontendServiceState();
   putFrontendDoneRecords(state, project, boardReviewDoneRecords());
+  if (openSession !== undefined)
+    state.answerMachine(
+      makeMe.aMachineAnswer
+        .observingOpen(
+          makeMe.aLaunchRecord.adHoc({ title: openSession }).please(),
+        )
+        .please(),
+    );
   const notes = arrangedNotes(arranged);
   const [note] = notes[storyA.identity] ?? [];
   return {
@@ -175,6 +188,7 @@ declare module "vitest/browser" {
     storyNote(arranged: ArrangedStoryNote): Promise<StoryNote>;
     storyNotesBoard(
       arranged?: StoryNotesArrangement,
+      openSession?: string,
     ): Promise<ReturnType<typeof storyNotesBoard>>;
   }
 }
