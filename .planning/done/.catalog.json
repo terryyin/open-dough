@@ -2664,18 +2664,6 @@
       "identity": "SEED-052#cursor-chosen-model-unconfirmed-start",
       "completedAt": "2026-10-20T10:38:06.856Z",
       "blob": "4269bbc243d2209267ed749c16cb253d4a123060"
-    },
-    {
-      "fileName": "SEED-145_quiet-preparation-chain.json",
-      "identity": "SEED-145#quiet-preparation-chain",
-      "completedAt": "2026-10-20T09:29:31.689Z",
-      "blob": "2d90d9210d8082414970bec6c961fd14e191625e"
-    },
-    {
-      "fileName": "SEED-145_quiet-land-and-wrap-up.json",
-      "identity": "SEED-145#quiet-land-and-wrap-up",
-      "completedAt": "2026-10-20T09:16:13.373Z",
-      "blob": "dda76cb57a9a1df62d3855a0a3169dc18ec88b4a"
     }
   ],
   "unreadable": []

@@ -119,9 +119,11 @@ and deleted `test-support` surface together under
   `sessions/`, `launches/`, `observation/`, `configuration/`, `terminals/`,
   `runtime/` — 555 `.spec.ts` files), starting with `review/` (retiring
   `adHocReview.ts` request plumbing) and `intent/landed-ci` (resolving
-  `SEED-324`/`SEED-319` load sensitivity and module-level memo leaks noted in
-  `715-default-dashboard-backend-checks-to-the-mounted-boundary`). For each
-  folder:
+  `SEED-324`/`SEED-319` load sensitivity and isolating module-level server
+  memos in `followUpStory.ts`, `ciProofArtifact.ts`, `ciAdapterProof.ts`,
+  `baseCiGithubRevisionLookup.ts`, and `LandedCiCollection.close()`, recoverable
+  at `6c628be4a:.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md`).
+  For each folder:
   - Keep wire transport thin over exported strongly typed handlers sharing one
     typed contract with `dashboard/src/`.
   - Move single-service behavioral specs to direct typed handler calls; retain

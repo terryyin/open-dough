@@ -36,7 +36,6 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Default dashboard backend checks to the mounted boundary](seeds/SEED-408-default-dashboard-backend-checks-to-the-mounted-boundary.md#default-dashboard-backend-checks-to-the-mounted-boundary) — SEED-408#default-dashboard-backend-checks-to-the-mounted-boundary ([plan](slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md))
 - [Evaluate recoverable proof evidence in the next real planned execution](seeds/SEED-397-evaluate-recoverable-proof-evidence.md#evaluate-recoverable-proof-evidence) — SEED-397#evaluate-recoverable-proof-evidence ([plan](slice-plans/688-evaluate-recoverable-proof-evidence/PLAN.md))
 - [Pilot direct backend handler and narrow UI component tests on one dashboard family](seeds/SEED-413-renovate-dashboard-unit-tests.md#pilot-direct-dashboard-unit-tests) — SEED-413#pilot-direct-dashboard-unit-tests
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
