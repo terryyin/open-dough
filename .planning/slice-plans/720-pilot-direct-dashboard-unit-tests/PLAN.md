@@ -244,7 +244,7 @@ summed) and reads expected messages from `dashboard/src/storyNotes.ts`;
 ### 5. The notes control's count, refresh and focus are proven on the mounted control
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the `StoryNotes` control mounted with a case-supplied typed
 source, the control shows the count and the waiting description, replaces the
@@ -260,6 +260,11 @@ fails when `localSettingState` accepts the older answer in a scratch edit.
 The built-app specs that read notes through `useStoryNotes`
 (`story-note-voice*`, `review/story-review-notes`,
 `launches/follow-up-attach-notes`, `intent/intent-story-notes`) pass.
+
+Learning: `dashboard/src/storyNotes.ts` exports `StoryNotesSource` and
+`storyNotesState(source)`; `story-notes-control.mounted.spec.ts` holds six
+control cases. The refresh, unreadable and retained specs are gone. All Story
+Notes unit cases summed about 225 ms at two workers, load 3 to 5.
 
 ### 6. The terminal journey owns notes beside a terminal, and spent support is gone
 
