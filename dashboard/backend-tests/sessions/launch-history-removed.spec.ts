@@ -42,9 +42,10 @@ test.describe("removed sessions remain in launch history", () => {
   let machine: string;
   const servers: DashboardServer[] = [];
 
-  async function serverOn(): Promise<DashboardServer> {
+  async function serverOn(liveServer?: string): Promise<DashboardServer> {
     const server = await startDashboardServer({
       mode: "boundary",
+      liveServer,
       environment: "production",
       machine,
       projectFolders: ["open-dough"],
@@ -118,7 +119,7 @@ test.describe("removed sessions remain in launch history", () => {
     expect(existsSync(scope)).toBe(true);
     expect(await readLaunchHistory(home)).toEqual([]);
 
-    const server = await serverOn();
+    const server = await serverOn("separate process");
     const response = await deleteRecord(server, {
       source: "open-dough",
       session: sessionId,

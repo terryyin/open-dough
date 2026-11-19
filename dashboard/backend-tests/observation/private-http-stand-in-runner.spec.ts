@@ -28,6 +28,7 @@ import {
 const knownSourceId = "open-dough";
 const withStandIn = {
   ...developmentBoundary,
+  liveServer: "separate process",
   cursorRunner: "stand-in" as const,
 };
 

@@ -15,7 +15,7 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // Boundary only: mount in this worker with the Cursor runner stand-in.
   readonly mountBoundary?: boolean;
   // Ask for a live server by naming the proof that needs it.
-  readonly liveServer?: string;
+  readonly liveServer?: string | undefined;
   // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).
   readonly restartable?: boolean;
   // Boundary only: the project environment the server keeps its project

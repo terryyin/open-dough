@@ -32,6 +32,7 @@ const reusingServer = (
 ) =>
   startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,

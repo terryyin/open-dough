@@ -144,7 +144,7 @@ eight specs and dashboard typecheck passed.
 ### 3. Cursor cases ask for the live server
 
 Type: Structure
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 Every start that serves Cursor work passes the live request with reason
@@ -157,6 +157,13 @@ behavior changes while live is the default. Enables slice 7.
 Proof: the specs matching `[Cc]ursor` under `dashboard/backend-tests/` pass,
 and a scratch flip of the default leaves every one of them on the live
 server (count mounted starts in that selection: none).
+
+The strict focus run passed 144 cases. The guarded scratch default passed
+all 124 Cursor-selected cases across 41 specs. It recorded 55 live boundary
+and four live preview starts, with zero attempts to mount. The dispatch
+guard refused a mount before publishing any runner address. The dispatcher
+was restored byte for byte, and dashboard typecheck passed. Named run
+records and the source trace are under `slice-3-` in the Git evidence directory.
 
 ### 4. A second server and the server program ask for the live server
 
@@ -225,6 +232,12 @@ the boundaries mount in the worker → its assertions are unchanged. A case
 that asked for the live server gets one. E2E Test and Dashboard Frontend
 Test keep the live server.
 
+The shared Playwright fixture attaches diagnostics on an unexpected test
+status. When it receives a mounted server, attach the available fake GitHub
+calls without requesting a child process's output, and guarantee fixture
+close even when diagnostics fail. This path must preserve the case's original
+failure and restore the worker before it can serve another mount.
+
 Proof: the whole backend suite passes. A case that newly fails gets its
 cause found and the live request with that cause, under the failure policy;
 it is not skipped or loosened. Record every start's entry and its start and
@@ -259,7 +272,7 @@ runs after landing against the five before, read from CI.
 Every slice runs its named specs with
 `npm run test:dashboard:backend -- <paths>` under the strict backend
 configuration, `npm run lint`, and `npm run --silent typecheck:dashboard`.
-Slice 6 runs the three browser groups whole because the shared start
+Slice 7 runs the three browser groups whole because the shared start
 changes its default. Apply the
 [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace),
 the shared test-entry selection and the MakeMe convention. Keep default test
@@ -284,8 +297,18 @@ spec alone before reading it as a defect of the change.
   PID 27345, stream session 7526, cell `g149:11`.
 - Slice 1 was accepted on the story branch at
   `b4f3b5a2d20430fb328e2fa7fb0d9e2a14f8b8bf` and registered with this observer.
+- Slice 2 was accepted on the story branch at
+  `d1b17dbaa0798fa256f27a389f2c7f138c9ad7db` and registered with this observer.
 - Checkout preparation passed the locked npm install, Chromium prerequisite
   check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
+
+## Story obligations
+
+### G1. Mounted fixture failures preserve their diagnostics and cleanup
+
+Reported: slice 3 — "dashboardTest.ts attaches server.output() on unexpected status before closing the fixture, and mounted output throws."
+Story clause: "Each case keeps its product assertion."
+Disposition: receiving slice 7
 
 ## Plan review
 

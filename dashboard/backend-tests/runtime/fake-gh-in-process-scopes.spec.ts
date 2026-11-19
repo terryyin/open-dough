@@ -28,6 +28,7 @@ test("simultaneous servers keep distinct answers across a restart on one machine
   otherGitHub.serve(everyRepository, publishes({ revision: secondRevision }));
   const options = {
     ...developmentBoundary,
+    liveServer: "separate process",
     machine: client.root,
     github: client.github,
     pathPrefix: [client.gh.binDir],

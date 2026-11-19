@@ -39,7 +39,7 @@ boundary for a case that only needs that boundary.
 | P11 | The explicit live-server request names which of the three proof kinds applies. | slice 5 | |
 | P12 | A case that fails on the mount for a reason outside those three kinds can explicitly ask for the live server and keep its proof. | slice 6 | |
 | P13 | An outside-kind request names its reason. The known examples are the case’s child command inheriting the mount environment and a time setting that the server reads once per process. | slice 6 | |
-| P14 | A case that hands a start to the Cursor host asks for the live server with the real runner as a separate-process proof. The Cursor work remains observable with the same outcome. | slice 3 | |
+| P14 | A case that hands a start to the Cursor host asks for the live server with the real runner as a separate-process proof. The Cursor work remains observable with the same outcome. | slice 3 | observed: agent-launch-follow-up-cursor.spec.ts observes the actual create-chat call and kept prompt, and agent-terminal-cursor-runner.spec.ts observes native runner identity across server lifetimes. The guarded default proof records zero mounts in 124 Cursor-selected cases. |
 | P15 | A dev start retains its current behavior. | slice 7 | |
 | P16 | A preview start retains its current behavior. | slice 7 | |
 | P17 | An E2E Test boundary-mode start retains its current behavior. Only Dashboard Backend Test mounts. | slice 7 | |
