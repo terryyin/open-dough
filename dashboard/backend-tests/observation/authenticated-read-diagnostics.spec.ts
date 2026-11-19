@@ -43,7 +43,10 @@ test.describe("authenticated read diagnostics (development environment)", () => 
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      liveServer: "separate process",
+    });
   });
 
   test.afterAll(async () => {
@@ -95,8 +98,15 @@ test.describe("authenticated read diagnostics (development environment)", () => 
     // for a rate limit, storing its wait before the answer is passed on --
     // so a short one would time an answered read out on a slow machine.
     const [short, answering] = await Promise.all([
-      startDashboardServer({ ...developmentBoundary, readTimeoutMs: 300 }),
-      startDashboardServer(developmentBoundary),
+      startDashboardServer({
+        ...developmentBoundary,
+        liveServer: "separate process",
+        readTimeoutMs: 300,
+      }),
+      startDashboardServer({
+        ...developmentBoundary,
+        liveServer: "separate process",
+      }),
     ]);
     const read = (server: DashboardServer) =>
       rawRequest({
@@ -212,7 +222,10 @@ test.describe("authenticated read diagnostics (development environment)", () => 
 });
 
 test("the production environment mounts the same diagnostics route without asking GitHub", async () => {
-  const server = await startDashboardServer({ mode: "boundary" });
+  const server = await startDashboardServer({
+    mode: "boundary",
+    liveServer: "separate process",
+  });
   try {
     const callsBefore = server.ghCalls().length;
     const seen = await inspect(server);

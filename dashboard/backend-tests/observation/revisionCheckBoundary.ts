@@ -85,9 +85,12 @@ async function checked(server: DashboardServer, source: string, since: string) {
 // A boundary of its own for one case, closed by the case: a rate limit
 // GitHub directs holds back every later read of its server, so a case that
 // meets one keeps it from the cases that follow.
-export async function ownRevisionCheckBoundary() {
+export async function ownRevisionCheckBoundary(liveServer?: string) {
   const answers: RevisionCheckAnswers = { main: new Map(), listing: new Map() };
-  const server = await startDashboardServer(developmentBoundary);
+  const server = await startDashboardServer({
+    ...developmentBoundary,
+    liveServer,
+  });
   servedAnswers(server, answers);
   return {
     ...answers,

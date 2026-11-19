@@ -1,15 +1,14 @@
-// While an open launch record of a story remains on this machine, every
-// workflow's start of that story is refused with `session-open` until the
-// session is marked done or its record deleted. An unreadable launch-record
-// file refuses story starts. Proven over raw HTTP against the real acceptance
-// boundary (`../../server/agentLaunches.ts`). Continuation ownership is
+// An open record refuses its story's starts with `session-open` across
+// workflows until the session is marked done or the record is deleted.
+// Unreadable records also refuse story starts at the HTTP acceptance boundary
+// (`../../server/agentLaunches.ts`). Continuation ownership is covered in
 // `./agent-launch-open-session-continue.spec.ts`.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import {
   sessionOpen,
   unreadableLaunchRecords,
@@ -44,6 +43,11 @@ import {
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
 
+const test = base.extend<{ liveServer: string | undefined }>({
+  liveServer: [undefined, { option: true }],
+});
+const cursorTest = test.extend({ liveServer: "separate process" });
+
 // The requested story's execution, still open in the session it names.
 const openExecution = () =>
   makeMe.aLaunchRecord.executing({
@@ -56,10 +60,11 @@ test.describe("an open story session on this machine", () => {
   let server: DashboardServer;
   let push: PushHold;
 
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ liveServer }) => {
     origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
+      liveServer,
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,
@@ -173,54 +178,57 @@ test.describe("an open story session on this machine", () => {
     });
   });
 
-  test("refuses a start for an open Codex or Cursor session until its record is deleted", async () => {
-    server.claudeScenario("launched");
-    keepOpen(
-      openExecution()
-        .inCodexSession({ sessionId: "codex-open-session-1" })
-        .please(),
-    );
-    expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
-    expect(
-      await answerOf(accept(server, { ...request, host: "codex" })),
-    ).toEqual(sessionOpen);
-    await noneStarted();
-    expect(
-      await deleteRecord(server, {
-        source: "open-dough",
-        session: "codex-open-session-1",
-        host: "codex",
-      }),
-    ).toMatchObject({ status: 200 });
+  cursorTest(
+    "refuses a start for an open Codex or Cursor session until its record is deleted",
+    async () => {
+      server.claudeScenario("launched");
+      keepOpen(
+        openExecution()
+          .inCodexSession({ sessionId: "codex-open-session-1" })
+          .please(),
+      );
+      expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
+      expect(
+        await answerOf(accept(server, { ...request, host: "codex" })),
+      ).toEqual(sessionOpen);
+      await noneStarted();
+      expect(
+        await deleteRecord(server, {
+          source: "open-dough",
+          session: "codex-open-session-1",
+          host: "codex",
+        }),
+      ).toMatchObject({ status: 200 });
 
-    const cursorSession = "cccccccc-0000-4000-8000-000000000003";
-    keepOpen(
-      openExecution()
-        .inCursorSession({
-          sessionId: cursorSession,
-          continuation: {
-            workspace: "/tmp",
-            args: ["agent", "--resume", cursorSession],
-          },
-        })
-        .please(),
-    );
-    expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
-    expect(
-      await answerOf(accept(server, { ...request, host: "cursor" })),
-    ).toEqual(sessionOpen);
-    await noneStarted();
-    expect(
-      await deleteRecord(server, {
-        source: "open-dough",
-        session: cursorSession,
-        host: "cursor",
-      }),
-    ).toMatchObject({ status: 200 });
-    expect(await answerOf(accept(server, request))).toMatchObject({
-      kind: "accepted",
-    });
-  });
+      const cursorSession = "cccccccc-0000-4000-8000-000000000003";
+      keepOpen(
+        openExecution()
+          .inCursorSession({
+            sessionId: cursorSession,
+            continuation: {
+              workspace: "/tmp",
+              args: ["agent", "--resume", cursorSession],
+            },
+          })
+          .please(),
+      );
+      expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
+      expect(
+        await answerOf(accept(server, { ...request, host: "cursor" })),
+      ).toEqual(sessionOpen);
+      await noneStarted();
+      expect(
+        await deleteRecord(server, {
+          source: "open-dough",
+          session: cursorSession,
+          host: "cursor",
+        }),
+      ).toMatchObject({ status: 200 });
+      expect(await answerOf(accept(server, request))).toMatchObject({
+        kind: "accepted",
+      });
+    },
+  );
 
   test("refuses a story start when launch records cannot be read", async () => {
     keepLaunchStoreText(machineHome(origin.machine), "{ not launch records");

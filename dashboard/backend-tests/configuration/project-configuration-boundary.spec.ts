@@ -3,7 +3,10 @@ import { startDashboardServer } from "../../test-support/support/dashboardServer
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test("project list stays local and omits checkout paths", async () => {
-  const server = await startDashboardServer({ mode: "boundary" });
+  const server = await startDashboardServer({
+    mode: "boundary",
+    mountBoundary: true,
+  });
   try {
     const url = `${server.baseURL}/__project-configuration`;
     const response = await rawRequest({

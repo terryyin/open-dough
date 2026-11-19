@@ -19,7 +19,10 @@ import {
 } from "../../test-support/support/startSessionLandingContext.ts";
 import { lines } from "../../test-support/support/storyReviewWorktree.ts";
 
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 
 test("the same Done session opens its delivery and keeps its different branch result after retirement", async ({
   dashboard,

@@ -28,7 +28,10 @@ class CalculatorExamples { @Test void adds() { String value = "two"; } }
 test.describe("authenticated Java source selection", () => {
   let server: DashboardServer;
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      mountBoundary: true,
+    });
   });
   test.afterAll(async () => {
     await server.close();

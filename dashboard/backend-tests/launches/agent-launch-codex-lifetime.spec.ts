@@ -20,6 +20,8 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 
+const shutdownTest = test.extend({ liveServer: "separate process" });
+
 const codexRefinement = makeMe.aLaunchRequest
   .refining({ identity, title, host: "codex" })
   .please();
@@ -67,71 +69,36 @@ test("an active detached caller still records acknowledgment and a later connect
   ).toHaveLength(1);
 });
 
-test("an accepted launch outlives its caller; server shutdown keeps it unsettled for reconciliation and disposes native connections without interrupting the turn", async ({
-  dashboard,
-  codexProtocol: protocol,
-  machine,
-  github,
-}) => {
-  const native = protocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  native.hold = true;
-  const request = codexRefinement;
-  const answered = JSON.parse((await accept(dashboard, request)).body) as {
-    kind: string;
-    attempt?: { id: string; acceptedAt: string };
-  };
-  expect(answered).toMatchObject({ kind: "accepted", attempt: { request } });
-  // The caller has its answer; the owner goes on to submit the input.
-  await expect
-    .poll(
-      () => native.calls.filter((call) => call.method === "turn/start").length,
-    )
-    .toBe(1);
-  expect(await attempts(dashboard)).toEqual([
-    {
-      id: answered.attempt?.id,
-      request,
-      acceptedAt: answered.attempt?.acceptedAt,
-      reportingOrigin: dashboard.origin,
-      // This project's refinement has no installed start to publish.
-      publication: { kind: "none" },
-      owned: true,
-      running: true,
-      changes: expect.any(Number) as unknown,
-      worker: {
-        pid: dashboard.pid,
-        serverPid: dashboard.pid,
-        step: "launch",
-        notedAt: expect.any(String),
-      },
-    },
-  ]);
-
-  await dashboard.close();
-  await expect.poll(() => native.sockets.size).toBe(0);
-  expect(native.calls.map((call) => call.method)).not.toContain(
-    "turn/interrupt",
-  );
-  expect(stored(dashboard.home)[0]?.session.sessionId).toBe(native.threadId);
-  const restarted = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    github,
-    codexProtocol: protocol,
-    projectFolders: ["open-dough"],
-  });
-  try {
-    // No server owns it now and nothing settled it: it needs reconciliation.
-    expect(await attempts(restarted)).toEqual([
+shutdownTest(
+  "an accepted launch outlives its caller; server shutdown keeps it unsettled for reconciliation and disposes native connections without interrupting the turn",
+  async ({ dashboard, codexProtocol: protocol, machine, github }) => {
+    const native = protocol;
+    if (native === undefined) throw new Error("Missing native fixture.");
+    native.hold = true;
+    const request = codexRefinement;
+    const answered = JSON.parse((await accept(dashboard, request)).body) as {
+      kind: string;
+      attempt?: { id: string; acceptedAt: string };
+    };
+    expect(answered).toMatchObject({ kind: "accepted", attempt: { request } });
+    // The caller has its answer; the owner goes on to submit the input.
+    await expect
+      .poll(
+        () =>
+          native.calls.filter((call) => call.method === "turn/start").length,
+      )
+      .toBe(1);
+    expect(await attempts(dashboard)).toEqual([
       {
         id: answered.attempt?.id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: dashboard.origin,
+        // This project's refinement has no installed start to publish.
         publication: { kind: "none" },
-        owned: false,
-        running: false,
+        owned: true,
+        running: true,
+        changes: expect.any(Number) as unknown,
         worker: {
           pid: dashboard.pid,
           serverPid: dashboard.pid,
@@ -140,14 +107,49 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
         },
       },
     ]);
-    expect(
-      native.calls.filter((call) => call.method === "turn/start"),
-    ).toHaveLength(1);
-  } finally {
-    native.release();
-    await restarted.close();
-  }
-});
+
+    await dashboard.close();
+    await expect.poll(() => native.sockets.size).toBe(0);
+    expect(native.calls.map((call) => call.method)).not.toContain(
+      "turn/interrupt",
+    );
+    expect(stored(dashboard.home)[0]?.session.sessionId).toBe(native.threadId);
+    const restarted = await startDashboardServer({
+      mode: "boundary",
+      liveServer: "separate process",
+      machine,
+      github,
+      codexProtocol: protocol,
+      projectFolders: ["open-dough"],
+    });
+    try {
+      // No server owns it now and nothing settled it: it needs reconciliation.
+      expect(await attempts(restarted)).toEqual([
+        {
+          id: answered.attempt?.id,
+          request,
+          acceptedAt: answered.attempt?.acceptedAt,
+          reportingOrigin: dashboard.origin,
+          publication: { kind: "none" },
+          owned: false,
+          running: false,
+          worker: {
+            pid: dashboard.pid,
+            serverPid: dashboard.pid,
+            step: "launch",
+            notedAt: expect.any(String),
+          },
+        },
+      ]);
+      expect(
+        native.calls.filter((call) => call.method === "turn/start"),
+      ).toHaveLength(1);
+    } finally {
+      native.release();
+      await restarted.close();
+    }
+  },
+);
 
 for (const ending of ["complete", "disconnect"] as const) {
   test(`a ${ending} notification racing confirmation is accounted for and disposes the connection`, async ({

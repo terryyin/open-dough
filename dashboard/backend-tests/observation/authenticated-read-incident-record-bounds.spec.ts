@@ -44,6 +44,7 @@ test("the incident record keeps its newest entries within its entry and byte bou
   try {
     const byCount = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
       extraEnv: { ...noStalls, DOUGH_INCIDENT_RECORD_ENTRIES: "3" },
     });
@@ -75,6 +76,7 @@ test("the incident record keeps its newest entries within its entry and byte bou
     const bytes = 2 * lineBytes + 16;
     const byBytes = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
       extraEnv: { ...noStalls, DOUGH_INCIDENT_RECORD_BYTES: String(bytes) },
     });

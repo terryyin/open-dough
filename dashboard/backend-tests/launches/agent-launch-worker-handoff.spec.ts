@@ -47,6 +47,7 @@ test("the persisted server worker protects initial preparation and the child-to-
   try {
     first = await startDashboardServer({
       mode: "boundary",
+      liveServer: "separate process",
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 60_000,
@@ -71,6 +72,7 @@ test("the persisted server worker protects initial preparation and the child-to-
     if (scriptPid === undefined) throw new Error("Missing spawned worker");
     second = await startDashboardServer({
       mode: "boundary",
+      liveServer: "separate process",
       machine: origin.machine,
       projectFolders: ["open-dough"],
     });

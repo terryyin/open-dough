@@ -76,6 +76,25 @@ export function initializeProjectConfiguration(next: ProjectEnvironment): void {
   }
 }
 
+// A server hosted in a reusable process owns its configuration until it closes.
+export function mountProjectConfiguration(
+  next: ProjectEnvironment,
+): () => void {
+  if (environment === next) {
+    throw new Error("The dashboard project configuration is already mounted.");
+  }
+  initializeProjectConfiguration(next);
+  let closed = false;
+  return () => {
+    if (closed) return;
+    closed = true;
+    environment = undefined;
+    configurationFile = undefined;
+    projects = [];
+    problem = undefined;
+  };
+}
+
 // The project environment this server keeps its list in, once initialized.
 export function projectEnvironment(): ProjectEnvironment | undefined {
   return environment;

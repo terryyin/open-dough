@@ -38,6 +38,7 @@ export const test = base.extend<
   // Option defaults here, not a module-level test.use, which would reach only
   // the first file a worker loads this module for. A file's test.use still wins.
   projectFolders: ["open-dough"],
+  liveServer: "separate process",
   launchTimeoutMs: launchWaitMs,
   cursorScreen: [undefined, { option: true }],
   cursorSplitPaintMs: [undefined, { option: true }],

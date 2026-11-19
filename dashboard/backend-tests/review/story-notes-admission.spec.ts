@@ -39,92 +39,95 @@ test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough", "doughnut"],
 });
+const restartTest = test.extend({ liveServer: "separate process" });
 const identity = "SEED-348#collect-notes-for-story-follow-ups";
 const otherIdentity = "SEED-348#attach-story-notes-to-follow-ups";
 const notesFile = (home: string) =>
   path.join(home, ".open-dough/dashboard/story-notes.json");
 
-test("notes are assigned ids and times, kept by project and identity, and read after a dashboard restart", async ({
-  request,
-  dashboard,
-  machine,
-}) => {
-  const at = (project = "open-dough") =>
-    `${dashboard.baseURL}${storyNotesEndpoint}?id=${project}`;
-  const headers = { Origin: dashboard.origin };
-  const note = makeMe.aStoryNote
-    .withText("  Keep this line's meaning.  ")
-    .withContext({
-      view: "Review changes",
-      path: "src/result.ts",
-      oldPath: "src/before.ts",
-      comparison: {
-        name: "Published completion",
-        baseline: "abc123",
-        tree: "def456",
-      },
-      line: { number: 7, side: "new", text: "return result;" },
-    })
-    .please();
-  const add = (text: string, story = identity) =>
-    request.post(at(), {
+restartTest(
+  "notes are assigned ids and times, kept by project and identity, and read after a dashboard restart",
+  async ({ request, dashboard, machine }) => {
+    const at = (project = "open-dough") =>
+      `${dashboard.baseURL}${storyNotesEndpoint}?id=${project}`;
+    const headers = { Origin: dashboard.origin };
+    const note = makeMe.aStoryNote
+      .withText("  Keep this line's meaning.  ")
+      .withContext({
+        view: "Review changes",
+        path: "src/result.ts",
+        oldPath: "src/before.ts",
+        comparison: {
+          name: "Published completion",
+          baseline: "abc123",
+          tree: "def456",
+        },
+        line: { number: 7, side: "new", text: "return result;" },
+      })
+      .please();
+    const add = (text: string, story = identity) =>
+      request.post(at(), {
+        headers,
+        data: { identity: story, action: "add", text },
+      });
+    const response = await request.post(at(), {
       headers,
-      data: { identity: story, action: "add", text },
+      data: { identity, action: "add", text: note.text, context: note.context },
     });
-  const response = await request.post(at(), {
-    headers,
-    data: { identity, action: "add", text: note.text, context: note.context },
-  });
-  expect(response.status()).toBe(200);
-  expect(response.headers()["cache-control"]).toBe("no-store");
-  const answer = storyNotesAnswerSchema.parse(await response.json());
-  if (answer.kind !== "notes") throw new Error("Expected saved notes");
-  const saved = answer.notes[identity]?.[0];
-  expect(saved).toEqual({
-    id: expect.any(String),
-    savedAt: expect.any(String),
-    text: "Keep this line's meaning.",
-    context: note.context,
-  });
-  expect(saved?.id).not.toBe(note.id);
-  expect(Number.isNaN(Date.parse(saved?.savedAt ?? ""))).toBe(false);
-  await add("A second observation.");
-  await add("Another story's observation.", otherIdentity);
-  const otherProject = await request.get(at("doughnut"), { headers });
-  expect(await otherProject.json()).toEqual({ kind: "notes", notes: {} });
-  const latest = await request.get(at(), { headers });
-  const kept = (await latest.json()) as Extract<
-    StoryNotesAnswer,
-    { kind: "notes" }
-  >;
-  expect(kept.notes[identity]?.map(({ text }) => text)).toEqual([
-    "A second observation.",
-    "Keep this line's meaning.",
-  ]);
-  expect(kept.notes[otherIdentity]?.map(({ text }) => text)).toEqual([
-    "Another story's observation.",
-  ]);
-  expect(JSON.parse(readFileSync(notesFile(dashboard.home), "utf8"))).toEqual({
-    "open-dough": kept.notes,
-  });
-
-  await dashboard.close();
-  const restarted = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough", "doughnut"],
-    github: dashboard.github,
-  });
-  try {
-    const reread = await request.get(
-      `${restarted.baseURL}${storyNotesEndpoint}?id=open-dough`,
-      { headers: { Origin: restarted.origin } },
+    expect(response.status()).toBe(200);
+    expect(response.headers()["cache-control"]).toBe("no-store");
+    const answer = storyNotesAnswerSchema.parse(await response.json());
+    if (answer.kind !== "notes") throw new Error("Expected saved notes");
+    const saved = answer.notes[identity]?.[0];
+    expect(saved).toEqual({
+      id: expect.any(String),
+      savedAt: expect.any(String),
+      text: "Keep this line's meaning.",
+      context: note.context,
+    });
+    expect(saved?.id).not.toBe(note.id);
+    expect(Number.isNaN(Date.parse(saved?.savedAt ?? ""))).toBe(false);
+    await add("A second observation.");
+    await add("Another story's observation.", otherIdentity);
+    const otherProject = await request.get(at("doughnut"), { headers });
+    expect(await otherProject.json()).toEqual({ kind: "notes", notes: {} });
+    const latest = await request.get(at(), { headers });
+    const kept = (await latest.json()) as Extract<
+      StoryNotesAnswer,
+      { kind: "notes" }
+    >;
+    expect(kept.notes[identity]?.map(({ text }) => text)).toEqual([
+      "A second observation.",
+      "Keep this line's meaning.",
+    ]);
+    expect(kept.notes[otherIdentity]?.map(({ text }) => text)).toEqual([
+      "Another story's observation.",
+    ]);
+    expect(JSON.parse(readFileSync(notesFile(dashboard.home), "utf8"))).toEqual(
+      {
+        "open-dough": kept.notes,
+      },
     );
-    expect(await reread.json()).toEqual(kept);
-  } finally {
-    await restarted.close();
-  }
-});
+
+    await dashboard.close();
+    const restarted = await startDashboardServer({
+      mode: "boundary",
+      liveServer: "separate process",
+      machine,
+      projectFolders: ["open-dough", "doughnut"],
+      github: dashboard.github,
+    });
+    try {
+      const reread = await request.get(
+        `${restarted.baseURL}${storyNotesEndpoint}?id=open-dough`,
+        { headers: { Origin: restarted.origin } },
+      );
+      expect(await reread.json()).toEqual(kept);
+    } finally {
+      await restarted.close();
+    }
+  },
+);
 
 test("a save refused by unwritable records keeps no note and succeeds once they are writable", async ({
   request,

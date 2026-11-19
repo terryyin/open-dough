@@ -26,7 +26,11 @@ import { postCompletion } from "../../test-support/support/completionRecovery.ts
 import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 
 test("an actual Done submission and delivery retry keep the same collected proof and one scoped measurement", async ({
   dashboard,
@@ -109,7 +113,12 @@ test("an actual Done submission and delivery retry keep the same collected proof
     ),
   ).toHaveLength(asked);
 
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   try {
     const beforeRead = github.calls.length;
     for (const [scope, caseMs, fileMs] of [

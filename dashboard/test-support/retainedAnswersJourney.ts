@@ -1,9 +1,6 @@
-// The journey of the retained-answers specs
-// (../backend-tests/observation/authenticated-read-retained-answers*.spec.ts): one project
-// published at a revision with a recorded story branch, every read a page
-// makes of it through the local authenticated read boundary, and
-// `developmentBoundary` servers on a machine directory each test owns, so
-// answers one process retains (../server/retainedAnswers.ts) reach the next.
+// Retained-answers specs publish one project with a recorded story branch
+// and read it through the local authenticated read boundary. Each test owns
+// the machine directory where answers survive from one process to the next.
 
 import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -225,7 +222,7 @@ export async function asked<T>(github: FakeGitHub, run: () => Promise<T>) {
   return { result, calls: github.calls.slice(before).map(described) };
 }
 
-// A `developmentBoundary` server on `machine`'s home, closed after `use`.
+// A fresh boundary process on `machine`'s home, closed after `use`.
 export async function onMachine<T>(
   machine: string,
   github: FakeGitHub,
@@ -236,6 +233,7 @@ export async function onMachine<T>(
     ...developmentBoundary,
     github,
     machine,
+    liveServer: "separate process",
     retainedAnswersBytes,
   });
   try {

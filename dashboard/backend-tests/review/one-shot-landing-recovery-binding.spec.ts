@@ -41,6 +41,7 @@ test("early accepted landing survives a real record EIO and lost receipt before 
   const fault = completionWriteFault(origin.machine);
   const receiver = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,

@@ -1,13 +1,9 @@
-// Landed CI wall-time history collection (../../server/landedCiCollection.ts)
-// of a landing whose CI is not final, with no page open, a real bare origin
-// (../../test-support/support/startOrigin.ts) and the synthetic `claude`, each
-// collecting server checking its pending landings again at a test's pace:
-// the landing is a pending gap that waits -- before its run exists, while it
-// is queued or running, while its CI cannot be read -- and becomes its exact
-// point when CI completes, or a final No build gap once its run has not come
-// for an hour; a repeated landing report adds no second observation or point
-// (SEED-285#see-landed-ci-wall-time-history examples 2 and 3). The
-// dashboard's own lifecycle is in ./landed-ci-history-lifecycle.spec.ts.
+// Landed CI collection (../../server/landedCiCollection.ts) runs on a real
+// bare origin and synthetic `claude`. At the test's pace, pending landings
+// wait for an absent, active, or unreadable run. Completion supplies the
+// exact point, and an hour without a run leaves a final No build gap.
+// Repeated reports add no point (SEED-285#see-landed-ci-wall-time-history).
+// Server lifecycle is covered in ./landed-ci-history-lifecycle.spec.ts.
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -97,7 +93,10 @@ test("a landing whose push never gets a run, with no later trunk build either, w
 });
 
 test.describe("a server that collects", () => {
-  test.use({ extraEnv: recheckingLandedCi });
+  test.use({
+    extraEnv: recheckingLandedCi,
+    liveServer: "synchronous delivery child blocks the mounted receiver",
+  });
 
   test("a landing whose CI could not be read is a pending gap until its CI can be read, then its exact point", async ({
     dashboard,

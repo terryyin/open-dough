@@ -1,6 +1,6 @@
 // Two dashboard servers, through their local authenticated read boundary over
-// real HTTP, and the installed CI diagnostic entry -- three processes of one
-// user -- ask one fake GitHub through one request owner
+// real HTTP, and the installed CI diagnostic entry ask one fake GitHub
+// through one request owner
 // (github-request-owner.mjs, ../../test-support/support/sharedRequestOwner.ts): eight requests
 // at GitHub between them, one call for a read both dashboards wait on, one
 // rate-limit wait holding back all three, one request first when it ends,
@@ -8,7 +8,7 @@
 // turns and wait: ./authenticated-read-turns.spec.ts,
 // ./authenticated-read-cooldown.spec.ts.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import { untilReported } from "../../test-support/support/directedWait.ts";
 import {
   expectHeldBack,
@@ -43,8 +43,15 @@ import {
 type Machine = Awaited<ReturnType<typeof dashboardsOnOneOwner>>;
 let machine: Machine;
 
-test.beforeEach(async () => {
-  machine = await dashboardsOnOneOwner();
+const test = base.extend<{ firstServerLiveReason: string | undefined }>({
+  firstServerLiveReason: [undefined, { option: true }],
+});
+const processDiagnostics = test.extend({
+  firstServerLiveReason: "separate process",
+});
+
+test.beforeEach(async ({ firstServerLiveReason }) => {
+  machine = await dashboardsOnOneOwner(firstServerLiveReason);
 });
 test.afterEach(async () => {
   await machine.closeAll();
@@ -173,49 +180,52 @@ test("when a wait ends one request goes first for both dashboards, and the other
   ]);
 });
 
-test("a failed read is recorded by each dashboard that waited on it, and a dashboard that stops waiting or closes leaves the other's call running", async () => {
-  const revision = revisionOf("9d");
-  const { first, second } = machine;
-  const failing = await seedsHeld(revision, 403);
-  const failed = [first, second].map((server) =>
-    readAt(server, seedAt(revision, 0)),
-  );
-  await machine.reached();
-  await arrived(failing.before, 1);
-  failing.releaseAll();
-  expect((await Promise.all(failed)).map(({ status }) => status)).toEqual([
-    502, 502,
-  ]);
-  expect(machine.github.calls).toHaveLength(failing.before + 1);
-  for (const server of [first, second])
-    expect((await inspect(server)).failures).toMatchObject([
-      { cause: "http", status: 403, category: "content", pin: revision },
+processDiagnostics(
+  "a failed read is recorded by each dashboard that waited on it, and a dashboard that stops waiting or closes leaves the other's call running",
+  async () => {
+    const revision = revisionOf("9d");
+    const { first, second } = machine;
+    const failing = await seedsHeld(revision, 403);
+    const failed = [first, second].map((server) =>
+      readAt(server, seedAt(revision, 0)),
+    );
+    await machine.reached();
+    await arrived(failing.before, 1);
+    failing.releaseAll();
+    expect((await Promise.all(failed)).map(({ status }) => status)).toEqual([
+      502, 502,
     ]);
+    expect(machine.github.calls).toHaveLength(failing.before + 1);
+    for (const server of [first, second])
+      expect((await inspect(server)).failures).toMatchObject([
+        { cause: "http", status: 403, category: "content", pin: revision },
+      ]);
 
-  const held = await seedsHeld(revision);
-  const left = abandonedRequest({
-    url: `${first.baseURL}/__authenticated-read?source=open-dough${seedAt(revision, 1)}`,
-    headers: { Origin: first.origin },
-  });
-  const stays = readAt(second, seedAt(revision, 1));
-  const closing = abandonedRequest({
-    url: `${first.baseURL}/__authenticated-read?source=open-dough${seedAt(revision, 2)}`,
-    headers: { Origin: first.origin },
-  });
-  const outlives = readAt(second, seedAt(revision, 2));
-  await machine.reached();
-  await arrived(held.before, 2);
-  left.cutAfter(0);
-  await machine.reached();
-  await machine.close(first);
-  closing.cutAfter(0);
-  await machine.reached();
+    const held = await seedsHeld(revision);
+    const left = abandonedRequest({
+      url: `${first.baseURL}/__authenticated-read?source=open-dough${seedAt(revision, 1)}`,
+      headers: { Origin: first.origin },
+    });
+    const stays = readAt(second, seedAt(revision, 1));
+    const closing = abandonedRequest({
+      url: `${first.baseURL}/__authenticated-read?source=open-dough${seedAt(revision, 2)}`,
+      headers: { Origin: first.origin },
+    });
+    const outlives = readAt(second, seedAt(revision, 2));
+    await machine.reached();
+    await arrived(held.before, 2);
+    left.cutAfter(0);
+    await machine.reached();
+    await machine.close(first);
+    closing.cutAfter(0);
+    await machine.reached();
 
-  held.releaseAll();
-  expect((await stays).status).toBe(200);
-  expect((await outlives).status).toBe(200);
-  expect(askedSince(second, held.before).toSorted()).toEqual(
-    asked(revision, seedPaths.slice(1, 3)).toSorted(),
-  );
-  expect(machine.owners()).toHaveLength(1);
-});
+    held.releaseAll();
+    expect((await stays).status).toBe(200);
+    expect((await outlives).status).toBe(200);
+    expect(askedSince(second, held.before).toSorted()).toEqual(
+      asked(revision, seedPaths.slice(1, 3)).toSorted(),
+    );
+    expect(machine.owners()).toHaveLength(1);
+  },
+);

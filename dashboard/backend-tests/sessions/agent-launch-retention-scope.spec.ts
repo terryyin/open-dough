@@ -47,6 +47,7 @@ test.describe("a scoped record dropped by retention expiry", () => {
     machine = mkdtempSync(path.join(tmpdir(), "dough-retention-scope-"));
     server = await startDashboardServer({
       mode: "boundary",
+      liveServer: "separate process",
       machine,
       projectFolders: ["open-dough"],
     });

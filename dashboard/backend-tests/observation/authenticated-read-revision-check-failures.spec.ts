@@ -46,7 +46,7 @@ test.describe("authenticated read boundary revision check failures (development 
   test("a real failure of the conditional listing is still classified as a failure, and a rate limit is never asked of the ref alone", async () => {
     // Even a limit that directs no wait holds back that server's later reads
     // while the process backs off, so it is met on a server of its own.
-    const own = await ownRevisionCheckBoundary();
+    const own = await ownRevisionCheckBoundary("separate process");
     const limited = await (async () => {
       try {
         own.listing.set("terryyin/open-dough", rateLimitedAnswer());
@@ -88,7 +88,7 @@ test.describe("authenticated read boundary revision check failures (development 
     const refusedOnOwnServer = async (
       refusal: () => ReturnType<typeof rateLimitedAnswer>,
     ) => {
-      const own = await ownRevisionCheckBoundary();
+      const own = await ownRevisionCheckBoundary("separate process");
       try {
         own.main.set("terryyin/open-dough", refusal());
         return await own.check("open-dough", revisionB);

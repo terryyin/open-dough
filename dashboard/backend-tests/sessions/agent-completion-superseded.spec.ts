@@ -37,6 +37,7 @@ test("older quiet retry cannot close a newer attention submission whose record w
   const fault = completionWriteFault(origin.machine);
   const receiver = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     github: dashboard.github,
     codexProtocol: native,

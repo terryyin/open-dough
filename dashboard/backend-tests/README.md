@@ -28,9 +28,14 @@ case names. A case that needs a clean slate installs a new boundary. One
 install shared across cases is a choice, as one server shared across cases
 is today.
 
-Start the live server (`../test-support/support/dashboardServer.ts`,
-`startDashboardServer`) when the proof is a property that install does not
-have:
+To mount the dashboard's local boundaries together, call
+`startDashboardServer({ mode: "boundary", mountBoundary: true })`. This
+uses the test worker's HTTP server and a Cursor runner stand-in. The mount
+owns the worker's server environment until it closes. Only one dashboard
+can mount in a worker at a time.
+
+`startDashboardServer` defaults to the live server. Set `liveServer` on the
+start that requires it and name the reason:
 
 - a separate process: its environment, a preload, a pid, a signal, a
   process group, or that a child did or did not start, including a restart
@@ -40,9 +45,11 @@ have:
 - the server program: that dev, preview, and the boundary server mount the
   same boundaries, or how that process reports its address and closes
 
-A launch or terminal case uses the live server only for one of those
-proofs. Its request result, the files it writes, and whether a host ran are
-the boundary plus the machine directory.
+Cursor host tests require a separate process with the real runner. Use the
+live option with a specific reason when a fixture needs it, such as a
+synchronous child that sends an HTTP request to the dashboard. Child
+commands inherit the worker's environment while a mount is open unless the
+case supplies their environment explicitly.
 
 A lower function is the entry when its result is the whole fact the case
 adds, and a boundary case already covers the admission once. The function
@@ -51,9 +58,6 @@ location. A case whose facts are a status, a body, or that a host was not
 asked stays on the boundary. Looking below the boundary is the usual result
 of making a suite cheaper. A faster call that drops the admission is a
 different case.
-
-Bringing existing live-server cases across to this entry is
-[Reach dashboard backend checks through the mounted boundary](../../.planning/seeds/SEED-403-reach-dashboard-backend-checks-through-the-mounted-boundary.md#reach-dashboard-backend-checks-through-the-mounted-boundary).
 
 The test runtime's own contracts are proved here too, in `runtime/`: the
 runners' reporter, selection, settings, output and cleanup, which run

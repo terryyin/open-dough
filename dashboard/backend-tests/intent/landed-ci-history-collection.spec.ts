@@ -32,7 +32,10 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 
 // The CI asks that list a revision's runs, as collecting a landing makes.
 const runsListedAt = (calls: readonly GhCall[], revision: string) =>
@@ -107,7 +110,12 @@ test.describe("a server that collects", () => {
 
     // The point is kept before collection reads its proof. Stop collection
     // before counting the reader's calls, so that work cannot race the read.
-    const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+    const reader = await restartAsLandedCiReader(
+      dashboard,
+      origin,
+      "boundary",
+      "the preceding live server retains the machine's Cursor runner",
+    );
     try {
       const asked = github.calls.length;
       expect(await landedCiHistory(reader)).toMatchObject({

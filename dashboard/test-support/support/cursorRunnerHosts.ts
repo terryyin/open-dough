@@ -44,6 +44,7 @@ export async function serverCloseLeavesCursorAndHangsUpOtherHosts(): Promise<voi
   );
   const server = await startDashboardServer({
     ...developmentBoundary,
+    liveServer: "separate process",
     machine,
     projectFolders: ["open-dough"],
     codex: true,

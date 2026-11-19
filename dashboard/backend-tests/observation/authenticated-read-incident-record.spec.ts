@@ -46,6 +46,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
   try {
     const first = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
       github,
       requestOwnerRoot: owner.root,
@@ -117,6 +118,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
 
     const second = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
       github,
     });

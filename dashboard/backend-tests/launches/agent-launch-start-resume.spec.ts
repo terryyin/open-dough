@@ -43,9 +43,10 @@ test.describe("a kept execution start", () => {
     origin = await startOrigin(queuedReadyRepository().please());
   });
 
-  async function serve(startWaitMs: number): Promise<void> {
+  async function serve(startWaitMs: number, liveServer?: string) {
     server = await startDashboardServer({
       mode: "boundary",
+      liveServer,
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,
@@ -199,7 +200,7 @@ console.log(JSON.stringify({ok:false,status:"story-left-queue"}));
 
   const loseServer = () =>
     loseServerAfterClaimCommit(origin, async () => {
-      await serve(60_000);
+      await serve(60_000, "separate process");
       return server;
     });
 

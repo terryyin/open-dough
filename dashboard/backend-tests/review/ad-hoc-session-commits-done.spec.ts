@@ -213,6 +213,7 @@ test("a reported Done whose rename wait a closing server abandons has kept its c
   const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30_000,

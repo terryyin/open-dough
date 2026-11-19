@@ -46,6 +46,7 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
   );
   const server = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30000,

@@ -18,7 +18,10 @@ import {
 } from "../../src/storyReviewContract.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 
 test("foreign or malformed historical review requests cannot choose a repository, comparison, file, or mark", async ({
   request,

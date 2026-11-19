@@ -147,6 +147,7 @@ test.describe("authenticated read boundary: a stalled shared read ends at its ow
       ...developmentBoundary,
       ghTransport: "cli",
       readTimeoutMs: boundMs,
+      liveServer: "the server reads the GitHub request bound once per process",
     });
   });
 

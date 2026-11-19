@@ -7,6 +7,7 @@
 // (`./boundaryServer.ts`); which boundaries those are is
 // `./localBoundaries.ts`.
 
+import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer } from "vite";
 
 // The chain a boundary mounts on. Vite's Connect server is one; so is the
@@ -63,5 +64,41 @@ export function installBoundary(
   return {
     close: () => installed.then((cleanup) => cleanup()),
     ready: installed,
+  };
+}
+
+// The chain the boundaries mount on: each handler answers its own paths and
+// passes the rest on; a request that reaches the end is unknown here, and a
+// handler's error is answered as the failure it is.
+export function boundaryMiddlewareChain(): BoundaryMiddlewares & {
+  handle(req: IncomingMessage, res: ServerResponse): void;
+} {
+  const handlers: Connect.NextHandleFunction[] = [];
+  return {
+    use(handler) {
+      handlers.push(handler);
+      return this;
+    },
+    handle(req, res) {
+      const next = (index: number): Connect.NextFunction => {
+        return (error?: unknown) => {
+          const handler = handlers[index];
+          if (error !== undefined) {
+            res.writeHead(500, { "Content-Type": "text/plain" });
+            res.end(
+              error instanceof Error ? error.message : "The request failed.",
+            );
+            return;
+          }
+          if (handler === undefined) {
+            res.writeHead(404, { "Content-Type": "text/plain" });
+            res.end("Not found");
+            return;
+          }
+          handler(req, res, next(index + 1));
+        };
+      };
+      next(0)();
+    },
   };
 }

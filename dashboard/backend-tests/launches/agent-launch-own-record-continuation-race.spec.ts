@@ -35,6 +35,7 @@ for (const state of ["running", "settled"] as const)
     );
     const server = await startDashboardServer({
       mode: "boundary",
+      liveServer: "separate process",
       machine: origin.machine,
       projectFolders: ["open-dough"],
       extraEnv: env,
@@ -126,6 +127,7 @@ test("Continue reads an own record again at admission after pre-acceptance", asy
     machine: origin.machine,
     projectFolders: ["open-dough"],
     extraEnv: env,
+    liveServer: "separate process",
   });
   try {
     const proof = ownRecordContinuation(server, origin, "execution", false);

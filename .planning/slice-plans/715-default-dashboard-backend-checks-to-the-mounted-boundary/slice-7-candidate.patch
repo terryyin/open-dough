@@ -1,0 +1,393 @@
+diff --git a/dashboard/backend-tests/configuration/openai-configuration-boundary.spec.ts b/dashboard/backend-tests/configuration/openai-configuration-boundary.spec.ts
+index 3b9011107..37c18cde6 100644
+--- a/dashboard/backend-tests/configuration/openai-configuration-boundary.spec.ts
++++ b/dashboard/backend-tests/configuration/openai-configuration-boundary.spec.ts
+@@ -22 +22 @@ test("OpenAI configuration refuses foreign/malformed requests without changing p
+-  const server = await fixture.start("boundary");
++  const server = await fixture.start({ mode: "boundary", liveServer: "separate process" });
+diff --git a/dashboard/backend-tests/configuration/openai-configuration-size.spec.ts b/dashboard/backend-tests/configuration/openai-configuration-size.spec.ts
+index 43d001879..5ba7d3c1a 100644
+--- a/dashboard/backend-tests/configuration/openai-configuration-size.spec.ts
++++ b/dashboard/backend-tests/configuration/openai-configuration-size.spec.ts
+@@ -13 +13 @@ test("an exactly admitted ASCII or UTF-8 credential remains readable and replace
+-  const server = await fixture.start("boundary");
++  const server = await fixture.start({ mode: "boundary", liveServer: "separate process" });
+diff --git a/dashboard/backend-tests/configuration/project-configuration-boundary.spec.ts b/dashboard/backend-tests/configuration/project-configuration-boundary.spec.ts
+index a688ffb89..a50e16e69 100644
+--- a/dashboard/backend-tests/configuration/project-configuration-boundary.spec.ts
++++ b/dashboard/backend-tests/configuration/project-configuration-boundary.spec.ts
+@@ -6,4 +6 @@ test("project list stays local and omits checkout paths", async () => {
+-  const server = await startDashboardServer({
+-    mode: "boundary",
+-    mountBoundary: true,
+-  });
++  const server = await startDashboardServer({ mode: "boundary" });
+diff --git a/dashboard/backend-tests/intent/authenticated-read-intent-java.spec.ts b/dashboard/backend-tests/intent/authenticated-read-intent-java.spec.ts
+index 997585d22..68e551448 100644
+--- a/dashboard/backend-tests/intent/authenticated-read-intent-java.spec.ts
++++ b/dashboard/backend-tests/intent/authenticated-read-intent-java.spec.ts
+@@ -31,4 +31 @@ test.describe("authenticated Java source selection", () => {
+-    server = await startDashboardServer({
+-      ...developmentBoundary,
+-      mountBoundary: true,
+-    });
++    server = await startDashboardServer(developmentBoundary);
+diff --git a/dashboard/backend-tests/intent/landed-ci-history-measure-gaps.spec.ts b/dashboard/backend-tests/intent/landed-ci-history-measure-gaps.spec.ts
+index fa69c8a24..1b8ab3c8f 100644
+--- a/dashboard/backend-tests/intent/landed-ci-history-measure-gaps.spec.ts
++++ b/dashboard/backend-tests/intent/landed-ci-history-measure-gaps.spec.ts
+@@ -86 +86 @@ test("retained builds are supplied; answered reasons are final gaps; unanswered
+-  const server = await startServer();
++  const server = await startServer({ liveServer: "separate process" });
+@@ -174 +174,6 @@ test("retained builds are supplied; answered reasons are final gaps; unanswered
+-  const reader = await restartAsLandedCiReader(server, origin, "boundary");
++  const reader = await restartAsLandedCiReader(
++    server,
++    origin,
++    "boundary",
++    "the preceding live server retains the machine's Cursor runner",
++  );
+diff --git a/dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts b/dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts
+index fc48e64cd..053a751cc 100644
+--- a/dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts
++++ b/dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts
+@@ -75 +75,4 @@ test("a skip whose equivalent build's CI proof read GitHub does not answer waits
+-  const server = await startServer({ observationClock: true });
++  const server = await startServer({
++    observationClock: true,
++    liveServer: "separate process",
++  });
+diff --git a/dashboard/backend-tests/intent/landed-ci-repeat-reconciliation.spec.ts b/dashboard/backend-tests/intent/landed-ci-repeat-reconciliation.spec.ts
+index be38ed5c0..7bc780864 100644
+--- a/dashboard/backend-tests/intent/landed-ci-repeat-reconciliation.spec.ts
++++ b/dashboard/backend-tests/intent/landed-ci-repeat-reconciliation.spec.ts
+@@ -55 +55,3 @@ for (const unavailable of ["repeat proof", "multiple attempts"] as const) {
+-    const server = await startServer();
++    const server = await startServer(
++      unavailable === "repeat proof" ? { liveServer: "separate process" } : undefined,
++    );
+diff --git a/dashboard/backend-tests/intent/landed-ci-server-lifetime.spec.ts b/dashboard/backend-tests/intent/landed-ci-server-lifetime.spec.ts
+index 7b215a7f0..e98e83a5c 100644
+--- a/dashboard/backend-tests/intent/landed-ci-server-lifetime.spec.ts
++++ b/dashboard/backend-tests/intent/landed-ci-server-lifetime.spec.ts
+@@ -20 +20 @@ test("a boundary server start stays owned when its case ends before startup reso
+-  started = startServer().then(
++  started = startServer({ liveServer: "separate process" }).then(
+diff --git a/dashboard/backend-tests/launches/agent-launch-boundary.spec.ts b/dashboard/backend-tests/launches/agent-launch-boundary.spec.ts
+index c322468a4..4ad09644f 100644
+--- a/dashboard/backend-tests/launches/agent-launch-boundary.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-boundary.spec.ts
+@@ -39 +38,0 @@ test.describe(`agent launch boundary`, () => {
+-      mountBoundary: true,
+diff --git a/dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts b/dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts
+index 44d75ee5f..ae14602c8 100644
+--- a/dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts
+@@ -66 +66,2 @@ async function publishDoneStories(
+-test("a done story's follow-up sends its published facts and each Done session it holds, then the request, and leaves the records unchanged", async ({
++const freshStoryRead = test.extend({ liveServer: "separate process" });
++freshStoryRead("a done story's follow-up sends its published facts and each Done session it holds, then the request, and leaves the records unchanged", async ({
+diff --git a/dashboard/backend-tests/observation/authenticated-read-containment.spec.ts b/dashboard/backend-tests/observation/authenticated-read-containment.spec.ts
+index 2542a0386..564c6edbd 100644
+--- a/dashboard/backend-tests/observation/authenticated-read-containment.spec.ts
++++ b/dashboard/backend-tests/observation/authenticated-read-containment.spec.ts
+@@ -112 +112 @@ test.describe("authenticated read boundary containment (development environment)
+-    });
++    }, { ...developmentBoundary, liveServer: "separate process" });
+diff --git a/dashboard/backend-tests/terminals/agent-terminal-close.spec.ts b/dashboard/backend-tests/terminals/agent-terminal-close.spec.ts
+index ca534a5a7..597228ff1 100644
+--- a/dashboard/backend-tests/terminals/agent-terminal-close.spec.ts
++++ b/dashboard/backend-tests/terminals/agent-terminal-close.spec.ts
+@@ -10,2 +9,0 @@ import { mkdtempSync, rmSync } from "node:fs";
+-import http from "node:http";
+-import type { AddressInfo } from "node:net";
+@@ -16 +14,4 @@ import { installAgentLaunchMiddleware } from "../../server/launchBoundary.ts";
+-import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
++import {
++  startInProcessBoundaryHttp,
++  type InProcessBoundaryHttp,
++} from "../../test-support/support/inProcessBoundaryHttp.ts";
+@@ -44,7 +44,0 @@ import { configureDevelopmentProjects } from "../../test-support/support/project
+-// What the plugin's `configureServer` hook calls `.use(handler)` with.
+-type StoredHandler = (
+-  req: http.IncomingMessage,
+-  res: http.ServerResponse,
+-  next: () => void,
+-) => void;
+-
+@@ -77,32 +71 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
+-    let handler: StoredHandler | undefined;
+-    const middlewares = {
+-      use(fn: StoredHandler) {
+-        handler = fn;
+-      },
+-    };
+-    const rawServer = http.createServer((req, res) => {
+-      handler?.(req, res, () => {
+-        res.writeHead(404);
+-        res.end();
+-      });
+-    });
+-    const plugin = localBoundaryPlugin({
+-      name: "dough-agent-launch",
+-      install: installAgentLaunchMiddleware,
+-    });
+-    const configureServer = plugin.configureServer as unknown as (server: {
+-      middlewares: typeof middlewares;
+-      httpServer: http.Server;
+-    }) => void;
+-    const closeServer = plugin.closeServer as unknown as () => void;
+-    configureServer({ middlewares, httpServer: rawServer });
+-    await new Promise<void>((resolve) => {
+-      rawServer.listen(0, "127.0.0.1", resolve);
+-    });
+-    const { port } = rawServer.address() as AddressInfo;
+-    const local = {
+-      baseURL: `http://127.0.0.1:${String(port)}`,
+-      origin: `http://127.0.0.1:${String(port)}`,
+-      ...claude.controls,
+-    } as unknown as DashboardServer;
+-
++    let server: InProcessBoundaryHttp | undefined;
+@@ -110,0 +74,9 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
++      server = await startInProcessBoundaryHttp({
++        name: "dough-agent-launch",
++        install: installAgentLaunchMiddleware,
++      });
++      const local = {
++        baseURL: server.origin,
++        origin: server.origin,
++        ...claude.controls,
++      } as unknown as DashboardServer;
+@@ -115 +87 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
+-      closeServer();
++      await server.closeBoundary();
+@@ -120,6 +92,5 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
+-      rawServer.closeAllConnections();
+-      await new Promise<void>((resolve) => {
+-        rawServer.close(() => {
+-          resolve();
+-        });
+-      });
++      try {
++        await server?.closeBoundary();
++      } finally {
++        await server?.closeHttp();
++      }
+diff --git a/dashboard/backend-tests/terminals/agent-terminal-codex-close.spec.ts b/dashboard/backend-tests/terminals/agent-terminal-codex-close.spec.ts
+index 3c48ee583..68bb4ab48 100644
+--- a/dashboard/backend-tests/terminals/agent-terminal-codex-close.spec.ts
++++ b/dashboard/backend-tests/terminals/agent-terminal-codex-close.spec.ts
+@@ -3,2 +2,0 @@ import { mkdtempSync, rmSync } from "node:fs";
+-import http from "node:http";
+-import type { AddressInfo } from "node:net";
+@@ -9 +7,4 @@ import { installAgentLaunchMiddleware } from "../../server/launchBoundary.ts";
+-import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
++import {
++  startInProcessBoundaryHttp,
++  type InProcessBoundaryHttp,
++} from "../../test-support/support/inProcessBoundaryHttp.ts";
+@@ -34,5 +34,0 @@ import { configureDevelopmentProjects } from "../../test-support/support/project
+-type StoredHandler = (
+-  req: http.IncomingMessage,
+-  res: http.ServerResponse,
+-  next: () => void,
+-) => void;
+@@ -54,29 +50 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
+-  let handler: StoredHandler | undefined;
+-  const middlewares = {
+-    use(fn: StoredHandler) {
+-      handler = fn;
+-    },
+-  };
+-  const server = http.createServer((req, res) =>
+-    handler?.(req, res, () => {
+-      res.writeHead(404);
+-      res.end();
+-    }),
+-  );
+-  const plugin = localBoundaryPlugin({
+-    name: "dough-agent-launch",
+-    install: installAgentLaunchMiddleware,
+-  });
+-  const configure = plugin.configureServer as unknown as (value: {
+-    middlewares: typeof middlewares;
+-    httpServer: http.Server;
+-  }) => void;
+-  const close = plugin.closeServer as unknown as () => void;
+-  configure({ middlewares, httpServer: server });
+-  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+-  const url = `http://127.0.0.1:${String((server.address() as AddressInfo).port)}`;
+-  const local = {
+-    baseURL: url,
+-    origin: url,
+-    ...claude.controls,
+-  } as unknown as DashboardServer;
++  let server: InProcessBoundaryHttp | undefined;
+@@ -84,0 +53,9 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
++    server = await startInProcessBoundaryHttp({
++      name: "dough-agent-launch",
++      install: installAgentLaunchMiddleware,
++    });
++    const local = {
++      baseURL: server.origin,
++      origin: server.origin,
++      ...claude.controls,
++    } as unknown as DashboardServer;
+@@ -93 +70 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
+-    close();
++    await server.closeBoundary();
+@@ -103,7 +80,5 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
+-    close();
+-    server.closeAllConnections();
+-    await new Promise<void>((resolve) =>
+-      server.close(() => {
+-        resolve();
+-      }),
+-    );
++    try {
++      await server?.closeBoundary();
++    } finally {
++      await server?.closeHttp();
++    }
+diff --git a/dashboard/test-support/dashboardTest.ts b/dashboard/test-support/dashboardTest.ts
+index 5fda11a4a..35dfbc5d5 100644
+--- a/dashboard/test-support/dashboardTest.ts
++++ b/dashboard/test-support/dashboardTest.ts
+@@ -4,6 +4,2 @@
+-// opens that server at `/`. So a journey decides only what GitHub would
+-// answer the local `gh`, and the page, its local authenticated read
+-// boundary, and the `gh` invocation are the production ones. A boundary spec
+-// (../backend-tests/) built on the same fixtures sets `serverMode` to `boundary`
+-// and gets the local boundaries alone, without Vite or the build; it opens
+-// no page.
++// opens that server at `/`. A backend spec sets `serverMode` to `boundary`
++// to reach the local boundaries without opening a page.
+@@ -201,15 +197,16 @@ export const test = base.extend<{
+-    await use(server);
+-    // What a failed test's server said and asked GitHub, in order, so a
+-    // stalled read names its step: listing, owner, or stream event.
+-    if (testInfo.status !== testInfo.expectedStatus) {
+-      await testInfo.attach("dashboard server output", {
+-        body: server.output(),
+-        contentType: "text/plain",
+-      });
+-      await testInfo.attach("fake GitHub calls", {
+-        body: server
+-          .ghCalls()
+-          .map((argv) => argv.join(" "))
+-          .join("\n"),
+-        contentType: "text/plain",
+-      });
++    try {
++      await use(server);
++      if (testInfo.status !== testInfo.expectedStatus) {
++        if (!server.mounted) {
++          await testInfo.attach("dashboard server output", {
++            body: server.output(),
++            contentType: "text/plain",
++          });
++        }
++        await testInfo.attach("fake GitHub calls", {
++          body: server.ghCalls().map((argv) => argv.join(" ")).join("\n"),
++          contentType: "text/plain",
++        });
++      }
++    } finally {
++      await server.close();
+@@ -217 +213,0 @@ export const test = base.extend<{
+-    await server.close();
+diff --git a/dashboard/test-support/fixtures/artifact-demand/bundle.proof.ts b/dashboard/test-support/fixtures/artifact-demand/bundle.proof.ts
+index 114eeeda0..1440d2bde 100644
+--- a/dashboard/test-support/fixtures/artifact-demand/bundle.proof.ts
++++ b/dashboard/test-support/fixtures/artifact-demand/bundle.proof.ts
+@@ -10 +10,6 @@ for (const environment of ["development", "production"] as const) {
+-      () => startDashboardServer({ mode: "boundary", environment }),
++      () =>
++        startDashboardServer({
++          mode: "boundary",
++          environment,
++          liveServer: "server program",
++        }),
+diff --git a/dashboard/test-support/fixtures/test-preparation-budget/custom-boundary.proof.ts b/dashboard/test-support/fixtures/test-preparation-budget/custom-boundary.proof.ts
+index a98ab8822..8695a776e 100644
+--- a/dashboard/test-support/fixtures/test-preparation-budget/custom-boundary.proof.ts
++++ b/dashboard/test-support/fixtures/test-preparation-budget/custom-boundary.proof.ts
+@@ -11 +11 @@ test("a landed-CI case starts its own boundary server", async ({
+-  const server = await startServer();
++  const server = await startServer({ liveServer: "server program" });
+diff --git a/dashboard/test-support/support/backendGlobalSetup.ts b/dashboard/test-support/support/backendGlobalSetup.ts
+index f318fce45..c776ef73d 100644
+--- a/dashboard/test-support/support/backendGlobalSetup.ts
++++ b/dashboard/test-support/support/backendGlobalSetup.ts
+@@ -12,0 +13 @@ import { dashboardAppArtifact } from "./dashboardBuild.ts";
++import { backendRunnerPid } from "./dashboardServerOptions.ts";
+@@ -16,0 +18 @@ import { startOriginArtifacts } from "./startOriginPreparation.ts";
++import { withRestoredEnv } from "./testEnv.ts";
+@@ -18,2 +20,2 @@ import { startOriginArtifacts } from "./startOriginPreparation.ts";
+-export default function backendGlobalSetup(): Promise<() => Promise<void>> {
+-  return ownServiceRun(
++export default async function backendGlobalSetup(): Promise<() => Promise<void>> {
++  const close = await ownServiceRun(
+@@ -28,0 +31,3 @@ export default function backendGlobalSetup(): Promise<() => Promise<void>> {
++  // Only workers launched directly by this runner get the mounted default.
++  const restore = withRestoredEnv({ [backendRunnerPid]: String(process.pid) });
++  return () => close().finally(restore);
+diff --git a/dashboard/test-support/support/dashboardServer.ts b/dashboard/test-support/support/dashboardServer.ts
+index ab42a49e4..92fc567f4 100644
+--- a/dashboard/test-support/support/dashboardServer.ts
++++ b/dashboard/test-support/support/dashboardServer.ts
+@@ -36 +36,4 @@ import {
+-import type { DashboardServerOptions } from "./dashboardServerOptions.ts";
++import {
++  backendRunnerPid,
++  type DashboardServerOptions,
++} from "./dashboardServerOptions.ts";
+@@ -51,4 +54 @@ export type {
+-// The boundary server in the development project environment, for a
+-// boundary spec whose fact belongs to that environment, not to Vite's dev
+-// server. A page journey starts a dev server only for a fact of the
+-// development environment; every other one runs under the built preview.
++// The local boundaries in the development project environment.
+@@ -62,0 +63 @@ export type DashboardServer = {
++  readonly mounted: boolean;
+@@ -78,0 +80,3 @@ export function startDashboardServer(
++  const mountBoundary =
++    options.mountBoundary ??
++    process.env[backendRunnerPid] === String(process.ppid);
+@@ -80 +84 @@ export function startDashboardServer(
+-    options.mountBoundary &&
++    mountBoundary &&
+@@ -214 +217,0 @@ async function start(
+-
+@@ -217,0 +221 @@ async function start(
++    mounted,
+diff --git a/dashboard/test-support/support/dashboardServerOptions.ts b/dashboard/test-support/support/dashboardServerOptions.ts
+index 241824378..16c5d5398 100644
+--- a/dashboard/test-support/support/dashboardServerOptions.ts
++++ b/dashboard/test-support/support/dashboardServerOptions.ts
+@@ -7,0 +8,2 @@ import type { DashboardServerMode } from "./serverAddress.ts";
++export const backendRunnerPid = "OPEN_DOUGH_DASHBOARD_BACKEND_RUNNER_PID";
++
+diff --git a/dashboard/test-support/support/inProcessBoundaryHttp.ts b/dashboard/test-support/support/inProcessBoundaryHttp.ts
+index a64918976..671a590f9 100644
+--- a/dashboard/test-support/support/inProcessBoundaryHttp.ts
++++ b/dashboard/test-support/support/inProcessBoundaryHttp.ts
+@@ -23,0 +24 @@ export type InProcessBoundaryHttp = {
++  readonly listening: boolean;
+@@ -95,0 +97,3 @@ export async function startInProcessBoundaryHttp(
++    get listening() {
++      return rawServer.listening;
++    },
+diff --git a/dashboard/test-support/support/systemSettingsMachine.ts b/dashboard/test-support/support/systemSettingsMachine.ts
+index c36fb59a5..0edff80af 100644
+--- a/dashboard/test-support/support/systemSettingsMachine.ts
++++ b/dashboard/test-support/support/systemSettingsMachine.ts
+@@ -9 +9 @@ import {
+-  type developmentBoundary,
++  type DashboardServerOptions,
+@@ -63 +63,3 @@ globalThis.fetch = async (input, options) => {
+-      launch: DashboardServerMode | typeof developmentBoundary,
++      launch:
++        | DashboardServerMode
++        | Pick<DashboardServerOptions, "mode" | "environment" | "liveServer">,
