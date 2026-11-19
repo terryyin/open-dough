@@ -129,10 +129,12 @@ not with a separate fixture.
 ### 3. The banner can follow a story reference
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `navigation/story-reference-navigation.spec.ts`,
 `navigation/project-selection.spec.ts` and
 `navigation/dashboard-header.spec.ts` pass unchanged.
+Accepted proof: `open-dough/evidence/slice3-frontend-proof.json` (10 tests);
+lint/typecheck exit 0. Content extracted to `configuredDashboardContent.tsx`.
 
 Change: reorganize `ConfiguredDashboard.tsx` as described above, so the
 story-reference navigation provider wraps the banner as well as the
