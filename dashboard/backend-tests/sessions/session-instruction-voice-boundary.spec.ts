@@ -79,6 +79,7 @@ test("disconnect and server shutdown abort held upstream work", async () => {
   seedVoiceKey(path.join(provider.machine, "home"));
   const server = await startDashboardServer({
     mode: "boundary",
+    liveServer: "connection",
     machine: provider.machine,
     extraEnv: provider.extraEnv,
   });
@@ -120,6 +121,7 @@ test("provider text is validated and response bounds and errors never expose pro
   seedVoiceKey(path.join(provider.machine, "home"));
   const server = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: provider.machine,
     extraEnv: provider.extraEnv,
   });

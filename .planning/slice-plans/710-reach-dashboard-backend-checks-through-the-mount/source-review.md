@@ -56,7 +56,7 @@ boundary for a case that only needs that boundary.
 | P28 | Server module state can outlive a mount. | slice 2 | observed: mountedDashboardServer.ts uses the normal cached module loader; close retires boundary instances, HTTP, and the project lease. Sequential scopes are exercised by project-configuration-mount-lifetime.spec.ts and the runtime failed-bind recovery. |
 | P29 | A new machine directory starts with clean held-document, lock, and cache state even when server modules persist. | slice 7 | |
 | P30 | The incident record of a killed live server remains observable and ends at process exit. | slice 5 | |
-| P31 | A live server can run beside a mounted server on the same machine. | slice 4 | |
+| P31 | A live server can run beside a mounted server on the same machine. | slice 4 | observed: slice-4-mounted.routes and agent-launch-cross-server-accept.spec.ts record a development mount followed by a distinct live production PID on its same machine, with independent origins and requests. |
 | P32 | The mounted Java intent read returns the same listing of admitted `.java` files for the location. | slice 2 | observed: authenticated-read-intent-java.spec.ts compares the request's Java listing and selector results with the existing expected file lists. |
 | P33 | The admitted Java file returns the same text. | slice 2 | observed: authenticated-read-intent-java.spec.ts reads admitted Java file text through the mounted HTTP boundary. |
 | P34 | The refused Java path still returns `404`. | slice 2 | observed: authenticated-read-intent-java.spec.ts observes 404 for each refused path. |
@@ -74,8 +74,8 @@ boundary for a case that only needs that boundary.
 | P46 | The live proof can still observe a preload. | slice 5 | |
 | P47 | The live proof can still observe that the restart uses a new process. | slice 5 | |
 | P48 | The live proof can still observe a server left running. | slice 5 | |
-| P49 | With both servers on the same machine, the mounted server’s launch answer is unchanged. | slice 4 | |
-| P50 | In that same case, the second server’s live launch answer is unchanged. | slice 4 | |
+| P49 | With both servers on the same machine, the mounted server’s launch answer is unchanged. | slice 4 | observed: agent-launch-cross-server-accept.spec.ts, simultaneous accepts for different stories: the mounted development request is accepted and its story identity is kept. |
+| P50 | In that same case, the second server’s live launch answer is unchanged. | slice 4 | observed: agent-launch-cross-server-accept.spec.ts, simultaneous accepts for different stories: the second live production request is accepted and its other identity is kept. |
 | P51 | Dashboard Backend Test has the same passing cases. | slice 7 | |
 | P52 | The cases’ product assertions stay unchanged. | slice 7 | |
 | P53 | At least 800 of the run’s boundary-mode starts mount. | slice 7 | |

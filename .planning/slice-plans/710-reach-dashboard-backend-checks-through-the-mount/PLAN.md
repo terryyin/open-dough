@@ -168,7 +168,7 @@ records and the source trace are under `slice-3-` in the Git evidence directory.
 ### 4. A second server and the server program ask for the live server
 
 Type: Structure
-Status: planned
+Status: done
 Budget: 15 active minutes, excluding commands.
 
 From [MOUNT-TRIAL.md](MOUNT-TRIAL.md): in each of the 14 specs that ran a
@@ -182,6 +182,16 @@ while live is the default. Enables slice 7.
 Proof: those specs pass on the live default, and a scratch flip of the
 default runs them green with one mounted and one live server where two
 servers share a machine.
+
+The live selection passed 53 cases. The final scratch selection passed all
+51 cases in the 16 planned specs with 31 mounted and 50 live starts. Both
+same-machine launch cases ran the development boundary in the worker and
+production in a different process. They kept both acceptances for different
+stories and one acceptance with an `already-starting` refusal for one story.
+The shared-owner case that reads an exact diagnostic history uses two live
+servers. Its other cases each retained a mount beside a live process.
+Dashboard typecheck passed and the dispatcher was restored byte for byte.
+Evidence is under `slice-4-` in the worktree's Git evidence directory.
 
 ### 5. Process identity, restart and incident-record proofs ask for the live server
 
@@ -197,6 +207,11 @@ server, or the incident record pass the live request with reason
 the case states, not the error the trial printed. A case with no such proof
 goes to slice 6. No behavior changes while live is the default. Enables
 slice 7.
+
+Slice 4 also reached `observation/authenticated-read-output-bound.spec.ts`
+through the shared revision helper. Its exact failure diagnostics need a
+fresh process because `readDiagnostics.ts` retains earlier entries in the
+worker. Include this case in the slice 5 selection.
 
 Proof: the listed specs pass on the live default, and each request sits on
 a case whose description or assertions name the process fact.
@@ -299,6 +314,8 @@ spec alone before reading it as a defect of the change.
   `b4f3b5a2d20430fb328e2fa7fb0d9e2a14f8b8bf` and registered with this observer.
 - Slice 2 was accepted on the story branch at
   `d1b17dbaa0798fa256f27a389f2c7f138c9ad7db` and registered with this observer.
+- Slice 3 was accepted on the story branch at
+  `5986f220a1452459fe4b62c6cd46c7d7e1d840b8` and registered with this observer.
 - Checkout preparation passed the locked npm install, Chromium prerequisite
   check, and dashboard typecheck. Use the Homebrew Bash 5 on `PATH`.
 
@@ -309,6 +326,12 @@ spec alone before reading it as a defect of the change.
 Reported: slice 3 — "dashboardTest.ts attaches server.output() on unexpected status before closing the fixture, and mounted output throws."
 Story clause: "Each case keeps its product assertion."
 Disposition: receiving slice 7
+
+### G2. The output-bound diagnostics start with an empty failure record
+
+Reported: slice 4 — "authenticated-read-output-bound.spec.ts expects one fresh process diagnostic and sees prior entries."
+Story clause: "A proof that needs an empty process is a separate-process proof."
+Disposition: receiving slice 5
 
 ## Plan review
 

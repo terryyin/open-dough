@@ -43,10 +43,12 @@ test.describe("launch records after the store a server read is replaced", () => 
 
   async function serverOn(
     environment: ProjectEnvironment,
+    liveServer?: string,
   ): Promise<DashboardServer> {
     const server = await startDashboardServer({
       mode: "boundary",
       environment,
+      liveServer,
       machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 4_000,
@@ -81,7 +83,7 @@ test.describe("launch records after the store a server read is replaced", () => 
     expect(await recordsOf(reader, "open-dough")).toHaveLength(1);
     expect(await recordsOf(reader, "open-dough")).toHaveLength(1);
 
-    const writer = await serverOn("development");
+    const writer = await serverOn("development", "separate process");
     writer.claudeScenario("launched");
     const { record } = JSON.parse(
       (await launch(writer, distinctStoryRequest("cross-read"))).body,

@@ -18,9 +18,14 @@ import {
 
 const launchName = `Open Dough · Execution · ${title}`;
 
-const serverWaitingForRename = (machine: string, doneRenameWaitMs: number) =>
+const serverWaitingForRename = (
+  machine: string,
+  doneRenameWaitMs: number,
+  liveServer?: string,
+) =>
   startDashboardServer({
     mode: "boundary",
+    liveServer,
     machine,
     projectFolders: ["open-dough"],
     doneRenameWaitMs,
@@ -50,7 +55,11 @@ test.describe("manual Done with a private Claude composer", () => {
     const patientMachine = mkdtempSync(
       path.join(tmpdir(), "dough-done-prompt-patient-"),
     );
-    const patient = await serverWaitingForRename(patientMachine, 30_000);
+    const patient = await serverWaitingForRename(
+      patientMachine,
+      30_000,
+      "separate process",
+    );
     try {
       const session = await launched(patient);
       patient.claudeSessionBecomes(session.sessionId, "working-idle");
