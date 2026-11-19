@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship ([plan](slice-plans/711-declare-trunk-review-authorship/PLAN.md))
 - [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps ([plan](slice-plans/621-close-native-comparison-harness-gaps/PLAN.md))
-- [Hold and settle mounted frontend cases by one rule](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#hold-and-settle-mounted-frontend-cases-by-one-rule) — SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule ([plan](slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md))
 - [Plot new models with an estimated Token Index](seeds/SEED-406-plot-new-models-with-estimated-token-index.md#plot-new-models-with-estimated-token-index) — SEED-406#plot-new-models-with-estimated-token-index ([plan](slice-plans/712-plot-new-models-with-estimated-token-index/PLAN.md))
 
 ## Backlog list

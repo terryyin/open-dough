@@ -51,9 +51,18 @@ board reads.
   `../test-support/*Names.ts`.
 - Run every mount, input, `runFor` and held-answer release through
   `actSettled` in `mountedActInput.ts`, which settles React before the case
-  observes the page. Hold an answer to observe pending and recovery states.
-- A case that needs a later page can mount again and carry an earlier mount's
-  services, such as its notes rule; one cleanup tears all mounts down.
+  observes the page. A page still changing after its round cap fails the
+  case with `UnsettledPageError`, which names the cap.
+- Only the next notes answer can be held, through `holdNextNotes`, to observe
+  pending and recovery states. A second hold fails by name, and a hold still
+  kept at cleanup is abandoned as an aborted request.
+- The board's revision stream is unreachable, so the banner reads
+  `disconnected` and the board reads project changes through its check
+  schedule.
+- A mount is not a reload: every mount clears `localStorage`, resets the board
+  position and sets history to `/`, and carries from an earlier mount only the
+  services passed in, such as its notes rule. One cleanup tears all mounts
+  down and restores the page.
 
 A case stays on a built-app page only when its behavior needs the real page:
 a real page load or reload, native input the mount cannot deliver, or a live

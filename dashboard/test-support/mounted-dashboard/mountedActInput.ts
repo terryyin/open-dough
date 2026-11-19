@@ -28,10 +28,23 @@ function nextFrame() {
   });
 }
 
+// The rounds `actSettled` waits for the page to settle before failing the case.
+export const settleRounds = 20;
+
+// A page still changing after `settleRounds` rounds, named so the case fails
+// instead of reading a page React has not settled.
+export class UnsettledPageError extends Error {
+  override name = "UnsettledPageError";
+  constructor() {
+    super(`The page did not settle within ${settleRounds} rounds.`);
+  }
+}
+
 // Runs `action` inside act, then settles the page inside act: task rounds
 // while the page still changes, then a frame round; it is settled when a frame
 // round changes nothing, so answers that later effects request and observer
-// callbacks of the new layout also reach React inside act.
+// callbacks of the new layout also reach React inside act. A page still
+// changing after `settleRounds` rounds fails with `UnsettledPageError`.
 export async function actSettled(action: () => unknown) {
   let changed = false;
   const changes = new MutationObserver(() => {
@@ -49,13 +62,14 @@ export async function actSettled(action: () => unknown) {
       await nextTask();
     });
     let framed = false;
-    for (let round = 0; round < 20; round += 1) {
+    for (let round = 0; round < settleRounds; round += 1) {
       if (changes.takeRecords().length > 0) changed = true;
       if (framed && !changed) return;
       framed = !changed;
       changed = false;
       await act(framed ? nextFrame : nextTask);
     }
+    throw new UnsettledPageError();
   } finally {
     changes.disconnect();
   }
