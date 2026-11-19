@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { e2eGroup } from "../dashboard/test-support/support/browserTestGroups.mjs";
 import { prepareFocusedRun } from "../dashboard/test-support/support/runnerConfig.mjs";
 
 // E2E Test (`npm run test:e2e`): only the representative workflows under this
@@ -11,12 +12,7 @@ import { prepareFocusedRun } from "../dashboard/test-support/support/runnerConfi
 // chains queue first as `chromium-deployments` in the same phase, inside
 // whichever shard holds them (../dashboard/test-support/support/testFiles.mjs). Its
 // listing and times file name specs relative to this directory.
-const run = await prepareFocusedRun(
-  "OPEN_DOUGH_E2E",
-  new URL("./", import.meta.url),
-  ".",
-  "e2e",
-);
+const run = await prepareFocusedRun(e2eGroup);
 
 export default defineConfig({
   ...run.options,

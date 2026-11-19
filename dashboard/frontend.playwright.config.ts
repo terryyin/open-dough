@@ -1,9 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import { prepareFocusedRun } from "./test-support/support/runnerConfig.mjs";
-import {
-  frontendGroup,
-  isMountedSpec,
-} from "./test-support/support/frontendSelection.mjs";
+import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
+import { isMountedSpec } from "./test-support/support/frontendSelection.mjs";
 
 // Retained Playwright specs for Dashboard Frontend Test. The npm command also
 // runs mounted specs. Both owners share OPEN_DOUGH_DASHBOARD_FRONTEND_*
@@ -14,10 +12,7 @@ import {
 // and a setup that prepares only the app and comparison mount builds
 // (./test-support/support/frontendGlobalSetup.ts).
 const run = await prepareFocusedRun(
-  frontendGroup.prefix,
-  new URL("./", import.meta.url),
-  frontendGroup.root,
-  frontendGroup.job,
+  frontendGroup,
   (file) => !isMountedSpec(file),
 );
 

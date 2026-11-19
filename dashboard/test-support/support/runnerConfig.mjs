@@ -2,8 +2,8 @@
 // before Playwright starts it, and the run options they share. Each
 // configuration (../../frontend.playwright.config.ts,
 // ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts)
-// names its own settings prefix, root,
-// CI job and output directory and keeps its own global setup, so no
+// runs its own group (./browserTestGroups.mjs) with its own settings prefix,
+// root, CI job and output directory and keeps its own global setup, so no
 // run reads another runner's split, times, proof record, deadline or output
 // directory, and each selects only its own root's specs (prepareFocusedRun).
 import { availableParallelism } from "node:os";
@@ -14,8 +14,8 @@ import { dashboardBrowserArgs } from "./browserArgs.ts";
 import { acquireLocalSuite } from "../../../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
+import { browserGroupSelection } from "./browserTestGroups.mjs";
 import {
-  ciGroupSelection,
   dashboardTestMatch,
   dashboardTestProjects,
   runOutputs,
@@ -169,18 +169,16 @@ async function prepareGroupRun(variables, outputs) {
 }
 
 /**
- * Prepares one group's run: it reads only `<prefix>_*` settings, keeps its
- * run directories under its own `root` of `directory` (the configuration's
- * testDir; `.` is the directory itself), and selects only that root's specs:
- * shard i of `<prefix>_SPLIT=<i>/<n>` as its CI `job` in
- * .github/workflows/ci.yml declares it, or every spec without a split. Spec
- * labels are relative to `directory`, as its times file names them.
- * `projects` partitions the selection into the `chromium-deployments`
- * production chains and the `chromium` rest (./testFiles.mjs).
- * @param {string} prefix
- * @param {URL} directory
- * @param {string} root
- * @param {string} job
+ * Prepares `group`'s run (./browserTestGroups.mjs): it reads only
+ * `<prefix>_*` settings, keeps its run directories under its own `root` of
+ * `directory` (the configuration's testDir; `.` is the directory itself),
+ * and selects only that root's specs `include` accepts: shard i of
+ * `<prefix>_SPLIT=<i>/<n>` as its CI `job` in .github/workflows/ci.yml
+ * declares it, or every spec without a split. Spec labels are relative to
+ * `directory`, as its times file names them. `projects` partitions the
+ * selection into the `chromium-deployments` production chains and the
+ * `chromium` rest (./testFiles.mjs).
+ * @param {import("./browserTestGroups.mjs").BrowserTestGroup} group
  * @param {(file: string) => boolean} [include]
  * @returns {Promise<{
  *   options: import("@playwright/test").PlaywrightTestConfig,
@@ -188,16 +186,14 @@ async function prepareGroupRun(variables, outputs) {
  *   projects: { name: string, testMatch: RegExp[] }[],
  * }>}
  */
-export async function prepareFocusedRun(prefix, directory, root, job, include) {
+export async function prepareFocusedRun(group, include) {
+  const { prefix, directory, root } = group;
   const variables = runnerVariables(prefix);
   const run = await prepareGroupRun(
     variables,
     fileURLToPath(new URL(`${root}/`, directory)),
   );
-  const selection = {
-    ...ciGroupSelection(root, variables.split, job),
-    include,
-  };
+  const selection = { ...browserGroupSelection(group), include };
   return {
     options: run.options,
     testMatch: dashboardTestMatch(directory, run.split, selection),

@@ -16,19 +16,18 @@ import {
   printMountedListing,
 } from "../dashboard/test-support/support/frontendMounted.mjs";
 import { finishFrontendGroup } from "../dashboard/test-support/support/frontendOutputs.mjs";
+import { frontendGroup } from "../dashboard/test-support/support/browserTestGroups.mjs";
 import {
   frontendArguments,
-  frontendDirectory,
   frontendFiles,
-  frontendGroup,
   matchesFrontendFile,
 } from "../dashboard/test-support/support/frontendSelection.mjs";
 import { fullDashboardSuite } from "../dashboard/test-support/support/fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "../dashboard/test-support/support/suiteDeadline.mjs";
 
 const repository = fileURLToPath(new URL("../", import.meta.url));
-const dashboard = fileURLToPath(frontendDirectory);
-const playwrightConfig = path.join(dashboard, "frontend.playwright.config.ts");
+const dashboard = fileURLToPath(frontendGroup.directory);
+const playwrightConfig = path.join(dashboard, frontendGroup.config);
 const vitestConfig = path.join(dashboard, "frontend.vitest.config.mts");
 const { prefix } = frontendGroup;
 const splitSetting = `${prefix}_SPLIT`;

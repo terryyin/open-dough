@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { backendGroup } from "./test-support/support/browserTestGroups.mjs";
 import { prepareFocusedRun } from "./test-support/support/runnerConfig.mjs";
 
 // Dashboard Backend Test (`npm run test:dashboard:backend`): only the specs
@@ -9,12 +10,7 @@ import { prepareFocusedRun } from "./test-support/support/runnerConfig.mjs";
 // `backend-tests/test-results/` (./test-support/support/runnerConfig.mjs),
 // and a setup that prepares only what backend specs serve from
 // (./test-support/support/backendGlobalSetup.ts).
-const run = await prepareFocusedRun(
-  "OPEN_DOUGH_DASHBOARD_BACKEND",
-  new URL("./", import.meta.url),
-  "backend-tests",
-  "dashboard-backend",
-);
+const run = await prepareFocusedRun(backendGroup);
 
 export default defineConfig({
   ...run.options,

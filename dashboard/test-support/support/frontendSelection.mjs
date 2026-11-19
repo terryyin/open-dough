@@ -1,14 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ciGroupSelection, selectedFiles } from "./testFiles.mjs";
-
-export const frontendGroup = {
-  root: "frontend-tests",
-  job: "dashboard-frontend",
-  prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
-};
-
-export const frontendDirectory = new URL("../../", import.meta.url);
+import { browserGroupSelection, frontendGroup } from "./browserTestGroups.mjs";
+import { selectedFiles } from "./testFiles.mjs";
 
 const mountedSuffix = /\.mounted(?=\.(?:spec|test)\.[cm]?[jt]sx?$)/;
 
@@ -17,13 +10,13 @@ export function isMountedSpec(file) {
 }
 
 export function frontendFiles(split) {
-  const { root, job, prefix } = frontendGroup;
+  const { directory } = frontendGroup;
   return selectedFiles(
-    frontendDirectory,
+    directory,
     split,
-    ciGroupSelection(root, `${prefix}_SPLIT`, job),
+    browserGroupSelection(frontendGroup),
   ).map((file) => ({
-    file: path.resolve(fileURLToPath(frontendDirectory), file),
+    file: path.resolve(fileURLToPath(directory), file),
     label: file,
     logicalLabel: file.replace(mountedSuffix, ""),
     mounted: isMountedSpec(file),
