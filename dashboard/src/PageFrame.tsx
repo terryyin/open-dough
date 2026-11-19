@@ -29,8 +29,7 @@ import { StoryReviewsOnPage, storyReviewPanelKey } from "./pageStoryReviews.ts";
 import { usePageSidePanel } from "./pageSidePanel.ts";
 import { shownRecord } from "./sidePanelContent.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
-import { IntentModeProvider } from "./pageIntentMode.tsx";
-import { IntentReadingProvider } from "./pageIntentReading.tsx";
+import { IntentPageProviders } from "./intentPageProviders.tsx";
 import {
   StorySelectionProvider,
   usePageStorySelection,
@@ -183,11 +182,9 @@ export function PageFrame({
                             className="page-column"
                             aria-hidden={shownMaximized ? true : undefined}
                           >
-                            <IntentModeProvider project={stories.selected}>
-                              <IntentReadingProvider project={stories.selected}>
-                                {children}
-                              </IntentReadingProvider>
-                            </IntentModeProvider>
+                            <IntentPageProviders project={stories.selected}>
+                              {children}
+                            </IntentPageProviders>
                           </div>
                         </ChosenSessionOnPage>
                       </RecentlyDoneRangeOnPage>

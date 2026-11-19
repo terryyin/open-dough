@@ -4,6 +4,7 @@ import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { PerspectiveSelect } from "./PerspectiveSelect.tsx";
+import { RecentStories } from "./recentStoriesControl.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
 import { SessionsButton } from "./SessionsSidebar.tsx";
 import type { DashboardConnection } from "./dashboardConnection.ts";
@@ -57,6 +58,7 @@ export function DashboardBanner({
             perspective={perspective}
             onSelect={onSelectPerspective}
           />
+          <RecentStories perspective={perspective} onSelectProject={onSelect} />
           <ProjectSelect source={source} onSelect={onSelect} />
         </>
       )}

@@ -11,6 +11,7 @@ import {
   chooseProject,
   expectCompactProjectSelect,
   expectProjectChoice,
+  expectVisibleProjectLabels,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
@@ -81,9 +82,8 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await back(page).click();
   await untilPublishedWorkRead(page);
 
-  const tabs = parts(page).project.locator("label");
   await expectProjectChoice(page, "Pygardon");
-  await expect(tabs).toHaveText(visibleWithoutDoughnut);
+  await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
   await expect(taken).not.toContainText(sessionTitle);
   await expect(sidebar).toContainText(sessionTitle);
   await expect(entry(sessionTitle)).toBeVisible();
@@ -99,7 +99,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await expect(entry(sessionTitle)).toHaveAttribute("aria-current", "true");
 
   await expect(page.getByRole("radio", { name: "Doughnut" })).toHaveCount(0);
-  await expect(tabs).toHaveText(visibleWithoutDoughnut);
+  await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
   await expectProjectChoice(page, "Pygardon");
   await expect(page).toHaveURL(`${server.baseURL}/?project=pygardon`);
   await expect(parts(page).board).toBeVisible();
@@ -143,7 +143,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   ).toBeVisible();
   await expect.poll(() => server.claudeAttaches()).toHaveLength(2);
   await expect(page.getByRole("radio", { name: "Doughnut" })).toHaveCount(0);
-  await expect(tabs).toHaveText(visibleWithoutDoughnut);
+  await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
   await expectProjectChoice(page, "Pygardon");
   await expect(page).toHaveURL(
     `${server.baseURL}/?project=pygardon&perspective=intent`,
@@ -158,7 +158,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await showButton(page, "Doughnut").click();
   await back(page).click();
 
-  await expect(tabs).toHaveText(allSeededLabels);
+  await expectVisibleProjectLabels(page, allSeededLabels);
   await chooseProject(page, "Doughnut");
   await expectProjectChoice(page, "Doughnut");
   await expect(intentMain).toHaveAttribute("data-selected-story", identity);

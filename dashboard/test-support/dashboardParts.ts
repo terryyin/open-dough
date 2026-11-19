@@ -17,6 +17,8 @@ export function parts(page: Page) {
     project: page.getByRole("radiogroup", { name: "Project" }),
     // The banner's Development and Intent choices of the selected project.
     perspective: page.getByRole("radiogroup", { name: "Perspective" }),
+    // Recent stories bookmark; its accessible name includes selected state.
+    recentStories: banner.getByRole("button", { name: /^Recent stories/ }),
     development: page.getByRole("radio", { name: "Development", exact: true }),
     intentChoice: page.getByRole("radio", { name: "Intent", exact: true }),
     // The Intent perspective's content, in place of Development's.

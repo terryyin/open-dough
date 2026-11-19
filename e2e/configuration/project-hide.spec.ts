@@ -8,7 +8,7 @@ import { addProjectOnPage } from "../../dashboard/test-support/support/projectAd
 import {
   expectCompactProjectSelect,
   expectProjectChoice,
-  parts,
+  expectVisibleProjectLabels,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
@@ -49,8 +49,7 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   }
 
   await openUntilRead(page, server.baseURL);
-  const tabs = parts(page).project.locator("label");
-  await expect(parts(page).project.getByRole("radio")).toHaveCount(4);
+  await expectVisibleProjectLabels(page, allSeededLabels);
   await settings(page).click();
 
   const doughnutRow = projectRow(page, "Doughnut");
@@ -85,9 +84,9 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   );
 
   await back(page).click();
-  await expect(page.getByRole("radio", { name: "Open Dough" })).toBeChecked();
+  await expectProjectChoice(page, "Open Dough");
   await expect(page.getByRole("radio", { name: "Doughnut" })).toHaveCount(0);
-  await expect(tabs).toHaveText(visibleWithoutDoughnut);
+  await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
 
   await page.keyboard.press("ArrowRight");
   await expectProjectChoice(page, "Pygardon");
@@ -99,11 +98,11 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   await page.setViewportSize({ width: 1280, height: 720 });
 
   await reloadUntilRead(page);
-  await expect(tabs).toHaveText(visibleWithoutDoughnut);
+  await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
   await fixture.stop(server);
   server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
-  await expect(tabs).toHaveText(visibleWithoutDoughnut);
+  await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
 
   await settings(page).click();
   await showButton(page, "Doughnut").click();
@@ -116,7 +115,7 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   expect(readSaved("preview")).toEqual(initialSaved);
 
   await back(page).click();
-  await expect(tabs).toHaveText(allSeededLabels);
+  await expectVisibleProjectLabels(page, allSeededLabels);
   await page.keyboard.press("ArrowRight");
   await expectProjectChoice(page, "Doughnut");
   await untilPublishedWorkRead(page);
@@ -149,7 +148,7 @@ test("development visibility stays separate from production configuration", asyn
 
   const prodServer = await fixture.start("preview");
   await openUntilRead(page, prodServer.baseURL);
-  await expect(parts(page).project.getByRole("radio")).toHaveCount(4);
+  await expectVisibleProjectLabels(page, allSeededLabels);
   for (const entry of readSaved("preview")) {
     expect(entry).not.toHaveProperty("hidden");
   }

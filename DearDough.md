@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 587. Removed numbers are never reused.
-- Recovery: `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.- Occurrence history is partial.
+- Recovery: `32a64ed10fa8cba776fc343e531c7bcb17642a82:DearDough.md` holds DD-555, removed to keep the SEED-409 row of ODF-150 under the 1000-line ceiling. `4a523c5f27fad2f21efba37925dfd1af65837654:DearDough.md` holds DD-585, removed for the SEED-409 row of ODF-150. `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.- Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
@@ -20,6 +20,13 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
 
 ### Occurrences
 
+- Execution: SEED-409#return-to-recently-selected-stories (plan 718; first implementation `e455747c9`)
+  - Timestamp: unknown (2026-11-19 +08:00; first failing CI run 44472044000 on `e455747c9`; repair `4a523c5f2`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.107 (Take `7c094775f` after guidance update `a7e8d3c96`)
+  - Evidence: slice 1 added the banner Recent stories button and proved `recent-stories.spec.ts`, `dashboard-header.spec.ts` and `dashboard-header-compact.spec.ts`. Unchanged banner-composition consumers—`controlsBesideSessions` / `snapshotButtons`, `accessible-board-keyboard` / `accessible-board-announcements` tab order, and e2e compact project-label assertions—failed on every product tip through `63f64555` (diagnostic run [44484264152](https://github.com/terryyin/open-dough/actions/runs/44484264152); `open-dough/evidence/ci-diag-63f64555.json`) until owned repair `4a523c5f2`.
+  - Observed effect: CI failures on all six product tips, then one owned repair publication; no trunk impact.
+  - Inference: matches ODF-150 shared-layout consumers (aggregate button membership and exact keyboard order) omitted from the plan's named local gate.
 - Execution: SEED-384#keep-review-changes-focused-on-the-diff (plan 695; first implementation `1b33fda6a`)
   - Timestamp: unknown (2026-11-18, CI run 44257937459 on `1b33fda6a`, delivered about 15:20 +08:00)
   - Tool: Claude Code
@@ -503,20 +510,6 @@ The plan predicted the real store's remaining `malformed-native-row` count from 
   - Observed effect: a diagnosis of about a dozen tool calls and a correction story (SEED-388#replace-native-reader-gaps-on-reread, plan 669). There was no trunk impact and no extra import.
   - Inference: seeding the scratch home with a copy of the real store, or the real store's gaps for the copied session, would have shown the retention during preparation. The saving is unmeasured.
 
-## DD-555 — Coordinator acceptance continues after sufficient proof <a id="dd-555"></a>
-
-Coordinator review continued into possible edge cases and broad consumer-match analysis after required observations were available. Existing return guidance already required a concrete expected/actual mismatch; its presence did not stop this run. The missing acceptance exit rule is a hypothesis to investigate alongside coordinator judgment, not an established sole cause. Refactoring remains intentionally unbounded.
-
-### Occurrences
-
-- Execution: SEED-348#collect-notes-for-story-follow-ups (plan 671; first implementation `ab91ef3234f6c1a496bf309932ba327ad09ebb44`)
-  - Timestamp: unknown (2026-11-17; execution and closure record)
-  - Tool: Codex
-  - Open Dough release: 0.3.102 (checkout-bound installed guidance at claim `681002b3946be63b7f854c4a739dcf8517a26996`)
-  - Evidence: Terry reported at least about 45 minutes for the current slice and asked about acceptance-analysis instructions; the coordinator acknowledged extending analysis beyond sufficient proof. [Retained incident and requested response](https://github.com/terryyin/open-dough/blob/74e279020ed97da59be4ff3a3956a9c4020cf55d/.planning/seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence); launch `154b5180-ee1f-44b2-88e7-a70e47217593`, incident at `ab1acbbac33f0a82de40321121f1c086336ec301:.planning/seeds/SEED-345-session-token-efficiency/proof-decisions.md`, and slice-5 proof at `f918ecb54b55b45b53819208f4a6d568452107d1` preserve provenance.
-  - Observed effect: developer interruption and an authorized priority increase for existing `SEED-345#reach-a-proof-decision-from-retained-evidence`, marked not-ready pending investigation. The 45 minutes is the developer's total elapsed estimate, not measured acceptance time.
-  - Inference: start with simple stopping instructions: proceed once promises, affected consumers and gates have decisive observations; further investigation names a mismatch or specific evidence gap. Preserve required proof and unbounded refactoring; introduce no timing machinery first. Separate implementation, command waits, refactoring, CI repair and acceptance before making a measured causal claim.
-
 ## DD-557 — Launch-record delivery listeners planned for the dashboard process miss Cursor's runner process <a id="dd-557"></a>
 
 A plan treated `replaceRecords` as the single confirmation seam and installed a delivery listener only on the dashboard launch boundary. Cursor confirms first input in `runnerMain`, so that write never saw the listener until the same install ran in the runner process.
@@ -977,20 +970,6 @@ Slice briefs named the absolute git-path evidence directory. The CI-repair brief
   - Evidence: repair brief `97ec84ef` (“evidence dir `…/evidence/ci-repair`”); return under worktree `evidence/ci-repair/REPORT.md`; coordinator moved it to git-path `open-dough/evidence/ci-repair/from-checkout-root` and published `fa0db1362`. Proof-evidence requires `git rev-parse --git-path open-dough/evidence`.
   - Observed effect: one guarded delivery refusal and a cleanup-plus-retry before the repair SHA published.
   - Inference: naming the same absolute git-path used for slice evidence would have kept artifacts outside format's change-set selection.
-
-## DD-585 — macOS signal proof missed Linux arm behavior
-
-A native harness change passed 51 macOS checks before hosted Linux exposed three arm failures. The repository's Ubuntu diagnostic reproduced them.
-
-### Occurrences
-
-- Execution: SEED-346#close-native-comparison-harness-gaps (plan 621, first implementation `73370177a`)
-  - Timestamp: unknown (2026-11-19 +08:00, CI run 44432359216/1)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance at Take `76fb0f994`)
-  - Evidence: [failed Linux shard](https://github.com/terryyin/open-dough/actions/runs/44432359216/job/135252647345) and `f768859be:.planning/slice-plans/621-close-native-comparison-harness-gaps/diagnosis-native-linux-arm.md`.
-  - Observed effect: a writer pause, one repair publication and 15 passing Linux checks after repair. The original proof had used macOS Bash and process groups.
-  - Inference: use the existing [Ubuntu diagnostic](Distribution/tests/ci/ci-container.md) before publishing a change to shell signal or process-group ownership that ships on Linux.
 
 ## DD-586 — A paid native probe reached delegation before qualifying proof artifact writes
 

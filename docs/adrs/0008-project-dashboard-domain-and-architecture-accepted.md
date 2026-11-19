@@ -86,7 +86,8 @@ evidence from an explicit negative result.
 | Side panel | The auxiliary region, normally to the Board's right, showing one terminal, final report, or story review at a time. |
 | Panel divider | The resize control between the Board and Side panel when they appear side by side. |
 | Scrollbar | A control that scrolls its owning region; qualify it by that region, such as Board scrollbar or Side panel scrollbar. |
-| Selected story | The page's one story, or none, that the dashboard is showing. Opening that story's content in the Side panel, clicking an empty area of its Story card, or selecting a Recently done sessions row linked to the completed story can set it. Closing the Side panel preserves the current selection. Clicking an empty area of the selected Story card or showing a session attached to no story clears it. Intent reads it. |
+| Selected story | The page's one story, or none, that the dashboard is showing. Opening that story's content in the Side panel, clicking an empty area of its Story card, selecting a Recently done sessions row linked to the completed story, or choosing a Recent stories row can set it. Closing the Side panel preserves the current selection. Clicking an empty area of the selected Story card or showing a session attached to no story clears it. Intent reads it. |
+| Recent stories | The banner control and its list of recently set Selected stories in this browser. A filled bookmark shows that a story is selected; an outline bookmark shows that none is. The list is most recent first, each project and story pair once, and clearing the Selected story leaves the list as it is. |
 | Highlight | The selected story's visual indication on its Story card. |
 | Inspect | Opening or closing a Story card's inline detail, which leaves the Selected story as it is. |
 

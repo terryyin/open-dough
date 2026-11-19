@@ -18,12 +18,62 @@
 // (`./pageIntentReading.tsx`) as they were, and coming back shows them again.
 // Without a selected story Intent shows Project Intent.
 
-import { createContext, useContext, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
 export type IntentStoryTab = "ci" | "changed" | "coverage";
+export type IntentScope = "story" | "project";
+
+// Live chooseScope from the mounted Intent body. The banner sits above Intent,
+// so a downward context cannot reach it; PageFrame holds this ref bridge.
+export type IntentScopeChooser = (next: IntentScope) => void;
+
+const IntentScopeChooserRef = createContext<
+  RefObject<IntentScopeChooser | undefined> | undefined
+>(undefined);
+
+export function IntentScopeBridgeProvider({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  const chooser = useRef<IntentScopeChooser | undefined>(undefined);
+  return (
+    <IntentScopeChooserRef value={chooser}>{children}</IntentScopeChooserRef>
+  );
+}
+
+export function useIntentScopeChooser(): IntentScopeChooser | undefined {
+  const chooser = useContext(IntentScopeChooserRef);
+  return chooser === undefined
+    ? undefined
+    : (next) => {
+        chooser.current?.(next);
+      };
+}
+
+// Intent registers its chooseScope while mounted so the banner can call it.
+export function useProvideIntentScopeChooser(
+  chooseScope: IntentScopeChooser,
+): void {
+  const chooser = useContext(IntentScopeChooserRef);
+  useLayoutEffect(() => {
+    if (chooser === undefined) return;
+    chooser.current = chooseScope;
+    return () => {
+      if (chooser.current === chooseScope) chooser.current = undefined;
+    };
+  }, [chooser, chooseScope]);
+}
 
 export const storyTabs: readonly IntentTabOption<IntentStoryTab>[] = [
   { value: "ci", label: "CI comparison" },
@@ -60,8 +110,6 @@ export function useStoryTab(selection: SelectedStory | undefined) {
   );
   return { tab: choice, chooseTab: choose };
 }
-
-export type IntentScope = "story" | "project";
 
 // What Intent shows for the page's `selection`, and the way to the other.
 // Project Intent shows only when chosen during this selection.

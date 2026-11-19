@@ -6,7 +6,11 @@ import {
   countAuthenticatedReads,
 } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
 import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
-import { politeRegionsOfferedThenMarked } from "../../test-support/accessibleReading.ts";
+import {
+  politeRegionsOfferedThenMarked,
+  tabTo,
+  zoomedWindow,
+} from "../../test-support/accessibleReading.ts";
 import {
   expectMembership,
   parts,
@@ -14,7 +18,6 @@ import {
 } from "../../test-support/dashboardPage.ts";
 import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
 import { longBacklog, revision } from "../../test-support/accessibleBoard.ts";
-import { zoomedWindow } from "../../test-support/accessibleReading.ts";
 import {
   box,
   compactProjectSelectCut,
@@ -65,15 +68,13 @@ test("accessible Board announces reading, the read result, and a failure while f
     ).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the perspective, the project, then System settings.
+  // Reach System settings after the banner's earlier stops (Sessions,
+  // perspective, Recent stories, project) without hard-counting Tabs.
   const settings = page.getByRole("button", {
     name: "System settings",
     exact: true,
   });
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
+  await tabTo(page, settings);
   await expect(settings).toBeFocused();
 
   await test.step("a check that finds B starts a read, which the known status region reports as under way", async () => {

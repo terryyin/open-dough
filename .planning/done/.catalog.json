@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-409_return-to-recently-selected-stories.json",
+      "identity": "SEED-409#return-to-recently-selected-stories",
+      "completedAt": "2026-11-19T08:45:34.948Z",
+      "blob": "6048bbf92a709cd6c3f005eddf62db871f470142"
+    },
+    {
       "fileName": "SEED-353_declare-completed-story-review-histories.json",
       "identity": "SEED-353#declare-completed-story-review-histories",
       "completedAt": "2026-11-19T07:16:38.022Z",
@@ -2670,24 +2676,6 @@
       "identity": "SEED-145#quiet-land-and-wrap-up",
       "completedAt": "2026-10-20T09:16:13.373Z",
       "blob": "dda76cb57a9a1df62d3855a0a3169dc18ec88b4a"
-    },
-    {
-      "fileName": "SEED-052_cursor-unconfirmed-stop-after-local-done.json",
-      "identity": "SEED-052#cursor-unconfirmed-stop-after-local-done",
-      "completedAt": "2026-10-20T08:42:06.891Z",
-      "blob": "37f2a7f020d6417871b3fbbb1ae67afc21bc6451"
-    },
-    {
-      "fileName": "SEED-052_cursor-session-model-scope.json",
-      "identity": "SEED-052#cursor-session-model-scope",
-      "completedAt": "2026-10-20T07:55:18.055Z",
-      "blob": "0167e9a9d06cb7829a35ca55d3a28e75d49b763a"
-    },
-    {
-      "fileName": "SEED-144_recognize-opendough-by-its-icon.json",
-      "identity": "SEED-144#recognize-opendough-by-its-icon",
-      "completedAt": "2026-10-20T07:23:13.081Z",
-      "blob": "d30b5982ee2ec1b74161db14e555702edc731791"
     }
   ],
   "unreadable": []
