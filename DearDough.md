@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 588. Removed numbers are never reused.
-- Recovery: `32a64ed10fa8cba776fc343e531c7bcb17642a82:DearDough.md` holds DD-555, removed to keep the SEED-409 row of ODF-150 under the 1000-line ceiling. `4a523c5f27fad2f21efba37925dfd1af65837654:DearDough.md` holds DD-585, removed for the SEED-409 row of ODF-150. `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574.- Occurrence history is partial.
+- Recovery: `32a64ed10fa8cba776fc343e531c7bcb17642a82:DearDough.md` holds DD-555, removed to keep the SEED-409 row of ODF-150 under the 1000-line ceiling. `4a523c5f27fad2f21efba37925dfd1af65837654:DearDough.md` holds DD-585, removed for the SEED-409 row of ODF-150. `0cc3238b517a71413d40dc1e86cce6d1c140e272:DearDough.md` holds the ODF-150 SEED-382 and SEED-400 occurrences replaced by DD-585. `facd20535d6714db0ab4651c947bff2706b8d2dd:DearDough.md` holds the branch-local DD-582 evidence-path finding before renumbering to DD-584 on trunk merge; `d3e155dd924b5f62e540b65df9df5b040da95ee0:DearDough.md` holds DD-570, removed for DD-578; `3a703141f44d98968d20996da1abfeaedda68de4:DearDough.md` holds the ODF-150 SEED-371 occurrence, removed for the SEED-384 occurrence; `969f4924fcc0fceb6953b7c67bb45924dc122baa:DearDough.md` holds DD-556, removed for the SEED-400 rows of ODF-150 and DD-568; `593bb8ce105d3605acb86b7b5dbc41e51df64d7d:DearDough.md` holds DD-540 and DD-541, removed for DD-577; `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) retain the local CI issue (DD-529). `fe04022a7f36772d930ba27e4853f34e8fce674b:DearDough.md` holds DD-576, removed for the SEED-379 row of DD-551. `834cad999c49999398a6fdd813576ffeb207b46a:DearDough.md` holds DD-549, removed for DD-580 and the SEED-401 row of ODF-368; it also holds the SEED-381 occurrence of ODF-150, removed for the same rows. `1d3b433bf7fdbd8e1858e0d62e623539f6d67b06:DearDough.md` holds the ODF-329 plan 668 and SEED-388 rows, removed for DD-581. `381a614c3720e323ca7b08c4a101b273dcd06e46:DearDough.md` holds the ODF-150 plan 651 occurrence, replaced by the SEED-379 occurrence. Plan 648 retains the repeated matrix declaration miss. `7740fc354ff8f89eb2a8de63243792950fd6c6d8:DearDough.md` holds DD-562 and DD-567, removed for DD-582, DD-583 and the SEED-404 row of DD-574. `2b858d95899f43e92272253e623f146966c6900b:DearDough.md` retains the ODF-329 plan 679 shell-lint occurrence, replaced by direct browser-test lint evidence from plan 722. Earlier shell-lint cases remain in ODF-329.- Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
@@ -224,15 +224,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: two failed preparation attempts and coordinator repairs after refactor completion, with no failed commit/publication.
   - Inference: matches ODF-329; carrying strict project rules or permitted read-only checking into authoring may avoid this rework. Net saving is unmeasured; no guidance changed here.
 
-- Execution: SEED-396#replace-evaluation-shell-checks (plan 679; first implementation `251af1f66bb8830227df0b59fbc2306a33df4c40`)
-  - Timestamp: unknown (2026-11-17; slice 1 and 3 delivery)
-  - Tool: Codex
-  - Model: gpt-6.1-sol
-  - Open Dough release: 0.3.104 (checkout-bound installation unchanged from claim `0ada9a1e3`)
-  - Evidence: implementation and refactor briefs reserved formatter/hook-owned lint for the coordinator. Both refactor returns were clean; guarded fresh then refused slice 1 on SC2154/SC2016/SC2034 and slice 3 on SC1007/SC2094. Explicit initialization and narrow directives resolved the findings before publication (`251af1f66`, `1da6ffa75`).
-  - Observed effect: two preparation refusals and coordinator mechanical repairs; no failed candidate was committed or published.
-  - Inference: matches ODF-329. Earlier authored-file checking or carrying the strict shell rules may avoid this rework; effort saving is unmeasured.
-
 - Execution: SEED-340#declare-every-worker-preparation-with-its-own-budget (plan 692; first implementation `df9c246dcf1d9bf242d93f8517d01c70cf858587`)
   - Timestamp: unknown (2026-11-18; slice 2 delivery)
   - Tool: Claude Code
@@ -249,6 +240,15 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: guarded formatting refused on `no-unnecessary-condition` in `doneMarks.ts` and `no-param-reassign` in `launchRecordPins.ts` after both independent refactors. The coordinator separated the existing pre- and post-await checks, reran the Done and quiet rename specs, then used a local variable for the second repair.
   - Observed effect: two failed preparation attempts before publication. Neither failing candidate was committed.
   - Inference: the briefs left formatting and full lint with delivery and did not include an authored-file, read-only check. Both diagnostics were available before commit; net saving was not measured.
+
+- Execution: SEED-413#renovate-dashboard-frontend-unit-tests (plan 722; first implementation `9ec3bb95400e7b4be6f11e35fdb275695490a383`)
+  - Timestamp: unknown (2026-11-19 +08:00; slice 1 delivery)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound guidance at claim `a354099b409102a1031e9f2f82f975bbd3068467`)
+  - Evidence: mounted Chromium and dashboard typecheck passed. After independent refactor, guarded formatting refused `await-thenable`, `no-confusing-void-expression` and two `no-non-null-assertion` errors in the mounted history spec.
+  - Observed effect: one preparation refusal. The coordinator repaired the React act callback and checked adjacent array entries, renewed the focused family proof, and committed through the normal gate.
+  - Follow-through: later implementation and review briefs named the earlier TypeScript pitfalls. Both later slices passed their first delivery formatting attempt.
+  - Inference: read-only authored-file checking could find these errors before delivery. The benefit is unmeasured.
 
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 

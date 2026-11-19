@@ -225,3 +225,11 @@ proof correction is indicated by the local evidence. Hosted CI is pending.
 
 Process review remains selected and will follow the Intent Coverage report
 during wrap-up.
+
+The hosted [frontend proof for run 44537871400](https://github.com/terryyin/open-dough/actions/runs/44537871400)
+records five passes in the three mounted spec files at `5cddca001`. The
+execution-record revision `2b858d95` reused that successful CI basis.
+Intent Coverage caught the missing gap rows at the rendered list and
+verified baseline and restoration passes. The Done record stores the report.
+Deferred process review recorded the formatting-gate recurrence in ODF-329.
+Both North Star topics still govern the next revision-update family.
