@@ -34,10 +34,10 @@ intent introduced or affected by a newly developed story.
 - [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship ([plan](slice-plans/711-declare-trunk-review-authorship/PLAN.md))
 - [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps ([plan](slice-plans/621-close-native-comparison-harness-gaps/PLAN.md))
 - [Hold and settle mounted frontend cases by one rule](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#hold-and-settle-mounted-frontend-cases-by-one-rule) — SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule ([plan](slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md))
+- [Plot new models with an estimated Token Index](seeds/SEED-406-plot-new-models-with-estimated-token-index.md#plot-new-models-with-estimated-token-index) — SEED-406#plot-new-models-with-estimated-token-index ([plan](slice-plans/712-plot-new-models-with-estimated-token-index/PLAN.md))
 
 ## Backlog list
 
-- [Plot new models with an estimated Token Index](seeds/SEED-406-plot-new-models-with-estimated-token-index.md#plot-new-models-with-estimated-token-index) — SEED-406#plot-new-models-with-estimated-token-index
 - [Run the story-notes checks in a third of their time](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-story-notes-checks-in-a-third-of-their-time) — SEED-404#run-the-story-notes-checks-in-a-third-of-their-time
 - [Run the Story Notes checks at about 100 ms per case](seeds/SEED-407-run-the-story-notes-checks-at-about-100-ms-per-case.md#run-the-story-notes-checks-at-about-100-ms-per-case) — SEED-407#run-the-story-notes-checks-at-about-100-ms-per-case
 - [Run the other frontend families at the mounted boundary](seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md#run-the-other-frontend-families-at-the-mounted-boundary) — SEED-404#run-the-other-frontend-families-at-the-mounted-boundary

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-406#plot-new-models-with-estimated-token-index",
+  "mode": "story-branch",
+  "branch": "claude/plot-new-models-with-an-estimated-token-index",
+  "host": "claude"
+}
