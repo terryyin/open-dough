@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-404_hold-and-settle-mounted-frontend-cases-by-one-rule.json",
+      "identity": "SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule",
+      "completedAt": "2026-11-19T01:12:25.085Z",
+      "blob": "13dfd45a32b49323f646cf5ba89390138eb89fd8"
+    },
+    {
       "fileName": "SEED-353_declare-merged-review-histories.json",
       "identity": "SEED-353#declare-merged-review-histories",
       "completedAt": "2026-11-19T00:29:20.688Z",
@@ -2670,12 +2676,6 @@
       "identity": "SEED-010#accept-original-story-promises",
       "completedAt": "2026-10-20T02:23:03.299Z",
       "blob": "1ee6f0f69b6120a1fec65d595d7f5788bc3dac3a"
-    },
-    {
-      "fileName": "SEED-119_align-story-top.json",
-      "identity": "SEED-119#align-story-top",
-      "completedAt": "2026-10-20T00:57:31.838Z",
-      "blob": "dff37c47be8368277ada1734fb328101b399cde7"
     }
   ],
   "unreadable": []

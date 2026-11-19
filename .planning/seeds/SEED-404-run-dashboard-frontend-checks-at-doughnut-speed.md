@@ -107,29 +107,6 @@ separately. [Doughnut configuration](https://github.com/nerds-odd-e/doughnut/blo
 [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 and [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
-<a id="hold-and-settle-mounted-frontend-cases-by-one-rule"></a>
-
-### Hold and settle mounted frontend cases by one rule
-
-**Identity:** SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d38ebe902951cec713d36699d25007d26bff562086f044e75528cf28e50360a8","plan":"4f8c4e07773085455b51f1f8e93614a4813d605891c438b06a55734cc0548b40"}}
-```
-
-Correction from the execution retrospective of
-the story-notes story (`7df4ade39b5f415c379f12615957ec779f6d93a5:.planning/seeds/SEED-404-run-dashboard-frontend-checks-at-doughnut-speed.md`, section `run-the-remaining-dashboard-frontend-checks-at-doughnut-speed`),
-2026-11-19.
-
-**Goal.** A developer writing a mounted frontend case can rely on the mounted
-support's held answers, settling and remounting to behave as its isolation case
-and README say, so a held answer cannot leak into the next case and an
-unsettled page fails by name instead of being read outside act.
-
-**Scope.** Test support under `dashboard/test-support/mounted-dashboard/`, its
-isolation spec and the mounted support section of
-`dashboard/frontend-tests/README.md`. The story-notes cases keep every
-observation; product code is unchanged. [Plan](../slice-plans/711-hold-and-settle-mounted-frontend-cases/PLAN.md)
-
 <a id="run-the-story-notes-checks-in-a-third-of-their-time"></a>
 
 ### Run the story-notes checks in a third of their time
