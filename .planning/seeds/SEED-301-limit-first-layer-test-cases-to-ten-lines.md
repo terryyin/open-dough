@@ -31,7 +31,7 @@ wrappers. On 2026-11-19 the frontend renovation absorbed
 `SEED-301#publish-intent-projects-through-makeme`. The remaining frontend
 families own the move from whole-app `putFrontend*` substitutes to narrow
 Intent component inputs.
-[Remaining dashboard frontend unit-test families](SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-frontend-unit-tests).
+[Remaining dashboard frontend unit-test families](SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families).
 
 #### Refinement reminder for Terry
 

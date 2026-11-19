@@ -215,12 +215,184 @@ it.
 
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
-### Renovate the remaining dashboard backend unit-test families around typed server handlers
+### Prove what Done keeps of a Default main session's commits in-process
 
 **Identity:** SEED-413#renovate-remaining-dashboard-backend-unit-tests
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#renovate-remaining-dashboard-backend-unit-tests","dependencies":[{"supplier":{"identity":"SEED-413#renovate-dashboard-backend-unit-tests","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests"},"implementation":"The first family exports typed review, file diff and file text handlers that answer a session subject in-process, gives MakeMe stored-document builders for the launch store and the project list, and states its entry rules in dashboard/backend-tests/README.md.","rationale":"This story's cases read what Done kept through those review handlers and keep their sessions as the stored launch document. Before the handlers exist the cases would call the unsplit request functions with a stand-in for the response, and adding the stored-document builders here would duplicate the first family's Taken slices in the same files.","condition":"On trunk, exported typed handlers answer an ad hoc session's review, file diff and file text in-process from a ReviewedWorkSubject and an AbortSignal, and MakeMe builds the launch store and the project list as stored documents.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/723-prove-done-capture-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cf512dacfa2f083d06c0825b21a0ff1608e4a9dc50a6b179ec5e947c6ba50c67","plan":"527a80b81e32c5fd29c649a555273c8a8623bd678bcda41432099d96070c70a8"}}
+```
+
+Second family of the backend renovation, split from the remaining families;
+the [later families](#renovate-later-dashboard-backend-unit-test-families)
+follow it.
+
+- **Goal.** Developers changing what Done keeps of a session's commits get
+  cases that mark a kept session Done in-process on plain Node Vitest and
+  read the result from the kept record, the repository's references and the
+  typed review handlers. The rules are the read of the checkout's `HEAD` log,
+  the runs it makes, the references that keep them and the reason nothing
+  was captured. The first family proves reading kept records. This family
+  adds what branch result and manual landing need next: a Done mark made
+  in-process on a session whose checkout holds real Git work, with that work
+  stated through MakeMe. Speed, clarity, and deleted `test-support` surface
+  are judged together under
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- **Scope: cases.**
+  - Every case whose trigger is a Done mark on a kept Default main session,
+    and whose facts are the kept record, its Git references or the review
+    answer, becomes a plain Node Vitest case in a `*.unit.spec.ts` spec, and
+    none is lost. On 2026-11-19 those are all of
+    `review/ad-hoc-session-commit-runs.spec.ts`,
+    `ad-hoc-session-commit-rewrites.spec.ts`,
+    `ad-hoc-session-commits-shared.spec.ts`,
+    `ad-hoc-session-commits-file-text.spec.ts` and
+    `kept-commits-release-after-done.spec.ts`; the three cases of
+    `ad-hoc-session-commits.spec.ts` that neither a quiet report marks nor
+    the first family moves; and the six cases of
+    `ad-hoc-review-unavailable.spec.ts` about a session that committed
+    nothing, committed elsewhere, reworded its commit, or whose log could not
+    be read: about 25 cases and about 40 s of CI.
+  - A case marks the session Done through `setRecordDoneAt`, the store
+    function that writes the mark and starts the capture, with the Done time
+    the case states. It deletes a record only where the release of the
+    references is the behavior under test.
+  - A case states its times against its own clock: a launch earlier than its
+    work, the work after the launch, and a Done after the work and no later
+    than now.
+  - A case states its machine through MakeMe: the kept sessions as the stored
+    launch document, and the checkout's work as dated steps of the repository
+    MakeMe describes (a commit, an amend, a commit on another branch, a pull
+    that fast-forwards, merges or rebases, a rebase onto fetched trunk, a
+    continued cherry-pick, an autosquash). Real Git performs each step, so
+    the log the capture reads is Git's own.
+  - The moved cases' summed case time at two workers is at most half of what
+    the same cases take on Playwright, both measured in one session at a
+    stated load.
+- **Scope: guidance and removal.**
+  - `dashboard/backend-tests/README.md` adds the rules this family follows
+    beyond the first two: state a checkout's work through MakeMe; state times
+    against the case's clock; a store function under a native operation is
+    the entry when the kept record is the whole fact the case adds.
+  - Every method of `DefaultMainSessionWork` and every function of
+    `sessionCheckoutGit.ts` and `adHocReview.ts` with no caller left is
+    deleted, and nothing is added outside MakeMe builders.
+- **Scope limits.** These stay Playwright specs for the
+  [later families](#renovate-later-dashboard-backend-unit-test-families), and
+  they keep proving that the developer's Done and a quiet report reach the
+  capture: native Done with its rename, stop and removal, reported Done and
+  its retries, a held checkout read (`ad-hoc-session-commits-done`,
+  `ad-hoc-session-commits-pending-done`, the quiet-report case of
+  `ad-hoc-session-commits`), record deletion and expiry at the dashboard
+  (`kept-commits-release`), the launch that keeps no start in a checkout Git
+  cannot read, the branch result, manual landing and handoff journeys, and
+  `ad-hoc-session-comparisons`. The server gains no clock seam.
+  `launchStore.ts` and the support modules above stay while those specs
+  import them. `Distribution/src/` is unchanged.
+- **Key examples.**
+  - A session kept as established an hour ago at `base` in a Default main
+    checkout, with one commit made there half an hour ago → the case marks it
+    Done ten minutes ago → the kept record holds one run from `base` to that
+    commit, the repository holds the two references that keep the pair, and
+    the review handler answers `session-commits` with that run. No server and
+    no agent host run.
+  - The same session with a commit either side of a pull that merged trunk's
+    work → Done → two runs, oldest first, and neither holds the merge or
+    trunk's changes.
+  - Two commits, the second amended, then rebased onto pulled trunk → Done →
+    one run of the two commits as they ended.
+  - A session whose only commit stays on another branch → Done → the review
+    says its changes were not captured. A session that edited files and
+    committed nothing → Done → the review says it made no commits in the
+    Default main checkout.
+  - Two kept sessions open in one checkout, each with a commit → Done on one
+    → its review holds the commits made while it was open and says the
+    checkout was shared.
+  - A Done session with a kept run, and a later Done whose log cannot be
+    read → the earlier run's references are gone from the repository.
+  - A launch that a quiet report marks Done → it stays a Playwright spec
+    after this story.
+- **Architecture.** No Accepted ADR conflicts.
+  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  asks for fast unit feedback and a useful stopping point, and
+  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  for dashboard data that maps directly to the domain.
+  - *The seam already exists.* `setRecordDoneAt` in `recordDoneAt.ts` owns
+    the durable mark and starts the capture (`doneCapture.ts`,
+    `sessionCommitsCapture.ts`, `launchRecordPins.ts`). None of them reads
+    HTTP or an agent host, so this family changes no server module. Native
+    Done (`doneMarks.ts`) sits above that function and needs terminals and a
+    host; it belongs to the later lifecycle family.
+  - *The clock is the machine's.* The capture stamps its read with the
+    current time and answers a Done only when the read is not earlier than
+    it, and the store's retention drops a record launched long ago. A case
+    therefore states times against now. A clock seam would serve only these
+    cases.
+  - *Checkout work is data that real Git performs.* The Git steps live today
+    in `DefaultMainSessionWork` and `sessionCheckoutGit.ts`, which are test
+    support that is neither a builder nor a page object. They become steps of
+    the MakeMe repository description, which the repository fixture already
+    performs with real Git. The log's action wording is Git's contract with
+    the capture, so no case writes a log as text.
+  - *One Done seam for three families.* `setRecordDoneAt` also settles the
+    branch result at Done (`sessionBranchCapture.ts`), so the arrangement
+    proven here is the one branch result and manual landing reuse.
+- **Alternatives considered.** Taking all of the remaining ad hoc review
+  (about 68 cases, 270 s) retires `adHocReview.ts` in one story and is three
+  handlers and more than one plan. Starting with the branch result (115 s in
+  18 cases) follows CI seconds, yet it needs this Done seam and a launched
+  worktree stated as data, neither shown yet. Calling Git inline in each case
+  repeats the dated-command plumbing in every spec. A tachograph test bench
+  is the borrowed form: the inspector's reading rules are checked against
+  charts a real recorder drew on a bench, without a lorry and a shift. Here
+  Git is the recorder, the checkout log the chart, and launch and Done the
+  shift's stamps. The analogy breaks where a chart can be filed and replayed:
+  a log cannot be stored as text, so Git draws it again in every case.
+- **Baseline and observations** (2026-11-19).
+  - CI medians over main runs 44528572337, 44512335806, 44503789713,
+    44500660591 and 44494044199: the 25 `review/ad-hoc-*` and
+    `kept-commits-*` files take 282 s. The files this family moves whole take
+    27.5 s for 16 cases; with the moved share of the two partly moved files,
+    about 40 s for about 25 cases, 1 to 2.5 s per case.
+  - A scratch Node Vitest case at `f9e6023bc`, load about 3.5, Node 24.21.0,
+    Vitest 5.1.0: a temporary `HOME`, a MakeMe repository with its base
+    revision dated 2019, a MakeMe launch record established an hour ago kept
+    as the store document, a commit dated half an hour ago,
+    `setRecordDoneAt` with a Done ten minutes ago, then the review read.
+    Three cases passed: the arrangement took 54 to 140 ms, the Done mark with
+    its capture 98 to 103 ms and the review read 84 to 89 ms. The record kept
+    the run, the repository held both references, and the review answered
+    `session-commits`. No project list was needed for the Done mark.
+  - Two more scratch cases at load about 11, on a MakeMe repository with a
+    bare origin: a commit, another clone's commit pushed to trunk and pulled,
+    then a second commit, and the Done mark. A merging pull kept two runs and
+    a rebasing pull kept one run of both commits as rebased. Each case took
+    1.2 to 1.4 s, 0.8 to 1.0 s of it Git's arrangement.
+  - The same case with every time in 2020 lost its record to retention, and
+    with a Done in 2099 the review answered "not captured". With the base
+    revision dated after the launch the capture refused the log. Not
+    observed: these Git steps stated as MakeMe steps, and a cherry-pick or an
+    autosquash in-process.
+- **Effort hypothesis.** M, medium confidence. The Done seam and its timing
+  are observed, with and without an origin. The form of the MakeMe steps for
+  checkout work is the least observed part.
+- **Safe stopping point.** The Done capture cases stand on their own, the
+  lifecycle specs still prove the wire's path into the capture, and the
+  README carries the rules the next families need.
+
+<a id="renovate-later-dashboard-backend-unit-test-families"></a>
+
+### Renovate the later dashboard backend unit-test families around typed server handlers
+
+**Identity:** SEED-413#renovate-later-dashboard-backend-unit-test-families
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
+
+Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
+kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests).
 
 - **For / why.** Developers changing `dashboard/server/` get fast,
   compile-time-checked unit tests for every remaining family: plain Node
@@ -249,9 +421,11 @@ it.
   while both gauges run. The count of specs still on `@playwright/test` is
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
-  1. The rest of ad hoc review: Done's capture of session commits, then the
-     branch result and manual landing journeys (about 230 s), which retire
-     `adHocReview.ts`.
+  1. The rest of ad hoc review, which retires `adHocReview.ts`: the branch
+     result with its handoff (115 s in 18 cases) and manual landing (94 s in
+     12 cases), on the Done seam the capture family shows; then Done's
+     lifecycle (native and reported Done, the held checkout read) and record
+     deletion and expiry (about 24 s in 14 cases).
   2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and
      `SEED-319` and giving the module-level memos in `followUpStory.ts`,
      `ciProofArtifact.ts`, `ciAdapterProof.ts`,
@@ -366,12 +540,67 @@ observations. Effort M with high confidence in the tested boundaries.
 
 <a id="renovate-remaining-dashboard-frontend-unit-tests"></a>
 
-### Renovate the remaining dashboard frontend unit-test families
+### Prove how Project Intent applies a newer revision
 
 **Identity:** SEED-413#renovate-remaining-dashboard-frontend-unit-tests
 ```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/724-project-intent-revision-update-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ae5573ec90c68b94be1ad8eff745e64fb322c5b313404844a57a3c40701e5bc8","plan":"e9c7f7372035b0d57efb42a4e9dab04bdfa323962fd73ff9010d8e4ba3f78892"}}
+```
+
+Second frontend family after
+[Project CI history](#renovate-dashboard-frontend-unit-tests). This preparation
+keeps the five cases whose behavior is owned by the open Project Intent
+reading. The [later frontend families](#renovate-later-dashboard-frontend-unit-test-families)
+carry the rest of the suite and the campaign timing target.
+
+**Goal.** Developers changing how Project Intent follows a published revision
+can see, in a fast Chromium test of the production perspective, what the
+reader keeps while an update is offered, applied or retried. That gives the
+renovation a repeatable boundary for asynchronous, multi-component UI behavior.
+
+**Scope.** Replace five built-app cases about applying a revision in one open
+Project Intent reading with typed, direct Vitest Browser Mode cases. Preserve
+their distinct read sequences, selection, scroll, focus, and failure wording.
+Build published inputs and service answers with MakeMe. Keep the production
+Intent perspective, reading state, browser and read clients together, with
+prepared answers for the local authenticated read service. Use the maintained
+frontend command, discovery and CI proof. Compare the five cases' summed
+two-worker duration on the two engines under comparable conditions, recording
+command elapsed time separately. Add zero test-support wrappers and check
+consumers before deleting support.
+
+The later families own project and perspective switches, planning-only return,
+Optimization Candidates, the other frontend folders and runner retirement.
+
+**Key examples.**
+
+- A reader has a selected feature and has scrolled its source. Two new
+  revisions arrive, then the reader selects **Show latest**. One polite notice
+  keeps the old reading and focus until asked. The held answer keeps the old
+  source and selection. When the last revision answers, the same file and
+  scroll position remain, the new text appears, and focus is on that file.
+- The latest revision deleted the selected path. When the reader applies it,
+  Purpose names the missing file and revision, the reading pane takes focus,
+  and no other source is selected or requested.
+- The next locations read fails or reports unreadable settings. Applying it
+  keeps the old tree and text and offers **Retry**. A successful locations
+  retry applies the revision. If the selected file's new text read fails, its
+  own retry replaces the retained text on success.
+- The latest settings answer is malformed. Applying it shows the settings
+  explanation, names the new browser revision, and takes focus into the
+  explanation panel.
+
+<a id="renovate-later-dashboard-frontend-unit-test-families"></a>
+
+### Renovate the later dashboard frontend unit-test families
+
+**Identity:** SEED-413#renovate-later-dashboard-frontend-unit-test-families
+```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
+
+Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
+kept the [Project Intent apply-and-retry cases](#renovate-remaining-dashboard-frontend-unit-tests).
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -380,8 +609,14 @@ including preparation. This carries the suite-wide commitments split from
 SEED-404's timing goal and SEED-301's Intent MakeMe work.
 
 **Scope and order.** Select families by feature folder and the interaction
-each view owns. Continue in Intent and Sessions. Revision updates are a
-candidate within Intent, with selection, focus and recovery across views.
+each view owns. Continue in Intent and Sessions. In Intent, the original
+revision family leaves four built-app cases for the next boundary: the
+Development → Intent cases in `intent-revision-notice.spec.ts` and
+`intent-revision-update-outcomes.spec.ts`, the project switch in
+`intent-revision-update-boundaries.spec.ts`, and the planning-only update
+and return in `intent-revision-planning-only.spec.ts`. The two Optimization
+Candidates revision cases also remain here, including late answers. Keep
+each legacy case until its replacement exercises its actual boundary.
 Use shared typed Intent inputs in place of `putFrontend*` project arrangements;
 coordinate session proof with [SEED-341](SEED-341-simplify-session-tests.md).
 The family map includes Navigation, Launches, Review, Configuration, Terminals,
