@@ -77,6 +77,12 @@ Place it immediately before the Behavior it enables and prove preserved external
 behavior. Do not add structure, topics, or flexibility solely for hypothetical
 later stories.
 
+Map persistence, implementation, APIs, UI, and tests directly to the domain's
+concepts and meanings with the minimum necessary translation. Keep wire and
+command adapters thin over strongly typed handlers, and share or generate one
+typed contract across internal boundaries rather than duplicating payload
+shapes by hand.
+
 ### Decide cohesive reorganization for already-oversized expected edits
 
 When expected edits touch a file already over this project's
