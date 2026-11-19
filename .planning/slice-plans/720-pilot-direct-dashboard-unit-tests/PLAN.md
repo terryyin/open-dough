@@ -319,6 +319,15 @@ Proof: The installed intent-location settings
 `e2e`. Every path and module the READMEs name exists. The distribution tests
 that read `.planning/open-dough.json` or the READMEs pass.
 
+## Execution complete
+
+Product advice: no change. Story Notes is the reference family the two
+queued renovation plans (721 backend, 722 frontend) already build on: the
+`.unit` Node Vitest marker, the two-engine group run, `pageMakeMe.mjs`, the
+typed source behind the hook and the README entry rules landed as those
+plans assume. Process review is deferred into wrap-up with the intent
+coverage check.
+
 ## Proof map
 
 | Promise in the seed | Slice |
