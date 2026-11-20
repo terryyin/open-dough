@@ -7,7 +7,7 @@ import {
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { reviewedWorkQuery } from "../../src/reviewedWorkSubject.ts";
-import { markDone, recordsOf } from "../agentLaunchBoundary.ts";
+import { recordsOf } from "../agentLaunchBoundary.ts";
 import { getReview } from "./completedReviewRequests.ts";
 import { launched } from "./startSessionLandingCapture.ts";
 import { git } from "./storyReviewWorktree.ts";
@@ -36,17 +36,6 @@ export async function launchIsolatedReview(
     session: session.sessionId,
     sent,
   };
-}
-
-// The developer marks a review session Done once it has finished: listed
-// idle, so its native rename completes instead of waiting out the rename wait.
-export async function markAdHocDone(
-  dashboard: DashboardServer,
-  session: string,
-) {
-  dashboard.claudeSessionBecomes(session, "done-live");
-  const response = await markDone(dashboard, { source: "open-dough", session });
-  expect(response.status, response.body).toBe(200);
 }
 
 export function retireAdHocBranch(

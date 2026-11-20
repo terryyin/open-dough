@@ -4,9 +4,9 @@ import {
   reviewedFileTextSchema,
   storyReviewFileTextEndpoint,
 } from "../../src/storyReviewContract.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
-  markAdHocDone,
   retireAdHocBranch,
 } from "../../test-support/support/adHocReview.ts";
 import { getReview } from "../../test-support/support/completedReviewRequests.ts";
@@ -52,7 +52,12 @@ test("the same Done session opens its delivery and keeps its different branch re
   git(session.workspace, "add", renamed.path);
   git(session.workspace, "commit", "--quiet", "-m", "Rename the draft");
   write(working);
-  await markAdHocDone(dashboard, id);
+  dashboard.claudeSessionBecomes(id, "done-live");
+  const response = await markDone(dashboard, {
+    source: "open-dough",
+    session: id,
+  });
+  expect(response.status, response.body).toBe(200);
 
   write(committed);
   const { result } = land(record, origin, dashboard.home);

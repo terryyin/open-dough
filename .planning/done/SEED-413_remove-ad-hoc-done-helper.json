@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#remove-ad-hoc-done-helper",
+  "title": "Mark ad hoc sessions Done in their own cases",
+  "completedAt": "2026-11-20T07:27:54.874Z",
+  "developer": "Terry Yin",
+  "agent": "Shunka-chan",
+  "host": "claude"
+}
