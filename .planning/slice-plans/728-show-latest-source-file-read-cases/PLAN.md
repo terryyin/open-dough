@@ -155,3 +155,11 @@ Keep default test timeouts.
 Slice-plan refinement was not needed: two Structure slices, each one proof loop
 within 15 active minutes, with the seam observed in scratch. This review found no
 remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. Both Show latest file-read cases now run mounted
+with typed replies, and the earlier SEED-300 fault (target line lost after a
+failed read) is still caught by `targets(44)` after the failure. Continue
+with the remaining families in
+`SEED-413#renovate-later-dashboard-frontend-unit-test-families`.
