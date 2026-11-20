@@ -4,8 +4,10 @@
 /** @typedef {{ at: string, message: string, files: Readonly<Record<string, string>> }} DatedCommit */
 /** @typedef {{ at: string }} DatedStep */
 /** @typedef {Omit<DatedCommit, "message">} DatedAmendment */
+/** @typedef {DatedStep & { file: string, incoming: string, resolution: string }} DatedCherryPick */
+/** @typedef {DatedStep & { target: string, mode: "fixup" | "squash", file: string, content: string }} DatedAutosquash */
 /** @typedef {"fast-forward" | "merge" | "rebase" | "rebase-onto"} TrunkWork */
-/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" } & DatedAmendment | { kind: "push" } & DatedStep} WorkStep */
+/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" } & DatedAmendment | { kind: "push" } & DatedStep | { kind: "cherry-pick" } & DatedCherryPick | { kind: "autosquash" } & DatedAutosquash} WorkStep */
 /** @template {string} Name @typedef {WorkStep & { name: Name }} NamedStep */
 /** @template {string} [Name=string] @typedef {readonly NamedStep<Name>[]} CheckoutWork */
 
@@ -51,6 +53,26 @@ export class CheckoutWorkBuilder {
    */
   amending(name, amendment) {
     return this.#with(name, { ...amendment, kind: "amend" });
+  }
+
+  /**
+   * Continues a conflicted pick from another checkout after resolving its file.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedCherryPick} pick
+   */
+  continuingConflictedCherryPick(name, pick) {
+    return this.#with(name, { ...pick, kind: "cherry-pick" });
+  }
+
+  /**
+   * Adds a fixup or squash and answers the resulting autosquashed commit.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedAutosquash} rewrite
+   */
+  autosquashing(name, rewrite) {
+    return this.#with(name, { ...rewrite, kind: "autosquash" });
   }
 
   /**

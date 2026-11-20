@@ -228,7 +228,7 @@ disconnects. The real ledger continues to refuse a second spend.
 ### 3. Rewritten commits are kept as they ended, proven in-process
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given checkout work that continues a conflicted cherry-pick, or
 autosquashes a fixup or a squash, when the case marks the session Done, then
@@ -239,6 +239,14 @@ files. The steps gain the continued cherry-pick and the autosquash.
 Proof: The cases pass through the focused backend run and each fails under a
 scratch edit to the `committing` or `replaying` pattern it depends on. The
 performer's cases for the two steps pass.
+
+Accepted proof in `slice-3-implementation.md` and its named run records
+in the checkout's Git evidence directory. The typed review keeps the
+continued cherry-pick's exact resolved text and each autosquash's one
+rewritten run with both files. All three rule breaks failed on the intended
+review result. Seven Distribution fixture cases, eight earlier Node
+consumers and dashboard typecheck passed. All three replacements summed to
+2.980 seconds against 14.227 seconds on Playwright at two workers.
 
 ### 4. A Done that captures nothing says why, proven in-process
 
