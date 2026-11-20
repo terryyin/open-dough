@@ -147,7 +147,7 @@ corresponding assertion.
 ### 4. State edges and hidden labels preserve their distinctions
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the edge case to real Chromium layout with typed observations for
 Working, Needs input, Ready for review, failed, stopped, unavailable and
@@ -159,6 +159,9 @@ including the two distinct halted words, the unrecognized description and
 equal thick attention edges over the thinner Working edge. Run the edge,
 row and ordering selections. Removing one state edge in a scratch edit
 must break the corresponding computed-style assertion.
+
+**Accepted.** Mounted state-edge proof. Evidence:
+`open-dough/evidence/SEED-413-mount-open-sessions-sidebar-frontend-proof/slice-4-return-report.md`.
 
 ### 5. Session and host figures remain independently readable
 

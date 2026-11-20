@@ -1,5 +1,6 @@
 // Shared typed mount for the open Sessions list: page contexts, observed
-// launches, and the production open-list reading used by the mounted family.
+// launches, open-row DOM readers, and the production open-list reading used
+// by the mounted family.
 import { createElement, type ReactElement } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
@@ -44,6 +45,31 @@ const pageSessions: PageSessions = {
 export function present<T>(found: T | null | undefined, what: string): T {
   if (found === null || found === undefined) throw new Error(`No ${what}`);
   return found;
+}
+
+export function entries() {
+  return [
+    ...document.querySelectorAll<HTMLElement>(
+      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
+    ),
+  ];
+}
+
+export function entryOf(title: string) {
+  return entries().find(
+    (entry) =>
+      entry.querySelector("h3.sessions-sidebar-session-entry-title")
+        ?.textContent === title,
+  );
+}
+
+export function openControlOf(entry: HTMLElement) {
+  return present(
+    entry.querySelector<HTMLButtonElement>(
+      "button.sessions-sidebar-session-entry-open",
+    ),
+    "row open control",
+  );
 }
 
 export function observe(

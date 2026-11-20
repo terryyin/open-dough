@@ -6,7 +6,10 @@ import { cdp } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
+  entries,
+  entryOf,
   observe,
+  openControlOf,
   openReading,
   present,
 } from "./sessions-sidebar-open-mount.ts";
@@ -73,22 +76,6 @@ async function mountShortAndLongOpenRows(launchedAt: Date) {
   );
 }
 
-function entries() {
-  return [
-    ...document.querySelectorAll<HTMLElement>(
-      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
-    ),
-  ];
-}
-
-function entryOf(title: string) {
-  return entries().find(
-    (entry) =>
-      entry.querySelector("h3.sessions-sidebar-session-entry-title")
-        ?.textContent === title,
-  );
-}
-
 function titleOf(entry: HTMLElement) {
   return present(
     entry.querySelector<HTMLElement>("h3.sessions-sidebar-session-entry-title"),
@@ -102,15 +89,6 @@ function elapsedOf(entry: HTMLElement) {
       "time.sessions-sidebar-session-entry-elapsed",
     ),
     "row elapsed",
-  );
-}
-
-function openControlOf(entry: HTMLElement) {
-  return present(
-    entry.querySelector<HTMLButtonElement>(
-      "button.sessions-sidebar-session-entry-open",
-    ),
-    "row open control",
   );
 }
 
