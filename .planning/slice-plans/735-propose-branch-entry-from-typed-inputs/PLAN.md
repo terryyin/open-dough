@@ -228,7 +228,7 @@ with the Git-heavy timeouts recorded under slice 4. Hosted CI run
 ### 6. Expiry cases pass the cleanup operation explicitly
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given the typed expiry callback, a real record write that drops a record
 calls the production cleanup on that dropped record after the rewrite.
@@ -255,7 +255,7 @@ retention cleanup; `replaceRecords` and `changeSessionRecord` take it as
 three Done captures cost about 60% of a Cursor recovery case; composing the
 other session's pins with production `keepBranchResultRefs` removed one.
 Cursor cases ran 1.1–2.1 s at load 16–18; at load 33–47 every Git-heavy case,
-old or new, timed out. Hosted CI proves this revision.
+old or new, timed out. Hosted CI run 44774738008 passed on `cb70edd`.
 
 ## Local gates
 
@@ -291,6 +291,27 @@ old or new, timed out. Hosted CI proves this revision.
   A worthwhile gain is fewer replayed entry writes and duplicated ref
   queries with every promise still covered. Record timing and remaining
   store use by proof owner, including the publisher and lifecycle cases.
+
+**Evaluation (2026-11-21).** Base `10ace06`, final `cb70edd`, three
+interleaved runs per side with the backend runner's proof record, 2 workers,
+load 15–23. Across 30 shared cases: median summed time 84.8 s against 88.8 s,
+within load noise; median case time 2.6 s against 2.9 s; timeouts 0 against
+6. Cursor recovery deletion and expiry medians were 2.9 s and 2.6 s, down from
+4.6 s and 4.3 s. Static counts over the 16 affected specs:
+- branch-entry actions: 18 → 0
+- test-side pin queries: 25 → 1 (the remaining one is a whole-repository snapshot)
+- support imports: 27 → 20
+- HOME-stubbing `keep` calls: 11 → 12 (review cases still need real Done capture)
+- backend spec imports of `adHocReview.ts`: 2 → 2
+
+The remaining store use belongs to its owners. Done capture in the review,
+attribution and publisher cases belongs to the Done transition story. The
+lifecycle and Cursor cases keep real writes because pin survival is their
+topic. "Done reviews a declared branch", the manual-landing lifecycle
+deletion, entry attribution and both declared publication cases still reach
+4.1–4.6 s at load ~20, unchanged from base. Bringing them down is the
+[Done capture case-time story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases)'s
+measured target.
 
 ## Plan review
 
