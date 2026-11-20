@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_remove-ad-hoc-done-helper.json",
+      "identity": "SEED-413#remove-ad-hoc-done-helper",
+      "completedAt": "2026-11-20T07:27:54.874Z",
+      "blob": "884790bf9aa9d3a537bc7a2a85b741d8f9ce72ec"
+    },
+    {
       "fileName": "SEED-413_show-latest-source-file-read-cases.json",
       "identity": "SEED-413#show-latest-source-file-read-cases",
       "completedAt": "2026-11-20T06:57:43.616Z",
@@ -2682,18 +2688,6 @@
       "identity": "SEED-052#remove-orphaned-runner-port-helper",
       "completedAt": "2026-10-21T07:36:26.033Z",
       "blob": "0b261baf8e86bbf174cfa8cb642f55280d886421"
-    },
-    {
-      "fileName": "SEED-144_branded-alert-click-automation.json",
-      "identity": "SEED-144#branded-alert-click-automation",
-      "completedAt": "2026-10-21T07:26:27.904Z",
-      "blob": "599a69d2b9d62795f8eb845d2be4a6a4bd5c6a6c"
-    },
-    {
-      "fileName": "SEED-010_correct-completed-supplier-agreement.json",
-      "identity": "SEED-010#correct-completed-supplier-agreement",
-      "completedAt": "2026-10-21T06:58:22.408Z",
-      "blob": "6b2d5bbaec3be4dc54a52f08bd06d5ed4edfde3c"
     }
   ],
   "unreadable": []

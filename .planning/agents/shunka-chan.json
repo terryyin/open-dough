@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Shunka-chan",
-  "email": "shunka-chan@example.org",
-  "identity": "SEED-413#remove-ad-hoc-done-helper",
-  "mode": "story-branch",
-  "branch": "claude/mark-ad-hoc-sessions-done-in-their-own-cases",
-  "host": "claude"
-}

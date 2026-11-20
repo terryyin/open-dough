@@ -73,29 +73,6 @@ and deleted `test-support` surface together under
 
 ## Story decomposition
 
-<a id="remove-ad-hoc-done-helper"></a>
-
-### Mark ad hoc sessions Done in their own cases
-
-**Identity:** SEED-413#remove-ad-hoc-done-helper
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/727-remove-ad-hoc-done-helper/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"48b5c447f9e3bc8e9c09c2ddd0175720ed532b2a3d5c27db66ced4dc7f22fec6","plan":"6f133b74069d134f4dcc17c93cd992fa08324fdf1df94a34f292f161f9f32003"}}
-```
-
-Correction of `SEED-413#refuse-story-launch-session-file-reads` after its
-execution's retrospective.
-
-- **Goal.** Developers reading the ad hoc review backend cases see in each
-  case that its session finished before the case marks it Done. Test
-  support holds no Done helper the North Star asks to remove, and each Done
-  mark still avoids the five-second rename wait.
-- **Scope.** Remove `markAdHocDone` from
-  `dashboard/test-support/support/adHocReview.ts`. Each consuming case
-  marks its session finished and then Done through the existing boundary
-  calls. Every consuming case keeps its inputs, expectations and current
-  speed.
-- **Plan.** [727](../slice-plans/727-remove-ad-hoc-done-helper/PLAN.md)
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
