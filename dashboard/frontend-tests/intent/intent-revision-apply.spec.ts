@@ -9,6 +9,10 @@ import { createElement } from "react";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import {
+  IntentReadSourceOnPage,
+  type IntentReadSource,
+} from "../../src/intentReadSource.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { shortRevision as short } from "../../src/publishedWork.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -23,14 +27,22 @@ const featuresOpening = (scenario: string) =>
     .please();
 
 // Pygardon's Project Intent on its CI status view, following `revision`.
-const projectIntentAt = (revision: string) => {
+const projectIntentAt = (revision: string, readSource: IntentReadSource) => {
   const work = makeMe.aPublishedWork.ofPygardon.at(revision).please();
-  return createElement(ProjectIntentReading, {
-    source: work.source,
-    work,
-    project: { mode: "ci", modeIdPrefix: "project-intent", onModeChange() {} },
-    projectShown: true,
-  });
+  return createElement(
+    IntentReadSourceOnPage,
+    { value: readSource },
+    createElement(ProjectIntentReading, {
+      source: work.source,
+      work,
+      project: {
+        mode: "ci",
+        modeIdPrefix: "project-intent",
+        onModeChange() {},
+      },
+      projectShown: true,
+    }),
+  );
 };
 const desktop = { viewport: { width: 1280, height: 600 }, fillsViewport: true };
 
@@ -43,7 +55,10 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
       [c, featuresOpening("Purge a job")],
     ]),
   );
-  const intent = await mountComponent(projectIntentAt(a), desktop);
+  const intent = await mountComponent(
+    projectIntentAt(a, service.source),
+    desktop,
+  );
   const browser = intentBrowser();
   const notice = intentRevisionNotice();
   const jobsReading = await browser.open(jobs);
@@ -52,8 +67,8 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await browser.isAt(a);
   expect(service.reads).toEqual([`locations@${a}`, `${jobs}@${a}`]);
 
-  intent.rerender(projectIntentAt(b));
-  intent.rerender(projectIntentAt(c));
+  intent.rerender(projectIntentAt(b, service.source));
+  intent.rerender(projectIntentAt(c, service.source));
   await notice.isShownOnce();
   await notice.reads(`New revision available — showing ${short(a)}`);
   await notice.offers(["Show latest"]);
@@ -65,7 +80,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await browser.isScrolledTo(scrolled);
   expect(service.reads).toHaveLength(2);
 
-  const latest = service.holdRead(`locations@${c}`);
+  const latest = service.holdLocations(c);
   await notice.showLatest();
   await expect.poll(service.held).toBe(1);
   await notice.reads("Updating…");
@@ -93,11 +108,14 @@ test("a selected feature the latest revision deleted is explained, with nothing 
       [c, makeMe.somePublishedFiles.ofPygardonFeatures.withoutJobs().please()],
     ]),
   );
-  const intent = await mountComponent(projectIntentAt(a), desktop);
+  const intent = await mountComponent(
+    projectIntentAt(a, service.source),
+    desktop,
+  );
   const browser = intentBrowser();
   const jobsReading = await browser.open(jobs);
   await jobsReading.shows("Scenario: Archive a job");
-  intent.rerender(projectIntentAt(c));
+  intent.rerender(projectIntentAt(c, service.source));
 
   await intentRevisionNotice().showLatest();
   await browser.explains(`${jobs} is not in revision ${short(c)}`);

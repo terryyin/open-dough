@@ -1,130 +1,122 @@
-// The local authenticated read service at the browser's fetch boundary,
-// answering the files each revision publishes and their Intent locations, for
-// the mounted Intent revision cases (./intent-revision-*.spec.ts).
-import { onTestFinished, vi } from "vitest";
+// Published content and controlled reads for the mounted Intent revision cases.
+import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   pygardonFeatures,
   type PublishedFiles,
 } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import { forgetAnswers } from "../../src/answerMemo.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { PublishedSource } from "../../src/publishedSource.ts";
+import { ReadProblem } from "../../src/readProblem.ts";
 import { clearAllTransientFailures } from "../../src/transientRecovery.ts";
-import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
 
 const { folder } = pygardonFeatures;
+const projectSource = makeMe.aPublishedSource.pygardon.please();
 
-const answer = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
+const locationsOf = (files: PublishedFiles): IntentLocations => ({
+  status: "configured",
+  locations: [
+    makeMe.anIntentLocation
+      .at(folder)
+      .ofKind("gherkin")
+      .selecting(
+        ...Object.keys(files).filter((file) => file.startsWith(`${folder}/`)),
+      )
+      .please(),
+  ],
+});
 
-const locationsOf = (
-  revision: string,
-  files: PublishedFiles,
-): IntentLocationsAnswer =>
-  makeMe.anIntentLocationsAnswer
-    .at(revision)
-    .locating(
-      makeMe.anIntentLocation
-        .at(folder)
-        .ofKind("gherkin")
-        .selecting(
-          ...Object.keys(files).filter((file) => file.startsWith(`${folder}/`)),
-        )
-        .please(),
-    )
-    .please();
+type HoldOutcome<T> = T | ReadProblem | undefined;
+type HeldReads<T> = Map<string, Promise<HoldOutcome<T>>>;
 
-// How a held read settles: with the published content, unreachable, or with
-// the locations answer the case gives.
-type HoldOutcome = "published" | "unreachable" | IntentLocationsAnswer;
-
-// The read service answering Intent's locations and file reads at each
-// published revision. `reads` lists Intent's reads as `<what>@<revision>`;
-// `unexpected` any other call; `holdRead` keeps the next such read until the
-// case releases or fails it. Each service starts the browser session's read
-// caches and transient failures empty, so every read a case causes reaches it.
-export function publishedReadService(published: Map<string, PublishedFiles>) {
+// The source records misses from the real caches as `<what>@<revision>`.
+// A hold controls the next read of the requested locations or file only.
+export function publishedReadService(
+  published: ReadonlyMap<string, PublishedFiles>,
+) {
   forgetAnswers();
   forgetCachedFiles();
   clearAllTransientFailures();
   const reads: string[] = [];
   const unexpected: string[] = [];
-  const holds = new Map<string, Promise<HoldOutcome>>();
-  const held: string[] = [];
-  // Waits out a hold on the read, which then rejects as unreachable if failed,
-  // answering the locations the case gave in place of the published ones.
-  const answering = async (read: string) => {
+  const locationsHolds: HeldReads<IntentLocations> = new Map();
+  const fileHolds: HeldReads<string> = new Map();
+  let held = 0;
+
+  async function answering<T>(
+    holds: HeldReads<T>,
+    read: string,
+    signal: AbortSignal,
+  ) {
     reads.push(read);
     const hold = holds.get(read);
-    if (hold === undefined) return undefined;
     holds.delete(read);
-    held.push(read);
+    if (hold !== undefined) held += 1;
     const outcome = await hold;
-    if (outcome === "unreachable") throw new TypeError("Failed to fetch");
-    return outcome === "published" ? undefined : outcome;
-  };
-  const realFetch = window.fetch.bind(window);
-  const fetchSpy = vi
-    .spyOn(window, "fetch")
-    .mockImplementation(async (input, init) => {
-      const url = new URL(
-        input instanceof Request ? input.url : String(input),
-        location.href,
+    signal.throwIfAborted();
+    if (outcome instanceof ReadProblem) throw outcome;
+    return outcome;
+  }
+
+  function unexpectedRead(read: string): never {
+    unexpected.push(read);
+    throw new ReadProblem(`Unexpected read ${read}`);
+  }
+
+  const filesAt = (source: PublishedSource, revision: string) =>
+    source.id === projectSource.id ? published.get(revision) : undefined;
+
+  const source: IntentReadSource = {
+    async readLocations(project, revision, signal) {
+      const read = `locations@${revision}`;
+      const files = filesAt(project, revision);
+      if (files === undefined) unexpectedRead(read);
+      return (
+        (await answering(locationsHolds, read, signal)) ?? locationsOf(files)
       );
-      if (url.pathname !== authenticatedReadEndpoint)
-        return realFetch(input, init);
-      const params = url.searchParams;
-      const [intent, path] = [params.get("intent"), params.get("path")];
-      const revision = params.get("revision") ?? "";
-      const files = published.get(revision);
-      if (files !== undefined && intent === "locations") {
-        const given = await answering(`locations@${revision}`);
-        return answer(given ?? locationsOf(revision, files));
-      }
-      if (files !== undefined && path !== null && path in files) {
-        await answering(`${path}@${revision}`);
-        return answer({ revision, path, text: files[path] });
-      }
-      unexpected.push(url.search);
-      return answer({ error: `Unexpected read ${url.search}` }, 404);
-    });
-  onTestFinished(() => {
-    fetchSpy.mockRestore();
-  });
+    },
+    async readFile(project, path, revision, signal) {
+      const read = `${path}@${revision}`;
+      const text = filesAt(project, revision)?.[path];
+      if (text === undefined) unexpectedRead(read);
+      return (await answering(fileHolds, read, signal)) ?? text;
+    },
+  };
+
+  function hold<T>(holds: HeldReads<T>, read: string) {
+    let settle: (outcome: HoldOutcome<T>) => void = () => {};
+    holds.set(
+      read,
+      new Promise((resolve) => {
+        settle = resolve;
+      }),
+    );
+    const release = () => {
+      settle(undefined);
+    };
+    onTestFinished(release);
+    return {
+      release,
+      fail: (problem: ReadProblem) => {
+        settle(problem);
+      },
+      answer: (given: T) => {
+        settle(given);
+      },
+    };
+  }
+
   return {
+    source,
     reads,
     unexpected,
-    held: () => held.length,
-    // Holds the next read named `<what>@<revision>`. `release` lets it
-    // answer, `fail` makes it unreachable and `answerLocations` answers a
-    // locations read with the given answer. Later reads of the same name
-    // answer at once.
-    holdRead(read: string) {
-      let settle: (outcome: HoldOutcome) => void = () => {};
-      holds.set(
-        read,
-        new Promise<HoldOutcome>((resolve) => {
-          settle = resolve;
-        }),
-      );
-      onTestFinished(() => {
-        settle("published");
-      });
-      return {
-        release: () => {
-          settle("published");
-        },
-        fail: () => {
-          settle("unreachable");
-        },
-        answerLocations: (given: IntentLocationsAnswer) => {
-          settle(given);
-        },
-      };
-    },
+    held: () => held,
+    holdLocations: (revision: string) =>
+      hold(locationsHolds, `locations@${revision}`),
+    holdFile: (path: string, revision: string) =>
+      hold(fileHolds, `${path}@${revision}`),
   };
 }

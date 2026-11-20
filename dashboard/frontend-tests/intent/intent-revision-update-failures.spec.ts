@@ -11,8 +11,13 @@ import { createElement } from "react";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import {
+  IntentReadSourceOnPage,
+  type IntentReadSource,
+} from "../../src/intentReadSource.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { shortRevision as short } from "../../src/publishedWork.ts";
+import { ReadProblem } from "../../src/readProblem.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
 import { publishedReadService } from "./intent-revision-read-service.ts";
@@ -22,14 +27,22 @@ import { intentSettingsExplanation } from "./intent-settings-explanation-page.ts
 const { folder, jobs, diskSpace } = pygardonFeatures;
 
 // Pygardon's Project Intent on its CI status view, following `revision`.
-const projectIntentAt = (revision: string) => {
+const projectIntentAt = (revision: string, readSource: IntentReadSource) => {
   const work = makeMe.aPublishedWork.ofPygardon.at(revision).please();
-  return createElement(ProjectIntentReading, {
-    source: work.source,
-    work,
-    project: { mode: "ci", modeIdPrefix: "project-intent", onModeChange() {} },
-    projectShown: true,
-  });
+  return createElement(
+    IntentReadSourceOnPage,
+    { value: readSource },
+    createElement(ProjectIntentReading, {
+      source: work.source,
+      work,
+      project: {
+        mode: "ci",
+        modeIdPrefix: "project-intent",
+        onModeChange() {},
+      },
+      projectShown: true,
+    }),
+  );
 };
 
 // The jobs feature read at `shown` and offered at `latest`, whose Show latest
@@ -51,15 +64,15 @@ async function showLatestHeld(shown: string, latest: string) {
       ],
     ]),
   );
-  const intent = await mountComponent(projectIntentAt(shown), {
+  const intent = await mountComponent(projectIntentAt(shown, service.source), {
     viewport: { width: 1280, height: 600 },
     fillsViewport: true,
   });
   const browser = intentBrowser();
   const jobsReading = await browser.open(jobs);
   await jobsReading.shows("Scenario: Archive a job");
-  intent.rerender(projectIntentAt(latest));
-  const held = service.holdRead(`locations@${latest}`);
+  intent.rerender(projectIntentAt(latest, service.source));
+  const held = service.holdLocations(latest);
   const notice = await intentRevisionNotice().showLatest();
   await expect.poll(service.held).toBe(1);
   return { service, browser, notice, jobsReading, latest: held };
@@ -70,12 +83,17 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   const { service, browser, notice, jobsReading, latest } =
     await showLatestHeld(a, c);
   await browser.isAt(a);
-  latest.fail();
+  const problem = new ReadProblem(
+    "The published settings read failed.",
+    undefined,
+    "transient",
+  );
+  latest.fail(problem);
 
   // The locations at the shown revision stay browsable, with the selection,
   // its text and the focus; the failure and Retry stand beside the notice.
   await notice.reads(
-    `Revision ${short(c)} could not be read: The local authenticated read could not be reached`,
+    `Revision ${short(c)} could not be read: ${problem.message}`,
   );
   await notice.reads(`New revision available — showing ${short(a)}`);
   await notice.readsNo("Updating…");
@@ -92,13 +110,15 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
 
   // The selected file's read at the latest revision fails too: its earlier
   // text stays under the failure, and its own Retry reads it.
-  const latestText = service.holdRead(`${jobs}@${c}`);
+  const latestText = service.holdFile(jobs, c);
   await notice.retry();
   await expect.poll(service.held).toBe(2);
   await browser.isAt(c);
   await notice.isGone();
   await jobsReading.isFocused();
-  latestText.fail();
+  latestText.fail(
+    new ReadProblem("The published file read failed.", undefined, "transient"),
+  );
   await jobsReading.fails(
     `${jobs} could not be read at revision ${short(c)}; showing ${short(a)}. Retry`,
   );
@@ -121,9 +141,11 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
   const [a, c] = ["d8".repeat(20), "ef".repeat(20)];
   const { service, browser, notice, jobsReading, latest } =
     await showLatestHeld(a, c);
-  latest.answerLocations(
-    makeMe.anIntentLocationsAnswer.at(c).withUnreadableSettings().please(),
-  );
+  latest.answer({
+    status: "settings-problem",
+    problem: "unreadable",
+    recovery: "transient",
+  });
 
   await notice.reads(
     `Revision ${short(c)} could not be read: .planning/open-dough.json could not be read.`,
@@ -152,9 +174,11 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
 test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async () => {
   const [a, c] = ["d9".repeat(20), "ec".repeat(20)];
   const { service, browser, latest } = await showLatestHeld(a, c);
-  latest.answerLocations(
-    makeMe.anIntentLocationsAnswer.at(c).withMalformedSettings().please(),
-  );
+  latest.answer({
+    status: "settings-problem",
+    problem: "malformed",
+    recovery: undefined,
+  });
 
   const explanation = intentSettingsExplanation();
   await explanation.reads("is not valid JSON");
