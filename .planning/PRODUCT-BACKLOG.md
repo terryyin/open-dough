@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 - [Propose a branch entry from typed inputs and expose its pin refs](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store) — SEED-413#split-branch-entry-proposal-from-store ([plan](slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md))
 - [Decide reported landings over typed attempts and records](seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records) — SEED-413#decide-landings-over-typed-attempts-and-records ([plan](slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md))
 - [Read a story review's diff emphasis and syntax in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) — SEED-413#mount-story-review-diff-reading ([plan](slice-plans/741-mount-story-review-diff-reading/PLAN.md))
+- [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes ([plan](slice-plans/739-review-published-session-changes/PLAN.md))
 
 ## Backlog list
 
@@ -43,7 +44,6 @@ intent introduced or affected by a newly developed story.
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Read the Usage Token index's selections and refreshes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-usage-token-index-reading) — SEED-413#mount-usage-token-index-reading
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
-- [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
