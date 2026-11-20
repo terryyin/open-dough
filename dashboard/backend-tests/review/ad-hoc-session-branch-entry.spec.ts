@@ -170,27 +170,23 @@ test("two declared sessions each review their own branch", async () => {
   const other = await anOtherWorktree(checkout);
   await identifyBranch(checkout, record, { workspace, branch });
   await identifyBranch(checkout, second, { workspace: other, branch: "other" });
-  const { ours } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("ours", { at: minutesAgo(30) }),
-  );
-  const { theirs } = await work(
-    inWorktree(checkout, other),
-    makeMe.aCheckoutWork.committing("theirs", { at: minutesAgo(30) }),
-  );
+  const [{ ours }, { theirs }] = await Promise.all([
+    work(
+      inWorktree(checkout, workspace),
+      makeMe.aCheckoutWork.committing("ours", { at: minutesAgo(30) }),
+    ),
+    work(
+      inWorktree(checkout, other),
+      makeMe.aCheckoutWork.committing("theirs", { at: minutesAgo(30) }),
+    ),
+  ]);
   await markDone(record);
   await markDone(second);
 
-  expect(await review(record)).toMatchObject({
-    kind: "branch-result",
-    tree: ours,
-    files: [{ path: "ours.txt" }],
-  });
-  expect(await review(second)).toMatchObject({
-    kind: "branch-result",
-    tree: theirs,
-    files: [{ path: "theirs.txt" }],
-  });
+  expect(await Promise.all([review(record), review(second)])).toMatchObject([
+    { kind: "branch-result", tree: ours, files: [{ path: "ours.txt" }] },
+    { kind: "branch-result", tree: theirs, files: [{ path: "theirs.txt" }] },
+  ]);
 });
 
 test("an undeclared checkout move explains the missing branch association", async () => {

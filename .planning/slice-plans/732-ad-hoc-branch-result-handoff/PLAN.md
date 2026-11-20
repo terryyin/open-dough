@@ -211,7 +211,7 @@ spec and `doneCaptureCase.ts`, adding `anIsolatedBranch` and
 ### 5. The family leaves Playwright with its retired support
 
 Type: Structure
-Status: planned
+Status: done
 
 Delete `ad-hoc-branch-result-quiet-retry.spec.ts`. Recheck test-support
 consumers and delete orphaned exports. Name the moved specs in the ad hoc
@@ -221,6 +221,16 @@ review paragraph of `dashboard/backend-tests/README.md`.
 | --- | --- |
 | No orphan, gates pass | The test-support grep finds no export without a consumer. `npm run typecheck:dashboard` and `npm run lint` pass. `npm run --silent test:dashboard:backend -- review/ad-hoc-branch review/ad-hoc-session-branch sessions/agent-completion-identity` passes. |
 | Focused speed | Run the old selection at `5eae84032` and the new one at the candidate: three interleaved warm runs each of `npm run --silent test:dashboard:backend -- <the five specs> --workers=2`. Record median command time and load in this plan. |
+
+Accepted proof: the focused selection passes, 7 files and 21 tests, at load
+9 to 10. Typecheck and lint pass. The interleaved warm runs at `--workers=2`
+took old 28.0, 29.2 and 26.5 s against new 18.4, 15.6 and 11.3 s, at load 11
+to 15: medians 28.0 s and 15.6 s. At load 16 to 18 from other processes, the
+same selection failed on 5 s timeouts in several Done capture cases. Those
+include the untouched `ad-hoc-branch-result.spec.ts`, whose cases run 2 to 4 s
+at load 10. "two declared sessions each review their own branch" now commits
+and reviews both sessions concurrently. Finding: the Git-heavy Done capture
+family keeps little margin under the default timeout on a loaded machine.
 
 ## Local gates
 
