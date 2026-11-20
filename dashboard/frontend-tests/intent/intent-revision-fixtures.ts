@@ -38,14 +38,18 @@ export function publishedFeatures(
   };
   return {
     readLocations: () => Promise.resolve(locations),
-    files: Object.fromEntries(
-      Object.entries(files).map(([path, text]) => [
-        path,
-        () => Promise.resolve(text),
-      ]),
-    ),
+    files: readsOf(files),
   };
 }
+
+// Each of `files` read as published.
+export const readsOf = (files: PublishedFiles): FeaturePublication["files"] =>
+  Object.fromEntries(
+    Object.entries(files).map(([path, text]) => [
+      path,
+      () => Promise.resolve(text),
+    ]),
+  );
 
 export const featuresOpening = (scenario: string, files?: PublishedFiles) =>
   publishedFeatures({

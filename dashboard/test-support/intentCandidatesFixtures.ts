@@ -1,34 +1,21 @@
-// Published Test Optimization Candidates records for Intent journeys
-// (`../frontend-tests/intent/intent-test-optimization-candidates-open.spec.ts`), shaped like the real
-// Open Dough, Doughnut, and Pygardon records summarised in SEED-192.
+// Open Dough's published Test Optimization Candidates record and sources for
+// Intent journeys (`../frontend-tests/intent/intent-read-reuse.spec.ts`),
+// shaped like the real Open Dough record summarised in SEED-192.
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
-import {
-  browseSpec,
-  openDough,
-  openDoughSettings,
-  publishIntentProject,
-  shellCheck,
-} from "./intentCodeBrowseFixtures.ts";
+import { browseSpec, shellCheck } from "./intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export { testOptimizationCandidatesPath };
 
-export {
-  doughnutFeaturePath,
-  publishDoughnutWithCandidates,
-  publishPygardonOutsideConfigured,
-  pygardonClipPath,
-} from "./intentCandidatesOtherProjectFixtures.ts";
+const evidenceDocPath = ".planning/evidence/test-cost-comparison.md";
 
-export const evidenceDocPath = ".planning/evidence/test-cost-comparison.md";
-
-export const evidenceDoc = `# Test cost comparison
+const evidenceDoc = `# Test cost comparison
 
 Section for candidates evidence.
 `;
 
-export const openDoughSpecPaths = {
+const openDoughSpecPaths = {
   polesTerminal: "dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts",
   polesSecond: "dashboard/tests/agent-launch-second-server.spec.ts",
   attention: "dashboard/tests/agent-completion-attention.spec.ts",
@@ -40,36 +27,7 @@ export const openDoughSpecPaths = {
     "dashboard/tests/boundary/story-review-completed.spec.ts",
   gherkin: "dashboard/tests/intent-gherkin-browse.spec.ts",
   movedAway: "dashboard/tests/moved-away-after-record.spec.ts",
-  caseLine: "dashboard/tests/case-position-line.spec.ts",
 } as const;
-
-/** Spec with a distinctive line far below the start for `path:line` proof. */
-export const openDoughCaseLineSource = [
-  'import { test } from "@playwright/test";',
-  'test("browses", async () => {});',
-  "",
-  ...[...Array(40).keys()].map((index) => `// pad ${index}`),
-  'test("line-anchored case", async () => {});',
-  "",
-].join("\n");
-
-/** 1-based line of the line-anchored case in the fixture. */
-export const openDoughCaseLineNumber = 44;
-
-export const openDoughCaseLineRecord = makeMe.aTestOptimizationCandidatesRecord
-  .pending(
-    "path-line-case",
-    `\`${openDoughSpecPaths.caseLine}:${openDoughCaseLineNumber}\``,
-    {
-      observedCost: "about 3s line-anchored case",
-      uniqueProtection: "path:line positions Purpose",
-      alternativesAttempted: "none",
-      dispositionRationale: "pending — path:line proof",
-      date: "2026-11-01",
-      evidence: "fixture",
-    },
-  )
-  .please();
 
 // Open Dough-shaped record: pending and accepted entries, evidence Markdown
 // link (including one to a configured Intent file), and a `sha:path` kept as
@@ -166,24 +124,3 @@ export const openDoughSources = {
   [openDoughSpecPaths.storyReviewBoundary]: browseSpec,
   "tests/compare-versions.sh": shellCheck,
 };
-
-export function publishOpenDoughWithCandidates(
-  page: Parameters<typeof publishIntentProject>[0],
-  record: string = openDoughCandidatesRecord,
-) {
-  return publishIntentProject(page, openDough, openDoughSettings, {
-    ...openDoughSources,
-    [testOptimizationCandidatesPath]: record,
-  });
-}
-
-/** Open Dough fixture whose Locations name a file by `path:line`. */
-export function publishOpenDoughCaseLine(
-  page: Parameters<typeof publishIntentProject>[0],
-) {
-  return publishIntentProject(page, openDough, openDoughSettings, {
-    ...openDoughSources,
-    [testOptimizationCandidatesPath]: openDoughCaseLineRecord,
-    [openDoughSpecPaths.caseLine]: openDoughCaseLineSource,
-  });
-}

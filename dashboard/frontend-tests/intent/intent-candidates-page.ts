@@ -73,8 +73,9 @@ export function intentCandidates() {
       await expect.element(entry(name)).not.toBeInTheDocument();
       return candidates;
     },
-    async openSource(name: string, path: string) {
-      const source = sourceLink(name, path);
+    // Opens the source `name` links as `link`, reading the file at `path`.
+    async openSource(name: string, link: string, path = link) {
+      const source = sourceLink(name, link);
       await expect.element(source).toBeVisible();
       await userEvent.click(source);
       return intentFileReading(path);

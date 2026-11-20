@@ -13,6 +13,18 @@ export function intentFileReading(path: string) {
   const file = page.getByRole("button", { name: path, exact: true });
   const source = page.getByLabelText(`${path} source`, { exact: true });
   const sourceText = () => withoutBreakingHints(source.query()?.textContent);
+  const lines = (marked = "") =>
+    source.element().querySelectorAll<HTMLElement>(`.source-line${marked}`);
+  // The lines the reading marks as the source's current location.
+  const targetedLines = () => lines(".is-target");
+  // `shown` is the source's line `line`, in view.
+  async function showsLine(shown: HTMLElement | undefined, line: number) {
+    if (shown === undefined) throw new Error(`${path} shows no line ${line}`);
+    const located = page.elementLocator(shown);
+    await expect.element(located).toHaveAttribute("data-line", String(line));
+    await expect.element(located).toBeInViewport();
+    return located;
+  }
 
   const reading = {
     async shows(text: string) {
@@ -25,17 +37,15 @@ export function intentFileReading(path: string) {
     },
     // The source's line `line` is its current location, in view.
     async targets(line: number) {
-      const targets = () =>
-        source
-          .element()
-          .querySelectorAll<HTMLElement>(".source-line.is-target");
-      await expect.poll(() => targets().length).toBe(1);
-      const [target] = targets();
-      if (target === undefined) throw new Error(`${path} targets no line`);
-      const located = page.elementLocator(target);
-      await expect.element(located).toHaveAttribute("data-line", String(line));
+      await expect.poll(() => targetedLines().length).toBe(1);
+      const located = await showsLine(targetedLines()[0], line);
       await expect.element(located).toHaveAttribute("aria-current", "location");
-      await expect.element(located).toBeInViewport();
+      return reading;
+    },
+    // The source targets no line and shows its start, in view.
+    async isAtStart() {
+      await expect.poll(() => targetedLines().length).toBe(0);
+      await showsLine(lines()[0], 1);
       return reading;
     },
     // The source's own revision label.

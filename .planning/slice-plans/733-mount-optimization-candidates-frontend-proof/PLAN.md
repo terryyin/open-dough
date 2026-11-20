@@ -138,7 +138,7 @@ and the existing mounted revision spec.
 ### 5. A recorded case targets its source line or explains an unresolved path
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `intent-test-optimization-candidates-case` and the remaining `-open`
 examples. Keep Pygardon `::name`, a uniquely named Gherkin scenario,

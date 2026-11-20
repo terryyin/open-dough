@@ -31,10 +31,10 @@ threshold.
 | 7d | An unreadable record has its own wording | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: unreadable project shows could-not-be-read wording with visible Retry |
 | 7e | In each of those unavailable states, the locations remain usable | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: after each state CI status opens that project's jobs.feature scenario; one read per project |
 | 8a | A configured source opens in Purpose at its recorded file, with the tree selected (Key examples; Scope opening files and cases) | slice 4 | observed: dashboard/frontend-tests/intent/intent-candidates-open.spec.ts: openSource shows the file read at the shown revision (fileReads), selected, nested folders expanded, evidence link opens it |
-| 8b | A configured source opens in Purpose at its recorded case line, with the tree selected | slice 5 | |
+| 8b | A configured source opens in Purpose at its recorded case line, with the tree selected | slice 5 | observed: dashboard/frontend-tests/intent/intent-candidates-case.spec.ts: ::name, unique scenario and :line open selected with the target line marked and in view; duplicate name opens at start |
 | 9 | Returning focuses the entry and does not reread (Key examples) | slice 4 | observed: dashboard/frontend-tests/intent/intent-candidates-open.spec.ts: after choose() the entry has focus and reads stay [revision] across four returns; other links remain |
-| 10a | An ambiguous source explains what can be opened (Key examples) | slice 5 | |
-| 10b | An out-of-scope source explains what can be opened (Key examples) | slice 5 | |
+| 10a | An ambiguous source explains what can be opened (Key examples) | slice 5 | observed: dashboard/frontend-tests/intent/intent-candidates-unresolved.spec.ts: bare ambiguous name says names several files, links both paths, chosen path opens |
+| 10b | An out-of-scope source explains what can be opened (Key examples) | slice 5 | observed: dashboard/frontend-tests/intent/intent-candidates-unresolved.spec.ts: python path outside configured locations explained with no link and no read; moved path explained as not published |
 | 11 | A shorter backoff cannot bypass a standing GitHub wait (Key examples; Scope candidate-read recovery) | slice 6 | |
 | 12a | A refusal needs manual Retry to recover (Key examples; Scope candidate-read recovery) | slice 6 | |
 | 12b | A malformed response needs manual Retry to recover | slice 6 | |

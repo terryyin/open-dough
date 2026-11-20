@@ -1,12 +1,20 @@
 // Doughnut case-position fixtures for Intent Purpose journeys
-// (`../frontend-tests/intent/intent-test-optimization-candidates-case.spec.ts`,
-// `../frontend-tests/intent/intent-purpose-case.spec.ts`): a unique Gherkin scenario and a
-// duplicated name that falls back to the file start.
+// (`../frontend-tests/intent/intent-purpose-case.spec.ts`,
+// `../../e2e/intent/intent-recorded-purpose-read.spec.ts`): a recorded Gherkin
+// scenario named once, far enough below the start to scroll to.
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { doughnutFeatureSettings } from "./intentCandidatesOtherProjectFixtures.ts";
+
+const doughnutFeatureSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("e2e_test/features")
+      .ofKind("gherkin", ["**/*.feature"])
+      .please(),
+  )
+  .please();
 
 export const doughnutCaseFeaturePath =
   "e2e_test/features/cli/case_position.feature";
@@ -44,18 +52,6 @@ export const doughnutCaseCandidatesRecord =
         uniqueProtection: "named scenario appears once",
         alternativesAttempted: "none",
         dispositionRationale: "pending — case positioning proof",
-        date: "2026-11-01",
-        evidence: "fixture",
-      },
-    )
-    .pending(
-      "duplicate-scenario-name",
-      `\`${doughnutCaseFeaturePath}::shared scenario\``,
-      {
-        observedCost: "about 8s duplicated name",
-        uniqueProtection: "name appears twice so Purpose stays at the start",
-        alternativesAttempted: "none",
-        dispositionRationale: "pending — ambiguous case proof",
         date: "2026-11-01",
         evidence: "fixture",
       },
