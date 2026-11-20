@@ -28,11 +28,11 @@ of speed, clarity and support removed.
 | P03 | A capture case puts its starting launch records in the launch document. | slice 6 | |
 | P04 | A capture case marks the session Done in-process through `setRecordDoneAt`, passing the Done time stated by the case. | slice 6 | |
 | P05 | A case deletes a record only when it is proving reference release. | slice 6 | |
-| P06 | A capture case that observes review passes the resulting kept records directly to the typed handler. | slice 5 | |
+| P06 | A capture case that observes review passes the resulting kept records directly to the typed handler. | slice 5 | observed: slice-5-implementation.md maps each capture spec through slice 5 from setRecordDoneAt and keptRecords into the typed review or file handler |
 | P07 | The file-text and retained Default main landing cases exercise only the review handlers. | slice 1 | observed: kept-session-commits-review.spec.ts calls only storyReview and reviewedFileText after Git arrangement |
 | P08 | The file-text and retained-landing cases build the kept records and pass them through `makeMe.aSessionReviewRead`. | slice 1 | observed: kept-session-commits-review.spec.ts builds both records with aLaunchRecord and passes them through aSessionReviewRead |
 | P09 | The file-text and retained-landing cases build a real Git repository. | slice 1 | observed: kept-session-commits-review.spec.ts materializes each named Git history with materializeLocalCheckout |
-| P10 | Review calls require no project configuration of their own. | slice 5 | |
+| P10 | Review calls require no project configuration of their own. | slice 5 | observed: slice-5-implementation.md maps capture-review setups using only disposable store and Git and review-only cases using in-memory records and Git with no project setup |
 | P11 | Stored launch document setup is limited to cases exercising the store, including the restriction against a review call requiring its own stored launch document. | slice 6 | |
 | P12 | Each case states its times against its own clock. | slice 6 | |
 | P13 | Launch precedes repository work. The source’s “work after the launch” restates this result. | slice 6 | |
@@ -59,8 +59,8 @@ of speed, clarity and support removed.
 | P34 | A different pair is refused with 409. | slice 1 | observed: kept-session-commits-review.spec.ts mismatched pair throws RefusedRequest with the previous error and status 409 |
 | P35 | After Done, review says changes were not captured when the session’s only commit remains on another branch. | slice 4 | observed: done-kept-session-unavailable.spec.ts side-branch case keeps the Done mark and asserts the exact changes-were-not-captured answer |
 | P36 | After Done, review says the session made no commits in the Default main checkout when it edited files and committed nothing. | slice 4 | observed: done-kept-session-unavailable.spec.ts blank default launch and edit case asserts the exact no-commits explanation |
-| P37 | When two kept sessions share one checkout and each makes a commit, Done on one yields a review containing commits made while that session was open. | slice 5 | |
-| P38 | The same review says the checkout was shared. | slice 5 | |
+| P37 | When two kept sessions share one checkout and each makes a commit, Done on one yields a review containing commits made while that session was open. | slice 5 | observed: done-kept-session-shared-checkout.spec.ts two-open-launch case reads a two-commit run from the original base to the second commit after either Done |
+| P38 | The same review says the checkout was shared. | slice 5 | observed: done-kept-session-shared-checkout.spec.ts two-open-launch case expects session.shared true in both independently read reviews |
 | P39 | When a Done session has a kept run and a later Done cannot read its log, the earlier run’s references are gone from the repository. | slice 6 | |
 | P40 | At two workers, the moved cases’ summed case time is at most half the same cases’ Playwright time, measured in one session at a stated load. | slice 7 | |
 | P41 | `dashboard/backend-tests/README.md` adds the guidance to state checkout work through MakeMe. | slice 7 | |

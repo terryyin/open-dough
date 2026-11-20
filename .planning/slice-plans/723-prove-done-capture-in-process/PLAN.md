@@ -278,7 +278,7 @@ The independent refactor named the shared edit and amendment payload
 ### 5. A checkout shared with another open session is said so, proven in-process
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given two kept sessions open in one Default main checkout, each
 with a commit, when the case marks one Done, then its review holds the
@@ -289,6 +289,18 @@ deleted.
 
 Proof: The three cases pass through the focused backend run and each fails
 under a scratch edit to `checkoutSharedMeanwhile`.
+
+Accepted proof in `slice-5-implementation.md` and its named run records
+in the checkout's Git evidence directory. All three Node cases passed,
+including both Done marks for the overlapping launches and the real
+isolated worktree. Three scratch edits failed at their sharing assertions.
+The report maps the persisted record and project-free review input through
+slices 1–5. The three replacements summed to 2.823 seconds against 27.739
+seconds on Playwright at two workers.
+
+Sibling 726 integrated at `5223585bd`. Its review admission moves the
+existing story-launch refusal to the shared lookup and adds it to file
+reads. The ad hoc records these cases use still follow the same path.
 
 ### 6. The references a Done keeps, and their release, are proven in-process
 
