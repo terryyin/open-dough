@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#split-done-mark-decision-from-store
 **Source:** [Mark Done through a typed decision and compose Done state in review cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store)
+**Source review:** [Source review](source-review.md)
 
 ## Goal and scope
 
@@ -115,20 +116,27 @@ before any change.
 ### 1. The Done transition decides a record's next state as plain values
 
 Type: Structure
-Status: planned
+Status: done
 
 Record the [evaluation baseline](#local-gates) first. Then extract the
 transition and make `setRecordDoneAt` apply it. Add typed cases for marking
 (Done time, disposition time from the supplied `now`, `doneProblem`), undo,
 a stale `expectedDoneAt` (no change), an automatic Done that
-`doneAutomatically` refuses (no change), finishing an expected Done (keeps
-disposition), and a branch-review record changed since the candidate (no
+`doneAutomatically` refuses (no change), finishing an expected Done (a manual finish sets the disposition
+time to `now`; only an automatic finish keeps it), and a branch-review record changed since the candidate (no
 change).
 
 **Proof.** The new transition spec passes with no HOME stub, store or Git.
 Disabling the expected-time rule in a scratch edit fails its case. The
 existing Done capture family, `sessions/agent-completion-identity.spec.ts`
 and the `ad-hoc-session-commits*` specs pass unchanged. Enables slice 2.
+
+**Accepted.** `dashboard/server/doneTransition.ts` with
+`dashboard/backend-tests/review/done-transition.spec.ts` (7 cases, no store,
+Git or HOME); the expected-time scratch break failed exactly its case; the
+family gate, `agent-completion-identity`, typecheck and lint passed. Learning:
+the backend runner prints nothing for passing Playwright specs; set
+`OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` for per-spec evidence.
 
 ### 2. The adapter takes its branch capture as a typed collaborator
 
@@ -263,3 +271,13 @@ then three moves to composed review by kind. Slices 1–3 add the production
 seams that slices 4–7 use, and each move slice keeps its own proof loop. The
 scratch observations bound the one design limit, pins after retirement, with a
 topic rule. This review found no remaining slice-specific concern.
+
+### Evaluation baseline
+
+At `fd05ea2d2` (2026-11-20, load 4.06 → 7.75 during the run), one family run of
+the 28 specs: 75 cases, summed 84.8 s, median 1,052 ms per case (proof record
+`OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`). Calls across the 28 specs:
+`doneCaptureCase.ts` importers 28, `markDone(` 60, `keep(` 20, `aHeldDone(` 3,
+`undoDone(` 5, `keptRecordOf(` 10, `vi.stubEnv("HOME"` 0 in specs (HOME is
+stubbed inside `keep`; 16 cases call `keep` directly). After slice 7, compare
+with three interleaved base and candidate runs at comparable load.
