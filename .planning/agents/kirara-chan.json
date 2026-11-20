@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Kirara-chan",
-  "email": "kirara-chan@example.org",
-  "identity": "SEED-413#split-done-mark-decision-from-store",
-  "mode": "story-branch",
-  "branch": "claude/mark-done-through-a-typed-decision-and-compose-d",
-  "host": "claude"
-}

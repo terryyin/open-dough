@@ -6,8 +6,9 @@
 ## Correction input
 
 **Provenance.** Retrospective of
-[SEED-413#split-done-mark-decision-from-store](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store)
-(plan 734), reviewed over `fd05ea2d2..0d1560004` (commits `f5e3a956d`,
+SEED-413#split-done-mark-decision-from-store (story and plan 734 at
+`6250b7399:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md` and
+`6250b7399:.planning/slice-plans/734-split-done-mark-decision-from-store/PLAN.md`), reviewed over `fd05ea2d2..0d1560004` (commits `f5e3a956d`,
 `39e8ac4b3`, `a60e32a59`, `93cc82cf7`, `1d657edf1`, `53e4fb525`,
 `0d1560004`). Its source promised: "Keep Done marking as the topic only in
 specs that prove the capture, the transition rules … or the adapter's
