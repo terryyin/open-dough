@@ -1,5 +1,5 @@
 // System settings → Usage mounted operations and readings for cohort, period,
-// selection and task-detail cases (../../src/SystemSettingsUsage.tsx).
+// selection, Refresh and task-detail cases (../../src/SystemSettingsUsage.tsx).
 import { createElement } from "react";
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
@@ -35,6 +35,10 @@ function usageView() {
     exact: true,
   });
   const daysField = view.getByRole("textbox", { name: /^Last N days/ });
+  const refreshButton = view.getByRole("button", {
+    name: "Refresh",
+    exact: true,
+  });
   const filter = (label: string) =>
     view.getByRole("combobox", { name: label, exact: true });
   const detail = view.getByRole("region", {
@@ -47,6 +51,10 @@ function usageView() {
     trend.getByRole("button", { name: readout, exact: true });
   const markCount = () =>
     trend.query()?.querySelectorAll(".history-chart-chart button").length ?? 0;
+  const checkingStatus = () =>
+    [...(view.query()?.querySelectorAll('[role="status"]') ?? [])].find(
+      (each) => each.textContent.includes("Checking"),
+    )?.textContent ?? null;
   const factElement = (term: string) =>
     [...(detail.query()?.querySelectorAll("dl > div") ?? [])]
       .find((row) => row.querySelector("dt")?.textContent === term)
@@ -122,6 +130,33 @@ function usageView() {
     },
     async showsPointCount(count: number) {
       await expect.poll(markCount).toBe(count);
+    },
+    async showsPoints(readouts: readonly string[]) {
+      await expect.poll(markCount).toBe(readouts.length);
+      for (const readout of readouts) {
+        await expect.element(mark(readout)).toBeVisible();
+      }
+    },
+    async refresh() {
+      await userEvent.click(refreshButton);
+    },
+    async showsChecking() {
+      await expect.element(refreshButton).toBeDisabled();
+      await expect.poll(checkingStatus).toBe("Checking for new usage…");
+    },
+    async showsChecked() {
+      await expect.element(refreshButton).toBeEnabled();
+      await expect.poll(checkingStatus).toBeNull();
+    },
+    async showsCheckedAt(at: string) {
+      await expect
+        .poll(() =>
+          [...(view.query()?.querySelectorAll("p") ?? [])]
+            .find((paragraph) => paragraph.textContent.startsWith("Checked "))
+            ?.querySelector("time")
+            ?.getAttribute("datetime"),
+        )
+        .toBe(at);
     },
     async showsPartialPoints(count: number) {
       await expect

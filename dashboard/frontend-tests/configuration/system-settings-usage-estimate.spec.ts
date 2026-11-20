@@ -1,13 +1,10 @@
 // A refresh that brings an explicit rate replaces the estimate in the point,
 // the selected detail and the rate-card warning; another model's warning stays.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  type TokenIndexTask,
-  usageRefreshEndpoint,
-  usageTokenIndexEndpoint,
-} from "../../src/usageTokenIndex.ts";
-import { test } from "../../test-support/support/frontendApp.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
+import { afterEach, beforeEach, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { UsageSource } from "../../src/usageSource.ts";
+import type { TokenIndexTask } from "../../src/usageTokenIndex.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
 const astra = { id: "gpt-6.2-astra", name: "gpt-6.2-astra" };
 const nova = {
@@ -33,24 +30,26 @@ const rated = answer(7_800, {
   observed: { model: { ...astra, name: "GPT-6.2 Astra" }, effort: "xhigh" },
 });
 
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-15T12:00:00.000Z"));
 });
 
-test("refreshing to an explicit rate replaces the estimate and keeps another model's warning", async ({
-  page,
-}) => {
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+test("refreshing to an explicit rate replaces the estimate and keeps another model's warning", async () => {
   let current = estimated;
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: current }),
-  );
-  await page.route(
-    (url) => url.pathname === usageRefreshEndpoint,
-    (route) =>
-      route.fulfill({ json: { checkedAt: "2026-11-15T12:00:00.000Z" } }),
-  );
-  const usage = await visitUsage(page);
+  const source: UsageSource = {
+    read: () => Promise.resolve(current),
+    refresh: () => {
+      current = rated;
+      return Promise.resolve();
+    },
+  };
+
+  const usage = await mountUsage(source);
   await usage.showsRateCardWarnings([
     "Codex used gpt-6.2-astra, which is not on its Token Index rate card; estimated at GPT-6 Astra rates. The Token Index rate card needs an update.",
     novaWarning,
@@ -58,7 +57,6 @@ test("refreshing to an explicit rate replaces the estimate and keeps another mod
   await usage.selectPoint("Nov 1 · Codex · 12,000 · Estimated rate", "pointer");
   await usage.showsFact("Estimated rate", "gpt-6.2-astra at GPT-6 Astra rates");
 
-  current = rated;
   await usage.refresh();
   await usage.showsPoints([
     "Nov 1 · Codex · Selected task · 7,800",

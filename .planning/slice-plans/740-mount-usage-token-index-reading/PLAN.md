@@ -157,7 +157,7 @@ that nothing joined.
 ### 4. Refresh keeps the trend while it checks
 
 Type: Behavior
-Status: planned
+Status: done
 
 Mount the two cases of `-usage-checking` and the case of `-usage-estimate`,
 each holding or rejecting its own Refresh and its following read. Remove
@@ -166,6 +166,10 @@ both built-app files.
 **Proof.** The mounted specs pass. One scratch break that ends checking when
 Refresh resolves, before the reread settles, fails the checking case and is
 reverted.
+
+- **Replaced built-app cases (all 3 titles and every assertion preserved in place):**
+  - `system-settings-usage-checking.spec.ts`: `"checking survives a selected cohort read and waits for Refresh's selected-cohort reread"`, `"a failed Refresh after a filter change retains the selected chart and time beside its error"`.
+  - `system-settings-usage-estimate.spec.ts`: `"refreshing to an explicit rate replaces the estimate and keeps another model's warning"`.
 
 ### 5. The moved cases leave their support and show their cost
 

@@ -115,5 +115,14 @@ export function usageToolsView(
         .element(trend.getByText(label, { exact: true }))
         .toBeVisible();
     },
+    async showsRateCardWarnings(words: readonly string[]) {
+      await expect
+        .poll(() =>
+          [...(summary()?.querySelectorAll(".usage-rate-warning") ?? [])].map(
+            (warning) => warning.textContent,
+          ),
+        )
+        .toEqual([...words]);
+    },
   };
 }
