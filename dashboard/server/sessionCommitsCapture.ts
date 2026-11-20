@@ -141,9 +141,6 @@ export async function readSessionCommits(
   start: { readonly workspace: string },
 ): Promise<SessionCommits> {
   const checkout = resolvedCheckout(start.workspace);
-  // The log keeps whole seconds; an entry in the launch's own second is not
-  // the session's.
-  const since = Date.parse(record.launchedAt) / 1000;
   const entry = record.branchEntry;
   const startRef = record.defaultStart?.branch;
   const branchEntryMissing =
@@ -161,6 +158,31 @@ export async function readSessionCommits(
       : entry.defaultTip;
   if (head === undefined)
     throw new Error("There is no saved Default main tip at branch entry.");
+  const capture = await readSessionCommitsAt({
+    checkout,
+    originalRef,
+    head,
+    launchedAt: record.launchedAt,
+  });
+  return branchEntryMissing
+    ? { ...capture, branchEntryMissing: true }
+    : capture;
+}
+
+// The reflog may already include later work. Keep commits reachable from the
+// tip resolved for this capture.
+export async function readSessionCommitsAt({
+  checkout,
+  originalRef,
+  head,
+  launchedAt,
+}: {
+  readonly checkout: string;
+  readonly originalRef: string;
+  readonly head: string;
+  readonly launchedAt: string;
+}): Promise<SessionCommits> {
+  const since = Date.parse(launchedAt) / 1000;
   const log = await headLog(checkout, originalRef);
   // A log without any entry says nothing of what was made there.
   if (log[0]?.commit === undefined)
@@ -181,6 +203,5 @@ export async function readSessionCommits(
     repository,
     runs,
     readAt: new Date().toISOString(),
-    ...(branchEntryMissing ? { branchEntryMissing: true } : {}),
   };
 }

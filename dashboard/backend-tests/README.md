@@ -60,6 +60,16 @@ declared branch comes from
 [`declaredBranchCase.ts`](support/declaredBranchCase.ts), the rest of the
 arrangement from the Done capture helpers below.
 
+[`ad-hoc-session-commits.spec.ts`](review/ad-hoc-session-commits.spec.ts) and
+[`ad-hoc-session-commits-done.spec.ts`](review/ad-hoc-session-commits-done.spec.ts)
+call typed completion delivery and Done marks.
+[`ad-hoc-session-commits-pending-done.spec.ts`](review/ad-hoc-session-commits-pending-done.spec.ts)
+checks stale review and capture at the resolved Git tip.
+[`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the
+kept-record store for deletion and expiry, and
+[`default-launch-start-facts.spec.ts`](review/default-launch-start-facts.spec.ts)
+reads the start from the Default main checkout.
+
 The Done capture family arranges each case through
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history
 predates the case, the stereotype launches, a private launch store, dated

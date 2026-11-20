@@ -880,6 +880,14 @@ A refactor narrowed a shared test-support return type. Guarded delivery's format
   - Observed effect: one red CI run, a writer pause and stash of slice 3's work, a delegated repair and an extra publication.
   - Inference: a full check-only lint at delivery when a shared export or type changes would catch this before publication; the repair cycle cost about 10 minutes, not precisely measured.
 
+- Execution: SEED-413#ad-hoc-done-lifecycle (plan 731; first implementation `5be28ff56`)
+  - Timestamp: 2026-11-20T09:30:11Z (failed lint step)
+  - Tool: Codex
+  - Model: gpt-6.2-sol
+  - Open Dough release: unknown (checkout-bound guidance at Take `18b9a405b`)
+  - Evidence: `NativeDoneMarks.reported` began returning its continuation. Format, the staged hook, typecheck and focused behavior passed. [CI lint](https://github.com/terryyin/open-dough/actions/runs/44710919350/job/136202075605) flagged three ignored promises in unchanged callers. Targeted ESLint reproduced all three; `52be56f13` explicitly discarded the returns and passed the same lint and eight focused cases.
+  - Observed effect: slice 2 paused and was restored around one repair publication. The consumer trace had named the callers. Its proof covered behavior and types, leaving typed lint on those files to CI. Targeting those callers with the read-only lint would have found this before publication.
+
 ## DD-582 — A moved case is planned from its arrangement while its journey crosses another service <a id="dd-582"></a>
 
 The plan judged the retained-note case only on whether a fresh mount reads the same note. The case also saves that note from a review diff and asserts the recorded add, which needed a story-review answer the mounted board lacked.

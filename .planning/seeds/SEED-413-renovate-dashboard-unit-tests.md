@@ -147,72 +147,6 @@ precondition.
   timing and the test-support calls removed against the prior cases under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
-<a id="ad-hoc-done-lifecycle"></a>
-
-### Prove the ad hoc Done lifecycle and kept-record release at typed seams
-
-**Identity:** SEED-413#ad-hoc-done-lifecycle
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/731-ad-hoc-done-lifecycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4853a9cd7f22c81bd05c1d1f33556c456ebbcea798dbd6915864b7021b1a57e6","plan":"f77da97a37e1c5a9ab9cb227b74dc94c1162c62f75471bc1be56958407593107"}}
-```
-
-Split from
-[`SEED-413#renovate-later-dashboard-backend-unit-test-families`](#renovate-later-dashboard-backend-unit-test-families)
-on 2026-11-20 as the second of its ad hoc review families.
-
-- **Goal.** Developers changing what a Default main session keeps at Done,
-  and what a record releases when it leaves, get plain Node Vitest cases
-  that call `deliverCompletion`, `NativeDoneMarks`, `setRecordDoneAt`,
-  `readSessionCommits`, the typed review and `deleteRecord` directly with
-  MakeMe kept records, attempts and real Git. Today these fourteen cases
-  start the boundary server, run the reporting CLI, hold the reflog through a
-  `PATH` shim and close servers: 23 s summed in CI run 44698610582.
-- **Scope.** Move these cases, keeping each one's distinct inputs and
-  expected outcomes:
-  - `review/ad-hoc-session-commits.spec.ts`: a quiet report marks Done at its
-    receipt time and keeps the session's commits.
-  - `review/ad-hoc-session-commits-done.spec.ts`: a reopened session keeps
-    its earlier capture until its next Done; a quiet report after a confirmed
-    native Done keeps the additional commit; a quiet report during an earlier
-    rename wait refreshes the capture; retrying the same quiet delivery
-    resumes native Done without reading the checkout again; a rename wait
-    that the closing dashboard abandons still keeps the commits.
-  - `review/ad-hoc-session-commits-pending-done.spec.ts`: a later Done whose
-    capture has not finished refuses the previous review and its files, and
-    does not inherit its "no commits" finding; a commit that arrives after
-    Done's tip is read is excluded.
-  - `review/ad-hoc-review-unavailable.spec.ts`: a launch in a checkout Git
-    cannot read keeps no start. Its Done and review halves are already owned
-    by `done-kept-session-unavailable.spec.ts` and
-    `ad-hoc-review-kept-unavailable.spec.ts`.
-  - `review/kept-commits-release.spec.ts`: deleting or expiring a record
-    removes its session-run and landing references and leaves another kept
-    record's; a record whose saved repository is gone still deletes and
-    expires.
-  - `NativeDoneMarks` takes the host lookup and reporting folder it uses as
-    typed collaborators, and a case can await a report's continuation.
-  - Retire each `dashboard/test-support/` export whose last consumer leaves,
-    starting with `DefaultMainSessionWork.launchReporting`. Add none.
-  - **Scope limits.** The developer's native Done, including "a newer quiet
-    Done takes precedence over a manual mark", and the other `sessions/`
-    completion cases stay in the parent story. The branch result and its
-    handoff already run on Vitest.
-- **Key examples.**
-  - *Quiet report.* A Default main launch reporting through reference `R`
-    commits `typo`. A quiet completion for `R` is delivered. The record is
-    Done at the receipt's `receivedAt`, and the review shows one commit run
-    with `typo`.
-  - *Abandoned rename.* A quiet report's native rename is still waiting
-    when the dashboard closes its Done marks. The rename stops, and the
-    record keeps the commits read at that Done.
-  - *Stale capture.* A record whose commits were read before its latest Done
-    refuses the review of the previous capture and its files.
-  - *Release.* Two kept records pin session runs and a landing comparison in
-    one repository. Deleting one, or letting it expire, removes only its
-    references.
-- **Effort hypothesis.** M: six slices.
-- **Plan.** [731](../slice-plans/731-ad-hoc-done-lifecycle/PLAN.md)
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -267,10 +201,8 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
   1. The rest of ad hoc review, which retires `adHocReview.ts`. The branch
-     result with its handoff already runs on Vitest,
-     and the Done lifecycle with record release moved to
-     [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle). The
-     observation and publication cases belong to
+     result, its handoff, the Done lifecycle and kept-record release already
+     run on Vitest. The observation and publication cases belong to
      [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication).
      "A newer quiet Done takes precedence over a manual mark still capturing
      its branch" stays here, with the developer's native Done in
