@@ -197,7 +197,7 @@ export const undoDone = (record: LaunchRecord) =>
 
 const reviewRead = async (record: LaunchRecord) =>
   makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
+    .ofSession(record.session.sessionId, record.session.host)
     .keeping(await keptRecords(source));
 
 // The typed review of the kept session, at its first run or at `run`.

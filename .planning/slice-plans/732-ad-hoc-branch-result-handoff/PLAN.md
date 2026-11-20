@@ -185,7 +185,7 @@ commit stays outside the session's reflog window.
 ### 4. Branch pins follow the original Cursor chat through replacement
 
 Type: Structure
-Status: planned
+Status: done
 
 Rewrite `ad-hoc-branch-cursor-recovery.spec.ts` on Vitest. It covers deletion
 and expiry of the replacement with another launch's pins kept, and the stale
@@ -196,6 +196,17 @@ native replacement after a pending entry. Delete `cursorBranchRecovery.ts`.
 | Cursor example | All three cases pass. |
 | The cases discriminate | With `branchEvidenceOwner` dropped from `replaceKeptSession` in a scratch edit, the deletion case fails on a left pin under `A`. It passes once reverted. |
 | No orphan | `grep -rn cursorBranchRecovery dashboard e2e Distribution` lists nothing. |
+
+Accepted proof: three Vitest cases pass. Without `branchEvidenceOwner`, both
+removal cases fail at the first check that A's pins hold `latest`, the same
+ownership fact earlier than planned. The kept session's review read in
+`doneCaptureCase.ts` now names the record's own host through
+`aSessionReviewRead.ofSession(id, host)`. The 15 `doneCaptureCase.ts` consumer specs pass
+(51 tests). Coordination boundary: `ad-hoc-manual-landing.spec.ts:57` timed
+out once at 5 s under load about 9 and ran 3.9 s at load 5 to 9. The active
+`SEED-413#arrange-done-ad-hoc-observation-and-publication` branch rewrites that
+spec and `doneCaptureCase.ts`, adding `anIsolatedBranch` and
+`historyBeforeTheCase(files)`. Reconcile both files with it when either lands.
 
 ### 5. The family leaves Playwright with its retired support
 

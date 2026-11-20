@@ -1,7 +1,8 @@
 // @ts-check
 // A session review read as the review handler takes it
-// (../../../dashboard/server/storyReviewSnapshot.ts): one `claude` session of
-// the `open-dough` project, with the launch records kept for that project.
+// (../../../dashboard/server/storyReviewSnapshot.ts): one session of the
+// `open-dough` project, on the `claude` host unless named, with the launch
+// records kept for that project.
 // `.readingFile(...)` turns it into the file read the file handlers take
 // (../../../dashboard/server/storyReviewFileResponse.ts).
 import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mjs";
@@ -21,12 +22,18 @@ import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mj
 export class SessionReviewReadBuilder {
   /** @type {string | undefined} */
   #session;
+  /** @type {SessionReviewRead["read"]["subject"]["host"]} */
+  #host = "claude";
   /** @type {readonly LaunchRecord[]} */
   #records = [];
 
-  /** @param {string} session the reviewed `claude` session's ID */
-  ofSession(session) {
+  /**
+   * @param {string} session the reviewed session's ID
+   * @param {SessionReviewRead["read"]["subject"]["host"]} [host] its host
+   */
+  ofSession(session, host = "claude") {
     this.#session = session;
+    this.#host = host;
     return this;
   }
 
@@ -83,7 +90,7 @@ export class SessionReviewReadBuilder {
     const session = this.#session;
     if (session === undefined) throw new Error("choose .ofSession(...) first");
     return {
-      read: { subject: { source: "open-dough", host: "claude", session } },
+      read: { subject: { source: "open-dough", host: this.#host, session } },
       kept: { records: this.#records },
     };
   }
