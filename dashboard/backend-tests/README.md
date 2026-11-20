@@ -5,8 +5,7 @@ and `../frontend-tests/`. They prove server behavior, its variants and
 failures in this process through typed handlers and their request
 admission, without a started server or a browser workflow. Older cases
 still enter at HTTP, WebSocket, stored-file and command boundaries until
-their family is renovated. Use the shared
-[MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
+their family is renovated.
 
 Their product collaborators are the boundary under test, real Git origins,
 and the installed start. Only external boundaries are substituted, and each

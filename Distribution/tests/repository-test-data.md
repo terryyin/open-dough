@@ -1,7 +1,6 @@
 # Repository test data
 
-Git starting state for tests, declared through the shared `makeMe` entry that
-[Test data architecture](test-data-architecture.md) introduces.
+Git starting state for tests, declared through the shared `makeMe` entry.
 
 Declare the Git state your test starts from with
 `makeMe.aRepository.withRevision(name, facts).please()`. Name the revisions and

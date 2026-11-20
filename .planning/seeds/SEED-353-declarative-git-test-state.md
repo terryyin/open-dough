@@ -11,7 +11,18 @@ scope: eight stories
 
 ## Parent goal and retained scope
 
-Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. All original scope is allocated below; the landed-file admission example and its named start-origin revisions, launch reporting and file follow-up builders, and the Intent comparison, source selection, build provenance and timing-history arrangement are delivered and documented in the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md).
+Developers should read the repository facts and relationships explaining
+dashboard tests without reconstructing routine Git, files, configuration or
+incidental identifiers. Terry approved smaller stories preserving the full
+migration on 2026-11-15. The remaining scope is allocated below.
+
+Delivered work covers landed-file admission with named start-origin revisions,
+launch reporting and file follow-up builders, and the Intent comparison,
+source selection, build provenance and timing-history arrangement.
+[Landed-file admission](../../dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts) ·
+[Intent comparison](../../dashboard/backend-tests/intent/ci-comparison-published-endpoints.spec.ts) ·
+[Source identity](../../dashboard/frontend-tests/intent/intent-project-scope-history-source-identity.spec.ts) ·
+[Timing history](../../dashboard/frontend-tests/intent/intent-scope-timing-history-reading.spec.ts)
 
 Shared scope and correctness requirements:
 
@@ -23,7 +34,7 @@ Shared scope and correctness requirements:
 - Harnesses retain filesystem, Git, installation, environment and cleanup. Materialize only on demand; preserve prepared-prefix/template reuse and private mutable refs, objects, config, index and files. Expose named revision/workspace results instead of incidental `rev-parse` setup.
 - Builders derive related incidental IDs, preferring fixed defaults where isolation permits and internal uniqueness when needed. Specs neither import `randomUUID` for defaults nor create, extract or pass an incidental UUID just to relate construction steps. Explicit meaningful differences, malformed IDs and real launch-returned reporting contexts remain intact.
 - Keep actions under proof and independent observations visible: post-observation publication, competing writers, failed pushes, ref movement and destructive operations remain actions. Preserve staging, dirty state, authorship, topology and byte distinctions explaining each case.
-- Update the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md) for delivered capabilities. Apply selected MakeMe conventions, the installed [test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary), the [Architectural North Star](../NORTH-STAR.md), [ADR 0002's direct domain mapping](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution) and [ADR 0008's published/local distinction](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state). Test support holds only MakeMe data builders and `e2e/` page objects: add zero new wrappers to `test-support`, remove indirect `dashboard/test-support/` setup wrappers, HTTP boundary helpers and re-export shims (`startOriginPreparation.ts` re-exports, `withCapturedLanding`, scoped runtime/observation wrappers), and sequence after [`SEED-413`](SEED-413-renovate-dashboard-unit-tests.md) so plain-Vitest unit specs are not rewritten twice.
+- Apply selected MakeMe conventions, the installed [test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary), the [Architectural North Star](../NORTH-STAR.md), [ADR 0002's direct domain mapping](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution) and [ADR 0008's published/local distinction](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state). Test support holds only MakeMe data builders and `e2e/` page objects: add zero new wrappers to `test-support`, remove indirect `dashboard/test-support/` setup wrappers, HTTP boundary helpers and re-export shims (`startOriginPreparation.ts` re-exports, `withCapturedLanding`, scoped runtime/observation wrappers), and sequence after [`SEED-413`](SEED-413-renovate-dashboard-unit-tests.md) so plain-Vitest unit specs are not rewritten twice.
 
 Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), compare representative cases before/after. Keep readable construction only when its benefit justifies builder complexity without weaker proof, lost isolation or eager preparation. No speedup is promised; claim one only if measured. Each plan carries the shared [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 

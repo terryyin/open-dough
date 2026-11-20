@@ -30,10 +30,8 @@ and configuration.
 - Before authoring or changing a test, apply the installed
   [`dough-makeme`](.agents/skills/dough-makeme/SKILL.md) and, for browser
   tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md)
-  selection. [Test data architecture](Distribution/tests/README.md#test-data-architecture)
-  names this project's MakeMe builders, and
-  [`dashboardPage.ts`](dashboard/test-support/dashboardPage.ts) is the Dashboard Test Support page-object
-  entry. The
+  selection. The Dashboard Test Support page-object entry is
+  [`dashboardPage.ts`](dashboard/test-support/dashboardPage.ts). The
   [fluent side-panel page objects](dashboard/test-support/sidePanelPages.ts) show
   the phase-and-cue form of the Side panel journeys. Review changes journeys
   operate the review through [`reviewChangesPage.ts`](dashboard/test-support/reviewChangesPage.ts),

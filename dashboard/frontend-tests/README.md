@@ -27,8 +27,6 @@ only for a distinct area that none of the existing groups covers.
 | `test-harness/`  | Tests of browser measurement, touch and mount helpers.        |
 
 Reusable harness helpers and fixtures live in [Dashboard Test Support](../test-support/).
-Use the shared [MakeMe library](../../Distribution/tests/README.md#test-data-architecture)
-for domain data.
 
 ## Frontend test fixtures
 

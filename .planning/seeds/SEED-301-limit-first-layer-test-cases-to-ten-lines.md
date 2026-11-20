@@ -22,8 +22,7 @@ scope: one story
 
 Keep test intent easy for Open Dough developers to read by limiting each
 first-layer test case body to 10 lines of code — achieved by making production
-handlers and UI components directly testable with thin
-[MakeMe](../../Distribution/tests/README.md#test-data-architecture) defaults
+handlers and UI components directly testable with thin MakeMe defaults
 under the [Architectural North Star](../NORTH-STAR.md) and installed
 [test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary),
 never by hiding test orchestration or assertions inside `test-support/`

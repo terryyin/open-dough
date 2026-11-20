@@ -97,10 +97,9 @@ fixture, run, observe and assess implementation, not check entry points:
 - `product-backlog-native-evidence.sh`: `product_backlog_native_cleanup`
   keeps failing evidence and prints `PRESERVED:`.
 
-Canonical repository, installation and MakeMe builders remain in
-[`Distribution/tests/`](../tests/README.md#test-data-architecture). Evaluation
-fixtures use those builders rather than copying them. The counterexample
-helper and its guard are test-only (see [Rejected cases](#rejected-cases)).
+Evaluation fixtures reuse the repository and installation builders in
+[`Distribution/tests/support/`](../tests/support/). The counterexample helper
+and its guard are test-only (see [Rejected cases](#rejected-cases)).
 
 Current operational families, each `<family>-native-<layer>` in `cases/`:
 
