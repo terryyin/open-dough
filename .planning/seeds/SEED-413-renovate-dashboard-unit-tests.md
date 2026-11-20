@@ -79,7 +79,7 @@ and deleted `test-support` surface together under
 
 **Identity:** SEED-413#narrow-ad-hoc-review-handler-contracts
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0daa88a4b95e44ca4ea2eb7fb8737f4ace55a40852e321bd596efdb02ad45839","plan":"8054c92c8771e6fc5515b102bd5a5155bbb96125e500982ef3ff5fb688d97bd8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ce81021981f609bd52b2d1b4133e092749258fa0d76f60347e0ed2622a7398b5","plan":"1038a1fd7f85069b2047b7378a4bdb84fbcffbb155b2428bbbaa777e45055b8d"}}
 ```
 
 Correction of the typed ad hoc review handlers
