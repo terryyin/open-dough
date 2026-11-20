@@ -3,7 +3,7 @@
 // malformed latest settings replace the reading with their explanation
 // (../../src/IntentLocationsUnavailable.tsx). Applying the latest:
 // ./intent-revision-apply.spec.ts. File Retry across revisions:
-// ./intent-source-target-recovery.spec.ts.
+// ./intent-source-target-recovery-mounted.spec.ts.
 import { test, vi } from "vitest";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import { shortRevision as short } from "../../src/publishedWork.ts";

@@ -110,7 +110,7 @@ Accepted proof and learnings:
 ### 2. The held Show latest file read is proven on the mounted reading, and the built-app spec is gone
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the held-then-released case with its deferred reply, and assert the read
 order in both cases. Delete `intent-source-target-recovery.spec.ts`. Update
@@ -123,6 +123,19 @@ test-support consumers.
 | Held example and read order hold | Both mounted cases pass with every signal in their rows. |
 | Spec removed with no orphan | `grep -rn intent-source-target-recovery dashboard e2e .planning` lists only planning history. No `dashboard/test-support/` module is left without a consumer. |
 | Focused speed | Run `npm run test:dashboard:frontend -- intent/intent-source-target-recovery --workers=2` at `0be467145`, and the new spec's selection after the change. Interleave three warm runs each and record median command time and load. |
+
+Accepted proof and learnings:
+
+- Both cases in `intent-source-target-recovery-mounted.spec.ts` pass; the
+  held case failed when its scratch edit stopped awaiting the deferred reply.
+  The built-app spec is deleted and no `dashboard/test-support/` module lost
+  its last consumer.
+- Focused speed, `--workers=2`, three interleaved warm runs at load 11–12:
+  median 5.51 s for the built-app spec at `0be467145`, 4.71 s for the mounted
+  spec after.
+- File reads are cached per repository, revision and path
+  (`dashboard/src/fileContentCache.ts`), so each case offers its own new
+  revision.
 
 ## Local gates
 
