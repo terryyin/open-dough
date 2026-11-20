@@ -179,6 +179,46 @@ landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-re
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
+<a id="reduce-review-diff-reading-to-logic-cases"></a>
+
+### Test Review diff reading's data logic directly and drop "mounted" from frontend test names
+
+**Identity:** SEED-413#reduce-review-diff-reading-to-logic-cases
+
+Requested by Terry on 21 November 2026 after
+SEED-413#mount-story-review-diff-reading landed (`2d1e73020`).
+
+- **Goal.** Dashboard maintainers read Review diff reading's domain rules,
+  such as which grammar a file path or hint selects and which words a
+  changed block emphasizes, as fast logic cases with no component mounted.
+  Frontend unit test file names say what they test, not how. The new and
+  changed cases each run under 500 ms, around 100 ms.
+- **Scope.**
+  1. Data logic as logic. `story-review-diff-syntax-paths-mounted.spec.ts`
+     mounts a diff only to check path-and-hint grammar selection. Replace it
+     with cases over the selection logic directly. Audit the whole Review
+     diff syntax and emphasis scope (`dashboard/frontend-tests/review/story-review-diff-*`
+     and their support) for other cases that check data logic with a clear
+     domain meaning through UI elements, and reduce each to the logic it
+     names. Cases that check rendering, appearance or arrival behavior stay
+     mounted.
+  2. Names. Remove `-mounted` from every frontend unit test file name (27
+     files in `review/` and `intent/` at `846c4db58`). Whether a case
+     mounts is visible in the file. Where a renamed file meets a remaining
+     built-app spec of the same name (for example
+     `story-review-diff-syntax-appearance` and `-syntax-arrival`), combine
+     or rename by what each tests rather than by its runner; built-app
+     Playwright specs are being retired anyway.
+  3. Speed. Bring each new or changed case above 500 ms to under 500 ms,
+     aiming at about 100 ms. The [Review diff reading baseline](#review-diff-reading-after-migration)
+     names the slow mounted cases (`syntax-mounted` 672 ms, `syntax-arrival`
+     473 ms, maximum attempt 761 ms); measure the renamed Intent files the
+     same way.
+- **Acceptance.** No frontend unit test file name contains `mounted`; the
+  grammar-selection and other audited data rules are proved without a
+  mount; every case in the touched files has a median of three attempts
+  under 500 ms, recorded per case as in the baseline table.
+
 <a id="restore-done-capture-proof-after-composed-reviews"></a>
 
 ### Restore Done capture proof after the composed review move
