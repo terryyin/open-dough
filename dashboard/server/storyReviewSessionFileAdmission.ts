@@ -10,7 +10,6 @@ import {
   retainedBranchPairFiles,
   retainedCommitPairFiles,
 } from "./retainedReviewPair.ts";
-import { namedSessionRecord } from "./sessionAdmission.ts";
 import {
   admitLandedRun,
   belongsOnRetainedPair,
@@ -18,7 +17,10 @@ import {
   type AdmittedHistoricalReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import type { KeptSessionState } from "./storyReviewSessionAdmission.ts";
+import {
+  reviewedSessionRecord,
+  type KeptSessionState,
+} from "./storyReviewSessionAdmission.ts";
 import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 
@@ -30,10 +32,7 @@ export async function admitSessionReviewedFile(
   file: HistoricalReviewedFileFields,
   kept: KeptSessionState,
 ): Promise<AdmittedHistoricalReviewedFile> {
-  const record = namedSessionRecord(kept.records, {
-    host: subject.host,
-    sessionId: subject.session,
-  });
+  const record = reviewedSessionRecord(subject, kept);
   return reference === undefined
     ? admitKeptPairFile(record, file)
     : admitSessionLandedRun(record, reference, file);

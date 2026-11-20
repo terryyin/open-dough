@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#refuse-story-launch-session-file-reads
 **Source:** [Direct story-launch file reads to their story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -57,7 +58,7 @@ receiver, and the existing Codex transport substitute.
 ### 1. A story launch's files are reviewed through its story
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a project with a kept story launch, when a well-formed file diff or
 file text query addresses the launch by session, return HTTP 400 and
@@ -117,3 +118,21 @@ file refusal variants, and the existing historical wire case covers the common
 route with one fixture. One Behavior slice fits the 15-active-minute budget
 with the proof commands excluded. The expected edited files are below the
 250-line check. This review found no remaining slice-specific concern.
+
+## Execution record
+
+- Slice 1 accepted at `e4970798e` + uncommitted change. `reviewedSessionRecord`
+  in `dashboard/server/storyReviewSessionAdmission.ts` resolves the kept
+  record and refuses a story launch; the snapshot and `admitSessionReviewedFile`
+  share it. Red before the guard (`s1-red2`: 200 where 400 expected), green
+  after (`s1-green`). Source-review observations are in
+  [source-review.md](source-review.md).
+- The broad gate first failed at load 28–40 with 8 ad hoc timeouts. The
+  [diagnosis record](diagnosis-lifecycle-expiry-timeout.md) traced them to
+  `markAdHocDone`, which waited out the 5 s Claude rename wait for each Done
+  mark because the fake host listed the session busy. The test-support fix
+  lists it `done-live` first, cutting those 10 consumer specs from 333 s to
+  147 s summed test time.
+- Gate after the fix, at load 10–14: backend `review/` plus both
+  `launches/` paths passed, 224 Playwright and 48 Vitest cases, longest case
+  11.7 s. Typecheck and lint passed. The refactor pass found nothing to change.
