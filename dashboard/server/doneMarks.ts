@@ -1,16 +1,15 @@
 // Local done intent is durable independently of native rename/interruption.
 // Each host owns its native operations; closing attachments only detaches clients.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
+import type { HostIdentity } from "../src/hostDescription.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { AgentTerminals } from "./agentTerminals.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
-import { launchHost } from "./launchHosts.ts";
+import type { LaunchHost } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
 import { keptWithDoneCapture } from "./doneCapture.ts";
 import { completedWithoutAttention } from "../src/completionReport.ts";
-import { localFolder, machineFolder } from "./projectFolders.ts";
-import { configuredProject } from "./projectConfiguration.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import {
@@ -37,6 +36,17 @@ type NativeDone = { readonly stopped: AbortSignal } & (
   | { readonly intent: "reporting" }
 );
 
+type DoneTerminals = Pick<AgentTerminals, "withAttachment" | "endAttachments">;
+type DoneHost = Pick<
+  LaunchHost,
+  "name" | "rename" | "doneStop" | "localDone" | "remove"
+>;
+type DoneCollaborators = {
+  readonly terminals: DoneTerminals;
+  readonly hostFor: (host: HostIdentity) => DoneHost | undefined;
+  readonly reportingFolder: (sourceId: string) => ProjectFolder;
+};
+
 // Quiet reports continue native Done and default checkout capture outside
 // reporting locks. The developer's Done takes over a reported rename.
 export class NativeDoneMarks {
@@ -47,14 +57,15 @@ export class NativeDoneMarks {
   private readonly reporting = new Set<Promise<void>>();
   private closed = false;
 
-  constructor(private readonly terminals: AgentTerminals) {}
+  constructor(private readonly collaborators: DoneCollaborators) {}
 
   // Continue the latest report's capture and any pending native Done.
-  reported(sourceId: string, receipt: CompletionReport): void {
+  reported(sourceId: string, receipt: CompletionReport) {
     if (this.closed || !completedWithoutAttention(receipt)) return;
     const continued = this.continueReported(sourceId, receipt).catch(() => {});
     this.reporting.add(continued);
     void continued.then(() => this.reporting.delete(continued));
+    return continued;
   }
 
   private async captureReportedDone(
@@ -81,8 +92,9 @@ export class NativeDoneMarks {
       finishNativeDone(
         sourceId,
         marked,
-        reportingFolder(sourceId),
-        this.terminals,
+        this.collaborators.reportingFolder(sourceId),
+        this.collaborators.terminals,
+        this.collaborators.hostFor(marked.session.host),
         { intent: "reporting", stopped },
       ),
     );
@@ -106,7 +118,7 @@ export class NativeDoneMarks {
         record,
         folder,
         launches,
-        this.terminals,
+        this.collaborators,
         stopped,
       ),
     );
@@ -137,24 +149,15 @@ export class NativeDoneMarks {
   }
 }
 
-// A reported Done renames from the reporting project's folder, as the
-// developer's would.
-function reportingFolder(sourceId: string): ProjectFolder {
-  const project = configuredProject(sourceId);
-  return project === undefined
-    ? machineFolder()
-    : localFolder(project.localPath);
-}
-
 async function finishNativeDone(
   sourceId: string,
   record: LaunchRecord,
   folder: ProjectFolder,
-  terminals: AgentTerminals,
+  terminals: DoneTerminals,
+  host: DoneHost | undefined,
   done: NativeDone,
 ): Promise<LaunchRecord> {
   const { intent } = done;
-  const host = launchHost(record.session.host);
   const problems: string[] = [];
   const attempt = async (operation: string, run: () => Promise<void>) => {
     try {
@@ -220,10 +223,10 @@ async function markSessionDone(
   record: LaunchRecord,
   folder: ProjectFolder,
   launches: AgentLaunches,
-  terminals: AgentTerminals,
+  { terminals, hostFor }: DoneCollaborators,
   stopped: AbortSignal,
 ): Promise<LaunchRecord> {
-  const host = launchHost(record.session.host);
+  const host = hostFor(record.session.host);
   const stop = host?.doneStop?.bind(host);
   // A local-Done host's mark, like a reported mark on a host without a
   // Done stop, is acknowledged locally only.
@@ -238,7 +241,7 @@ async function markSessionDone(
   const marked = await setRecordDoneAt(source.id, record.session, doneAt);
   if (marked?.doneAt !== doneAt)
     return marked ?? doneSessionRecord(record, doneAt);
-  return finishNativeDone(source.id, marked, folder, terminals, {
+  return finishNativeDone(source.id, marked, folder, terminals, host, {
     intent: "manual",
     launches,
     source,

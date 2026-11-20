@@ -3,6 +3,24 @@
 **Identity:** SEED-413#ad-hoc-done-lifecycle
 **Source:** [Prove the ad hoc Done lifecycle and kept-record release at typed seams](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#ad-hoc-done-lifecycle)
 
+**Source review:** [source-review.md](source-review.md)
+
+## Execution context
+
+- Story Branch Mode in the dashboard-established worktree
+  `/Users/terryyin/git/open-dough/.worktrees/prove-the-ad-hoc-done-lifecycle-and-kept-record`.
+  The integration checkout is `/Users/terryyin/git/open-dough`.
+- Agent Koharu-chan, publisher `dashboard-territory.local-open-dough`.
+  Starting revision `9fe73239fd473bc9729e5cf23d1c04456e2a3d59`.
+  Accepted claim `18b9a405bb45e995ff6f7513f967b5a2d9b6c8d8` on
+  `origin/main` and initial candidate on
+  `origin/codex/prove-the-ad-hoc-done-lifecycle-and-kept-record`.
+- GitHub Actions `ci.yml` observer for the execution branch,
+  coordinator `koharu-731-9b4bcd53`, stream `/tmp/dough-ci-501/watch-bYQjx8`,
+  PID `82611`, execution session `96952`, Codex cell `g23:20`.
+- Locked native npm setup and dashboard typecheck passed in this checkout.
+  No new replanning authority was supplied.
+
 ## Goal and scope
 
 Move fourteen cases under `dashboard/backend-tests/review/` to plain Node
@@ -97,7 +115,7 @@ Exclusions:
 ### 1. A quiet report's Done is proven through `deliverCompletion` with typed Done marks
 
 Type: Structure
-Status: planned
+Status: done
 
 Give `NativeDoneMarks` its typed collaborators and have `reported` answer its
 continuation. Rewrite `ad-hoc-session-commits.spec.ts` on Vitest.
@@ -107,6 +125,18 @@ continuation. Rewrite `ad-hoc-session-commits.spec.ts` on Vitest.
 | Quiet report example | The case passes with every signal in its row. The injected host records the rename it was asked for. |
 | The case discriminates | With `keptWithDoneCapture` skipped in `captureReportedDone` in a scratch edit, the case fails on the missing commit run. It passes once reverted. |
 | Production unchanged | `sessions/agent-completion-quiet-rename`, `sessions/agent-completion-identity` and the remaining `review/ad-hoc-session-commits-done` pass. `npm run typecheck:dashboard` passes. |
+
+
+Accepted evidence: the typed case observes the receipt timestamp, the
+injected rename, and one review run with the single real Git commit.
+Skipping `keptWithDoneCapture` fails the review assertion. The restored
+candidate passes 16 focused cases across quiet reporting, binding, identity,
+and the existing Done lifecycle. Dashboard typecheck passes. The
+independent refactor emits identical JavaScript and keeps the formatted
+Done marks file at 250 lines. Run records and observations are in
+`open-dough/evidence/731-slice-1-return.md` and
+`open-dough/evidence/731-s1-refactor-return.md` under this worktree's Git
+directory.
 
 ### 2. Rename waits keep and refresh a quiet report's capture
 
