@@ -82,18 +82,34 @@ export const notOnCapturedRun = () =>
     "The file or comparison does not belong to this captured run.",
   );
 
+// Combine an optional caller signal with the existing 30-second admission
+// deadline. Follow-up callers omit the request and keep timeout alone.
+export function admissionBound(request?: AbortSignal): AbortSignal {
+  const deadline = AbortSignal.timeout(30_000);
+  return request === undefined
+    ? deadline
+    : AbortSignal.any([request, deadline]);
+}
+
+// Prefer request cancellation over a deadline-shaped refusal.
+export function throwIfRequestAborted(request?: AbortSignal): void {
+  if (request?.aborted) throw request.reason;
+}
+
 async function admitPublishedCompletion(
   source: PublishedSource,
   identity: string,
   completion: string,
   file: HistoricalReviewedFileFields,
+  signal?: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   const review = await publishedStoryReview(
     source,
     identity,
-    AbortSignal.timeout(30_000),
+    admissionBound(signal),
     completion,
   );
+  throwIfRequestAborted(signal);
   if (review?.kind !== "published")
     throw new RefusedRequest(
       409,
@@ -117,8 +133,10 @@ async function admitPublishedCompletion(
 export async function admitLandedRun(
   run: LandingReviewSource,
   file: HistoricalReviewedFileFields,
+  signal?: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
-  const review = await landedStoryReview(run, AbortSignal.timeout(30_000));
+  const review = await landedStoryReview(run, admissionBound(signal));
+  throwIfRequestAborted(signal);
   const landing = run.record.landing;
   if (review.kind !== "landed" || landing === undefined)
     throw new RefusedRequest(
@@ -142,6 +160,7 @@ export async function admitLandedRun(
 // Admit a historical file against a Published completion or landed run.
 export async function admitHistoricalReviewedFile(
   named: NamedHistoricalReviewedFile,
+  signal?: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   const { source, baseline, tree, path, oldPath } = named;
   const file: HistoricalReviewedFileFields = {
@@ -156,10 +175,12 @@ export async function admitHistoricalReviewedFile(
       named.identity,
       named.completion,
       file,
+      signal,
     );
   const { runs } = await reviewedLandedRuns(source, named.identity);
   return admitLandedRun(
     reviewedLandedRunByReference(runs, named.reference),
     file,
+    signal,
   );
 }

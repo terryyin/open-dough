@@ -38,7 +38,7 @@ Excluded:
   Default main landing case of `ad-hoc-session-commits.spec.ts` to unit
   cases. That work belongs to `SEED-413#renovate-remaining-dashboard-backend-unit-tests`.
 - Applying the story-launch refusal to file diff and file text. The
-  [separate product follow-up](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads)
+  separate product follow-up `SEED-413#refuse-story-launch-session-file-reads`
   owns that change.
 - Story-subject admission, beyond taking the handler's signal.
 - `Distribution/src/`.
@@ -224,7 +224,7 @@ re-exports onto `storyReviewInput.ts`. Commitments 9–14 observed in
 ### 3. A departed reader's file read stops its admission Git
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a session with one kept run or a retained landing, when a
 caller cancels a file diff or file text request, admission's Git read stops
@@ -248,6 +248,16 @@ Proof:
 - `npm run test:dashboard:backend -- review/ launches/agent-launch-follow-up-file`
   passes. That run covers both follow-up file specs.
 - `npm run typecheck:dashboard` and `npm run lint` pass.
+
+
+Accepted (uncommitted on `bc027b02`, after absorb of trunk exclusion
+wording): request `AbortSignal` reaches `admitReviewedFile` and session +
+historical admission; combined with `AbortSignal.timeout(30_000)`; request
+abort rethrown before refusal; follow-up keeps timeout-alone. Cases in
+`ad-hoc-review-file-signal.spec.ts` (sibling for file-size). Red/green +
+scratch anti-proofs, follow-up files, `review/`, typecheck, lint hold.
+Post-change refactor shared `admissionBound` / `throwIfRequestAborted`.
+Commitments 4, 6, 7, 8 observed in [source-review.md](source-review.md).
 
 ### 4. Launch-record scenarios are launch record builder steps
 

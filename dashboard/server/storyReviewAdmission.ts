@@ -21,28 +21,41 @@ import { storyWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 // session's kept launch records the adapter read.
 export async function admitReviewedFile(
   input: ReviewedFileInput,
+  signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   if ("kept" in input) {
     const { subject, reference, ...file } = input.read;
-    return admitSessionReviewedFile(subject, reference, file, input.kept);
+    return admitSessionReviewedFile(
+      subject,
+      reference,
+      file,
+      input.kept,
+      signal,
+    );
   }
   const { subject, reference, completion, ...file } = input.read;
   const { identity } = subject;
   const source = knownSource(subject.source);
   if (completion !== undefined)
-    return admitHistoricalReviewedFile({
-      source,
-      identity,
-      completion,
-      ...file,
-    });
+    return admitHistoricalReviewedFile(
+      {
+        source,
+        identity,
+        completion,
+        ...file,
+      },
+      signal,
+    );
   if (reference !== undefined)
-    return admitHistoricalReviewedFile({
-      source,
-      identity,
-      reference,
-      ...file,
-    });
+    return admitHistoricalReviewedFile(
+      {
+        source,
+        identity,
+        reference,
+        ...file,
+      },
+      signal,
+    );
   return {
     repository: (await storyWorkspace(source, identity)).workspace,
     ...file,

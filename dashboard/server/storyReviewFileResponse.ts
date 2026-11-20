@@ -56,7 +56,7 @@ export async function reviewedFileDiff(
     tree,
     path: file,
     oldPath,
-  } = await admitReviewedFile(input);
+  } = await admitReviewedFile(input, signal);
   try {
     const { stdout } = await runGit(
       [
@@ -94,7 +94,7 @@ export async function reviewedFileText(
     tree,
     path: file,
     oldPath,
-  } = await admitReviewedFile(input);
+  } = await admitReviewedFile(input, signal);
   const atBaseline = await textAtTree(
     repository,
     baseline,

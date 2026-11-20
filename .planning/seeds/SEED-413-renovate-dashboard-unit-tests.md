@@ -112,8 +112,8 @@ their execution's retrospective.
 - **Scope limits.** Moving `ad-hoc-session-commits-file-text.spec.ts` and the
   Default main landing case to unit cases stays with the
   [Done capture family](#renovate-remaining-dashboard-backend-unit-tests). The
-  [file-read follow-up](#refuse-story-launch-session-file-reads) owns the
-  story-launch refusal. Story subjects keep their admission path.
+  file-read follow-up `SEED-413#refuse-story-launch-session-file-reads` owns
+  the story-launch refusal. Story subjects keep their admission path.
 - **Plan.** [725](../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md)
 
 <a id="refuse-story-launch-session-file-reads"></a>
