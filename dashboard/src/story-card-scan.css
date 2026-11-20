@@ -46,7 +46,8 @@
   border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
 }
 
-/* Inspection and Review stay reachable but quieter than the current session. */
+/* Inspection and quiet Reviewed stay reachable but quieter than the current
+   session; the outstanding Mark as reviewed warning keeps its filled red. */
 .story-card-inspection-group {
   margin-top: var(--space-1);
   padding-top: var(--space-2);
@@ -54,13 +55,14 @@
 }
 
 .story-card-inspection-group .inspect-story,
-.story-card-inspection-group .start-launch-button {
+.story-card-inspection-group .start-launch-button:not(.story-review-state-needed) {
   color: var(--quiet);
   border-color: transparent;
   background: transparent;
 }
 
 .story-card-inspection-group .inspect-story:hover:not(:disabled),
-.story-card-inspection-group .start-launch-button:hover:not(:disabled) {
+.story-card-inspection-group
+  .start-launch-button:not(.story-review-state-needed):hover:not(:disabled) {
   background: var(--hover);
 }

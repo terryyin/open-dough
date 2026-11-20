@@ -92,7 +92,10 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       ).toHaveAccessibleDescription(
         new RegExp(`Being prepared.*${describedBy(openSessionNote).source}`),
       );
-      await expectSessionEntrySetOff(storyCardSessions(card(readyStory)));
+      await expectSessionEntrySetOff(
+        storyCardSessions(card(readyStory)),
+        "--accent-soft",
+      );
 
       await page.reload();
       await settled();
@@ -120,7 +123,10 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expect(
       takenStoryCard.getByRole("button", { name: /^Start / }),
     ).toHaveCount(0);
-    await expectSessionEntrySetOff(storyCardSessions(takenStoryCard).first());
+    await expectSessionEntrySetOff(
+      storyCardSessions(takenStoryCard).first(),
+      "--accent-soft",
+    );
     await page.reload();
     await expectMembership(page, { taken: [readyStory], backlog });
     await settled();

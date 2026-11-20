@@ -79,18 +79,16 @@ export async function expectReviewWarning(
   await expectControlContrast(action);
 }
 
-export async function expectQuietReviewed(
-  card: Locator,
-  quietColor: string,
-  surfaceColor: string,
-) {
+// Reviewed stays reachable but quieter than the outstanding review action:
+// quiet text on a transparent fill from the card's inspection group.
+export async function expectQuietReviewed(card: Locator, quietColor: string) {
   await expectReviewed(card, true);
-  await expect(reviewedButton(card)).toHaveCSS("color", quietColor);
-  await expect(reviewedButton(card)).toHaveCSS(
-    "background-color",
-    surfaceColor,
-  );
-  await expectReadableContrast(reviewedButton(card));
+  const button = reviewedButton(card);
+  // Leave the pointer off the control so its rest fill is observed, not :hover.
+  await button.page().mouse.move(0, 0);
+  await expect(button).toHaveCSS("color", quietColor);
+  await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expectReadableContrast(button);
 }
 
 // A story's saved state occupies one action, with no separate status badge.

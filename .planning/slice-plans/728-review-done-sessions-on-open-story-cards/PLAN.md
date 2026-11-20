@@ -143,6 +143,8 @@ the reading order and emphasis using existing card facts. Each fits the
 15-active-minute budget with focused proof. This review found no remaining
 slice-specific concern.
 
+**CI repair (scan emphasis).** Proofs now expect open-session accent wash and quieter Reviewed; outstanding Mark as reviewed keeps filled red.
+
 ## Execution complete
 
 Product advice: No priority change — delivered history-in-context and quieter
