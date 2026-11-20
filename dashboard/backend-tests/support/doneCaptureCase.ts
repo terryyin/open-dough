@@ -15,6 +15,7 @@ import {
 } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { runGit } from "../../server/gitRunner.ts";
 import {
   keptRecords,
   setRecordDoneAt,
@@ -34,9 +35,13 @@ const now = Math.floor(Date.now() / 1000) * 1000;
 export const minutesAgo = (minutes: number) =>
   new Date(now - minutes * 60_000).toISOString();
 
-// A history whose base revision predates every launch the case states.
-export const historyBeforeTheCase = () =>
+// A history whose base revision, holding `files`, predates every launch the
+// case states.
+export const historyBeforeTheCase = (
+  base: { files?: Readonly<Record<string, string>> } = {},
+) =>
   makeMe.aRepository.withRevision("base", {
+    ...base,
     backlog: null,
     committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
   });
@@ -167,6 +172,25 @@ export const inWorktree = (checkout: Checkout, workspace: string) => ({
 
 export const markDone = (record: LaunchRecord, at = minutesAgo(10)) =>
   setRecordDoneAt(source, record.session, at);
+
+// A Done whose capture waits in its ancestry read until released.
+export function aHeldDone(record: LaunchRecord, at = minutesAgo(10)) {
+  let release!: () => void;
+  let reached!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const reading = new Promise<void>((resolve) => {
+    reached = resolve;
+  });
+  const marking = setRecordDoneAt(source, record.session, at, {
+    readAncestry: (args, call) => {
+      reached();
+      return held.then(() => runGit(args, call));
+    },
+  });
+  return { reading, release, marking };
+}
 
 export const undoDone = (record: LaunchRecord) =>
   setRecordDoneAt(source, record.session, undefined);

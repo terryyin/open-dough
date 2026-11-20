@@ -3,16 +3,12 @@
 // with only its pins, and deletion leaves none.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { runGit } from "../../server/gitRunner.ts";
-import {
-  deleteRecord,
-  setRecordDoneAt,
-} from "../../server/launchRecordStore.ts";
+import { deleteRecord } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { sessionBranchPins } from "../../test-support/support/adHocReview.ts";
 import {
   aCheckout,
+  aHeldDone,
   anIsolatedLaunch,
   fileText,
   historyBeforeTheCase,
@@ -51,25 +47,6 @@ async function anIsolatedDraft() {
   return { baseline: checkout.base, record, commit, pins };
 }
 
-// A Done whose capture waits in its ancestry read until released.
-function aHeldDone(record: LaunchRecord, at: string) {
-  let release!: () => void;
-  let reached!: () => void;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const reading = new Promise<void>((resolve) => {
-    reached = resolve;
-  });
-  const marking = setRecordDoneAt(source, record.session, at, {
-    readAncestry: (args, call) => {
-      reached();
-      return held.then(() => runGit(args, call));
-    },
-  });
-  return { reading, release, marking };
-}
-
 test("reopening keeps the branch evidence and refuses the old file pair", async () => {
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   const first = await commit("first", 30);
@@ -95,7 +72,7 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
 test("a newer Done wins over a held stale capture with only its pins", async () => {
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   await commit("stale", 30);
-  const staleDone = aHeldDone(record, minutesAgo(10));
+  const staleDone = aHeldDone(record);
   let latest: string;
   try {
     await staleDone.reading;
@@ -117,7 +94,7 @@ test("a newer Done wins over a held stale capture with only its pins", async () 
 test("deleting a record while its Done capture is reading leaves no pins", async () => {
   const { record, commit, pins } = await anIsolatedDraft();
   await commit("abandoned", 30);
-  const done = aHeldDone(record, minutesAgo(10));
+  const done = aHeldDone(record);
   try {
     await done.reading;
     await deleteRecord(source, record.session);

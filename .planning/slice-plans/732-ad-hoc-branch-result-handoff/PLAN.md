@@ -140,7 +140,7 @@ Dashboard Test Support.
 ### 2. Done keeps the working tree it read, and a held capture excludes a later edit
 
 Type: Structure
-Status: planned
+Status: done
 
 Rewrite `ad-hoc-branch-worktree-result.spec.ts` on Vitest. Arrange staged,
 untracked, deleted and ignored files with `makeMe.aCheckoutWork`, or with
@@ -152,6 +152,13 @@ any native Done.
 | --- | --- |
 | Working-tree result | The case passes. The index, HEAD and file contents are unchanged after Done. The result lists staged, untracked and deleted files but not ignored files. The held edit is absent. The pins are `[baseline, tree, committedTip]`. The review survives `retireAdHocBranch`. |
 | The case discriminates | In a scratch edit, reading the tree after the ancestry check makes the case fail on the held edit. It passes once reverted. |
+
+Accepted proof: the Vitest case passes with every row's signal, and the
+scratch read-after-ancestry fails it on the held edit. `aHeldDone` now lives in
+`doneCaptureCase.ts`, and `historyBeforeTheCase` takes base `files`. Learning
+for slice 4: the isolated-launch setup (checkout with origin, worktree check,
+`anIsolatedLaunch`, `keep`) repeats in three specs; decide there whether it
+belongs in `doneCaptureCase.ts`, which is near 250 lines.
 
 ### 3. A declared branch's handoff is proven at `recordSessionBranchEntry`
 
