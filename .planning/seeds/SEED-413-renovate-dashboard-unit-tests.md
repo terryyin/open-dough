@@ -122,22 +122,31 @@ their execution's retrospective.
 
 **Identity:** SEED-413#refuse-story-launch-session-file-reads
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/726-direct-story-launch-file-reads-to-their-story/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bea5c06226a2ffbb401764af913d1f00585feb053edec78301d8c9a04fe5aeb6","plan":"dbf1d4e467385c136dd122eb0bcdf949f6cd6a7d48a5bc82c38ecf1749301aba"}}
 ```
 
-- **Goal.** A dashboard developer reading a story launch's diff or file text
-  by session is directed to open the file through its story, matching the
-  session review.
-- **Examples.** A well-formed session-addressed request for a kept story launch
-  gets HTTP 400 from both file endpoints with “This session belongs to a story
-  launch and is reviewed by its story.” It gets that answer whether it names a
-  launch reference or just a comparison pair, before comparison or repository
-  reads. A story-addressed request for the same valid comparison and file still
-  reads it. An ad hoc session still reads its valid files and gets 409 for a
-  mismatched kept pair.
-- **Scope.** Share the story-launch eligibility rule with session review and
-  prove the refusal through both file endpoints. Keep this behavior change
-  separate from the [handler contract correction](#narrow-ad-hoc-review-handler-contracts).
+- **Goal.** A dashboard reader who requests a story launch's diff or file text
+  by session learns to open the file through its story. The reply matches the
+  direction the session review already gives.
+- **Scope.** Resolve the kept launch by project, host, and session. Share the
+  session review's eligibility rule with both file endpoints. Use the kept
+  launch's recorded story identity to decide before either reference or
+  comparison-pair admission can read the comparison or its repository. Keep
+  existing query validation and the rules for unknown projects and sessions.
+- **Key examples.**
+  - Given a kept story launch, a well-formed session-addressed diff or text
+    request receives HTTP 400 with “This session belongs to a story launch
+    and is reviewed by its story.” The response is the same with a launch
+    reference or the comparison pair alone.
+  - Given that launch's captured comparison and a valid file, naming the
+    story identity and retained reference returns the diff or file text for
+    that same comparison.
+  - Given a standalone ad hoc session, its valid retained comparison and file
+    still return the diff or file text. A mismatched kept pair still gets
+    HTTP 409.
+- **Scope limits.** The [handler contract correction](#narrow-ad-hoc-review-handler-contracts)
+  owns input typing, cancellation, adapter placement, and test-builder cleanup.
+- **Plan.** [726](../slice-plans/726-direct-story-launch-file-reads-to-their-story/PLAN.md)
 
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
