@@ -16,10 +16,10 @@ async function disclose(scope: Locator, control: Locator): Promise<Locator> {
     (await control.count()) === 1 &&
     (await control.getAttribute("aria-expanded")) === "false"
   ) {
-    // Keyboard focus also reveals a paged-out Board column before its control
-    // is pressed, as the dashboard's normal cross-column keyboard route does.
-    await control.focus();
-    await control.click();
+    // Pressed from the keyboard, as the dashboard's normal cross-column
+    // keyboard route does: its focus slides a paged-out Board column into
+    // view, which a pointer click could miss mid-slide.
+    await control.press("Enter");
   }
   return scope;
 }
