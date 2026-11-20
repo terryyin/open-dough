@@ -81,10 +81,7 @@ const candidatesTab = views.getByRole("tab", {
   name: "Optimization Candidates",
   exact: true,
 });
-const record = page.getByRole("region", {
-  name: "Test Optimization Candidates",
-  exact: true,
-});
+const { record } = intentCandidates();
 const purpose = page.getByRole("region", { name: "Purpose", exact: true });
 const locationsFolder = page.getByRole("button", {
   name: `Expand ${pygardonFeatures.folder}`,
@@ -108,8 +105,7 @@ test("Intent enters on CI status; Optimization Candidates reads the shown revisi
   await expect.element(record).not.toBeInTheDocument();
   expect(reads, "no record is read before its view is chosen").toEqual([]);
 
-  await userEvent.click(candidatesTab);
-  await (await intentCandidates().isChosen()).isRecordedAt(revision);
+  await (await intentCandidates().choose()).isRecordedAt(revision);
   expect(reads).toEqual([revision]);
   await expect.element(locationsFolder).not.toBeInTheDocument();
   await expect.element(purpose).not.toBeInTheDocument();

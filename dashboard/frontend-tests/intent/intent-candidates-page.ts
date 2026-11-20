@@ -1,7 +1,7 @@
 // Intent's Optimization Candidates record as the reader operates it: the
-// view is chosen, the record names the revision it was recorded at, says
-// while it is being read, shows no failure, and one recorded entry opens its
-// source file in the reading (./intent-file-reading-page.ts).
+// reader chooses its view, the record names the revision it was recorded
+// at, says while it is being read, shows no failure, and one recorded entry
+// opens its source file in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
@@ -15,17 +15,18 @@ export function intentCandidates() {
     name: "Test Optimization Candidates",
     exact: true,
   });
+  const tab = page
+    .getByRole("tablist", { name: "Project Intent views" })
+    .getByRole("tab", { name: "Optimization Candidates", exact: true });
   const entry = (name: string) => record.getByRole("article", { name });
   const candidates = {
+    record,
+    async choose() {
+      await userEvent.click(tab);
+      return candidates.isChosen();
+    },
     async isChosen() {
-      await expect
-        .element(
-          page.getByRole("tab", {
-            name: "Optimization Candidates",
-            exact: true,
-          }),
-        )
-        .toHaveAttribute("aria-selected", "true");
+      await expect.element(tab).toHaveAttribute("aria-selected", "true");
       return candidates;
     },
     async isRecordedAt(revision: string) {

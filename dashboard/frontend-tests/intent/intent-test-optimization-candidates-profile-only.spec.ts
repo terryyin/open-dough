@@ -3,7 +3,6 @@
 // the profile-only note names its mechanism, links it at the shown revision
 // and precedes its entries.
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import type { PublishedWork } from "../../src/publishedWork.ts";
@@ -21,13 +20,7 @@ const revision = "97".repeat(20);
 const work: PublishedWork = makeMe.aPublishedWork.ofPygardon
   .at(revision)
   .please();
-const candidatesTab = page
-  .getByRole("tablist", { name: "Project Intent views" })
-  .getByRole("tab", { name: "Optimization Candidates", exact: true });
-const record = page.getByRole("region", {
-  name: "Test Optimization Candidates",
-  exact: true,
-});
+const { record } = intentCandidates();
 
 test("Intent reads a four-section record and the note naming its profile-only mechanism without presenting its leading pass summary", async () => {
   const mechanism =
@@ -52,9 +45,8 @@ test("Intent reads a four-section record and the note naming its profile-only me
     );
   const { readSource } = publishedWithCandidates(passSummaryRecord);
   await mountPageIntentReading(readSource, work);
-  await userEvent.click(candidatesTab);
 
-  await intentCandidates().shows("e2e-batch-cold-start");
+  await (await intentCandidates().choose()).shows("e2e-batch-cold-start");
   expect(textsOf(record.getByRole("heading", { level: 3 }))).toEqual([
     "Test Optimization Candidates",
     "Pending candidates",

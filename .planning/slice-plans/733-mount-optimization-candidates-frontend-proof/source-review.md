@@ -23,7 +23,7 @@ threshold.
 | 4a | When the reader opens Optimization Candidates, they see the record for the shown revision, with fields in order (Key examples; Scope field order) | slice 1 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates.spec.ts first test: isRecordedAt(revision), reads==[revision], ordered headings and findingEntryFields labels |
 | 4b | That record spans the full reading width (Key examples; Scope tab layout) | slice 1 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates.spec.ts first test: tabpanel x and width equal the Project Intent region |
 | 5 | Revision evidence links are present and work for the shown record (Scope: revision evidence links) | slice 1 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates.spec.ts first test: evidence link href pinned to blob/<revision>; sha:path stays text |
-| 6a | A live record shows its own fields (Key examples; Scope record formats) | slice 2 | |
+| 6a | A live record shows its own fields (Key examples; Scope record formats) | slice 2 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates-live.spec.ts: five fact terms and definitions in order, source opens in Purpose; live None. reads as no live candidates without a failure |
 | 6b | A profile-only mechanism shows its own fields (Key examples; Scope record formats) | slice 1 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates-profile-only.spec.ts: section order, mechanism note and pinned link before its entry, no pass summary |
 | 7a | An absent record has its own wording (Key examples; Scope record availability) | slice 3 | |
 | 7b | An empty record has its own wording | slice 3 | |

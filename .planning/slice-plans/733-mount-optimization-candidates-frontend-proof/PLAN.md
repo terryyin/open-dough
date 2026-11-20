@@ -93,7 +93,7 @@ A scratch record-read-on-mount change should fail the initial-view assertion.
 ### 2. A live record shows its own facts and empty state
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `intent-test-optimization-candidates-live` to mounted Chromium. Render
 the real live sections from MakeMe records. Keep source opening at the
