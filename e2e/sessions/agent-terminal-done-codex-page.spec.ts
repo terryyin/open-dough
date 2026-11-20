@@ -11,8 +11,9 @@ import {
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
-  parts,
   sessionStateOf,
+  doneSessionsOnCard,
+  storyCardDoneSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTerminalControl,
@@ -70,10 +71,11 @@ for (const attached of [false, true]) {
       ],
     });
     const { card, settled } = await openStoryColumnsJourney(page, journey);
-    const listed = storyCardSessions(card(notRefinedStory));
-    const recent = parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: native.threadId });
+    const story = card(notRefinedStory);
+    const listed = storyCardSessions(story);
+    const doneOnCard = storyCardDoneSessions(story).filter({
+      hasText: native.threadId,
+    });
     const panel = terminalPanel(page);
     await expect(sessionStateOf(listed)).toHaveText(
       attached
@@ -93,18 +95,20 @@ for (const attached of [false, true]) {
       expect(codexLines(native, pid)).toEqual([]);
     } else await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
-    await expect(sessionStateOf(recent)).toHaveText("Done");
-    await expect(recent).toContainText(
+    const doneEntry = await doneSessionsOnCard(story, native.threadId);
+    await expect(sessionStateOf(doneEntry)).toHaveText("Done");
+    await expect(doneEntry).toContainText(
       `Named done-${stored(dashboard.home)[0]?.session.name ?? ""}`,
     );
     const doneAt = stored(dashboard.home)[0]?.doneAt;
     expect(doneAt).toBeDefined();
     await page.reload();
     await settled();
-    await expect(sessionStateOf(recent)).toHaveText("Done");
+    const retained = await doneSessionsOnCard(story, native.threadId);
+    await expect(sessionStateOf(retained)).toHaveText("Done");
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     codexTerminalMode(native, "fail");
-    await openTerminalControl(recent).click();
+    await openTerminalControl(retained).click();
     await expect(panel.getByRole("status")).toContainText(
       "The session could not be attached",
     );
@@ -116,7 +120,7 @@ for (const attached of [false, true]) {
     );
     await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
     await expect(listed).toHaveCount(1);
-    await expect(recent).toHaveCount(0);
+    await expect(doneOnCard).toHaveCount(0);
     expect(
       codexAttaches(native).every(
         (attachment) => attachment.args.at(-1) === native.threadId,
@@ -168,10 +172,11 @@ test("native interrupt refusal remains Working with retained local intent and di
     message: "Owner denied native interruption.",
   };
   const { card } = await openStoryColumnsJourney(page, journey);
-  const listed = storyCardSessions(card(notRefinedStory));
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: native.threadId });
+  const story = card(notRefinedStory);
+  const listed = storyCardSessions(story);
+  const doneOnCard = storyCardDoneSessions(story).filter({
+    hasText: native.threadId,
+  });
   const panel = terminalPanel(page);
   await openTerminalControl(listed).click();
   await expect(terminalScreenParts(panel).rows).toContainText(
@@ -180,19 +185,21 @@ test("native interrupt refusal remains Working with retained local intent and di
   await markDoneAnyway(panel);
   await expect(panel).toHaveCount(0);
   await expect(listed).toHaveCount(0);
-  await expect(sessionStateOf(recent)).toHaveText("Working");
-  await expect(recent).not.toContainText("Named done-");
-  await expect(recent).toContainText("Intended name done-");
-  await expect(recent.getByRole("status").first()).toContainText(
+  const doneEntry = await doneSessionsOnCard(story, native.threadId);
+  await expect(sessionStateOf(doneEntry)).toHaveText("Working");
+  await expect(doneEntry).not.toContainText("Named done-");
+  await expect(doneEntry).toContainText("Intended name done-");
+  await expect(doneEntry.getByRole("status").first()).toContainText(
     "Local done mark retained. Codex stop failed: Owner denied native interruption.",
   );
   const problem = stored(dashboard.home)[0]?.doneProblem;
   expect(problem).toContain("Owner denied native interruption");
   await reloadUntilRead(page);
-  await expect(sessionStateOf(recent)).toHaveText("Working");
-  await expect(recent).toContainText(problem ?? "missing diagnostic");
+  const retained = await doneSessionsOnCard(story, native.threadId);
+  await expect(sessionStateOf(retained)).toHaveText("Working");
+  await expect(retained).toContainText(problem ?? "missing diagnostic");
   codexTerminalMode(native, "review");
-  await openTerminalControl(recent).click();
+  await openTerminalControl(retained).click();
   await expect(terminalScreenParts(panel).rows).toContainText(
     "Hooks need review",
   );
@@ -203,7 +210,7 @@ test("native interrupt refusal remains Working with retained local intent and di
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();
   await expect(listed).toHaveCount(1);
-  await expect(recent).toHaveCount(0);
+  await expect(doneOnCard).toHaveCount(0);
   await expect(listed).not.toContainText("Owner denied native interruption");
   expect(native.observations.get(native.threadId)?.turns).toEqual([
     { id: "refused-turn", status: "inProgress" },

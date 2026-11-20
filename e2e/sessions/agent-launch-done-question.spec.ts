@@ -18,6 +18,7 @@ import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
+  doneSessionsOnUnfinishedCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
@@ -163,12 +164,10 @@ test("a session not reported complete asks first with its situation; Keep open a
     await markDone(question);
 
     await expect(entryA).toHaveCount(0);
-    const recentA = parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: titleA });
-    await expect(sessionStateOf(recentA)).toHaveText("Done");
-    await expect(recentA).toContainText(`Intended name ${doneName}`);
-    await expect(recentA).toContainText(
+    const doneA = await doneSessionsOnUnfinishedCard(page, titleA);
+    await expect(sessionStateOf(doneA)).toHaveText("Done");
+    await expect(doneA).toContainText(`Intended name ${doneName}`);
+    await expect(doneA).toContainText(
       "Claude Code rename failed: The session was still working when the wait ended.",
     );
     expect(dashboard.claudeAttaches().slice(attachesBefore)).toEqual([]);
@@ -225,10 +224,8 @@ test("a completed report marks done at once only while the session neither works
     await markDone(entryA);
 
     await expect(entryA).toHaveCount(0);
-    const recentA = parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: titleA });
-    await expect(sessionStateOf(recentA)).toHaveText("Done");
+    const doneA = await doneSessionsOnUnfinishedCard(page, titleA);
+    await expect(sessionStateOf(doneA)).toHaveText("Done");
     expect(dashboard.claudeStopCalls().slice(before)).toEqual([
       expect.objectContaining({ argv: ["stop", shortId] }),
     ]);

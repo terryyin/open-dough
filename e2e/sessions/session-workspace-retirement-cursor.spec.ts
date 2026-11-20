@@ -9,11 +9,11 @@ import { test, expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  parts,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
+  doneSessionsOnUnfinishedCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -86,11 +86,13 @@ test("retired Cursor workspace opens retained report without opening terminal an
   expect(doneAt).toBeDefined();
   await reloadUntilRead(page);
   await settled();
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: record.session.sessionId });
-  await expect(recent).toContainText("Done");
-  await readFinalReport(recent);
+  const doneEntry = await doneSessionsOnUnfinishedCard(
+    page,
+    notRefinedStory,
+    record.session.sessionId,
+  );
+  await expect(doneEntry).toContainText("Done");
+  await readFinalReport(doneEntry);
   await expect(reportText).toHaveText(report);
   await expect(terminalPanel(page)).toHaveCount(0);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);

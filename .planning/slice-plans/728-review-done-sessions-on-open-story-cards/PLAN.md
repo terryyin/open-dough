@@ -77,6 +77,10 @@ changes card action, typecheck, lint. Accessible list label is `Done history`
 `storyCardDone` class module, `story-card-done.css`, disclosure page-object
 helpers.
 
+**CI repair.** E2E proofs that still looked under Recently done for unfinished
+stories now observe the card Done disclosure instead; product placement unchanged.
+
+
 | Promise | Owning browser proof |
 | --- | --- |
 | No disclosure with zero Done sessions. Two Done sessions and a current session give a collapsed count of two, then accessible rows and actions when expanded. Closing leaves focus on the disclosure and hides the rows from keyboard navigation. | Mount the owning card/history UI with typed same-project retained launches, current session and existing Session entry providers. Exercise keyboard expansion and collapse and the rendered row count and actions. Use a separate case with no Done sessions. |
