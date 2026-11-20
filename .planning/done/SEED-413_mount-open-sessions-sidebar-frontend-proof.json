@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#mount-open-sessions-sidebar-frontend-proof",
+  "title": "Prove open Sessions sidebar readings in mounted frontend tests",
+  "completedAt": "2026-11-20T13:02:21.366Z",
+  "developer": "Terry Yin",
+  "agent": "Sola-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage report\n\n## Selection\n- **Story:** SEED-413#mount-open-sessions-sidebar-frontend-proof\n- **Checked revision:** `bd383e4c39a9c6e6c8befc4c90a4dabf9d8f2115`\n- **Promise:** “The age changes on the existing tick and shows the largest whole unit.”\n- **Fault:** Removed `setNow(Date.now())` from `useTickingNow` interval callback.\n- **Focused command:** `caffeinate -s -i env CI=1 npm run --silent test:dashboard:frontend -- sessions-sidebar-row.spec.ts --workers=1 --reporter=list`\n\n## Runs\n1. Baseline: 2 passed.\n2. Faulted: age case failed (`expected '<1m' to be '1m'`) at sessions-sidebar-row.spec.ts after tick advance.\n3. Restored: 2 passed; scratch removed.\n\n## Verdict\n**Caught.** Maintained assertion `expect(elapsedOf(shortEntry).textContent).toBe(\"1m\")` in `sessions-sidebar-row.spec.ts` failed on independently observed wrong tick behavior.\n\n## Next proof action\nNo new proof action — relocated mounted assertion already catches this tick-path fault.\n\n## Disposition (wrap-up)\nChecked revision `bd383e4c39a9c6e6c8befc4c90a4dabf9d8f2115`; verdict Caught; no follow-up.\n"
+  }
+}

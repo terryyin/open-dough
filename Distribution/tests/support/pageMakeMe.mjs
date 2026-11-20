@@ -7,13 +7,30 @@ import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { intentCiStatusMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
+import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import {
   ObservedLaunchBuilder,
   SessionStateBuilder,
 } from "./launchObservationTestData.mjs";
+import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
 
-/** @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & { readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder, readonly aLaunchRecord: LaunchRecordBuilder, readonly aSessionState: SessionStateBuilder, readonly anObservedLaunch: ObservedLaunchBuilder }} PageMakeMe */
+/**
+ * @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe &
+ *   import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe &
+ *   import("./ciProofTestData.mjs").CiProofMakeMe &
+ *   import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe &
+ *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & {
+ *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
+ *     readonly aLaunchRecord: LaunchRecordBuilder;
+ *     readonly aSessionState: SessionStateBuilder;
+ *     readonly anObservedLaunch: ObservedLaunchBuilder;
+ *     readonly aMachineAnswer: MachineAnswerBuilder;
+ *     readonly aHostStatus: import("./factBuilder.mjs").FactBuilder<
+ *       import("../../../dashboard/src/hostStatus.ts").HostStatus
+ *     >;
+ *   }} PageMakeMe
+ */
 
 /** @type {PageMakeMe} */
 export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
@@ -28,7 +45,7 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
       return new TestOptimizationCandidatesRecordBuilder();
     },
   },
-  // launchMakeMe.mjs's aLaunchRecord extends this builder with Node-only steps.
+  // Node-free launch record; Node-only reviewed-session examples stay on makeMe.mjs.
   aLaunchRecord: {
     enumerable: true,
     get() {
@@ -45,6 +62,18 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new ObservedLaunchBuilder();
+    },
+  },
+  aMachineAnswer: {
+    enumerable: true,
+    get() {
+      return new MachineAnswerBuilder();
+    },
+  },
+  aHostStatus: {
+    enumerable: true,
+    get() {
+      return { with: copyFacts };
     },
   },
 });

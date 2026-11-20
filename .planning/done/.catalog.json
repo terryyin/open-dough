@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_mount-open-sessions-sidebar-frontend-proof.json",
+      "identity": "SEED-413#mount-open-sessions-sidebar-frontend-proof",
+      "completedAt": "2026-11-20T13:02:21.366Z",
+      "blob": "a0aa9239a5cf626b45744a46b1a834f9af66e896"
+    },
+    {
       "fileName": "SEED-419_keep-done-session-placement-in-one-rule.json",
       "identity": "SEED-419#keep-done-session-placement-in-one-rule",
       "completedAt": "2026-11-20T12:48:48.317Z",

@@ -571,47 +571,6 @@ Split from the [later frontend families](#renovate-later-dashboard-frontend-unit
   frontend tests still use both engines.
 - **Plan.** [733](../slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md)
 
-<a id="mount-open-sessions-sidebar-frontend-proof"></a>
-
-### Prove open Sessions sidebar readings in mounted frontend tests
-
-**Identity:** SEED-413#mount-open-sessions-sidebar-frontend-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/734-mount-open-sessions-sidebar-frontend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5c0962da863baf6af3dbd979f8dd33c38b7996633dbe65d9c0b6fc88816b0357","plan":"6bcf517712769c27597358af209750f4ec651de2d9124496e3b6bd164fc045c5"}}
-```
-
-Split from the [later frontend families](#renovate-later-dashboard-frontend-unit-test-families).
-
-- **Goal.** Dashboard developers can check how the Sessions sidebar presents
-  open sessions and machine status from typed inputs in Vitest Chromium.
-  Four specs currently build the dashboard and substitute machine and host
-  reads for five cases about what the sidebar displays.
-- **Scope.** Move open-session ordering and its attention badge, one-line
-  title and tooltip, elapsed time, state edges and hidden labels, and
-  independently available session and host figures. Existing E2E journeys
-  own polling, cross-project navigation, focus return, and touch behavior.
-  This story owns these four frontend specs within the session renovation
-  coordinated with [SEED-341](SEED-341-simplify-session-tests.md#simplify-remaining-session-tests).
-  Recently done and Running Cursor, shared sidebar layout changes, terminal
-  and report interactions, and backend observation stay with their existing
-  owners.
-- **Key examples.** Two sessions need the developer, so their older launch
-  comes first, then the remaining open sessions newest first. A working row
-  changes to Needs input and moves to its launch position in the attention
-  group as the badge rises. A long title truncates on one line beside the
-  elapsed age. Its tooltip retains the state, project, workflow and launch
-  time. The age changes on the existing tick and shows the largest whole
-  unit. The left edge and hidden words distinguish working, attention,
-  halted and unsettled states. If disk is unread, CPU and the counts still
-  show. If the sessions are unread, host figures still show on their own.
-- **Effort hypothesis.** M, five slices. The view already has typed session
-  observations and status. The open list needs a narrow render seam and
-  Chromium must retain the real row layout and elapsed tick.
-- **Evaluation and stopping point.** Compare the focused selection at two
-  workers with the legacy baseline, and remove unused arrangement while
-  keeping the shared E2E readers. The open-list checks stand on their own.
-- **Plan.** [734](../slice-plans/734-mount-open-sessions-sidebar-frontend-proof/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -635,9 +594,8 @@ SEED-404's timing goal and SEED-301's Intent MakeMe work.
 each view owns. First, the
 [Optimization Candidates family](#mount-optimization-candidates-frontend-proof)
 extends the existing revision mount to the remaining candidate cases. Next,
-the [open Sessions sidebar family](#mount-open-sessions-sidebar-frontend-proof)
-takes only the open list and its figures, whose E2E wiring already has owners.
-Both stand independently. Continue with the rest of Intent and Sessions. Use
+the open Sessions sidebar family has landed as mounted Vitest Chromium proof.
+Continue with the rest of Intent and Sessions. Use
 the completed
 [Project Intent revision family](#project-intent-revision-family-example)
 as the reference for the remaining migrations. Keep each legacy case until
