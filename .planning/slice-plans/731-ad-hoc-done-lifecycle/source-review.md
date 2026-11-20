@@ -17,10 +17,10 @@ The reviewer retained the earlier boundary-server, reporting CLI and reflog-shim
 | 7 | That retry does not read the checkout again. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, retry keeps former failed capture despite eligible real Git work, and guard-removal mutation supplies an unexpected run |
 | 8 | When the dashboard closes its Done marks during a quiet report’s native rename wait, the rename stops. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, observed rename AbortSignal is aborted after awaiting close |
 | 9 | When the dashboard abandons that rename wait, the record keeps the commits read at that Done. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, keptSession after close holds receipt Done and original-to-typo Git run |
-| 10 | While the latest Done’s capture is unfinished, the record refuses review of the previous capture. | slice 4 | |
-| 11 | While that capture is unfinished, the record refuses access to the previous review’s files. | slice 4 | |
-| 12 | While that capture is unfinished, the record does not inherit the previous capture’s “no commits” finding. | slice 4 | |
-| 13 | The capture excludes a commit that arrives after Done reads the tip. | slice 4 | |
+| 10 | While the latest Done’s capture is unfinished, the record refuses review of the previous capture. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts, stale real pair is refused by default and indexed review |
+| 11 | While that capture is unfinished, the record refuses access to the previous review’s files. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts, both typed file handlers reject the stale comparison at status 409 |
+| 12 | While that capture is unfinished, the record does not inherit the previous capture’s “no commits” finding. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts, a stale empty capture yields the pending-capture explanation |
+| 13 | The capture excludes a commit that arrives after Done reads the tip. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts, real later Git commit exists while resolved-tip reader keeps only the prior pair |
 | 14 | A launch in a checkout Git cannot read keeps no start. | slice 6 | |
 | 15 | Deleting a kept record removes that record’s session-run references. | slice 5 | |
 | 16 | Deleting a kept record removes that record’s landing references. | slice 5 | |

@@ -209,7 +209,7 @@ See `open-dough/evidence/731-s3-refactor-return.md`.
 ### 4. A later Done never shows a stale capture, and a commit after Done's tip is excluded
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the earlier-read MakeMe step and split `readSessionCommits`. Rewrite
 `ad-hoc-session-commits-pending-done.spec.ts` on Vitest as two review-only
@@ -220,6 +220,16 @@ cases on the typed review and one `readSessionCommits` case. Delete
 | --- | --- |
 | Stale capture example; later commit excluded | All three cases pass. |
 | The cases discriminate | With `sessionCommitsAtDone` in `src/sessionCommits.ts` ignoring `readAt` in a scratch edit, both review cases fail. With the split reading the checkout's tip instead of its `head` input, the exclusion case fails. All pass once reverted. |
+
+Accepted evidence: two Node review cases refuse an earlier pair and both
+file forms, and an older empty capture stays unavailable while Done is
+pending. The third case keeps only the real Git pair ending at the supplied
+earlier head. Ignoring read time makes both review cases fail. Reading the
+checkout tip again makes the capture case fail. Both scratch edits were
+restored. Fifty consumer cases pass, including branch handoff, with 23
+affected cases passing after the optional MakeMe read-time refinement. The
+last consumer of `launchReporting` moved and the method was retired. See
+`open-dough/evidence/731-slice-4-return.md`.
 
 ### 5. A kept record releases only its own references, even with its repository gone
 

@@ -5,7 +5,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch, markDone } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { launchedAdHoc } from "./reportedLaunch.ts";
 import { commitAt } from "./sessionCheckoutGit.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
@@ -17,10 +16,6 @@ export class DefaultMainSessionWork {
 
   private get checkout() {
     return this.origin.project;
-  }
-
-  launchReporting(instruction: string) {
-    return launchedAdHoc(this.dashboard, this.origin, instruction);
   }
 
   commit(at: string, file: string, content?: string) {
