@@ -73,84 +73,6 @@ and deleted `test-support` surface together under
 
 ## Story decomposition
 
-<a id="arrange-done-ad-hoc-observation-and-publication"></a>
-
-### Arrange Done ad hoc sessions directly for delivery observation and publication
-
-**Identity:** SEED-413#arrange-done-ad-hoc-observation-and-publication
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/730-arrange-done-ad-hoc-observation-and-publication/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a7fddb499f7a1018e5ebd2fa47045e8bb557cef34668cd3086ff41826a0152a","plan":"e987abe99a845065b624e8ab8478a4d2a66bf224929fb42a744e4a88b583bc72"}}
-```
-
-Correction of `SEED-413#remove-ad-hoc-done-helper`, whose execution inlined
-`markAdHocDone` into 25 call sites. Each repeated three lines (list the
-session `done-live`, post Done, assert 200), so the same Done ritual ran in
-every case. Terry rejected the result: when Done is the topic, it should not
-need that many tests, and when it is only a precondition, the case should
-compose the state directly.
-
-Done so far, in the commits "Arrange ad hoc branch results from kept records
-and mark Done directly" and "Check manual delivery at Done from kept records":
-the 16 cases where Done is the topic are now plain
-Vitest. They are branch attribution, branch result and its release, and the
-manual delivery check at Done. Each keeps a MakeMe isolated record, works in
-real Git, and marks Done once through the production `setRecordDoneAt`, as
-the Done capture family does. `markDone` from `agentLaunchBoundary.ts` and
-`claudeSessionBecomes(…, "done-live")` remain only where Done is a
-precondition.
-
-- **Goal.** Give dashboard maintainers faster, compile-time-checked proof
-  of how a Done ad hoc session acquires and retains a delivery. Arrange the
-  session from kept records and mark it with `setRecordDoneAt`, so each case
-  starts at the observation or publication it proves.
-- **Scope.** Replace the nine launch/list/HTTP Done arrangements across ten
-  cases with plain Node Vitest cases using MakeMe records, the production
-  handlers and real Git. The observation cases are in
-  `review/ad-hoc-manual-landing-observation.spec.ts`,
-  `review/ad-hoc-manual-landing-observation-retry.spec.ts`, and
-  `review/ad-hoc-manual-landing-observation-lifecycle.spec.ts`. The publication
-  cases are the prepared-receipt case in
-  `review/ad-hoc-manual-landing-precedence.spec.ts`,
-  `review/ad-hoc-session-comparisons.spec.ts`, and both cases in
-  `launches/agent-launch-session-branch-landing.spec.ts`. Give observation's
-  revision memo an explicit owner and expose the publisher's prepare and
-  record handling as a typed entry. Keep the live Board read and revision
-  check paths asynchronous, and keep the sender's exact retained comparison
-  and retry in the installed publication proof.
-- **Deferred scope.** The early quiet Done and later native binding case in
-  the precedence spec remains with the later backend families, as do the
-  branch-result race and quiet retry, session-commits review, and general
-  Done lifecycle cases. Retire each `adHocReview.ts` helper when its last
-  consumer moves. The later families still use `launchIsolatedReview` and
-  `keptAdHocRecord`.
-- **Key examples.**
-  - A kept branch has a fixed comparison at Done. The first Board read after
-    restart discovers its actual trunk merge even after a later advance.
-    Both comparisons and their file reads survive branch retirement and an
-    offline remote, with the original Done time intact.
-  - A check at an unchanged revision discovers a newly Done session. A
-    failed validation retries at the same revision while another session's
-    delivery settles. Repeated observations keep one receipt and pin pair.
-  - While validation is held, deletion or expiry wins. After release the
-    other session settles, the removed record stays absent, and only the
-    surviving session retains pins until it too expires.
-  - A publisher-prepared pair survives an intervening Done and records the
-    exact receipt. After delivery and retirement, the same Done session opens
-    the delivered rename and its different working-tree comparison.
-  - A declared worktree publishes only for its own launch. The pair is kept
-    before push and the exact retry after Done and retirement reads the same
-    receipt and file. A blank Default main launch can also declare a landing
-    and keeps its pins until record deletion.
-- **Evaluation.** Preserve each selected case's inputs, result and refusal
-  assertions. Verify that the replacements call the typed Done seam without
-  a launch, fake finished-session listing or HTTP Done step. Compare focused
-  timing and the test-support calls removed against the prior cases under
-  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-
-- **Accepted timing.** Terry accepted the delivered timing on 2026-11-20.
-  The migrated cases' local timeout margin under load moves to
-  [Bring the Done capture family's cases to 100–200 ms](#optimize-done-capture-family-cases).
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -205,10 +127,8 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
   1. The rest of ad hoc review, which retires `adHocReview.ts`. The branch
-     result, its handoff, the Done lifecycle and kept-record release already
-     run on Vitest. The observation and publication cases belong to
-     [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication).
-     "A newer quiet Done takes precedence over a manual mark still capturing
+     result, its handoff, the Done lifecycle, kept-record release, delivery
+     observation and publication already run on Vitest. "A newer quiet Done takes precedence over a manual mark still capturing
      its branch" stays here, with the developer's native Done in
      `sessions/`. So does the launch-input wiring case of
      `ad-hoc-session-branch-handoff.spec.ts`.

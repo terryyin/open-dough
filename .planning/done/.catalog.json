@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_arrange-done-ad-hoc-observation-and-publication.json",
+      "identity": "SEED-413#arrange-done-ad-hoc-observation-and-publication",
+      "completedAt": "2026-11-20T11:48:49.835Z",
+      "blob": "9d8a4ca30af55c4793a14fcff8110c43ffd291da"
+    },
+    {
       "fileName": "SEED-413_ad-hoc-branch-result-handoff.json",
       "identity": "SEED-413#ad-hoc-branch-result-handoff",
       "completedAt": "2026-11-20T10:44:20.373Z",
