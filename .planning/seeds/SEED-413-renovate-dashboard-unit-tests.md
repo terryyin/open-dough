@@ -73,49 +73,6 @@ and deleted `test-support` surface together under
 
 ## Story decomposition
 
-<a id="narrow-ad-hoc-review-handler-contracts"></a>
-
-### Narrow the ad hoc review handlers' contracts to what they read
-
-**Identity:** SEED-413#narrow-ad-hoc-review-handler-contracts
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ce81021981f609bd52b2d1b4133e092749258fa0d76f60347e0ed2622a7398b5","plan":"1038a1fd7f85069b2047b7378a4bdb84fbcffbb155b2428bbbaa777e45055b8d"}}
-```
-
-Correction of the typed ad hoc review handlers
-(`SEED-413#renovate-dashboard-backend-unit-tests`, recoverable at
-`b3b57f9f92ff351d1abf1df189e994954fc3e4f8:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md`) after
-their execution's retrospective.
-
-- **Goal.** Developers who call the ad hoc review handlers, or copy them as
-  the reference family, get a contract that holds only what each read uses,
-  so a case cannot build input the handler ignores or refuses. A departed
-  reader's file read also stops its admission Git reads. The wire answers
-  every non-aborted read as it does today.
-- **Scope.**
-  - A session review read and a session file read get their own typed
-    shapes. These carry no story-only field. The handler's copy of the
-    adapter's refusal for a published completion on a session read is
-    deleted.
-  - Admission takes the file handlers' request signal and keeps each existing
-    30-second deadline. Request cancellation stops the read. Expiry while the
-    caller stays active keeps the existing refusal. Follow-up admission also
-    keeps its existing deadlines.
-  - Placement and naming: the reading of process-wide stores sits in adapter
-    modules. File admission is separate from the range read's adapter. The
-    admitted-file type is named for every file read, the session lookup is
-    written once, and the stale comment is fixed. The backend README points
-    at the moved module.
-  - The landed ad hoc session and the session with a kept run become
-    `LaunchRecordBuilder` steps, and the session review read builder
-    composes them.
-- **Scope limits.** Moving `ad-hoc-session-commits-file-text.spec.ts` and the
-  Default main landing case to unit cases stays with the
-  [Done capture family](#renovate-remaining-dashboard-backend-unit-tests). The
-  file-read follow-up `SEED-413#refuse-story-launch-session-file-reads` owns
-  the story-launch refusal. Story subjects keep their admission path.
-- **Plan.** [725](../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md)
-
 <a id="refuse-story-launch-session-file-reads"></a>
 
 ### Direct story-launch file reads to their story
@@ -137,7 +94,7 @@ their execution's retrospective.
   mismatched kept pair.
 - **Scope.** Share the story-launch eligibility rule with session review and
   prove the refusal through both file endpoints. Keep this behavior change
-  separate from the [handler contract correction](#narrow-ad-hoc-review-handler-contracts).
+  separate from the handler contract correction `SEED-413#narrow-ad-hoc-review-handler-contracts`.
 
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
