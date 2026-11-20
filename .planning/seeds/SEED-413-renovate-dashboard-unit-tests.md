@@ -184,6 +184,9 @@ landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-re
 ### Test Review diff reading's data logic directly and drop "mounted" from frontend test names
 
 **Identity:** SEED-413#reduce-review-diff-reading-to-logic-cases
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/744-reduce-review-diff-reading-to-logic-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"90187512643b11598fc9981b2275ea684797ad83d5ce8e3947a99c0918051aa1","plan":"8018ccfe97b91df64a91501c50dfb12b99b336825dec33b816fff937e9094963"}}
+```
 
 Requested by Terry on 21 November 2026 after
 SEED-413#mount-story-review-diff-reading landed (`2d1e73020`).
@@ -214,10 +217,47 @@ SEED-413#mount-story-review-diff-reading landed (`2d1e73020`).
      names the slow mounted cases (`syntax-mounted` 672 ms, `syntax-arrival`
      473 ms, maximum attempt 761 ms); measure the renamed Intent files the
      same way.
-- **Acceptance.** No frontend unit test file name contains `mounted`; the
-  grammar-selection and other audited data rules are proved without a
-  mount; every case in the touched files has a median of three attempts
-  under 500 ms, recorded per case as in the baseline table.
+  4. Boundaries. `test-harness/mounted-dashboard.spec.ts` tests the
+     mounted-dashboard harness itself, so its name names its subject and
+     stays. Case and helper modules beside the renamed specs that name their
+     runner (`mountedComparison*Cases.ts`, `mountedFileDiff.ts`,
+     `mountedReviewDiffPage.ts`) follow the same naming rule. The shared
+     harness under `dashboard/test-support/mounted-dashboard/` is out of
+     scope. Rendering promises that the reduced cases leave, such as
+     underline decoration, plain copy and grammars that actually load for
+     every selected language, keep one mounted or logic case each rather
+     than disappearing with the reduced cases.
+- **Key examples.**
+  - `a.mts` selects TypeScript, `A.java` Java, `settings.yml` YAML, and
+    `notes.txt` no grammar, read from the path alone with nothing mounted.
+  - A rename from `old.txt` to `new.ts` selects TypeScript from the new
+    path; `new.txt` renamed from `old.ts` selects none.
+  - `scripts/setup.test` with hint `shell` selects shell; with hint
+    `unfamiliar-language` it selects none; `lib/app.ts` with hint `shell`
+    keeps TypeScript because the path wins.
+  - `const limit = 20;` changed to `const limit = 25;` emphasizes `20` as
+    deleted and `25` as inserted; a low-similarity rewrite, a pure addition
+    and a several-hundred-line block emphasize nothing. These read as
+    ranges from the emphasis rule, not from rendered marks.
+  - A removed line reads its tokens from the old side and every other line
+    from the new side; a comment opened above a hunk styles the hunk's
+    lines. This is checked over token lines, while colour contrast and
+    appearance stay mounted.
+  - `story-review-diff-syntax-appearance-mounted.spec.ts` and the built-app
+    `story-review-diff-syntax-appearance.spec.ts` end with names that say
+    what each checks, such as in-diff token appearance versus agreement with
+    Intent's source reading, and no name says `mounted`.
+  - The Intent comparison specs keep their cases and lose `-mounted`. Their
+    measured cases (93, median 125 ms) already pass except
+    `intent-ci-comparison-mounted-scope-running` "Landed running preserves
+    one Branch fallback through entry, folders and file Proof" (median 604
+    ms, three runs on 21 November 2026 at load about 9–10), which comes
+    under 500 ms.
+- **Acceptance.** No frontend unit test file name contains `mounted` apart
+  from the harness's own spec; the grammar-selection and other audited data
+  rules are proved without a mount; every case in the touched files has a
+  median of three attempts under 500 ms, recorded per case as in the
+  baseline table.
 
 <a id="restore-done-capture-proof-after-composed-reviews"></a>
 
