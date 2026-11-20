@@ -173,7 +173,7 @@ silently skips Playwright-backed specs; run those through
 ### 4. Review and attribution start from composed branch entries
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a record built with an entry, the review separates the branch's later
 changes from pre-entry main work, and attribution sees the same baseline
@@ -196,7 +196,7 @@ the planned move of capture evidence steps). A composed entry needs `trunk`
 and canonical workspace paths. Review and attribution cases still run real
 Done capture because no composed Done state has landed. At load 18–35 every
 Git-heavy case in these specs, including the unchanged adapter case, ran
-4.6–5.1 s and timed out; hosted CI proves this slice's revision.
+4.6–5.1 s and timed out. Hosted CI run 44763695804 passed on `f64b3dd`.
 
 ### 5. Declared publication starts from a composed kept entry
 
