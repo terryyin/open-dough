@@ -12,10 +12,12 @@ import {
   inWorktree,
   markDone,
   minutesAgo,
+  source,
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const branch = "draft";
 const unverified = expect.stringContaining(
@@ -73,7 +75,7 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
   );
   const merge = (await git(integration, "rev-parse", "HEAD")).stdout.trim();
   await markDone(record, minutesAgo(35));
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     deliveryGap: unverified,
   });
@@ -87,7 +89,7 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
     discardWorkingChanges: true,
   });
 
-  const delivered = await review(record);
+  const delivered = await review(await keptRecords(source), record);
   expect(delivered).toMatchObject({
     kind: "landed",
     baseline: trunkParent,
@@ -98,7 +100,7 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
   if (delivered.kind !== "landed")
     throw new Error("Missing delivered comparison.");
   expect(
-    await fileText(record, {
+    await fileText(await keptRecords(source), record, {
       reference: delivered.landing.reference,
       baseline: trunkParent,
       tree: merge,
@@ -109,11 +111,15 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
     baseline: "Trunk draft\n",
     tree: "Resolution on trunk\n",
   });
-  const branchResult = await review(record, "branch-result");
+  const branchResult = await review(
+    await keptRecords(source),
+    record,
+    "branch-result",
+  );
   if (branchResult.kind !== "branch-result")
     throw new Error("Missing branch result.");
   expect(
-    await fileText(record, {
+    await fileText(await keptRecords(source), record, {
       baseline: branchResult.baseline,
       tree: branchResult.tree,
       path: "draft.txt",
@@ -136,7 +142,7 @@ test("acceptance on another remote branch leaves trunk delivery unverified", asy
 
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     tree: edit,
     files: [{ path: "edit.txt" }],
@@ -153,7 +159,7 @@ test("an unrelated accepted change leaves the saved branch available", async () 
 
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     tree: edit,
     files: [{ path: "edit.txt" }],
@@ -172,13 +178,15 @@ test("a continuous fast-forward from the witnessed parent retains both compariso
 
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: tip,
     sessionComparisonKeys: ["delivered", "branch-result"],
   });
-  expect(await review(record, "branch-result")).toMatchObject({
+  expect(
+    await review(await keptRecords(source), record, "branch-result"),
+  ).toMatchObject({
     kind: "branch-result",
     baseline: base,
     tree: tip,
@@ -199,7 +207,7 @@ test("a fast-forward with an unwitnessed previous tip leaves delivery unverified
 
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "unavailable",
     deliveryGap: expect.stringContaining("exact fast-forward") as string,
   });
@@ -218,13 +226,17 @@ test("a same-content squash leaves the saved branch readable and delivery unveri
   await markDone(record);
   retireAdHocBranch(integration, workspace, branch);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     tree: edit,
     files: [{ path: "edit.txt" }],
     deliveryGap: unverified,
   });
   expect(
-    await fileText(record, { baseline: base, tree: edit, path: "edit.txt" }),
+    await fileText(await keptRecords(source), record, {
+      baseline: base,
+      tree: edit,
+      path: "edit.txt",
+    }),
   ).toMatchObject({ kind: "text", tree: "edit work\n" });
 });

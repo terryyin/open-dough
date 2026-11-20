@@ -19,9 +19,11 @@ import {
   inWorktree,
   keep,
   minutesAgo,
+  source,
   work,
 } from "../support/doneCaptureCase.ts";
 import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const launchFiles = historyBeforeTheCase({
   files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },
@@ -89,7 +91,7 @@ test("Done keeps the working tree it read and outlives a forced retirement", asy
     discardWorkingChanges: true,
   });
 
-  const result = await review(record);
+  const result = await review(await keptRecords(source), record);
   expect(result).toMatchObject({ kind: "branch-result", baseline });
   if (result.kind !== "branch-result")
     throw new Error("Missing the retained branch result.");
@@ -109,17 +111,19 @@ test("Done keeps the working tree it read and outlives a forced retirement", asy
   );
   expect(pins).toEqual([baseline, tree, committedTip]);
   const draft = { baseline, tree, path: "draft.txt" };
-  expect(await fileDiff(record, draft)).toMatchObject({
+  expect(
+    await fileDiff(await keptRecords(source), record, draft),
+  ).toMatchObject({
     kind: "diff",
     printed: expect.stringContaining("+draft left for review") as string,
   });
-  expect(await fileText(record, draft)).toEqual({
+  expect(await fileText(await keptRecords(source), record, draft)).toEqual({
     kind: "text",
     baseline: null,
     tree: "draft left for review\n",
   });
   const deleted = { ...draft, path: "deleted.txt" };
-  expect(await fileText(record, deleted)).toEqual({
+  expect(await fileText(await keptRecords(source), record, deleted)).toEqual({
     kind: "text",
     baseline: "delete this\n",
     tree: null,

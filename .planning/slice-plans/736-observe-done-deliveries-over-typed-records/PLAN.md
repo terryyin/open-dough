@@ -34,7 +34,7 @@ Included:
 
 Excluded: the Done transition, Git branch-result capture, MakeMe branch-result
 steps, and composed-record `doneCaptureReview.ts`
-([Done split story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store),
+(Done split story SEED-413#split-done-mark-decision-from-store, done,
 recorded as this story's blocking supplier); exposing production pin-ref
 queries in place of `adHocBranchRefs.ts`
 ([branch entry story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store));

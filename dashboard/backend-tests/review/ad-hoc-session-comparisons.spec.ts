@@ -7,10 +7,11 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { keptAttempts } from "../../server/launchAttemptStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { markDone } from "../support/doneCaptureCase.ts";
+import { markDone, source } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";
 import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const baseline = [...Array(12).keys()]
   .map((line) => `unchanged ${line}\n`)
@@ -55,8 +56,12 @@ test("the same Done session opens its delivery and keeps its different branch re
   retireAdHocBranch(checkout.integration, workspace, branch);
 
   const choices = ["delivered", "branch-result"];
-  const delivered = await review(record);
-  const branchResult = await review(record, "branch-result");
+  const delivered = await review(await keptRecords(source), record);
+  const branchResult = await review(
+    await keptRecords(source),
+    record,
+    "branch-result",
+  );
   const renamedFile = { kind: "renamed", ...renamed };
   expect(delivered).toMatchObject({
     kind: "landed",
@@ -85,22 +90,35 @@ test("the same Done session opens its delivery and keeps its different branch re
     baseline: branchResult.baseline,
     tree: branchResult.tree,
   };
-  expect(await fileText(record, { ...renamed, ...deliveryPair })).toEqual({
+  expect(
+    await fileText(await keptRecords(source), record, {
+      ...renamed,
+      ...deliveryPair,
+    }),
+  ).toEqual({
     kind: "text",
     baseline,
     tree: committed,
   });
-  expect(await fileText(record, { ...renamed, ...branchPair })).toEqual({
+  expect(
+    await fileText(await keptRecords(source), record, {
+      ...renamed,
+      ...branchPair,
+    }),
+  ).toEqual({
     kind: "text",
     baseline,
     tree: working,
   });
   const foreignTree = { ...deliveryPair, tree: branchResult.tree };
   await expect(
-    fileText(record, { ...renamed, ...foreignTree }),
+    fileText(await keptRecords(source), record, { ...renamed, ...foreignTree }),
   ).rejects.toMatchObject({ status: 409 });
   const wrongOldPath = { ...renamed, oldPath: "other.txt" };
   await expect(
-    fileText(record, { ...wrongOldPath, ...branchPair }),
+    fileText(await keptRecords(source), record, {
+      ...wrongOldPath,
+      ...branchPair,
+    }),
   ).rejects.toMatchObject({ status: 409 });
 });

@@ -9,6 +9,7 @@ import {
   bindRecord,
   changeSessionRecord,
   deleteRecord,
+  keptRecords,
   keptSession,
   replaceKeptSession,
 } from "../../server/launchRecordStore.ts";
@@ -133,7 +134,7 @@ for (const [reason, remove] of Object.entries(removals)) {
       makeMe.aCheckoutWork.committing("latest", { at: minutesAgo(30) }),
     );
     await markDone(replacement);
-    expect(await review(replacement)).toMatchObject({
+    expect(await review(await keptRecords(source), replacement)).toMatchObject({
       kind: "branch-result",
       baseline: checkout.base,
       tree: latest,
@@ -188,7 +189,7 @@ test("a stale native replacement retains a branch identified while it was pendin
   expect(
     await identifyBranch(checkout, kept, { workspace, branch }),
   ).toMatchObject({ committedTip: present });
-  expect(await review(replacement)).toMatchObject({
+  expect(await review(await keptRecords(source), replacement)).toMatchObject({
     kind: "branch-result",
     tree: entered,
     files: [{ path: "entered.txt" }],

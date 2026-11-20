@@ -19,16 +19,20 @@ import {
   type Checkout,
   inWorktree,
   keptRecordOf,
-  markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
+import {
+  fileText,
+  review,
+  keptAsDoneAfterRetirement,
+} from "../support/doneCaptureReview.ts";
 import {
   publishInstalled,
   retryInstalledLanding,
 } from "../support/installedPublisher.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const reference = "11111111-0000-4000-8000-000000000714";
 const otherReference = "11111111-0000-4000-8000-000000000715";
@@ -166,10 +170,10 @@ test("the declared worktree's installed landing and exact retry stay with the or
   ).toBeUndefined();
 
   retireAdHocBranch(checkout.integration, workspace, branch);
-  await markDone(record);
+  await keptAsDoneAfterRetirement(record);
   expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect(await trunk()).toBe(candidate);
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: candidate,
@@ -177,7 +181,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
     files: [{ kind: "added", path: "draft.txt" }],
   });
   expect(
-    await fileText(record, {
+    await fileText(await keptRecords(source), record, {
       path: "draft.txt",
       baseline: base,
       tree: candidate,

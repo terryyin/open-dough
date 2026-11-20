@@ -4,7 +4,7 @@
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { deleteRecord } from "../../server/launchRecordStore.ts";
+import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
 import {
   landingPins,
   retireAdHocBranch,
@@ -16,12 +16,14 @@ import {
 import {
   inWorktree,
   keptRecordOf,
-  markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
+import {
+  review,
+  keptAsDoneAfterRetirement,
+} from "../support/doneCaptureReview.ts";
 import {
   publishInstalled,
   retryInstalledLanding,
@@ -68,10 +70,10 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await trunk()).toBe(candidate);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  await markDone(record);
+  await keptAsDoneAfterRetirement(record);
   expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect((await keptRecordOf(session))?.request.reporting).toBeUndefined();
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: candidate,

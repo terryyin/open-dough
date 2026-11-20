@@ -1,19 +1,34 @@
-// The typed review reads Done's ordered runs around changes brought in from trunk.
+// The typed review reads a Done session's ordered runs around changes brought
+// in from trunk.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  aKeptSession,
-  markDone,
+  aCheckout,
+  type Checkout,
   minutesAgo,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileDiff, review } from "../support/doneCaptureReview.ts";
+import {
+  aDoneSession,
+  fileDiff,
+  review,
+} from "../support/doneCaptureReview.ts";
 
 const notes = (first: string, last: string) =>
   [first, "two", "three", "four", "five", "six", "seven", last, ""].join("\n");
 
+// A Done session whose two runs sit either side of `between`.
+const twoRuns = (
+  checkout: Checkout,
+  { first, between, second }: Record<"first" | "between" | "second", string>,
+) =>
+  aDoneSession(checkout, [
+    { base: checkout.base, revision: first },
+    { base: between, revision: second },
+  ]);
+
 test("commits either side of a pulled story landing are two runs, oldest first, each without the story's changes to a file the session also changed", async () => {
-  const { checkout, record } = await aKeptSession({ withOrigin: true });
+  const checkout = await aCheckout({ withOrigin: true });
   const { first, pulled, second } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -31,26 +46,25 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
         files: { "notes.txt": notes("session's one", "story's eight") },
       }),
   );
+  const record = twoRuns(checkout, { first, between: pulled, second });
 
-  await markDone(record);
-
-  expect(await review(record)).toMatchObject({
+  expect(await review([record], record)).toMatchObject({
     commitRuns: [
       { baseline: checkout.base, tree: first, committedAt: minutesAgo(45) },
       { baseline: pulled, tree: second, committedAt: minutesAgo(25) },
     ],
     files: [{ path: "notes.txt", kind: "added" }],
   });
-  expect(await review(record, 1)).toMatchObject({
+  expect(await review([record], record, 1)).toMatchObject({
     commitRun: 1,
     files: [{ path: "notes.txt", kind: "modified" }],
   });
-  const firstDiff = await fileDiff(record, {
+  const firstDiff = await fileDiff([record], record, {
     baseline: checkout.base,
     tree: first,
     path: "notes.txt",
   });
-  const secondDiff = await fileDiff(record, {
+  const secondDiff = await fileDiff([record], record, {
     baseline: pulled,
     tree: second,
     path: "notes.txt",
@@ -61,7 +75,7 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
 });
 
 test("commits either side of merged trunk work are two runs without the merge or its work", async () => {
-  const { checkout, record } = await aKeptSession({ withOrigin: true });
+  const checkout = await aCheckout({ withOrigin: true });
   const { first, merge, second } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -69,23 +83,22 @@ test("commits either side of merged trunk work are two runs without the merge or
       .mergingTrunkWork("merge", { at: minutesAgo(35) })
       .committing("second", { at: minutesAgo(25) }),
   );
+  const record = twoRuns(checkout, { first, between: merge, second });
 
-  await markDone(record);
-
-  expect(await review(record)).toMatchObject({
+  expect(await review([record], record)).toMatchObject({
     commitRuns: [
       { commits: 1, baseline: checkout.base, tree: first },
       { commits: 1, baseline: merge, tree: second },
     ],
     files: [{ path: "first.txt" }],
   });
-  expect(await review(record, 1)).toMatchObject({
+  expect(await review([record], record, 1)).toMatchObject({
     files: [{ path: "second.txt" }],
   });
 });
 
 test("commits either side of an amended merge stay separate without the merge's files", async () => {
-  const { checkout, record } = await aKeptSession({ withOrigin: true });
+  const checkout = await aCheckout({ withOrigin: true });
   const { first, amended, second } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -94,17 +107,16 @@ test("commits either side of an amended merge stay separate without the merge's 
       .amending("amended", { at: minutesAgo(35) })
       .committing("second", { at: minutesAgo(25) }),
   );
+  const record = twoRuns(checkout, { first, between: amended, second });
 
-  await markDone(record);
-
-  expect(await review(record)).toMatchObject({
+  expect(await review([record], record)).toMatchObject({
     commitRuns: [
       { commits: 1, baseline: checkout.base, tree: first },
       { commits: 1, baseline: amended, tree: second },
     ],
     files: [{ path: "first.txt" }],
   });
-  expect(await review(record, 1)).toMatchObject({
+  expect(await review([record], record, 1)).toMatchObject({
     files: [{ path: "second.txt" }],
   });
 });

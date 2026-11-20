@@ -73,18 +73,12 @@ and deleted `test-support` surface together under
 
 ## Story decomposition
 
-<a id="split-done-mark-decision-from-store"></a>
+<a id="done-capture-import-list-analysis"></a>
 
-### Mark Done through a typed decision and compose Done state in review cases
-
-**Identity:** SEED-413#split-done-mark-decision-from-store
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/734-split-done-mark-decision-from-store/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"016f87495fe2a0222226f80b6549ca2e4f8888c3a6f5ef47f22142879e149c67","plan":"cf1eccb8d442a2d35747d20ee05c7a5c9479ea190b28a8fa4601c270d2d92c4b"}}
-```
-
-First of five stories from Terry’s 2026-11-20 reviews of the Done capture
-family’s import lists. Terry accepted the first analysis and its order; the
-addendum’s two stories were added at Terry’s request. The other four stories are
+The Done capture import-list stories come from Terry’s 2026-11-20 reviews of
+the Done capture family’s import lists. Terry accepted the first analysis and
+its order; the addendum’s two stories were added at Terry’s request. The first,
+SEED-413#split-done-mark-decision-from-store, is done; the others are
 [branch entry](#split-branch-entry-proposal-from-store),
 [delivery observation](#observe-done-deliveries-over-typed-records),
 [landing reports](#decide-landings-over-typed-attempts-and-records) and
@@ -183,40 +177,31 @@ addendum’s two stories were added at Terry’s request. The other four stories
     [landing reports](#decide-landings-over-typed-attempts-and-records),
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
-- **Goal.** Dashboard maintainers can prove Done capture and the review of
-  Done sessions without a machine home. Marking Done is a typed decision on
-  the record plus a Git-only branch-result capture. The store write and pin
-  refs belong to the adapter alone. Review cases start from an already-Done
-  record.
-- **Scope.** Split `setRecordDoneAt` into: a pure Done transition (record,
-  Done time and options → next record); a Git-only branch-result capture
-  over a typed place that returns its result; and the store adapter that
-  persists and pins. Replace the `readAncestry` test hook with the capture's
-  own typed Git collaborator, or drop it if the held-Done race moves to the
-  adapter's own case. Add MakeMe steps for a Done record with its captured
-  branch result or session commits. Move every spec whose topic is the
-  review off `keep`, `markDone` and `keptRecords`, and onto composed state
-  passed to the typed review. Keep Done marking as the topic only in
-  specs that prove the capture, the transition rules (expected, automatic,
-  undo) or the adapter's persistence. Cover `madeSince` and run grouping
-  with typed-log unit cases, and keep one real-Git case for the reflog read.
-  Include the delivery observation and publication cases, where Done is a
-  precondition: `twoDoneBranchesMergedByHand`, `ad-hoc-prepared-landing-done`,
-  `ad-hoc-manual-landing-revision-observation` and the declared publication
-  specs. Make `doneCaptureReview.ts` take composed records rather than read
-  `keptRecords(source)`.
-- **Key examples.**
-  - A review case of a Done isolated branch builds its record with a MakeMe
-    branch result and real Git commits, then reads the typed review, with no
-    HOME stub and no `markDone`.
-  - The Done transition refuses a stale expected Done time and ignores an
-    automatic Done the record no longer allows, as plain values.
-  - A held capture still loses to a newer Done, proved once at the adapter.
-- **Evaluation.** Every replaced case keeps its assertions. Count
-  `doneCaptureCase.ts` imports and calls, HOME stubs, and per-case time
-  before and after at the same load, under
-  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-- **Effort hypothesis.** M, one plan.
+
+<a id="restore-done-capture-proof-after-composed-reviews"></a>
+
+### Restore Done capture proof after the composed review move
+
+**Identity:** SEED-413#restore-done-capture-proof-after-composed-reviews
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md"}
+```
+
+Correction from the execution retrospective of
+SEED-413#split-done-mark-decision-from-store (story at
+`6250b7399:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md`).
+
+- **Goal.** Dashboard maintainers again have a failing test when Done's
+  capture or adapter stops writing what reviews and landings rely on: the
+  reflog actions Git really writes, a shared checkout, the branch entry's
+  Default main tip, a prepared receipt, and a delivery kept beside the branch
+  comparison. Composed review cases state only what production stores.
+- **Scope.** Restore that proof at the production capture or adapter, retire
+  the test-support writers that imitate the adapter, and correct the stale
+  hold comment and vacuous assertions. The review cases stay composed. Branch
+  entry, the observation and landing store reads, and the launch preset fold
+  stay with their stories.
+- **Plan.** [743](../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
 
 <a id="split-branch-entry-proposal-from-store"></a>
 
@@ -227,7 +212,7 @@ addendum’s two stories were added at Terry’s request. The other four stories
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f48af8e3006cf1ad62fc395237b5721c452217ec288320c7179c95467fd6c6f6","plan":"104f6e7f4bae51c3f432da31f6ea6603ee439bca6fb8e7cd2c3a3424fc5d35b4"}}
 ```
 
-Second of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+Second of the [Done capture import-list stories](#done-capture-import-list-analysis);
 the analysis and decisions are recorded there.
 
 - **Goal.** Dashboard maintainers can prove what a branch entry captures
@@ -293,7 +278,7 @@ the analysis and decisions are recorded there.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97042139380f11b82a47a5743303780e65ec4e0deed0ef41cc7b138dcc168b43","plan":"af6701486622645c306cee2434e96fbda3a50984f8c5d73b0662e02fbb321e3e"}}
 ```
 
-Third of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+Third of the [Done capture import-list stories](#done-capture-import-list-analysis);
 the analysis is in its addendum on delivery observation and publication.
 
 - **Goal.** Dashboard maintainers can prove which Done branches a trunk
@@ -375,7 +360,7 @@ the analysis is in its addendum on delivery observation and publication.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"99441286c7ed355fb1dd12bf6bac83ca347e482e7ecdffa43a6d7456b9a89476","plan":"9ca5006cacbd39e599c9b4b7ad2c57f798dc5d7c2c049273e9024d3ed6947b2d"}}
 ```
 
-Fourth of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+Fourth of the [Done capture import-list stories](#done-capture-import-list-analysis);
 the analysis is in its addendum on delivery observation and publication.
 
 - **Goal.** Dashboard maintainers can prove landing preparation and
@@ -440,7 +425,7 @@ the analysis is in its addendum on delivery observation and publication.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3b1c66d77ad4ac0d8c2fabeb17e8db63c72660ba88abe160c729ea62aeefe46","plan":"c1abc4a8a650d6c785a986242adbd16c19a629505b1120cfd5dba973c596bcd6"}}
 ```
 
-Fifth of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+Fifth of the [Done capture import-list stories](#done-capture-import-list-analysis);
 which records the initial analysis and the decision to fold the final typed
 arrangements after the four preceding renovations.
 
@@ -506,7 +491,7 @@ Follows the closed SEED-413#arrange-done-ad-hoc-observation-and-publication
 `0f1fe2cdd:.planning/slice-plans/730-arrange-done-ad-hoc-observation-and-publication/PLAN.md`),
 which made its ten cases plain Vitest, about twice as fast as their
 Playwright versions.
-Queued after the five [Done capture import-list stories](#split-done-mark-decision-from-store),
+Queued after the five [Done capture import-list stories](#done-capture-import-list-analysis),
 which move most of the family off the machine store and the replayed
 actions. Profile what remains after them. The Git binary finding below
 does not depend on them.

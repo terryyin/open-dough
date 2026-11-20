@@ -4,23 +4,29 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  anIsolatedBranch,
+  aCheckoutWithWorktree,
+  anIsolatedLaunch,
   inWorktree,
-  markDone,
   minutesAgo,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileDiff, review } from "../support/doneCaptureReview.ts";
+import { aDoneBranch, fileDiff, review } from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 
-// The topic checkout, its base holding the shared file, and the isolated
-// launch whose start created its worktree.
+// The topic checkout, its base holding the shared file, and its worktree.
 const anIsolatedTopic = () =>
-  anIsolatedBranch(branch, { "shared.txt": "original\n" });
+  aCheckoutWithWorktree(branch, { "shared.txt": "original\n" });
+
+// The isolated launch whose start created the worktree, marked Done with the
+// branch result Git captures.
+const theDoneTopic = (
+  checkout: Awaited<ReturnType<typeof anIsolatedTopic>>["checkout"],
+  workspace: string,
+) => aDoneBranch(anIsolatedLaunch(checkout, { workspace, branch }));
 
 test("an isolated Done retains its committed and working changes across a trunk import", async () => {
-  const { checkout, workspace, record } = await anIsolatedTopic();
+  const { checkout, workspace } = await anIsolatedTopic();
   await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork
@@ -35,13 +41,13 @@ test("an isolated Done retains its committed and working changes across a trunk 
       }),
   );
 
-  await markDone(record);
+  const record = await theDoneTopic(checkout, workspace);
 
-  const answer = await review(record);
+  const answer = await review([record], record);
   if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
   expect(answer.files.map(({ path }) => path)).toEqual(["draft.txt"]);
   expect(
-    await fileDiff(record, {
+    await fileDiff([record], record, {
       baseline: answer.baseline,
       tree: answer.tree,
       path: "draft.txt",
@@ -53,7 +59,7 @@ test("an isolated Done retains its committed and working changes across a trunk 
 });
 
 test("a branch merged into trunk still retains its own Done comparison", async () => {
-  const { checkout, workspace, record } = await anIsolatedTopic();
+  const { checkout, workspace } = await anIsolatedTopic();
   await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork
@@ -74,16 +80,16 @@ test("a branch merged into trunk still retains its own Done comparison", async (
       .pushingToTrunk("pushed", { at: minutesAgo(35) }),
   );
 
-  await markDone(record);
+  const record = await theDoneTopic(checkout, workspace);
 
-  expect(await review(record, "branch-result")).toMatchObject({
+  expect(await review([record], record, "branch-result")).toMatchObject({
     kind: "branch-result",
     files: [{ path: "session-only.txt" }],
   });
 });
 
 test("new shared first-parent history can leave branch attribution ambiguous", async () => {
-  const { checkout, workspace, record } = await anIsolatedTopic();
+  const { checkout, workspace } = await anIsolatedTopic();
   const { direct } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("direct", { at: minutesAgo(50) }),
@@ -95,9 +101,9 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
     makeMe.aCheckoutWork.committing("after-direct", { at: minutesAgo(40) }),
   );
 
-  await markDone(record);
+  const record = await theDoneTopic(checkout, workspace);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review([record], record)).toMatchObject({
     kind: "unavailable",
     explanation:
       "The saved branch changes could not be separated from trunk history.",

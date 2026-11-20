@@ -11,7 +11,7 @@ Review, attribution and publisher cases arrange the kept entry as data, and
 pin assertions read real refs through the production owners of both namespaces.
 The same deletion, expiry, replacement and publication promises keep their proof.
 
-The [Done transition](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store)
+The Done transition (SEED-413#split-done-mark-decision-from-store, done)
 owns Done state and Git capture. The [observation](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records)
 and [landing report](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records)
 stories own their respective store splits. The [launch arrangement story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)

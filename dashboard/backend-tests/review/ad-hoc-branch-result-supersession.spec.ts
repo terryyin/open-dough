@@ -3,7 +3,7 @@
 // with only its pins, and deletion leaves none.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { deleteRecord } from "../../server/launchRecordStore.ts";
+import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
@@ -50,7 +50,7 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   const first = await commit("first", 30);
   await markDone(record);
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     tree: first,
   });
@@ -59,7 +59,7 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
   await undoDone(record);
 
   expect(pins()).toEqual(originalPins);
-  const oldFile = fileText(record, {
+  const oldFile = fileText(await keptRecords(source), record, {
     baseline,
     tree: first,
     path: "first.txt",
@@ -75,7 +75,9 @@ test("a newer Done wins over a held stale capture with only its pins", async () 
   let latest: string;
   try {
     await staleDone.reading;
-    expect(await review(record)).toMatchObject({ kind: "unavailable" });
+    expect(await review(await keptRecords(source), record)).toMatchObject({
+      kind: "unavailable",
+    });
     latest = await commit("latest", 20);
     await markDone(record, minutesAgo(5));
   } finally {
@@ -83,7 +85,7 @@ test("a newer Done wins over a held stale capture with only its pins", async () 
     await staleDone.marking;
   }
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     tree: latest,
   });

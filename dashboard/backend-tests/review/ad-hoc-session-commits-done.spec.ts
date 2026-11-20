@@ -3,7 +3,7 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
-import { keptSession } from "../../server/launchRecordStore.ts";
+import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { nativeDoneMarkPending } from "../../src/doneMark.ts";
 import {
@@ -65,7 +65,7 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
   vi.setSystemTime(minutesAgo(30));
   const earlier = await deliverCompletion(submission, origin, marks);
   const stopped = await renameEntered;
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "session-commits",
     session: { doneAt: earlier.receivedAt },
     tree: first,
@@ -80,7 +80,7 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
   await reported.mock.results[1]?.value;
 
   expect(stopped.aborted).toBe(false);
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "session-commits",
     session: { doneAt: later.receivedAt },
     commitRuns: [{ commits: 2, subject: "Add second.txt" }],
@@ -134,7 +134,7 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
   const doneAt = minutesAgo(10);
   vi.setSystemTime(doneAt);
   await markDone(record, doneAt);
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "session-commits",
     session: { launchedAt: record.launchedAt, doneAt },
     baseline: checkout.base,
@@ -173,7 +173,7 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
 
   expect(receipt.receivedAt).not.toBe(earlierDone);
   expect(rename).not.toHaveBeenCalled();
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "session-commits",
     session: { doneAt: receipt.receivedAt },
     baseline: checkout.base,
@@ -213,5 +213,5 @@ test("retrying the same quiet delivery resumes native Done without repeating its
   expect(kept?.doneProblem).toBeUndefined();
   expect(kept?.sessionCommits).toEqual(record.sessionCommits);
   expect(kept?.sessionCommitsFailedAt).toBe(doneAt);
-  expect(await review(record)).toEqual(notCaptured);
+  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
 });

@@ -66,7 +66,7 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   };
   // The first read uses the fixed pair while trunk advances past it.
   const [whileOnTrunk] = await Promise.all([
-    review(record),
+    review(await keptRecords(source), record),
     work(
       checkout,
       makeMe.aCheckoutWork
@@ -79,7 +79,7 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   const indexPath = path.join(checkout.integration, ".git", "index");
   const index = readFileSync(indexPath);
 
-  expect(await review(record)).toEqual(kept);
+  expect(await review(await keptRecords(source), record)).toEqual(kept);
   expect(
     (await git(checkout.integration, "rev-parse", "HEAD")).stdout.trim(),
   ).toBe(checkout.base);
@@ -111,7 +111,7 @@ test("Done stores and pins the commit of an established Default main session and
       )
     ).stdout,
   ).toBe(`${refs}/base ${base}\n${refs}/revision ${typo}\n`);
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     commitRuns: [
       { commits: 1, subject: "Add typo.txt", baseline: base, tree: typo },
     ],

@@ -50,7 +50,8 @@ export type DeclaringLaunch = {
 
 // A kept declaring launch, blank unless it reports through `reporting`, that
 // then identified `workspace` on `branch`, with whatever the worktree already
-// held. The `others` of the checkout are kept beside it.
+// held, and the launch that built it. The `others` of the checkout are kept
+// beside it.
 export async function aDeclaredBranch(
   checkout: Checkout,
   { workspace, branch, reporting, others = () => [] }: DeclaringLaunch,
@@ -61,5 +62,5 @@ export async function aDeclaredBranch(
   ).please();
   keep(record, ...others(checkout));
   const entry = await identifyBranch(checkout, record, { workspace, branch });
-  return { record, entry };
+  return { launch, record, entry };
 }

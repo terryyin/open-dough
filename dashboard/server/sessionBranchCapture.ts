@@ -24,6 +24,7 @@ import {
 } from "./sessionBranchAttribution.ts";
 import {
   keepManualLanding,
+  type ManualLanding,
   manualLandingComparison,
   manualLandingTrunk,
   releaseManualLanding,
@@ -93,11 +94,17 @@ export async function readBranchWorkspace({
   };
 }
 
-async function readBranchResult(
+// Answers a candidate record's branch result at its Done time, with the
+// manual delivery it proves; production's capture reads Git only.
+export type BranchCapture = (
   record: LaunchRecord,
   doneAt: string,
-  readAncestry: typeof runGit,
-) {
+) => Promise<{
+  readonly result: SessionBranchResult;
+  readonly delivery: ManualLanding | undefined;
+}>;
+
+export const captureBranchResult: BranchCapture = async (record, doneAt) => {
   const entry = record.branchEntry;
   const start = entry ?? record.establishedSession;
   const repository = entry?.repository ?? record.branchReviewRepository;
@@ -111,7 +118,7 @@ async function readBranchResult(
     ...start,
     repository,
   });
-  await readAncestry(
+  await runGit(
     ["merge-base", "--is-ancestor", baseTip, committedTip],
     gitCall(start.workspace),
   );
@@ -153,7 +160,7 @@ async function readBranchResult(
     ...attribution,
   };
   return { result, delivery };
-}
+};
 
 // Read before publishing the mark, then admit and pin the result within the
 // same record write as Done. The write's own ordering guards decide whether
@@ -164,7 +171,7 @@ export async function withBranchResultAtDone<T>(
   write: (
     settle: (marked: LaunchRecord) => Promise<LaunchRecord>,
   ) => Promise<T>,
-  readAncestry = runGit,
+  capture: BranchCapture = captureBranchResult,
 ): Promise<T> {
   if (
     candidate === undefined ||
@@ -185,9 +192,7 @@ export async function withBranchResultAtDone<T>(
     });
 
   const owner = branchPinOwner(candidate);
-  const read = await readBranchResult(candidate, doneAt, readAncestry).catch(
-    () => undefined,
-  );
+  const read = await capture(candidate, doneAt).catch(() => undefined);
   let previous: SessionBranchResult | undefined;
   let pinned: SessionBranchResult | undefined;
   let landing: LaunchLanding | undefined;

@@ -12,11 +12,12 @@ import {
 import {
   inWorktree,
   keptRecordOf,
-  markDone,
   minutesAgo,
+  source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
+import { review, keptAsDone } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 test("Done leaves the installed publisher's prepared receipt recordable after acceptance", async () => {
   const { checkout, workspace, record, entry, context } =
@@ -34,18 +35,17 @@ test("Done leaves the installed publisher's prepared receipt recordable after ac
   expect(receipt.state).toBe("prepared");
   await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
 
-  await markDone(record);
-  const kept = await keptRecordOf(record.session.sessionId);
-  expect(kept?.doneAt).toBeDefined();
-  expect(kept?.landingReporting?.preparations).toMatchObject([
-    { receipt: receipt.receipt, base, revision },
-  ]);
+  await keptAsDone(record);
+  expect(
+    (await keptRecordOf(record.session.sessionId))?.landingReporting
+      ?.preparations,
+  ).toMatchObject([{ receipt: receipt.receipt, base, revision }]);
 
   expect(await recordLanding(submission)).toEqual({
     ...receipt,
     state: "recorded",
   });
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: revision,

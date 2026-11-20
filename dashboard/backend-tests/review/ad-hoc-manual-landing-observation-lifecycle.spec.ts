@@ -31,7 +31,9 @@ async function heldObservation() {
     first: { record: leaving, tip: leavingTip },
     second: { record: staying },
     head,
-  } = await twoDoneBranchesMergedByHand("leaving", "staying");
+  } = await twoDoneBranchesMergedByHand("leaving", "staying", {
+    pinned: true,
+  });
   expect(
     sessionBranchPins(checkout.integration, leaving.session.sessionId),
   ).toContain(leavingTip);
@@ -60,7 +62,7 @@ async function expectOnlyTheSurvivorDelivered(
   removed: LaunchRecord,
   survivor: LaunchRecord,
 ) {
-  const delivered = await review(survivor);
+  const delivered = await review(await keptRecords(source), survivor);
   expect(delivered).toMatchObject({
     kind: "landed",
     files: [{ path: "staying.txt" }],
