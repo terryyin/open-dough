@@ -3,13 +3,11 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
-import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
-  keep,
+  aKeptReportingLaunch,
   minutesAgo,
   review,
   source,
@@ -18,22 +16,7 @@ import {
 
 test("a quiet completion keeps its Default main session's commits at the receipt time", async () => {
   const checkout = await aCheckout();
-  const reporting = {
-    origin: "http://127.0.0.1:4173",
-    reference: "22222222-2222-4222-8222-222222222222",
-    command: "dashboard-completion",
-  };
-  const record = aDefaultLaunch(checkout).reportingThrough(reporting).please();
-  keep(record);
-  await keepAttempt(
-    makeMe.anAcceptedAttempt
-      .withId(reporting.reference)
-      .adHoc()
-      .reportingTo(reporting.origin)
-      .capturingLanding({ reporting })
-      .launched(record.session)
-      .please(),
-  );
+  const { record, origin, submission } = await aKeptReportingLaunch(checkout);
   const { typo } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
@@ -49,11 +32,8 @@ test("a quiet completion keeps its Default main session's commits at the receipt
   });
   onTestFinished(() => marks.close());
   const reported = vi.spyOn(marks, "reported");
-  const submission = makeMe.aCompletionSubmission
-    .reportingFor({ host: record.session.host, reference: reporting.reference })
-    .please();
 
-  const receipt = await deliverCompletion(submission, reporting.origin, marks);
+  const receipt = await deliverCompletion(submission, origin, marks);
   expect(reported).toHaveBeenCalledExactlyOnceWith(source, receipt);
   await expect(reported.mock.results[0]?.value).resolves.toBeUndefined();
 

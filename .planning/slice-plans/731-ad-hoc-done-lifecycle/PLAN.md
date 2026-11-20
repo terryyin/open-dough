@@ -147,7 +147,7 @@ eight focused delivery, binding and capture cases. See
 ### 2. Rename waits keep and refresh a quiet report's capture
 
 Type: Structure
-Status: planned
+Status: done
 
 Move "a quiet report during an earlier rename wait refreshes the commits"
 and "a reported Done whose rename wait a closing server abandons has kept its
@@ -158,6 +158,22 @@ injected host whose rename is held. Remove them from the Playwright file.
 | --- | --- |
 | Abandoned rename; refreshed capture | Both cases pass. |
 | The cases discriminate | With the `stopped` signal not passed to `rename` in a scratch edit, the abandoned case never settles and fails on its awaited `close()`. With `continueReported` returning before capture while a rename is running, the refresh case fails. Both pass once reverted. |
+
+Accepted evidence: both Node cases pass. Severing the rename's stop signal
+blocked close until the default test timeout, and returning before capture
+during an earlier rename failed the later review. Both scratch edits were
+restored. Eight cases pass including the relocated legacy cases and the
+existing shared-checkout owner. Dashboard typecheck passes after the slice 1
+CI repair (`52be56f13db56631969739b5ff17ff47b141e8a9`). Run records and
+consumer observations are in `open-dough/evidence/731-slice-2-return.md`.
+
+Independent refactor shares the kept reporting launch setup across the first
+two Node specs. All three affected cases and dashboard typecheck pass again.
+See `open-dough/evidence/731-s2-refactor-return.md`.
+
+Guarded formatting exposed unused callback parameters and optional chaining
+on its required signal. The callback now reads the typed signal directly,
+and both Node cases pass again (`731-s2-rename-signature.log`).
 
 ### 3. Re-Done, retry and reopen keep the right capture
 
