@@ -2,17 +2,19 @@
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import {
   aCheckout,
-  aKeptReportingLaunch,
   minutesAgo,
   review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import {
+  aKeptReportingLaunch,
+  marksWithRename,
+} from "../support/reportedDoneCase.ts";
 
 test("a quiet completion keeps its Default main session's commits at the receipt time", async () => {
   const checkout = await aCheckout();
@@ -24,12 +26,7 @@ test("a quiet completion keeps its Default main session's commits at the receipt
 
   const folder = localFolder(checkout.integration);
   const rename = vi.fn(async () => {});
-  const marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: (host) =>
-      host === "claude" ? { name: "Claude", rename } : undefined,
-    reportingFolder: () => folder,
-  });
+  const marks = marksWithRename(folder, rename);
   onTestFinished(() => marks.close());
   const reported = vi.spyOn(marks, "reported");
 

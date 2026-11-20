@@ -6,7 +6,6 @@ import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
-import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
 import {
@@ -16,7 +15,6 @@ import {
 } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import {
   keptRecords,
   setRecordDoneAt,
@@ -154,29 +152,6 @@ export async function aKeptSession(options: { withOrigin?: boolean } = {}) {
   const record = anEstablishedSession(checkout).please();
   keep(record);
   return { checkout, record };
-}
-
-export async function aKeptReportingLaunch(checkout: Checkout) {
-  const reporting = {
-    origin: "http://127.0.0.1:4173",
-    reference: reportingReference,
-    command: "dashboard-completion",
-  };
-  const record = aDefaultLaunch(checkout).reportingThrough(reporting).please();
-  keep(record);
-  await keepAttempt(
-    makeMe.anAcceptedAttempt
-      .withId(reporting.reference)
-      .adHoc()
-      .reportingTo(reporting.origin)
-      .capturingLanding({ reporting })
-      .launched(record.session)
-      .please(),
-  );
-  const submission = makeMe.aCompletionSubmission
-    .reportingFor({ host: record.session.host, reference: reporting.reference })
-    .please();
-  return { record, origin: reporting.origin, submission };
 }
 
 export const work = <Name extends string>(

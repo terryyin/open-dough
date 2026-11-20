@@ -10,11 +10,11 @@ The reviewer retained the earlier boundary-server, reporting CLI and reflog-shim
 | --- | --- | --- | --- |
 | 1 | A quiet completion marks a Default main record Done at the receipt’s `receivedAt`. | slice 1 | observed: dashboard/backend-tests/review/ad-hoc-session-commits.spec.ts, keptSession doneAt equals actual receipt.receivedAt |
 | 2 | The quiet completion keeps the session’s commits. When a launch reports through reference `R` and commits `typo`, a quiet completion for `R` leaves one review commit run showing `typo`. | slice 1 | observed: dashboard/backend-tests/review/ad-hoc-session-commits.spec.ts, typed review of the one dated typo commit has exactly one run with one commit |
-| 3 | A reopened session keeps its earlier capture until its next Done. | slice 3 | |
-| 4 | A quiet report after a confirmed native Done keeps the additional commit. | slice 3 | |
+| 3 | A reopened session keeps its earlier capture until its next Done. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, earlier real run after undoDone and later two-commit review after markDone |
+| 4 | A quiet report after a confirmed native Done keeps the additional commit. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, earlier applied and confirmed Done plus new receipt observes second tip and two commits |
 | 5 | A quiet report received during an earlier rename wait refreshes the commit capture. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, held rename stays active while the later receipt's review shows the second Git tip and two commits |
-| 6 | Retrying the same quiet delivery resumes native Done. | slice 3 | |
-| 7 | That retry does not read the checkout again. | slice 3 | |
+| 6 | Retrying the same quiet delivery resumes native Done. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, retrying exact prior receipt invokes native rename once and clears the pending mark |
+| 7 | That retry does not read the checkout again. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, retry keeps former failed capture despite eligible real Git work, and guard-removal mutation supplies an unexpected run |
 | 8 | When the dashboard closes its Done marks during a quiet report’s native rename wait, the rename stops. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, observed rename AbortSignal is aborted after awaiting close |
 | 9 | When the dashboard abandons that rename wait, the record keeps the commits read at that Done. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-done.spec.ts, keptSession after close holds receipt Done and original-to-typo Git run |
 | 10 | While the latest Done’s capture is unfinished, the record refuses review of the previous capture. | slice 4 | |

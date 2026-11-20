@@ -178,7 +178,7 @@ and both Node cases pass again (`731-s2-rename-signature.log`).
 ### 3. Re-Done, retry and reopen keep the right capture
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the failed-capture MakeMe step. Move the remaining three cases into the
 Vitest file and delete the Playwright one:
@@ -193,6 +193,18 @@ Vitest file and delete the Playwright one:
 | --- | --- |
 | Three examples | All pass. The retry case asserts that the injected rename ran once and that the record's commits are unchanged. |
 | The cases discriminate | With the `sessionCommitsFailedAt === doneAt` check in `doneCapture.ts` removed in a scratch edit, the retry case fails on a new capture. It passes once reverted. |
+
+Accepted evidence: all five cases now run on Node. Reopen preserves the
+previous Git run until the next Done. A later quiet receipt captures the
+additional commit after a confirmed Done. The exact delivery retry resumes
+one rename and keeps the failed capture. Removing the failure-at-Done guard
+makes the retry retain an unexpected Git run, and restoration passes. The
+last three temporary Playwright cases are retired. See
+`open-dough/evidence/731-slice-3-return.md`.
+
+The independent refactor grouped the matching reporting setup and injected
+rename collaborators. Both Node files still pass all six affected cases.
+See `open-dough/evidence/731-s3-refactor-return.md`.
 
 ### 4. A later Done never shows a stale capture, and a commit after Done's tip is excluded
 
