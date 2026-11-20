@@ -1,41 +1,128 @@
-// Sessions sidebar attention order against controlled machine answers:
-// oldest needing the developer first, then other open sessions newest first.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  doughnutSource,
-  openDoughSource,
-} from "../../test-support/support/frontendServiceState.ts";
-import { expectProjectChoice } from "../../test-support/dashboardPage.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { watchRecordReads } from "../../test-support/sessionStatePace.ts";
-import {
-  expectSessionsSidebarSessionEntryShown,
-  sessionsSidebarParts,
-} from "../../test-support/sessionsSidebarPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+// Open Sessions list attention order from typed observations: oldest needing
+// the developer first, then other open sessions newest first, with the
+// Sessions button's attention badge.
+import { createElement, type ReactElement } from "react";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
+import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import { ProjectsOnPage } from "../../src/projectList.tsx";
+import { SessionsOnPage, type PageSessions } from "../../src/pageSessions.ts";
+import {
+  SessionsButton,
+  SessionsSidebarOnPage,
+  type SessionsSidebarState,
+} from "../../src/SessionsSidebar.tsx";
+import { SessionsSidebarOpenList } from "../../src/SessionsSidebarOpenList.tsx";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+
+const doughnut = makeMe.aPublishedSource
+  .with({
+    id: "doughnut",
+    label: "Doughnut",
+    repository: "nerds-odd-e/doughnut",
+  })
+  .please();
+
+const pageSessions: PageSessions = {
+  hostOperations: {
+    claude: {
+      attach: true,
+      stop: false,
+      doneStop: false,
+      localDone: true,
+      launchedSessions: true,
+    },
+  },
+  presentTerminal: () => undefined,
+  openSession: () => undefined,
+  shownSession: undefined,
+  markDone: () => Promise.resolve("marked" as const),
+  markRead: () => Promise.resolve(true),
+  deleteRecord: () => Promise.resolve({ kind: "deleted" as const }),
+  recoverSession: () => Promise.resolve(undefined),
+  stopSession: () => Promise.resolve(undefined),
+};
+
+function present<T>(found: T | null | undefined, what: string): T {
+  if (found === null || found === undefined) throw new Error(`No ${what}`);
+  return found;
+}
 
 function observe(
   records: readonly { record: LaunchRecord; state: SessionState }[],
-) {
+): readonly LaunchWithState[] {
   return makeMe.aMachineAnswer
     .observing(
       ...records.map(({ record, state }) =>
         makeMe.anObservedLaunch.of(record).withSessionState(state).please(),
       ),
     )
-    .please();
+    .please().records;
 }
 
-test("leads with the sessions that need the developer, earliest launch first, then the others newest first", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, new Date());
-  Object.assign(frontendServices, {
-    projects: [openDoughSource, doughnutSource],
+function openReading(records: readonly LaunchWithState[]): ReactElement {
+  const sidebar: SessionsSidebarState = {
+    open: true,
+    toggle: () => undefined,
+    closeOverPage: () => undefined,
+    records,
+    alerts: { available: true },
+  };
+  return createElement(ProjectsOnPage, {
+    projects: [doughnut],
+    replaceProjects: () => undefined,
+    children: createElement(SessionsOnPage, {
+      value: pageSessions,
+      children: createElement(SessionsSidebarOnPage, {
+        value: sidebar,
+        children: [
+          createElement(
+            "div",
+            { key: "banner", className: "banner" },
+            createElement(SessionsButton, null),
+          ),
+          createElement(
+            "aside",
+            {
+              key: "sidebar",
+              id: "sessions-sidebar",
+              "aria-label": "Sessions sidebar",
+            },
+            createElement(SessionsSidebarOpenList, {
+              records,
+              alerts: sidebar.alerts,
+              open: true,
+              onOpen: () => undefined,
+            }),
+          ),
+        ],
+      }),
+    }),
   });
-  const { passOnePace } = await watchRecordReads(page);
+}
+
+function titles() {
+  return [
+    ...document.querySelectorAll<HTMLElement>(
+      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry h3",
+    ),
+  ].map((heading) => heading.textContent);
+}
+
+function attentionBadge() {
+  return document.querySelector<HTMLElement>(
+    ".sessions-toggle-group .sessions-toggle-attention",
+  );
+}
+
+function entryAt(index: number) {
+  return document.querySelectorAll<HTMLElement>(
+    ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
+  )[index];
+}
+
+test("leads with the sessions that need the developer, earliest launch first, then the others newest first", async () => {
   const now = Date.now();
   const story = (letter: string, minutesAgo: number) => {
     const title = `Story ${letter}`;
@@ -49,7 +136,6 @@ test("leads with the sessions that need the developer, earliest launch first, th
       .launchedAt(new Date(now - minutesAgo * 60_000).toISOString())
       .please();
   };
-  // Launch order earliest first: A working, B blocked, C failed, D working, E working.
   const working08 = story("A", 50);
   const blocked09 = story("B", 40);
   const failed10 = story("C", 30);
@@ -74,51 +160,56 @@ test("leads with the sessions that need the developer, earliest launch first, th
         state: makeMe.aSessionState.loaded("working").please(),
       },
     ]);
-  frontendServices.answerMachine(
-    withStates(
-      makeMe.aSessionState.loaded("waiting").please(),
-      makeMe.aSessionState.loaded("failed").please(),
-      makeMe.aSessionState.loaded("working").please(),
-    ),
-  );
-  await page.goto("/?project=doughnut");
-  await expectProjectChoice(page, "Doughnut");
-  const { button, entries, titles, badge } = sessionsSidebarParts(page);
-  await button.click();
-  await expect(entries).toHaveCount(5);
 
-  await test.step("a needs-input and a failed session lead, earliest first, then the working ones newest first", async () => {
-    await expect(titles).toHaveText([
+  const initial = withStates(
+    makeMe.aSessionState.loaded("waiting").please(),
+    makeMe.aSessionState.loaded("failed").please(),
+    makeMe.aSessionState.loaded("working").please(),
+  );
+  const mounted = await mountComponent(openReading(initial), {
+    viewport: { width: 1280, height: 800 },
+  });
+
+  await expect
+    .poll(() => titles())
+    .toEqual([
       titleOf(blocked09),
       titleOf(failed10),
       titleOf(working12),
       titleOf(working11),
       titleOf(working08),
     ]);
-    await expect(badge).toHaveText("2");
-  });
+  await expect.poll(() => attentionBadge()?.textContent).toBe("2");
 
-  await test.step("a working session that needs input joins the attention group at its launch place, and the count rises", async () => {
-    frontendServices.answerMachine(
+  mounted.rerender(
+    openReading(
       withStates(
         makeMe.aSessionState.loaded("waiting").please(),
         makeMe.aSessionState.loaded("failed").please(),
         makeMe.aSessionState.loaded("waiting").please(),
       ),
-    );
-    await passOnePace();
-    await expect(badge).toHaveText("3");
-    await expect(titles).toHaveText([
+    ),
+  );
+
+  await expect.poll(() => attentionBadge()?.textContent).toBe("3");
+  await expect
+    .poll(() => titles())
+    .toEqual([
       titleOf(blocked09),
       titleOf(failed10),
       titleOf(working11),
       titleOf(working12),
       titleOf(working08),
     ]);
-    await expectSessionsSidebarSessionEntryShown(
-      entries.nth(2),
-      "Needs input",
-      "needs-input",
-    );
-  });
+  const moved = present(entryAt(2), "attention row at index 2");
+  expect(moved.querySelector(".visually-hidden")?.textContent).toBe(
+    "Needs input",
+  );
+  expect(moved.className).toMatch(/tone-needs-input/);
+  expect(
+    moved
+      .querySelector("button.sessions-sidebar-session-entry-open")
+      ?.getAttribute("title")
+      ?.split("\n")[0],
+  ).toBe("Needs input");
 });

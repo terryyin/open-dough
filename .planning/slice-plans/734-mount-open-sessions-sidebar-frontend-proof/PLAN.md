@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#mount-open-sessions-sidebar-frontend-proof
 **Source:** [Prove open Sessions sidebar readings in mounted frontend tests](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-open-sessions-sidebar-frontend-proof)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -81,7 +82,7 @@ with [SEED-341](../../seeds/SEED-341-simplify-session-tests.md#simplify-remainin
 ### 1. The open list reorders when a session needs attention
 
 Type: Structure
-Status: planned
+Status: done
 
 Give the existing open list the focused production entry described above and
 move the ordering case. Feed joined MakeMe records into the real grouping
@@ -97,6 +98,13 @@ and the existing `recently-done-sessions-select`,
 readers reached by the production edit. Run E2E `sessions-sidebar-reading`,
 `sessions-sidebar-navigation` and `recently-done-sessions-sidebar-navigation`
 to verify composed consumers.
+
+**Accepted.** Extracted `SessionsSidebarOpenList`; mounted
+`sessions-sidebar-order` observes B,C,E,D,A with badge `2`, then after D
+waits B,C,D,E,A with badge `3` and Needs input. Scratch reverse-order fail
+restored. Frontend readers (5) and E2E (5) passed; typecheck and lint clean.
+Evidence: `open-dough/evidence/SEED-413-mount-open-sessions-sidebar-frontend-proof/slice-1-return-report.md`.
+Refactor: none — already clean.
 
 ### 2. An open row keeps its full title and facts in a compact reading
 
@@ -191,3 +199,8 @@ observable check. The same session reading, row and host presentation serve
 all cases. The open-list boundary is the only UI reorganization planned and
 the composed readers cover its existing consumers. This review found no
 remaining slice-specific concern.
+
+## Learnings
+
+- Playwright-only frontend filters need `CI=1` / `--reporter=list` for visible
+  case results in evidence logs.
