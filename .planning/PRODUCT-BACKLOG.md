@@ -40,6 +40,8 @@ intent introduced or affected by a newly developed story.
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
+- [Read a story review's diff emphasis and syntax in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) — SEED-413#mount-story-review-diff-reading
+- [Read the Usage Token index's selections and refreshes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-usage-token-index-reading) — SEED-413#mount-usage-token-index-reading
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
 - [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context

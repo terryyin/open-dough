@@ -722,6 +722,167 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
+<a id="mount-story-review-diff-reading"></a>
+
+### Read a story review's diff emphasis and syntax in mounted cases
+
+**Identity:** SEED-413#mount-story-review-diff-reading
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/739-mount-story-review-diff-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d109b67009814ab207ec0e098e83fc62f151ed41974bf24f15276e1234186add","plan":"221cde97428f7f03963f8b2c02cd706a22ba0138ada717da387adb470a80f516"}}
+```
+
+Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
+on 2026-11-20 as the first Review piece, queued ahead of the remaining
+families. It follows the
+[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
+
+- **Goal.** Dashboard developers read the proof of how a reviewed file's
+  diff shows changed words and styles its code as plain Vitest cases on
+  mounted Chromium, built from a printed diff and the file's two texts.
+  Today 22 built-app cases in eight `story-review-diff-*` specs load
+  `<App />`, publish a reviewed story, open its review and choose a file
+  before the first assertion (54.5 summed seconds, about 2.5 s a case, in CI
+  run 44741808717). Review is the costliest folder per case after
+  Navigation, and this is its part with the narrowest owner.
+- **Scope.** Move every case whose behavior the diff's own rendering owns.
+  Two owners carry them:
+  - [`DiffLines`](../../dashboard/src/StoryReviewDiffLines.tsx) already
+    renders from typed inputs (`printed`, `sides`, `lineTokens`). It owns
+    word emphasis, revealed context, the reading position and the open line
+    menu.
+  - The styled reading of one file does not stand alone today.
+    [`FileDiff`](../../dashboard/src/StoryReviewFileDiff.tsx) joins it to two
+    service reads, story notes, Follow up and the page's launches. Extract
+    the part that turns a path, a printed diff, the file's text and an
+    optional `syntax` hint into styled lines, and leave the reads, notes and
+    Follow up in `FileDiff`. The extracted component owns the grammar a path
+    or hint selects, each side's tokens and the plain reading before text
+    arrives.
+  - Cases build their inputs as typed values: a printed unified diff, a
+    `ReviewedFileText` and, where a case observes tokens arriving, the
+    tokens the production `highlightSourceLines` gives for that text. They
+    add zero test-support wrappers and no service substitute. Page objects
+    for the diff's lines, marks and tokens live beside the specs.
+  - Preserve each distinct assertion, including the copied text of an
+    emphasized block, token and underline contrast in light and dark, and
+    the unchanged reading position when styling arrives. Name each built-app
+    case this story retires and the mounted case that carries its
+    assertions.
+  - Retire each `dashboard/test-support/` export or module whose last
+    consumer moves, and keep the ones the remaining review specs and E2E
+    still use.
+  - **Scope limits.** These stay built-app cases in the parent story,
+    because their behavior belongs to an owner above the diff's rendering:
+    the Retry that reads a file's text again; a grammar module that fails to
+    load; which Intent settings revision supplies a hint, for a live review
+    and for a published Done review; and the comparison of a diff token with
+    Intent's source reading of the same code. The other thirteen
+    `story-review-*` specs, the full-group timing comparison and the
+    `frontendApp.ts` retirement also stay there. This story compares the
+    focused selection before and after.
+- **Key examples.**
+  - *A changed word.* A diff replaces `const limit = 20;` with
+    `const limit = 25;` in a `.txt` file. The removed line marks `20` as a
+    deletion and the added line marks `25` as an insertion, both underlined
+    and never struck through. The unchanged line has no mark. Selecting both
+    lines copies `-const limit = 20;` and `+const limit = 25;`.
+  - *No emphasis where it would mislead.* A pure addition, a revealed
+    context line, a low-similarity rewrite and a several-hundred-line block
+    show no marks. A small block beside the large one still marks `20` and
+    `25`.
+  - *Each side styles from its own whole text.* In a TypeScript diff a
+    removed line takes its tokens from the old text and every other line,
+    revealed context included, from the new text. Markers, line numbers and
+    added and removed backgrounds stay as the plain diff shows them.
+  - *The path chooses the grammar, then the hint.* Each supported extension
+    styles its keyword as a token. A renamed file follows its new path. A
+    path that names no grammar reads plain, takes a known `syntax` hint, and
+    stays plain under an unfamiliar one. A path's own grammar wins over a
+    hint.
+  - *Styling arrives in place.* The diff shows complete plain lines with its
+    marks before the file's text is given. Once the text is given the same
+    lines gain tokens, the marks stay on the same words, and the reading
+    position, revealed context and an open line menu are kept.
+  - *Readable in both appearances.* Under dark and light, tokens inside an
+    insertion or deletion read at 4.5:1 on the line's tint and the underline
+    at 3:1 against it, and the colours differ between the two appearances.
+- **Effort hypothesis.** M: about eighteen cases over two typed owners, one
+  small extraction, six slices.
+- **Plan.** [739](../slice-plans/739-mount-story-review-diff-reading/PLAN.md)
+
+<a id="mount-usage-token-index-reading"></a>
+
+### Read the Usage Token index's selections and refreshes in mounted cases
+
+**Identity:** SEED-413#mount-usage-token-index-reading
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/740-mount-usage-token-index-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"927017454805fd1d73b5ffeedea5c6b0bcf94aa11d923573f2f20bb718e6a77b","plan":"6014f4a65be3cb63f32e562f77dffd8358c2e5eb34d41575e322a4526f4bc3d7"}}
+```
+
+Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
+on 2026-11-20 as the first Configuration piece, queued ahead of the remaining
+families. It follows the
+[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
+
+- **Goal.** Dashboard developers read the proof of what System settings →
+  Usage shows for a selection, a period and a Refresh as plain Vitest cases
+  on mounted Chromium, with each tool's Token index answer given as a typed
+  reply. Today these cases load `<App />` on the settings view, open Usage
+  and answer `/__usage/token-index` through page routes (13 cases in six
+  specs, 16.0 summed seconds in CI run 44741808717). The typed source this
+  story adds is also what the 20 chart cases left in the parent story need.
+- **Scope.** Move the six specs whose behavior is what Usage reads and
+  when: `system-settings-usage`, `-period`, `-estimate`, `-selection`,
+  `-checking` and `-tool`.
+  - [`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx)
+    reads each tool's answer and posts Refresh through `fetch`. Give it a
+    typed usage source behind
+    [`useUsageAnswers`](../../dashboard/src/useUsageAnswers.ts), as Story
+    Notes reads through `storyNotesState(source)`: one read of a cohort and
+    period that honours its abort signal, and one refresh. The page supplies
+    the source that speaks to the two endpoints and keeps their refusal
+    wording. A case supplies replies of the shared
+    [`TokenIndexAnswer`](../../dashboard/src/usageTokenIndex.ts) contract.
+  - Build answers with `makeMe.aTokenIndexAnswer`, offered through the
+    page-loadable MakeMe entry. A case that observes a pending read or
+    Refresh holds its own deferred reply.
+  - Operate Usage through small page objects beside the specs. The existing
+    Playwright page objects stay with the four
+    `e2e/configuration/system-settings-usage*` journeys, which keep proving
+    the real store, filters and Refresh.
+  - Preserve each distinct assertion. Remove a case only where an E2E
+    journey already proves the same thing, and name that journey.
+  - **Scope limits.** The five chart specs (`-average`, `-compare`,
+    `-legend`, `-overflow`, `-spacing`, 20 cases) stay in the parent story
+    with their pointer, touch and geometry proof. So do the other eight
+    Configuration specs, the full-group timing comparison and the
+    `frontendApp.ts` retirement. This story compares the focused selection
+    before and after.
+- **Key examples.**
+  - *A cohort's trend.* Codex answers ten eligible tasks with a rolling
+    median of 1,450. Usage shows the cohort note `10 tasks · Last 30 days`,
+    ten points and the median `1,450`.
+  - *An empty cohort.* The reader chooses the Refinement workflow and its
+    answer has no tasks. Usage reads `0 tasks · Last 30 days` and
+    `No finished task matches in the last 30 days.`, with no old median.
+  - *A failure belongs to its read.* Claude Code's read fails and Usage
+    names it: `Claude Code: Usage could not be read.` The reader hides and
+    shows Claude Code again, the read answers, and the failure is gone.
+  - *A late answer for a selection already left.* Claude Code's answer is
+    held, the reader hides Claude Code, and the answer is released. Usage
+    shows Codex alone.
+  - *Refresh keeps what is shown.* While a Refresh is pending Usage keeps
+    the trend, says `Checking for new usage…` and disables Refresh until the
+    selection has been read again. A Refresh that fails keeps the trend and
+    its check time beside the error.
+  - *An invalid period.* Under New York time the first read asks for the
+    last 30 local calendar days. The reader types `0`, `1.5` or `abc`. The
+    field reads invalid with `Enter a positive whole number of days. Showing
+    the last 30 days.`, the trend stays and nothing is read again.
+- **Effort hypothesis.** M: thirteen cases over one owner, one typed source
+  and new page objects, five slices.
+- **Plan.** [740](../slice-plans/740-mount-usage-token-index-reading/PLAN.md)
+
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -735,6 +896,9 @@ Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
 moved the Project Intent apply-and-retry cases. The two Optimization
 Candidates revision cases already run as mounted cases in
 [`intent-candidates-revision.spec.ts`](../../dashboard/frontend-tests/intent/intent-candidates-revision.spec.ts).
+Two pieces are split out and queued ahead of this story:
+[the story review's diff reading](#mount-story-review-diff-reading) and
+[the Usage Token index's selections and refreshes](#mount-usage-token-index-reading).
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -744,7 +908,15 @@ SEED-404's timing goal and SEED-301's Intent MakeMe work.
 **Scope and order.** Select families by feature folder and the interaction
 each view owns. The Optimization Candidates and open Sessions sidebar
 families have landed as mounted Vitest Chromium proof.
-Continue with the rest of Intent and Sessions. Use
+Split the next piece by the rendered owner whose cases it moves, sized by the
+[experience below](#experience-from-the-completed-frontend-families), and
+choose it by the seconds it removes for the production change it needs, read
+from the [current state](#frontend-group-state-after-seven-families). Prefer
+an owner that already takes typed inputs, then one small extraction or one
+typed source behind a hook. Continue with the Usage chart cases, the rest of
+Review, Intent and Sessions. Leave Navigation's frame, board and URL cases
+until an audit has separated what a mounted board owner can prove from what
+needs a real page load or belongs in E2E. Use
 the completed
 [Project Intent revision family](#project-intent-revision-family-example)
 as the reference for the remaining migrations. Keep each legacy case until
@@ -841,6 +1013,84 @@ from that command. The full-group goal still needs a full-group measurement.
   It should need only the history reading. Keep the [panel cases](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.spec.ts)
   that prove judgment and Proof beside history, including keyboard movement
   from **Check again** to **Builds and evidence**.
+
+#### Experience from the completed frontend families
+
+Seven frontend stories closed between 2026-11-19 and 2026-11-20: Story Notes,
+Project CI history, the Project Intent revision cases, the Show latest file
+reads, the two Optimization Candidates stories and the open Sessions sidebar.
+Their plans are in Git history (720, 722, 724, 728, 729, 733 and the Sessions
+sidebar plan).
+
+- **Size.** Two cases on an existing fixture took two slices and about 40
+  minutes from Take to Close. Twelve cases with new page objects, or five
+  cases with an extraction, took five to seven slices and about two hours.
+  Split a piece at about a dozen to twenty cases over one or two owners.
+- **What made a family cheap.** The owner already took typed props (Project
+  CI history needed no production change), or an earlier story had left the
+  fixture and typed reply (Show latest file reads, candidates revision).
+- **What made a family expensive.** The first owner chosen dragged in
+  unrelated providers. The Project Intent revision cases first mounted
+  `IntentPerspective` with story selection, CI reads and workspaces, then
+  needed `ProjectIntentReading` extracted and two more slices. Choose the
+  owner by what the cases observe and read its hooks and contexts before
+  sizing.
+- **Production changes that recur.** A typed source behind the reading hook
+  (`storyNotesState(source)`, `readCandidates` on `IntentReadSource`). An
+  extracted owner (`ProjectIntentReading`, the open Sessions list). A
+  component importing its own stylesheet. A module that pulls Node code
+  cannot load in the page.
+- **Acting and waiting.** Render and act directly and wait through retrying
+  assertions. Removing `actSettled` cut the revision cases from 7.16 s to
+  5.75 s. A deferred reply belongs to the case that observes the pending
+  read. Answer the first read before expecting what follows it, and wait one
+  task before asserting that a late answer changed nothing, or the case
+  passes with its guard broken.
+- **State that outlives a case.** Read caches keyed by repository, revision
+  and path need a new revision per case. Keep readers on one fake clock. A
+  component declared inline in a case remounts and loses its state.
+- **The mounted page differs from the built app's.** It has touch, so
+  desktop disclosure needs a fine pointer set through CDP. Colour scheme and
+  time zone are also set through CDP. `makeMe.mjs` cannot load in the page:
+  expose the Node-free builder on `pageMakeMe.mjs`.
+- **Measuring.** A scratch probe understates delivered time (2.07 s probed
+  became 7–8 s). Summed case time can rise while the command gets faster.
+  Compare the focused command's elapsed time over interleaved runs, and keep
+  the full-group comparison for the end. A selection mixing both engines
+  runs only the Vitest specs, so run a built-app spec alone for its
+  baseline.
+- **Proof that slipped.** Two stories dropped an assertion while moving
+  cases (focus after delete, no reread after 70 s) and restored it in a
+  later slice. Name each retired case and the mounted case that carries
+  each of its assertions before deleting it.
+- **Support.** Each story retired the support whose last consumer moved,
+  and none could retire a module that E2E or another family still used.
+  Steps already owned by an E2E journey (the revision check pace, host
+  status cadence) were dropped with that journey named.
+
+#### Frontend group state after seven families
+
+CI run 44741808717 at `93235af49` (2026-11-20) recorded 758 cases and 1,252
+summed seconds. The 85 mounted Vitest cases in 32 specs took 24.0 s. The 123
+cases in 42 `pageTest.ts` specs took 62.3 s. The 550 built-app cases in 237
+specs took 1,165.7 s, 93% of the time.
+
+| Folder | Built-app specs | Cases | CI summed seconds | Seconds per case |
+| --- | ---: | ---: | ---: | ---: |
+| Navigation | 47 | 116 | 330.1 | 2.8 |
+| Intent | 59 | 107 | 248.8 | 2.3 |
+| Sessions | 42 | 92 | 154.8 | 1.7 |
+| Launches | 29 | 81 | 124.1 | 1.5 |
+| Review | 21 | 47 | 119.9 | 2.6 |
+| Configuration | 19 | 49 | 87.5 | 1.8 |
+| Terminals | 12 | 41 | 71.8 | 1.8 |
+| Stories | 8 | 17 | 28.7 | 1.7 |
+
+Mounted cases average 34 ms in Stories and 73 ms in Sessions, and 605 ms in
+Intent, where `ProjectIntentReading` is the owner. At 758 cases the
+one-minute goal at two workers allows about 150 ms a case. Moving every case
+onto Vitest reaches the engine goal and can still miss the minute, so each
+piece prefers the narrowest owner and records its mounted time per case.
 
 #### Frontend campaign baseline
 
