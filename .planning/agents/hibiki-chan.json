@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hibiki-chan",
+  "email": "hibiki-chan@example.org",
+  "identity": "SEED-414#review-done-sessions-on-open-story-cards",
+  "mode": "story-branch",
+  "branch": "cursor/review-done-sessions-on-open-story-cards",
+  "host": "cursor",
+  "model": "auto"
+}
