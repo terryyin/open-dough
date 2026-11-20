@@ -186,7 +186,14 @@ export async function review(record: LaunchRecord, run?: number | string) {
   return storyReview(read, new AbortController().signal);
 }
 
-type NamedFile = { baseline: string; tree: string; path: string };
+// A file of one comparison; a landed run's read also names its reference.
+type NamedFile = {
+  baseline: string;
+  tree: string;
+  path: string;
+  oldPath?: string;
+  reference?: string;
+};
 
 export async function fileText(record: LaunchRecord, file: NamedFile) {
   const read = (await reviewRead(record)).readingFile(file).please();

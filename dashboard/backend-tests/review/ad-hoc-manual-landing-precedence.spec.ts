@@ -8,10 +8,7 @@ import {
   settledOutcome,
 } from "../../test-support/acceptedAttempts.ts";
 import { accept, markDone } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  adHocReview,
-  launchIsolatedReview,
-} from "../../test-support/support/adHocReview.ts";
+import { adHocReview } from "../../test-support/support/adHocReview.ts";
 import {
   declareThroughLaunchInput,
   declaredLandingReference,
@@ -73,32 +70,6 @@ test("Done leaves the installed publisher's prepared receipt recoverable after a
     kind: "landed",
     baseline: base,
     tree: revision,
-  });
-});
-
-test("an unrelated accepted change leaves the saved branch available", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, session } = await launchIsolatedReview(
-    dashboard,
-    "Keep a separate draft",
-  );
-  const tip = commit(workspace, "draft.txt");
-  await origin.publishRevision({
-    files: { "other-change.txt": "Another delivery\n" },
-  });
-
-  dashboard.claudeSessionBecomes(session, "done-live");
-  const response = await markDone(dashboard, { source: "open-dough", session });
-  expect(response.status, response.body).toBe(200);
-
-  expect(await adHocReview(request, dashboard, session)).toMatchObject({
-    kind: "branch-result",
-    tree: tip,
-    files: [{ path: "draft.txt" }],
-    deliveryGap: expect.stringContaining("Delivery to trunk is unverified"),
   });
 });
 
