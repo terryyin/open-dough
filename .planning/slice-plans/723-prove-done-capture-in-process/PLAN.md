@@ -5,13 +5,14 @@
 
 ## Goal and scope
 
-About 25 cases whose trigger is a Done mark on a kept Default main session
-become plain Node Vitest cases. Each marks the session Done through
-`setRecordDoneAt` and reads the kept record, the repository's references or
-the typed review handlers. The checkout's Git work is stated through MakeMe
-and performed by real Git. The backend README gains the rules this family
-adds, and spent `dashboard/test-support/` code is deleted. The seed holds the
-full scope, the scope limits, the key examples and the 2026-11-19 baseline.
+About 25 cases become plain Node Vitest cases. Capture cases mark a kept
+Default main session Done through `setRecordDoneAt` and observe the kept
+record, Git references or a typed review answer. Two review-only cases pass
+kept records and real Git repositories directly to the typed handlers. The
+checkout's Git work is stated through MakeMe and performed by real Git. The
+backend README gains the rules this family adds, and spent
+`dashboard/test-support/` code is deleted. The seed holds the full scope, the
+key examples and the 2026-11-19 baseline.
 
 Excluded, as the seed states: native Done, reported Done and its retries, the
 held checkout read, record deletion and expiry at the dashboard
@@ -19,11 +20,9 @@ held checkout read, record deletion and expiry at the dashboard
 manual landing and handoff journeys, `ad-hoc-session-comparisons`, a clock
 seam in the server, and `Distribution/src/`.
 
-This story waits for the first family
-([plan 721](../721-prove-ad-hoc-review-reads-in-process/PLAN.md)); the seed
-records the agreement. Plan 721 supplies the typed review, file diff and file
-text handlers, the MakeMe stored-document builders for the launch store and
-the project list, and the README rules these cases follow.
+The seed records the satisfied dependency on plan 721, integrated at
+`d940be196`. The landed work supplies the typed review, file diff and file
+text handlers, `makeMe.aSessionReviewRead`, and the backend README rules.
 
 ## Approach and reuse
 
@@ -44,13 +43,18 @@ apply, and no Accepted ADR conflicts.
   without mounting project configuration or initializing native Done services.
   If a case needs unrelated setup to use this entry, narrow the production
   contract instead of adding a wrapper.
-- **Review reads (reuse, from plan 721).** The handlers plan 721 exports answer
-  the review, file diff and file text of a session subject. A case mounts the
-  project list through `mountProjectConfiguration` only when it reads a
-  review.
-- **Kept sessions (reuse).** `makeMe.aLaunchRecord…inDefaultCheckout(…)
-  .inClaudeSession(…).launchedAt(…)` builds the record, and plan 721's
-  stored-document builder keeps it under the case's machine home.
+- **Review reads (reuse).** Call `storyReview` in `storyReviewSnapshot.ts`
+  and `reviewedFileText` in `storyReviewFileResponse.ts` with the typed input
+  from `makeMe.aSessionReviewRead.ofSession(…).keeping(…)` and an
+  `AbortSignal`. Use `.readingFile(…)` for file text. Capture cases pass the
+  records the Done operation kept. The landing and file-text cases build
+  those records with MakeMe and supply only the records and real Git
+  repository. These handler calls need no project list or server mount.
+- **Kept sessions (reuse).** `makeMe.aLaunchRecord` builds the session with
+  `inDefaultCheckout`, `inClaudeSession` and `launchedAt`. For capture and
+  release cases, use the existing `keepLaunchStore` writer to put the
+  starting records in a launch document under the case's disposable home.
+  Observe the persisted record where the case proves what was kept.
 - **Checkout work as MakeMe steps (change).** The dated Git steps in
   `dashboard/test-support/support/sessionCheckoutWork.ts` (221 lines) and
   `sessionCheckoutGit.ts` become a MakeMe description of a checkout's work: a
@@ -105,10 +109,10 @@ run.
 | Consuming operation | Observed result and limit |
 | --- | --- |
 | A Node Vitest case marks a kept session Done in-process and the capture keeps its commit (slices 1–6) | Load about 3.5. A temporary `HOME`; `materializeLocalCheckout` of a MakeMe repository whose base revision is dated 2019; a MakeMe launch record established an hour ago written as the store document; `commitDeclaredRevision` dated half an hour ago; `setRecordDoneAt("open-dough", session, <ten minutes ago>)`. Three cases passed. The answered record held `sessionCommits.runs` of `base` to the commit, and the repository held `refs/open-dough/session-commits/claude/<session>/0/base` and `/revision`. Arrangement 54–140 ms, the Done mark 98–103 ms. No project list was mounted. |
-| The review read answers the capture in-process (slices 1–5) | Same run, with the project list written under the home, `mountProjectConfiguration("development")`, then `storyReviewRequest(url)` and `storyReviewResponse(admitted, <event emitter>)`: `session-commits` with the run, in 84–89 ms. Plan 721's handlers move this code inside the same modules; the handler call itself is covered by the recorded dependency. |
+| Typed review reads use the kept records directly (slices 1–5) | On 2026-11-20 at `ab0feff62`, a Node 24.21.0 probe called `setRecordDoneAt`, read the saved record with `keptRecords`, and passed it to `storyReview`. The handler answered `session-commits` for the expected pair, and both Git refs resolved. From a MakeMe record with a landing and a later run and a real repository, `storyReview` answered the landing and listed its added file. `reviewedFileText` answered both sides for the kept run and returned 409 for a mismatched pair. Project configuration stayed unmounted throughout. |
 | A case's stated times (slices 1–6) | Same spec with launch, work and Done in 2020: the Done mark answered no record, as retention had dropped it. With the launch now and a Done in 2099: the review answered "This session's changes were not captured." With the base revision dated after the launch: no capture, as the log's first commit cannot be placed. The form above avoids all three. |
 | Trunk work taken in through an origin (slices 2, 3) | Load about 11. `materializeRepository` (bare origin and checkout), a commit, another clone's commit pushed to `main`, `git pull --no-rebase --no-edit origin main`, a second commit, the Done mark: two runs, the second based on the merge. With `--rebase`: one run from trunk's commit to the second commit. 1.2–1.4 s per case, 0.8–1.0 s of it Git. Not observed: a rebase onto fetched trunk, an amend, a continued cherry-pick, an autosquash and a reword in-process. They run the same Git commands the Playwright specs run today against the same capture code, with only the dates changed, so slices 2 to 4 own their first runs. |
-| Baseline for the timing promise (slice 7, measured in slice 1) | CI medians over main runs 44528572337, 44512335806, 44503789713, 44500660591 and 44494044199: 27.5 s for the five specs that move whole (16 cases), about 40 s with the moved share of the two partly moved specs. The local Playwright time was not measured: this workspace has no `node_modules` of its own. Slice 1 measures it before deleting a case. |
+| Baseline for the timing promise (slice 7, measured in slice 1) | CI medians over main runs 44528572337, 44512335806, 44503789713, 44500660591 and 44494044199: 27.5 s for the five specs that move whole (16 cases), about 40 s with the moved share of the two partly moved specs. Slice 1 measures the local Playwright baseline before deleting a case. |
 | Which specs still use the support this plan removes from (slice 7) | Search for `DefaultMainSessionWork` and `sessionCheckoutGit`: the seven moved specs, and `ad-hoc-session-branch-handoff`, `ad-hoc-session-commits-done`, `ad-hoc-session-commits-pending-done` and `kept-commits-release`, which stay. No `e2e/` or frontend spec uses them. The staying specs bound what slice 7 can delete. |
 
 ## Ordered slices
@@ -118,20 +122,25 @@ run.
 Type: Behavior
 Status: planned
 
-Behavior: Given a machine home that MakeMe states (a kept session established
-an hour ago in a Default main checkout at `base`) and checkout work of one
-commit half an hour ago, when a plain Node Vitest case marks the session Done
-ten minutes ago through `setRecordDoneAt`, then the kept record holds one run
-from `base` to the commit and the review handler answers `session-commits`
-with that run, with no server and no agent host. The same entry proves that
-the kept comparison stays reviewable after trunk advances and the commit
-leaves every branch, that an established session holding a landing keeps
-answering its landing, and that the file text handler answers a kept run's
-pair and refuses any other. The checkout-work builder and performer arrive
-with the commit and push steps these cases use. Before any case is deleted,
-the slice records the Playwright run time of all seven affected specs in one
-session with the load. The Playwright versions of these four cases are
-deleted, with `ad-hoc-session-commits-file-text.spec.ts`.
+Behavior: Given a stored record for a session established an hour ago in a
+Default main checkout at `base` and a commit made there half an hour ago,
+when a plain Node Vitest case marks the session Done ten minutes ago through
+`setRecordDoneAt`, the kept record holds one run from `base` to the commit.
+The review handler answers `session-commits` for that run. One capture case
+advances trunk until the commit leaves every branch and checks that the
+comparison stays readable.
+
+The two review-only cases build kept records and a real repository. Call
+`storyReview` for an established session with both a landing and a later
+kept run, and observe the landing and its added file. Call `reviewedFileText`
+for a kept run, and observe both sides for the exact pair and the existing
+409 for a mismatched pair. These two cases need no store setup or Done call.
+
+The checkout-work builder and performer arrive with the commit and push
+steps the capture cases use. Before any case is deleted, record the
+Playwright run time of all seven affected specs in one session with the
+load. Delete the Playwright versions of these four cases, including the
+file `ad-hoc-session-commits-file-text.spec.ts`.
 
 Proof: The cases pass through `npm run test:dashboard:backend -- review/`
 with a filter naming the new spec, and appear in the group's times and proof
@@ -234,7 +243,9 @@ Behavior: A contributor reading `dashboard/backend-tests/README.md` finds,
 under "Which entry a case uses", the rules this family adds: state a
 checkout's work through MakeMe; state times against the case's clock; a store
 function under a native operation is the entry when the kept record is the
-whole fact the case adds. Every method of `DefaultMainSessionWork` and every
+whole fact the case adds. A review-only case passes the kept state directly
+to its handler. The existing guidance on stored documents applies to cases
+that exercise the store. Every method of `DefaultMainSessionWork` and every
 function of `sessionCheckoutGit.ts` and `adHocReview.ts` with no caller left
 is deleted. The moved cases' summed case time at two workers is at most half
 of slice 1's Playwright baseline for the same cases.
@@ -252,10 +263,11 @@ lint` and `npm run typecheck:dashboard` pass.
 
 | Promise in the seed | Slice |
 | --- | --- |
-| Every Done-triggered case moves, none lost | 1–6 and the owner table |
+| Every in-scope case moves, including both review-only cases | 1–6 and the owner table |
 | Done marked through `setRecordDoneAt` with a stated time; a record deleted only where release is the behavior | 1, 6 |
-| Times stated against the case's clock | 1 |
-| Kept sessions as the stored launch document; checkout work as MakeMe steps real Git performs | 1–4 |
+| Times stated against the case's clock | 1–6 |
+| Capture cases start with the stored launch document and real Git checkout work stated through MakeMe | 1–6 |
+| Review calls use typed kept records; the landing and file-text cases need only those records and a real repository | 1–5 |
 | The lifecycle specs keep proving the wire's path into the capture | 7 (the staying specs pass) |
 | At most half the Playwright summed time | 1 (baseline), 7 |
 | README rules | 7 |
@@ -263,9 +275,8 @@ lint` and `npm run typecheck:dashboard` pass.
 
 ## Current decisions
 
-- At the start, read what plan 721 delivered: the handlers' names and typed
-  reads, the stored-document builders and the README's rules. This plan names
-  them by role.
+- Read the current handler input and MakeMe builder signatures before moving
+  cases. The handler entry points stay the same across the contract correction.
 - The new cases are `*.unit.spec.ts` specs in
   `dashboard/backend-tests/review/`, named for what Done keeps.
 - The checkout-work builder's exact step names and whether it extends the
@@ -295,10 +306,10 @@ test sources.
 ## Plan review
 
 Slice-plan refinement was not needed: seven slices, each one outcome with its
-own proof loop, and every seed promise mapped. Slices 2 to 4 each add the
+own proof, and every seed promise mapped. Slices 2 to 4 each add the
 checkout-work steps their own cases use, so no step is built ahead of a case
-that needs it. Slice 1 is the largest: it carries the builder's first form
-with four cases, and it stays one slice because the builder has no proof
-without a case. Until slice 7, support methods the deleted specs used may
-remain without a caller, and slice 7 removes them. This review found no
-remaining slice-specific concern.
+that needs it. Slice 1 carries the builder's first form and the four cases
+from the two initial specs. It keeps the two review-only arrangements at the
+typed handler so they add no capture setup or new checkout-work steps. Until
+slice 7, support methods the deleted specs used may remain without a caller.
+Slice 7 removes them. This review found no remaining slice-specific concern.

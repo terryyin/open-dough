@@ -50,10 +50,12 @@ Edit only after its scope and subsystem gates permit the candidates.
 
 ## Design production code for testability
 
-Give each handler, controller, or UI component an explicit, strongly typed
-contract for the data and services its responsibility requires. A unit test
-suite should be able to construct or render it without supplying unrelated
-data or initializing unrelated services.
+Give handlers, controllers, and UI components strongly typed contracts.
+Each variant accepts only the data and services it uses. A unit case builds
+those inputs and calls or renders the same entry point production uses.
+For request handlers, the adapter resolves request context and supplies the
+process-wide state the handler needs. Pass the request signal through every
+cancellable read, including admission, and keep local deadlines.
 
 ## Shotgun surgery
 
@@ -97,9 +99,8 @@ and unit. Use this project's test conventions for the tests in scope.
   the observable outcome.
 - **Unit.** Put cases that one service can prove in unit tests, exercising its
   real collaborators and persistence:
-  - **Backend / API:** Keep wire transport thin and start at the highest
-    strongly typed handler or controller behind it; test the wire directly only
-    when wire behavior itself is under test.
+  - **Backend / API:** Start at the highest typed handler or controller
+    behind a thin wire adapter. Test the wire directly only for wire behavior.
   - **UI:** Start at the smallest rendered component or view that owns the
     interaction under test, keeping hooks and state behind rendered UI.
   - **CLI / scripts:** Keep untyped command surfaces thin over typed or domain
@@ -150,9 +151,9 @@ Use this project's test style and assert observable behavior.
   separate tests: write each one, sharing setup through a builder or helper.
   Keep distinct behaviors visible; do not turn unrelated tests into a
   branching scenario or one long journey to reduce the test count.
-- Use the project's builders and shared test entry points to give required
-  data the same meaningful defaults. Each case specifies only what affects
-  its behavior or observation. If a builder supplies unrelated dependencies,
+- Compose test inputs from the project's domain builders. Use their defaults
+  for details that do not affect the case. If setup needs data or services
+  beyond the entry's contract,
   [revisit the subject's contract](#design-production-code-for-testability).
   Extend existing builders with domain-named operations for recurring setup.
   Use them in place of repeated field lists and post-construction mutation.

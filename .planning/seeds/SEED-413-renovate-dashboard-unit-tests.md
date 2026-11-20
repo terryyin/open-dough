@@ -80,7 +80,7 @@ and deleted `test-support` surface together under
 
 **Identity:** SEED-413#narrow-ad-hoc-review-handler-contracts
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f1b5bc90b7c8fab3497dbfc684cf23371a59677eb533669e47081a4da71da627","plan":"9c84dd9c6eb84d558303cc017afbf084dee4e2077a3f5867b95b3c6cac0823dc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0daa88a4b95e44ca4ea2eb7fb8737f4ace55a40852e321bd596efdb02ad45839","plan":"8054c92c8771e6fc5515b102bd5a5155bbb96125e500982ef3ff5fb688d97bd8"}}
 ```
 
 Correction of the typed ad hoc review handlers
@@ -98,8 +98,10 @@ their execution's retrospective.
     shapes. These carry no story-only field. The handler's copy of the
     adapter's refusal for a published completion on a session read is
     deleted.
-  - Admission takes the file handlers' signal. Only follow-up admission,
-    which has no response, keeps its own 30 s bound.
+  - Admission takes the file handlers' request signal and keeps each existing
+    30-second deadline. Request cancellation stops the read. Expiry while the
+    caller stays active keeps the existing refusal. Follow-up admission also
+    keeps its existing deadlines.
   - Placement and naming: the reading of process-wide stores sits in adapter
     modules. File admission is separate from the range read's adapter. The
     admitted-file type is named for every file read, the session lookup is
@@ -110,11 +112,33 @@ their execution's retrospective.
     composes them.
 - **Scope limits.** Moving `ad-hoc-session-commits-file-text.spec.ts` and the
   Default main landing case to unit cases stays with the
-  [remaining families](#renovate-remaining-dashboard-backend-unit-tests). This
-  correction does not change whether the file read refuses a story launch's
-  session; that refusal is a product question. Story subjects keep their
-  admission path.
+  [Done capture family](#renovate-remaining-dashboard-backend-unit-tests). The
+  [file-read follow-up](#refuse-story-launch-session-file-reads) owns the
+  story-launch refusal. Story subjects keep their admission path.
 - **Plan.** [725](../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md)
+
+<a id="refuse-story-launch-session-file-reads"></a>
+
+### Direct story-launch file reads to their story
+
+**Identity:** SEED-413#refuse-story-launch-session-file-reads
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Goal.** A dashboard developer reading a story launch's diff or file text
+  by session is directed to open the file through its story, matching the
+  session review.
+- **Examples.** A well-formed session-addressed request for a kept story launch
+  gets HTTP 400 from both file endpoints with “This session belongs to a story
+  launch and is reviewed by its story.” It gets that answer whether it names a
+  launch reference or just a comparison pair, before comparison or repository
+  reads. A story-addressed request for the same valid comparison and file still
+  reads it. An ad hoc session still reads its valid files and gets 409 for a
+  mismatched kept pair.
+- **Scope.** Share the story-launch eligibility rule with session review and
+  prove the refusal through both file endpoints. Keep this behavior change
+  separate from the [handler contract correction](#narrow-ad-hoc-review-handler-contracts).
 
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
@@ -125,7 +149,7 @@ their execution's retrospective.
 {"schemaVersion":1,"identity":"SEED-413#renovate-remaining-dashboard-backend-unit-tests","dependencies":[{"supplier":{"identity":"SEED-413#renovate-dashboard-backend-unit-tests","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests"},"implementation":"The first family exports typed review, file diff and file text handlers that answer a session subject in-process from a typed read, an AbortSignal and the kept launch records as typed input (only their adapters read the stores), with MakeMe building that input (makeMe.aSessionReviewRead), and states its entry rules in dashboard/backend-tests/README.md.","rationale":"This story's cases read what Done kept through those review handlers and build the kept launch records they read. Before the handlers exist the cases would call the unsplit request functions with a stand-in for the response, and adding that seam here would duplicate the first family's Taken slices in the same files.","condition":"On trunk, exported typed handlers answer an ad hoc session's review, file diff and file text in-process from a typed read, an AbortSignal and the kept launch records as typed input, and MakeMe builds that input.","state":"satisfied","resolution":{"revision":"b3b57f9f92ff351d1abf1df189e994954fc3e4f8","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-dashboard-backend-unit-tests","summary":"Satisfied: storyReview (dashboard/server/storyReviewSnapshot.ts), reviewedFileDiff and reviewedFileText (storyReviewFileResponse.ts) take ReviewInput<R> (storyReviewSessionAdmission.ts), whose session variant carries kept: { records }, and an AbortSignal; review/ad-hoc-review-{landed,unavailable,subject,file}.unit.spec.ts call them in-process on Node Vitest with makeMe.aSessionReviewRead and MakeMe repositories, and dashboard/backend-tests/README.md states the family's rules. Agreement corrected: the removed clause (MakeMe stored-document builders for the launch store and project list) was replaced by Terry's explicit 2026-11-19 story amendment of the supplier (typed handler input carrying only what the handler reads, no machine home or stored document), recoverable at the resolution revision.\nCondition satisfied: On trunk, exported typed handlers answer an ad hoc session's review, file diff and file text in-process from a typed read, an AbortSignal and the kept launch records as typed input, and MakeMe builds that input.\nAccepted integration: d940be196c4386e7657484281ee71ade53a40f93 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/723-prove-done-capture-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bcb95e5637419ddfa16a29efeb3d465cc75cc1f98274d5b60ee5d4d5278fb9b7","plan":"96443df5b32862dd5825a10611377a5e579ea81fc9e35b840dce44444e2fe36a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/723-prove-done-capture-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d2e6ecc09c48934618d4048821c1a471653ff6fd44864aea83501c7662969912","plan":"2277b33873d004f525aa160ffd362545c90c2b45c27718c9726fa7d4668255b6"}}
 ```
 
 Second family of the backend renovation, split from the remaining families;
@@ -144,10 +168,8 @@ follow it.
   are judged together under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Scope: cases.**
-  - Every case whose trigger is a Done mark on a kept Default main session,
-    and whose facts are the kept record, its Git references or the review
-    answer, becomes a plain Node Vitest case in a `*.unit.spec.ts` spec, and
-    none is lost. On 2026-11-19 those are all of
+  - Move the Done capture cases and two review-only cases to plain Node Vitest
+    in `*.unit.spec.ts` specs. The 2026-11-19 inventory is all of
     `review/ad-hoc-session-commit-runs.spec.ts`,
     `ad-hoc-session-commit-rewrites.spec.ts`,
     `ad-hoc-session-commits-shared.spec.ts`,
@@ -157,22 +179,27 @@ follow it.
     the first family moves; and the six cases of
     `ad-hoc-review-unavailable.spec.ts` about a session that committed
     nothing, committed elsewhere, reworded its commit, or whose log could not
-    be read: about 25 cases and about 40 s of CI.
-  - A case marks the session Done through `setRecordDoneAt`, the store
-    function that writes the mark and starts the capture, with the Done time
-    the case states. The [Done capture contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
-    needs the kept launch record and real checkout. Only a case that also
-    reads the review sets up the project list. A case deletes a record only
-    where the release of the references is the behavior under test.
+    be read. Keep all the current cases and their observations. The inventory
+    is about 25 cases and about 40 s of CI.
+  - A capture case keeps its starting launch records in the launch document
+    and marks the session Done through `setRecordDoneAt` with the Done time it
+    states. A case deletes a record only where reference release is under proof.
+    When it observes the review, it passes the resulting kept records directly
+    to the typed handler.
+  - The file-text case and the Default main case with a retained landing
+    exercise only the review handlers. Build the kept records and real Git
+    repository and pass the records through `makeMe.aSessionReviewRead`. Keep
+    the file-text checks for both sides and the wrong-pair refusal, and the
+    landing's precedence over the kept commit run. Review calls need no project
+    configuration or stored launch document of their own.
   - A case states its times against its own clock: a launch earlier than its
     work, the work after the launch, and a Done after the work and no later
     than now.
-  - A case states its machine through MakeMe: the kept sessions as the stored
-    launch document, and the checkout's work as dated steps of the repository
-    MakeMe describes (a commit, an amend, a commit on another branch, a pull
-    that fast-forwards, merges or rebases, a rebase onto fetched trunk, a
-    continued cherry-pick, an autosquash). Real Git performs each step, so
-    the log the capture reads is Git's own.
+  - State launch records and repository work through MakeMe. Capture cases
+    describe dated checkout steps (a commit, an amend, a commit on another
+    branch, a pull that fast-forwards, merges or rebases, a rebase onto
+    fetched trunk, a continued cherry-pick, an autosquash). Real Git performs
+    each step, so the log the capture reads is Git's own.
   - The moved cases' summed case time at two workers is at most half of what
     the same cases take on Playwright, both measured in one session at a
     stated load.
@@ -180,7 +207,8 @@ follow it.
   - `dashboard/backend-tests/README.md` adds the rules this family follows
     beyond the first two: state a checkout's work through MakeMe; state times
     against the case's clock; a store function under a native operation is
-    the entry when the kept record is the whole fact the case adds.
+    the entry when the kept record is the whole fact the case adds. Limit
+    stored launch document setup to cases that exercise the store.
   - Every method of `DefaultMainSessionWork` and every function of
     `sessionCheckoutGit.ts` and `adHocReview.ts` with no caller left is
     deleted, and nothing is added outside MakeMe builders.
@@ -208,6 +236,9 @@ follow it.
     trunk's changes.
   - Two commits, the second amended, then rebased onto pulled trunk → Done →
     one run of the two commits as they ended.
+  - A kept Default main session with a landing and a later kept run → its
+    review answers the landing and lists its changed file. A file text read
+    of a kept run's exact pair answers both versions, and another pair gets 409.
   - A session whose only commit stays on another branch → Done → the review
     says its changes were not captured. A session that edited files and
     committed nothing → Done → the review says it made no commits in the
@@ -310,10 +341,11 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
   arrangement; a feature folder holds several (`review/` alone holds seven).
   For each family:
   - Keep wire transport thin over exported strongly typed handlers sharing
-    one typed contract with `dashboard/src/`. For each family, check that its
-    unit test suite can [call the handler directly](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
-    with the stores and services that operation uses. If setup requires an
-    unrelated service, narrow the handler’s production contract.
+    one typed contract with `dashboard/src/`. At planning, name the production
+    entry and the data and collaborators each variant uses. Unit cases
+    [call that entry directly](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+    with those inputs. Resolve request context and process-wide state in the
+    adapter. Keep each domain shape on its MakeMe builder.
   - Give each behavior one owner. Move single-service cases to plain Node
     Vitest through the handlers; keep one focused wire check where admission,
     origin refusal, status or framing is the behavior; drop a case another
@@ -343,10 +375,12 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
      lifecycle (native and reported Done, the held checkout read) and record
      deletion and expiry (about 24 s in 14 cases).
   2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and
-     `SEED-319` and giving the module-level memos in `followUpStory.ts`,
-     `ciProofArtifact.ts`, `ciAdapterProof.ts`,
-     `baseCiGithubRevisionLookup.ts` and `LandedCiCollection.close()` an
-     owner (recoverable at
+     `SEED-319`. Preserve freshness, invalidation, and close behavior when
+     moving reads to typed handler inputs. Check whether those inputs can
+     replace the module-level memos in `followUpStory.ts`, `ciProofArtifact.ts`,
+     `ciAdapterProof.ts` and `baseCiGithubRevisionLookup.ts`. Give any cache
+     the production path still needs an explicit lifecycle owner. The earlier
+     analysis includes `LandedCiCollection.close()` (recoverable at
      `6c628be4a:.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md`).
   3. The remaining families by CI seconds.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,

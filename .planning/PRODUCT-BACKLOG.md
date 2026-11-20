@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 - [Narrow the ad hoc review handlers' contracts to what they read](seeds/SEED-413-renovate-dashboard-unit-tests.md#narrow-ad-hoc-review-handler-contracts) — SEED-413#narrow-ad-hoc-review-handler-contracts
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
+- [Direct story-launch file reads to their story](seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads) — SEED-413#refuse-story-launch-session-file-reads
 - [Prove what Done keeps of a Default main session's commits in-process](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families

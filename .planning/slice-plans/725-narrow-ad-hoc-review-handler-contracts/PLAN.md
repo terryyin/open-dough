@@ -36,8 +36,9 @@ Excluded:
 - Moving `ad-hoc-session-commits-file-text.spec.ts` and the
   Default main landing case of `ad-hoc-session-commits.spec.ts` to unit
   cases. That work belongs to `SEED-413#renovate-remaining-dashboard-backend-unit-tests`.
-- Applying the story-launch refusal to the file read. Today that read reaches
-  the kept-commits 409, and changing it is a product question.
+- Applying the story-launch refusal to file diff and file text. The
+  [separate product follow-up](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads)
+  owns that change.
 - Story-subject admission, beyond taking the handler's signal.
 - `Distribution/src/`.
 
@@ -90,14 +91,15 @@ Excluded:
 
 ## Preserved promises and constraints
 
-- Wire behavior is unchanged for every read that is not aborted. This covers
-  methods, origins, query shapes, statuses and messages. The page query
-  builders `storyReviewQuery` and `reviewedFileQuery` emit the same queries.
+- Wire behavior is unchanged for every request whose caller stays active.
+  This covers methods, origins, query shapes, statuses, messages, and the
+  existing 30-second admission deadlines and their refusal behavior. The page
+  query builders `storyReviewQuery` and `reviewedFileQuery` emit the same queries.
 - Handler refusals stay `RefusedRequest` with today's message and status.
 - Only adapters read process-wide stores (the backend README rule). Cases
   build the typed state through MakeMe.
 - Story subjects keep their admission path.
-- Follow-up file admission keeps its 30 s bound.
+- Follow-up file admission keeps its existing 30-second deadlines.
 - No changed file goes over the 250-line check.
   `Distribution/tests/support/launchTestData.mjs` is at 244 lines, so slice 4
   places the new steps without growing that file past the check.
@@ -116,15 +118,13 @@ Excluded:
   adapter narrows. Under either shape, the page's query output stays the
   same, and the compiler refuses a story-only field on a session input.
 - **Signal (change).** The handler's signal reaches `admitReviewedFile`, both
-  the session admissions and `admitHistoricalReviewedFile`.
-  `followUpFileAdmission.ts` passes its own `AbortSignal.timeout(30_000)`.
-  When an admission read fails because the signal aborted, the admission
-  calls `signal.throwIfAborted()`, as `storyReviewHistorical.ts` already
-  does. It does not answer a pair or landing verdict. The abort then reaches
-  the boundary's `next` path, as historical review aborts already do. The
-  response bound is `storyReviewWaitMs` (60 s). An admission read slower than
-  30 s now ends at that bound instead of becoming a 409; no suite observes
-  that case.
+  session file admission paths, and `admitHistoricalReviewedFile`. Combine
+  the request signal with `AbortSignal.timeout(30_000)` at each existing
+  timer boundary. Check the original request signal before turning an
+  interrupted read into a verdict. Request cancellation reaches the
+  boundary's `next` path. Deadline expiry with an active request keeps the
+  existing refusal. The response retains its 60-second `storyReviewWaitMs`
+  bound. Follow-up admission keeps its existing local deadlines.
 - **Placement (change).** The executor places the moved code within these
   limits:
   - `reviewInput` moves to an adapter module, beside or shared by
@@ -151,6 +151,7 @@ Vitest 5.1.0, load about 3). The scratch files were removed after each run.
 | --- | --- |
 | An already-aborted signal ends a `runGit` call at once (slice 3) | Ran `execFile("git", ["cat-file", "-t", "HEAD"], { signal: AbortSignal.abort() })` three times. Each call rejected with `AbortError` / `ABORT_ERR` in 2–3 ms. `retainedPairFiles` maps such a rejection to `{ missing: "objects" }`. |
 | A unit case observes that admission ignores the signal today (slice 3) | Ran a scratch `*.unit.spec.ts` through `npx vitest run --root . --config dashboard/backend.vitest.config.mts`. It used the existing kept-run arrangement (`makeMe.aSessionReviewRead.ofAdHocSessionWithKeptRun(…).readingFile(…)`) and called `reviewedFileDiff` and `reviewedFileText` with `AbortSignal.abort()`. Both resolved `{ kind: "unavailable", explanation: "The file's diff/text could not be read: The operation was aborted" }`. Admission passed, so this case fails before the fix. After the fix, a rejection with the abort is expected; that result is inferred from the code and is the slice's own red-to-green step. |
+| Admission deadline expiry keeps its refusal (slice 3) | On 2026-11-20 at `ab0feff62`, a Node 24.21.0 probe made the requested `AbortSignal.timeout(30_000)` expire immediately with the caller still active. Over a real MakeMe repository, `reviewedFileText` for a kept pair refused with 409 for the kept commits, and `reviewedFileDiff` for a retained landing refused with 409 for missing or unreadable comparison objects. |
 | Which modules import the moved names (slice 2) | `reviewInput` is imported by `storyReviewSnapshot.ts` and `storyReviewFileResponse.ts`. `ReviewInput` is imported by `storyReviewAdmission.ts` and `storyReviewRecordAdmission.ts`. `KeptSessionState` is imported by `storyReviewSessionFileAdmission.ts`. `AdmittedStoryReviewRange` is imported by `storyReviewRange.ts`. |
 | Who builds the two scenarios (slice 4) | `ofLandedAdHocSession`: `ad-hoc-review-landed`, `-unavailable` and `-file.unit.spec.ts`. `ofAdHocSessionWithKeptRun`: `ad-hoc-review-file.unit.spec.ts` and `keepSessionWithKeptRun`, whose only importer is `review/ad-hoc-session-commits-file-text.spec.ts`. |
 
@@ -206,20 +207,25 @@ Proof:
 Type: Behavior
 Status: planned
 
-Behavior: Given a session with one kept run, when the file diff or the file
-text handler is asked for that run's pair under an aborted signal, then
-admission's Git read ends under that signal and the handler rejects with the
-abort. It does not answer `unavailable`, and it does not refuse the pair. The
-same holds for a landed session's file read by its launch reference. Story
-historical admission takes the handler's signal. Follow-up file admission
-keeps its own 30 s bound.
+Behavior: Given a session with one kept run or a retained landing, when a
+caller cancels a file diff or file text request, admission's Git read stops
+and the handler rejects with the request abort. The same signal reaches
+story historical admission. When an existing 30-second admission deadline
+expires while the request is active, the corresponding admission still
+answers its existing refusal. Follow-up file admission keeps its own
+30-second deadlines.
 
 Proof:
 - New cases in `review/ad-hoc-review-file.unit.spec.ts` fail at the current
   revision, which answers `unavailable` as observed. They pass after the
   change.
 - The cases also fail under a scratch edit that gives admission its own
-  `AbortSignal.timeout(30_000)` again.
+  `AbortSignal.timeout(30_000)` alone again.
+- Use a controlled deadline to observe that admission requests 30 seconds and
+  produces the existing timeout refusal while the caller's signal stays
+  active. Exercise the kept-pair and historical admission paths without
+  waiting 30 seconds. A scratch change that drops the deadline or treats its
+  expiry as request cancellation fails this proof.
 - `npm run test:dashboard:backend -- review/ launches/agent-launch-follow-up-file`
   passes. That run covers both follow-up file specs.
 - `npm run typecheck:dashboard` and `npm run lint` pass.
@@ -252,7 +258,7 @@ Proof:
 | Finding | Slice |
 | --- | --- |
 | 1. Session inputs carry only what they read; unreachable refusal removed | 1 |
-| 2. Handler signal bounds admission; follow-up keeps 30 s | 3 |
+| 2. Request cancellation reaches admission and existing 30-second deadlines retain their refusals | 3 |
 | 3. Store reads only in adapter modules; names and lookup; README | 2 |
 | 4. Launch-record scenarios on `LaunchRecordBuilder` | 4 |
 | Wire unchanged for non-aborted reads | 1–4 (`review/` backend folder, wire check) |
@@ -261,8 +267,6 @@ Proof:
 
 - The exact types and the destination modules are the executor's choice,
   within Approach.
-- An admission read that fails because the signal aborted rethrows the abort
-  through `signal.throwIfAborted()`. It does not answer a verdict.
 - The existing scenarios and specs keep their names unless a move requires a
   change.
 
@@ -291,5 +295,6 @@ finding and its own proof loop. Slices 1 and 2 are Structure slices placed
 before the Behavior that runs through the narrowed admission. Slice 4 is
 test-data ownership and depends on slice 1's removal of `Omit`.
 
-This review found no remaining slice-specific concern. The abort premise is
-observed both through Node and through the handler at the current revision.
+This review found no remaining slice-specific concern. The evidence covers
+both the ignored caller signal and the existing deadline refusals. Slice 3
+proves that callers can cancel and the deadline still applies.
