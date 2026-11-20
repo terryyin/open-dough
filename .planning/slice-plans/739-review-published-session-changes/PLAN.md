@@ -144,7 +144,7 @@ load average ~26; the affected 17 files passed on rerun and CI settles the rest.
 ### 3. Move one inline read out of the performed-read dispatch
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** Move one inline case block out of
 `dashboard/server/performedRead.ts` (exactly 250 lines) behind its own typed
@@ -161,6 +161,11 @@ minutes of reading and stopped before edits as an oversized slice holding
 independent outcomes. The slice clock shows 389.7 minutes for that slice only
 because the coordinator left it running while waiting on a human question;
 that is a coordinator clock error, not implementation time.
+
+**Accepted.** `addition-at` moved verbatim behind `performAdditionRead` in
+`dashboard/server/additionRead.ts`; `performedRead.ts` is 229 lines. The six
+observation read-route and authentication specs (34 cases) pass unchanged.
+Its clock runs as `3s`, split from the old slice 3.
 
 ### 4. List published session records at fetched trunk
 
