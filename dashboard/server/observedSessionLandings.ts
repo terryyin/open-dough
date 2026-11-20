@@ -7,6 +7,7 @@ import {
 } from "../src/sessionBranchResult.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { defaultGitOutputLimit } from "./gitRunner.ts";
+import type { RecordsDroppedByRetention } from "./launchRecordDocument.ts";
 import {
   changeSessionRecord,
   keptRecords,
@@ -34,9 +35,11 @@ type ProjectObservation = {
 
 // The process-lifetime owner of observed deliveries: it holds each project's
 // checked witnesses and in-flight pass for the revision it last observed.
-// A fresh owner starts as a restarted Dashboard would.
+// A fresh owner starts as a restarted Dashboard would. Records its writes
+// drop by retention go to `droppedByRetention` (`replaceRecords`).
 export function sessionLandingObservations(
   inspect: typeof inspectManualLanding = inspectManualLanding,
+  droppedByRetention?: RecordsDroppedByRetention,
 ) {
   const observations = new Map<string, ProjectObservation>();
   return {
@@ -51,10 +54,12 @@ export function sessionLandingObservations(
       const settle = () => {
         current.pass = undefined;
       };
-      current.pass = captureObservedLandings(source, current, inspect).then(
-        settle,
-        settle,
-      );
+      current.pass = captureObservedLandings(
+        source,
+        current,
+        inspect,
+        droppedByRetention,
+      ).then(settle, settle);
       return current.pass;
     },
   };
@@ -76,6 +81,7 @@ async function captureObservedLandings(
   source: ObservedSource,
   { revision, checked }: ProjectObservation,
   inspect: typeof inspectManualLanding,
+  droppedByRetention: RecordsDroppedByRetention | undefined,
 ) {
   const heads = new Map<string, string | undefined>();
   for (const record of await keptRecords(source.id)) {
@@ -131,22 +137,27 @@ async function captureObservedLandings(
         continue;
       }
 
-      await changeSessionRecord(source.id, record.session, async (current) => {
-        const live = branchResultAtDone(current);
-        if (
-          current.launchedAt !== record.launchedAt ||
-          sessionKey(branchPinOwner(current)) !==
-            sessionKey(branchPinOwner(record)) ||
-          live?.doneAt !== result.doneAt ||
-          live.repository !== result.repository ||
-          live.base !== result.base ||
-          live.revision !== result.revision ||
-          live.committedTip !== result.committedTip
-        )
-          return current;
-        landing = await keepManualLanding(current, pair);
-        return landing === undefined ? current : { ...current, landing };
-      });
+      await changeSessionRecord(
+        source.id,
+        record.session,
+        async (current) => {
+          const live = branchResultAtDone(current);
+          if (
+            current.launchedAt !== record.launchedAt ||
+            sessionKey(branchPinOwner(current)) !==
+              sessionKey(branchPinOwner(record)) ||
+            live?.doneAt !== result.doneAt ||
+            live.repository !== result.repository ||
+            live.base !== result.base ||
+            live.revision !== result.revision ||
+            live.committedTip !== result.committedTip
+          )
+            return current;
+          landing = await keepManualLanding(current, pair);
+          return landing === undefined ? current : { ...current, landing };
+        },
+        droppedByRetention,
+      );
     } catch {
       if (
         landing !== undefined &&

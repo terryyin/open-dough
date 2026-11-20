@@ -4,10 +4,11 @@
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { aDeclaredBranch } from "../support/declaredBranchCase.ts";
 import {
   aCheckoutWithWorktree,
+  aDefaultLaunch,
   inWorktree,
   minutesAgo,
   type Checkout,
@@ -28,17 +29,17 @@ const aTopicWorktree = () =>
   aCheckoutWithWorktree(branch, { "shared.txt": "original\n" });
 
 // A Default main launch that then identified the existing topic worktree as
-// its branch, with whatever the worktree already held.
-const aDeclaredTopic = (checkout: Checkout, workspace: string) =>
-  aDeclaredBranch(checkout, { workspace, branch });
-
-// That launch with its branch entry, marked Done with the branch result Git
-// captures.
-const theDoneTopic = ({
-  launch,
-  entry,
-}: Awaited<ReturnType<typeof aDeclaredTopic>>) =>
-  aDoneBranch(launch, { branchEntry: entry });
+// its branch, entering it with whatever the worktree already held and the
+// trunk it observed then.
+async function aDeclaredTopic(checkout: Checkout, workspace: string) {
+  const launch = aDefaultLaunch(checkout);
+  const { entry } = await proposeBranchEntry(
+    "refs/heads/main",
+    launch.please(),
+    { workspace, branch },
+  );
+  return { launch: launch.enteredBranch(entry), entry };
+}
 
 test("a declared branch's saved comparison shows only its new work and its edit to imported text", async () => {
   const { checkout, workspace } = await aTopicWorktree();
@@ -48,7 +49,7 @@ test("a declared branch's saved comparison shows only its new work and its edit 
       .committing("earlier-commit", { at: minutesAgo(70) })
       .editing("earlier-draft", { at: minutesAgo(65) }),
   );
-  const declared = await aDeclaredTopic(checkout, workspace);
+  const { launch } = await aDeclaredTopic(checkout, workspace);
   await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork
@@ -66,7 +67,7 @@ test("a declared branch's saved comparison shows only its new work and its edit 
       }),
   );
 
-  const record = await theDoneTopic(declared);
+  const record = await aDoneBranch(launch);
 
   const answer = await review([record], record);
   if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
@@ -107,8 +108,7 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
       files: { "shared.txt": "branch line from before entry\n" },
     }),
   );
-  const declared = await aDeclaredTopic(checkout, workspace);
-  const { entry } = declared;
+  const { launch, entry } = await aDeclaredTopic(checkout, workspace);
   const { imported } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -125,7 +125,7 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
     makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
   );
 
-  const record = await theDoneTopic(declared);
+  const record = await aDoneBranch(launch);
 
   expect(await review([record], record)).toMatchObject({
     kind: "unavailable",

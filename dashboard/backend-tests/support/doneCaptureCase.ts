@@ -87,14 +87,15 @@ export const anEstablishedSession = (
     .inClaudeSession({ sessionId })
     .launchedAt(launchedAt);
 
-// A blank launch whose start found the checkout on main at its base.
+// A blank launch whose start found the checkout on main at its base, naming
+// its repository as Git resolves it.
 export const aDefaultLaunch = (
   checkout: Checkout,
   {
     sessionId = "default-launch",
     title = "Fix the typo",
     launchedAt = minutesAgo(60),
-    gitDirectory = path.join(checkout.integration, ".git"),
+    gitDirectory = canonicalGitDirectory(checkout),
   }: LaunchFacts & { gitDirectory?: string | undefined } = {},
 ) =>
   makeMe.aLaunchRecord

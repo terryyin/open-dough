@@ -32,7 +32,7 @@ a real dashboard server. They stay as the adapter's regression gate here and
 move with
 [the later backend families](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families).
 Record deletion and `installRecordRemovalDispatch` stay with
-[branch entry](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store)
+branch entry (SEED-413#split-branch-entry-proposal-from-store, done; recoverable at `9969388`)
 and [delivery observation](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records).
 Folding launch flavors into MakeMe stays with
 [launch flavors](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme).

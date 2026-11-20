@@ -38,6 +38,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   doneAt?: string,
  *   doneProblem?: string,
  *   returnedToBacklog?: boolean,
+ *   branchEntry?: import("../../../dashboard/src/sessionBranchResult.ts").SessionBranchEntry,
  * }} LaunchOutcome
  */
 
@@ -125,6 +126,16 @@ export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
     return this;
   }
 
+  /**
+   * The session identified this checkout as its own branch, entering it in
+   * the state and with the Default main tip the entry states.
+   * @param {NonNullable<LaunchOutcome["branchEntry"]>} entry
+   */
+  enteredBranch(entry) {
+    this.#outcome = { ...this.#outcome, branchEntry: structuredClone(entry) };
+    return this;
+  }
+
   // The dashboard closed the launch on its final report finding the story
   // back in the queue, keeping that outcome under the report's receipt.
   returnedToBacklog() {
@@ -169,6 +180,7 @@ export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
       doneAt,
       doneProblem,
       returnedToBacklog,
+      branchEntry,
     } = this.#outcome;
     const report = completion && finalReport(completion, at);
     const landing =
@@ -196,6 +208,7 @@ export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
       }),
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
+      ...(branchEntry && { branchEntry: structuredClone(branchEntry) }),
       ...this.doneCaptureFacts(doneAt ?? at),
     };
   }

@@ -78,8 +78,9 @@ and deleted `test-support` surface together under
 The Done capture import-list stories come from Terry’s 2026-11-20 reviews of
 the Done capture family’s import lists. Terry accepted the first analysis and
 its order; the addendum’s two stories were added at Terry’s request. The first,
-SEED-413#split-done-mark-decision-from-store, is done; the others are
-[branch entry](#split-branch-entry-proposal-from-store),
+SEED-413#split-done-mark-decision-from-store, is done, as is the second,
+branch entry (SEED-413#split-branch-entry-proposal-from-store; recoverable at
+`9969388`); the others are
 [delivery observation](#observe-done-deliveries-over-typed-records),
 [landing reports](#decide-landings-over-typed-attempts-and-records) and
 [launch flavors as MakeMe steps](#fold-done-capture-launches-into-makeme).
@@ -202,69 +203,6 @@ SEED-413#split-done-mark-decision-from-store (story at
   entry, the observation and landing store reads, and the launch preset fold
   stay with their stories.
 - **Plan.** [743](../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
-
-<a id="split-branch-entry-proposal-from-store"></a>
-
-### Propose a branch entry from typed inputs and expose its pin refs
-
-**Identity:** SEED-413#split-branch-entry-proposal-from-store
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f48af8e3006cf1ad62fc395237b5721c452217ec288320c7179c95467fd6c6f6","plan":"104f6e7f4bae51c3f432da31f6ea6603ee439bca6fb8e7cd2c3a3424fc5d35b4"}}
-```
-
-Second of the [Done capture import-list stories](#done-capture-import-list-analysis);
-the analysis and decisions are recorded there.
-
-- **Goal.** Dashboard maintainers can prove what a branch entry captures
-  and refuses using a typed launch record and real Git without arranging a
-  kept store. Cases about review, attribution, or publication start with the
-  branch entry already in the record. Cases about retaining and releasing
-  evidence read the actual refs through their production owners, reducing
-  setup and keeping the evidence checks tied to the host and session that
-  own the pins.
-- **Scope.**
-  - Separate the proposal over the trunk ref, typed launch record, and
-    requested worktree and branch from the adapter that keeps the entry and
-    its pins. The proposal validates the registered worktree and captures
-    its committed tip and working tree, the Default main tip, and the trunk
-    observation. The adapter takes only the source id and ref it uses.
-  - Preserve the handoff's admission and persistence rules. A registered
-    non-trunk branch of the launch's repository can be recorded while the
-    launch is open. The same place returns its previously kept entry.
-    The repository restriction protects attribution to the original launch,
-    and keeping the first entry fixes the review baseline even if main, the
-    worktree, or the live record moves during the request.
-  - Query session branch pins and one-shot landing pins via production.
-    Use the host-qualified session or the original pin owner where the
-    native session has been replaced. Retire the test queries and keep
-    `retireAdHocBranch` for cases that actually prune a worktree.
-  - Compose a branch entry with MakeMe when it is a precondition, including
-    in `aDeclaredPublisherBranch`. Keep the real store adapter where
-    persistence or pin survival is the topic. Retire `declaredBranchCase.ts`
-    and make the expiry cases' cleanup collaborator explicit. Keep
-    deletion cases on the production deletion operation.
-  - The sibling stories own the Done transition, the delivery-observation
-    and landing-report store splits, and the broader launch presets.
-- **Key examples.**
-  - Given a Default main launch, proposing a foreign clone, a mismatched
-    worktree and branch, or a second place after a successful entry returns
-    a conflict without a kept store. The same place returns the first
-    entry even after main moves.
-  - A successful handoff in a dirty worktree keeps the branch commit, the
-    distinct Default main tip and the entry tree. Repeating the handoff
-    returns that kept entry and leaves its pins in place.
-  - A review whose launch already holds its branch entry shows only the
-    branch's post-entry changes in its branch comparison and the earlier
-    Default main commits in their own comparison.
-  - After Cursor replaces a session, its pins still belong to the
-    original host-qualified session. Expiry removes those pins and keeps
-    the other session's pins. Deleting a declared landing likewise
-    releases its one-shot pins after the comparison has outlived retirement.
-- **Evaluation.** Preserve every replaced assertion. Compare affected
-  specs' imports, branch-entry actions, HOME stubs, and case time at
-  comparable load as in the first story. Also count backend spec imports of
-  `adHocReview.ts`.
-- **Effort hypothesis.** M, one plan.
 
 <a id="observe-done-deliveries-over-typed-records"></a>
 
@@ -536,10 +474,13 @@ does not depend on them.
     the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
     and `dashboard/backend-tests/launches/`, with their shared support:
     `doneCaptureCase.ts`, `doneCaptureReview.ts`, `doneBranchObservation.ts`,
-    `declaredBranchCase.ts`, `declaredPublisherBranch.ts`,
-    `installedPublisher.ts`, `reportedIsolatedBranch.ts` and
-    `adHocBranchRefs.ts`, as the five import-list stories leave them. Profile per case first: checkout creation, checkout
-    work, production Done capture, observation and review reads.
+    `declaredPublisherBranch.ts`, `installedPublisher.ts`,
+    `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
+    import-list stories leave them. Profile per case first: checkout creation,
+    checkout work, production Done capture, observation and review reads.
+    After the branch-entry story, entry setup is gone; the Done review,
+    attribution, declared publication and lifecycle deletion cases still take
+    4.1–4.6 s at load ~20 in real Done capture and fixture Git.
   - Keep the Git that developers run, the production handlers and every
     assertion. The proof is of Git's own behavior (reflog times, merges,
     worktrees, pins), so a Git library in the test process does not replace

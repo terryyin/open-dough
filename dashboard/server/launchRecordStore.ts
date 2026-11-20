@@ -10,6 +10,7 @@ import {
   readStoredRecords,
   replaceRecords,
   withinRetention,
+  type RecordsDroppedByRetention,
 } from "./launchRecordDocument.ts";
 
 // Every project's records still kept, by project id, each oldest first.
@@ -90,11 +91,13 @@ export { bindRecord, keepRecord } from "./launchRecordBinding.ts";
 export { setRecordDoneAt } from "./recordDoneAt.ts";
 
 // Changes one kept session's record by `change`, answering the record as it
-// now is, or undefined when no such record is kept any more.
+// now is, or undefined when no such record is kept any more. Records the
+// write drops by retention go to `droppedByRetention` (`replaceRecords`).
 export async function changeSessionRecord(
   sourceId: string,
   session: SessionReference,
   change: (record: LaunchRecord) => LaunchRecord | Promise<LaunchRecord>,
+  droppedByRetention?: RecordsDroppedByRetention,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
   await replaceRecords(async (kept) => {
@@ -115,7 +118,7 @@ export async function changeSessionRecord(
         }),
       ),
     };
-  });
+  }, droppedByRetention);
   return changed;
 }
 

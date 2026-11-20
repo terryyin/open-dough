@@ -1,5 +1,5 @@
-// Git operations on an ad hoc session's branch and the refs that pin its
-// kept commits, usable from either test runner.
+// Retires an ad hoc session's worktree and branch and prunes every object no
+// ref keeps, usable from either test runner.
 import { git } from "./storyReviewWorktree.ts";
 
 export function retireAdHocBranch(
@@ -18,26 +18,4 @@ export function retireAdHocBranch(
   git(checkout, "branch", "--quiet", "-D", branch);
   git(checkout, "reflog", "expire", "--expire=now", "--all");
   git(checkout, "gc", "--quiet", "--prune=now");
-}
-
-export function sessionBranchPins(checkout: string, session: string): string[] {
-  return git(
-    checkout,
-    "for-each-ref",
-    "--format=%(objectname)",
-    `refs/open-dough/session-branch/claude/${session}/`,
-  )
-    .split("\n")
-    .filter(Boolean);
-}
-
-export function landingPins(checkout: string): string[] {
-  return git(
-    checkout,
-    "for-each-ref",
-    "--format=%(refname)",
-    "refs/open-dough/one-shot",
-  )
-    .split("\n")
-    .filter(Boolean);
 }

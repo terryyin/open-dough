@@ -5,7 +5,10 @@
 // such operation keeps nothing of the kind.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
-import { onRecordsDroppedByRetention } from "./launchRecordDocument.ts";
+import {
+  onRecordsDroppedByRetention,
+  type RecordsDroppedByRetention,
+} from "./launchRecordDocument.ts";
 import { releaseExpiredRecordPins } from "./launchRecordPins.ts";
 
 // Runs the record's host's record-removal operation, if it has one.
@@ -14,20 +17,24 @@ export async function notifyRecordRemoved(record: LaunchRecord): Promise<void> {
   await launchHost(record.session.host)?.recordRemoved?.(record);
 }
 
-// Installs the retention path's dispatch: session records the record
-// store drops past their retention are surfaced by
-// `./launchRecordDocument.ts` once the dropping rewrite has landed, and
-// each is retired here exactly as an explicit deletion retires it, after
-// what it kept in a saved repository is released (`./launchRecordPins.ts`).
-// Installed by the launch boundary (`./launchBoundary.ts`); a write in a
-// process that never installed it still drops the records, and their
-// host-local state then has no record left to retire through this
-// dispatch, so it can be stranded.
+// The retention path's cleanup: session records the record store drops
+// past their retention are surfaced by `./launchRecordDocument.ts` once
+// the dropping rewrite has landed, and each is retired here exactly as an
+// explicit deletion retires it, after what it kept in a saved repository
+// is released (`./launchRecordPins.ts`).
+export const retireExpiredRecords: RecordsDroppedByRetention = async (
+  records,
+) => {
+  for (const record of records) {
+    await releaseExpiredRecordPins(record);
+    await notifyRecordRemoved(record);
+  }
+};
+
+// Installs that cleanup as every write's default. Installed by the launch
+// boundary (`./launchBoundary.ts`); a write in a process that never
+// installed it and names no cleanup still drops the records, and their
+// host-local state then has no record left to retire, so it can be stranded.
 export function installRecordRemovalDispatch(): void {
-  onRecordsDroppedByRetention(async (records) => {
-    for (const record of records) {
-      await releaseExpiredRecordPins(record);
-      await notifyRecordRemoved(record);
-    }
-  });
+  onRecordsDroppedByRetention(retireExpiredRecords);
 }

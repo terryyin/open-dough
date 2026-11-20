@@ -2,14 +2,17 @@
 // received a landing context, and the typed landing handler it reports to.
 import { appendFileSync, copyFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { branchLandingContext } from "../../server/branchLandingContext.ts";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
 import type { LandingSubmission } from "../../server/launchLandingAdmission.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import { aDeclaredBranch, type DeclaringLaunch } from "./declaredBranchCase.ts";
 import {
   aCheckoutWithCanonicalWorktree,
+  aDefaultLaunch,
   type Checkout,
+  keep,
   source,
 } from "./doneCaptureCase.ts";
 
@@ -44,20 +47,34 @@ function installPublisher(checkout: Checkout, workspace: string) {
   );
 }
 
-// The checkout with an origin and its worktree on `branch`, declared by a
-// kept Default main launch (blank unless `launch` says it reports) whose
-// installed publisher holds a context.
+type PublisherLaunch = {
+  reporting?: NonNullable<LaunchRecord["request"]["reporting"]>;
+  others?: (checkout: Checkout) => LaunchRecord[];
+};
+
+// The checkout with an origin and its worktree on `branch`, whose installed
+// publisher holds the context of a kept Default main launch (blank unless it
+// reports through `reporting`) that entered that worktree. The `others` of the
+// checkout are kept beside it.
 export async function aDeclaredPublisherBranch(
   branch: string,
-  launch: Omit<DeclaringLaunch, "workspace" | "branch"> = {},
+  { reporting, others = () => [] }: PublisherLaunch = {},
 ) {
   const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
   installPublisher(checkout, workspace);
-  const { record, entry } = await aDeclaredBranch(checkout, {
-    ...launch,
-    workspace,
-    branch,
-  });
+  const blank = aDefaultLaunch(checkout);
+  const launch =
+    reporting === undefined ? blank : blank.reportingThrough(reporting);
+  const { entry } = await proposeBranchEntry(
+    "refs/heads/main",
+    launch.please(),
+    {
+      workspace,
+      branch,
+    },
+  );
+  const record = launch.enteredBranch(entry).please();
+  keep(record, ...others(checkout));
   const context = await branchLandingContext(source, record, dashboardOrigin);
   if (context === undefined) throw new Error("Missing the landing context.");
   return { checkout, workspace, record, entry, context };

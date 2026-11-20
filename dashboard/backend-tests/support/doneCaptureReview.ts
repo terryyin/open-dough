@@ -9,7 +9,6 @@ import {
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import type { SessionBranchEntry } from "../../src/sessionBranchResult.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { changeSessionRecord } from "../../server/launchRecordStore.ts";
 import {
@@ -34,21 +33,13 @@ export const aDoneSession = (
     .please();
 
 // The launch marked Done at `doneAt` with the branch result its Git captures
-// then; a declared branch's record carries its `branchEntry`.
+// then.
 export async function aDoneBranch(
   launch: typeof makeMe.aLaunchRecord,
-  {
-    doneAt = minutesAgo(10),
-    branchEntry,
-  }: { doneAt?: string; branchEntry?: SessionBranchEntry } = {},
+  { doneAt = minutesAgo(10) }: { doneAt?: string } = {},
 ): Promise<LaunchRecord> {
-  const entered = (record: LaunchRecord) =>
-    branchEntry === undefined ? record : { ...record, branchEntry };
-  const { result } = await captureBranchResult(
-    entered(launch.please()),
-    doneAt,
-  );
-  return entered(launch.branchResultFrom(result).markedDoneAt(doneAt).please());
+  const { result } = await captureBranchResult(launch.please(), doneAt);
+  return launch.branchResultFrom(result).markedDoneAt(doneAt).please();
 }
 
 // The kept record of `record`'s session, now Done at `doneAt` with the branch

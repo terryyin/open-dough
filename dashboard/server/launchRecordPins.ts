@@ -14,7 +14,12 @@ import {
 import type { SessionReference } from "../src/sessionReference.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGitUntilClosed } from "./gitRunner.ts";
-import { pinPair, removeLandingPins, removePins } from "./launchLandingGit.ts";
+import {
+  heldPins,
+  pinPair,
+  removeLandingPins,
+  removePins,
+} from "./launchLandingGit.ts";
 import { defaultMainStart, resolvedCheckout } from "./sessionCommitsCapture.ts";
 
 const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
@@ -22,6 +27,12 @@ const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
 
 const sessionBranchRefPrefix = (session: SessionReference) =>
   `refs/open-dough/session-branch/${session.host}/${session.sessionId}/`;
+
+// The branch pins `repository` holds for `session`, ordered by ref name.
+export const sessionBranchPins = (
+  repository: string,
+  session: SessionReference,
+) => heldPins(repository, sessionBranchRefPrefix(session));
 
 const branchResultRefPrefix = (
   session: SessionReference,

@@ -1,17 +1,15 @@
 // Deleting or expiring one Done branch while its delivery is being inspected
 // wins: the other branch's delivery settles and only its evidence remains.
 import { expect, test } from "vitest";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { replaceRecords } from "../../server/launchRecordDocument.ts";
-import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
 import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launchRetentionDays } from "../../src/launchRecord.ts";
-import {
-  landingPins,
-  sessionBranchPins,
-} from "../../test-support/support/adHocBranchRefs.ts";
 import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   observedTrunk,
@@ -24,7 +22,6 @@ import { review } from "../support/doneCaptureReview.ts";
 // observation of that revision whose inspection of `leaving` waits until
 // released.
 async function heldObservation() {
-  installRecordRemovalDispatch();
   const {
     checkout,
     home,
@@ -35,8 +32,8 @@ async function heldObservation() {
     pinned: true,
   });
   expect(
-    sessionBranchPins(checkout.integration, leaving.session.sessionId),
-  ).toContain(leavingTip);
+    await sessionBranchPins(checkout.integration, leaving.session),
+  ).toContainEqual(expect.objectContaining({ objectId: leavingTip }));
 
   let release = () => {};
   const released = new Promise<void>((resolve) => {
@@ -52,7 +49,7 @@ async function heldObservation() {
       await released;
     }
     return inspectManualLanding(...inspection);
-  }).observe(observedTrunk, head);
+  }, retireExpiredRecords).observe(observedTrunk, head);
   await held;
   return { checkout, home, leaving, staying, observation, release };
 }
@@ -73,12 +70,13 @@ async function expectOnlyTheSurvivorDelivered(
     (await keptRecords(source)).map((record) => record.session.sessionId),
   ).toEqual([survivor.session.sessionId]);
   expect(
-    sessionBranchPins(checkout.integration, removed.session.sessionId),
+    await sessionBranchPins(checkout.integration, removed.session),
   ).toEqual([]);
-  const pinned = `refs/open-dough/one-shot/${delivered.landing.reference}/${delivered.landing.delivery}`;
-  expect(landingPins(checkout.integration)).toEqual([
-    `${pinned}/base`,
-    `${pinned}/revision`,
+  const { landing } = delivered;
+  const pinned = `refs/open-dough/one-shot/${landing.reference}/${landing.delivery}`;
+  expect(await heldLandingPins(checkout.integration)).toEqual([
+    { ref: `${pinned}/base`, objectId: landing.base },
+    { ref: `${pinned}/revision`, objectId: landing.revision },
   ]);
 }
 
@@ -119,10 +117,10 @@ test("expiry while the target is being inspected releases evidence and cannot re
   await expectOnlyTheSurvivorDelivered(checkout, leaving, staying);
 
   ageDoneRecord(home, staying);
-  await replaceRecords((kept) => kept);
+  await replaceRecords((kept) => kept, retireExpiredRecords);
   expect(await keptRecords(source)).toEqual([]);
-  expect(landingPins(checkout.integration)).toEqual([]);
+  expect(await heldLandingPins(checkout.integration)).toEqual([]);
   expect(
-    sessionBranchPins(checkout.integration, staying.session.sessionId),
+    await sessionBranchPins(checkout.integration, staying.session),
   ).toEqual([]);
 });

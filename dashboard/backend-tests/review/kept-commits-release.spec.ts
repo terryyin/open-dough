@@ -9,7 +9,7 @@ import {
   readStoredRecords,
   replaceRecords,
 } from "../../server/launchRecordDocument.ts";
-import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { deleteRecord } from "../../server/launchRecordStore.ts";
 import {
   launchRetentionDays,
@@ -36,8 +36,7 @@ const removals = {
   expiry: {
     doneAt: daysAgo(launchRetentionDays + 1),
     remove: async () => {
-      installRecordRemovalDispatch();
-      await replaceRecords((kept) => kept);
+      await replaceRecords((kept) => kept, retireExpiredRecords);
     },
   },
 };

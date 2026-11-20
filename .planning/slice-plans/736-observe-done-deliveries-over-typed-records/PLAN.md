@@ -37,7 +37,7 @@ steps, and composed-record `doneCaptureReview.ts`
 (Done split story SEED-413#split-done-mark-decision-from-store, done,
 recorded as this story's blocking supplier); exposing production pin-ref
 queries in place of `adHocBranchRefs.ts`
-([branch entry story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store));
+(the branch entry story (SEED-413#split-branch-entry-proposal-from-store, done; recoverable at `9969388`));
 splitting `handleLanding`
 ([landing reports](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records));
 and folding `twoDoneBranchesMergedByHand` and `observedTrunk` into MakeMe

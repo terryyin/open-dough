@@ -6,21 +6,19 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   changeSessionRecord,
   deleteRecord,
   keptRecords,
 } from "../../server/launchRecordStore.ts";
-import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
-import {
-  retireAdHocBranch,
-  sessionBranchPins,
-} from "../../test-support/support/adHocBranchRefs.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   anIsolatedLaunch,
@@ -173,14 +171,19 @@ const retentionAgo = new Date(
 
 const removals = {
   deletion: (record) => deleteRecord(source, record.session),
-  // Retention drops the aged record at the project's next record write.
+  // Retention drops the aged record at the project's next record write,
+  // which retires it through the production cleanup.
   expiry: async (record) => {
-    installRecordRemovalDispatch();
     await changeSessionRecord(source, record.session, (kept) => ({
       ...kept,
       doneAt: retentionAgo,
     }));
-    await changeSessionRecord(source, record.session, (kept) => kept);
+    await changeSessionRecord(
+      source,
+      record.session,
+      (kept) => kept,
+      retireExpiredRecords,
+    );
   },
 } satisfies Record<string, (record: LaunchRecord) => Promise<unknown>>;
 
@@ -205,15 +208,19 @@ for (const [reason, remove] of Object.entries(removals)) {
     await markDone(leaving.record);
     await markDone(staying.record);
     const pins = (launch: typeof leaving) =>
-      sessionBranchPins(checkout.integration, launch.record.session.sessionId);
-    expect(pins(leaving)).toContain(first);
-    expect(pins(leaving)).toHaveLength(3);
-    const stayingPins = pins(staying);
-    expect(stayingPins).toContain(second);
+      sessionBranchPins(checkout.integration, launch.record.session);
+    expect(await pins(leaving)).toContainEqual(
+      expect.objectContaining({ objectId: first }),
+    );
+    expect(await pins(leaving)).toHaveLength(3);
+    const stayingPins = await pins(staying);
+    expect(stayingPins).toContainEqual(
+      expect.objectContaining({ objectId: second }),
+    );
 
     await remove(leaving.record);
 
-    expect(pins(leaving)).toEqual([]);
-    expect(pins(staying)).toEqual(stayingPins);
+    expect(await pins(leaving)).toEqual([]);
+    expect(await pins(staying)).toEqual(stayingPins);
   });
 }

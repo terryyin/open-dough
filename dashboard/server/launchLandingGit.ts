@@ -8,9 +8,11 @@ const git = (repository: string, args: readonly string[]) =>
     maxBuffer: defaultGitOutputLimit,
     signal: AbortSignal.timeout(30_000),
   });
+const oneShotRefPrefix = "refs/open-dough/one-shot/";
 const landingRefPrefix = (reference: string) =>
-  `refs/open-dough/one-shot/${reference}/`;
-const landingDeliveryRefPrefix = ({ reference, delivery }: LaunchLanding) =>
+  `${oneShotRefPrefix}${reference}/`;
+type LandingDelivery = Pick<LaunchLanding, "reference" | "delivery">;
+const landingDeliveryRefPrefix = ({ reference, delivery }: LandingDelivery) =>
   `${landingRefPrefix(reference)}${delivery}/`;
 
 // Recorded landing ancestry from already retained local Git objects, across
@@ -152,19 +154,48 @@ export async function pinPair(
   await git(repository, ["update-ref", `${prefix}base`, pair.base]);
   await git(repository, ["update-ref", `${prefix}revision`, pair.revision]);
 }
+export type HeldPin = { readonly ref: string; readonly objectId: string };
+// Every reference held under `prefix`, ordered by Git ref name.
+export async function heldPins(
+  repository: string,
+  prefix: string,
+): Promise<HeldPin[]> {
+  const listed = await git(repository, [
+    "for-each-ref",
+    "--format=%(refname) %(objectname)",
+    prefix,
+  ]);
+  return listed.stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const [ref = "", objectId = ""] = line.split(" ");
+      return { ref, objectId };
+    });
+}
 // Releases every pair held under `prefix`.
 export async function removePins(
   repository: string,
   prefix: string,
 ): Promise<void> {
-  const listed = await git(repository, [
-    "for-each-ref",
-    "--format=%(refname)",
-    prefix,
-  ]);
-  for (const ref of listed.stdout.trim().split("\n").filter(Boolean))
+  for (const { ref } of await heldPins(repository, prefix))
     await git(repository, ["update-ref", "-d", ref]);
 }
+// The landing pins `repository` holds, ordered by Git ref name: the whole
+// one-shot namespace, one reporting reference's pins, or one delivery's pair.
+export const heldLandingPins = (
+  repository: string,
+  scope?: { readonly reference: string; readonly delivery?: string },
+): Promise<HeldPin[]> =>
+  heldPins(
+    repository,
+    scope === undefined
+      ? oneShotRefPrefix
+      : scope.delivery === undefined
+        ? landingRefPrefix(scope.reference)
+        : landingDeliveryRefPrefix({ ...scope, delivery: scope.delivery }),
+  );
 export const pinLanding = (landing: LaunchLanding): Promise<void> =>
   pinPair(landing.repository, landingDeliveryRefPrefix(landing), landing);
 

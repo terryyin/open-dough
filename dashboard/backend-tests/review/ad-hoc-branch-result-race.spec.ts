@@ -1,5 +1,5 @@
 import { markDone } from "../../test-support/agentLaunchBoundary.ts";
-import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   adHocReview,
   launchIsolatedReview,
@@ -39,7 +39,13 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     kind: "branch-result",
     tree: later,
   });
-  expect(sessionBranchPins(origin.project, session)).toEqual([baseline, later]);
-  expect(sessionBranchPins(origin.project, session)).not.toContain(earlier);
+  const pinned = await sessionBranchPins(origin.project, {
+    host: "claude",
+    sessionId: session,
+  });
+  expect(pinned).toMatchObject([{ objectId: baseline }, { objectId: later }]);
+  expect(pinned).not.toContainEqual(
+    expect.objectContaining({ objectId: earlier }),
+  );
   expect(dashboard.claudeStopCalls()).toEqual([]);
 });
