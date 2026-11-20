@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-20
 planted_during: Terry's review of cross-machine session attribution and follow-up context
 trigger_when: selected from the product backlog
-scope: four stories
+scope: five stories
 ---
 
 # SEED-418 — Review published changes by session
@@ -21,34 +21,72 @@ A developer should be able to find what a session contributed from any machine w
 ```
 
 **Goal.** A developer can open **Review changes** for a standalone Done
-session on another machine and see what it contributed to the project. A
-stable UUID also lets later story reviews and follow-ups refer to the same
-published contribution.
+session on another machine and see what it contributed to the project.
 
-**Scope.** When Land or Story Wrap-up closes a publishing session, publish
-one JSON record in the project repository. Record the session UUID, workflow,
-close time, story identity when associated, and the commits or exact comparison
-ranges attributable to its published work. This covers refinement, execution,
-standalone ad hoc work, and ad hoc story follow-ups, including earlier
-publications on trunk or a story branch. A retry preserves the UUID and original
-close time. Record multiple ranges when intervening work makes an enclosing
-range inaccurate. Mark the affected ranges when a shared checkout makes
-attribution uncertain. Use accepted Git evidence so work left locally and
-unsuccessful push attempts stay outside the published comparison.
+**Scope.** When Land closes a standalone publishing session, publish one JSON
+record in the project repository. Record the session UUID, workflow, close
+time, and the accepted comparison of its published work. Use accepted Git
+evidence so work left locally and unsuccessful push attempts stay outside the
+published comparison.
 
 The existing standalone Done entry offers **Review changes** on a machine with
-the published repository and no local launch history. Keep records current for
-30 days from close. The current review stops offering the entry at expiry, and
-the next authorized session-record publication removes expired files from the
-current snapshot. Story-session selection, combined comparisons, recovery of
-expired reviews from Git history, and carrying the UUID in a follow-up message
-belong to their linked stories.
+the published repository and no local launch history. Records for other
+workflow closes and earlier publications, multiple ranges, shared-checkout
+uncertainty, close retry, story association and the 30-day lifetime belong to
+[Attribute every workflow session’s published changes](#attribute-every-workflow-session-record).
+Story-session selection, combined comparisons, recovery of expired reviews from
+Git history, and carrying the UUID in a follow-up message belong to their
+linked stories.
 
 **Key examples.**
 
 - A standalone session lands a file edit. A developer with a fresh clone opens
   its Done entry, selects **Review changes**, and reads the file diff even
   after the original workspace is retired and trunk has advanced.
+
+**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+places attribution in the published repository. The workflow assembles the
+record from accepted publication evidence and the Dashboard reads that record
+through the configured project. Keep launch state, conversations, workspace
+paths, and native session controls on the originating machine. A UUID and
+readable Git endpoints must remain sufficient after workspace retirement.
+
+<a id="attribute-every-workflow-session-record"></a>
+
+### Attribute every workflow session’s published changes
+
+**Identity:** SEED-418#attribute-every-workflow-session-record
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-418#attribute-every-workflow-session-record","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Every workflow's record extends the published record format, its publication path and the Dashboard reader that the standalone story establishes; defining them twice would split one contract.","condition":"A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/744-attribute-every-workflow-session-record/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement after the 2026-11-21 resplit from SEED-418#review-published-session-changes; plan 744 holds provisional slices only."],"basis":{"document":"11d676856e1669611abb2cac1d8ccf56bee8ff1e000537359b8fed7f7597e5f2","plan":"3a25c8e126548175674560106fc4964ce3912928262bee13f7f32ba749d0ed01"}}
+```
+
+Split on 2026-11-21 from `SEED-418#review-published-session-changes` at its
+delivered slice boundary. That story keeps the standalone outcome and supplies
+the published record contract and its Dashboard reader.
+
+**Goal.** Every publishing session, not just a standalone Land, leaves a
+faithful published record of what it contributed. A stable UUID lets later
+story reviews and follow-ups refer to the same published contribution.
+
+**Scope.** When Land or Story Wrap-up closes a refinement, execution or ad hoc
+story follow-up session, publish its record in the published contract. Record
+the story identity when associated, and the commits or exact comparison ranges
+attributable to its published work, including earlier publications on trunk or
+a story branch. A retry preserves the UUID and original close time. Record
+multiple ranges when intervening work makes an enclosing range inaccurate.
+Mark the affected ranges when a shared checkout makes attribution uncertain.
+Use accepted Git evidence so work left locally and unsuccessful push attempts
+stay outside the published comparison.
+
+Keep records current for 30 days from close. The current review stops offering
+the entry at expiry, and the next authorized session-record publication
+removes expired files from the current snapshot.
+
+**Key examples.**
+
 - An execution publishes twice with another session's trunk change in between.
   At wrap-up, its UUID resolves both contributions while excluding the
   intervening change. An earlier story-branch publication still resolves after
@@ -63,12 +101,11 @@ belong to their linked stories.
   A later authorized session-record publication prunes its file, and the
   earlier Git snapshot still holds the original record.
 
-**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-places attribution in the published repository. The workflow assembles the
-record from accepted publication evidence and the Dashboard reads that record
-through the configured project. Keep launch state, conversations, workspace
-paths, and native session controls on the originating machine. A UUID and
-readable Git endpoints must remain sufficient after workspace retirement.
+**Architecture.** Follow the
+[original story’s architecture](#review-published-session-changes): records
+come from accepted publication evidence, launch state stays on the originating
+machine, and a UUID with readable Git endpoints remains sufficient after
+workspace retirement.
 
 <a id="select-a-story-session-for-review"></a>
 
@@ -76,7 +113,7 @@ readable Git endpoints must remain sufficient after workspace retirement.
 
 **Identity:** SEED-418#select-a-story-session-for-review
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#select-a-story-session-for-review","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session UUID and attributable changes","rationale":"The story picker must resolve contributions recorded by other machines.","condition":"Published session records identify individual contributions and the associated story when present.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-418#select-a-story-session-for-review","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"The story picker reads published records through the same contract and reader rather than defining its own.","condition":"A published session record can be read and reviewed by UUID from a machine without local launch history.","state":"waiting"},{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published records for every workflow with story association","rationale":"The story picker must resolve refinement, execution and follow-up contributions recorded by other machines.","condition":"Published session records identify individual contributions of refinement, execution and ad hoc story follow-ups and the associated story when present.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
@@ -108,7 +145,7 @@ A skipped session or an unrelated trunk change can fall between two selections. 
 
 **Identity:** SEED-418#recover-expired-session-reviews
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#recover-expired-session-reviews","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session UUID and attributable changes","rationale":"Historical recovery needs an actual published record format and its expiry behavior.","condition":"Session JSON records are published with stable UUIDs and their files age out of the current snapshot after 30 days.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-418#recover-expired-session-reviews","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Historical recovery reads the same published record format and reviews it through the same reader.","condition":"A published session record can be read and reviewed by UUID from a machine without local launch history.","state":"waiting"},{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Story association and 30-day expiry of published records","rationale":"Historical recovery needs records that carry their story association and actually age out of the current snapshot.","condition":"Session JSON records are published with stable UUIDs and story association, and their files age out of the current snapshot after 30 days.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}

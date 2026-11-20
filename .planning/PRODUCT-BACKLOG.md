@@ -38,6 +38,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record
 - [Observe Done deliveries over typed kept records](seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records) — SEED-413#observe-done-deliveries-over-typed-records
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
