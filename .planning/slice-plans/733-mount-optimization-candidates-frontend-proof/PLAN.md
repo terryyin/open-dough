@@ -181,6 +181,16 @@ built-app specs, `intentCandidatesOtherProjectFixtures.ts`,
 mismatched, case-line and unused Open Dough candidate fixtures. The remaining
 candidate helpers serve `intent-read-reuse` and the retained E2E timeout journey.
 
+## Execution complete
+
+Product advice: no change to priorities. The six built-app candidate specs
+now run as mounted Chromium cases, and the family takes a median of 7.5 s
+instead of 11.4 s. The later frontend families that reuse
+`intent-candidates-publication.ts` should mount the production
+`IntentPageProviders` there instead of re-composing the mode and reading
+providers. The general Intent locations recovery family should also retire the
+unread `locationsRequest` export in `intentReadRecoveryPage.ts`.
+
 ## Story obligations
 
 ### G1. Absent and mismatched records no longer prove they are not reread
