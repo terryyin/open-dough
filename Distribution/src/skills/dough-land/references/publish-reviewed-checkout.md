@@ -42,6 +42,17 @@ launch's `landingContext` only for its first trunk publication. Keep affected
 proof validation in `affectedCheck`, which runs on each prepared candidate,
 as required by the shared publication contract.
 
+For a standalone session's wholly unpublished suffix, call the installed
+`publishSessionClose` API from
+`dough-execute-plan/scripts/session-record-publication.mjs` instead of the
+plain publisher, with the same request and `session: { workflow: "standalone" }`.
+For a Dashboard launch, its `landingContext` `reference` is the session UUID;
+for a native start, add the retained `sessionId`. An absent or conflicting
+identity stops before any push. The API publishes the work, then, only once
+accepted, the session record of that accepted comparison along the same route.
+Report `work` as the publication result and `record.status`; a `stopped`
+record leaves the accepted work in place.
+
 Do not resolve a backlog reconciliation conflict by removing the other side's
 entry. A rewrite onto a newer target rechecks only
 proof the combined change affects. Direct landing starts no CI observer.

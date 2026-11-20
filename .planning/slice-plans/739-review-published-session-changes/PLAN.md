@@ -2,6 +2,7 @@
 
 **Identity:** SEED-418#review-published-session-changes
 **Source:** [Review a session’s published changes from another machine](../../seeds/SEED-418-review-published-session-changes.md#review-published-session-changes)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -89,7 +90,7 @@ relevant implementation paths untouched.
 ### 1. Publish the standalone session’s accepted comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** A standalone Land closes with an accepted owned suffix. A reader
 cloning origin can resolve the session UUID and read the published file edit from
@@ -100,6 +101,17 @@ identity and the authorized trunk route without requiring a Dashboard.
 **Proof.** Distribution fixture invokes the production Land workflow boundary
 and reads the record and its Git diff from a separate clone. Exercise the
 work-publication refusal at the same boundary.
+
+**Accepted.** `Distribution/tests/skills/dough-land/session-record-publication.test.mjs`
+(6 cases, real temp origin and `git clone --no-local`) through
+`publishSessionClose` in
+`Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs`.
+Contract for later slices: `.planning/sessions/<uuid>.json` beside the backlog,
+`{version:1, sessionId, workflow, closedAt, story?, ranges:[{base,candidate}]}`.
+The UUID is the Dashboard launch's landing-context `reference`, or a retained
+`sessionId` for a native start; absent or conflicting identity stops before any
+push. The record publishes as a second accepted publication after the work, and
+its result (`published | stopped | not-published`) is separate from `work`.
 
 ### 2. Open a published standalone comparison on a second machine
 
