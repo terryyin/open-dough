@@ -37,6 +37,9 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Mark Done through a typed decision and compose Done state in review cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store) — SEED-413#split-done-mark-decision-from-store
+- [Propose a branch entry from typed inputs and expose its pin refs](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store) — SEED-413#split-branch-entry-proposal-from-store
+- [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families

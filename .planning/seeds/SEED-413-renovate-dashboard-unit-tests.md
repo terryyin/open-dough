@@ -151,6 +151,176 @@ precondition.
   The migrated cases' local timeout margin under load moves to
   [Bring the Done capture family's cases to 100–200 ms](#optimize-done-capture-family-cases).
 
+<a id="split-done-mark-decision-from-store"></a>
+
+### Mark Done through a typed decision and compose Done state in review cases
+
+**Identity:** SEED-413#split-done-mark-decision-from-store
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+First of three stories from Terry's 2026-11-20 review of the Done capture
+family's import lists. Terry accepted the analysis and the recommended order
+below. The other two stories are
+[branch entry](#split-branch-entry-proposal-from-store) and
+[launch flavors as MakeMe steps](#fold-done-capture-launches-into-makeme).
+
+- **Analysis (shared by the three stories, at `25f76e98d`).**
+  - *Symptom.* 21 specs under `dashboard/backend-tests/review/` import from
+    `support/doneCaptureCase.ts`. Most import the same verbs: `minutesAgo`
+    (19 specs, 140 calls), `aCheckout` (19, 32), `work` (19, 67), `review`
+    (18, 59), `keep` (16, 23), `markDone` (15, 53), `inWorktree` (8, 24),
+    and `source` in 9. Many also import production store modules
+    (`deleteRecord`, `changeSessionRecord`, `installRecordRemovalDispatch`,
+    `keptRecords`) and Playwright-side helpers from
+    `test-support/support/adHocReview.ts` (`sessionBranchPins`,
+    `retireAdHocBranch`). `ad-hoc-session-branch-entry.spec.ts` still needs
+    four spec-local helpers on top. Nearly every spec repeats the same
+    script: checkout → launch record → `keep` in a stubbed HOME → dated
+    `work` → `markDone` → `review`.
+  - *Test design.* (1) The support module is loose procedures, not a model
+    of the case: `checkout` and `record` are threaded separately through
+    every call. (2) Data building is split across three layers:
+    `anEstablishedSession`, `aDefaultLaunch`, `anIsolatedLaunch`,
+    `aDeclaringLaunch` and `historyBeforeTheCase` are preset MakeMe chains
+    living outside MakeMe. (3) Production actions run as setup: `markDone`
+    and `identifyBranch` run the real capture even where the review is the
+    topic. (4) The timeline is hidden: launch at 60 and Done at 10 are
+    support defaults, while specs add their own `minutesAgo` literals around
+    them.
+  - *Production testability (the root cause).* (1) Writes go through an
+    ambient store under `$HOME`, keyed by a source string:
+    `setRecordDoneAt(sourceId, session, …)`, `recordSessionBranchEntry`,
+    `changeSessionRecord` and `deleteRecord`. Hence `keep()` stubs HOME,
+    and `review()` reads `keptRecords(source)` back, even though the review
+    read already takes typed `KeptSessionState`
+    (`server/storyReviewSessionAdmission.ts`). The read seam is typed; the
+    write seams are not. (2) `setRecordDoneAt` (`server/recordDoneAt.ts`)
+    does three jobs in one function: the record's state change (expected
+    and automatic Done, disposition time), the Git capture of the branch
+    result (`withBranchResultAtDone`), and persistence plus ref pinning
+    (`keptWithDoneCapture`). Its `readAncestry` option exists only so
+    `aHeldDone` can pause the Git read. (3) `recordSessionBranchEntry`
+    (`server/sessionBranchEntry.ts`) has the same shape and asks for a whole
+    `PublishedSource`, hence the `identifyBranch` wrapper. (4) The pin-ref
+    layout lives in `server/launchRecordPins.ts`
+    (`refs/open-dough/session-branch/${host}/${sessionId}/`), and
+    `sessionBranchPins` copies it with the host hard-coded to `claude`.
+    (5) `installRecordRemovalDispatch()` is a process-wide registration that
+    retention and deletion specs must install. (6) Commit attribution
+    (`madeSince`: reflog time at or after `launchedAt`) and run grouping in
+    `server/sessionCommitsCapture.ts` are pure logic over log entries, but
+    are reachable only through real repositories. As a result, all 21 specs
+    are Git, file-store and ref integration tests. That is the cost behind
+    [the family's timeout margin](#optimize-done-capture-family-cases).
+  - *Decisions.* Split each write action into a typed decision and an
+    effect-only shell, so only the adapter persists and pins. Review-topic
+    cases compose Done and branch-entry state with MakeMe and call the typed
+    review directly. A few cases keep each action as their topic. Order:
+    this story (Done), then branch entry and the pin-ref query, then the
+    launch flavors as MakeMe steps.
+- **Goal.** Dashboard maintainers can prove Done capture and the review of
+  Done sessions without a machine home. Marking Done is a typed decision on
+  the record plus a Git-only branch-result capture. The store write and pin
+  refs belong to the adapter alone. Review cases start from an already-Done
+  record.
+- **Scope.** Split `setRecordDoneAt` into: a pure Done transition (record,
+  Done time and options → next record); a Git-only branch-result capture
+  over a typed place that returns its result; and the store adapter that
+  persists and pins. Replace the `readAncestry` test hook with the capture's
+  own typed Git collaborator, or drop it if the held-Done race moves to the
+  adapter's own case. Add MakeMe steps for a Done record with its captured
+  branch result or session commits. Move every spec whose topic is the
+  review off `keep`, `markDone` and `keptRecords`, and onto composed state
+  passed to the typed review. Keep Done marking as the topic only in
+  specs that prove the capture, the transition rules (expected, automatic,
+  undo) or the adapter's persistence. Cover `madeSince` and run grouping
+  with typed-log unit cases, and keep one real-Git case for the reflog read.
+- **Key examples.**
+  - A review case of a Done isolated branch builds its record with a MakeMe
+    branch result and real Git commits, then reads the typed review, with no
+    HOME stub and no `markDone`.
+  - The Done transition refuses a stale expected Done time and ignores an
+    automatic Done the record no longer allows, as plain values.
+  - A held capture still loses to a newer Done, proved once at the adapter.
+- **Evaluation.** Every replaced case keeps its assertions. Count
+  `doneCaptureCase.ts` imports and calls, HOME stubs, and per-case time
+  before and after at the same load, under
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- **Effort hypothesis.** M, one plan.
+
+<a id="split-branch-entry-proposal-from-store"></a>
+
+### Propose a branch entry from typed inputs and expose its pin refs
+
+**Identity:** SEED-413#split-branch-entry-proposal-from-store
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Second of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+the analysis and decisions are recorded there.
+
+- **Goal.** Dashboard maintainers can prove branch-entry identification and
+  its refusals from typed inputs. Review cases start from a record that
+  already holds its branch entry, and tests ask production for a session's
+  pins instead of copying the ref layout.
+- **Scope.** Split `recordSessionBranchEntry` into a proposal over
+  `{ trunk ref, record, place }` (verify the registered worktree, read the
+  entry state and Default main tip, observe trunk) that returns the entry
+  or a refusal, and the adapter that writes the record and pins. Narrow its
+  `PublishedSource` input to what it reads. Expose the session's pin refs as
+  a production query beside `sessionBranchRefPrefix` in
+  `server/launchRecordPins.ts`, and retire `sessionBranchPins` and its
+  hard-coded host. Add a MakeMe step for a record with a branch entry, and
+  move cases where entry is a precondition off `identifyBranch`. Retire
+  `declaredBranchCase.ts` when its last caller moves. Replace the
+  `installRecordRemovalDispatch` setup with an explicit collaborator where
+  these cases need retention or deletion.
+- **Key examples.**
+  - A foreign clone, a wrong branch and a second place are refused by the
+    proposal, without a kept store.
+  - An entry kept before main moves still answers the same entry.
+  - A review of a declared branch, composed with its entry, separates the
+    branch from the Default main commits made before entry.
+- **Evaluation.** As in the first story, also counting `adHocReview.ts`
+  imports from `dashboard/backend-tests/`.
+- **Effort hypothesis.** M, one plan.
+
+<a id="fold-done-capture-launches-into-makeme"></a>
+
+### Build Done capture cases from MakeMe launch steps
+
+**Identity:** SEED-413#fold-done-capture-launches-into-makeme
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Third of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+the analysis and decisions are recorded there.
+
+- **Goal.** Dashboard maintainers read a Done capture case as one built
+  scenario. A spec imports `makeMe` and the production entry it proves,
+  not a list of support verbs.
+- **Scope.** Turn `anEstablishedSession`, `aDefaultLaunch`,
+  `anIsolatedLaunch`, `aDeclaringLaunch` and `historyBeforeTheCase` into
+  domain-named steps of the MakeMe launch and repository builders. Give the
+  case one object that carries its checkout, record and timeline, so calls
+  no longer thread `checkout` and `record` separately and launch and Done
+  times are visible in the case. Shrink `doneCaptureCase.ts`,
+  `reportedDoneCase.ts` and the remaining spec-local helpers to what MakeMe
+  cannot hold. Add no new support wrappers.
+- **Key examples.**
+  - `ad-hoc-session-branch-entry.spec.ts` imports no names from
+    `doneCaptureCase.ts` beyond a case builder, and has no spec-local setup
+    helpers.
+  - A case states its launch and Done times in its own builder chain.
+- **Evaluation.** Imports per spec, support lines and spec lines before
+  and after, under
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- **Effort hypothesis.** S–M, one plan.
+
 <a id="optimize-done-capture-family-cases"></a>
 
 ### Bring the Done capture family's cases to 100–200 ms
@@ -160,6 +330,9 @@ precondition.
 Follows the [Done ad hoc observation and publication move](#arrange-done-ad-hoc-observation-and-publication),
 which made its ten cases plain Vitest, about twice as fast as their
 Playwright versions.
+Queued after the three [Done capture import-list stories](#split-done-mark-decision-from-store),
+which move most of the family off the machine store and the replayed
+actions. Profile what remains after them.
 
 - **Goal.** Dashboard maintainers get Done capture proof that runs at about
   100–200 ms per case and passes reliably under local load. The family's
