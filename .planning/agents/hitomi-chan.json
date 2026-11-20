@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-413#mount-usage-token-index-reading",
+  "mode": "story-branch",
+  "branch": "cursor/read-the-usage-token-index-s-selections-and-refr",
+  "host": "cursor",
+  "model": "gemini-4-carbon"
+}
