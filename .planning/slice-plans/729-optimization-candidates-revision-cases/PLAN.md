@@ -146,6 +146,15 @@ Learnings:
   `navigation/story-reference-done-recovery` ran as the representative
   caller and CI covers the rest.
 
+## Execution complete
+
+Product advice: no change. The move delivered the three mounted cases and took
+one more built-app consumer off the frontend group, with the focused median
+falling from 4.5 s to 3.0 s. The next SEED-413 frontend families keep their
+order. When the parent story takes the remaining Optimization Candidates
+cases, its old-read cases answer the first read before offering a revision,
+as slice 2 learned.
+
 ## Local gates
 
 Apply [Dough MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) and
