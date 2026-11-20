@@ -27,6 +27,9 @@ replaced case keeps its assertions." No production regression was found.
 2. *Done no longer proves it stores `shared`.* `done-kept-session-shared-checkout`
    proves `checkoutSharedMeanwhile` and composes `shared: true`; nothing
    connects them through `settleSessionCommits` (`dashboard/server/doneCapture.ts`).
+   Intent Coverage at `6ff2b1d9c` confirmed it: dropping `shared` there passed
+   every maintained check while an independent Done witness lost it (the
+   SEED-413#split-done-mark-decision-from-store done record holds the report).
 3. *Done no longer proves session commits stop at the branch entry's Default
    main tip.* "Done reviews a declared branch apart from the Default main
    commits before its entry" (`ad-hoc-session-branch-entry.spec.ts`) now

@@ -223,6 +223,9 @@ addendum’s two stories were added at Terry’s request. The other four stories
 ### Restore Done capture proof after the composed review move
 
 **Identity:** SEED-413#restore-done-capture-proof-after-composed-reviews
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md"}
+```
 
 Correction from the execution retrospective of
 [Mark Done through a typed decision](#split-done-mark-decision-from-store).
