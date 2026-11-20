@@ -142,3 +142,12 @@ and uses one placement rule across the Board; the second independently changes
 the reading order and emphasis using existing card facts. Each fits the
 15-active-minute budget with focused proof. This review found no remaining
 slice-specific concern.
+
+## Execution complete
+
+Product advice: No priority change — delivered history-in-context and quieter
+scan fit near-future intent-review without a new story. Leave Playwright→Vitest
+migration of story-card-scan-emphasis under existing SEED-413. SEED-395 /
+SEED-415 stay about Recently done / Follow-up context. Wrap-up owns P11 mockup
+cleanup and deferred process with intent coverage. Suite-green remains
+conditional on pending CI for a7f578415.
