@@ -321,3 +321,15 @@ review found no remaining concern requiring slice-plan refinement.
 Reported: slice 8 — "Measured cases halve the scoped time (median 24.1 s vs 51.3 s at load 6–12) but 3 of 5 replacement runs at load 14–16 timed out 2–3 Vitest cases at the 5 s default, while baseline Playwright runs passed (evidence t-report.md)"
 Story clause: "Give dashboard maintainers faster, compile-time-checked proof"
 Disposition: owner changed "Terry accepted the delivered timing on 2026-11-20."
+
+## Execution complete
+
+Product advice: no change to priorities. Merge trunk before landing so the
+"Accepted timing" link reaches the
+[optimization story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases),
+and keep trunk's queue order, which now puts the Done capture import-list
+stories ahead of it. Wrap-up retires this story's stale "Deferred scope"
+remark about `keptAdHocRecord`, which no longer exists. Continue the SEED-413
+backend renovation in trunk's queue order. The remote-trunk read and
+publication arguments repeated across the declared-publication specs can be
+folded into the optimization story's work on this family.
