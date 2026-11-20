@@ -30,6 +30,34 @@ export const landingEndpoint = "/__agent-launch/landing";
 export const landingPrepareEndpoint = `${landingEndpoint}/prepare`;
 // Preparing retains a pair before publication; recording accepts it.
 export type LandingOperation = "prepare" | "record";
+
+// Attempt read/replace and record read/replace the adapter persists through.
+// Optional on `handleLanding`; defaults to this machine's stores.
+export type LandingStores = {
+  withKeptAttempts: typeof withKeptAttempts;
+  replaceAttempts: typeof replaceAttempts;
+  keptRecords: typeof keptRecords;
+  replaceRecords: typeof replaceRecords;
+};
+
+export const machineLandingStores: LandingStores = {
+  withKeptAttempts,
+  replaceAttempts,
+  keptRecords,
+  replaceRecords,
+};
+
+async function persistSourceRecords(
+  stores: LandingStores,
+  sourceId: string,
+  nextRecords: readonly LaunchRecord[],
+): Promise<void> {
+  await stores.replaceRecords((document) => ({
+    ...document,
+    [sourceId]: [...nextRecords],
+  }));
+}
+
 export async function submitLanding(
   req: IncomingMessage,
   operation: LandingOperation,
@@ -70,17 +98,18 @@ export async function handleLanding(
   report: LandingSubmission,
   origin: string,
   operation: LandingOperation,
+  stores: LandingStores = machineLandingStores,
 ): Promise<LandingReceipt> {
   try {
     const receiptId = randomUUID();
     const receivedAt = new Date().toISOString();
     // Retained landings keep the attempt store untouched (including an
     // unreadable attempts file) under the shared read lock, as before.
-    const retained = await withKeptAttempts(async (kept) => {
+    const retained = await stores.withKeptAttempts(async (kept) => {
       const attempts = (kept ?? []).filter(
         (entry) => entry.request.source === report.source,
       );
-      const records = await keptRecords(report.source);
+      const records = await stores.keptRecords(report.source);
       const record =
         declaredLandingRecord(records, report, origin) ??
         expiredAttemptRecord(attempts, records, report, origin);
@@ -95,21 +124,17 @@ export async function handleLanding(
         receivedAt,
       );
       await pinNewLanding(report, attempts, records, answered);
-      if (answered.nextRecords !== records) {
-        await replaceRecords((document) => ({
-          ...document,
-          [report.source]: [...answered.nextRecords],
-        }));
-      }
+      if (answered.nextRecords !== records)
+        await persistSourceRecords(stores, report.source, answered.nextRecords);
       return answered;
     });
     if (retained !== undefined) return landingDecisionReceipt(retained);
 
     let decided: LandingDecision | undefined;
     let startingRecords: readonly LaunchRecord[] | undefined;
-    await replaceAttempts(async (kept) => {
+    await stores.replaceAttempts(async (kept) => {
       const attempts = kept[report.source] ?? [];
-      const records = await keptRecords(report.source);
+      const records = await stores.keptRecords(report.source);
       startingRecords = records;
       const answered = await decideLanding(
         report,
@@ -132,11 +157,8 @@ export async function handleLanding(
       throw new Error("No stored landing receipt.");
     const answered = decided;
     if (answered.nextRecords !== startingRecords) {
-      await withKeptAttempts(async () => {
-        await replaceRecords((document) => ({
-          ...document,
-          [report.source]: [...answered.nextRecords],
-        }));
+      await stores.withKeptAttempts(async () => {
+        await persistSourceRecords(stores, report.source, answered.nextRecords);
       });
     }
     return landingDecisionReceipt(answered);

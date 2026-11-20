@@ -375,7 +375,7 @@ the analysis is in its addendum on delivery observation and publication.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"99441286c7ed355fb1dd12bf6bac83ca347e482e7ecdffa43a6d7456b9a89476","plan":"9ca5006cacbd39e599c9b4b7ad2c57f798dc5d7c2c049273e9024d3ed6947b2d"}}
 ```
 
-Fourth of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+Fourth of the [Done capture import-list stories](#done-capture-import-list-analysis);
 the analysis is in its addendum on delivery observation and publication.
 
 - **Goal.** Dashboard maintainers can prove landing preparation and

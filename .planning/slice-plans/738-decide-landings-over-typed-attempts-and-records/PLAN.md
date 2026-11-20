@@ -159,7 +159,7 @@ dashboard/server/launchLanding*.ts` finds only the adapter.
 ### 3. The landing adapter takes its stores as a collaborator
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the store collaborator. Move `ad-hoc-prepared-landing-done` onto a
 composed Done record with landing reporting, calling the adapter with
