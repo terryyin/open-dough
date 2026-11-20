@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#decide-landings-over-typed-attempts-and-records
 **Source:** [Decide reported landings over typed attempts and records](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -48,6 +49,14 @@ Folding launch flavors into MakeMe stays with
 | A wrong origin or route is refused by the production admission in the publisher's bridge | Typed admission cases, and the bridge delegating to the same function (slice 5). |
 
 Each replaced case keeps its assertions.
+
+## Learnings
+
+- Slice 1: under machine load ~20+, the four installed-publisher Vitest cases
+  can hit the default 5 s timeout when run in parallel; they pass one-by-one in
+  ~3–4 s. Prefer serial or quieter load for that regression gate until load
+  drops. Playwright landing suites use the quiet reporter (empty stdout on
+  pass).
 
 ## Current decisions
 
@@ -116,7 +125,7 @@ baseline before any change.
 ### 1. Attempt-reported landings decide as plain values
 
 Type: Structure
-Status: planned
+Status: done
 
 Record the [evaluation baseline](#local-gates) first. Extract the decision
 for the attempt path of `handleLanding` (no retained record) and make the
@@ -238,6 +247,25 @@ deletion on the record store. Measure the evaluation.
   Vitest JSON report. After slice 6, record the same at comparable load
   (`uptime`), using three interleaved runs on the base and candidate.
   Cases count unchanged or higher, with every assertion kept.
+
+### Evaluation baseline (before slice 1, at `6e9496454`)
+
+Recorded 2026-11-20 on AC power (load ~12). Evidence:
+`open-dough/evidence/slice1-evaluation-baseline.md`.
+
+| File | Lines | Backend-test importers |
+| --- | ---: | ---: |
+| `installedPublisher.ts` | 136 | 3 |
+| `declaredPublisherBranch.ts` | 74 | 5 |
+| `reportedIsolatedBranch.ts` | 65 | 1 |
+
+`replaceAttempts` reach in the four publisher specs: via
+`reportedIsolatedBranch.ts` and directly in
+`declared-worktree-publication.spec.ts`. `vi.stubEnv("HOME"` reach: all four
+through `doneCaptureCase` / declared and reported branch helpers.
+
+Publisher per-case times (one timed run): worktree 3054 ms, session-comparisons
+3526 ms, blank 2918 ms, prepared-landing-done 2570 ms (4/4 pass, 9.11 s).
 
 ## Plan review
 
