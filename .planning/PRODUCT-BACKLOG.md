@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep a selected case's source through the Show latest file read in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#show-latest-source-file-read-cases) — SEED-413#show-latest-source-file-read-cases
 - [Mark ad hoc sessions Done in their own cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#remove-ad-hoc-done-helper) — SEED-413#remove-ad-hoc-done-helper
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
