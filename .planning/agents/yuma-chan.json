@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-419#keep-done-session-placement-in-one-rule",
+  "mode": "story-branch",
+  "branch": "claude/keep-done-session-placement-in-one-rule",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Arrange Done ad hoc sessions directly for delivery observation and publication](seeds/SEED-413-renovate-dashboard-unit-tests.md#arrange-done-ad-hoc-observation-and-publication) — SEED-413#arrange-done-ad-hoc-observation-and-publication ([plan](slice-plans/730-arrange-done-ad-hoc-observation-and-publication/PLAN.md))
 - [Prove Optimization Candidates in mounted frontend tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-optimization-candidates-frontend-proof) — SEED-413#mount-optimization-candidates-frontend-proof ([plan](slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md))
+- [Keep Done session placement in one rule and its proof cohesive](seeds/SEED-419-correct-done-session-history-structure.md#keep-done-session-placement-in-one-rule) — SEED-419#keep-done-session-placement-in-one-rule ([plan](slice-plans/735-keep-done-session-placement-in-one-rule/PLAN.md))
 
 ## Backlog list
 
