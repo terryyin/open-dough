@@ -1,6 +1,7 @@
 // Compact open Sessions row: one-line title with ellipsis beside elapsed age,
-// tooltip facts, and hidden desktop disclosure — from typed observations.
-import { expect, onTestFinished, test } from "vitest";
+// tooltip facts, hidden desktop disclosure, and age that advances on the
+// production 30s tick — from typed observations.
+import { expect, onTestFinished, test, vi } from "vitest";
 import { cdp } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -30,6 +31,47 @@ const longWork = {
   identity: "SEED-901#long",
   title: `A very long story title that cannot fit on one line of the narrow sidebar ${"and goes on ".repeat(8)}to its end`,
 };
+
+function shortAndLongOpenRows(launchedAt: Date) {
+  const short = makeMe.aLaunchRecord
+    .executing({
+      identity: shortWork.identity,
+      title: shortWork.title,
+      source: "doughnut",
+    })
+    .inClaudeSession({ sessionId: "row-short" })
+    .launchedAt(launchedAt.toISOString())
+    .please();
+  const long = makeMe.aLaunchRecord
+    .executing({
+      identity: longWork.identity,
+      title: longWork.title,
+      source: "doughnut",
+    })
+    .inClaudeSession({ sessionId: "row-long" })
+    .launchedAt(launchedAt.toISOString())
+    .please();
+  return observe([
+    {
+      record: short,
+      state: makeMe.aSessionState
+        .loaded("waiting")
+        .waitingFor("input needed")
+        .please(),
+    },
+    {
+      record: long,
+      state: makeMe.aSessionState.loaded("working").please(),
+    },
+  ]);
+}
+
+async function mountShortAndLongOpenRows(launchedAt: Date) {
+  await mountComponent(
+    openReading(shortAndLongOpenRows(launchedAt), { sidebarWidth: "18rem" }),
+    { viewport: { width: 1280, height: 800 } },
+  );
+}
 
 function entries() {
   return [
@@ -95,42 +137,7 @@ function box(element: HTMLElement) {
 
 test("is one line of title and elapsed time, however long the title, with the rest in its tooltip", async () => {
   await useFinePointer();
-  const launchedAt = new Date();
-  const short = makeMe.aLaunchRecord
-    .executing({
-      identity: shortWork.identity,
-      title: shortWork.title,
-      source: "doughnut",
-    })
-    .inClaudeSession({ sessionId: "row-short" })
-    .launchedAt(launchedAt.toISOString())
-    .please();
-  const long = makeMe.aLaunchRecord
-    .executing({
-      identity: longWork.identity,
-      title: longWork.title,
-      source: "doughnut",
-    })
-    .inClaudeSession({ sessionId: "row-long" })
-    .launchedAt(launchedAt.toISOString())
-    .please();
-  const records = observe([
-    {
-      record: short,
-      state: makeMe.aSessionState
-        .loaded("waiting")
-        .waitingFor("input needed")
-        .please(),
-    },
-    {
-      record: long,
-      state: makeMe.aSessionState.loaded("working").please(),
-    },
-  ]);
-
-  await mountComponent(openReading(records, { sidebarWidth: "18rem" }), {
-    viewport: { width: 1280, height: 800 },
-  });
+  await mountShortAndLongOpenRows(new Date());
 
   await expect.poll(() => entries().length).toBe(2);
   const shortEntry = present(entryOf(shortWork.title), "short row");
@@ -185,4 +192,52 @@ test("is one line of title and elapsed time, however long the title, with the re
   expect(elapsed.y + elapsed.height).toBeLessThanOrEqual(
     row.y + row.height + 0.5,
   );
+});
+
+test("the elapsed time is the largest whole unit, and advances on the 30 second tick", async () => {
+  const launchedAt = new Date("2026-11-20T12:00:00.000Z");
+  vi.useFakeTimers({
+    now: launchedAt.getTime(),
+    toFake: ["setInterval", "clearInterval", "Date"],
+  });
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+
+  await mountShortAndLongOpenRows(launchedAt);
+
+  // Fake timers hold React's first paint; poll with a short interval so the
+  // 30s production tick does not fire before the age steps below.
+  await expect
+    .poll(() => entries().length, { interval: 5, timeout: 2_000 })
+    .toBe(2);
+  const shortEntry = present(entryOf(shortWork.title), "short row");
+  const longEntry = present(entryOf(longWork.title), "long row");
+  const at = launchedAt.getTime();
+  const second = 1_000;
+  const minute = 60 * second;
+  const hour = 60 * minute;
+  const tickAt = async (afterLaunchMs: number) => {
+    vi.setSystemTime(at + afterLaunchMs);
+    await vi.advanceTimersByTimeAsync(30_000);
+  };
+
+  await tickAt(20 * second);
+  expect(elapsedOf(shortEntry).textContent).toBe("<1m");
+
+  vi.setSystemTime(at + 80 * second);
+  expect(elapsedOf(shortEntry).textContent).toBe("<1m");
+  await vi.advanceTimersByTimeAsync(30_000);
+  expect(elapsedOf(shortEntry).textContent).toBe("1m");
+
+  for (const [afterLaunch, words] of [
+    [5 * minute, "5m"],
+    [2 * hour, "2h"],
+    [26 * hour, "1d"],
+    [3 * 24 * hour + hour, "3d"],
+  ] as const) {
+    await tickAt(afterLaunch);
+    expect(elapsedOf(shortEntry).textContent).toBe(words);
+    expect(elapsedOf(longEntry).textContent).toBe(words);
+  }
 });

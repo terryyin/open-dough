@@ -128,7 +128,7 @@ row proof and retained row-time case.
 ### 3. Open-session age advances on the established browser tick
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the elapsed-age example onto the rendered open row. Initialize a fixed
 clock and drive the production timer. Cover below a minute, the first
@@ -139,6 +139,10 @@ Playwright row case when the mounted proof passes.
 then the updated age at the tick, including the checked floors. Run both
 row selections. A scratch skipped tick or rounded-up unit must change its
 corresponding assertion.
+
+**Accepted.** Mounted age tick on the open row; deleted Playwright
+`sessions-sidebar-row-time.spec.ts`. Evidence:
+`open-dough/evidence/SEED-413-mount-open-sessions-sidebar-frontend-proof/slice-3-return-report.md`.
 
 ### 4. State edges and hidden labels preserve their distinctions
 
