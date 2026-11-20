@@ -7,10 +7,8 @@ import {
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { reviewedWorkQuery } from "../../src/reviewedWorkSubject.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { markDone, recordsOf } from "../agentLaunchBoundary.ts";
 import { getReview } from "./completedReviewRequests.ts";
-import { keepLaunchRecords } from "./launchStore.ts";
 import { launched } from "./startSessionLandingCapture.ts";
 import { git } from "./storyReviewWorktree.ts";
 import type { APIRequestContext } from "@playwright/test";
@@ -119,25 +117,6 @@ export function adHocSessionFileText(
     ...sessionQuery(session),
     ...file,
   });
-}
-
-// Keeps a Done session of the Default main checkout at `repository` whose
-// kept commits are the one run `base` to `revision`; answers its session id.
-export function keepSessionWithKeptRun(
-  dashboard: DashboardServer,
-  repository: string,
-  { base, revision }: { base: string; revision: string },
-): string {
-  const sessionId = "session-with-kept-run";
-  keepLaunchRecords(dashboard, [
-    makeMe.aLaunchRecord
-      .ofAdHocSessionWithKeptRun(sessionId, {
-        repository,
-        run: { base, revision },
-      })
-      .please(),
-  ]);
-  return sessionId;
 }
 
 // The session's record as the project keeps it now.

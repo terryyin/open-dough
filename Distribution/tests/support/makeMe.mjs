@@ -11,6 +11,7 @@ import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
 import { projectCiSettingsMakeMeProperties } from "./projectCiSettingsTestData.mjs";
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
+import { CheckoutWorkBuilder } from "./repositoryCheckoutWorkTestData.mjs";
 import { projectRevisionMakeMeProperties } from "./projectRevisionTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
@@ -50,6 +51,7 @@ import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
  * @typedef {object} CoreMakeMe
  * @property {NativeEvidenceRecordBuilder} aNativeEvidenceRecord
  * @property {RepositoryBuilder} aRepository
+ * @property {CheckoutWorkBuilder} aCheckoutWork
  * @property {AgentProfileBuilder} anAgentProfile
  * @property {FactBuilder<BacklogEntry>} aBacklogEntry
  * @property {ConfiguredProjectBuilder} aConfiguredProject
@@ -93,6 +95,12 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new RepositoryBuilder();
+      },
+    },
+    aCheckoutWork: {
+      enumerable: true,
+      get() {
+        return new CheckoutWorkBuilder();
       },
     },
     anAgentProfile: {
