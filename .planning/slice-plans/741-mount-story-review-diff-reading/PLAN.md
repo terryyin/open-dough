@@ -19,6 +19,9 @@
 - Slice 1 accepted on the story branch at
   `c87a616154910043189fe0f8a2cb58b482b8e0ce` and registered with this
   observer. Its candidate used the Take revision as its suffix base.
+- Slice 2 accepted on the story branch at
+  `25052be823395ed2057735af3d6260e6effd12a7` and registered with the same
+  observer. Its candidate used slice 1 as its suffix base.
 
 ## Goal and scope
 
@@ -162,7 +165,7 @@ specs. The exact selections, observed assertions and trace are in
 ### 3. A file's path and hint style each side of its diff
 
 Type: Behavior
-Status: planned
+Status: done
 
 Mount the extracted reading for the syntax case, the paths case, the three
 language cases, and the hint-to-grammar assertions of the first hints case:
@@ -174,6 +177,13 @@ where a hint comes from.
 **Proof.** The mounted syntax specs pass. One scratch break that reads a
 removed line's tokens from the new side fails the per-side case and is
 reverted.
+
+**Observed.** The moving syntax examples produced 30 mounted cases, and all
+44 focused cases passed across the mounted and retained readers. The scratch
+break lost the old line's visible keyword and was restored. The live and
+published Done hint provenance cases passed in their built-app spec. The
+case and assertion map is in `slice-3-retirement-map.md`, and exact proof
+and consumer dispositions are in `slice-3-return.md` in Git evidence.
 
 ### 4. Styling arrives without moving the reader
 

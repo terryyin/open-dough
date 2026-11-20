@@ -1,4 +1,8 @@
 import { locators, page, type Locator } from "vitest/browser";
+import {
+  composeBackgrounds,
+  contrastRatio,
+} from "../../test-support/composedColours.ts";
 
 declare module "vitest/browser" {
   interface LocatorSelectors {
@@ -28,7 +32,35 @@ function diffMarks(scope: Locator) {
 }
 
 function diffLine(line: Locator) {
-  return { line, ...diffMarks(line) };
+  const tokens = line.getByCSS(".source-token");
+  return {
+    line,
+    ...diffMarks(line),
+    token: (text: RegExp) => tokens.filter({ hasText: text }).first(),
+    firstToken: () => tokens.first(),
+    background: () => getComputedStyle(line.element()).backgroundColor,
+  };
+}
+
+export function tokenAppearance(token: Locator) {
+  const style = getComputedStyle(token.element());
+  return {
+    color: style.color,
+    fontWeight: style.fontWeight,
+    fontStyle: style.fontStyle,
+    textDecorationLine: style.textDecorationLine,
+  };
+}
+
+export function tokenContrast(token: Locator) {
+  const node = token.element();
+  const backgrounds: string[] = [];
+  for (let at: Element | null = node; at; at = at.parentElement)
+    backgrounds.push(getComputedStyle(at).backgroundColor);
+  return contrastRatio(
+    getComputedStyle(node).color,
+    composeBackgrounds(backgrounds),
+  );
 }
 
 export function mountedReviewDiff() {
@@ -57,6 +89,19 @@ export function mountedReviewDiff() {
         .click(),
     firstRevealedLine: () =>
       diffLine(revealedBefore.getByCSS("li.story-review-line").first()),
+    revealedLines: () =>
+      revealedBefore.getByCSS("li.story-review-line").all().map(diffLine),
+    lineFacts: () =>
+      reading
+        .getByCSS("li.story-review-line")
+        .elements()
+        .map((line) => ({
+          text: line.textContent,
+          old: line.getAttribute("data-old"),
+          new: line.getAttribute("data-new"),
+          kind: line.getAttribute("class"),
+          background: getComputedStyle(line).backgroundColor,
+        })),
     selectedText(first: Locator, last: Locator) {
       const range = document.createRange();
       range.setStartBefore(first.element());
