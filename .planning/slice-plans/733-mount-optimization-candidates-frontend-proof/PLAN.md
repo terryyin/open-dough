@@ -155,7 +155,7 @@ case and open selections before removing the retired Playwright cases.
 ### 6. Candidate Retry respects the shared wait and terminal replies
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `intent-candidates-read-recovery` to the typed record and real shared
 recovery clock. Separately exercise `readIntentCandidatesAt` through the
@@ -171,12 +171,22 @@ the answer. Run the candidate family, revision specs and the focused E2E
 timeout journey. Check the final frontend listing for the moved spec
 engines, and compare timing and retired setup with the base.
 
+**Measured.** On AC at load about 4–5, interleaved after one warm-up each, the
+family selection without the revision specs took a median of 11.36 s at the
+base `21c8f12f3` (12 built-app cases; 11.13–11.95 s) and 7.53 s at the
+candidate (14 mounted cases, adding the two client replies and the
+absent/mismatched no-reread case; 7.36–8.28 s). Retired setup: the six
+built-app specs, `intentCandidatesOtherProjectFixtures.ts`,
+`prepareCandidateProjects` and four other `prepare*` helpers, and the empty,
+mismatched, case-line and unused Open Dough candidate fixtures. The remaining
+candidate helpers serve `intent-read-reuse` and the retained E2E timeout journey.
+
 ## Story obligations
 
 ### G1. Absent and mismatched records no longer prove they are not reread
 Reported: slice 3 — "I did not carry over the legacy check that reads stay at 1 after 70 s of page clock in the absent and mismatched states."
 Story clause: "how a failed record recovers"
-Disposition: receiving slice 6
+Disposition: proved by slice 6: dashboard/frontend-tests/intent/intent-candidates-read-recovery.spec.ts absent and mismatched records stay at one read after 70 s on the shared clock
 
 ## Local gates
 

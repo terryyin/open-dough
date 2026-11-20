@@ -1,140 +1,136 @@
-// Candidates recover from synthetic rate-limit and malformed answers using
-// explicit authenticated-read substitutes — no dashboardServer or FakeGitHub.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
+// The candidates record recovers on the page's shared clock: a shorter
+// transient backoff cannot bypass a standing GitHub wait, and a refusal or
+// malformed answer waits for manual Retry (../../src/IntentCandidatesRecord.tsx,
+// ../../src/intentReadRecovery.tsx, ../../src/limitRecovery.ts).
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { IntentCandidatesReadResult } from "../../src/authenticatedIntentCandidatesRead.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { noteLimit, standingLimit } from "../../src/readingLimit.ts";
+import { ReadProblem } from "../../src/readProblem.ts";
+import { intentCandidates } from "./intent-candidates-page.ts";
 import {
-  advanceRecoveryClock,
-  candidatesRequest,
-  countCandidatesReads,
-  openCandidates,
-  opened,
-  readFailure,
-  readRetry,
-} from "../../test-support/intentReadRecoveryPage.ts";
-import { noticedResumeTime } from "../../test-support/limitNotice.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
-import {
-  frontendRevision,
-  putFrontendCandidates,
-  type FrontendServiceState,
-} from "../../test-support/support/frontendServiceState.ts";
-import { openDoughCandidatesRecord } from "../../test-support/intentCandidatesFixtures.ts";
+  mountPageIntentReading,
+  publishedWithCandidates,
+} from "./intent-candidates-publication.ts";
 
-function presentCandidates(state: FrontendServiceState) {
-  putFrontendCandidates(state, {
-    revision: frontendRevision,
-    candidates: openDoughCandidatesRecord,
+const recordText = makeMe.aTestOptimizationCandidatesRecord.please();
+const { record } = intentCandidates();
+const retry = record.getByRole("button", { name: "Retry", exact: true });
+
+type Answer = () => Promise<IntentCandidatesReadResult>;
+
+// Each candidates answer in turn, the last repeated; counts every read.
+function answering(first: Answer, ...later: Answer[]) {
+  const { readSource } = publishedWithCandidates(recordText);
+  const reads: string[] = [];
+  const source: IntentReadSource = {
+    ...readSource,
+    readCandidates(...[, revision]) {
+      reads.push(revision);
+      const answer = [first, ...later][reads.length - 1];
+      return (answer ?? later.at(-1) ?? first)();
+    },
+  };
+  return { reads, source };
+}
+
+function onSharedClock() {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  onTestFinished(() => {
+    vi.useRealTimers();
   });
 }
 
-test("candidates wait for the standing GitHub limit after their shorter backoff is due", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  presentCandidates(frontendServices);
-  const reads = countCandidatesReads(page);
-  let attempt = 0;
-  await page.route(candidatesRequest, async (route) => {
-    attempt += 1;
-    if (attempt === 1) {
-      await route.abort("connectionreset");
-    } else if (attempt === 2) {
-      await route.fulfill({
-        status: 502,
-        json: { error: "GitHub limited the rate", retryAfterSeconds: 45 },
-      });
-    } else {
-      await route.fulfill({
-        json: {
-          revision: frontendRevision,
-          candidates: openDoughCandidatesRecord,
-        },
-      });
-    }
+async function mountRecord(source: IntentReadSource) {
+  const work = makeMe.aPublishedWork.ofPygardon.at("c5".repeat(20)).please();
+  await mountPageIntentReading(source, work);
+  await intentCandidates().choose();
+}
+
+const present = () =>
+  Promise.resolve<IntentCandidatesReadResult>({
+    status: "present",
+    text: recordText,
   });
 
-  const record = await openCandidates(page, frontendRevision);
-  await expect(readFailure(record)).toBeVisible();
-  await advanceRecoveryClock(page, 15_250);
-  expect(reads()).toBe(2);
-  const resumesAt = await noticedResumeTime(page);
-  await advanceRecoveryClock(page, 31_000);
-  expect(reads()).toBe(2);
-  await expect(readFailure(record)).toBeVisible();
+test("candidates wait for the standing GitHub limit after their shorter backoff is due", async () => {
+  onSharedClock();
+  let resumesAt = 0;
+  const { reads, source } = answering(
+    () => Promise.reject(new ReadProblem("reset", undefined, "transient")),
+    () => {
+      noteLimit(45);
+      const standing = standingLimit() ?? new Date(0);
+      resumesAt = standing.getTime();
+      return Promise.reject(
+        new ReadProblem("GitHub limited the rate", {
+          reading: "candidates",
+          resumesAt: standing,
+        }),
+      );
+    },
+    present,
+  );
+  await mountRecord(source);
+  await expect.element(retry).toBeVisible();
+  expect(reads).toHaveLength(1);
 
-  const now = await page.evaluate(() => Date.now());
-  await advanceRecoveryClock(page, resumesAt - now - 1);
-  expect(reads()).toBe(2);
-  await advanceRecoveryClock(page, 251);
-  expect(reads()).toBe(3);
-  await expect(readFailure(record)).toHaveCount(0);
-  await expect(
-    record.getByRole("region", { name: "Pending candidates" }),
-  ).toBeVisible();
+  await vi.advanceTimersByTimeAsync(15_250);
+  await expect.poll(() => reads.length).toBe(2);
+  await expect.element(retry).toBeVisible();
+
+  await vi.advanceTimersByTimeAsync(resumesAt - Date.now() - 1);
+  expect(reads).toHaveLength(2);
+  await expect.element(retry).toBeVisible();
+
+  await vi.advanceTimersByTimeAsync(251);
+  await expect.poll(() => reads.length).toBe(3);
+  await expect
+    .element(record.getByRole("region", { name: "Pending candidates" }))
+    .toBeVisible();
+  await intentCandidates().showsNoFailure();
 });
 
-test("candidate access refusal and unexpected answers wait for manual Retry", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  presentCandidates(frontendServices);
-  putFrontendCandidates(frontendServices, {
-    revision: frontendRevision,
-    candidates: null,
-    candidatesProblem: "unreadable",
-    recovery: undefined,
-  });
-  // First answer: 403-shaped refusal through the candidates substitute.
-  let mode: "refuse" | "malformed" | "ok" = "refuse";
-  await page.route(candidatesRequest, async (route) => {
-    if (mode === "refuse") {
-      await route.fulfill({
-        status: 403,
-        json: { error: "Forbidden" },
-      });
-      return;
-    }
-    if (mode === "malformed") {
-      await route.fulfill({
-        json: {
-          revision: frontendRevision,
-          candidates: 42,
-          recovery: "transient",
-        },
-      });
-      return;
-    }
-    await route.fulfill({
-      json: {
-        revision: frontendRevision,
-        candidates: openDoughCandidatesRecord,
-      },
-    });
-  });
-  const reads = countCandidatesReads(page);
-  const record = await openCandidates(page, frontendRevision);
-  const problem = readFailure(record);
-  const retry = readRetry(problem);
-  await expect(retry).toBeVisible();
-  await advanceRecoveryClock(page, 70_000);
-  expect(reads()).toBe(1);
+test("candidate access refusal and unexpected answers wait for manual Retry", async () => {
+  onSharedClock();
+  const terminal = (message: string) => () =>
+    Promise.reject(new ReadProblem(message));
+  const { reads, source } = answering(
+    terminal("Forbidden"),
+    terminal("an answer in a shape this dashboard does not understand"),
+    present,
+  );
+  await mountRecord(source);
+  await expect.element(retry).toBeVisible();
+  await vi.advanceTimersByTimeAsync(70_000);
+  expect(reads, "no spontaneous reread after a refusal").toHaveLength(1);
 
-  mode = "malformed";
   await retry.click();
-  await untilPageRequestsAnswered(page);
-  await expect(retry).toBeVisible();
-  await advanceRecoveryClock(page, 70_000);
-  expect(reads()).toBe(2);
+  await expect.poll(() => reads.length).toBe(2);
+  await expect.element(retry).toBeVisible();
+  await vi.advanceTimersByTimeAsync(70_000);
+  expect(reads, "no spontaneous reread when malformed").toHaveLength(2);
 
-  mode = "ok";
   await retry.click();
-  await untilPageRequestsAnswered(page);
-  expect(reads()).toBe(3);
-  await expect(problem).toHaveCount(0);
-  await expect(
-    record.getByRole("region", { name: "Pending candidates" }),
-  ).toBeVisible();
+  await expect.poll(() => reads.length).toBe(3);
+  await intentCandidates().showsNoFailure();
 });
+
+test.each([
+  { state: "absent", answer: { status: "absent" } },
+  {
+    state: "mismatched",
+    answer: { status: "present", text: "# Not A Candidates Record\n" },
+  },
+] as const)(
+  "an $state record is not reread after the old retry windows",
+  async ({ answer }) => {
+    onSharedClock();
+    const { reads, source } = answering(() => Promise.resolve(answer));
+    await mountRecord(source);
+    await expect.poll(() => reads.length).toBe(1);
+    await vi.advanceTimersByTimeAsync(70_000);
+    expect(reads).toHaveLength(1);
+  },
+);

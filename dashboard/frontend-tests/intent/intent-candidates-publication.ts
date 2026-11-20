@@ -19,6 +19,8 @@ import {
 } from "../../src/intentReadSource.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
+import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
+import { useLimitRecovery } from "../../src/limitRecovery.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -40,7 +42,24 @@ function PageChosenView({ work }: { readonly work: PublishedWork }) {
   });
 }
 
+// Project Intent recovers on the page's one schedule: `useLimitRecovery`
+// mounts the shared transient timer and follows the standing limit, as the
+// published observation does for `configuredDashboardContent.tsx`.
 function PageIntent({ work }: { readonly work: PublishedWork }) {
+  const { limitedUntil } = useLimitRecovery({
+    withheld: false,
+    readSettled: true,
+    visibility: "visible",
+    readAfresh: () => undefined,
+  });
+  return createElement(IntentReadRecovery, {
+    visibility: "visible",
+    limitStands: limitedUntil !== undefined,
+    children: createElement(PageIntentReading, { work }),
+  });
+}
+
+function PageIntentReading({ work }: { readonly work: PublishedWork }) {
   return createElement(StorySelectionProvider, {
     selection: usePageStorySelection(),
     children: createElement(IntentModeProvider, {
