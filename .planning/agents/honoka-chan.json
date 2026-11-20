@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Honoka-chan",
+  "email": "honoka-chan@example.org",
+  "identity": "SEED-413#observe-done-deliveries-over-typed-records",
+  "mode": "story-branch",
+  "branch": "codex/observe-done-deliveries-over-typed-kept-records",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

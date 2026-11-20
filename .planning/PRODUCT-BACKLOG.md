@@ -32,11 +32,11 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes ([plan](slice-plans/739-review-published-session-changes/PLAN.md))
 - [Test Review diff reading's data logic directly and drop "mounted" from frontend test names](seeds/SEED-413-renovate-dashboard-unit-tests.md#reduce-review-diff-reading-to-logic-cases) — SEED-413#reduce-review-diff-reading-to-logic-cases ([plan](slice-plans/744-reduce-review-diff-reading-to-logic-cases/PLAN.md))
+- [Observe Done deliveries over typed kept records](seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records) — SEED-413#observe-done-deliveries-over-typed-records ([plan](slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md))
 
 ## Backlog list
 
 - [Restore Done capture proof and focus session Review tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews) — SEED-413#restore-done-capture-proof-after-composed-reviews
-- [Observe Done deliveries over typed kept records](seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records) — SEED-413#observe-done-deliveries-over-typed-records
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Prove ad hoc review handoffs with typed handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers) — SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers
