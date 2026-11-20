@@ -34,7 +34,7 @@ test("a blank default launch that edited files and committed nothing says it mad
   await markDone(record, doneAt);
 
   expect(await keptRecords(source)).toMatchObject([{ doneAt }]);
-  expect(await review(record)).toEqual(noCommits);
+  expect(await review(await keptRecords(source), record)).toEqual(noCommits);
 });
 
 test("a session whose only commit stays on another branch says its changes were not captured", async () => {
@@ -47,7 +47,7 @@ test("a session whose only commit stays on another branch says its changes were 
   await markDone(record, doneAt);
 
   expect(await keptRecords(source)).toMatchObject([{ doneAt }]);
-  expect(await review(record)).toEqual(notCaptured);
+  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
 });
 
 for (const { when, earlier } of [
@@ -72,7 +72,9 @@ for (const { when, earlier } of [
     await markDone(record, doneAt);
 
     expect(await keptRecords(source)).toMatchObject([{ doneAt }]);
-    expect(await review(record)).toEqual(notCaptured);
+    expect(await review(await keptRecords(source), record)).toEqual(
+      notCaptured,
+    );
   });
 }
 
@@ -90,7 +92,7 @@ test("a session whose checkout log cannot be read at Done is done and says its c
   const [kept] = await keptRecords(source);
   expect(kept).toMatchObject({ doneAt });
   expect(kept?.sessionCommits).toBeUndefined();
-  expect(await review(record)).toEqual(notCaptured);
+  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
 });
 
 test("a session whose checkout log holds no entry at Done is done and says its changes were not captured", async () => {
@@ -103,5 +105,5 @@ test("a session whose checkout log holds no entry at Done is done and says its c
   const [kept] = await keptRecords(source);
   expect(kept).toMatchObject({ doneAt });
   expect(kept?.sessionCommits).toBeUndefined();
-  expect(await review(record)).toEqual(notCaptured);
+  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
 });

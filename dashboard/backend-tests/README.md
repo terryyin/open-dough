@@ -72,13 +72,20 @@ reads the start from the Default main checkout.
 
 The Done capture family arranges each case through
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history
-predates the case, the stereotype launches, a private launch store, dated
-`makeMe.aCheckoutWork`, the Done mark through
-[`setRecordDoneAt`](../server/recordDoneAt.ts), and reads the typed review
-through [`doneCaptureReview.ts`](support/doneCaptureReview.ts). State
-work times with `minutesAgo`, after the launch (60) and before Done (10). A review-only case
-builds the kept records and passes them straight to its typed handler with
-`makeMe.aSessionReviewRead`, as
+predates the case, the stereotype launches and dated `makeMe.aCheckoutWork`.
+State work times with `minutesAgo`, after the launch (60) and before Done (10).
+Compose the Done state: a review case builds an already-Done record over the
+work's real commits with `makeMe.aLaunchRecord` steps such as
+`.keptSessionCommits(...)`, `.branchResultFrom(...)` or their `…FailedAt`
+steps, then `.markedDone()`, and passes the records to
+[`doneCaptureReview.ts`](support/doneCaptureReview.ts), whose `aDoneSession`
+composes a Done session's kept runs, as
+[`done-kept-session-commit-runs.spec.ts`](review/done-kept-session-commit-runs.spec.ts)
+shows. Mark Done through a private launch store and
+[`setRecordDoneAt`](../server/recordDoneAt.ts) only where the capture, the
+Done transition or its adapter is the topic; such a case passes
+`await keptRecords(source)` to the review. A review-only case passes its
+records straight to its typed handler with `makeMe.aSessionReviewRead`, as
 [`kept-session-commits-review.spec.ts`](review/kept-session-commits-review.spec.ts)
 shows.
 

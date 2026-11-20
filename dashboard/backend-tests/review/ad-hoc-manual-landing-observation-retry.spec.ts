@@ -1,7 +1,7 @@
 // A failed verification of one Done branch's delivery leaves it to retry at
 // the same revision while another Done branch's delivery settles.
 import { expect, test } from "vitest";
-import { keptSession } from "../../server/launchRecordStore.ts";
+import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
 import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
 import {
@@ -26,14 +26,14 @@ test("a failed verification retries at the same revision and lets other deliveri
   });
 
   await observations.observe(observedTrunk, head);
-  expect(await review(independent)).toMatchObject({
+  expect(await review(await keptRecords(source), independent)).toMatchObject({
     kind: "landed",
     baseline: firstMerge,
     tree: head,
     files: [{ path: "independent.txt" }],
   });
   expect(failed).toBe(true);
-  expect(await review(retrying)).toMatchObject({
+  expect(await review(await keptRecords(source), retrying)).toMatchObject({
     kind: "branch-result",
     tree: draft,
   });
@@ -42,7 +42,7 @@ test("a failed verification retries at the same revision and lets other deliveri
   );
 
   await observations.observe(observedTrunk, head);
-  expect(await review(retrying)).toMatchObject({
+  expect(await review(await keptRecords(source), retrying)).toMatchObject({
     kind: "landed",
     baseline: checkout.base,
     tree: firstMerge,

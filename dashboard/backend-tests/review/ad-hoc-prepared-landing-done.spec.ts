@@ -14,9 +14,11 @@ import {
   keptRecordOf,
   markDone,
   minutesAgo,
+  source,
   work,
 } from "../support/doneCaptureCase.ts";
 import { review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 test("Done leaves the installed publisher's prepared receipt recordable after acceptance", async () => {
   const { checkout, workspace, record, entry, context } =
@@ -45,7 +47,7 @@ test("Done leaves the installed publisher's prepared receipt recordable after ac
     ...receipt,
     state: "recorded",
   });
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: revision,

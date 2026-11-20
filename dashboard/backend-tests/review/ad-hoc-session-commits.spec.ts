@@ -2,7 +2,7 @@
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
-import { keptSession } from "../../server/launchRecordStore.ts";
+import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import {
   aCheckout,
@@ -37,7 +37,7 @@ test("a quiet completion keeps its Default main session's commits at the receipt
   expect((await keptSession(source, record.session))?.doneAt).toBe(
     receipt.receivedAt,
   );
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "session-commits",
     session: { doneAt: receipt.receivedAt },
     baseline: checkout.base,

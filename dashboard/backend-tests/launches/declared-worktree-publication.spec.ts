@@ -29,6 +29,7 @@ import {
   publishInstalled,
   retryInstalledLanding,
 } from "../support/installedPublisher.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const reference = "11111111-0000-4000-8000-000000000714";
 const otherReference = "11111111-0000-4000-8000-000000000715";
@@ -169,7 +170,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
   await markDone(record);
   expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect(await trunk()).toBe(candidate);
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: candidate,
@@ -177,7 +178,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
     files: [{ kind: "added", path: "draft.txt" }],
   });
   expect(
-    await fileText(record, {
+    await fileText(await keptRecords(source), record, {
       path: "draft.txt",
       baseline: base,
       tree: candidate,

@@ -97,3 +97,35 @@ test("a file text read answers both sides of a kept run's pair and refuses a dif
       "The file or comparison does not belong to this session's kept commits.",
   });
 });
+
+test("a Done session's captured branch result reviews the branch's work", async () => {
+  const repository = await materializeLocalCheckout(
+    undefined,
+    makeMe.aRepository
+      .withRevision("base", { backlog: null })
+      .withRevision("branched", { files: { "draft.txt": "branch work\n" } })
+      .please(),
+  );
+  onTestFinished(repository.cleanup);
+  const {
+    integration: workspace,
+    revisions: { base, branched },
+  } = repository;
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "Branch result" })
+    .inDefaultCheckout({ workspace, landing: "review", revision: base })
+    .inClaudeSession({ sessionId: "branch-result" })
+    .branchResultFrom({ repository: workspace, base, revision: branched })
+    .markedDone()
+    .please();
+  const read = makeMe.aSessionReviewRead
+    .ofSession(record.session.sessionId)
+    .keeping([record])
+    .please();
+
+  expect(await storyReview(read, new AbortController().signal)).toMatchObject({
+    baseline: base,
+    tree: branched,
+    files: [expect.objectContaining({ path: "draft.txt", kind: "added" })],
+  });
+});

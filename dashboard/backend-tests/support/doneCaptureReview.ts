@@ -1,23 +1,42 @@
-// The typed review of a Done capture case's kept session: its comparisons,
-// their files, and the answers that explain a missing capture.
+// The typed review of a Done case's session among the kept records: its
+// comparisons, their files, and the answers that explain a missing capture.
+// Cases compose their Done records; a case whose topic is the store passes
+// what the store keeps.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptRecords } from "../../server/launchRecordStore.ts";
 import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { source } from "./doneCaptureCase.ts";
+import { anEstablishedSession, type Checkout } from "./doneCaptureCase.ts";
 
-const reviewRead = async (record: LaunchRecord) =>
+type Kept = readonly LaunchRecord[];
+
+// A Done session established in the checkout at `revision` (its base by
+// default) that kept these runs of its commits there.
+export const aDoneSession = (
+  checkout: Checkout,
+  runs: { base: string; revision: string }[],
+  revision = checkout.base,
+) =>
+  anEstablishedSession(checkout, { revision })
+    .keptSessionCommits({ repository: checkout.integration, runs })
+    .markedDone()
+    .please();
+
+const reviewRead = (kept: Kept, record: LaunchRecord) =>
   makeMe.aSessionReviewRead
     .ofSession(record.session.sessionId, record.session.host)
-    .keeping(await keptRecords(source));
+    .keeping([...kept]);
 
-// The typed review of the kept session, at its first run or at `run`.
-export async function review(record: LaunchRecord, run?: number | string) {
-  const input = (await reviewRead(record)).please();
+// The typed review of the session, at its first run or at `run`.
+export async function review(
+  kept: Kept,
+  record: LaunchRecord,
+  run?: number | string,
+) {
+  const input = reviewRead(kept, record).please();
   const read =
     run === undefined
       ? input
@@ -34,13 +53,21 @@ type NamedFile = {
   reference?: string;
 };
 
-export async function fileText(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
+export async function fileText(
+  kept: Kept,
+  record: LaunchRecord,
+  file: NamedFile,
+) {
+  const read = reviewRead(kept, record).readingFile(file).please();
   return reviewedFileText(read, new AbortController().signal);
 }
 
-export async function fileDiff(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
+export async function fileDiff(
+  kept: Kept,
+  record: LaunchRecord,
+  file: NamedFile,
+) {
+  const read = reviewRead(kept, record).readingFile(file).please();
   return reviewedFileDiff(read, new AbortController().signal);
 }
 

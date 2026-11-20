@@ -9,6 +9,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   changeSessionRecord,
   deleteRecord,
+  keptRecords,
 } from "../../server/launchRecordStore.ts";
 import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
@@ -75,23 +76,28 @@ test("the branch comparison at Done and its files survive worktree and branch re
   retireAdHocBranch(checkout.integration, workspace, branch);
 
   const baseline = checkout.base;
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     baseline,
     tree,
     files: [expect.objectContaining({ path: "draft.txt", kind: "added" })],
   });
   const named = { baseline, tree, path: "draft.txt" };
-  expect(await fileDiff(record, named)).toMatchObject({
+  expect(
+    await fileDiff(await keptRecords(source), record, named),
+  ).toMatchObject({
     kind: "diff",
     printed: expect.stringContaining("+draft work") as string,
   });
-  expect(await fileText(record, named)).toEqual({
+  expect(await fileText(await keptRecords(source), record, named)).toEqual({
     kind: "text",
     baseline: null,
     tree: "draft work\n",
   });
-  const refused = fileText(record, { ...named, baseline: tree });
+  const refused = fileText(await keptRecords(source), record, {
+    ...named,
+    baseline: tree,
+  });
   await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
   await expect(refused).rejects.toMatchObject({ status: 409 });
 });
@@ -106,16 +112,18 @@ test("Done distinguishes an empty branch result from a missing checkout", async 
   await markDone(empty.record);
   await markDone(missing.record);
 
-  expect(await review(empty.record)).toMatchObject({
+  expect(await review(await keptRecords(source), empty.record)).toMatchObject({
     kind: "branch-result",
     baseline: checkout.base,
     tree: checkout.base,
     files: [],
   });
-  expect(await review(missing.record)).toMatchObject({
-    kind: "unavailable",
-    explanation: "This session's branch changes at Done were not captured.",
-  });
+  expect(await review(await keptRecords(source), missing.record)).toMatchObject(
+    {
+      kind: "unavailable",
+      explanation: "This session's branch changes at Done were not captured.",
+    },
+  );
 });
 
 const retentionAgo = new Date(

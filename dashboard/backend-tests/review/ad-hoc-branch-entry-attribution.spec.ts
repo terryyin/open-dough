@@ -8,13 +8,15 @@ import { RefusedRequest } from "../../server/localOrigin.ts";
 import { aDeclaredBranch } from "../support/declaredBranchCase.ts";
 import {
   aCheckoutWithWorktree,
-  type Checkout,
   inWorktree,
   markDone,
   minutesAgo,
+  source,
+  type Checkout,
   work,
 } from "../support/doneCaptureCase.ts";
 import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const branch = "topic";
 
@@ -56,7 +58,7 @@ test("a declared branch's saved comparison shows only its new work and its edit 
 
   await markDone(record);
 
-  const answer = await review(record);
+  const answer = await review(await keptRecords(source), record);
   if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
   expect(answer.files.map(({ path }) => path)).toEqual([
     "session-only.txt",
@@ -67,19 +69,24 @@ test("a declared branch's saved comparison shows only its new work and its edit 
     tree: answer.tree,
     path: "shared.txt",
   };
-  expect(await fileDiff(record, shared)).toMatchObject({
+  expect(
+    await fileDiff(await keptRecords(source), record, shared),
+  ).toMatchObject({
     kind: "diff",
     printed: expect.stringContaining(
       "-imported line\n+session edit of imported line",
     ) as string,
   });
-  expect(await fileText(record, shared)).toEqual({
+  expect(await fileText(await keptRecords(source), record, shared)).toEqual({
     kind: "text",
     baseline: "imported line\n",
     tree: "session edit of imported line\n",
   });
   await expect(
-    fileDiff(record, { ...shared, path: "import-only.txt" }),
+    fileDiff(await keptRecords(source), record, {
+      ...shared,
+      path: "import-only.txt",
+    }),
   ).rejects.toMatchObject({ status: 409 });
 });
 
@@ -111,13 +118,13 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
 
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "unavailable",
     explanation: expect.stringContaining(
       "Earlier branch changes conflict with imported trunk",
     ) as string,
   });
-  const refused = fileDiff(record, {
+  const refused = fileDiff(await keptRecords(source), record, {
     baseline: entry.tree,
     tree: tip,
     path: "tip.txt",

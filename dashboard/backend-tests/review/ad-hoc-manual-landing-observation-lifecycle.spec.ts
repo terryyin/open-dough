@@ -60,7 +60,7 @@ async function expectOnlyTheSurvivorDelivered(
   removed: LaunchRecord,
   survivor: LaunchRecord,
 ) {
-  const delivered = await review(survivor);
+  const delivered = await review(await keptRecords(source), survivor);
   expect(delivered).toMatchObject({
     kind: "landed",
     files: [{ path: "staying.txt" }],

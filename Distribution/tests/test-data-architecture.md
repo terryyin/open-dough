@@ -141,6 +141,11 @@ and is not the stored report. State a receipt or receipt time when the case
 reads more than one report or controls the clock.
 [Outcome builders](support/launchOutcomeTestData.mjs)
 
+What a Done captured rides beside its mark: `.keptSessionCommits`,
+`.sessionCommitsFailedAt`, `.branchResultFrom` (stated from the work's known
+revisions) and `.branchResultFailedAt`.
+[Done capture builders](support/launchDoneCaptureTestData.mjs)
+
 A landing shares one comparison across its shapes: the launch's reporting
 reference, the remote and target, and the base and revision. Build the
 dashboard-prepared context with `makeMe.aLandingContext`, the submission with

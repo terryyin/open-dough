@@ -142,6 +142,43 @@ test("a continued cherry-pick is the session's commit on its parent", () => {
   expect(runsOf(made)).toEqual([{ base: "baseline", revision: "tree" }]);
 });
 
+// An autosquash, as Git logs `rebase --interactive --autosquash` of the
+// marked commit onto its target's parent.
+for (const mode of ["fixup", "squash"] as const) {
+  test(`an autosquashed ${mode} is one commit of the target on its parent`, () => {
+    const target = commit("target", "base");
+    const made = decided([
+      target,
+      entry(
+        "marked",
+        ["target"],
+        `commit: ${mode}! Add target.txt`,
+        since + 2,
+        `${mode}! Add target.txt`,
+      ),
+      entry("target", ["base"], "rebase (start): checkout target^"),
+      entry(
+        "tree",
+        ["base"],
+        `rebase (${mode}): Add target.txt`,
+        target.authoredAt,
+        target.subject,
+      ),
+      entry(
+        "tree",
+        ["base"],
+        "rebase (finish): returning to refs/heads/main",
+        target.authoredAt,
+        target.subject,
+      ),
+    ]);
+
+    expect(runsOf(reachable(made, "tree"))).toEqual([
+      { base: "base", revision: "tree" },
+    ]);
+  });
+}
+
 test("a commit made before the session and rebased during it is not the session's", () => {
   const earlier = commit("earlier", "base", since - 500);
 

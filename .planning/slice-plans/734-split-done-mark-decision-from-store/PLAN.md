@@ -193,7 +193,7 @@ fingerprint check failed the four rebase and replay cases; the
 ### 4. Default main run reviews read composed Done records
 
 Type: Structure
-Status: planned
+Status: done
 
 Make `doneCaptureReview.ts` take kept records. Reorganize the builder as
 decided and add the branch-result steps. Move the review halves of the three
@@ -207,6 +207,25 @@ mark Done only where the capture, transition or adapter is the topic.
 diff assertion. `kept-session-commits-review.spec.ts` and the other
 `makeMe.aLaunchRecord` users that slice 4's consumer trace finds pass.
 `npm run typecheck:dashboard` passes.
+
+**Accepted.** `doneCaptureReview.ts` takes kept records; store-topic callers
+pass `await keptRecords(source)`. `launchDoneCaptureTestData.mjs` (100 lines)
+holds the Done capture evidence steps, now with `branchResultFrom` and
+`branchResultFailedAt`; `launchOutcomeTestData.mjs` went from 235 to 202
+lines. The three run specs compose Done records and keep their 9, 7 and 3
+assertions; slice 3's typed cases gained the autosquashed fixup and squash
+decisions those specs had proved. Proof: the three specs (9/9), the new
+branch-result review case and attribution spec (14/14), the frontend
+`aLaunchRecord` users, the Distribution readers and typecheck passed. The 17
+callers changed only by the added kept-records argument timed out at 5 s under
+external load 27–39 (other worktrees' lint and typecheck, a six-day-old
+native-substitute shell, fseventsd); a base copy of
+`ad-hoc-branch-attribution` timed out the same way at that load. Branch CI on
+the delivered revision is their verdict.
+The refactor pass shared the three specs' Done composition as `aDoneSession`
+in `doneCaptureReview.ts`, over the `anEstablishedSession` preset; the
+[launch flavors story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)
+folds both into MakeMe.
 
 ### 5. Other Default main review cases start from composed Done records
 

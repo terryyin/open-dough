@@ -9,9 +9,11 @@ import {
   keep,
   markDone,
   minutesAgo,
+  source,
   work,
 } from "../support/doneCaptureCase.ts";
 import { review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 test("two default launches open in one checkout both commit: either one's review holds the commits made while it was open and says the checkout was shared", async () => {
   const checkout = await aCheckout();
@@ -35,10 +37,14 @@ test("two default launches open in one checkout both commit: either one's review
   };
 
   await markDone(typo, minutesAgo(15));
-  expect(await review(typo)).toMatchObject(sharedReview);
+  expect(await review(await keptRecords(source), typo)).toMatchObject(
+    sharedReview,
+  );
 
   await markDone(link);
-  expect(await review(link)).toMatchObject(sharedReview);
+  expect(await review(await keptRecords(source), link)).toMatchObject(
+    sharedReview,
+  );
 });
 
 test("a session open meanwhile in an isolated workspace of the project does not share the Default main checkout", async () => {
@@ -62,7 +68,7 @@ test("a session open meanwhile in an isolated workspace of the project does not 
 
   await markDone(record);
 
-  const answer = await review(record);
+  const answer = await review(await keptRecords(source), record);
   expect(answer).toMatchObject({ kind: "session-commits", tree: committed });
   expect(answer).not.toHaveProperty("session.shared");
 });
@@ -84,7 +90,7 @@ test("a session done in the Default main checkout before this one launched does 
 
   await markDone(record);
 
-  const answer = await review(record);
+  const answer = await review(await keptRecords(source), record);
   expect(answer).toMatchObject({ kind: "session-commits", tree: committed });
   expect(answer).not.toHaveProperty("session.shared");
 });

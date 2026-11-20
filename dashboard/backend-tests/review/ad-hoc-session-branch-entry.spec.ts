@@ -15,14 +15,16 @@ import {
   aCheckout,
   aCheckoutWithCanonicalWorktree,
   aDefaultLaunch,
-  type Checkout,
   inWorktree,
   keep,
   markDone,
   minutesAgo,
+  source,
+  type Checkout,
   work,
 } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const branch = "draft";
 
@@ -105,7 +107,7 @@ test("Done reviews a declared branch apart from the Default main commits before 
   await mainMoves(checkout);
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "branch-result",
     selectedRun: "branch-result",
     sessionComparisonKeys: ["branch-result", "0"],
@@ -114,13 +116,13 @@ test("Done reviews a declared branch apart from the Default main commits before 
     files: [{ kind: "added", path: "session.txt" }],
   });
   expect(
-    await fileText(record, {
+    await fileText(await keptRecords(source), record, {
       baseline: entry.tree,
       tree: result,
       path: "session.txt",
     }),
   ).toEqual({ kind: "text", baseline: null, tree: "session.txt\n" });
-  expect(await review(record, 0)).toMatchObject({
+  expect(await review(await keptRecords(source), record, 0)).toMatchObject({
     kind: "session-commits",
     selectedRun: "0",
     sessionComparisonKeys: ["branch-result", "0"],
@@ -174,7 +176,12 @@ test("two declared sessions each review their own branch", async () => {
   await markDone(record);
   await markDone(second);
 
-  expect(await Promise.all([review(record), review(second)])).toMatchObject([
+  expect(
+    await Promise.all([
+      review(await keptRecords(source), record),
+      review(await keptRecords(source), second),
+    ]),
+  ).toMatchObject([
     { kind: "branch-result", tree: ours, files: [{ path: "ours.txt" }] },
     { kind: "branch-result", tree: theirs, files: [{ path: "theirs.txt" }] },
   ]);
@@ -191,7 +198,7 @@ test("an undeclared checkout move explains the missing branch association", asyn
   );
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "landing-unavailable",
     explanation:
       "No branch was identified for this session, and no Default main commits were captured.",

@@ -8,9 +8,11 @@ import {
   inWorktree,
   markDone,
   minutesAgo,
+  source,
   work,
 } from "../support/doneCaptureCase.ts";
 import { fileDiff, review } from "../support/doneCaptureReview.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const branch = "topic";
 
@@ -37,11 +39,11 @@ test("an isolated Done retains its committed and working changes across a trunk 
 
   await markDone(record);
 
-  const answer = await review(record);
+  const answer = await review(await keptRecords(source), record);
   if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
   expect(answer.files.map(({ path }) => path)).toEqual(["draft.txt"]);
   expect(
-    await fileDiff(record, {
+    await fileDiff(await keptRecords(source), record, {
       baseline: answer.baseline,
       tree: answer.tree,
       path: "draft.txt",
@@ -76,7 +78,9 @@ test("a branch merged into trunk still retains its own Done comparison", async (
 
   await markDone(record);
 
-  expect(await review(record, "branch-result")).toMatchObject({
+  expect(
+    await review(await keptRecords(source), record, "branch-result"),
+  ).toMatchObject({
     kind: "branch-result",
     files: [{ path: "session-only.txt" }],
   });
@@ -97,7 +101,7 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
 
   await markDone(record);
 
-  expect(await review(record)).toMatchObject({
+  expect(await review(await keptRecords(source), record)).toMatchObject({
     kind: "unavailable",
     explanation:
       "The saved branch changes could not be separated from trunk history.",

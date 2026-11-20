@@ -3,7 +3,11 @@
 // same receipt and landing pins until the launch is deleted.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
+import {
+  deleteRecord,
+  keptRecords,
+  keptSession,
+} from "../../server/launchRecordStore.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
 import {
   landingPins,
@@ -38,7 +42,7 @@ test("ordinary revision checks retain one delivery across repeated observations"
   );
 
   await sessionLandingObservations().observe(observedTrunk, merge);
-  const captured = await review(record);
+  const captured = await review(await keptRecords(source), record);
   expect(captured).toMatchObject({
     kind: "landed",
     baseline: checkout.base,
@@ -47,7 +51,7 @@ test("ordinary revision checks retain one delivery across repeated observations"
   });
   if (captured.kind !== "landed") throw new Error("Missing the delivery.");
   expect(
-    await fileText(record, {
+    await fileText(await keptRecords(source), record, {
       reference: captured.landing.reference,
       baseline: checkout.base,
       tree: merge,
@@ -70,7 +74,7 @@ test("ordinary revision checks retain one delivery across repeated observations"
       .pushingToTrunk("advance", { at: minutesAgo(5) }),
   );
   await observations.observe(observedTrunk, advance);
-  expect(await review(record)).toEqual(captured);
+  expect(await review(await keptRecords(source), record)).toEqual(captured);
   expect((await keptSession(source, record.session))?.landing).toEqual(saved);
   expect(landingPins(integration)).toEqual(pins);
 
