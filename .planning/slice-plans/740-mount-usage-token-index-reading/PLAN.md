@@ -191,6 +191,10 @@ the E2E journey that owns it.
 
 - **Accepted proof:** Recorded in [`SEED-413` (`##### Usage Token index reading after migration`)](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#usage-token-index-reading-after-migration): audited Usage support fell `697 -> 675` lines (`systemSettingsUsagePage.ts` `216 -> 194` lines removing zero-consumer exports and 5 unused `usageView` methods, `usageSpacingPage.ts` `71` lines unexporting `taskOrderWords`); all 5 retained built-app chart specs (20 cases), all 4 E2E Usage journeys (5 cases), and all 7 mounted Vitest specs (16 cases) pass; 3 interleaved warm 6-spec pairs at matching 1m load (`8.09–12.60`) cut median elapsed time from `9.66 s` (`1817333330f5`) to `5.78 s` (`-40.2%`; 7-spec mounted median `6.63 s`; per-case medians `26–929 ms`, average `450 ms`); all 13 former built-app titles pair 1-to-1 with their mounted replacements (`0` E2E-only removals).
 
+## Execution complete
+
+Product advice: no change — `SEED-413#renovate-later-dashboard-frontend-unit-test-families` already continues with the 20 retained Usage chart cases (`system-settings-usage-{average,compare,legend,overflow,spacing}.spec.ts`), and `SEED-413#usage-token-index-reading-after-migration` now records their measured baseline and reusable building blocks (`UsageSource`, `pageMakeMe.aTokenIndexAnswer`, `system-settings-usage-page.ts`, and `system-settings-usage-tools-page.ts`, requiring zero further production changes).
+
 ## Local gates and review
 
 - Apply [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) and
