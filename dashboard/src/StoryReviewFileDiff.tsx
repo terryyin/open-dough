@@ -1,25 +1,17 @@
-// The diff of one file a story review lists, read within the review's
-// snapshot (`./storyReviewContract.ts`) from its *from* tree in the comparison shown:
-// printed hunks via `./StoryReviewDiffLines.tsx`, with omitted unchanged lines
-// available from the same comparison's file text (`./diffContextExpansion.ts`)
-// as disposable presentation state, and every line's code syntax-styled from
-// that text by the file's path, falling back to an optional Intent `syntax`
-// hint (`./diffLineTokens.ts`). Both are fixed by the two trees, so the page
-// asks each once (`./useReviewRead.ts`); an unavailable answer is asked again.
-// When a Done story offers line Follow up, DiffLines opens that line's menu
-// and this file mounts the same Start session dialog for the line.
+// Reads the selected file's diff and both texts from the story review's two
+// trees (`./storyReviewContract.ts`). An unavailable answer can be retried.
+// StyledFileDiff renders the lines and opens their menus. This component
+// handles story notes and opens the Start session dialog for line Follow up.
 
 import { useDiffStoryNote } from "./StoryDiffNote.tsx";
 import { useState } from "react";
-import { textLines } from "./diffContextExpansion.ts";
-import { useDiffLineTokens } from "./diffLineTokens.ts";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import {
   fileFollowUpParts,
   StoryLineFollowUp,
 } from "./StoryAnchoredFollowUp.tsx";
-import { DiffLines } from "./StoryReviewDiffLines.tsx";
+import { StyledFileDiff } from "./StyledFileDiff.tsx";
 import {
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
@@ -92,11 +84,6 @@ export function FileDiff({
     { round: textRound, enabled: textEnabled, fixed: textFixed },
   );
   const text = textRead.answer?.kind === "text" ? textRead.answer : undefined;
-  const sides =
-    text === undefined
-      ? undefined
-      : { baseline: textLines(text.baseline), tree: textLines(text.tree) };
-  const lineTokens = useDiffLineTokens(file.path, text, syntaxHint);
   const textProblem =
     textRead.problem ??
     (textRead.answer?.kind === "unavailable"
@@ -113,14 +100,13 @@ export function FileDiff({
         {answer?.kind === "unavailable" && <p>{answer.explanation}</p>}
       </div>
       {answer?.kind === "diff" && (
-        <DiffLines
+        <StyledFileDiff
+          path={file.path}
           printed={answer.printed}
-          sides={sides}
-          lineTokens={lineTokens}
+          {...(text === undefined ? {} : { text })}
+          {...(syntaxHint === undefined ? {} : { syntaxHint })}
+          {...(textProblem === undefined ? {} : { textProblem })}
           contextReading={textRead.reading}
-          {...(sides === undefined && textProblem !== undefined
-            ? { textProblem }
-            : {})}
           onRetryText={() => {
             setTextRound((round) => round + 1);
           }}
