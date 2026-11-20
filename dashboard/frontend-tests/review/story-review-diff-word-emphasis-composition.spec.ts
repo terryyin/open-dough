@@ -1,6 +1,5 @@
 // Story-review word emphasis on syntax-styled lines: changed words keep token
-// colours inside insertions/deletions, remain marked before tokens arrive, and
-// stay readable (token and underline contrast) in light and dark.
+// colours inside insertions and deletions, and stay readable in light and dark.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
@@ -14,7 +13,6 @@ import {
   fileReads,
   tokenAppearance,
 } from "../../test-support/support/reviewDiffSyntax.ts";
-import { holdGrammar } from "../../test-support/support/syntaxGrammar.ts";
 
 test("styled changed words keep token colours inside insertions and deletions", async ({
   page,
@@ -38,29 +36,6 @@ test("styled changed words keep token colours inside insertions and deletions", 
   await expect(removed.line).toHaveClass(/story-review-removed/);
   await expect(added.line).toHaveText(/^\+const limit = 25;/);
   await expect(removed.line).toHaveText(/^-const limit = 20;/);
-});
-
-test("emphasis is present before tokens arrive and stays on the same words after", async ({
-  page,
-  frontendServices,
-}) => {
-  const grammar = await holdGrammar(page, "typescript");
-  const diff = await openLimitTsWordEmphasisDiff(page, frontendServices);
-  await grammar.requested;
-
-  const added = diff.newLine(25);
-  const removed = diff.removedLine(25);
-  await expect(added.insertions()).toHaveText(["25"]);
-  await expect(removed.deletions()).toHaveText(["20"]);
-  await expect(diff.codeTokens()).toHaveCount(0);
-  const place = await added.place();
-
-  grammar.release();
-  await expect(added.token(/^25$/)).toBeVisible();
-  await expect(added.insertions()).toHaveText(["25"]);
-  await expect(removed.deletions()).toHaveText(["20"]);
-  await expect(added.tokenInInsertion(/^25$/)).toHaveCount(1);
-  expect(await added.place()).toBe(place);
 });
 
 test("emphasized tokens and underlines stay readable in light and dark", async ({

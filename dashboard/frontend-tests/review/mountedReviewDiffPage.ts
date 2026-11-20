@@ -38,7 +38,13 @@ function diffLine(line: Locator) {
     ...diffMarks(line),
     token: (text: RegExp) => tokens.filter({ hasText: text }).first(),
     firstToken: () => tokens.first(),
+    tokensInInsertion: () =>
+      line.getByRole("insertion").getByCSS(".source-token"),
     background: () => getComputedStyle(line.element()).backgroundColor,
+    scrollIntoView: () => {
+      line.element().scrollIntoView({ block: "center" });
+    },
+    place: () => line.element().getBoundingClientRect().y,
   };
 }
 
@@ -83,6 +89,20 @@ export function mountedReviewDiff() {
     hunkMarks: (header: string) =>
       diffMarks(reading.getByRole("list", { name: header, exact: true })),
     firstToken: () => reading.getByCSS(".source-token").first(),
+    scrollTop: () => reading.element().scrollTop,
+    openLineMenu: (label: string) =>
+      reading.getByRole("button", { name: label, exact: true }).click(),
+    lineMenu(label: string) {
+      const menu = reading.getByRole("menu", { name: label, exact: true });
+      return {
+        menu,
+        itemLabels: () =>
+          menu
+            .getByRole("menuitem")
+            .elements()
+            .map((item) => item.textContent.trim()),
+      };
+    },
     showPrecedingLines: () =>
       revealedBefore
         .getByRole("button", { name: /^Show \d+ preceding lines?$/ })

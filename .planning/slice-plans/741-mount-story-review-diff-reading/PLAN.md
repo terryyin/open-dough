@@ -22,6 +22,9 @@
 - Slice 2 accepted on the story branch at
   `25052be823395ed2057735af3d6260e6effd12a7` and registered with the same
   observer. Its candidate used slice 1 as its suffix base.
+- Slice 3 accepted on the story branch at
+  `44add151125fbd7bad1811a180eab78013b4c9ef` and registered with the same
+  observer. Its candidate used slice 2 as its suffix base.
 
 ## Goal and scope
 
@@ -188,16 +191,27 @@ and consumer dispositions are in `slice-3-return.md` in Git evidence.
 ### 4. Styling arrives without moving the reader
 
 Type: Behavior
-Status: planned
+Status: done
 
-Mount the extracted reading without its text, then give the text: the two
-arrival cases about plain-then-styled lines, kept reading position, revealed
-context and an open line menu, and the composition case that sees marks
-before tokens. The Retry case and the failed-grammar case stay in
-`story-review-diff-syntax-arrival.spec.ts`.
+Mount the extracted reading without text, then give it the text. This covers
+the complete plain lines gaining syntax and the composition case that sees
+the same words marked before and after tokens. For the case with revealed
+context, mount the same reader with text on a path that has no grammar, reveal
+the lines and open the line menu, then give the mounted reader a TypeScript
+hint. `DiffLines` derives its available context from the text, so this case
+starts with text and uses the production highlighter when styling arrives.
+The Retry and failed-grammar cases stay in `story-review-diff-syntax-arrival.spec.ts`.
 
 **Proof.** The mounted arrival spec passes. The reading position is compared
-as the same line's measured place before and after the text is given.
+as the same line's measured place across text or styling arrival, including
+the case whose context was already revealed.
+
+**Observed.** All three moved cases passed through the mounted reader. The
+same line's measured position stayed fixed in both scrolled examples. All
+20 revealed lines gained syntax under the same line menu, and the same
+changed words remained marked when their text arrived. All 44 focused cases
+and typecheck passed, with the exact coverage map and commands in
+`slice-4-retirement-map.md` and `slice-4-return.md` in Git evidence.
 
 ### 5. Marks and tokens stay readable in dark and light
 
