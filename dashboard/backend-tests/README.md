@@ -56,9 +56,9 @@ handoff are proved the same way:
 `review/ad-hoc-branch-cursor-recovery.spec.ts` call `setRecordDoneAt`,
 `recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
 `deleteRecord` in this process on MakeMe kept records and real Git. A
-declared branch comes from
-[`declaredBranchCase.ts`](support/declaredBranchCase.ts), the rest of the
-arrangement from the Done capture helpers below.
+declared branch is a MakeMe launch record entered at the entry
+`proposeBranchEntry` proposes, the rest of the arrangement from the Done
+capture helpers below.
 
 [`ad-hoc-session-commits.spec.ts`](review/ad-hoc-session-commits.spec.ts) and
 [`ad-hoc-session-commits-done.spec.ts`](review/ad-hoc-session-commits-done.spec.ts)

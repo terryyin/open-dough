@@ -6,9 +6,9 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { aDeclaringLaunch } from "../support/declaredBranchCase.ts";
 import {
   aCheckoutWithWorktree,
+  aDefaultLaunch,
   type Checkout,
   inWorktree,
   keep,
@@ -29,7 +29,7 @@ const aTopicWorktree = () =>
 // as its branch, entering it with whatever the worktree already held and the
 // trunk it observed then.
 async function aDeclaredTopic(checkout: Checkout, workspace: string) {
-  const launch = aDeclaringLaunch(checkout);
+  const launch = aDefaultLaunch(checkout);
   const { entry } = await proposeBranchEntry(
     "refs/heads/main",
     launch.please(),

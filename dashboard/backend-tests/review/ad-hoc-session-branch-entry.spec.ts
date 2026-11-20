@@ -8,10 +8,7 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
-import {
-  aDeclaringLaunch,
-  identifyBranch,
-} from "../support/declaredBranchCase.ts";
+import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
 import {
   aCheckout,
   aCheckoutWithCanonicalWorktree,
@@ -23,11 +20,13 @@ import {
   keep,
   markDone,
   minutesAgo,
+  source,
   work,
 } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
+const published = { id: source, ref: "refs/heads/main" };
 
 const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
 
@@ -35,7 +34,7 @@ const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
 // an uncommitted edit of its own.
 async function aDraftBeforeEntry() {
   const { checkout, workspace } = await aDraftWorktree();
-  const launch = aDeclaringLaunch(checkout, { sessionId: "declared" });
+  const launch = aDefaultLaunch(checkout, { sessionId: "declared" });
   const { onMain } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("onMain", {
@@ -57,8 +56,11 @@ async function aDeclaredDraft() {
   const { launch, ...draft } = await aDraftBeforeEntry();
   const record = launch.please();
   keep(record);
-  const { checkout, workspace } = draft;
-  const entry = await identifyBranch(checkout, record, { workspace, branch });
+  const { workspace } = draft;
+  const entry = await recordSessionBranchEntry(published, record, {
+    workspace,
+    branch,
+  });
   return { ...draft, record, entry };
 }
 
@@ -84,9 +86,9 @@ test("a declared branch keeps its entry state and Default main tip after main mo
     { objectId: entry.tree },
   ]);
   await mainMoves(checkout);
-  expect(await identifyBranch(checkout, record, { workspace, branch })).toEqual(
-    entry,
-  );
+  expect(
+    await recordSessionBranchEntry(published, record, { workspace, branch }),
+  ).toEqual(entry);
 });
 
 test("Done reviews a declared branch apart from the Default main commits before its entry", async () => {
@@ -151,10 +153,10 @@ test("two declared sessions each review their own branch", async () => {
     tree: stdout.trim(),
     trunk: { remote: "origin", target: "refs/heads/main", revision: base },
   };
-  const record = aDeclaringLaunch(checkout, { sessionId: "first" })
+  const record = aDefaultLaunch(checkout, { sessionId: "first" })
     .enteredBranch({ ...atBase, workspace, branch })
     .please();
-  const second = aDeclaringLaunch(checkout, { sessionId: "second" })
+  const second = aDefaultLaunch(checkout, { sessionId: "second" })
     .enteredBranch({ ...atBase, workspace: other, branch: "other" })
     .please();
   keep(record, second);

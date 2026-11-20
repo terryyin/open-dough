@@ -218,6 +218,13 @@ the entry specs and Cursor recovery. Keep the original launch's authority,
 wrong launch and candidate refusals, prepared pair, acceptance, exact retry,
 the comparison after retirement and Done, and the deletion result.
 
+**Learning.** `declaredBranchCase.ts` is gone; `aDefaultLaunch` defaults its
+Git directory to the canonical path production records, and the publisher
+preset composes the proposal's entry. The publisher cases never needed the
+session-branch pins the old adapter path wrote. Local proof ran at load 25–39
+with the Git-heavy timeouts recorded under slice 4; hosted CI proves this
+revision.
+
 ### 6. Expiry cases pass the cleanup operation explicitly
 
 Type: Behavior

@@ -13,12 +13,15 @@ import {
   replaceKeptSession,
 } from "../../server/launchRecordStore.ts";
 import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
+import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
 import {
   aCheckout,
+  aDefaultLaunch,
   anIsolatedLaunch,
   type Checkout,
   historyBeforeTheCase,
@@ -31,11 +34,8 @@ import {
   work,
 } from "../support/doneCaptureCase.ts";
 import { review } from "../support/doneCaptureReview.ts";
-import {
-  aDeclaringLaunch,
-  identifyBranch,
-} from "../support/declaredBranchCase.ts";
 
+const trunkRef = "refs/heads/main";
 const originalId = "0a1b2c3d-e5f6-4789-abcd-ef0123456789";
 const replacementId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
 const otherId = "f6e5d4c3-b2a1-4789-abcd-ef0123456789";
@@ -178,11 +178,15 @@ test("a stale native replacement retains a branch identified while it was pendin
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("present", { at: minutesAgo(70) }),
   );
-  const stale = aDeclaringLaunch(checkout)
-    .inCursorSession(inCursor(originalId, checkout.integration))
-    .please();
+  const launch = aDefaultLaunch(checkout).inCursorSession(
+    inCursor(originalId, checkout.integration),
+  );
+  const { entry } = await proposeBranchEntry(trunkRef, launch.please(), {
+    workspace,
+    branch,
+  });
+  const stale = launch.enteredBranch(entry).please();
   keep(stale);
-  await identifyBranch(checkout, stale, { workspace, branch });
   const { entered } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("entered", { at: minutesAgo(30) }),
@@ -196,7 +200,10 @@ test("a stale native replacement retains a branch identified while it was pendin
   if (kept === undefined) throw new Error("The replacement was not kept.");
 
   expect(
-    await identifyBranch(checkout, kept, { workspace, branch }),
+    await recordSessionBranchEntry({ id: source, ref: trunkRef }, kept, {
+      workspace,
+      branch,
+    }),
   ).toMatchObject({ committedTip: present });
   expect(await review(replacement)).toMatchObject({
     kind: "branch-result",
