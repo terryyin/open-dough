@@ -151,17 +151,6 @@ export const openDoughCandidatesRecord =
     )
     .please();
 
-// Every finding section is `None.`.
-export const emptyCandidatesRecord =
-  makeMe.aTestOptimizationCandidatesRecord.please();
-
-export const mismatchedCandidatesRecord = `# Not A Candidates Record
-
-## Something else
-
-Body that Intent must not partially show.
-`;
-
 // The Open Dough sources its candidates record is published with.
 export const openDoughSources = {
   [testOptimizationCandidatesPath]: openDoughCandidatesRecord,

@@ -21,6 +21,7 @@ import {
 } from "../../src/intentReadSource.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
+import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 
@@ -164,41 +165,70 @@ function PageIntent({ work }: { readonly work: PublishedWork }) {
   });
 }
 
-// Pygardon's published features with `record` as its candidates record,
+// A project's published source, its features opening its jobs feature with
+// `scenario`, and the answer to its candidates record.
+export type CandidatesPublication = {
+  readonly source: PublishedSource;
+  readonly scenario: string;
+  readonly candidates: IntentCandidatesReadResult;
+};
+
+// Each project's published features and candidates record at any revision,
 // counting every record read by the revision it asked for.
-export function publishedWithCandidates(record: string) {
+export function projectsPublishedWithCandidates(
+  publications: readonly CandidatesPublication[],
+) {
   const reads: string[] = [];
-  const features = featuresOpening("List jobs");
+  const published = Object.fromEntries(
+    publications.map((publication) => [
+      publication.source.id,
+      { ...publication, features: featuresOpening(publication.scenario) },
+    ]),
+  );
+  const of = (source: PublishedSource) => fixtureFor(published, source.id);
   const readSource: IntentReadSource = {
-    readLocations: (...[, , signal]) => features.readLocations(signal),
-    readFile(...[, path, , signal]) {
-      const file = features.files[path];
-      if (file === undefined) throw new Error(`No published file ${path}`);
-      return file(signal);
-    },
-    readCandidates(...[, requested]) {
-      reads.push(requested);
-      return Promise.resolve<IntentCandidatesReadResult>({
-        status: "present",
-        text: record,
-      });
+    readLocations: (source, ...[, signal]) =>
+      of(source).features.readLocations(signal),
+    readFile: (source, path, ...[, signal]) =>
+      fixtureFor(of(source).features.files, path)(signal),
+    readCandidates(source, revision) {
+      reads.push(revision);
+      return Promise.resolve(of(source).candidates);
     },
   };
   return { reads, readSource };
 }
 
+// Pygardon's published features with `record` as its candidates record.
+export const publishedWithCandidates = (record: string) =>
+  projectsPublishedWithCandidates([
+    {
+      source: makeMe.aPublishedSource.pygardon.please(),
+      scenario: "List jobs",
+      candidates: { status: "present", text: record },
+    },
+  ]);
+
 // Mounts Project Intent for `work` as the reader enters it on the page,
-// reading through `readSource`.
+// reading through `readSource`. `showProject` switches the page to another
+// project's published work.
 export async function mountPageIntentReading(
   readSource: IntentReadSource,
   work: PublishedWork,
 ) {
-  await mountComponent(
+  const reading = (shown: PublishedWork) =>
     createElement(
       IntentReadSourceOnPage,
       { value: readSource },
-      createElement(PageIntent, { work }),
-    ),
-    { viewport: { width: 1280, height: 900 }, fillsViewport: true },
-  );
+      createElement(PageIntent, { work: shown }),
+    );
+  const intent = await mountComponent(reading(work), {
+    viewport: { width: 1280, height: 900 },
+    fillsViewport: true,
+  });
+  return {
+    showProject: (shown: PublishedWork) => {
+      intent.rerender(reading(shown));
+    },
+  };
 }

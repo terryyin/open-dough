@@ -13,6 +13,8 @@ import { findingEntryFields } from "../../src/testOptimizationCandidatesRecord.t
 import { intentBrowser } from "./intent-browser-page.ts";
 import {
   intentCandidates,
+  intentViews,
+  intentViewTab,
   textAsRead,
   textsOf,
 } from "./intent-candidates-page.ts";
@@ -75,12 +77,8 @@ const findingRecord = makeMe.aTestOptimizationCandidatesRecord
   .please();
 
 const intent = page.getByRole("region", { name: "Project Intent" });
-const views = page.getByRole("tablist", { name: "Project Intent views" });
-const ciTab = views.getByRole("tab", { name: "CI status", exact: true });
-const candidatesTab = views.getByRole("tab", {
-  name: "Optimization Candidates",
-  exact: true,
-});
+const ciTab = intentViewTab("CI status");
+const candidatesTab = intentViewTab("Optimization Candidates");
 const { record } = intentCandidates();
 const purpose = page.getByRole("region", { name: "Purpose", exact: true });
 const locationsFolder = page.getByRole("button", {
@@ -96,7 +94,7 @@ test("Intent enters on CI status; Optimization Candidates reads the shown revisi
   await mountPageIntentReading(readSource, work);
 
   await expect
-    .poll(() => textsOf(views.getByRole("tab")))
+    .poll(() => textsOf(intentViews.getByRole("tab")))
     .toEqual(["CI status", "Optimization Candidates"]);
   await expect.element(ciTab).toHaveAttribute("aria-selected", "true");
   await expect.element(candidatesTab).toHaveAttribute("aria-selected", "false");
@@ -169,8 +167,7 @@ test("Intent enters on CI status; Optimization Candidates reads the shown revisi
     );
   expect(textAsRead(record)).toContain(pinnedSnapshot);
 
-  await userEvent.click(ciTab);
-  await expect.element(ciTab).toHaveAttribute("aria-selected", "true");
+  await intentCandidates().leaveForCiStatus();
   await expect.element(record).not.toBeInTheDocument();
   await (
     await intentBrowser().open(pygardonFeatures.jobs)

@@ -25,11 +25,11 @@ threshold.
 | 5 | Revision evidence links are present and work for the shown record (Scope: revision evidence links) | slice 1 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates.spec.ts first test: evidence link href pinned to blob/<revision>; sha:path stays text |
 | 6a | A live record shows its own fields (Key examples; Scope record formats) | slice 2 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates-live.spec.ts: five fact terms and definitions in order, source opens in Purpose; live None. reads as no live candidates without a failure |
 | 6b | A profile-only mechanism shows its own fields (Key examples; Scope record formats) | slice 1 | observed: dashboard/frontend-tests/intent/intent-test-optimization-candidates-profile-only.spec.ts: section order, mechanism note and pinned link before its entry, no pass summary |
-| 7a | An absent record has its own wording (Key examples; Scope record availability) | slice 3 | |
-| 7b | An empty record has its own wording | slice 3 | |
-| 7c | A mismatched record has its own wording | slice 3 | |
-| 7d | An unreadable record has its own wording | slice 3 | |
-| 7e | In each of those unavailable states, the locations remain usable | slice 3 | |
+| 7a | An absent record has its own wording (Key examples; Scope record availability) | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: Doughnut shows the no-record-published wording |
+| 7b | An empty record has its own wording | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: Open Dough shows no pending candidates or accepted costs, both sections None., no failure |
+| 7c | A mismatched record has its own wording | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: Pygardon shows not-a-record wording and none of the body |
+| 7d | An unreadable record has its own wording | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: unreadable project shows could-not-be-read wording with visible Retry |
+| 7e | In each of those unavailable states, the locations remain usable | slice 3 | observed: dashboard/frontend-tests/intent/intent-candidates-record-problems.spec.ts: after each state CI status opens that project's jobs.feature scenario; one read per project |
 | 8a | A configured source opens in Purpose at its recorded file, with the tree selected (Key examples; Scope opening files and cases) | slice 4 | |
 | 8b | A configured source opens in Purpose at its recorded case line, with the tree selected | slice 5 | |
 | 9 | Returning focuses the entry and does not reread (Key examples) | slice 4 | |

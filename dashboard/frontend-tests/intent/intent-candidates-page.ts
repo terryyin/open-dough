@@ -1,5 +1,5 @@
 // Intent's Optimization Candidates record as the reader operates it: the
-// reader chooses its view, the record names the revision it was recorded
+// reader chooses its view or leaves it for CI status, the record names the revision it was recorded
 // at, says while it is being read, shows no failure, and one recorded entry
 // opens its source file in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
@@ -10,20 +10,30 @@ import {
   withoutBreakingHints,
 } from "./intent-file-reading-page.ts";
 
+// Project Intent's views and the tab of one of them.
+export const intentViews = page.getByRole("tablist", {
+  name: "Project Intent views",
+});
+export const intentViewTab = (name: "CI status" | "Optimization Candidates") =>
+  intentViews.getByRole("tab", { name, exact: true });
+
 export function intentCandidates() {
   const record = page.getByRole("region", {
     name: "Test Optimization Candidates",
     exact: true,
   });
-  const tab = page
-    .getByRole("tablist", { name: "Project Intent views" })
-    .getByRole("tab", { name: "Optimization Candidates", exact: true });
+  const tab = intentViewTab("Optimization Candidates");
   const entry = (name: string) => record.getByRole("article", { name });
   const candidates = {
     record,
     async choose() {
       await userEvent.click(tab);
       return candidates.isChosen();
+    },
+    async leaveForCiStatus() {
+      const ciStatus = intentViewTab("CI status");
+      await userEvent.click(ciStatus);
+      await expect.element(ciStatus).toHaveAttribute("aria-selected", "true");
     },
     async isChosen() {
       await expect.element(tab).toHaveAttribute("aria-selected", "true");

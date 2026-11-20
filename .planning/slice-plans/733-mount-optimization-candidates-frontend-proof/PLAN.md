@@ -107,7 +107,7 @@ finding-record specs together.
 ### 3. Record problems keep their own explanation and leave locations usable
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `intent-test-optimization-candidates-states` with typed locations and
 candidate answers for each project. Exercise the actual project-reading
@@ -169,6 +169,13 @@ the old retry windows, observe no spontaneous read, then click Retry and see
 the answer. Run the candidate family, revision specs and the focused E2E
 timeout journey. Check the final frontend listing for the moved spec
 engines, and compare timing and retired setup with the base.
+
+## Story obligations
+
+### G1. Absent and mismatched records no longer prove they are not reread
+Reported: slice 3 — "I did not carry over the legacy check that reads stay at 1 after 70 s of page clock in the absent and mismatched states."
+Story clause: "how a failed record recovers"
+Disposition: receiving slice 6
 
 ## Local gates
 

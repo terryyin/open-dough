@@ -1,10 +1,9 @@
 // Immutable published source answers for revision and cross-project journeys.
-// Each source owns its head; historical locations, file text and any published
-// candidate record stay revision-keyed, so a late answer keeps its revision.
+// Each source owns its head; historical locations and file text stay
+// revision-keyed, so a late answer keeps its revision.
 import type { Page } from "@playwright/test";
 import type { CatalogPublication } from "../catalogProjectRecords.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
-import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
@@ -14,7 +13,6 @@ type Publication = {
   readonly project: CatalogPublication;
   readonly locations: IntentLocationsAnswer;
   readonly files: Readonly<Record<string, string>>;
-  readonly candidates?: IntentCandidatesAnswer;
 };
 
 export async function installFrontendIntentRevisionAnswers(
@@ -51,7 +49,6 @@ export async function installFrontendIntentRevisionAnswers(
           files: { ...snapshot.files },
           backlog: snapshot.files[".planning/PRODUCT-BACKLOG.md"] ?? "",
           locations: snapshot.locations,
-          ...(snapshot.candidates && { candidates: snapshot.candidates }),
         },
         params,
       );
@@ -61,11 +58,10 @@ export async function installFrontendIntentRevisionAnswers(
     },
   );
   return {
-    publish({ project, locations, files, candidates }: Publication) {
+    publish({ project, locations, files }: Publication) {
       snapshots.set(key(project.id, project.revision), {
         locations: structuredClone(locations),
         files: { ...project.files, ...files },
-        ...(candidates && { candidates: structuredClone(candidates) }),
       });
       heads.set(project.id, project.revision);
       Object.assign(services, {
