@@ -16,7 +16,9 @@ import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 /** @typedef {{ integration: string, fixture: string, origin?: string }} Checkout */
 /** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedCommit} DatedCommit */
-/** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedAmendment} DatedAmendment */
+/** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedFileChanges} DatedFileChanges */
+/** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedSideCommit} DatedSideCommit */
+/** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedReword} DatedReword */
 /** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedCherryPick} DatedCherryPick */
 /** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedAutosquash} DatedAutosquash */
 /** @typedef {import("./repositoryCheckoutWorkTestData.mjs").TrunkWork} TrunkWork */
@@ -25,8 +27,9 @@ import { writeRevisionFiles } from "./repository-revision-files.mjs";
  * @param {string} cwd
  * @param {string} at
  * @param {string[]} args
+ * @param {NodeJS.ProcessEnv} [editors]
  */
-const gitAt = (cwd, at, args) =>
+const gitAt = (cwd, at, args, editors) =>
   exec("git", args, {
     cwd,
     env: {
@@ -35,6 +38,7 @@ const gitAt = (cwd, at, args) =>
       GIT_AUTHOR_DATE: at,
       GIT_EDITOR: "true",
       GIT_SEQUENCE_EDITOR: "true",
+      ...editors,
     },
   });
 
@@ -46,7 +50,31 @@ const commitAt = (cwd, { at, message, files }) =>
     committer: { ...integrationDeveloper, date: at },
   });
 
-/** @param {string} checkout @param {DatedAmendment} work */
+/** @param {string} checkout @param {DatedSideCommit} work */
+async function commitOnBranch(checkout, work) {
+  const { at, branch } = work;
+  const { stdout } = await gitAt(checkout, at, [
+    "symbolic-ref",
+    "--short",
+    "HEAD",
+  ]);
+  await gitAt(checkout, at, ["switch", "--quiet", "--create", branch]);
+  const commit = await commitAt(checkout, work);
+  await gitAt(checkout, at, ["switch", "--quiet", stdout.trim()]);
+  return commit;
+}
+
+/** @param {string} checkout @param {DatedReword} work */
+async function rewordTip(checkout, { at, message }) {
+  await gitAt(checkout, at, ["rebase", "--quiet", "--interactive", "HEAD^"], {
+    GIT_SEQUENCE_EDITOR: "sed -i.bak '1s/^pick /reword /'",
+    GIT_EDITOR: 'printf "%s\\n" "$DOUGH_CHECKOUT_REWORD_MESSAGE" >',
+    DOUGH_CHECKOUT_REWORD_MESSAGE: message,
+  });
+  return revParse(checkout, "HEAD");
+}
+
+/** @param {string} checkout @param {DatedFileChanges} work */
 async function amendAt(checkout, { at, files }) {
   writeRevisionFiles(checkout, { files });
   await gitAt(checkout, at, ["add", "--", ...Object.keys(files)]);
@@ -163,6 +191,16 @@ export async function performCheckoutWork(checkout, work) {
     switch (step.kind) {
       case "commit":
         commits.push([step.name, await commitAt(integration, step)]);
+        break;
+      case "edit":
+        writeRevisionFiles(integration, { files: step.files });
+        commits.push([step.name, await revParse(integration, "HEAD")]);
+        break;
+      case "branch-commit":
+        commits.push([step.name, await commitOnBranch(integration, step)]);
+        break;
+      case "reword":
+        commits.push([step.name, await rewordTip(integration, step)]);
         break;
       case "amend":
         commits.push([step.name, await amendAt(integration, step)]);

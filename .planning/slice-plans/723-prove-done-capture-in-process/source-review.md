@@ -57,8 +57,8 @@ of speed, clarity and support removed.
 | P32 | A file-text read of the kept run’s exact pair returns the base-side version. | slice 1 | observed: kept-session-commits-review.spec.ts exact-pair text asserts the before version |
 | P33 | The same exact-pair read returns the tip-side version. | slice 1 | observed: kept-session-commits-review.spec.ts exact-pair text asserts the after version |
 | P34 | A different pair is refused with 409. | slice 1 | observed: kept-session-commits-review.spec.ts mismatched pair throws RefusedRequest with the previous error and status 409 |
-| P35 | After Done, review says changes were not captured when the session’s only commit remains on another branch. | slice 4 | |
-| P36 | After Done, review says the session made no commits in the Default main checkout when it edited files and committed nothing. | slice 4 | |
+| P35 | After Done, review says changes were not captured when the session’s only commit remains on another branch. | slice 4 | observed: done-kept-session-unavailable.spec.ts side-branch case keeps the Done mark and asserts the exact changes-were-not-captured answer |
+| P36 | After Done, review says the session made no commits in the Default main checkout when it edited files and committed nothing. | slice 4 | observed: done-kept-session-unavailable.spec.ts blank default launch and edit case asserts the exact no-commits explanation |
 | P37 | When two kept sessions share one checkout and each makes a commit, Done on one yields a review containing commits made while that session was open. | slice 5 | |
 | P38 | The same review says the checkout was shared. | slice 5 | |
 | P39 | When a Done session has a kept run and a later Done cannot read its log, the earlier run’s references are gone from the repository. | slice 6 | |

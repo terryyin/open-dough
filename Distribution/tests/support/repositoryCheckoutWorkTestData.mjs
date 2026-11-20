@@ -1,13 +1,15 @@
 // @ts-check
 // Work performed in a checkout after its repository history is materialized.
 
-/** @typedef {{ at: string, message: string, files: Readonly<Record<string, string>> }} DatedCommit */
 /** @typedef {{ at: string }} DatedStep */
-/** @typedef {Omit<DatedCommit, "message">} DatedAmendment */
+/** @typedef {DatedStep & { files: Readonly<Record<string, string>> }} DatedFileChanges */
+/** @typedef {DatedFileChanges & { message: string }} DatedCommit */
+/** @typedef {DatedCommit & { readonly branch: string }} DatedSideCommit */
+/** @typedef {DatedStep & { readonly message: string }} DatedReword */
 /** @typedef {DatedStep & { file: string, incoming: string, resolution: string }} DatedCherryPick */
 /** @typedef {DatedStep & { target: string, mode: "fixup" | "squash", file: string, content: string }} DatedAutosquash */
 /** @typedef {"fast-forward" | "merge" | "rebase" | "rebase-onto"} TrunkWork */
-/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" } & DatedAmendment | { kind: "push" } & DatedStep | { kind: "cherry-pick" } & DatedCherryPick | { kind: "autosquash" } & DatedAutosquash} WorkStep */
+/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" | "edit" } & DatedFileChanges | { kind: "branch-commit" } & DatedSideCommit | { kind: "reword" } & DatedReword | { kind: "push" } & DatedStep | { kind: "cherry-pick" } & DatedCherryPick | { kind: "autosquash" } & DatedAutosquash} WorkStep */
 /** @template {string} Name @typedef {WorkStep & { name: Name }} NamedStep */
 /** @template {string} [Name=string] @typedef {readonly NamedStep<Name>[]} CheckoutWork */
 
@@ -47,9 +49,39 @@ export class CheckoutWorkBuilder {
   }
 
   /**
+   * Edits files in the worktree and answers the unchanged HEAD.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedAmendment} amendment
+   * @param {DatedFileChanges} edit
+   */
+  editing(name, edit) {
+    return this.#with(name, { ...edit, kind: "edit" });
+  }
+
+  /**
+   * Answers the commit on the new branch and returns to the original branch.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedSideCommit} commit
+   */
+  committingOnBranch(name, commit) {
+    return this.#with(name, { ...commit, kind: "branch-commit" });
+  }
+
+  /**
+   * Rewords the tip through interactive rebase and answers the rewritten tip.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedReword} reword
+   */
+  rewordingTip(name, reword) {
+    return this.#with(name, { ...reword, kind: "reword" });
+  }
+
+  /**
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedFileChanges} amendment
    */
   amending(name, amendment) {
     return this.#with(name, { ...amendment, kind: "amend" });

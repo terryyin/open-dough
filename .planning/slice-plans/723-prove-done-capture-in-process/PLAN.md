@@ -251,7 +251,7 @@ consumers and dashboard typecheck passed. All three replacements summed to
 ### 4. A Done that captures nothing says why, proven in-process
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a kept session whose checkout work is an uncommitted edit, a
 commit on another branch, a reworded commit in either form, a `HEAD` log that
@@ -264,6 +264,16 @@ Playwright cases are deleted from `ad-hoc-review-unavailable.spec.ts`.
 Proof: The cases pass through the focused backend run. Each fails under a
 scratch edit that makes the capture keep a run or changes its explanation.
 The launch case that stays in `ad-hoc-review-unavailable.spec.ts` passes.
+
+Accepted proof in `slice-4-implementation.md` and its named run records
+in the checkout's Git evidence directory. The six capture explanations
+and the retained Playwright launch-without-start case passed. Each
+scratch change produced its expected wrong answer or recorded state.
+Ten fixture cases, eleven earlier checkout-work cases and dashboard
+typecheck passed. The six replacements summed to 0.935 seconds
+against 29.958 seconds on Playwright at two workers.
+The independent refactor named the shared edit and amendment payload
+`DatedFileChanges`. That type-only edit passed dashboard typecheck.
 
 ### 5. A checkout shared with another open session is said so, proven in-process
 
