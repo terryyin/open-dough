@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Mark Done through a typed decision and compose Done state in review cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store) — SEED-413#split-done-mark-decision-from-store ([plan](slice-plans/734-split-done-mark-decision-from-store/PLAN.md))
 - [Propose a branch entry from typed inputs and expose its pin refs](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store) — SEED-413#split-branch-entry-proposal-from-store ([plan](slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md))
 - [Decide reported landings over typed attempts and records](seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records) — SEED-413#decide-landings-over-typed-attempts-and-records ([plan](slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md))
-- [Read a story review's diff emphasis and syntax in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) — SEED-413#mount-story-review-diff-reading ([plan](slice-plans/741-mount-story-review-diff-reading/PLAN.md))
 
 ## Backlog list
 
