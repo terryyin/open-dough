@@ -31,6 +31,9 @@
 - Slice 5 accepted on the story branch at
   `a3563cf186b557b084c5f219bbdc1597ca46f1d2` and registered with the same
   observer. Its candidate used slice 4 as its suffix base.
+- Slice 6 accepted on the story branch at
+  `0c5a4889c2379fc9ccccf70d1fd735daf2cc30d3` and registered with the same
+  observer. Its candidate used slice 5 as its suffix base.
 
 ## Goal and scope
 
@@ -328,3 +331,11 @@ before the Intent navigation.
 - Slice-plan refinement was not needed: each slice has one owner and one
   proof loop, and slice 2 is the only preparation, placed before the
   behavior it enables. No slice-specific concern remains.
+
+## Execution complete
+
+Product advice: no change to the frontend migration order. The focused
+comparison supports testing each reader at its rendered owner. The five
+retained built-app cases cover service or cross-reader behavior, so their
+existing owners remain appropriate. The whole-group timing remains with
+the parent story.
