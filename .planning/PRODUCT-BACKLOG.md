@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Mark Done through a typed decision and compose Done state in review cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store) — SEED-413#split-done-mark-decision-from-store ([plan](slice-plans/734-split-done-mark-decision-from-store/PLAN.md))
 - [Propose a branch entry from typed inputs and expose its pin refs](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store) — SEED-413#split-branch-entry-proposal-from-store ([plan](slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md))
 - [Decide reported landings over typed attempts and records](seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records) — SEED-413#decide-landings-over-typed-attempts-and-records ([plan](slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md))
+- [Read a story review's diff emphasis and syntax in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) — SEED-413#mount-story-review-diff-reading ([plan](slice-plans/741-mount-story-review-diff-reading/PLAN.md))
 
 ## Backlog list
 
@@ -40,7 +41,6 @@ intent introduced or affected by a newly developed story.
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
-- [Read a story review's diff emphasis and syntax in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) — SEED-413#mount-story-review-diff-reading
 - [Read the Usage Token index's selections and refreshes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-usage-token-index-reading) — SEED-413#mount-usage-token-index-reading
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
 - [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes

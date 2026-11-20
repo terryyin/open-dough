@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Shunka-chan",
+  "email": "shunka-chan@example.org",
+  "identity": "SEED-413#mount-story-review-diff-reading",
+  "mode": "story-branch",
+  "branch": "codex/read-a-story-review-s-diff-emphasis-and-syntax-i",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
