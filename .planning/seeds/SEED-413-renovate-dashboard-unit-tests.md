@@ -392,7 +392,12 @@ cost and which shared contracts are available as families finish.
   `mountedActSettled.ts` and its harness case with `mountedDashboard.ts`.
   When migrating the built-app `intent-read-recovery` and
   `intent-gherkin-settings-problems` specs, replace handwritten locations
-  responses with `makeMe.anIntentLocationsAnswer`.
+  responses with `makeMe.anIntentLocationsAnswer`, and retire the unread
+  `locationsRequest` export in `intentReadRecoveryPage.ts`.
+- When an Intent family reuses
+  [`intent-candidates-publication.ts`](../../dashboard/frontend-tests/intent/intent-candidates-publication.ts),
+  mount the production `IntentPageProviders` there instead of re-composing
+  the mode and reading providers.
 - Retire a feature's app mount, route substitutes and page-object scaffolding
   when their last consumers move. For example, `frontendIntentCi.ts` still
   uses `serveFrontendCiHistory` after Project CI history migrates. Add zero
