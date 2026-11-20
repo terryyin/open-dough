@@ -167,7 +167,7 @@ margin.
 ### 3. Default main commit attribution decides over typed log entries
 
 Type: Structure
-Status: planned
+Status: done
 
 Extract placement and run grouping over `LogEntry[]`. Add typed-log cases for
 the run decisions in `done-kept-session-commit-runs`, `-rebased-runs` and
@@ -178,9 +178,17 @@ real-Git case of the reflog read (the first `done-kept-session-commits`
 case).
 
 **Proof.** The typed-log cases pass without Git. Reversing the
-replay-fingerprint check in a scratch edit fails the cherry-pick and rebase
-cases. The three specs, still on real Git until slice 4, and
+replay-fingerprint check in a scratch edit fails the rebase and replay cases
+(a continued cherry-pick writes `commit (cherry-pick)`, placed without the
+fingerprint). The three specs, still on real Git until slice 4, and
 `done-kept-session-unavailable` pass.
+
+**Accepted.** `dashboard/server/sessionCommitAttribution.ts` exports
+`madeSince` and `runsOf` over `LogEntry[]`, grouping by each entry's first
+parent (the log already read `%P`; the per-commit `rev-parse` is gone).
+`done-session-commit-attribution.spec.ts` has 9 typed-log cases; the reversed
+fingerprint check failed the four rebase and replay cases; the
+`done-kept-session-*` and `ad-hoc-session-commits*` specs passed (38 tests).
 
 ### 4. Default main run reviews read composed Done records
 
