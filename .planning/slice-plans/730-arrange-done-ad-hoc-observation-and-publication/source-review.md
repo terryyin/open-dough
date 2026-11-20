@@ -28,11 +28,11 @@ session-commits review, general Done lifecycle); later families still using
 | 7 | Keep the sender's exact retained comparison and retry in the installed publication proof | slice 7 |  |
 | 8 | Retire each `adHocReview.ts` helper when its last consumer moves (in this story) | slice 8 |  |
 | 9 | Compare focused timing and the test-support calls removed against the prior cases under ADR 0010 | slice 8 |  |
-| 10a | A kept branch has a fixed comparison at Done | slice 2 |  |
-| 10b | The first Board read after restart discovers its actual trunk merge even after a later advance | slice 2 |  |
-| 10c | Both comparisons and their file reads survive branch retirement and an offline remote | slice 2 |  |
-| 10d | ... with the original Done time intact | slice 2 |  |
-| 11a | A check at an unchanged revision discovers a newly Done session | slice 2 |  |
+| 10a | A kept branch has a fixed comparison at Done | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation.spec.ts "the first observation after restart discovers a delivery while preserving the fixed branch comparison": branchAtDone branch-result equals review after retirement and saved branch-result tree |
+| 10b | The first Board read after restart discovers its actual trunk merge even after a later advance | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation.spec.ts "the first observation after restart discovers a delivery while preserving the fixed branch comparison": fresh owner observing the later-advance revision yields landed baseline trunkParent, tree merge, keys delivered+branch-result |
+| 10c | Both comparisons and their file reads survive branch retirement and an offline remote | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation.spec.ts "the first observation after restart discovers a delivery while preserving the fixed branch comparison": with origin offline both reviews unchanged and fileDiff/fileText give exact delivered and branch pairs |
+| 10d | ... with the original Done time intact | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation.spec.ts "the first observation after restart discovers a delivery while preserving the fixed branch comparison": keptSession doneAt equals the original Done time |
+| 11a | A check at an unchanged revision discovers a newly Done session | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation.spec.ts "an unchanged revision check discovers delivery for a newly Done session": same owner observes merge before Done, Done with remote offline leaves manualDeliveryChecked and no landing, same revision then lands the exact pair |
 | 11b | A failed validation retries at the same revision while another session's delivery settles | slice 3 |  |
 | 11c | Repeated observations keep one receipt and pin pair | slice 1 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-revision-observation.spec.ts "ordinary revision checks retain one delivery across repeated observations": review, saved landing and exact two landing pins unchanged after same-revision and advance observations; deleteRecord releases branch and landing pins |
 | 12a | While validation is held, deletion wins | slice 4 |  |

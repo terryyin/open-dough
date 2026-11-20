@@ -11,12 +11,9 @@ import {
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
 import {
-  aCheckout,
-  anIsolatedLaunch,
+  anIsolatedBranch,
   fileText,
-  historyBeforeTheCase,
   inWorktree,
-  keep,
   markDone,
   minutesAgo,
   review,
@@ -28,14 +25,8 @@ const branch = "draft";
 const project = { id: source, ref: "main" };
 
 test("ordinary revision checks retain one delivery across repeated observations", async () => {
-  const checkout = await aCheckout({
-    history: historyBeforeTheCase().withWorkspace(branch, { from: "base" }),
-    withOrigin: true,
-  });
-  const { integration, execution: workspace } = checkout;
-  if (workspace === undefined) throw new Error("Missing the draft worktree.");
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
-  keep(record);
+  const { checkout, workspace, record } = await anIsolatedBranch(branch);
+  const { integration } = checkout;
   const { draft: tip } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),

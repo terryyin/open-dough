@@ -117,7 +117,7 @@ the existing adapter callers and their revision replies.
 ### 2. A Board read discovers delivery for a retained or newly Done session
 
 Type: Structure
-Status: planned
+Status: done
 
 Move both `review/ad-hoc-manual-landing-observation.spec.ts` cases.
 Keep the conflict merge with its resolution, a later trunk commit, and
@@ -232,6 +232,13 @@ deferred branch and session-commits cases.
   concurrent `tsc` build, so run typecheck apart from timed suites. The
   strict backend reporter prints nothing on success; read selected counts
   from `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`.
+- Slice 2: `anIsolatedBranch(branch, files)` and `aCheckoutWithWorktree`
+  in `doneCaptureCase.ts` arrange a kept isolated branch with origin; use
+  them and `resolveStoryConflict` in later moves. `doneCaptureCase.ts` is
+  at 248 lines, so a slice that adds to it first splits it by
+  responsibility. A by-hand `--no-ff` merge pushed to trunk now repeats in
+  three specs; extract it as a `makeMe.aCheckoutWork` step if later moves
+  repeat it again.
 
 ## Local gates
 

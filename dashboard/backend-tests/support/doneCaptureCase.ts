@@ -34,10 +34,12 @@ const now = Math.floor(Date.now() / 1000) * 1000;
 export const minutesAgo = (minutes: number) =>
   new Date(now - minutes * 60_000).toISOString();
 
-// A history whose base revision predates every launch the case states.
-export const historyBeforeTheCase = () =>
+// A history whose base revision, holding `files`, predates every launch the
+// case states.
+export const historyBeforeTheCase = (files: Record<string, string> = {}) =>
   makeMe.aRepository.withRevision("base", {
     backlog: null,
+    files,
     committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
   });
 
@@ -130,6 +132,35 @@ export const anIsolatedLaunch = (
     })
     .inClaudeSession({ sessionId })
     .launchedAt(launchedAt);
+
+// The project's checkout with an origin, holding `files` at its base, and its
+// worktree on `branch` there.
+export async function aCheckoutWithWorktree(
+  branch: string,
+  files: Record<string, string> = {},
+) {
+  const checkout = await aCheckout({
+    history: historyBeforeTheCase(files).withWorkspace(branch, {
+      from: "base",
+    }),
+    withOrigin: true,
+  });
+  const workspace = checkout.execution;
+  if (workspace === undefined)
+    throw new Error(`Missing the ${branch} worktree.`);
+  return { checkout, workspace };
+}
+
+// That checkout and the kept isolated launch whose start created the worktree.
+export async function anIsolatedBranch(
+  branch: string,
+  files: Record<string, string> = {},
+) {
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
+  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  keep(record);
+  return { checkout, workspace, record };
+}
 
 // Keeps these records as the project's whole store in a private machine
 // home, and answers the home.

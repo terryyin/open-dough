@@ -9,7 +9,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
 import {
-  aCheckout,
+  aCheckoutWithWorktree,
   aDefaultLaunch,
   type Checkout,
   fileDiff,
@@ -25,24 +25,10 @@ import {
 
 const branch = "topic";
 
-// The project's checkout with an origin and the topic worktree at its base.
-const aTopicCheckout = () =>
-  aCheckout({
-    history: makeMe.aRepository
-      .withRevision("base", {
-        backlog: null,
-        files: { "shared.txt": "original\n" },
-      })
-      .withWorkspace(branch, { from: "base" }),
-    withOrigin: true,
-  });
-
-async function aTopicWorktree() {
-  const checkout = await aTopicCheckout();
-  const workspace = checkout.execution;
-  if (workspace === undefined) throw new Error("Missing the topic worktree.");
-  return { checkout, workspace };
-}
+// The project's checkout with an origin and the topic worktree at its base,
+// which holds the shared file.
+const aTopicWorktree = () =>
+  aCheckoutWithWorktree(branch, { "shared.txt": "original\n" });
 
 // A Default main launch that then identified the existing topic worktree as
 // its branch, with whatever the worktree already held.
