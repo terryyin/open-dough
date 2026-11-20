@@ -249,6 +249,14 @@ at the 5 s default under load ~15 (slices 1–2). Make their setup cheaper while
 converting this spec, without raising timeouts, and show both cases well clear
 of the limit across three runs at comparable load.
 
+**Learning.** `retireExpiredRecords` in `launchRecordRemoval.ts` is the one
+retention cleanup; `replaceRecords` and `changeSessionRecord` take it as
+`droppedByRetention`, defaulting to the boundary's installed listener. The
+three Done captures cost about 60% of a Cursor recovery case; composing the
+other session's pins with production `keepBranchResultRefs` removed one.
+Cursor cases ran 1.1–2.1 s at load 16–18; at load 33–47 every Git-heavy case,
+old or new, timed out. Hosted CI proves this revision.
+
 ## Local gates
 
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).

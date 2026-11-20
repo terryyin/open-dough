@@ -11,7 +11,7 @@ import {
   changeSessionRecord,
   deleteRecord,
 } from "../../server/launchRecordStore.ts";
-import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   launchRetentionDays,
@@ -122,14 +122,19 @@ const retentionAgo = new Date(
 
 const removals = {
   deletion: (record) => deleteRecord(source, record.session),
-  // Retention drops the aged record at the project's next record write.
+  // Retention drops the aged record at the project's next record write,
+  // which retires it through the production cleanup.
   expiry: async (record) => {
-    installRecordRemovalDispatch();
     await changeSessionRecord(source, record.session, (kept) => ({
       ...kept,
       doneAt: retentionAgo,
     }));
-    await changeSessionRecord(source, record.session, (kept) => kept);
+    await changeSessionRecord(
+      source,
+      record.session,
+      (kept) => kept,
+      retireExpiredRecords,
+    );
   },
 } satisfies Record<string, (record: LaunchRecord) => Promise<unknown>>;
 

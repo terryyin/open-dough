@@ -143,7 +143,8 @@ function historyEntries(
 // document replaces; when retention history cannot be written, aged-out
 // records stay in the document (still hidden on read) and the write's own
 // change still applies. When a removal cannot be recorded in history, the
-// write fails and the record stays.
+// write fails and the record stays. Records the rewrite drops by retention
+// go to `droppedByRetention`, by default the listener the boundary installed.
 export async function replaceRecords(
   change: (
     kept: StoredRecords,
@@ -151,6 +152,8 @@ export async function replaceRecords(
     | StoredRecords
     | typeof leaveMachineJson
     | Promise<StoredRecords | typeof leaveMachineJson>,
+  droppedByRetention:
+    RecordsDroppedByRetention | undefined = recordsDroppedByRetention,
 ): Promise<void> {
   const outcome: {
     dropped: LaunchRecord[];
@@ -214,7 +217,7 @@ export async function replaceRecords(
     return next;
   });
   if (!outcome.leftAsIs && outcome.dropped.length > 0) {
-    await recordsDroppedByRetention?.(outcome.dropped);
+    await droppedByRetention?.(outcome.dropped);
   }
   await notifyRecordsDelivered(outcome.leftAsIs, outcome.delivered);
 }

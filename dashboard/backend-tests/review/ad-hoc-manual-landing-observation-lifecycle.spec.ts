@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { replaceRecords } from "../../server/launchRecordDocument.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
-import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
 import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
@@ -22,7 +22,6 @@ import { review } from "../support/doneCaptureReview.ts";
 // observation of that revision whose inspection of `leaving` waits until
 // released.
 async function heldObservation() {
-  installRecordRemovalDispatch();
   const {
     checkout,
     home,
@@ -111,12 +110,13 @@ test("expiry while the target is being inspected releases evidence and cannot re
     await heldObservation();
 
   ageDoneRecord(home, leaving);
+  await replaceRecords((kept) => kept, retireExpiredRecords);
   release();
   await observation;
   await expectOnlyTheSurvivorDelivered(checkout, leaving, staying);
 
   ageDoneRecord(home, staying);
-  await replaceRecords((kept) => kept);
+  await replaceRecords((kept) => kept, retireExpiredRecords);
   expect(await keptRecords(source)).toEqual([]);
   expect(await heldLandingPins(checkout.integration)).toEqual([]);
   expect(

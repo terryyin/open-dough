@@ -1,10 +1,12 @@
 // When Cursor replaces a chat that cannot load, the branch evidence its Done
 // pinned stays owned by the original chat, and only the replacement's removal
 // releases it.
-import path from "node:path";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sessionBranchPins } from "../../server/launchRecordPins.ts";
+import {
+  keepBranchResultRefs,
+  sessionBranchPins,
+} from "../../server/launchRecordPins.ts";
 import {
   bindRecord,
   changeSessionRecord,
@@ -12,7 +14,7 @@ import {
   keptSession,
   replaceKeptSession,
 } from "../../server/launchRecordStore.ts";
-import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import {
@@ -73,23 +75,26 @@ const retentionAgo = new Date(
 
 const removals = {
   deletion: (record) => deleteRecord(source, record.session),
-  // Retention drops the aged record at the project's next record write.
+  // Retention drops the aged record at the project's next record write,
+  // which retires it through the production cleanup.
   expiry: async (record) => {
-    installRecordRemovalDispatch();
     await changeSessionRecord(source, record.session, (kept) => ({
       ...kept,
       doneAt: retentionAgo,
     }));
-    await changeSessionRecord(source, record.session, (kept) => kept);
+    await changeSessionRecord(
+      source,
+      record.session,
+      (kept) => kept,
+      retireExpiredRecords,
+    );
   },
 } satisfies Record<string, (record: LaunchRecord) => Promise<unknown>>;
 
 for (const [reason, remove] of Object.entries(removals)) {
   test(`${reason} releases the original branch pins after Cursor replaces its chat`, async () => {
     const checkout = await aCheckout({
-      history: historyBeforeTheCase()
-        .withWorkspace("topic", { from: "base" })
-        .withWorkspace("separate", { from: "base" }),
+      history: historyBeforeTheCase().withWorkspace("topic", { from: "base" }),
       withOrigin: true,
     });
     const topic = anIsolatedCursorLaunch(
@@ -98,13 +103,25 @@ for (const [reason, remove] of Object.entries(removals)) {
       "topic",
       originalId,
     );
-    const separate = anIsolatedCursorLaunch(
-      checkout,
-      path.join(checkout.integration, ".worktrees", "separate"),
-      "separate",
-      otherId,
+    const other = aDefaultLaunch(checkout)
+      .inCursorSession(inCursor(otherId, checkout.integration))
+      .please();
+    keep(topic.record, other);
+    // Another kept session's branch result, pinned by its owner.
+    await keepBranchResultRefs(other.session, {
+      repository: checkout.integration,
+      doneAt: minutesAgo(30),
+      base: checkout.base,
+      revision: checkout.base,
+      committedTip: checkout.base,
+    });
+    const otherPins = await sessionBranchPins(
+      checkout.integration,
+      other.session,
     );
-    keep(topic.record, separate.record);
+    expect(otherPins).toContainEqual(
+      expect.objectContaining({ objectId: checkout.base }),
+    );
     const { prior } = await work(
       inWorktree(checkout, topic.workspace),
       makeMe.aCheckoutWork.committing("prior", { at: minutesAgo(40) }),
@@ -142,18 +159,6 @@ for (const [reason, remove] of Object.entries(removals)) {
     expect(
       await sessionBranchPins(checkout.integration, replacement.session),
     ).toEqual([]);
-    const { kept } = await work(
-      inWorktree(checkout, separate.workspace),
-      makeMe.aCheckoutWork.committing("kept", { at: minutesAgo(30) }),
-    );
-    await markDone(separate.record);
-    const otherPins = await sessionBranchPins(
-      checkout.integration,
-      separate.record.session,
-    );
-    expect(otherPins).toContainEqual(
-      expect.objectContaining({ objectId: kept }),
-    );
 
     await remove(replacement);
 
@@ -161,7 +166,7 @@ for (const [reason, remove] of Object.entries(removals)) {
       await sessionBranchPins(checkout.integration, topic.record.session),
     ).toEqual([]);
     expect(
-      await sessionBranchPins(checkout.integration, separate.record.session),
+      await sessionBranchPins(checkout.integration, other.session),
     ).toEqual(otherPins);
   });
 }
