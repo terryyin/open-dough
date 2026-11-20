@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-413#ad-hoc-branch-result-handoff",
+  "mode": "story-branch",
+  "branch": "claude/prove-the-ad-hoc-branch-result-and-its-handoff-a",
+  "host": "claude"
+}
