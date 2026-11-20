@@ -232,6 +232,33 @@ at load 10. "two declared sessions each review their own branch" now commits
 and reviews both sessions concurrently. Finding: the Git-heavy Done capture
 family keeps little margin under the default timeout on a loaded machine.
 
+## Execution complete
+
+Product advice:
+
+- The Git-heavy Done capture family runs cases at 2 to 4 s against the 5 s
+  default timeout at load 10, and several timed out at load 16 to 18. That
+  includes `ad-hoc-branch-result.spec.ts`, which this story did not change.
+  Recommend a bounded test-cost story under the parent renovation: profile
+  `aCheckout`, `work` and Done capture setup across the family and cut the
+  shared cost. Do not raise timeouts.
+- `doneCaptureCase.ts` and `ad-hoc-manual-landing.spec.ts` also change on the
+  unlanded `SEED-413#arrange-done-ad-hoc-observation-and-publication` branch,
+  which adds `anIsolatedBranch` and `historyBeforeTheCase(files)`. Whichever
+  story lands second reconciles them onto one helper set. The cursor spec's
+  worktree check can then use `aCheckoutWithWorktree`.
+- `sessionBranchPins` in Dashboard Test Support hard-codes the `claude` host,
+  so the Cursor spec reads its pins with `for-each-ref`. When the parent story
+  moves the last Playwright consumers, retire it in favour of a spec-local
+  read.
+- The family's arrangement grew `aHeldDone` in `doneCaptureCase.ts` and the new
+  `declaredBranchCase.ts` under `dashboard/backend-tests/support/`. They are
+  outside the two directories the North Star freezes, and they replace
+  repeated setup in three specs. Still, `identifyBranch` is a thin wrapper
+  over `recordSessionBranchEntry`. Recommendation: keep them as family
+  arrangement. Revisit if the North Star's test-support rule is meant to
+  cover `backend-tests/support/` too.
+
 ## Local gates
 
 Apply [Dough MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) before
