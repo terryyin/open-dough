@@ -138,6 +138,12 @@ Done marks file at 250 lines. Run records and observations are in
 `open-dough/evidence/731-s1-refactor-return.md` under this worktree's Git
 directory.
 
+CI run 44710919350 flagged three ignored continuation promises at
+existing background call sites. Targeted ESLint reproduced all three;
+explicit `void` discards preserve scheduling and pass targeted lint and
+eight focused delivery, binding and capture cases. See
+`open-dough/evidence/731-ci-lint-repair-return.md`.
+
 ### 2. Rename waits keep and refresh a quiet report's capture
 
 Type: Structure
