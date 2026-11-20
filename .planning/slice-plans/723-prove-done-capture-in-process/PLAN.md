@@ -305,7 +305,7 @@ reads. The ad hoc records these cases use still follow the same path.
 ### 6. The references a Done keeps, and their release, are proven in-process
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a kept session with a commit, when the case marks it Done,
 then the repository holds references for only the comparison pair, and
@@ -320,6 +320,19 @@ the capture and release use. Each passes in the focused backend run and fails
 under a scratch edit to the keep or release it depends on in
 `launchRecordPins.ts` or `doneCapture.ts`. `kept-commits-release.spec.ts`
 passes.
+
+Accepted proof in `slice-6-implementation.md` and its named run records
+in the checkout's Git evidence directory. The four Node cases observe
+real pins after Done and their continued protection or release after
+the next operation. Each scratch edit failed at its intended Git
+reference assertion. All four retained Playwright release cases and
+dashboard typecheck passed. The migrated cases summed to 2.241 seconds
+against 30.730 on Playwright at two workers.
+
+The recapture cases set the case's clock for their first historical Done
+so the first read time precedes the second mark. Only Date is controlled
+during that call. The second mark runs against the live clock and must
+produce or release the new combination of references.
 
 ### 7. The backend guidance states the family's rules, and spent support is gone
 
