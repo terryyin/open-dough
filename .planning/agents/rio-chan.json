@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-413#decide-landings-over-typed-attempts-and-records",
+  "mode": "story-branch",
+  "branch": "cursor/decide-reported-landings-over-typed-attempts-and",
+  "host": "cursor",
+  "model": "auto"
+}

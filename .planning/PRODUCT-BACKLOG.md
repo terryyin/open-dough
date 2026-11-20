@@ -32,11 +32,11 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Mark Done through a typed decision and compose Done state in review cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store) — SEED-413#split-done-mark-decision-from-store ([plan](slice-plans/734-split-done-mark-decision-from-store/PLAN.md))
 - [Propose a branch entry from typed inputs and expose its pin refs](seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store) — SEED-413#split-branch-entry-proposal-from-store ([plan](slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md))
+- [Decide reported landings over typed attempts and records](seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records) — SEED-413#decide-landings-over-typed-attempts-and-records ([plan](slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md))
 
 ## Backlog list
 
 - [Observe Done deliveries over typed kept records](seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records) — SEED-413#observe-done-deliveries-over-typed-records
-- [Decide reported landings over typed attempts and records](seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records) — SEED-413#decide-landings-over-typed-attempts-and-records
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
