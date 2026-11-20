@@ -1,106 +1,15 @@
 // Open Sessions list attention order from typed observations: oldest needing
 // the developer first, then other open sessions newest first, with the
 // Sessions button's attention badge.
-import { createElement, type ReactElement } from "react";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
-import type { LaunchWithState } from "../../src/agentLaunch.ts";
-import { ProjectsOnPage } from "../../src/projectList.tsx";
-import { SessionsOnPage, type PageSessions } from "../../src/pageSessions.ts";
-import {
-  SessionsButton,
-  SessionsSidebarOnPage,
-  type SessionsSidebarState,
-} from "../../src/SessionsSidebar.tsx";
-import { SessionsSidebarOpenList } from "../../src/SessionsSidebarOpenList.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
-
-const doughnut = makeMe.aPublishedSource
-  .with({
-    id: "doughnut",
-    label: "Doughnut",
-    repository: "nerds-odd-e/doughnut",
-  })
-  .please();
-
-const pageSessions: PageSessions = {
-  hostOperations: {
-    claude: {
-      attach: true,
-      stop: false,
-      doneStop: false,
-      localDone: true,
-      launchedSessions: true,
-    },
-  },
-  presentTerminal: () => undefined,
-  openSession: () => undefined,
-  shownSession: undefined,
-  markDone: () => Promise.resolve("marked" as const),
-  markRead: () => Promise.resolve(true),
-  deleteRecord: () => Promise.resolve({ kind: "deleted" as const }),
-  recoverSession: () => Promise.resolve(undefined),
-  stopSession: () => Promise.resolve(undefined),
-};
-
-function present<T>(found: T | null | undefined, what: string): T {
-  if (found === null || found === undefined) throw new Error(`No ${what}`);
-  return found;
-}
-
-function observe(
-  records: readonly { record: LaunchRecord; state: SessionState }[],
-): readonly LaunchWithState[] {
-  return makeMe.aMachineAnswer
-    .observing(
-      ...records.map(({ record, state }) =>
-        makeMe.anObservedLaunch.of(record).withSessionState(state).please(),
-      ),
-    )
-    .please().records;
-}
-
-function openReading(records: readonly LaunchWithState[]): ReactElement {
-  const sidebar: SessionsSidebarState = {
-    open: true,
-    toggle: () => undefined,
-    closeOverPage: () => undefined,
-    records,
-    alerts: { available: true },
-  };
-  return createElement(ProjectsOnPage, {
-    projects: [doughnut],
-    replaceProjects: () => undefined,
-    children: createElement(SessionsOnPage, {
-      value: pageSessions,
-      children: createElement(SessionsSidebarOnPage, {
-        value: sidebar,
-        children: [
-          createElement(
-            "div",
-            { key: "banner", className: "banner" },
-            createElement(SessionsButton, null),
-          ),
-          createElement(
-            "aside",
-            {
-              key: "sidebar",
-              id: "sessions-sidebar",
-              "aria-label": "Sessions sidebar",
-            },
-            createElement(SessionsSidebarOpenList, {
-              records,
-              alerts: sidebar.alerts,
-              open: true,
-              onOpen: () => undefined,
-            }),
-          ),
-        ],
-      }),
-    }),
-  });
-}
+import {
+  observe,
+  openReading,
+  present,
+} from "./sessions-sidebar-open-mount.ts";
 
 function titles() {
   return [
@@ -166,9 +75,12 @@ test("leads with the sessions that need the developer, earliest launch first, th
     makeMe.aSessionState.loaded("failed").please(),
     makeMe.aSessionState.loaded("working").please(),
   );
-  const mounted = await mountComponent(openReading(initial), {
-    viewport: { width: 1280, height: 800 },
-  });
+  const mounted = await mountComponent(
+    openReading(initial, { withAttentionBadge: true }),
+    {
+      viewport: { width: 1280, height: 800 },
+    },
+  );
 
   await expect
     .poll(() => titles())
@@ -188,6 +100,7 @@ test("leads with the sessions that need the developer, earliest launch first, th
         makeMe.aSessionState.loaded("failed").please(),
         makeMe.aSessionState.loaded("waiting").please(),
       ),
+      { withAttentionBadge: true },
     ),
   );
 

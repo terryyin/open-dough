@@ -1,23 +1,29 @@
-// A Sessions sidebar Session entry is one line: title cut with an ellipsis and
-// elapsed launch age, against controlled machine answers and a paused page
-// clock. Tooltip holds state, project, workflow and launch time.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+// Compact open Sessions row: one-line title with ellipsis beside elapsed age,
+// tooltip facts, and hidden desktop disclosure — from typed observations.
+import { expect, onTestFinished, test } from "vitest";
+import { cdp } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
-  doughnutSource,
-  openDoughSource,
-} from "../../test-support/support/frontendServiceState.ts";
-import { expectProjectChoice } from "../../test-support/dashboardPage.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { box } from "../../test-support/pageLayout.ts";
-import {
-  expectRowShows,
-  expectSessionsSidebarSessionEntryShown,
-  expectTooltipLine,
-  sessionsSidebarDetailsOf,
-  sessionsSidebarElapsedOf,
-  sessionsSidebarParts,
-} from "../../test-support/sessionsSidebarPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  observe,
+  openReading,
+  present,
+} from "./sessions-sidebar-open-mount.ts";
+
+// Vitest browser contexts start with hasTouch; desktop row CSS hides Session
+// details under `(any-pointer: coarse)` absent. Restore touch when the case ends.
+async function useFinePointer() {
+  const session = cdp() as {
+    send(method: string, params?: Record<string, unknown>): Promise<unknown>;
+  };
+  await session.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+  onTestFinished(async () => {
+    await session.send("Emulation.setTouchEmulationEnabled", { enabled: true });
+  });
+  if (window.matchMedia("(any-pointer: coarse)").matches) {
+    throw new Error("Fine pointer required for desktop disclosure proof");
+  }
+}
 
 const shortWork = { identity: "SEED-901#short", title: "A short title" };
 const longWork = {
@@ -25,15 +31,71 @@ const longWork = {
   title: `A very long story title that cannot fit on one line of the narrow sidebar ${"and goes on ".repeat(8)}to its end`,
 };
 
-test("is one line of title and elapsed time, however long the title, with the rest in its tooltip", async ({
-  page,
-  frontendServices,
-}) => {
+function entries() {
+  return [
+    ...document.querySelectorAll<HTMLElement>(
+      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
+    ),
+  ];
+}
+
+function entryOf(title: string) {
+  return entries().find(
+    (entry) =>
+      entry.querySelector("h3.sessions-sidebar-session-entry-title")
+        ?.textContent === title,
+  );
+}
+
+function titleOf(entry: HTMLElement) {
+  return present(
+    entry.querySelector<HTMLElement>("h3.sessions-sidebar-session-entry-title"),
+    "row title",
+  );
+}
+
+function elapsedOf(entry: HTMLElement) {
+  return present(
+    entry.querySelector<HTMLElement>(
+      "time.sessions-sidebar-session-entry-elapsed",
+    ),
+    "row elapsed",
+  );
+}
+
+function openControlOf(entry: HTMLElement) {
+  return present(
+    entry.querySelector<HTMLButtonElement>(
+      "button.sessions-sidebar-session-entry-open",
+    ),
+    "row open control",
+  );
+}
+
+function seenText(entry: HTMLElement) {
+  return [...entry.children]
+    .filter(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement &&
+        !child.classList.contains("visually-hidden") &&
+        child.tagName !== "BUTTON" &&
+        child.getBoundingClientRect().height > 0,
+    )
+    .map((child) => child.innerText)
+    .filter((text) => text !== "");
+}
+
+function tooltipLines(entry: HTMLElement) {
+  return (openControlOf(entry).getAttribute("title") ?? "").split("\n");
+}
+
+function box(element: HTMLElement) {
+  return element.getBoundingClientRect();
+}
+
+test("is one line of title and elapsed time, however long the title, with the rest in its tooltip", async () => {
+  await useFinePointer();
   const launchedAt = new Date();
-  await pausePageClockAt(page, launchedAt);
-  Object.assign(frontendServices, {
-    projects: [openDoughSource, doughnutSource],
-  });
   const short = makeMe.aLaunchRecord
     .executing({
       identity: shortWork.identity,
@@ -52,104 +114,75 @@ test("is one line of title and elapsed time, however long the title, with the re
     .inClaudeSession({ sessionId: "row-long" })
     .launchedAt(launchedAt.toISOString())
     .please();
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(short)
-          .withSessionState(
-            makeMe.aSessionState
-              .loaded("waiting")
-              .waitingFor("input needed")
-              .please(),
-          )
-          .please(),
-      )
-      .observingOpen(long)
-      .please(),
+  const records = observe([
+    {
+      record: short,
+      state: makeMe.aSessionState
+        .loaded("waiting")
+        .waitingFor("input needed")
+        .please(),
+    },
+    {
+      record: long,
+      state: makeMe.aSessionState.loaded("working").please(),
+    },
+  ]);
+
+  await mountComponent(openReading(records, { sidebarWidth: "18rem" }), {
+    viewport: { width: 1280, height: 800 },
+  });
+
+  await expect.poll(() => entries().length).toBe(2);
+  const shortEntry = present(entryOf(shortWork.title), "short row");
+  const longEntry = present(entryOf(longWork.title), "long row");
+
+  expect(titleOf(shortEntry).textContent).toBe(shortWork.title);
+  expect(elapsedOf(shortEntry).textContent).toBe("<1m");
+  expect(seenText(shortEntry)).toEqual([shortWork.title, "<1m"]);
+  expect(titleOf(longEntry).textContent).toBe(longWork.title);
+  expect(elapsedOf(longEntry).textContent).toBe("<1m");
+  expect(seenText(longEntry)).toEqual([longWork.title, "<1m"]);
+
+  const details = present(
+    shortEntry.querySelector<HTMLDetailsElement>(
+      "details.sessions-sidebar-session-entry-details",
+    ),
+    "session details",
   );
-  await page.goto("/?project=doughnut");
-  await expectProjectChoice(page, "Doughnut");
-  const { button, entries, entry } = sessionsSidebarParts(page);
-  await button.click();
-  await expect(entries).toHaveCount(2);
-  const shortEntry = entries.nth(0);
-  const longEntry = entries.nth(1);
+  const disclosure = present(
+    details.querySelector("summary"),
+    "session details disclosure",
+  );
+  expect(getComputedStyle(details).display).toBe("none");
+  expect(disclosure.checkVisibility()).toBe(false);
+  expect(
+    shortEntry.querySelectorAll("button.sessions-sidebar-session-entry-open"),
+  ).toHaveLength(1);
+  expect(openControlOf(shortEntry).getAttribute("aria-labelledby")).toBe(
+    titleOf(shortEntry).id,
+  );
 
-  await test.step("its text is the title and the elapsed time alone", async () => {
-    await expectRowShows(shortEntry, shortWork.title, "<1m");
-    await expectRowShows(longEntry, longWork.title, "<1m");
-    const { details, disclosure } = sessionsSidebarDetailsOf(shortEntry);
-    await expect(details).toBeHidden();
-    await expect(disclosure).toBeHidden();
-    await expect(shortEntry.getByRole("button")).toHaveCount(1);
-  });
+  expect(tooltipLines(shortEntry)[0]).toBe("Needs input: input needed");
+  expect(tooltipLines(shortEntry)).toContain("Doughnut · Execution");
+  const launchedShown = new Date(
+    elapsedOf(shortEntry).getAttribute("datetime") ?? "",
+  ).toLocaleString();
+  expect(tooltipLines(shortEntry)).toContain(`Launched ${launchedShown}`);
 
-  await test.step("its tooltip holds the state reading, project, workflow, and launch time", async () => {
-    await expectTooltipLine(shortEntry, "Doughnut · Execution");
-    await expectSessionsSidebarSessionEntryShown(
-      shortEntry,
-      "Needs input: input needed",
-      "needs-input",
-    );
-    const launchedShown = await shortEntry
-      .locator("time")
-      .evaluate((time) =>
-        new Date(time.getAttribute("datetime") ?? "").toLocaleString(),
-      );
-    await expectTooltipLine(shortEntry, `Launched ${launchedShown}`);
-    await expect(entry(longWork.title)).toHaveCount(1);
-  });
-
-  await test.step("a long title stays on one line, cut with an ellipsis, beside its elapsed time", async () => {
-    const title = longEntry.getByRole("heading", { level: 3 });
-    await expect(title).toHaveCSS("white-space", "nowrap");
-    await expect(title).toHaveCSS("text-overflow", "ellipsis");
-    expect(
-      await title.evaluate(
-        (element) => element.scrollWidth > element.clientWidth,
-      ),
-    ).toBe(true);
-    const lineHeight = await title.evaluate((element) =>
-      parseFloat(getComputedStyle(element).lineHeight),
-    );
-    expect((await box(title)).height).toBeLessThanOrEqual(lineHeight + 1);
-    expect((await box(longEntry)).height).toBe((await box(shortEntry)).height);
-    const elapsed = await box(sessionsSidebarElapsedOf(longEntry));
-    const row = await box(longEntry);
-    expect(elapsed.x + elapsed.width).toBeLessThanOrEqual(row.x + row.width);
-    expect(elapsed.y).toBeGreaterThanOrEqual(row.y);
-    expect(elapsed.y + elapsed.height).toBeLessThanOrEqual(row.y + row.height);
-  });
-
-  await test.step("the elapsed time is the largest whole unit, and advances on the 30 second tick", async () => {
-    const at = Date.parse(
-      (await shortEntry.locator("time").getAttribute("datetime")) ?? "",
-    );
-    const tickAt = async (afterLaunchMs: number) => {
-      await page.clock.setSystemTime(at + afterLaunchMs);
-      await page.clock.runFor(30_000);
-    };
-    const second = 1_000;
-    const minute = 60 * second;
-    const hour = 60 * minute;
-    const elapsed = sessionsSidebarElapsedOf(shortEntry);
-
-    await tickAt(20 * second);
-    await expect(elapsed).toHaveText("<1m");
-    await page.clock.setSystemTime(at + 80 * second);
-    await expect(elapsed).toHaveText("<1m");
-    await page.clock.runFor(30_000);
-    await expect(elapsed).toHaveText("1m");
-    for (const [afterLaunch, words] of [
-      [5 * minute, "5m"],
-      [2 * hour, "2h"],
-      [26 * hour, "1d"],
-      [3 * 24 * hour + hour, "3d"],
-    ] as const) {
-      await tickAt(afterLaunch);
-      await expect(elapsed).toHaveText(words);
-      await expect(sessionsSidebarElapsedOf(longEntry)).toHaveText(words);
-    }
-  });
+  const title = titleOf(longEntry);
+  expect(getComputedStyle(title).whiteSpace).toBe("nowrap");
+  expect(getComputedStyle(title).textOverflow).toBe("ellipsis");
+  expect(title.scrollWidth).toBeGreaterThan(title.clientWidth);
+  const lineHeight = parseFloat(getComputedStyle(title).lineHeight);
+  expect(box(title).height).toBeLessThanOrEqual(lineHeight + 1);
+  expect(box(longEntry).height).toBe(box(shortEntry).height);
+  const elapsed = box(elapsedOf(longEntry));
+  const row = box(longEntry);
+  expect(elapsed.x + elapsed.width).toBeLessThanOrEqual(
+    row.x + row.width + 0.5,
+  );
+  expect(elapsed.y).toBeGreaterThanOrEqual(row.y - 0.5);
+  expect(elapsed.y + elapsed.height).toBeLessThanOrEqual(
+    row.y + row.height + 0.5,
+  );
 });

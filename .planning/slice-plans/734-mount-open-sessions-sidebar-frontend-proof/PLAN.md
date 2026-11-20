@@ -109,7 +109,7 @@ Refactor: none — already clean.
 ### 2. An open row keeps its full title and facts in a compact reading
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the row's sizing, tooltip and desktop-disclosure assertions. Use the
 real row CSS within the sidebar width, with a long and a short title of the
@@ -120,6 +120,10 @@ equal row heights and elapsed time within the long row. Inspect the tooltip
 for state and reason, project and workflow, and formatted launch time.
 Observe the hidden disclosure and full accessible title. Run the mounted
 row proof and retained row-time case.
+
+**Accepted.** Mounted compact-row proof at sidebar width; retained age tick in
+`sessions-sidebar-row-time.spec.ts` for slice 3. Evidence:
+`open-dough/evidence/SEED-413-mount-open-sessions-sidebar-frontend-proof/slice-2-return-report.md`.
 
 ### 3. Open-session age advances on the established browser tick
 
@@ -204,3 +208,4 @@ remaining slice-specific concern.
 
 - Playwright-only frontend filters need `CI=1` / `--reporter=list` for visible
   case results in evidence logs.
+- Vitest browser mounts default to touch (`hasTouch`); desktop disclosure CSS needs fine-pointer CDP for that assertion.
