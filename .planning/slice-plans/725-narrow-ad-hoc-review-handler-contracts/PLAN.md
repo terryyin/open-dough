@@ -345,3 +345,11 @@ test-data ownership and depends on slice 1's removal of `Omit`.
 This review found no remaining slice-specific concern. The evidence covers
 both the ignored caller signal and the existing deadline refusals. Slice 3
 proves that callers can cancel and the deadline still applies.
+
+## Execution complete
+
+Product advice: Keep current SEED-413 order: this correction is complete
+enough to close; leave `#refuse-story-launch-session-file-reads` and
+`#renovate-remaining-dashboard-backend-unit-tests` as the next renovation
+steps. No queue reorder. Treat this family as the reference for “typed
+handler input = only what the read uses + signal through admission.”
