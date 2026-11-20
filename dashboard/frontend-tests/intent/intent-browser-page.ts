@@ -71,6 +71,21 @@ export function intentBrowser() {
         .not.toBeInTheDocument();
       return browser;
     },
+    // Purpose's one read failure says `text`.
+    async failsWith(text: string) {
+      await expect.element(purpose.getByRole("alert")).toHaveTextContent(text);
+      return browser;
+    },
+    async retryRead() {
+      await userEvent.click(
+        purpose.getByRole("alert").getByRole("button", { name: "Retry" }),
+      );
+      return browser;
+    },
+    async showsNoReadFailure() {
+      await expect.element(purpose.getByRole("alert")).not.toBeInTheDocument();
+      return browser;
+    },
     async explains(text: string) {
       await expect
         .poll(() => purpose.query()?.textContent ?? "")
@@ -85,6 +100,11 @@ export function intentBrowser() {
       pane.scrollTo({ top: Math.floor(most / 2) });
       await vi.waitUntil(() => pane.scrollTop > 20);
       return pane.scrollTop;
+    },
+    // The reading pane's current offset, once scrolled from its start.
+    async scrolledOffset() {
+      await vi.waitUntil(() => readingPane().scrollTop > 0);
+      return readingPane().scrollTop;
     },
     async isScrolledTo(offset: number) {
       await expect.poll(() => readingPane().scrollTop).toBe(offset);

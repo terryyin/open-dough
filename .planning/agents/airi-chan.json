@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Airi-chan",
-  "email": "airi-chan@example.org",
-  "identity": "SEED-413#show-latest-source-file-read-cases",
-  "mode": "story-branch",
-  "branch": "claude/keep-a-selected-case-s-source-through-the-show-l",
-  "host": "claude"
-}

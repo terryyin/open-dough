@@ -202,64 +202,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="show-latest-source-file-read-cases"></a>
-
-### Keep a selected case's source through the Show latest file read in mounted cases
-
-**Identity:** SEED-413#show-latest-source-file-read-cases
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/728-show-latest-source-file-read-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fa57d6c285f58ae9941b726e104c8ce23cf9af1b15b6a7d2f345dbb45ca201f9","plan":"465affcff8453f7ff46ba5e2fe40e4de214913e9bae75c9742f4372a604158f2"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on Terry's instruction on 2026-11-20 as the next small Intent piece, queued
-ahead of the remaining families.
-
-- **Goal.** Dashboard developers read the proof that a selected source case
-  survives the **Show latest** file read as two plain Vitest cases on mounted
-  Chromium with typed inputs. Today it is one built-app case that mounts
-  `<App />`, holds HTTP reads and drives the page clock. The move takes one
-  more built-app consumer off the frontend group's one-minute goal.
-- **Scope.** Move both cases of
-  [`intent-source-target-recovery.spec.ts`](../../dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts)
-  (the new revision's file read held then released, and failed then
-  retried). Follow the
-  [Project Intent revision family](#project-intent-revision-family-example):
-  mount the smallest rendered owner with typed locations, file and
-  Optimization Candidates record replies. Each case that observes a pending
-  read holds its own deferred reply. The case reaches the source through an
-  Optimization Candidates entry, so the record reaches the mount the same
-  typed way as locations and files. Add zero test-support wrappers.
-  - Preserve each distinct assertion: target line, reading offset, focus,
-    the source's revision label, the failure text with Retry, and the read
-    order at the new revision. Locations come first, then the record and the
-    file independently, and Retry adds exactly one file read. The
-    held-read case also checks that a revision check keeps the pinned answer
-    at a steady pace. Remove that check only after locating its equivalent
-    proof in the auto-refresh cases.
-  - Retire each `dashboard/test-support/` module whose last consumer is the
-    moved spec.
-  - **Scope limits.** The two Optimization Candidates revision cases and the
-    other families stay in the parent story, as do the full-group timing
-    comparison and the `frontendApp.ts` retirement. This story compares the
-    focused selection before and after.
-- **Key examples.**
-  - *Held then released.* An Optimization Candidates entry's source file is
-    open at revision `before`. Line 44 is targeted, the source is focused
-    and the reading is scrolled. A newer revision is offered and **Show
-    latest** is chosen while that revision's file read is held. The browser
-    shows the new revision, but the source still reads `at revision before`
-    with its old text, line, offset and focus, and no failure. When the
-    read is released, the source shows the new text at the new revision and
-    keeps line, offset and focus.
-  - *Failed then retried.* The same setup, but the file read fails. The
-    reading shows `<path> could not be read at revision <after>; showing
-    <before>. Retry` and keeps the old text, line, offset and focus.
-    **Retry** shows the new text at the new revision, and the failure
-    disappears.
-- **Effort hypothesis.** S.
-- **Plan.** [728](../slice-plans/728-show-latest-source-file-read-cases/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -271,8 +213,6 @@ ahead of the remaining families.
 
 Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
 moved the Project Intent apply-and-retry cases.
-[Keep a selected case's source through the Show latest file read](#show-latest-source-file-read-cases)
-took the source-target recovery cases.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -341,7 +281,7 @@ pending read.
 The [failed-update case](../../dashboard/frontend-tests/intent/intent-revision-update-failures.spec.ts)
 keeps one file switch to prove the old tree stays usable, then verifies that
 the notice's Retry loads the new revision and its source. The
-[source-target recovery cases](#show-latest-source-file-read-cases) own the
+[source-target recovery cases](../../dashboard/frontend-tests/intent/intent-source-target-recovery-mounted.spec.ts) own the
 separate file Retry across revisions. The [Project Intent visit E2E](../../e2e/intent/intent-project-visit-ci.spec.ts)
 proves **Show latest** advances the revision through the composed dashboard.
 

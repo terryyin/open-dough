@@ -1,10 +1,11 @@
-import { createElement } from "react";
+import { createElement, useState } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   pygardonFeatures,
   type PublishedFiles,
 } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
+import type { IntentMode } from "../../src/intentProjectTabs.ts";
 import {
   IntentReadSourceOnPage,
   type IntentReadSource,
@@ -71,7 +72,37 @@ export async function mountProjectIntent(
       const publication = fixtureFor(publications, requestedRevision);
       return fixtureFor(publication.files, path)(signal);
     },
+    readCandidates: () => Promise.resolve({ status: "absent" }),
   };
+  return mountIntentReading(readSource, revision, "ci");
+}
+
+// Project Intent on the reader's chosen view, which it keeps across
+// rerenders with newly published work.
+function ChosenView({
+  work,
+  initial,
+}: {
+  readonly work: PublishedWork;
+  readonly initial: IntentMode;
+}) {
+  const [mode, setMode] = useState(initial);
+  return createElement(ProjectIntentReading, {
+    source: work.source,
+    work,
+    project: { mode, modeIdPrefix: "project-intent", onModeChange: setMode },
+    projectShown: true,
+  });
+}
+
+// Mounts Project Intent at `revision`, reading through `readSource` and
+// starting on `mode`. The reader's chosen view survives each newly offered
+// revision, as on the page.
+export async function mountIntentReading(
+  readSource: IntentReadSource,
+  revision: string,
+  mode: IntentMode,
+) {
   const workAt = (observed: string) =>
     makeMe.aPublishedWork.ofPygardon.at(observed).please();
   const reading = (work: PublishedWork, shown: boolean) =>
@@ -80,18 +111,7 @@ export async function mountProjectIntent(
       { value: readSource },
       createElement(IntentReadingProvider, {
         project: work.source.id,
-        children:
-          shown &&
-          createElement(ProjectIntentReading, {
-            source: work.source,
-            work,
-            project: {
-              mode: "ci",
-              modeIdPrefix: "project-intent",
-              onModeChange() {},
-            },
-            projectShown: true,
-          }),
+        children: shown && createElement(ChosenView, { work, initial: mode }),
       }),
     );
   const intent = await mountComponent(reading(workAt(revision), true), {
