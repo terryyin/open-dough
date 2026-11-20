@@ -1,5 +1,7 @@
 // @ts-check
 // Work performed in a checkout after its repository history is materialized.
+// A step the case does not describe further adds `<name>.txt` holding
+// `<name> work`, with the message `Add <name>.txt`.
 
 /** @typedef {{ at: string }} DatedStep */
 /** @typedef {DatedStep & { files: Readonly<Record<string, string>> }} DatedFileChanges */
@@ -11,7 +13,16 @@
 /** @typedef {"fast-forward" | "merge" | "rebase" | "rebase-onto"} TrunkWork */
 /** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" | "edit" } & DatedFileChanges | { kind: "branch-commit" } & DatedSideCommit | { kind: "reword" } & DatedReword | { kind: "push" } & DatedStep | { kind: "cherry-pick" } & DatedCherryPick | { kind: "autosquash" } & DatedAutosquash} WorkStep */
 /** @template {string} Name @typedef {WorkStep & { name: Name }} NamedStep */
+/** @typedef {DatedStep & Partial<Pick<DatedFileChanges, "files">>} FileChangesFacts */
+/** @typedef {FileChangesFacts & Partial<Pick<DatedCommit, "message">>} CommitFacts */
+/** @typedef {CommitFacts & Partial<Pick<DatedSideCommit, "branch">>} SideCommitFacts */
 /** @template {string} [Name=string] @typedef {readonly NamedStep<Name>[]} CheckoutWork */
+
+/** @param {string} name @returns {Omit<DatedCommit, "at">} */
+const namedWork = (name) => ({
+  message: `Add ${name}.txt`,
+  files: { [`${name}.txt`]: `${name} work\n` },
+});
 
 /** @template {string} [Name=never] */
 export class CheckoutWorkBuilder {
@@ -42,30 +53,39 @@ export class CheckoutWorkBuilder {
   /**
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedCommit} commit
+   * @param {CommitFacts} commit
    */
   committing(name, commit) {
-    return this.#with(name, { ...commit, kind: "commit" });
+    return this.#with(name, { ...namedWork(name), ...commit, kind: "commit" });
   }
 
   /**
    * Edits files in the worktree and answers the unchanged HEAD.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedFileChanges} edit
+   * @param {FileChangesFacts} edit
    */
   editing(name, edit) {
-    return this.#with(name, { ...edit, kind: "edit" });
+    return this.#with(name, {
+      files: namedWork(name).files,
+      ...edit,
+      kind: "edit",
+    });
   }
 
   /**
    * Answers the commit on the new branch and returns to the original branch.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedSideCommit} commit
+   * @param {SideCommitFacts} commit
    */
   committingOnBranch(name, commit) {
-    return this.#with(name, { ...commit, kind: "branch-commit" });
+    return this.#with(name, {
+      ...namedWork(name),
+      branch: name,
+      ...commit,
+      kind: "branch-commit",
+    });
   }
 
   /**
@@ -81,10 +101,14 @@ export class CheckoutWorkBuilder {
   /**
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedFileChanges} amendment
+   * @param {FileChangesFacts} amendment
    */
   amending(name, amendment) {
-    return this.#with(name, { ...amendment, kind: "amend" });
+    return this.#with(name, {
+      files: namedWork(name).files,
+      ...amendment,
+      kind: "amend",
+    });
   }
 
   /**
@@ -120,40 +144,48 @@ export class CheckoutWorkBuilder {
    * Another checkout publishes the change and this checkout pulls it.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedCommit} commit
+   * @param {CommitFacts} commit
    */
   fastForwardingToTrunkWork(name, commit) {
-    return this.#with(name, { ...commit, kind: "fast-forward" });
+    return this.#with(name, {
+      ...namedWork(name),
+      ...commit,
+      kind: "fast-forward",
+    });
   }
 
   /**
    * Answers the merge commit the checkout creates when it pulls trunk.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedCommit} commit
+   * @param {CommitFacts} commit
    */
   mergingTrunkWork(name, commit) {
-    return this.#with(name, { ...commit, kind: "merge" });
+    return this.#with(name, { ...namedWork(name), ...commit, kind: "merge" });
   }
 
   /**
    * Answers the trunk commit the checkout rebases onto while pulling it.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedCommit} commit
+   * @param {CommitFacts} commit
    */
   rebasingOntoTrunkWork(name, commit) {
-    return this.#with(name, { ...commit, kind: "rebase" });
+    return this.#with(name, { ...namedWork(name), ...commit, kind: "rebase" });
   }
 
   /**
    * Answers the fetched trunk commit onto which the checkout rebases its tip.
    * @template {string} NewName
    * @param {NewName} name
-   * @param {DatedCommit} commit
+   * @param {CommitFacts} commit
    */
   rebasingTipOntoFetchedTrunkWork(name, commit) {
-    return this.#with(name, { ...commit, kind: "rebase-onto" });
+    return this.#with(name, {
+      ...namedWork(name),
+      ...commit,
+      kind: "rebase-onto",
+    });
   }
 
   /** @returns {CheckoutWork<Name>} */

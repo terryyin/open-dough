@@ -64,7 +64,9 @@ Declare the Git state a test starts from with `makeMe.aRepository`.
 workspaces and their uncommitted state, releases, claims and served revisions.
 Dated work in a materialized checkout is declared with
 `makeMe.aCheckoutWork`. [The Git performer](support/repository-checkout-work.mjs)
-runs those steps and returns their named Git revisions. A fast-forward or
+runs those steps and returns their named Git revisions. A step whose
+content the case does not state adds `<name>.txt` with the message
+`Add <name>.txt`. A fast-forward or
 rebase names the trunk commit taken in. A merging pull names the merge the
 checkout created. Use it when the case observes the checkout's actions
 through Git's own log.

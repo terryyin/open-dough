@@ -1,212 +1,119 @@
 // Done keeps the work a Default main session made, with Git references that
 // let the typed review read it after the checkout's branches move away.
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
-import {
-  integrationDeveloper,
-  materializeLocalCheckout,
-  materializeRepository,
-} from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keptRecords } from "../../server/launchRecordStore.ts";
 import {
-  keptRecords,
-  setRecordDoneAt,
-} from "../../server/launchRecordStore.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+  aCheckout,
+  aDefaultLaunch,
+  aKeptSession,
+  keep,
+  markDone,
+  minutesAgo,
+  review,
+  source,
+  work,
+} from "../support/doneCaptureCase.ts";
 
-const source = "open-dough";
-const minutesBefore = (now: number, minutes: number) =>
-  new Date(now - minutes * 60_000).toISOString();
-const baseHistory = () =>
-  makeMe.aRepository.withRevision("base", {
-    backlog: null,
-    committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
-  });
-
-// These two cases exercise the persisted launch store in a private machine home.
-function usePrivateLaunchStore() {
-  const home = mkdtempSync(path.join(tmpdir(), "dough-done-kept-"));
-  vi.stubEnv("HOME", home);
-  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
-  onTestFinished(() => {
-    vi.unstubAllEnvs();
-    rmSync(home, { recursive: true, force: true });
-  });
-  return home;
+// Leaves `commit` on no branch, with no reflog or loose object reaching it.
+async function forgetInCheckout(
+  checkout: string,
+  base: string,
+  commit: string,
+) {
+  await git(checkout, "reset", "--quiet", "--hard", base);
+  await git(checkout, "update-ref", "refs/remotes/origin/main", base);
+  expect(
+    (await git(checkout, "branch", "-a", "--contains", commit)).stdout,
+  ).toBe("");
+  await git(checkout, "reflog", "expire", "--expire=now", "--all");
+  await git(checkout, "prune", "--expire=now");
 }
 
 test("a Default main launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
-  const now = Math.floor(Date.now() / 1000) * 1000;
-  const launchedAt = minutesBefore(now, 60);
-  const committedAt = minutesBefore(now, 30);
-  const doneAt = minutesBefore(now, 10);
-  const repository = await materializeRepository(baseHistory().please());
-  onTestFinished(repository.cleanup);
-  const { integration: checkout, revisions } = repository;
-  const record = makeMe.aLaunchRecord
-    .adHoc({ title: "Fix the typo" })
-    .startingInDefaultCheckout({
-      workspace: checkout,
-      startingRevision: revisions.base,
-      repository: path.join(checkout, ".git"),
-      branch: "refs/heads/main",
-    })
-    .inClaudeSession({ sessionId: "default-main-typo" })
-    .launchedAt(launchedAt)
-    .please();
-  keepLaunchStore(usePrivateLaunchStore(), { [source]: [record] });
-
-  const { pulled, committed } = await performCheckoutWork(
-    repository,
+  const checkout = await aCheckout({ withOrigin: true });
+  const record = aDefaultLaunch(checkout).please();
+  keep(record);
+  const { pulled, typo } = await work(
+    checkout,
     makeMe.aCheckoutWork
-      .fastForwardingToTrunkWork("pulled", {
-        at: minutesBefore(now, 40),
-        message: "Advance trunk",
-        files: { "pulled.txt": "other developer's work\n" },
-      })
-      .committing("committed", {
-        at: committedAt,
-        message: "Add typo.txt",
-        files: { "typo.txt": "session work\n" },
-      })
-      .pushingToTrunk("pushed", { at: minutesBefore(now, 20) })
-      .please(),
+      .fastForwardingToTrunkWork("pulled", { at: minutesAgo(40) })
+      .committing("typo", { at: minutesAgo(30) })
+      .pushingToTrunk("pushed", { at: minutesAgo(20) }),
   );
 
-  await setRecordDoneAt(source, record.session, doneAt);
+  await markDone(record);
 
-  const read = async () =>
-    storyReview(
-      makeMe.aSessionReviewRead
-        .ofSession(record.session.sessionId)
-        .keeping(await keptRecords(source))
-        .please(),
-      new AbortController().signal,
-    );
-  const expected = {
+  const kept = {
     kind: "session-commits",
-    session: { launchedAt, doneAt },
+    session: { launchedAt: minutesAgo(60), doneAt: minutesAgo(10) },
+    commitRun: 0,
     commitRuns: [
       {
         commits: 1,
         subject: "Add typo.txt",
-        committedAt,
+        committedAt: minutesAgo(30),
         baseline: pulled,
-        tree: committed,
+        tree: typo,
       },
     ],
-    commitRun: 0,
     baseline: pulled,
-    tree: committed,
+    tree: typo,
     files: [expect.objectContaining({ path: "typo.txt", kind: "added" })],
   };
-  // The first read uses the fixed pair while the commit is still on the branch.
+  // The first read uses the fixed pair while trunk advances past it.
   const [whileOnTrunk] = await Promise.all([
-    read(),
-    performCheckoutWork(
-      repository,
+    review(record),
+    work(
+      checkout,
       makeMe.aCheckoutWork
-        .committing("later", {
-          at: minutesBefore(now, 8),
-          message: "Advance trunk again",
-          files: { "later-trunk.txt": "new trunk work\n" },
-        })
-        .pushingToTrunk("advanced", { at: minutesBefore(now, 5) })
-        .please(),
+        .committing("later", { at: minutesAgo(8) })
+        .pushingToTrunk("advanced", { at: minutesAgo(5) }),
     ),
   ]);
-  expect(whileOnTrunk).toEqual(expected);
-  await git(checkout, "reset", "--quiet", "--hard", revisions.base);
-  await git(checkout, "update-ref", "refs/remotes/origin/main", revisions.base);
-  expect(
-    (await git(checkout, "branch", "-a", "--contains", committed)).stdout,
-  ).toBe("");
-  // Expire the reflogs before pruning the checkout's loose objects.
-  await git(checkout, "reflog", "expire", "--expire=now", "--all");
-  await git(checkout, "prune", "--expire=now");
-  const indexPath = path.join(checkout, ".git", "index");
+  expect(whileOnTrunk).toEqual(kept);
+  await forgetInCheckout(checkout.integration, checkout.base, typo);
+  const indexPath = path.join(checkout.integration, ".git", "index");
   const index = readFileSync(indexPath);
 
-  expect(await read()).toEqual(expected);
-  expect((await git(checkout, "rev-parse", "HEAD")).stdout.trim()).toBe(
-    revisions.base,
-  );
+  expect(await review(record)).toEqual(kept);
+  expect(
+    (await git(checkout.integration, "rev-parse", "HEAD")).stdout.trim(),
+  ).toBe(checkout.base);
   expect(readFileSync(indexPath)).toEqual(index);
 });
 
 test("Done stores and pins the commit of an established Default main session and its review answers the kept run", async () => {
-  const now = Math.floor(Date.now() / 1000) * 1000;
-  const launchedAt = minutesBefore(now, 60);
-  const committedAt = minutesBefore(now, 30);
-  const doneAt = minutesBefore(now, 10);
-  const repository = await materializeLocalCheckout(
-    undefined,
-    baseHistory().please(),
-  );
-  onTestFinished(repository.cleanup);
-  const {
-    integration: workspace,
-    revisions: { base },
-  } = repository;
-  const record = makeMe.aLaunchRecord
-    .adHoc({ title: "Established in Default main" })
-    .inDefaultCheckout({ workspace, landing: "review", revision: base })
-    .inClaudeSession({ sessionId: "established-default-main" })
-    .launchedAt(launchedAt)
-    .please();
-  keepLaunchStore(usePrivateLaunchStore(), { [source]: [record] });
-  const { committed } = await performCheckoutWork(
-    repository,
-    makeMe.aCheckoutWork
-      .committing("committed", {
-        at: committedAt,
-        message: "Add typo.txt",
-        files: { "typo.txt": "session work\n" },
-      })
-      .please(),
+  const { checkout, record } = await aKeptSession();
+  const { base, integration } = checkout;
+  const { typo } = await work(
+    checkout,
+    makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
   );
 
-  await setRecordDoneAt(source, record.session, doneAt);
+  await markDone(record);
 
-  const records = await keptRecords(source);
-  expect(records).toMatchObject([
-    { doneAt, sessionCommits: { runs: [{ base, revision: committed }] } },
+  expect(await keptRecords(source)).toMatchObject([
+    { sessionCommits: { runs: [{ base, revision: typo }] } },
   ]);
-  const refPrefix =
+  const refs =
     "refs/open-dough/session-commits/claude/established-default-main/0";
-  const refs = await git(
-    workspace,
-    "for-each-ref",
-    "--format=%(refname) %(objectname)",
-    refPrefix,
-  );
-  expect(refs.stdout.trim().split("\n")).toEqual([
-    `${refPrefix}/base ${base}`,
-    `${refPrefix}/revision ${committed}`,
-  ]);
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping(records)
-    .please();
-  expect(await storyReview(read, new AbortController().signal)).toMatchObject({
-    kind: "session-commits",
-    session: { launchedAt, doneAt },
+  expect(
+    (
+      await git(
+        integration,
+        "for-each-ref",
+        "--format=%(refname) %(objectname)",
+        refs,
+      )
+    ).stdout,
+  ).toBe(`${refs}/base ${base}\n${refs}/revision ${typo}\n`);
+  expect(await review(record)).toMatchObject({
     commitRuns: [
-      {
-        commits: 1,
-        subject: "Add typo.txt",
-        committedAt,
-        baseline: base,
-        tree: committed,
-      },
+      { commits: 1, subject: "Add typo.txt", baseline: base, tree: typo },
     ],
-    commitRun: 0,
-    baseline: base,
-    tree: committed,
   });
 });

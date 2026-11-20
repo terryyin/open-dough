@@ -50,15 +50,12 @@ its arrangement only when that step is the behavior under test. The
 call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
 launch boundary's routes for them with a URL.
 
-The Done capture family states dated checkout work with
-`makeMe.aCheckoutWork` and runs it through
-[`performCheckoutWork`](../../Distribution/tests/support/repository-checkout-work.mjs).
-State the launch, work and Done times against the case's clock. Date the
-relevant work after launch and before Done, with Done no later than now.
-When the kept record is the whole fact a case adds, call the store function
-behind the native operation. The capture cases keep their starting records
-through [`keepLaunchStore`](../test-support/support/launchStore.ts), then
-call [`setRecordDoneAt`](../server/recordDoneAt.ts). A review-only case
+The Done capture family arranges each case through
+[`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history
+predates the case, the stereotype launches, a private launch store, dated
+`makeMe.aCheckoutWork`, the Done mark through
+[`setRecordDoneAt`](../server/recordDoneAt.ts) and the typed review. State
+work times with `minutesAgo`, after the launch (60) and before Done (10). A review-only case
 builds the kept records and passes them straight to its typed handler with
 `makeMe.aSessionReviewRead`, as
 [`kept-session-commits-review.spec.ts`](review/kept-session-commits-review.spec.ts)

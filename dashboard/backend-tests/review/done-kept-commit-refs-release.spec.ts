@@ -1,88 +1,28 @@
 // A Default main session's Done keeps only its comparison pair in Git.
 // Replacing the capture or deleting the kept record releases its refs.
-import {
-  mkdtempSync,
-  renameSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
-import {
-  integrationDeveloper,
-  materializeLocalCheckout,
-} from "../../../Distribution/tests/support/repository-fixture.mjs";
-import {
-  deleteRecord,
-  keptRecords,
-  setRecordDoneAt,
-} from "../../server/launchRecordStore.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { deleteRecord } from "../../server/launchRecordStore.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import {
+  aCheckout,
+  aDefaultLaunch,
+  type Checkout,
+  keep,
+  markDone,
+  minutesAgo,
+  notCaptured,
+  review,
+  source,
+  undoDone,
+  work,
+} from "../support/doneCaptureCase.ts";
 
-const source = "open-dough";
-const sessionId = "default-main-notes";
-const prefix = `refs/open-dough/session-commits/claude/${sessionId}/`;
-const minutesBefore = (now: number, minutes: number) =>
-  new Date(now - minutes * 60_000).toISOString();
-
-async function checkout() {
-  const repository = await materializeLocalCheckout(
-    undefined,
-    makeMe.aRepository
-      .withRevision("base", {
-        backlog: null,
-        committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
-      })
-      .please(),
-  );
-  onTestFinished(repository.cleanup);
-  return repository;
-}
-
-async function keepSessionWithCommit(
-  repository: Awaited<ReturnType<typeof checkout>>,
-  now: number,
-  gitDirectory = path.join(repository.integration, ".git"),
-) {
-  const record = makeMe.aLaunchRecord
-    .adHoc({ title: "Edit session notes" })
-    .startingInDefaultCheckout({
-      workspace: repository.integration,
-      startingRevision: repository.revisions.base,
-      repository: gitDirectory,
-      branch: "refs/heads/main",
-    })
-    .inClaudeSession({ sessionId })
-    .launchedAt(minutesBefore(now, 60))
-    .please();
-  const home = mkdtempSync(path.join(tmpdir(), "dough-done-refs-"));
-  vi.stubEnv("HOME", home);
-  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
-  onTestFinished(() => {
-    vi.useRealTimers();
-    vi.unstubAllEnvs();
-    rmSync(home, { recursive: true, force: true });
-  });
-  keepLaunchStore(home, { [source]: [record] });
-  const { revision } = await performCheckoutWork(
-    repository,
-    makeMe.aCheckoutWork
-      .committing("revision", {
-        at: minutesBefore(now, 40),
-        message: "Add notes.txt",
-        files: { "notes.txt": "Session notes\n" },
-      })
-      .please(),
-  );
-  return { home, record, revision };
-}
-
+const prefix = "refs/open-dough/session-commits/claude/default-launch/";
 const pairRefs = (base: string, revision: string) => [
   `${prefix}0/base ${base}`,
   `${prefix}0/revision ${revision}`,
@@ -98,150 +38,87 @@ async function refs(repository: string, under = "refs/") {
   return stdout.split("\n").filter(Boolean);
 }
 
-async function review() {
-  const input = makeMe.aSessionReviewRead
-    .ofSession(sessionId)
-    .keeping(await keptRecords(source))
-    .please();
-  return storyReview(input, new AbortController().signal);
+// A default launch kept with one commit at 40 minutes ago.
+async function keptWithCommit(checkout: Checkout, gitDirectory?: string) {
+  const record = aDefaultLaunch(checkout, { gitDirectory }).please();
+  const home = keep(record);
+  const { notes } = await work(
+    checkout,
+    makeMe.aCheckoutWork.committing("notes", { at: minutesAgo(40) }),
+  );
+  return { home, record, notes };
 }
 
-const unavailable = {
-  kind: "landing-unavailable",
-  explanation: "This session's changes were not captured.",
-};
+// Done at 30 minutes ago, read then, and later undone.
+async function doneAndUndone(record: LaunchRecord) {
+  vi.setSystemTime(minutesAgo(30));
+  expect(await markDone(record, minutesAgo(30))).toMatchObject({
+    sessionCommits: { readAt: minutesAgo(30) },
+  });
+  vi.useRealTimers();
+  expect((await undoDone(record))?.doneAt).toBeUndefined();
+}
 
 test("Done pins only the comparison pair and deleting the record releases it", async () => {
-  const now = Date.now();
-  const repository = await checkout();
-  const {
-    integration,
-    revisions: { base },
-  } = repository;
-  const { record, revision } = await keepSessionWithCommit(repository, now);
-  const beforeDone = await refs(integration);
-  const doneAt = minutesBefore(now, 30);
+  const checkout = await aCheckout();
+  const { record, notes } = await keptWithCommit(checkout);
+  const beforeDone = await refs(checkout.integration);
 
-  expect((await setRecordDoneAt(source, record.session, doneAt))?.doneAt).toBe(
-    doneAt,
-  );
-  expect(await refs(integration)).toEqual(
-    [...beforeDone, ...pairRefs(base, revision)].sort(),
-  );
+  await markDone(record);
 
+  expect(await refs(checkout.integration)).toEqual(
+    [...beforeDone, ...pairRefs(checkout.base, notes)].sort(),
+  );
   expect(await deleteRecord(source, record.session)).toBe(true);
-  expect(await keptRecords(source)).toEqual([]);
-  expect(await refs(integration)).toEqual(beforeDone);
+  expect(await refs(checkout.integration)).toEqual(beforeDone);
 });
 
 test("a later Done with an unreadable log releases the earlier capture", async () => {
-  const now = Date.now();
-  const repository = await checkout();
-  const {
-    integration,
-    revisions: { base },
-  } = repository;
-  const { record, revision } = await keepSessionWithCommit(repository, now);
-  const firstDoneAt = minutesBefore(now, 30);
-  // The first capture's read time must precede the later Done.
-  vi.setSystemTime(firstDoneAt);
-  expect(
-    await setRecordDoneAt(source, record.session, firstDoneAt),
-  ).toMatchObject({
-    doneAt: firstDoneAt,
-    sessionCommits: { readAt: firstDoneAt },
-  });
-  vi.useRealTimers();
-  expect(await refs(integration, prefix)).toEqual(pairRefs(base, revision));
-  expect(
-    (await setRecordDoneAt(source, record.session, undefined))?.doneAt,
-  ).toBeUndefined();
+  const checkout = await aCheckout();
+  const { record } = await keptWithCommit(checkout);
+  await doneAndUndone(record);
   // Git still reads and mutates the refs even though its logs are gone.
-  rmSync(path.join(integration, ".git", "logs"), { recursive: true });
+  rmSync(path.join(checkout.integration, ".git", "logs"), { recursive: true });
 
-  const laterDoneAt = minutesBefore(now, 10);
-  expect(
-    (await setRecordDoneAt(source, record.session, laterDoneAt))?.doneAt,
-  ).toBe(laterDoneAt);
+  await markDone(record);
 
-  expect(await review()).toMatchObject(unavailable);
-  expect(await refs(integration, prefix)).toEqual([]);
-  expect(await deleteRecord(source, record.session)).toBe(true);
-  expect(await refs(integration, prefix)).toEqual([]);
+  expect(await review(record)).toMatchObject(notCaptured);
+  expect(await refs(checkout.integration, prefix)).toEqual([]);
 });
 
 test("a later Done keeps its pair when the repository is also reachable through the old path", async () => {
-  const now = Date.now();
-  const repository = await checkout();
-  const {
-    integration,
-    fixture,
-    revisions: { base },
-  } = repository;
-  const previous = path.join(fixture, "original-git-directory");
-  const moved = path.join(fixture, "moved-git-directory");
-  await git(integration, "init", "--separate-git-dir", previous);
-  const { record, revision } = await keepSessionWithCommit(
-    repository,
-    now,
-    previous,
-  );
-  const firstDoneAt = minutesBefore(now, 30);
-  vi.setSystemTime(firstDoneAt);
-  expect(
-    await setRecordDoneAt(source, record.session, firstDoneAt),
-  ).toMatchObject({
-    doneAt: firstDoneAt,
-    sessionCommits: { readAt: firstDoneAt, repository: previous },
-  });
-  vi.useRealTimers();
-  expect(await refs(previous, prefix)).toEqual(pairRefs(base, revision));
-  expect(
-    (await setRecordDoneAt(source, record.session, undefined))?.doneAt,
-  ).toBeUndefined();
-
+  const checkout = await aCheckout();
+  const previous = path.join(checkout.fixture, "original-git-directory");
+  const moved = path.join(checkout.fixture, "moved-git-directory");
+  await git(checkout.integration, "init", "--separate-git-dir", previous);
+  const { record } = await keptWithCommit(checkout, previous);
+  await doneAndUndone(record);
   renameSync(previous, moved);
   symlinkSync(moved, previous);
-  writeFileSync(path.join(integration, ".git"), `gitdir: ${moved}\n`);
-  const { later } = await performCheckoutWork(
-    repository,
-    makeMe.aCheckoutWork
-      .committing("later", {
-        at: minutesBefore(now, 20),
-        message: "Add more-notes.txt",
-        files: { "more-notes.txt": "More notes\n" },
-      })
-      .please(),
+  writeFileSync(path.join(checkout.integration, ".git"), `gitdir: ${moved}\n`);
+  const { later } = await work(
+    checkout,
+    makeMe.aCheckoutWork.committing("later", { at: minutesAgo(20) }),
   );
-  const laterDoneAt = minutesBefore(now, 10);
-  expect(
-    (await setRecordDoneAt(source, record.session, laterDoneAt))?.doneAt,
-  ).toBe(laterDoneAt);
 
-  expect(await refs(moved, prefix)).toEqual(pairRefs(base, later));
-  expect(await refs(previous, prefix)).toEqual(pairRefs(base, later));
+  await markDone(record);
+
+  expect(await refs(moved, prefix)).toEqual(pairRefs(checkout.base, later));
+  expect(await refs(previous, prefix)).toEqual(pairRefs(checkout.base, later));
 });
 
 test("deleting a record from an older failed capture releases refs its earlier Done created", async () => {
-  const now = Date.now();
-  const repository = await checkout();
-  const {
-    integration,
-    revisions: { base },
-  } = repository;
-  const { home, record, revision } = await keepSessionWithCommit(
-    repository,
-    now,
-  );
-  const doneAt = minutesBefore(now, 30);
-  expect((await setRecordDoneAt(source, record.session, doneAt))?.doneAt).toBe(
-    doneAt,
-  );
+  const checkout = await aCheckout();
+  const { home, record, notes } = await keptWithCommit(checkout);
+  await markDone(record);
   // An older reader left Done without a comparison and kept its Git refs.
-  keepLaunchStore(home, { [source]: [{ ...record, doneAt }] });
-  expect(await review()).toMatchObject(unavailable);
-  expect(await refs(integration, prefix)).toEqual(pairRefs(base, revision));
+  keepLaunchStore(home, { [source]: [{ ...record, doneAt: minutesAgo(10) }] });
+  expect(await review(record)).toMatchObject(notCaptured);
+  expect(await refs(checkout.integration, prefix)).toEqual(
+    pairRefs(checkout.base, notes),
+  );
 
   expect(await deleteRecord(source, record.session)).toBe(true);
-  expect(await refs(integration, prefix)).toEqual([]);
+
+  expect(await refs(checkout.integration, prefix)).toEqual([]);
 });
