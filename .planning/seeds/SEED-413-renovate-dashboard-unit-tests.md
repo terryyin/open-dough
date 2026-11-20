@@ -761,94 +761,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="mount-story-review-diff-reading"></a>
-
-### Read a story review's diff emphasis and syntax in mounted cases
-
-**Identity:** SEED-413#mount-story-review-diff-reading
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/741-mount-story-review-diff-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6b61bb0feff5a1c7183a2af4b33f0ce6b94f04dd0c128d8e666d27feb173286e","plan":"221cde97428f7f03963f8b2c02cd706a22ba0138ada717da387adb470a80f516"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-20 as the first Review piece, queued ahead of the remaining
-families. It follows the
-[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
-
-- **Goal.** Dashboard developers read the proof of how a reviewed file's
-  diff shows changed words and styles its code as plain Vitest cases on
-  mounted Chromium, built from a printed diff and the file's two texts.
-  Today 22 built-app cases in eight `story-review-diff-*` specs load
-  `<App />`, publish a reviewed story, open its review and choose a file
-  before the first assertion (54.5 summed seconds, about 2.5 s a case, in CI
-  run 44741808717). Review is the costliest folder per case after
-  Navigation, and this is its part with the narrowest owner.
-- **Scope.** Move every case whose behavior the diff's own rendering owns.
-  Two owners carry them:
-  - [`DiffLines`](../../dashboard/src/StoryReviewDiffLines.tsx) already
-    renders from typed inputs (`printed`, `sides`, `lineTokens`). It owns
-    word emphasis, revealed context, the reading position and the open line
-    menu.
-  - The styled reading of one file does not stand alone today.
-    [`FileDiff`](../../dashboard/src/StoryReviewFileDiff.tsx) joins it to two
-    service reads, story notes, Follow up and the page's launches. Extract
-    the part that turns a path, a printed diff, the file's text and an
-    optional `syntax` hint into styled lines, and leave the reads, notes and
-    Follow up in `FileDiff`. The extracted component owns the grammar a path
-    or hint selects, each side's tokens and the plain reading before text
-    arrives.
-  - Cases build their inputs as typed values: a printed unified diff, a
-    `ReviewedFileText` and, where a case observes tokens arriving, the
-    tokens the production `highlightSourceLines` gives for that text. They
-    add zero test-support wrappers and no service substitute. Page objects
-    for the diff's lines, marks and tokens live beside the specs.
-  - Preserve each distinct assertion, including the copied text of an
-    emphasized block, token and underline contrast in light and dark, and
-    the unchanged reading position when styling arrives. Name each built-app
-    case this story retires and the mounted case that carries its
-    assertions.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep the ones the remaining review specs and E2E
-    still use.
-  - **Scope limits.** These stay built-app cases in the parent story,
-    because their behavior belongs to an owner above the diff's rendering:
-    the Retry that reads a file's text again; a grammar module that fails to
-    load; which Intent settings revision supplies a hint, for a live review
-    and for a published Done review; and the comparison of a diff token with
-    Intent's source reading of the same code. The other thirteen
-    `story-review-*` specs, the full-group timing comparison and the
-    `frontendApp.ts` retirement also stay there. This story compares the
-    focused selection before and after.
-- **Key examples.**
-  - *A changed word.* A diff replaces `const limit = 20;` with
-    `const limit = 25;` in a `.txt` file. The removed line marks `20` as a
-    deletion and the added line marks `25` as an insertion, both underlined
-    and never struck through. The unchanged line has no mark. Selecting both
-    lines copies `-const limit = 20;` and `+const limit = 25;`.
-  - *No emphasis where it would mislead.* A pure addition, a revealed
-    context line, a low-similarity rewrite and a several-hundred-line block
-    show no marks. A small block beside the large one still marks `20` and
-    `25`.
-  - *Each side styles from its own whole text.* In a TypeScript diff a
-    removed line takes its tokens from the old text and every other line,
-    revealed context included, from the new text. Markers, line numbers and
-    added and removed backgrounds stay as the plain diff shows them.
-  - *The path chooses the grammar, then the hint.* Each supported extension
-    styles its keyword as a token. A renamed file follows its new path. A
-    path that names no grammar reads plain, takes a known `syntax` hint, and
-    stays plain under an unfamiliar one. A path's own grammar wins over a
-    hint.
-  - *Styling arrives in place.* The diff shows complete plain lines with its
-    marks before the file's text is given. Once the text is given the same
-    lines gain tokens, the marks stay on the same words, and the reading
-    position, revealed context and an open line menu are kept.
-  - *Readable in both appearances.* Under dark and light, tokens inside an
-    insertion or deletion read at 4.5:1 on the line's tint and the underline
-    at 3:1 against it, and the colours differ between the two appearances.
-- **Effort hypothesis.** M: about eighteen cases over two typed owners, one
-  small extraction, six slices.
-- **Plan.** [741](../slice-plans/741-mount-story-review-diff-reading/PLAN.md)
-
 <a id="mount-usage-token-index-reading"></a>
 
 ### Read the Usage Token index's selections and refreshes in mounted cases
@@ -935,9 +847,9 @@ Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
 moved the Project Intent apply-and-retry cases. The two Optimization
 Candidates revision cases already run as mounted cases in
 [`intent-candidates-revision.spec.ts`](../../dashboard/frontend-tests/intent/intent-candidates-revision.spec.ts).
-Two pieces are split out and queued ahead of this story:
-[the story review's diff reading](#mount-story-review-diff-reading) and
-[the Usage Token index's selections and refreshes](#mount-usage-token-index-reading).
+[Story Review diff reading](#review-diff-reading-after-migration) now runs in
+mounted Chromium. The [Usage Token index migration](#mount-usage-token-index-reading)
+was also split out ahead of this story.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -1130,6 +1042,97 @@ Intent, where `ProjectIntentReading` is the owner. At 758 cases the
 one-minute goal at two workers allows about 150 ms a case. Moving every case
 onto Vitest reaches the engine goal and can still miss the minute, so each
 piece prefers the narrowest owner and records its mounted time per case.
+
+##### Review diff reading after migration
+
+On the same AC-powered Mac with Node 24.21.0, the focused
+`review/story-review-diff --workers=2` selection ran on clean
+`4e991ea00` and on the slice 6 working tree at `a3563cf18`.
+Both worktrees used their own locked dependencies. Three baseline/revised
+pairs ran alternately on 20–21 November 2026 with the macOS sleep guard.
+Elapsed seconds include runner preparation. One-minute load was natural.
+
+| Selection | Elapsed seconds | Load before → after |
+| --- | ---: | ---: |
+| Before 1 | 38.85 | 10.54 → 10.89 |
+| After 1 | 21.41 | 10.89 → 18.07 |
+| Before 2 | 31.57 | 20.15 → 19.93 |
+| After 2 | 17.96 | 19.93 → 20.59 |
+| Before 3 | 24.37 | 20.59 → 17.56 |
+| After 3 | 13.18 | 17.56 → 16.09 |
+
+The median elapsed time fell 43%, from 31.57 s before to 17.96 s after.
+The three original clean runs earlier in the story took 30.924, 29.209
+and 28.382 s. This comparison covers the focused Review diff selection
+under the observed loads. The full frontend group's time is a separate
+measurement.
+
+The original eight built-app specs passed 22 cases. The revised selection
+passed 43 mounted cases in six specs and five retained built-app cases in
+three specs. The five built-app cases still cover these boundaries.
+
+- File diff and text reads. `syntax-arrival` checks Retry after an
+  unavailable file text and plain rendering after a failed grammar load.
+- Review revision selection. `syntax-intent-hints` checks the live snapshot
+  revision and the published Done revision used to resolve syntax hints.
+- Review and Intent rendering. `syntax-appearance` checks token appearance
+  against the same Intent source in both schemes. It also observes zero
+  additional diff or text reads while switching schemes in Review.
+
+The five audited shared support files fell from 568 to 220 lines.
+The word-emphasis opener and fixture retired, the retained diff helper
+kept the observations the built-app cases still read, and both grammar
+helpers still serve the Intent cases that hold or fail a module load.
+
+Mounted attempts had a median of 56 ms and a maximum of 761 ms.
+The table gives each case's median of three attempts, rounded to milliseconds.
+Spec names omit `story-review-diff-` and `.spec.ts`.
+
+| Mounted spec | Case | Median ms |
+| --- | --- | ---: |
+| `syntax-appearance-mounted` | styled changed words keep token colours inside insertions and deletions | 63 |
+| `syntax-appearance-mounted` | emphasized tokens and underlines stay readable in light and dark | 97 |
+| `syntax-appearance-mounted` | diff tokens on added, removed and unchanged lines read at 4.5:1 in both appearances | 50 |
+| `syntax-arrival-mounted` | a diff shown before its text is read stays plain and complete until the text arrives | 172 |
+| `syntax-arrival-mounted` | styling that arrives after the diff keeps the reading position, revealed context and an open line menu | 473 |
+| `syntax-arrival-mounted` | emphasis is present before tokens arrive and stays on the same words after | 138 |
+| `syntax-languages-mounted` | a modified README heading and fence take distinct token colours while markers and backgrounds stay | 45 |
+| `syntax-languages-mounted` | a JSON property name and string value take distinct colours from each other and punctuation | 35 |
+| `syntax-languages-mounted` | a removed CSS property and colour value differ and stay readable when appearance switches | 71 |
+| `syntax-mounted` | a TypeScript diff styles each line by its side's whole text and keeps the plain diff's change facts | 672 |
+| `syntax-paths-mounted` | a.ts styles the file's keyword | 159 |
+| `syntax-paths-mounted` | a.mts styles the file's keyword | 106 |
+| `syntax-paths-mounted` | a.cts styles the file's keyword | 54 |
+| `syntax-paths-mounted` | a.tsx styles the file's keyword | 53 |
+| `syntax-paths-mounted` | a.js styles the file's keyword | 115 |
+| `syntax-paths-mounted` | a.mjs styles the file's keyword | 8 |
+| `syntax-paths-mounted` | a.cjs styles the file's keyword | 12 |
+| `syntax-paths-mounted` | a.jsx styles the file's keyword | 27 |
+| `syntax-paths-mounted` | A.java styles the file's keyword | 22 |
+| `syntax-paths-mounted` | a.py styles the file's keyword | 73 |
+| `syntax-paths-mounted` | a.sh styles the file's keyword | 33 |
+| `syntax-paths-mounted` | a.bash styles the file's keyword | 7 |
+| `syntax-paths-mounted` | a.feature styles the file's keyword | 14 |
+| `syntax-paths-mounted` | README.md styles the file's keyword | 123 |
+| `syntax-paths-mounted` | data.json styles the file's keyword | 39 |
+| `syntax-paths-mounted` | a.css styles the file's keyword | 58 |
+| `syntax-paths-mounted` | a.yaml styles the file's keyword | 8 |
+| `syntax-paths-mounted` | a.yml styles the file's keyword | 21 |
+| `syntax-paths-mounted` | a rename from old.txt to new.ts styles by its new path | 10 |
+| `syntax-paths-mounted` | a rename from settings.yaml to settings.yml styles by its new path | 22 |
+| `syntax-paths-mounted` | notes.txt with no supported extension reads plain | 86 |
+| `syntax-paths-mounted` | new.txt with no supported extension reads plain | 84 |
+| `syntax-paths-mounted` | scripts/setup.test uses a known hint when its path names no grammar | 23 |
+| `syntax-paths-mounted` | scripts/setup-renamed.test uses a known hint when its path names no grammar | 7 |
+| `syntax-paths-mounted` | an unfamiliar hint leaves a path-silent file plain | 106 |
+| `syntax-paths-mounted` | the file's path grammar wins over a known hint | 17 |
+| `word-emphasis-mounted` | changed words in a block are deletions and insertions; copy stays plain | 69 |
+| `word-emphasis-mounted` | a three-line rewrap gaining a word emphasizes only that word | 63 |
+| `word-emphasis-mounted` | splitting a call across lines emphasizes the added comma, indent and argument | 114 |
+| `word-emphasis-mounted` | re-indent emphasizes the changed whitespace on both lines | 109 |
+| `word-emphasis-mounted` | a pure addition and revealed context have no word emphasis | 131 |
+| `word-emphasis-mounted` | a low-similarity rewrite stays line-level with no word emphasis | 2 |
+| `word-emphasis-mounted` | a several-hundred-line block stays line-level while a small block is emphasized | 31 |
 
 #### Frontend campaign baseline
 

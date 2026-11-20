@@ -1,52 +1,41 @@
-// One case per story-review word-emphasis journey, pairing the file text with
-// the printed diff: a one-word edit, a Markdown-style rewrap, a call split
-// across lines, re-indent, a pure addition, a low-similarity rewrite, and a
-// several-hundred-line block beside a small emphasized one. The limit case
-// also carries omitted context above its hunk. Plain `.txt` and styled `.ts`
-// paths reuse that case; `limitDiff` and `limitText` stay for the styled opener.
+// Printed diffs and both file texts for the mounted word-emphasis cases.
+import type { ReviewedFileText } from "../../src/storyReviewContract.ts";
+import { printedDiff } from "./styledDiffCases.ts";
 
-import {
-  reviewedFileDiffSchema,
-  type ReviewedFileText,
-} from "../../src/storyReviewContract.ts";
+type FileText = Extract<ReviewedFileText, { kind: "text" }>;
 
-const fillers = [...Array(24).keys()].map(
-  (at) => `filler line ${String(at + 1)}`,
-);
-
-const wordEmphasisCase = <Text extends ReviewedFileText>(
+function wordEmphasisCase<Text extends FileText>(
+  path: string,
   text: Text,
   lines: readonly string[],
-) => ({
-  text,
-  diff: (path: string) =>
-    reviewedFileDiffSchema.parse({
-      kind: "diff",
-      printed: [
-        `diff --git a/${path} b/${path}`,
-        `--- a/${path}`,
-        `+++ b/${path}`,
-        ...lines,
-        "",
-      ].join("\n"),
-    }),
-});
+) {
+  return {
+    text,
+    printed: printedDiff(path, lines),
+  };
+}
 
-export const limitText = {
+const fillers = [...Array(24).keys()].map(
+  (index) => `filler line ${String(index + 1)}`,
+);
+
+const limitText = {
   kind: "text",
   baseline: [...fillers, "const limit = 20;", "keep this line;", ""].join("\n"),
   tree: [...fillers, "const limit = 25;", "keep this line;", ""].join("\n"),
-} as const satisfies ReviewedFileText;
+} as const satisfies FileText;
 
-export const limit = wordEmphasisCase(limitText, [
-  "@@ -24,3 +24,3 @@",
-  " filler line 24",
-  "-const limit = 20;",
-  "+const limit = 25;",
-  " keep this line;",
-]);
+export function limitAtPath(path: string) {
+  return wordEmphasisCase(path, limitText, [
+    "@@ -24,3 +24,3 @@",
+    " filler line 24",
+    "-const limit = 20;",
+    "+const limit = 25;",
+    " keep this line;",
+  ]);
+}
 
-export const limitDiff = limit.diff;
+export const limit = limitAtPath("limit.txt");
 
 const rewrapText = {
   kind: "text",
@@ -65,7 +54,7 @@ const rewrapText = {
   ].join("\n"),
 } as const satisfies ReviewedFileText;
 
-export const rewrap = wordEmphasisCase(rewrapText, [
+export const rewrap = wordEmphasisCase("wrap.txt", rewrapText, [
   "@@ -1,3 +1,4 @@",
   "-alpha bravo charlie delta echo",
   "-foxtrot golf hotel india juliet",
@@ -82,7 +71,7 @@ const splitCallText = {
   tree: ["run(a, b,", "  c);", ""].join("\n"),
 } as const satisfies ReviewedFileText;
 
-export const splitCall = wordEmphasisCase(splitCallText, [
+export const splitCall = wordEmphasisCase("call.txt", splitCallText, [
   "@@ -1,1 +1,2 @@",
   "-run(a, b);",
   "+run(a, b,",
@@ -95,7 +84,7 @@ const reindentText = {
   tree: ["    run();", ""].join("\n"),
 } as const satisfies ReviewedFileText;
 
-export const reindent = wordEmphasisCase(reindentText, [
+export const reindent = wordEmphasisCase("indent.txt", reindentText, [
   "@@ -1,1 +1,1 @@",
   "-  run();",
   "+    run();",
@@ -107,7 +96,7 @@ const pureAdditionText = {
   tree: ["keep;", "only new;", ""].join("\n"),
 } as const satisfies ReviewedFileText;
 
-export const pureAddition = wordEmphasisCase(pureAdditionText, [
+export const pureAddition = wordEmphasisCase("added.txt", pureAdditionText, [
   "@@ -1,1 +1,2 @@",
   " keep;",
   "+only new;",
@@ -119,7 +108,7 @@ const rewriteText = {
   tree: ['throw new Error("stale");', ""].join("\n"),
 } as const satisfies ReviewedFileText;
 
-export const rewrite = wordEmphasisCase(rewriteText, [
+export const rewrite = wordEmphasisCase("rewrite.txt", rewriteText, [
   "@@ -1,1 +1,1 @@",
   "-return cached;",
   '+throw new Error("stale");',
@@ -142,7 +131,7 @@ const largeWithSmallText = {
   tree: [...largeAdded, "bridge;", "const limit = 25;", ""].join("\n"),
 } as const satisfies ReviewedFileText;
 
-const largeBlock = wordEmphasisCase(largeWithSmallText, [
+const largeBlock = wordEmphasisCase("generated.txt", largeWithSmallText, [
   `@@ -1,${String(largeBlockLineCount)} +1,${String(largeBlockLineCount)} @@`,
   ...largeRemoved.map((line) => `-${line}`),
   ...largeAdded.map((line) => `+${line}`),
@@ -154,6 +143,6 @@ const largeBlock = wordEmphasisCase(largeWithSmallText, [
 
 export const largeWithSmall = {
   text: largeBlock.text,
-  diff: largeBlock.diff,
+  printed: largeBlock.printed,
   lineCount: largeBlockLineCount,
 };

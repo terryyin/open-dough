@@ -1,11 +1,8 @@
-// A diff's syntax styling reads at 4.5:1 on added, removed and unchanged
-// lines in dark and light, follows a live appearance change without reading
-// the file again, and matches Intent's source reading of the same code token
-// for token in both appearances.
+// In both appearances, the diff and Intent show the same syntax styling.
+// Switching appearance in the review needs no additional file read.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
 import { setColorScheme } from "../../test-support/systemAppearanceReading.ts";
 import { parts } from "../../test-support/dashboardPage.ts";
 import { sourceToken } from "../../test-support/pageColours.ts";
@@ -56,7 +53,7 @@ async function appearances(page: Page, tokens: Record<string, Locator>) {
   return read;
 }
 
-test("diff tokens read at 4.5:1 in both appearances and match Intent's source reading of the same code", async ({
+test("diff tokens match Intent's source reading of the same code in both appearances", async ({
   page,
   frontendServices,
 }) => {
@@ -79,7 +76,11 @@ test("diff tokens read at 4.5:1 in both appearances and match Intent's source re
     page,
     frontendServices,
     frontendReviewSnapshot({
-      files: [{ kind: "modified", path, lines: { added: 2, removed: 4 } }],
+      files: [
+        makeMe.aReviewedFile
+          .with({ kind: "modified", path, lines: { added: 2, removed: 4 } })
+          .please(),
+      ],
     }),
     (answers) => {
       answers.answerFile(greetDiff(path), path);
@@ -96,19 +97,6 @@ test("diff tokens read at 4.5:1 in both appearances and match Intent's source re
   await expect(lines.removed.token(comment)).toBeVisible();
   const reads = fileReads(page);
 
-  for (const scheme of schemes) {
-    await test.step(`${scheme}: keyword and comment tokens read at 4.5:1 on every line kind`, async () => {
-      await setColorScheme(page, scheme);
-      for (const line of Object.values(lines)) {
-        await expectReadableContrast(line.token(keyword));
-        await expectReadableContrast(line.token(quoted));
-      }
-      for (const line of [lines.added, lines.removed, diff.newLine(27)])
-        await expectReadableContrast(line.token(comment));
-    });
-  }
-  expect(reads()).toEqual([]);
-
   const diffTokens = {
     ...Object.fromEntries(
       Object.entries(lines).flatMap(([kind, line]) => [
@@ -122,6 +110,7 @@ test("diff tokens read at 4.5:1 in both appearances and match Intent's source re
     "unchanged comment": diff.newLine(27).token(comment),
   };
   const inDiff = await appearances(page, diffTokens);
+  expect(reads()).toEqual([]);
 
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
