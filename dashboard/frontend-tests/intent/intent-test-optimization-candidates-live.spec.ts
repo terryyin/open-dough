@@ -1,131 +1,111 @@
-import { prepareCandidateProjects } from "../../test-support/support/frontendIntentCandidates.ts";
-import {
-  fileSource,
-  sourceFile,
-} from "../../test-support/intentCodeBrowsePage.ts";
 // Intent reads a project's live Test Optimization Candidates record
 // (../../src/IntentCandidatesRecord.tsx) on its Optimization Candidates tab:
 // each live candidate under Live candidates with its five facts, its affected
 // test opening in Purpose, and a live record holding `None.` as having no
-// live candidates.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
+// live candidates rather than as a missing record.
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import type { PublishedWork } from "../../src/publishedWork.ts";
 import {
-  candidatesRecord,
-  chooseOptimizationCandidates,
-  expectCandidatesRevision,
-} from "../../test-support/intentModePage.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+  intentCandidates,
+  textAsRead,
+  textsOf,
+} from "./intent-candidates-page.ts";
 import {
-  openDoughSources,
-  openDoughSpecPaths,
-  testOptimizationCandidatesPath,
-} from "../../test-support/intentCandidatesFixtures.ts";
-import {
-  openDough,
-  openDoughSettings,
-  pygardon,
-  pygardonSettings,
-  pythonTest,
-} from "../../test-support/intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  mountPageIntentReading,
+  publishedWithCandidates,
+} from "./intent-candidates-publication.ts";
 
-test("Intent shows each live candidate with its five facts, and a live record without candidates as having none", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  const openDoughRecord = makeMe.aTestOptimizationCandidatesRecord
-    .live()
-    .candidate(
-      "production-watcher-failure-chains",
-      `\`${openDoughSpecPaths.watcherFailures}\``,
-      {
-        observedCost: "115.3s for 10 cases in CI run 42550972063, 12 shards",
-        uniqueProtection:
-          "a failed production update reaches the watcher's report",
-        alternativesTried:
-          "boundary proof of each failure kind; the chain stays integrated",
-        decisionOrEvidenceNeeded:
-          "whether one dashboard per file keeps the isolation each case relies on",
-      },
-    )
-    .candidate("second-server-preview", `\`${openDoughSpecPaths.polesSecond}\``)
-    .please();
-  await prepareCandidateProjects(page, frontendServices, [
-    {
-      project: openDough,
-      settings: openDoughSettings,
-      files: {
-        ...openDoughSources,
-        [testOptimizationCandidatesPath]: openDoughRecord,
-      },
-    },
-    {
-      project: pygardon,
-      settings: pygardonSettings,
-      files: {
-        [testOptimizationCandidatesPath]:
-          makeMe.aTestOptimizationCandidatesRecord.live().please(),
-        "tests/test_example.py": pythonTest,
-      },
-    },
-  ]);
+const revision = "97".repeat(20);
+const work: PublishedWork = makeMe.aPublishedWork.ofPygardon
+  .at(revision)
+  .please();
+const { record } = intentCandidates();
+const live = record.getByRole("region", { name: "Live candidates" });
 
-  await openUntilRead(page, "/?project=open-dough");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await chooseOptimizationCandidates(intent);
-  await expectCandidatesRevision(intent, openDough.revision);
-  const record = candidatesRecord(intent);
+async function readLive(text: string) {
+  const { readSource } = publishedWithCandidates(text);
+  await mountPageIntentReading(readSource, work);
+  return (await intentCandidates().choose()).isRecordedAt(revision);
+}
 
-  await test.step("each live candidate shows its five facts, and its affected test opens in Purpose", async () => {
-    await expect(record.getByRole("heading", { level: 3 })).toHaveText([
-      "Test Optimization Candidates",
-      "Live candidates",
-    ]);
-    const live = record.getByRole("region", { name: "Live candidates" });
-    await expect(live.getByRole("heading", { level: 4 })).toHaveText([
-      "production-watcher-failure-chains",
-      "second-server-preview",
-    ]);
-    const candidate = live.getByRole("article", {
-      name: "production-watcher-failure-chains",
-    });
-    await expect(candidate.getByRole("term")).toHaveText([
-      "Affected test or fixture",
-      "Observed cost and conditions",
-      "Unique protection",
-      "Alternatives tried",
-      "Decision or evidence needed",
-    ]);
-    await expect(candidate.getByRole("definition")).toHaveText([
-      openDoughSpecPaths.watcherFailures,
-      "115.3s for 10 cases in CI run 42550972063, 12 shards",
-      "a failed production update reaches the watcher's report",
+test("Intent shows each live candidate with its five facts, and its affected test opens in Purpose", async () => {
+  const facts = {
+    observedCost: "115.3s for 10 cases in CI run 42550972063, 12 shards",
+    uniqueProtection: "a failed production update reaches the watcher's report",
+    alternativesTried:
       "boundary proof of each failure kind; the chain stays integrated",
+    decisionOrEvidenceNeeded:
       "whether one dashboard per file keeps the isolation each case relies on",
+  };
+  const candidates = await readLive(
+    makeMe.aTestOptimizationCandidatesRecord
+      .live()
+      .candidate(
+        "production-watcher-failure-chains",
+        `\`${pygardonFeatures.jobs}\``,
+        facts,
+      )
+      .candidate("second-server-preview", "`tests/second_server.py`")
+      .please(),
+  );
+
+  await candidates.shows("production-watcher-failure-chains");
+  expect(textsOf(record.getByRole("heading", { level: 3 }))).toEqual([
+    "Test Optimization Candidates",
+    "Live candidates",
+  ]);
+  expect(textsOf(live.getByRole("heading", { level: 4 }))).toEqual([
+    "production-watcher-failure-chains",
+    "second-server-preview",
+  ]);
+  const candidate = live.getByRole("article", {
+    name: "production-watcher-failure-chains",
+  });
+  expect(textsOf(candidate.getByRole("term"))).toEqual([
+    "Affected test or fixture",
+    "Observed cost and conditions",
+    "Unique protection",
+    "Alternatives tried",
+    "Decision or evidence needed",
+  ]);
+  await expect
+    .poll(() =>
+      candidate
+        .getByRole("definition")
+        .elements()
+        .map((definition) => textAsRead(page.elementLocator(definition))),
+    )
+    .toEqual([
+      pygardonFeatures.jobs,
+      facts.observedCost,
+      facts.uniqueProtection,
+      facts.alternativesTried,
+      facts.decisionOrEvidenceNeeded,
     ]);
-    await expect(record).not.toContainText("This record has no");
+  expect(textAsRead(record)).not.toContain("This record has no");
 
-    await sourceFile(candidate, openDoughSpecPaths.watcherFailures).click();
-    await expect(
-      fileSource(intent, openDoughSpecPaths.watcherFailures),
-    ).toContainText('test("browses"');
-  });
+  await (
+    await candidates.openSource(
+      "production-watcher-failure-chains",
+      pygardonFeatures.jobs,
+    )
+  ).shows("Scenario: List jobs");
+  await expect
+    .element(page.getByRole("region", { name: "Purpose", exact: true }))
+    .toBeVisible();
+});
 
-  await test.step("a live record holding None. has no live candidates", async () => {
-    await chooseProject(page, "Pygardon");
-    await chooseOptimizationCandidates(intent);
-    await expectCandidatesRevision(intent, pygardon.revision);
-    await expect(candidatesRecord(intent)).toContainText(
-      "This record has no live candidates.",
-    );
-    await expect(
-      candidatesRecord(intent).getByRole("region", {
-        name: "Live candidates",
-      }),
-    ).toContainText("None.");
-  });
+test("Intent reads a live record holding None. as having no live candidates, not as a missing record", async () => {
+  const candidates = await readLive(
+    makeMe.aTestOptimizationCandidatesRecord.live().please(),
+  );
+
+  await expect
+    .poll(() => textAsRead(record))
+    .toContain("This record has no live candidates.");
+  await expect.poll(() => textAsRead(live)).toContain("None.");
+  await candidates.showsNoFailure();
 });

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_mount-optimization-candidates-frontend-proof.json",
+      "identity": "SEED-413#mount-optimization-candidates-frontend-proof",
+      "completedAt": "2026-11-20T13:07:10.165Z",
+      "blob": "a7bf9eafd3744322ee1eee0fee1fa2c01a9b1716"
+    },
+    {
       "fileName": "SEED-413_mount-open-sessions-sidebar-frontend-proof.json",
       "identity": "SEED-413#mount-open-sessions-sidebar-frontend-proof",
       "completedAt": "2026-11-20T13:02:21.366Z",

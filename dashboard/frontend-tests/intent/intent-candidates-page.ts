@@ -1,28 +1,46 @@
 // Intent's Optimization Candidates record as the reader operates it: the
-// view is chosen, the record names the revision it was recorded at, says
-// while it is being read, shows no failure, and one recorded entry opens its
-// source file in the reading (./intent-file-reading-page.ts).
+// reader chooses its view or leaves it for CI status, the record names the revision it was recorded
+// at, says while it is being read, shows no failure, and one recorded entry
+// links and opens its source files in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page, userEvent, type Locator } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
-import { intentFileReading } from "./intent-file-reading-page.ts";
+import {
+  intentFileReading,
+  withoutBreakingHints,
+} from "./intent-file-reading-page.ts";
+
+// Project Intent's views and the tab of one of them.
+export const intentViews = page.getByRole("tablist", {
+  name: "Project Intent views",
+});
+export const intentViewTab = (name: "CI status" | "Optimization Candidates") =>
+  intentViews.getByRole("tab", { name, exact: true });
 
 export function intentCandidates() {
   const record = page.getByRole("region", {
     name: "Test Optimization Candidates",
     exact: true,
   });
+  const tab = intentViewTab("Optimization Candidates");
   const entry = (name: string) => record.getByRole("article", { name });
+  const sourceLink = (name: string, path: string) =>
+    entry(name).getByRole("button", { name: path, exact: true });
   const candidates = {
+    record,
+    entry,
+    sourceLink,
+    async choose() {
+      await userEvent.click(tab);
+      return candidates.isChosen();
+    },
+    async leaveForCiStatus() {
+      const ciStatus = intentViewTab("CI status");
+      await userEvent.click(ciStatus);
+      await expect.element(ciStatus).toHaveAttribute("aria-selected", "true");
+    },
     async isChosen() {
-      await expect
-        .element(
-          page.getByRole("tab", {
-            name: "Optimization Candidates",
-            exact: true,
-          }),
-        )
-        .toHaveAttribute("aria-selected", "true");
+      await expect.element(tab).toHaveAttribute("aria-selected", "true");
       return candidates;
     },
     async isRecordedAt(revision: string) {
@@ -55,11 +73,9 @@ export function intentCandidates() {
       await expect.element(entry(name)).not.toBeInTheDocument();
       return candidates;
     },
-    async openSource(name: string, path: string) {
-      const source = entry(name).getByRole("button", {
-        name: path,
-        exact: true,
-      });
+    // Opens the source `name` links as `link`, reading the file at `path`.
+    async openSource(name: string, link: string, path = link) {
+      const source = sourceLink(name, link);
       await expect.element(source).toBeVisible();
       await userEvent.click(source);
       return intentFileReading(path);
@@ -67,3 +83,12 @@ export function intentCandidates() {
   };
   return candidates;
 }
+
+// Text as read: without the line breaking hints the record renders, and
+// with its whitespace collapsed.
+export const textAsRead = (locator: Locator) =>
+  withoutBreakingHints(locator.query()?.textContent).replace(/\s+/g, " ");
+
+// Each matched element's text, in reading order.
+export const textsOf = (locator: Locator) =>
+  locator.elements().map((element) => element.textContent);

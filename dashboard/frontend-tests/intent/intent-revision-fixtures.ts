@@ -38,23 +38,31 @@ export function publishedFeatures(
   };
   return {
     readLocations: () => Promise.resolve(locations),
-    files: Object.fromEntries(
-      Object.entries(files).map(([path, text]) => [
-        path,
-        () => Promise.resolve(text),
-      ]),
-    ),
+    files: readsOf(files),
   };
 }
 
-export const featuresOpening = (scenario: string) =>
-  publishedFeatures(
-    makeMe.somePublishedFiles.ofPygardonFeatures
-      .openingJobsWith(scenario)
-      .please(),
+// Each of `files` read as published.
+export const readsOf = (files: PublishedFiles): FeaturePublication["files"] =>
+  Object.fromEntries(
+    Object.entries(files).map(([path, text]) => [
+      path,
+      () => Promise.resolve(text),
+    ]),
   );
 
-function fixtureFor<T>(fixtures: Readonly<Record<string, T>>, key: string): T {
+export const featuresOpening = (scenario: string, files?: PublishedFiles) =>
+  publishedFeatures({
+    ...makeMe.somePublishedFiles.ofPygardonFeatures
+      .openingJobsWith(scenario)
+      .please(),
+    ...files,
+  });
+
+export function fixtureFor<T>(
+  fixtures: Readonly<Record<string, T>>,
+  key: string,
+): T {
   const fixture = fixtures[key];
   if (fixture === undefined) throw new Error(`No published fixture for ${key}`);
   return fixture;

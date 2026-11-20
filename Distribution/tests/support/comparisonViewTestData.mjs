@@ -49,13 +49,14 @@ export class PublishedWorkBuilder {
     return copyFacts(facts);
   }
 
-  // The named example: Pygardon's work, read with no direction and no stories.
-  get ofPygardon() {
+  // `source`'s work, read with no direction and no stories.
+  /** @param {import("../../../dashboard/src/publishedSource.ts").PublishedSource} source */
+  of(source) {
     return {
       /** @param {string} revision the published revision read */
       at: (revision) =>
         this.with({
-          source: new PublishedSourceBuilder().pygardon.please(),
+          source,
           revision,
           retrievedAt: new Date("2026-11-05T08:00:00.000Z"),
           direction: "",
@@ -63,6 +64,11 @@ export class PublishedWorkBuilder {
           backlog: [],
         }),
     };
+  }
+
+  // The named example: Pygardon's work.
+  get ofPygardon() {
+    return this.of(new PublishedSourceBuilder().pygardon.please());
   }
 }
 
