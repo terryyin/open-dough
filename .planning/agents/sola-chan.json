@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Sola-chan",
+  "email": "sola-chan@example.org",
+  "identity": "SEED-413#mount-open-sessions-sidebar-frontend-proof",
+  "mode": "story-branch",
+  "branch": "cursor/prove-open-sessions-sidebar-readings-in-mounted",
+  "host": "cursor",
+  "model": "auto"
+}
