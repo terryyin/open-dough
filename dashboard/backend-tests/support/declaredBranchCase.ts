@@ -41,14 +41,25 @@ export const identifyBranch = (
     request,
   );
 
-// A kept declaring launch that then identified `workspace` on `branch`, with
-// whatever the worktree already held.
+export type DeclaringLaunch = {
+  workspace: string;
+  branch: string;
+  reporting?: NonNullable<LaunchRecord["request"]["reporting"]>;
+  others?: (checkout: Checkout) => LaunchRecord[];
+};
+
+// A kept declaring launch, blank unless it reports through `reporting`, that
+// then identified `workspace` on `branch`, with whatever the worktree already
+// held. The `others` of the checkout are kept beside it.
 export async function aDeclaredBranch(
   checkout: Checkout,
-  request: { workspace: string; branch: string },
+  { workspace, branch, reporting, others = () => [] }: DeclaringLaunch,
 ) {
-  const record = aDeclaringLaunch(checkout).please();
-  keep(record);
-  const entry = await identifyBranch(checkout, record, request);
+  const launch = aDeclaringLaunch(checkout);
+  const record = (
+    reporting === undefined ? launch : launch.reportingThrough(reporting)
+  ).please();
+  keep(record, ...others(checkout));
+  const entry = await identifyBranch(checkout, record, { workspace, branch });
   return { record, entry };
 }

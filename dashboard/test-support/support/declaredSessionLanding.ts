@@ -9,7 +9,6 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { quote, reportingChild } from "./completionRecovery.ts";
 import { rawRequest } from "./rawHttp.ts";
-import { branchEntryCommand } from "./reportingInputAssertions.ts";
 import { publishSessionLanding } from "./startSessionLandingContext.ts";
 
 const declarationSchema = z.object({
@@ -18,18 +17,6 @@ const declarationSchema = z.object({
   landingContext: z.string(),
 });
 type Declaration = z.infer<typeof declarationSchema>;
-
-export async function declareThroughLaunchInput(
-  sent: string,
-  workspace: string,
-) {
-  const command = branchEntryCommand(sent);
-  if (command === undefined)
-    throw new Error("Missing the branch entry command.");
-  const answer = await reportingChild(command, workspace);
-  expect(answer.ok, answer.stderr).toBe(true);
-  return declarationSchema.parse(JSON.parse(answer.stdout));
-}
 
 export async function declareThroughSession(
   dashboard: DashboardServer,

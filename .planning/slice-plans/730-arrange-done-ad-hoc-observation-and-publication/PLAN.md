@@ -192,7 +192,7 @@ and an incorrect old path.
 ### 7. A declared worktree's publication and retry stay with its original launch
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the instructed launch case from
 `launches/agent-launch-session-branch-landing.spec.ts`. Keep the
@@ -268,6 +268,14 @@ deferred branch and session-commits cases.
   spec's check, give it one domain name in `installedPublisher.ts`.
   Canonical checkout paths repeat in three support modules; settle them
   when `doneCaptureCase.ts` is split.
+- Slice 7: trunk's SEED-413#ad-hoc-branch-result-handoff was merged at
+  `46ab47e`: typed reads live in `doneCaptureReview.ts`, declared launches
+  in `declaredBranchCase.ts` (`aDeclaredBranch`, `DeclaringLaunch`), and
+  `canonicalGitDirectory`, `aCheckoutWithCanonicalWorktree` and
+  `keptRecordOf` in `doneCaptureCase.ts`. `installedPublisher.ts` owns the
+  before-push read and `retryInstalledLanding`. Another launch's reference
+  is refused 409 only when that launch has an accepted attempt with its
+  reporting context; otherwise the receiver answers 404.
 
 ## Local gates
 

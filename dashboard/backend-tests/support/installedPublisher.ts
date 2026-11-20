@@ -2,9 +2,12 @@
 // the typed landing handler through a bridge that admits only the receiver's
 // route, body schema and origin, so the publisher's retained comparison is
 // exactly what the handler prepares and records.
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { onTestFinished, vi } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import { landingSubmissionSchema } from "../../server/launchLandingAdmission.ts";
 import {
   handleLanding,
@@ -55,26 +58,79 @@ type Publication = {
   readonly remote: string;
   readonly targetRef: string;
   readonly landingContext: string;
-  readonly beforePush?: () => Promise<void>;
 };
 
 type Publisher = {
-  publishExecutionIncrement(publication: Publication): Promise<unknown>;
+  publishExecutionIncrement(
+    publication: Publication & { beforePush: () => Promise<void> },
+  ): Promise<unknown>;
 };
 
-// Publishes through the installed shared publication, as Dough Land runs it
-// with no execution observer.
-export async function publishInstalled(publication: Publication) {
+// What stood just before the push: the remote trunk and the pairs the
+// receiver had prepared for the launch.
+export type BeforePush = {
+  trunk?: string | undefined;
+  prepared?: readonly object[] | undefined;
+};
+
+function bridgeToReceiver() {
   vi.stubGlobal("fetch", receive);
   onTestFinished(() => {
     vi.unstubAllGlobals();
   });
+}
+
+// Publishes through the installed shared publication, as Dough Land runs it
+// with no execution observer, reading the trunk and `preparedPairs` before
+// its push.
+export async function publishInstalled(
+  publication: Publication,
+  preparedPairs: () => Promise<readonly object[] | undefined>,
+) {
+  bridgeToReceiver();
   const module = path.join(
     repoRoot,
     ".claude/skills/dough-execute-plan/scripts/execution-increment-publication.mjs",
   );
   const installed = (await import(pathToFileURL(module).href)) as Publisher;
-  return capturedPublicationSchema.parse(
-    await installed.publishExecutionIncrement(publication),
+  const beforePush: BeforePush = {};
+  const published = capturedPublicationSchema.parse(
+    await installed.publishExecutionIncrement({
+      ...publication,
+      beforePush: async () => {
+        const remote = await git(
+          publication.workspace,
+          "ls-remote",
+          publication.remote,
+          publication.targetRef,
+        );
+        beforePush.trunk = remote.stdout.split("\t")[0];
+        beforePush.prepared = await preparedPairs();
+      },
+    }),
+  );
+  return { ...published, beforePush };
+}
+
+type Reporter = { reportCompletion(argv: string[]): Promise<unknown> };
+
+// Retries the landing input the sender's handoff retained beside
+// `landingContext`, through its surviving reporting entry, as
+// `--operation landing --retry <pending>`.
+export async function retryInstalledLanding(landingContext: string) {
+  bridgeToReceiver();
+  const directory = path.dirname(landingContext);
+  const { pending } = JSON.parse(
+    await readFile(path.join(directory, "landing-current.json"), "utf8"),
+  ) as { pending: string };
+  const entry = path.join(directory, "dashboard-completion.mjs");
+  const reporter = (await import(pathToFileURL(entry).href)) as Reporter;
+  return landingReceiptSchema.parse(
+    await reporter.reportCompletion([
+      "--operation",
+      "landing",
+      "--retry",
+      pending,
+    ]),
   );
 }

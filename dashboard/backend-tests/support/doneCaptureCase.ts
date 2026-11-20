@@ -16,7 +16,10 @@ import {
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { runGit } from "../../server/gitRunner.ts";
-import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
+import {
+  keptRecords,
+  setRecordDoneAt,
+} from "../../server/launchRecordStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 
@@ -185,6 +188,12 @@ export function keep(...records: LaunchRecord[]) {
   keepLaunchStore(home, { [source]: records });
   return home;
 }
+
+// The record the store now keeps for the session `sessionId`.
+export const keptRecordOf = async (sessionId: string) =>
+  (await keptRecords(source)).find(
+    (kept) => kept.session.sessionId === sessionId,
+  );
 
 // A kept session established in a checkout at its base: the family's usual start.
 export async function aKeptSession(options: { withOrigin?: boolean } = {}) {

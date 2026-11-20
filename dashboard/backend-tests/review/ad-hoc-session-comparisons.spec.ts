@@ -34,25 +34,19 @@ test("the same Done session opens its delivery and keeps its different branch re
   await markDone(record);
 
   write(committed);
-  const before: {
-    trunk?: string | undefined;
-    prepared?: readonly object[] | undefined;
-  } = {};
-  const { landing } = await publishInstalled({
-    workspace,
-    branch,
-    previouslyPublishedBase: checkout.base,
-    remote: "origin",
-    targetRef: "refs/heads/main",
-    landingContext,
-    beforePush: async () => {
-      const remote = await git(workspace, "ls-remote", "origin", "main");
-      before.trunk = remote.stdout.split("\t")[0];
-      before.prepared = (await keptAttempts())?.find(
-        (attempt) => attempt.id === reference,
-      )?.landingPreparations;
+  const { landing, beforePush: before } = await publishInstalled(
+    {
+      workspace,
+      branch,
+      previouslyPublishedBase: checkout.base,
+      remote: "origin",
+      targetRef: "refs/heads/main",
+      landingContext,
     },
-  });
+    async () =>
+      (await keptAttempts())?.find((attempt) => attempt.id === reference)
+        ?.landingPreparations,
+  );
   // The installed publisher prepared exactly the pair it then recorded.
   expect(before.trunk).toBe(checkout.base);
   expect(before.prepared).toMatchObject([
