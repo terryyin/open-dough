@@ -14,6 +14,9 @@ scope: one story
 ### Choose clear follow-up context
 
 **Identity:** SEED-415#choose-clear-follow-up-context
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-415#choose-clear-follow-up-context","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session UUID and attributable changes","rationale":"The receiving follow-up needs a published UUID to resolve a selected session’s commits on another machine.","condition":"The repository contains a JSON record with the stable UUID and attributable published changes for a session that published work.","state":"waiting"}]}
+```
 
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
@@ -44,10 +47,10 @@ associate with the comment or note they describe.
   current follow-up, each selected session, and the line notes. The content
   inside each section is plain text. The current request and each note identify
   their own file, line, and diff side.
-- When the published Done JSON records a selected session's UUID, include the
+- When the published session JSON records a selected session's UUID, include the
   UUID in that session's section so the receiving session can find the related
   commits. Include the commit list or range there when it can be resolved from
-  that UUID. A session with an older Done record still contributes its retained
+  that UUID. Older sessions without a published UUID still contribute their retained
   context.
 
 **Design reference.** The [interactive Follow up mockup](../evidence/SEED-415-follow-up-context.html)
