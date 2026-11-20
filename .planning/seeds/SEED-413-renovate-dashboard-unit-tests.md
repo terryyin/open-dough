@@ -224,38 +224,61 @@ addendum’s two stories were added at Terry’s request. The other four stories
 
 **Identity:** SEED-413#split-branch-entry-proposal-from-store
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f48af8e3006cf1ad62fc395237b5721c452217ec288320c7179c95467fd6c6f6","plan":"104f6e7f4bae51c3f432da31f6ea6603ee439bca6fb8e7cd2c3a3424fc5d35b4"}}
 ```
 
 Second of the [Done capture import-list stories](#split-done-mark-decision-from-store);
 the analysis and decisions are recorded there.
 
-- **Goal.** Dashboard maintainers can prove branch-entry identification and
-  its refusals from typed inputs. Review cases start from a record that
-  already holds its branch entry, and tests ask production for a session's
-  pins instead of copying the ref layout.
-- **Scope.** Split `recordSessionBranchEntry` into a proposal over
-  `{ trunk ref, record, place }` (verify the registered worktree, read the
-  entry state and Default main tip, observe trunk) that returns the entry
-  or a refusal, and the adapter that writes the record and pins. Narrow its
-  `PublishedSource` input to what it reads. Expose the session's pin refs as
-  a production query beside `sessionBranchRefPrefix` in
-  `server/launchRecordPins.ts`, and retire `sessionBranchPins` and its
-  hard-coded host. Do the same for a landing's one-shot pins, retiring
-  `landingPins`, so `adHocBranchRefs.ts` keeps only `retireAdHocBranch`.
-  Move `aDeclaredPublisherBranch` onto the composed entry. Add a MakeMe step for a record with a branch entry, and
-  move cases where entry is a precondition off `identifyBranch`. Retire
-  `declaredBranchCase.ts` when its last caller moves. Replace the
-  `installRecordRemovalDispatch` setup with an explicit collaborator where
-  these cases need retention or deletion.
+- **Goal.** Dashboard maintainers can prove what a branch entry captures
+  and refuses using a typed launch record and real Git without arranging a
+  kept store. Cases about review, attribution, or publication start with the
+  branch entry already in the record. Cases about retaining and releasing
+  evidence read the actual refs through their production owners, reducing
+  setup and keeping the evidence checks tied to the host and session that
+  own the pins.
+- **Scope.**
+  - Separate the proposal over the trunk ref, typed launch record, and
+    requested worktree and branch from the adapter that keeps the entry and
+    its pins. The proposal validates the registered worktree and captures
+    its committed tip and working tree, the Default main tip, and the trunk
+    observation. The adapter takes only the source id and ref it uses.
+  - Preserve the handoff's admission and persistence rules. A registered
+    non-trunk branch of the launch's repository can be recorded while the
+    launch is open. The same place returns its previously kept entry.
+    The repository restriction protects attribution to the original launch,
+    and keeping the first entry fixes the review baseline even if main, the
+    worktree, or the live record moves during the request.
+  - Query session branch pins and one-shot landing pins via production.
+    Use the host-qualified session or the original pin owner where the
+    native session has been replaced. Retire the test queries and keep
+    `retireAdHocBranch` for cases that actually prune a worktree.
+  - Compose a branch entry with MakeMe when it is a precondition, including
+    in `aDeclaredPublisherBranch`. Keep the real store adapter where
+    persistence or pin survival is the topic. Retire `declaredBranchCase.ts`
+    and make the expiry cases' cleanup collaborator explicit. Keep
+    deletion cases on the production deletion operation.
+  - The sibling stories own the Done transition, the delivery-observation
+    and landing-report store splits, and the broader launch presets.
 - **Key examples.**
-  - A foreign clone, a wrong branch and a second place are refused by the
-    proposal, without a kept store.
-  - An entry kept before main moves still answers the same entry.
-  - A review of a declared branch, composed with its entry, separates the
-    branch from the Default main commits made before entry.
-- **Evaluation.** As in the first story, also counting `adHocReview.ts`
-  imports from `dashboard/backend-tests/`.
+  - Given a Default main launch, proposing a foreign clone, a mismatched
+    worktree and branch, or a second place after a successful entry returns
+    a conflict without a kept store. The same place returns the first
+    entry even after main moves.
+  - A successful handoff in a dirty worktree keeps the branch commit, the
+    distinct Default main tip and the entry tree. Repeating the handoff
+    returns that kept entry and leaves its pins in place.
+  - A review whose launch already holds its branch entry shows only the
+    branch's post-entry changes in its branch comparison and the earlier
+    Default main commits in their own comparison.
+  - After Cursor replaces a session, its pins still belong to the
+    original host-qualified session. Expiry removes those pins and keeps
+    the other session's pins. Deleting a declared landing likewise
+    releases its one-shot pins after the comparison has outlived retirement.
+- **Evaluation.** Preserve every replaced assertion. Compare affected
+  specs' imports, branch-entry actions, HOME stubs, and case time at
+  comparable load as in the first story. Also count backend spec imports of
+  `adHocReview.ts`.
 - **Effort hypothesis.** M, one plan.
 
 <a id="observe-done-deliveries-over-typed-records"></a>
