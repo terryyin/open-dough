@@ -17,12 +17,58 @@ A developer should be able to find what a session contributed from any machine w
 
 **Identity:** SEED-418#review-published-session-changes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/739-review-published-session-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05912cc0ffb2acaf645b3dbc9e6987d17c668eb9bf2b8956e4f1d5149c16d28a","plan":"949d9ec0dbae3344395512b0b5700e0210878ad0583fd1dc952c088998aba261"}}
 ```
 
-When Land or Story Wrap-up closes a session that published work, retain one JSON record in the project repository. Give it a stable session UUID, workflow, close time, any associated story identity, and the published commits or ranges the session contributed. Cover refinement, execution, standalone ad hoc work, and ad hoc story follow-ups. Include earlier publications on trunk or a story branch. When attribution in a shared checkout is uncertain, say which changes may be shared.
+**Goal.** A developer can open **Review changes** for a standalone Done
+session on another machine and see what it contributed to the project. A
+stable UUID also lets later story reviews and follow-ups refer to the same
+published contribution.
 
-From a second machine with the published repository, a developer can open **Review changes** on a standalone Done session and inspect its attributable changes. A retry keeps the same session identity. Retain the record in the current snapshot for 30 days after close. This also supplies the UUID that a follow-up can use to locate commits.
+**Scope.** When Land or Story Wrap-up closes a publishing session, publish
+one JSON record in the project repository. Record the session UUID, workflow,
+close time, story identity when associated, and the commits or exact comparison
+ranges attributable to its published work. This covers refinement, execution,
+standalone ad hoc work, and ad hoc story follow-ups, including earlier
+publications on trunk or a story branch. A retry preserves the UUID and original
+close time. Record multiple ranges when intervening work makes an enclosing
+range inaccurate. Mark the affected ranges when a shared checkout makes
+attribution uncertain. Use accepted Git evidence so work left locally and
+unsuccessful push attempts stay outside the published comparison.
+
+The existing standalone Done entry offers **Review changes** on a machine with
+the published repository and no local launch history. Keep records current for
+30 days from close. The current review stops offering the entry at expiry, and
+the next authorized session-record publication removes expired files from the
+current snapshot. Story-session selection, combined comparisons, recovery of
+expired reviews from Git history, and carrying the UUID in a follow-up message
+belong to their linked stories.
+
+**Key examples.**
+
+- A standalone session lands a file edit. A developer with a fresh clone opens
+  its Done entry, selects **Review changes**, and reads the file diff even
+  after the original workspace is retired and trunk has advanced.
+- An execution publishes twice with another session's trunk change in between.
+  At wrap-up, its UUID resolves both contributions while excluding the
+  intervening change. An earlier story-branch publication still resolves after
+  history-preserving integration and branch retirement. A refinement and a
+  later ad hoc story follow-up each have their own UUID and the associated story
+  identity.
+- Two sessions share a checkout. When one closes, its record identifies which
+  published comparison may contain the other session's work. Retrying a close
+  after an interrupted response yields the same record, with its initial close
+  time and attributable comparisons.
+- At 30 days from close, a repository-backed entry leaves the current review.
+  A later authorized session-record publication prunes its file, and the
+  earlier Git snapshot still holds the original record.
+
+**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+places attribution in the published repository. The workflow assembles the
+record from accepted publication evidence and the Dashboard reads that record
+through the configured project. Keep launch state, conversations, workspace
+paths, and native session controls on the originating machine. A UUID and
+readable Git endpoints must remain sufficient after workspace retirement.
 
 <a id="select-a-story-session-for-review"></a>
 
