@@ -163,7 +163,7 @@ belongs in `doneCaptureCase.ts`, which is near 250 lines.
 ### 3. A declared branch's handoff is proven at `recordSessionBranchEntry`
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the handoff cases to a Vitest `ad-hoc-session-branch-entry.spec.ts`,
 with the unique facts listed in Current decisions. Leave only the
@@ -171,9 +171,16 @@ launch-input wiring case in the Playwright `ad-hoc-session-branch-handoff.spec.t
 
 | Promise | Slice 3 proof |
 | --- | --- |
-| Handoff examples | All three cases pass, including the undeclared-move explanation and each 409 refusal. |
+| Handoff examples | All five cases pass, including the undeclared-move explanation and each 409 refusal. |
 | Launch-input wiring keeps its owner | The Playwright file keeps only the wiring case, which still passes. The Vitest file holds the entry-state, repeated-entry and Done facts. |
-| The cases discriminate | Each in a scratch edit: `verifyRegisteredWorkspace` always passing fails the refusal case; `existingEntry` returning `undefined` fails the repeated-entry assertion; `branchEntryMissing` never set fails the undeclared case. All pass once reverted. |
+| The cases discriminate | Each in a scratch edit: `verifyRegisteredWorkspace` always passing together with the checkout guard in `readBranchWorkspace` removed fails the refusal case; `existingEntry` returning `undefined` fails the repeated-entry assertion; `branchEntryMissing` never set fails the undeclared case. All pass once reverted. |
+
+Accepted proof: the five Vitest cases and the remaining Playwright wiring case
+pass. Each scratch break fails its case. Learning: `readBranchWorkspace`
+already refuses a foreign clone and a wrong branch, so `verifyRegisteredWorkspace`
+alone breaks nothing observable; the refusal discriminates only with both
+guards broken. Done-capture cases need `historyBeforeTheCase()` so the base
+commit stays outside the session's reflog window.
 
 ### 4. Branch pins follow the original Cursor chat through replacement
 
