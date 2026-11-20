@@ -13,7 +13,7 @@ import {
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -86,7 +86,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
   expect(doneAt).toBeDefined();
   await reloadUntilRead(page);
   await settled();
-  const doneEntry = await doneSessionsOnUnfinishedCard(
+  const doneEntry = await shownDoneSessionEntriesOf(
     page,
     notRefinedStory,
     record.session.sessionId,

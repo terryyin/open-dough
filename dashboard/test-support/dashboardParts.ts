@@ -89,12 +89,6 @@ export const storyCardSessions = (card: Locator) =>
 export const storyCardDoneDisclosure = (card: Locator) =>
   card.locator(`details.${storyCardDoneClass}`);
 
-// Session articles inside an unfinished card's Done history list.
-export const storyCardDoneSessions = (card: Locator) =>
-  storyCardDoneDisclosure(card)
-    .getByRole("list", { name: "Done history" })
-    .getByRole("article");
-
 // Opens the card's Done history so nested Session entries can be observed.
 // Idempotent: leaves an already-open disclosure open.
 export async function expandStoryCardDoneHistory(card: Locator) {
@@ -108,33 +102,52 @@ export async function expandStoryCardDoneHistory(card: Locator) {
   return disclosure;
 }
 
-// Expands a card's Done history and returns its session articles, optionally
-// narrowed by visible text such as a session id.
-export async function doneSessionsOnCard(
-  card: Locator,
-  hasText?: string | RegExp,
-) {
-  await expandStoryCardDoneHistory(card);
-  const sessions = storyCardDoneSessions(card);
-  return hasText === undefined ? sessions : sessions.filter({ hasText });
-}
+const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// The unfinished Backlog or Taken card for this story title.
-export const unfinishedStoryCard = (page: Page, title: string) => {
-  const { backlog, taken } = parts(page);
-  return backlog
-    .getByRole("article", { name: title, exact: true })
-    .or(taken.getByRole("article", { name: title, exact: true }));
+// A story's Done session entries wherever the Board places them: in its
+// unfinished card's Done history, or in Recently done, standalone or inside
+// its done card. Optionally narrowed by visible text such as a session id.
+// Placement is proved by the Board rule's own tests (`../src/columnSessions.ts`);
+// journeys read Done sessions here, so a placement change edits only this
+// reading. An entry in a collapsed Done history counts but is not shown; use
+// `shownDoneSessionEntriesOf` to observe it.
+export const doneSessionEntriesOf = (
+  page: Page,
+  story: string,
+  hasText?: string | RegExp,
+) => {
+  const { backlog, taken, recentlyDone } = parts(page);
+  const named = { name: story, exact: true };
+  const all = storyCardDoneDisclosure(
+    backlog.getByRole("article", named).or(taken.getByRole("article", named)),
+  )
+    .getByRole("list", { name: "Done history", includeHidden: true })
+    .getByRole("article", { includeHidden: true })
+    .or(
+      recentlyDone.getByRole("article", {
+        name: new RegExp(`${escaped(standaloneSessionName("", story))}$`),
+      }),
+    );
+  return hasText === undefined ? all : all.filter({ hasText });
 };
 
-// Expands that unfinished card's Done history and returns its session articles,
-// optionally narrowed by visible text such as a session id.
-export async function doneSessionsOnUnfinishedCard(
+// Those entries once present, opening a collapsed Done history that holds
+// them so they are shown.
+export async function shownDoneSessionEntriesOf(
   page: Page,
-  title: string,
+  story: string,
   hasText?: string | RegExp,
 ) {
-  return doneSessionsOnCard(unfinishedStoryCard(page, title), hasText);
+  const entries = doneSessionEntriesOf(page, story, hasText);
+  await entries.first().waitFor({ state: "attached" });
+  const { board } = parts(page);
+  const collapsed = storyCardDoneDisclosure(
+    board.getByRole("article", { name: story, exact: true }),
+  ).and(page.locator("details:not([open])"));
+  const holding =
+    hasText === undefined ? collapsed : collapsed.filter({ hasText });
+  if ((await holding.count()) > 0) await holding.locator("summary").click();
+  return entries;
 }
 
 // What a card says of how many of its sessions need attention, when any do.

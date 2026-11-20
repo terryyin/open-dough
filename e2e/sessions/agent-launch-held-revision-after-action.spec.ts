@@ -13,7 +13,7 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  doneSessionsOnCard,
+  shownDoneSessionEntriesOf,
   expectMembership,
   sessionNamedBy,
   sessionStateOf,
@@ -84,7 +84,7 @@ test("an action that changes a session clears the held revision so a machine ret
   idleBetweenSteps(dashboard, session);
   await markDoneAnyway(onStoryCard);
   await expect(onStoryCard).toHaveCount(0);
-  const inDone = await doneSessionsOnCard(story);
+  const inDone = await shownDoneSessionEntriesOf(page, readyStory);
   await expect(sessionStateOf(inDone)).toHaveText("Done");
 
   // The machine's body returns to A: same store and host reading as before.

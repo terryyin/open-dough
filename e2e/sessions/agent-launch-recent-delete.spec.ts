@@ -28,9 +28,8 @@ import {
   standaloneSessionName,
   sessionStateOf,
   sessionEntriesIn,
-  doneSessionsOnCard,
-  storyCardDoneSessions,
-  unfinishedStoryCard,
+  doneSessionEntriesOf,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
@@ -119,18 +118,15 @@ test.describe("deleting a Recently done entry's record", () => {
       name: notRefinedStory,
       exact: true,
     });
-    const markedDoneCard = unfinishedStoryCard(page, readyStory);
-    const markedDone = storyCardDoneSessions(markedDoneCard);
+    const readyCard = parts(page).board.getByRole("article", {
+      name: readyStory,
+      exact: true,
+    });
+    const markedDone = doneSessionEntriesOf(page, readyStory);
     const insideDoneCard = doneCard.getByRole("article", {
       name: standaloneSessionName("Refinement", notRefinedStory),
     });
-    const working = storyCardSessionOf(
-      parts(page).board.getByRole("article", {
-        name: readyStory,
-        exact: true,
-      }),
-      "Refinement",
-    );
+    const working = storyCardSessionOf(readyCard, "Refinement");
     const ofStoryA = storyCardSessionOf(
       parts(page).board.getByRole("article", {
         name: takenStory,
@@ -145,10 +141,10 @@ test.describe("deleting a Recently done entry's record", () => {
       await expect(entry).toHaveCount(0);
     };
 
-    await test.step("a session marked done sits in its unfinished card's Done history, and one whose story is done sits inside its Recently done card", async () => {
+    await test.step("a session marked done shows Done, and one whose story is done sits inside its Recently done card", async () => {
       await page.reload();
       await settled();
-      await doneSessionsOnCard(markedDoneCard);
+      await shownDoneSessionEntriesOf(page, readyStory);
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
       await show(columnsJourney.completed);
       await expect(doneCard).toBeVisible();
@@ -161,7 +157,7 @@ test.describe("deleting a Recently done entry's record", () => {
     });
 
     await test.step("while the listing is read, active and Recently done entries in Working or Done offer no Delete record…", async () => {
-      await doneSessionsOnCard(markedDoneCard);
+      await shownDoneSessionEntriesOf(page, readyStory);
       await expect(sessionStateOf(working)).toHaveText("Working");
       await expect(sessionStateOf(insideDoneCard)).toHaveText("Done");
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
@@ -176,7 +172,7 @@ test.describe("deleting a Recently done entry's record", () => {
       dashboard.claudeListingFails(true);
       await page.reload();
       await settled();
-      await doneSessionsOnCard(markedDoneCard);
+      await shownDoneSessionEntriesOf(page, readyStory);
       await sidebar.button.click();
       // The sidebar lists sessions not marked done.
       await expect(sidebar.entries).toHaveCount(2);
@@ -211,7 +207,7 @@ test.describe("deleting a Recently done entry's record", () => {
     await test.step("deleting the unfinished card's Done-history entry puts the keyboard on that story's card", async () => {
       await deleteEntry(markedDone);
       await expect(sidebar.entries).toHaveCount(2);
-      await expect(markedDoneCard).toBeFocused();
+      await expect(readyCard).toBeFocused();
       expect(stored()).not.toContain(done);
     });
 

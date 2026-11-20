@@ -19,7 +19,7 @@ import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
@@ -213,7 +213,7 @@ test("installed attention report stays open, durable and readable through column
     const doneName = `done-${stored(restarted.home)[0]?.session.name ?? ""}`;
     await machineSessions(restarted);
     await reloadUntilRead(page);
-    const doneEntry = await doneSessionsOnUnfinishedCard(
+    const doneEntry = await shownDoneSessionEntriesOf(
       page,
       "Story A",
       native.threadId,

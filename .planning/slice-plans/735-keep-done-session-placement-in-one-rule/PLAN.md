@@ -80,8 +80,10 @@ their current runner.
   at its Board home, opening a collapsed Done disclosure when needed. Only
   specs whose subject is placement keep naming a location:
   `agent-launch-story-card-done`, `recently-done-returned-sessions`,
-  `agent-launch-done-listing` and the Recently done count in
-  `agent-launch-codex`.
+  `agent-launch-done-listing`, the Recently done count in
+  `agent-launch-codex`, and the Mark as done step of
+  `agent-launch-story-card-sessions` that observes the session stay in its
+  unfinished card's Done history.
 - Keep `sessionNavigation.ts` opening the disclosure on a reveal; it is the
   delivered sidebar-reveal behavior and remains proven by
   `recently-done-returned-sessions`.
@@ -207,7 +209,7 @@ wash moved to the Vitest spec, compared with the resolved `--accent-soft` and
 ### 4. E2E journeys read a Done session wherever the Board places it
 
 Type: Structure
-Status: planned
+Status: done
 
 Add one page-object reading in Dashboard Test Support that returns a session's
 Done entry at its Board home, by session text, opening a collapsed card
@@ -220,6 +222,18 @@ decisions on explicit locations. Remove helpers that no caller still needs.
 **Proof.** `git grep` shows the location-specific helpers used only by
 placement-subject specs. Run every retargeted E2E spec plus the
 placement-subject specs; all pass.
+
+**Accepted proof (slice 4).** `doneSessionEntriesOf` and
+`shownDoneSessionEntriesOf` in `dashboard/test-support/dashboardParts.ts` are
+the one reading; 25 files use it, and `git grep` finds
+`storyCardDoneDisclosure` and `expandStoryCardDoneHistory` only there and in
+placement-subject specs. Retargeted and placement specs (51 passed), the whole
+`e2e/sessions/` group (168 passed), frontend
+`recently-done-active-story-sessions`, typecheck and lint.
+
+**Learnings (slice 4).** Playwright role queries skip a closed `<details>`, so
+the reading counts collapsed entries with `includeHidden` and opens the
+disclosure only to show one.
 
 ## Local gates
 

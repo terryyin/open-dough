@@ -9,7 +9,7 @@ import {
 import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -79,7 +79,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   await machineSessions(dashboard);
   await reloadUntilRead(page);
   await settled();
-  const doneEntry = await doneSessionsOnUnfinishedCard(
+  const doneEntry = await shownDoneSessionEntriesOf(
     page,
     notRefinedStory,
     native.threadId,

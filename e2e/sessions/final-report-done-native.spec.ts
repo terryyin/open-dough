@@ -12,7 +12,7 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
-import { doneSessionsOnUnfinishedCard } from "../../dashboard/test-support/dashboardPage.ts";
+import { shownDoneSessionEntriesOf } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -182,7 +182,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       expect(await underlying()).toEqual(beforePage);
       expect(existsSync(workspace)).toBe(false);
       await expect(
-        await doneSessionsOnUnfinishedCard(page, notRefinedStory, sessionId),
+        await shownDoneSessionEntriesOf(page, notRefinedStory, sessionId),
       ).toContainText("Done");
     });
   });

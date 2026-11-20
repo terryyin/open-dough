@@ -14,7 +14,7 @@ import {
   sessionEntryShowing,
   sessionIdLineOf,
   sessionStateOf,
-  doneSessionsOnCard,
+  expandStoryCardDoneHistory,
   storyCardDoneDisclosure,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expectSessionEntryInCardText } from "../../dashboard/test-support/pageColours.ts";
@@ -190,7 +190,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await markDoneAnyway(storyCardSessions(card(takenStory)));
       listed.set(takenStory, []);
       await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
-      await doneSessionsOnCard(card(takenStory));
+      await expandStoryCardDoneHistory(card(takenStory));
       const retained = sessionEntryShowing(card(takenStory), closed.key);
       await expect(retained).toHaveCount(1);
       await expect(retained).toContainText(`Session ${closed.session}`);
@@ -206,7 +206,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expect(storyCardDoneDisclosure(card(takenStory))).toContainText(
         "1",
       );
-      await doneSessionsOnCard(card(takenStory));
+      await expandStoryCardDoneHistory(card(takenStory));
       await expect(retained).toContainText(`Session ${closed.session}`);
     });
 

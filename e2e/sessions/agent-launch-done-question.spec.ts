@@ -18,7 +18,7 @@ import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
@@ -164,7 +164,7 @@ test("a session not reported complete asks first with its situation; Keep open a
     await markDone(question);
 
     await expect(entryA).toHaveCount(0);
-    const doneA = await doneSessionsOnUnfinishedCard(page, titleA);
+    const doneA = await shownDoneSessionEntriesOf(page, titleA);
     await expect(sessionStateOf(doneA)).toHaveText("Done");
     await expect(doneA).toContainText(`Intended name ${doneName}`);
     await expect(doneA).toContainText(
@@ -224,7 +224,7 @@ test("a completed report marks done at once only while the session neither works
     await markDone(entryA);
 
     await expect(entryA).toHaveCount(0);
-    const doneA = await doneSessionsOnUnfinishedCard(page, titleA);
+    const doneA = await shownDoneSessionEntriesOf(page, titleA);
     await expect(sessionStateOf(doneA)).toHaveText("Done");
     expect(dashboard.claudeStopCalls().slice(before)).toEqual([
       expect.objectContaining({ argv: ["stop", shortId] }),

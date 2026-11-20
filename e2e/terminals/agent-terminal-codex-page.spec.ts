@@ -12,7 +12,7 @@ import {
 import {
   chooseProject,
   storyCardSessions,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
@@ -74,7 +74,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     })),
   }));
   const { card } = await settledAfterBoundaryLaunch(page);
-  const doneEntry = await doneSessionsOnUnfinishedCard(
+  const doneEntry = await shownDoneSessionEntriesOf(
     page,
     notRefinedStory,
     native.threadId,
@@ -186,7 +186,7 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
   await settledAfterBoundaryLaunch(page);
   codexTerminalMode(native, "partial");
   await openTerminalControl(
-    await doneSessionsOnUnfinishedCard(page, notRefinedStory, native.threadId),
+    await shownDoneSessionEntriesOf(page, notRefinedStory, native.threadId),
   ).click();
   const terminal = terminalScreen(page);
   await terminal.expectText("retained startup draft");

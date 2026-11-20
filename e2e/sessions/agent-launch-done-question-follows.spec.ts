@@ -15,7 +15,7 @@ import {
   storyCardSessions,
   parts,
   sessionStateOf,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
@@ -107,7 +107,7 @@ async function questionFollowsReadings(
 
 async function expectDone(page: Page, entry: Locator) {
   await expect(entry).toHaveCount(0);
-  const doneEntry = await doneSessionsOnUnfinishedCard(page, titleA);
+  const doneEntry = await shownDoneSessionEntriesOf(page, titleA);
   await expect(sessionStateOf(doneEntry)).toHaveText("Done");
 }
 
