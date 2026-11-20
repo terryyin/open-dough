@@ -33,13 +33,13 @@ intent introduced or affected by a newly developed story.
 - [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes ([plan](slice-plans/739-review-published-session-changes/PLAN.md))
 - [Test Review diff reading's data logic directly and drop "mounted" from frontend test names](seeds/SEED-413-renovate-dashboard-unit-tests.md#reduce-review-diff-reading-to-logic-cases) — SEED-413#reduce-review-diff-reading-to-logic-cases ([plan](slice-plans/744-reduce-review-diff-reading-to-logic-cases/PLAN.md))
 - [Observe Done deliveries over typed kept records](seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records) — SEED-413#observe-done-deliveries-over-typed-records ([plan](slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md))
+- [Prove ad hoc review handoffs with typed handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers) — SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers ([plan](slice-plans/742-prove-ad-hoc-review-handoffs/PLAN.md))
 
 ## Backlog list
 
 - [Restore Done capture proof and focus session Review tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews) — SEED-413#restore-done-capture-proof-after-composed-reviews
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
-- [Prove ad hoc review handoffs with typed handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers) — SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context

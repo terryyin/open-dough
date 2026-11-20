@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers",
+  "mode": "story-branch",
+  "branch": "cursor/prove-ad-hoc-review-handoffs-with-typed-handlers",
+  "host": "cursor",
+  "model": "gemini-4-carbon"
+}
