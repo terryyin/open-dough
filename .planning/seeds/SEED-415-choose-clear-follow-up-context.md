@@ -34,18 +34,29 @@ associate with the comment or note they describe.
 - The developer clears every optional checkbox and sends the follow-up. The
   message still includes the story information and the developer's follow-up
   request.
-- Available earlier follow-up messages, previous reports, notes, and other
-  supporting context have labeled checkboxes with details collapsed by default.
-  The developer can expand the details before deciding what to send. Expanding
-  or collapsing details leaves the checkbox selection as it was. The message
-  includes only the supporting context selected for this send.
-- A line follow-up includes a new comment, a selected story-wide note, and a
-  selected note on another line. The message uses clearly named XML opening and
-  closing tags to group the story information, current follow-up, and each
-  selected item by what it refers to. The current comment carries its file and
-  line target, the story-wide note is identified as such, and the line note
-  carries its own file, line, and diff side where applicable. A file-wide note
-  carries its file path.
+- Each involved session has its own checkbox. Its details show retained context,
+  such as the original request or earlier follow-up and the final report. One
+  checkbox includes the available line notes together. Expanding or collapsing
+  either kind of detail leaves the checkbox selection as it was. Details start
+  collapsed.
+- A developer follows up on a new-side line and selects one of two involved
+  sessions and the line notes. Paired tags mark the boundaries of the story,
+  current follow-up, each selected session, and the line notes. The content
+  inside each section is plain text. The current request and each note identify
+  their own file, line, and diff side.
+- When the published Done JSON records a selected session's UUID, include the
+  UUID in that session's section so the receiving session can find the related
+  commits. Include the commit list or range there when it can be resolved from
+  that UUID. A session with an older Done record still contributes its retained
+  context.
+
+**Design reference.** The [interactive Follow up mockup](../evidence/SEED-415-follow-up-context.html)
+opens on a diff-line request with all optional items unchecked. Select
+**Syntax styling review** and **Line notes**, then use **Start session** to
+inspect the example message in a simulated receiving session.
+
+Carry this reference and its cleanup into the slice plan. At story wrap-up,
+delete the mockup and remove its planning links.
 
 **Related work.** [Richer Done follow-up card cues](SEED-395-richer-done-follow-up-card-cues.md#richer-done-follow-up-card-cues)
 also discusses making earlier follow-ups available as context. This story

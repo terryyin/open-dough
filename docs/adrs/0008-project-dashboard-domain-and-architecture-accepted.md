@@ -106,12 +106,11 @@ are Side panel contents, not names for the shared region. Layout and scrolling m
 
 ### Durable project state and local operational state
 
-The project's repository owns durable workflow records. The dashboard reads
-those records to construct its view; it is not an independent authority for
-backlog membership, developer assignments, or progress. Any derived cache or
-display model must be rebuildable from its sources rather than becoming the
-only home of project state. Completing work leaves a short published done
-record beside the backlog, which the dashboard reads like any other record.
+The project repository owns the workflow records for backlog membership,
+developer assignments, and published progress. A done record beside the backlog
+identifies each completed story. Each session that publishes work has its own
+record linking the session to its changes and, where applicable, its story.
+The dashboard can rebuild its views and caches from their sources.
 
 Project configuration is machine-local operational state, separate from the
 observed repositories' workflow records. There is no application/server
@@ -128,9 +127,9 @@ origin so the reader can locate published progress. Trunk Mode needs no remote
 story-branch field. Local branch and worktree locations belong to the local
 operational view rather than required remote backlog metadata.
 
-Machine-local session evidence supplements the published view without owning
-its workflow facts. Owned-workspace activity and optional default-checkout
-refresh outcomes remain separate local operational concerns. Missing observation
+Launch records and live session activity are machine-local. Owned-workspace
+activity and optional default-checkout refresh outcomes remain separate local
+operational concerns. Missing observation
 means local activity is unknown; an observed absence of a default checkout is a normal
 condition, not blocked work. Published progress remains visible independently
 of that local evidence.
