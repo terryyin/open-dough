@@ -1,0 +1,68 @@
+/* Scan emphasis on an unfinished story card: compact progress in the meta
+   line, current session wash, quieter inspection actions. Loaded with
+   ./story-cards.css via ./dashboardStyles.ts. */
+
+/* Compact Taken progress sits on the meta line with assignment; gaps that
+   need a sentence take the full row beneath. Fixed ticks match the scan
+   mockup; default bar sizing stays in ./slice-progress.css. */
+.story-card-meta > .story-card-progress {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  color: var(--quiet);
+}
+
+.story-card-meta > .story-card-progress:has(.preparation-problem),
+.story-card-meta > .story-card-progress:has(> .quiet) {
+  flex-basis: 100%;
+}
+
+.story-card-meta .slice-bar {
+  flex: none;
+  width: auto;
+  height: 4px;
+  gap: 2px;
+}
+
+.story-card-meta .slice-segment {
+  flex: none;
+  width: 8px;
+  border-radius: 2px;
+}
+
+.story-card-meta .slice-facts,
+.story-card-meta .slice-count,
+.story-card-meta .slice-clock,
+.story-card-meta .progress-source,
+.story-card-meta .execution-complete {
+  font-size: var(--text-xs);
+}
+
+/* Current open sessions on the card carry the strongest wash; Done rows keep
+   the quieter raised surface from story-card-done.css. */
+.story-card .story-card-sessions .session-entry {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+
+/* Inspection and quiet Reviewed stay reachable but quieter than the current
+   session; the outstanding Mark as reviewed warning keeps its filled red. */
+.story-card-inspection-group {
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+}
+
+.story-card-inspection-group .inspect-story,
+.story-card-inspection-group .start-launch-button:not(.story-review-state-needed) {
+  color: var(--quiet);
+  border-color: transparent;
+  background: transparent;
+}
+
+.story-card-inspection-group .inspect-story:hover:not(:disabled),
+.story-card-inspection-group
+  .start-launch-button:not(.story-review-state-needed):hover:not(:disabled) {
+  background: var(--hover);
+}

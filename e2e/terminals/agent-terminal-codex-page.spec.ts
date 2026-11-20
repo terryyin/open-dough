@@ -12,7 +12,7 @@ import {
 import {
   chooseProject,
   storyCardSessions,
-  parts,
+  doneSessionsOnUnfinishedCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
@@ -74,12 +74,14 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     })),
   }));
   const { card } = await settledAfterBoundaryLaunch(page);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: native.threadId });
+  const doneEntry = await doneSessionsOnUnfinishedCard(
+    page,
+    notRefinedStory,
+    native.threadId,
+  );
   const terminal = terminalScreen(page);
   codexTerminalMode(native, "review");
-  await openTerminalControl(recent).click();
+  await openTerminalControl(doneEntry).click();
   await terminal.expectText("Hooks need review");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
   await expect(markAsDone(terminal.panel)).toHaveCount(1);
@@ -184,9 +186,7 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
   await settledAfterBoundaryLaunch(page);
   codexTerminalMode(native, "partial");
   await openTerminalControl(
-    parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: native.threadId }),
+    await doneSessionsOnUnfinishedCard(page, notRefinedStory, native.threadId),
   ).click();
   const terminal = terminalScreen(page);
   await terminal.expectText("retained startup draft");

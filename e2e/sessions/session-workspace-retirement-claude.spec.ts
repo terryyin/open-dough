@@ -13,11 +13,11 @@ import {
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  parts,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
+  doneSessionsOnUnfinishedCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
@@ -111,17 +111,19 @@ test("retired Claude preparation opens retained report after refresh without wak
   expect(doneAt).toBeDefined();
   await reloadUntilRead(page);
   await settled();
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: record.session.sessionId });
-  await expect(recent).toContainText("Done");
+  const doneEntry = await doneSessionsOnUnfinishedCard(
+    page,
+    notRefinedStory,
+    record.session.sessionId,
+  );
+  await expect(doneEntry).toContainText("Done");
   await expect(card(notRefinedStory)).toBeVisible();
   await expect(card(notRefinedStory)).toContainText("Not assessed as ready");
   await expect(
     card(notRefinedStory).getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();
   await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
-  await readFinalReport(recent);
+  await readFinalReport(doneEntry);
   await expect(reportText).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
 });
@@ -158,9 +160,11 @@ for (const context of ["preparation", "start"] as const) {
     });
     const { settled } = await openStoryColumnsJourney(page, journey);
     await settled();
-    const entry = parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: record.session.sessionId });
+    const entry = await doneSessionsOnUnfinishedCard(
+      page,
+      notRefinedStory,
+      record.session.sessionId,
+    );
     const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     rmSync(workspace, { recursive: true });

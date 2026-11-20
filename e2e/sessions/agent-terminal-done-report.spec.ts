@@ -16,6 +16,7 @@ import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
+  doneSessionsOnUnfinishedCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import {
@@ -86,14 +87,12 @@ test("Mark as done in the terminal closes a session with an unread report as any
   await markDoneAnyway(terminal);
 
   await expect(terminal).toHaveCount(0);
-  await expect(sessionStateOf(card)).toHaveCount(0);
+  await expect(storyCardSessions(card)).toHaveCount(0);
   await expect(row).toHaveCount(0);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: titleA });
-  await expect(sessionStateOf(recent)).toHaveText("Done");
-  await expect(sessionUnreadReportOf(recent)).toHaveCount(0);
-  await expect(recent).toContainText(`Named ${doneName}`);
+  const doneEntry = await doneSessionsOnUnfinishedCard(page, titleA);
+  await expect(sessionStateOf(doneEntry)).toHaveText("Done");
+  await expect(sessionUnreadReportOf(doneEntry)).toHaveCount(0);
+  await expect(doneEntry).toContainText(`Named ${doneName}`);
   expect(
     dashboard
       .claudeListing()
@@ -128,10 +127,8 @@ test("in the terminal, a session with a read completed report that reads Ready f
 
   await expect(panel).toHaveCount(0);
   await expect(entry).toHaveCount(0);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: titleA });
-  await expect(sessionStateOf(recent)).toHaveText("Done");
+  const doneEntry = await doneSessionsOnUnfinishedCard(page, titleA);
+  await expect(sessionStateOf(doneEntry)).toHaveText("Done");
   expect(dashboard.claudeStopCalls().slice(before)).toEqual([
     expect.objectContaining({ argv: ["stop", shortId] }),
   ]);

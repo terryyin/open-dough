@@ -15,6 +15,7 @@ import {
   storyCardSessions,
   parts,
   sessionStateOf,
+  doneSessionsOnUnfinishedCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
@@ -106,10 +107,8 @@ async function questionFollowsReadings(
 
 async function expectDone(page: Page, entry: Locator) {
   await expect(entry).toHaveCount(0);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: titleA });
-  await expect(sessionStateOf(recent)).toHaveText("Done");
+  const doneEntry = await doneSessionsOnUnfinishedCard(page, titleA);
+  await expect(sessionStateOf(doneEntry)).toHaveText("Done");
 }
 
 test("on a card, the open question follows the session's reading and goes away once it is complete", async ({

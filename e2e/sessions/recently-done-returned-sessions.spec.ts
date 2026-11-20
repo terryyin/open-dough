@@ -1,7 +1,7 @@
 // A launch the dashboard closed as returned to the backlog reads "Returned to
-// backlog" where a Done session reads "Done", under the existing Recently
-// done rules: standalone while its story is queued or taken again, and inside
-// the done-story card beside the story's later launch once that completes it.
+// backlog" where a Done session reads "Done", under the unfinished card's Done
+// disclosure while its story is queued or taken again, and inside the
+// done-story card beside the story's later launch once that completes it.
 // A later launch keeps its own placement and reading. A native session still
 // working keeps its note, and reopening restores the native reading. How the
 // dashboard closes it is
@@ -12,9 +12,11 @@ import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectMembership,
+  expandStoryCardDoneHistory,
   parts,
   sessionEntryShowing,
   sessionStateOf,
+  storyCardDoneDisclosure,
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
@@ -33,7 +35,6 @@ import {
 import {
   expectEntries,
   listed,
-  queuedEntry,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
@@ -60,7 +61,7 @@ const returnedLaunch = (now: number, sessionId: string) =>
     .markedDoneAt(at(now, 4 * hour))
     .please();
 
-test("a launch returned to the backlog reads Returned to backlog once in Recently done while its story is queued or taken again, and inside the done-story card beside the later launch that completes it", async ({
+test("a launch returned to the backlog reads Returned to backlog under the unfinished card while queued or taken again, and inside the done-story card beside the later launch that completes it", async ({
   page,
   dashboard,
 }) => {
@@ -103,12 +104,16 @@ test("a launch returned to the backlog reads Returned to backlog once in Recentl
   const { board, backlog, taken, recentlyDone: recent } = parts(page);
   const returnedKey = `claude:${returnedId}`;
   const laterKey = `claude:${laterId}`;
-  const returned = sessionEntryShowing(recent, returnedKey);
 
   const expectApartFrom = async (column: typeof backlog) => {
-    await expectEntries(recent, [queuedEntry]);
+    await expectEntries(recent, []);
+    const card = storyCard(column, queuedTitle);
+    const disclosure = storyCardDoneDisclosure(card);
+    await expect(disclosure).toContainText("1");
+    await expandStoryCardDoneHistory(card);
+    const returned = sessionEntryShowing(card, returnedKey);
     await expect(sessionStateOf(returned)).toHaveText("Returned to backlog");
-    const inCard = storyCardSessions(storyCard(column, queuedTitle));
+    const inCard = storyCardSessions(card);
     await expect(inCard).toHaveCount(1);
     await expect(inCard).toHaveAttribute("data-shows-session", laterKey);
     await expect(sessionStateOf(inCard)).toHaveText("Working");
@@ -116,12 +121,12 @@ test("a launch returned to the backlog reads Returned to backlog once in Recentl
       await expect(sessionEntryShowing(board, key)).toHaveCount(1);
   };
 
-  await test.step("while the story is queued, the returned launch is one standalone Recently done entry and the queued card holds only the later launch", async () => {
+  await test.step("while the story is queued, the returned launch sits in the card's Done disclosure and the queued card holds the later launch", async () => {
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
     await expectApartFrom(backlog);
   });
 
-  await test.step("when the story is taken again, the later launch sits in its Taken card and the returned launch stays in Recently done", async () => {
+  await test.step("when the story is taken again, the later launch sits in its Taken card and the returned launch stays in that card's Done disclosure", async () => {
     origin.moveTrunk(published.retaken);
     await reloadUntilRead(page);
     await expectMembership(page, { taken: [queuedTitle], backlog: [] });
@@ -153,7 +158,7 @@ test("a launch returned to the backlog reads Returned to backlog once in Recentl
   });
 });
 
-test("a returned launch whose native session still works keeps that note wherever it reads Returned to backlog, and reopening it restores its native reading", async ({
+test("a returned launch whose native session still works keeps that note under the unfinished card, and reopening it restores its native reading", async ({
   page,
   dashboard,
 }) => {
@@ -166,12 +171,14 @@ test("a returned launch whose native session still works keeps that note whereve
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
   const { backlog, recentlyDone: recent } = parts(page);
   const returnedKey = `claude:${returnedId}`;
+  const card = storyCard(backlog, queuedTitle);
+  await expandStoryCardDoneHistory(card);
+  const inCard = sessionEntryShowing(card, returnedKey);
   const inRecent = sessionEntryShowing(recent, returnedKey);
-  const inCard = sessionEntryShowing(backlog, returnedKey);
   const stillWorking = "Returned to backlog: Native session is still working";
 
-  await expect(sessionStateOf(inRecent)).toHaveText(stillWorking);
-  await expect(inCard).toHaveCount(0);
+  await expect(sessionStateOf(inCard)).toHaveText(stillWorking);
+  await expect(inRecent).toHaveCount(0);
   const sidebar = await showRecentlyDone(page);
   await expectSessionsSidebarSessionEntryShown(
     sidebar.row(queuedTitle),

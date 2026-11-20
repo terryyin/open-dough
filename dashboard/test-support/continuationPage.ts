@@ -1,8 +1,12 @@
 // Saved continuation context on the open Codex card entry and closed Claude
-// Recently done entry of the mixed-host story.
+// Done-history entry of the mixed-host story.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { storyCardSessions, parts } from "./dashboardPage.ts";
+import {
+  doneSessionsOnCard,
+  parts,
+  storyCardSessions,
+} from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { CodexSession } from "../src/agentLaunch.ts";
 import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
@@ -33,11 +37,12 @@ export async function expectMixedContinuation(
       .recentlyDone.getByRole("article")
       .filter({ hasText: "Refinement started in Codex" }),
   ).toHaveCount(0);
-  const claude = parts(page).recentlyDone.getByRole("article").filter({
-    hasText: "Refinement started in Claude Code",
-  });
-  // A Claude session marked done to allow the Codex launch leaves the card;
-  // Recently done still lists it.
+  // A Claude session marked done to allow the Codex launch stays on this
+  // unfinished card under Done history.
+  const claude = await doneSessionsOnCard(
+    card,
+    "Refinement started in Claude Code",
+  );
   await expect(claude.locator("p", { hasText: /^Continue in / })).toHaveCount(
     0,
   );

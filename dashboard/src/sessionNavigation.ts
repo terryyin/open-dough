@@ -11,6 +11,7 @@ import { sessionKey } from "./sessionReference.ts";
 import { sessionEntry, storyShown } from "./pageEntries.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
 import { onSessionsSidebar } from "./sessionsSidebarElements.ts";
+import { storyCardDoneClass } from "./storyCardDone.ts";
 import { keepInView, storyCard } from "./storyCardFocus.ts";
 
 // Where a going lands: the session's entry, or, given `story`, that done
@@ -32,11 +33,12 @@ export function useSessionNavigation(
 ) {
   // Going to a session: its project's stories, its terminal where it opens
   // one, and, once that project's membership is known, its actual session
-  // entry brought into view. An active story card holds its open sessions;
-  // standalone entries and closed sessions are revealed in their current home,
-  // which for a saved Done session beyond Recently done's shown entries the
-  // page's range first extends through (`./recentlyDoneRange.ts`). Each going
-  // is its own, so going again to the same session reveals again.
+  // entry brought into view. An active story card holds its open sessions and
+  // its Done disclosure; standalone entries and other closed sessions are
+  // revealed in their current home, which for a saved Done session beyond
+  // Recently done's shown entries the page's range first extends through
+  // (`./recentlyDoneRange.ts`). Each going is its own, so going again to the
+  // same session reveals again.
   const [going, setGoing] = useState<Going>();
   const revealed = useRef<Going | undefined>(undefined);
   useLayoutEffect(() => {
@@ -94,10 +96,15 @@ export function useSessionNavigation(
 }
 
 // What a going reveals, once shown: the done story's card, or the session's
-// entry, its containing active card, or its story's card.
+// entry, its containing active card, or its story's card. A Done disclosure
+// on an unfinished card opens so a nested entry can be kept in view.
 function landing(going: Going): HTMLElement | null {
   if (going.story !== undefined) return storyShown(going.story);
   const entry = sessionEntry(sessionKey(going.to.session));
+  const disclosure = entry?.closest<HTMLDetailsElement>(
+    `details.${storyCardDoneClass}`,
+  );
+  if (disclosure !== null && disclosure !== undefined) disclosure.open = true;
   const { identity } = launchSubject(going.to.request);
   return (
     entry?.closest<HTMLElement>("[data-story-card]") ??

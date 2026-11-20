@@ -17,6 +17,7 @@ import {
   launchWorkflows,
   openSessionStartReason,
 } from "./agentLaunch.ts";
+import { storyCardAssignmentsOf } from "./agentAssignments.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
 import { StartupStatus } from "./StartupStatus.tsx";
@@ -236,14 +237,7 @@ export function StoryCardLaunches({
       <StoryCardSessions
         sessions={sessions}
         launchedHere={launchedHere}
-        storyCardAssignments={[
-          ...(entry.owner?.status === "recorded"
-            ? entry.owner.assignments
-            : []),
-          ...(entry.preparing?.status === "recorded"
-            ? entry.preparing.assignments
-            : []),
-        ]}
+        storyCardAssignments={storyCardAssignmentsOf(entry)}
       />
     </>
   );

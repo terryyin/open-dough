@@ -38,7 +38,7 @@ export const publishedFactsOf = async (card: Locator) => {
           return null;
         const copy = element.cloneNode(true) as HTMLElement;
         const localPresentation = copy.querySelectorAll(
-          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason, .story-card-preparation .badge-ready",
+          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason, .story-card-preparation .badge-ready, .story-card-done",
         );
         for (const part of localPresentation) part.remove();
         return copy.textContent;
