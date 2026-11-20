@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Mark ad hoc sessions Done in their own cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#remove-ad-hoc-done-helper) — SEED-413#remove-ad-hoc-done-helper
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
 - [Prove what Done keeps of a Default main session's commits in-process](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
