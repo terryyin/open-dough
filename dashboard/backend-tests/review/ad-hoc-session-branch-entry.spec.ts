@@ -1,10 +1,12 @@
 // A Default main launch identifies its own branch: the entry keeps the state
 // and Default main tip it found, and Done reviews the branch apart from the
 // captured Default main commits.
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   aDeclaringLaunch,
@@ -14,6 +16,7 @@ import {
   aCheckout,
   aCheckoutWithCanonicalWorktree,
   aDefaultLaunch,
+  canonicalGitDirectory,
   type Checkout,
   historyBeforeTheCase,
   inWorktree,
@@ -28,12 +31,11 @@ const branch = "draft";
 
 const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
 
-// A kept launch that committed on main, then identified the draft worktree
-// holding a commit and an uncommitted edit of its own.
-async function aDeclaredDraft() {
+// A launch that committed on main while the draft worktree took a commit and
+// an uncommitted edit of its own.
+async function aDraftBeforeEntry() {
   const { checkout, workspace } = await aDraftWorktree();
-  const record = aDeclaringLaunch(checkout, { sessionId: "declared" }).please();
-  keep(record);
+  const launch = aDeclaringLaunch(checkout, { sessionId: "declared" });
   const { onMain } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("onMain", {
@@ -47,8 +49,17 @@ async function aDeclaredDraft() {
       .committing("entered", { at: minutesAgo(45) })
       .editing("prior-draft", { at: minutesAgo(44) }),
   );
+  return { checkout, workspace, launch, onMain, entered };
+}
+
+// That launch, kept, then identified the draft worktree as its branch.
+async function aDeclaredDraft() {
+  const { launch, ...draft } = await aDraftBeforeEntry();
+  const record = launch.please();
+  keep(record);
+  const { checkout, workspace } = draft;
   const entry = await identifyBranch(checkout, record, { workspace, branch });
-  return { checkout, workspace, record, onMain, entered, entry };
+  return { ...draft, record, entry };
 }
 
 const mainMoves = (checkout: Checkout) =>
@@ -79,7 +90,14 @@ test("a declared branch keeps its entry state and Default main tip after main mo
 });
 
 test("Done reviews a declared branch apart from the Default main commits before its entry", async () => {
-  const { checkout, workspace, record, onMain, entry } = await aDeclaredDraft();
+  const { checkout, workspace, launch, onMain } = await aDraftBeforeEntry();
+  const { entry } = await proposeBranchEntry(
+    "refs/heads/main",
+    launch.please(),
+    { workspace, branch },
+  );
+  const record = launch.enteredBranch(entry).please();
+  keep(record);
   const { result } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("result", {
@@ -121,13 +139,25 @@ test("two declared sessions each review their own branch", async () => {
       .withWorkspace("other", { from: "base" }),
     withOrigin: true,
   });
-  const workspace = checkout.execution ?? "";
-  const other = path.join(checkout.integration, ".worktrees", "other");
-  const record = aDeclaringLaunch(checkout, { sessionId: "first" }).please();
-  const second = aDeclaringLaunch(checkout, { sessionId: "second" }).please();
+  const workspace = realpathSync(checkout.execution ?? "");
+  const other = realpathSync(
+    path.join(checkout.integration, ".worktrees", "other"),
+  );
+  const { base } = checkout;
+  const { stdout } = await git(workspace, "rev-parse", `${base}^{tree}`);
+  const atBase = {
+    repository: canonicalGitDirectory(checkout),
+    committedTip: base,
+    tree: stdout.trim(),
+    trunk: { remote: "origin", target: "refs/heads/main", revision: base },
+  };
+  const record = aDeclaringLaunch(checkout, { sessionId: "first" })
+    .enteredBranch({ ...atBase, workspace, branch })
+    .please();
+  const second = aDeclaringLaunch(checkout, { sessionId: "second" })
+    .enteredBranch({ ...atBase, workspace: other, branch: "other" })
+    .please();
   keep(record, second);
-  await identifyBranch(checkout, record, { workspace, branch });
-  await identifyBranch(checkout, second, { workspace: other, branch: "other" });
   const [{ ours }, { theirs }] = await Promise.all([
     work(
       inWorktree(checkout, workspace),

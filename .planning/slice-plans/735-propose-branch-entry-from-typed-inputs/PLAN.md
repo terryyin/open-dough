@@ -190,6 +190,14 @@ selection for two sessions, the imported-versus-local line diff, and the
 and the consumer trace's users of the changed MakeMe builder, including
 Distribution readers that consume its launch record.
 
+**Learning.** `makeMe.aLaunchRecord` gained `enteredBranch(entry)` in
+`launchOutcomeTestData.mjs` (248 of 250 lines; the next outcome step needs
+the planned move of capture evidence steps). A composed entry needs `trunk`
+and canonical workspace paths. Review and attribution cases still run real
+Done capture because no composed Done state has landed. At load 18–35 every
+Git-heavy case in these specs, including the unchanged adapter case, ran
+4.6–5.1 s and timed out; hosted CI proves this slice's revision.
+
 ### 5. Declared publication starts from a composed kept entry
 
 Type: Behavior

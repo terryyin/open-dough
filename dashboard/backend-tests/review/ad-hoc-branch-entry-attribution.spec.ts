@@ -4,12 +4,14 @@
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { aDeclaredBranch } from "../support/declaredBranchCase.ts";
+import { aDeclaringLaunch } from "../support/declaredBranchCase.ts";
 import {
   aCheckoutWithWorktree,
   type Checkout,
   inWorktree,
+  keep,
   markDone,
   minutesAgo,
   work,
@@ -23,10 +25,20 @@ const branch = "topic";
 const aTopicWorktree = () =>
   aCheckoutWithWorktree(branch, { "shared.txt": "original\n" });
 
-// A Default main launch that then identified the existing topic worktree as
-// its branch, with whatever the worktree already held.
-const aDeclaredTopic = (checkout: Checkout, workspace: string) =>
-  aDeclaredBranch(checkout, { workspace, branch });
+// A kept Default main launch that then identified the existing topic worktree
+// as its branch, entering it with whatever the worktree already held and the
+// trunk it observed then.
+async function aDeclaredTopic(checkout: Checkout, workspace: string) {
+  const launch = aDeclaringLaunch(checkout);
+  const { entry } = await proposeBranchEntry(
+    "refs/heads/main",
+    launch.please(),
+    { workspace, branch },
+  );
+  const record = launch.enteredBranch(entry).please();
+  keep(record);
+  return { record, entry };
+}
 
 test("a declared branch's saved comparison shows only its new work and its edit to imported text", async () => {
   const { checkout, workspace } = await aTopicWorktree();

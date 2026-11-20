@@ -39,6 +39,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   returnedToBacklog?: boolean,
  *   sessionCommits?: KeptSessionCommits,
  *   sessionCommitsFailedAt?: string,
+ *   branchEntry?: import("../../../dashboard/src/sessionBranchResult.ts").SessionBranchEntry,
  * }} LaunchOutcome
  */
 
@@ -144,6 +145,16 @@ export class LaunchOutcomeBuilder {
     return this;
   }
 
+  /**
+   * The session identified this checkout as its own branch, entering it in
+   * the state and with the Default main tip the entry states.
+   * @param {NonNullable<LaunchOutcome["branchEntry"]>} entry
+   */
+  enteredBranch(entry) {
+    this.#outcome = { ...this.#outcome, branchEntry: structuredClone(entry) };
+    return this;
+  }
+
   /** The Done time whose checkout read failed. @param {string} at */
   sessionCommitsFailedAt(at) {
     this.#outcome = { ...this.#outcome, sessionCommitsFailedAt: at };
@@ -196,6 +207,7 @@ export class LaunchOutcomeBuilder {
       returnedToBacklog,
       sessionCommits,
       sessionCommitsFailedAt,
+      branchEntry,
     } = this.#outcome;
     const report = completion && finalReport(completion, at);
     const landing =
@@ -224,6 +236,7 @@ export class LaunchOutcomeBuilder {
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
       ...(sessionCommitsFailedAt !== undefined && { sessionCommitsFailedAt }),
+      ...(branchEntry && { branchEntry: structuredClone(branchEntry) }),
       ...(sessionCommits && {
         sessionCommits: {
           ...structuredClone(sessionCommits),
