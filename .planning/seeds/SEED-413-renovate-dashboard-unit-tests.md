@@ -73,6 +73,60 @@ and deleted `test-support` surface together under
 
 ## Story decomposition
 
+<a id="arrange-done-ad-hoc-observation-and-publication"></a>
+
+### Arrange Done ad hoc sessions directly for delivery observation and publication
+
+**Identity:** SEED-413#arrange-done-ad-hoc-observation-and-publication
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Correction of `SEED-413#remove-ad-hoc-done-helper`, whose execution inlined
+`markAdHocDone` into 25 call sites. Each repeated three lines (list the
+session `done-live`, post Done, assert 200), so the same Done ritual ran in
+every case. Terry rejected the result: when Done is the topic, it should not
+need that many tests, and when it is only a precondition, the case should
+compose the state directly.
+
+Done so far, in the commits "Arrange ad hoc branch results from kept records
+and mark Done directly" and "Check manual delivery at Done from kept records":
+the 16 cases where Done is the topic are now plain
+Vitest. They are branch attribution, branch result and its release, and the
+manual delivery check at Done. Each keeps a MakeMe isolated record, works in
+real Git, and marks Done once through the production `setRecordDoneAt`, as
+the Done capture family does. `markDone` from `agentLaunchBoundary.ts` and
+`claudeSessionBecomes(…, "done-live")` remain only where Done is a
+precondition.
+
+- **Goal.** In the remaining cases, Done is only the state a later behavior
+  starts from. Arrange it once from kept records through the production seam,
+  and have no case launch a session, list it finished in the fake Claude
+  listing, or post Done over HTTP to reach that state.
+- **Scope.** The 9 remaining call sites:
+  - Board-read delivery observation:
+    `review/ad-hoc-manual-landing-observation.spec.ts` (2),
+    `review/ad-hoc-manual-landing-observation-retry.spec.ts` (2), and
+    `review/ad-hoc-manual-landing-observation-lifecycle.spec.ts` (its
+    `doneBranch`, used by 3 cases).
+  - Publication through the installed publisher:
+    `review/ad-hoc-manual-landing-precedence.spec.ts` (prepared receipt
+    after Done, 1), `review/ad-hoc-session-comparisons.spec.ts` (1), and
+    `launches/agent-launch-session-branch-landing.spec.ts` (2).
+- **Seams to name at planning.** Observation runs fire-and-forget from
+  `observeProjectRevision` (`dashboard/server/observedSessionLandings.ts`)
+  behind a module-level `observations` memo. Expose the capture with typed
+  inputs and give the memo an explicit owner, so a case keeps its Done
+  records, publishes trunk, and awaits one observation. Keep the restart,
+  held-validation and expiry races as unit cases of that owner, or move one
+  to `e2e/` only if a process is essential. The publication cases need the
+  landing handler behind `/__agent-launch/landing` and its prepare step as a
+  typed entry.
+- **Evaluation.** `grep -rn 'markDone(dashboard' dashboard/backend-tests`
+  finds no ad hoc review or launch landing case. `adHocReview.ts` loses
+  `launchIsolatedReview` and `keptAdHocRecord` once no consumer remains.
+  Every moved case keeps its inputs and expected outcomes.
+
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -130,7 +184,10 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
      result with its handoff (115 s in 18 cases) and manual landing (94 s in
      12 cases), on the Done seam the capture family shows; then Done's
      lifecycle (native and reported Done, the held checkout read) and record
-     deletion and expiry (about 24 s in 14 cases).
+     deletion and expiry (about 24 s in 14 cases). Attribution, branch result
+     release and the manual check at Done already moved under
+     [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication),
+     which owns the observation and publication cases next.
   2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and
      `SEED-319`. Preserve freshness, invalidation, and close behavior when
      moving reads to typed handler inputs. Check whether those inputs can
