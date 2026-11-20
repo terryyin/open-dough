@@ -6,7 +6,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sessionBranchPins } from "../../test-support/support/adHocReview.ts";
+import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaringLaunch,
   identifyBranch,

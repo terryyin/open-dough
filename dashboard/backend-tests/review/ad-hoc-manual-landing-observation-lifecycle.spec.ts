@@ -11,7 +11,7 @@ import { launchRetentionDays } from "../../src/launchRecord.ts";
 import {
   landingPins,
   sessionBranchPins,
-} from "../../test-support/support/adHocReview.ts";
+} from "../../test-support/support/adHocBranchRefs.ts";
 import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   observedTrunk,

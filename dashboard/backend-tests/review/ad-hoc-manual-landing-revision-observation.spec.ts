@@ -8,7 +8,7 @@ import { sessionLandingObservations } from "../../server/observedSessionLandings
 import {
   landingPins,
   sessionBranchPins,
-} from "../../test-support/support/adHocReview.ts";
+} from "../../test-support/support/adHocBranchRefs.ts";
 import {
   anIsolatedBranch,
   inWorktree,

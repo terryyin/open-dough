@@ -9,7 +9,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   retireAdHocBranch,
   sessionBranchPins,
-} from "../../test-support/support/adHocReview.ts";
+} from "../../test-support/support/adHocBranchRefs.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   aCheckout,

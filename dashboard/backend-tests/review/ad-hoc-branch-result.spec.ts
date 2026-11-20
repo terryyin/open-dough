@@ -19,7 +19,7 @@ import {
 import {
   retireAdHocBranch,
   sessionBranchPins,
-} from "../../test-support/support/adHocReview.ts";
+} from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   anIsolatedLaunch,

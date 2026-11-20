@@ -6,7 +6,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { keptAttempts } from "../../server/launchAttemptStore.ts";
-import { retireAdHocBranch } from "../../test-support/support/adHocReview.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { markDone } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";

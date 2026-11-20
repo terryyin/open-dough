@@ -8,7 +8,7 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
-import { retireAdHocBranch } from "../../test-support/support/adHocReview.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
   anIsolatedBranch,

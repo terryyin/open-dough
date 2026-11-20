@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deleteRecord } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { sessionBranchPins } from "../../test-support/support/adHocReview.ts";
+import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   aHeldDone,

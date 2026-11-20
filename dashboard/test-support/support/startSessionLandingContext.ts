@@ -77,7 +77,7 @@ export function land(
   );
 }
 
-export function publishSessionLanding(
+function publishSessionLanding(
   publication: {
     readonly workspace: string;
     readonly branch: string;

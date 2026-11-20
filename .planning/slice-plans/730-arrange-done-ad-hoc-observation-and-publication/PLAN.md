@@ -276,6 +276,15 @@ deferred branch and session-commits cases.
   before-push read and `retryInstalledLanding`. Another launch's reference
   is refused 409 only when that launch has an accepted attempt with its
   reporting context; otherwise the receiver answers 404.
+- Slice 8: the blank case lives in
+  `launches/declared-blank-launch-publication.spec.ts`; the Playwright
+  landing spec and `declaredSessionLanding.ts` are gone, and the Git ref
+  helpers moved to runner-neutral `adHocBranchRefs.ts`. The ADR 0010
+  comparison (evidence `t-report.md`, `--workers=2`, baseline `3c7d21aaa`)
+  gave a median scoped sum of 24.1 s against 51.3 s and wall time of
+  19.8 s against 30.8 s at load 6–12. It removed 89 launch, listing and
+  HTTP Done helper calls. At load 14–16, three of five replacement runs
+  timed out two or three Vitest cases at 5 s, which G1 holds.
 
 ## Local gates
 
@@ -304,3 +313,12 @@ removed support callers and remaining shared consumers.
 Each of the eight Structure slices owns a proof loop sized for 15 active
 minutes. The two shared seams sit with their first migrated cases. This
 review found no remaining concern requiring slice-plan refinement.
+
+
+## Story obligations
+
+### G1. Migrated Done cases time out locally under load
+Reported: slice 8 — "Measured cases halve the scoped time (median 24.1 s vs 51.3 s at load 6–12) but 3 of 5 replacement runs at load 14–16 timed out 2–3 Vitest cases at the 5 s default, while baseline Playwright runs passed (evidence t-report.md)"
+Story clause: "Give dashboard maintainers faster, compile-time-checked proof"
+Disposition: return
+Commitment: 9
