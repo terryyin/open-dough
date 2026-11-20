@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-413#arrange-done-ad-hoc-observation-and-publication",
+  "mode": "story-branch",
+  "branch": "claude/arrange-done-ad-hoc-sessions-directly-for-delive",
+  "host": "claude"
+}
