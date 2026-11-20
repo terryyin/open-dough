@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maki-chan",
-  "email": "maki-chan@example.org",
-  "identity": "SEED-413#optimization-candidates-revision-cases",
-  "mode": "story-branch",
-  "branch": "claude/read-the-optimization-candidates-record-across-s",
-  "host": "claude"
-}
