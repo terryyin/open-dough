@@ -5,22 +5,21 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deleteRecord } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { sessionBranchPins } from "../../test-support/support/adHocReview.ts";
+import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   aHeldDone,
   anIsolatedLaunch,
-  fileText,
   historyBeforeTheCase,
   inWorktree,
   keep,
   markDone,
   minutesAgo,
-  review,
   source,
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
 
 // A kept isolated launch whose worktree started on `draft` at the base.
 async function anIsolatedDraft() {

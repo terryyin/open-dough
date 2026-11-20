@@ -13,9 +13,9 @@ import {
   aCheckout,
   aDefaultLaunch,
   minutesAgo,
-  notCaptured,
   work,
 } from "../support/doneCaptureCase.ts";
+import { notCaptured } from "../support/doneCaptureReview.ts";
 
 test("a pending Done refuses the previous review and its files", async () => {
   const checkout = await aCheckout();

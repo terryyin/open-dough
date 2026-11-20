@@ -1,11 +1,15 @@
 // A Default main launch of the Done capture family that identifies one of the
 // checkout's worktrees as its own branch.
-import { realpathSync } from "node:fs";
-import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
-import { aDefaultLaunch, type Checkout, source } from "./doneCaptureCase.ts";
+import {
+  aDefaultLaunch,
+  canonicalGitDirectory,
+  type Checkout,
+  keep,
+  source,
+} from "./doneCaptureCase.ts";
 
 // A blank launch naming its repository as Git resolves it, so a worktree of
 // the checkout reports the same repository.
@@ -15,7 +19,7 @@ export const aDeclaringLaunch = (
 ) =>
   aDefaultLaunch(checkout, {
     ...facts,
-    gitDirectory: realpathSync(path.join(checkout.integration, ".git")),
+    gitDirectory: canonicalGitDirectory(checkout),
   });
 
 // The kept launch `record` identifies `workspace` on `branch` as its own and
@@ -36,3 +40,26 @@ export const identifyBranch = (
     record,
     request,
   );
+
+export type DeclaringLaunch = {
+  workspace: string;
+  branch: string;
+  reporting?: NonNullable<LaunchRecord["request"]["reporting"]>;
+  others?: (checkout: Checkout) => LaunchRecord[];
+};
+
+// A kept declaring launch, blank unless it reports through `reporting`, that
+// then identified `workspace` on `branch`, with whatever the worktree already
+// held. The `others` of the checkout are kept beside it.
+export async function aDeclaredBranch(
+  checkout: Checkout,
+  { workspace, branch, reporting, others = () => [] }: DeclaringLaunch,
+) {
+  const launch = aDeclaringLaunch(checkout);
+  const record = (
+    reporting === undefined ? launch : launch.reportingThrough(reporting)
+  ).please();
+  keep(record, ...others(checkout));
+  const entry = await identifyBranch(checkout, record, { workspace, branch });
+  return { record, entry };
+}

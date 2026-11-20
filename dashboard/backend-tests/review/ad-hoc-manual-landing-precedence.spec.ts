@@ -1,77 +1,17 @@
-import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import { acceptanceSchema } from "../../src/launchOutcome.ts";
 import {
   keptAttempts,
   settledOutcome,
 } from "../../test-support/acceptedAttempts.ts";
-import { accept, markDone } from "../../test-support/agentLaunchBoundary.ts";
+import { accept } from "../../test-support/agentLaunchBoundary.ts";
 import { adHocReview } from "../../test-support/support/adHocReview.ts";
-import {
-  declareThroughLaunchInput,
-  declaredLandingReference,
-} from "../../test-support/support/declaredSessionLanding.ts";
 import { reportingChild } from "../../test-support/support/completionRecovery.ts";
 import { commit, git } from "../../test-support/support/launchLanding.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { launched } from "../../test-support/support/startSessionLandingCapture.ts";
 
 test.use({ serverMode: "boundary" });
-
-test("Done leaves the installed publisher's prepared receipt recoverable after acceptance", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { record, sent } = await launched(dashboard, {
-    instruction: "Deliver the draft from my branch",
-  });
-  const branch = "prepared-draft";
-  const workspace = path.join(origin.machine, branch);
-  git(origin.project, "worktree", "add", "--quiet", "-b", branch, workspace);
-  const handoff = await declareThroughLaunchInput(sent, workspace);
-  const reference = declaredLandingReference(handoff.landingContext);
-  const base = handoff.branchEntry.committedTip;
-  const revision = commit(workspace, "draft.txt");
-  const payload = makeMe.aLandingSubmission
-    .forLaunch({ host: "claude", reference })
-    .comparing({ base, revision })
-    .please();
-  const post = (suffix = "") =>
-    rawRequest({
-      url: `${dashboard.origin}/__agent-launch/landing${suffix}`,
-      method: "POST",
-      headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  const prepared = await post("/prepare");
-  expect(prepared.status, prepared.body).toBe(200);
-  const receipt = landingReceiptSchema.parse(JSON.parse(prepared.body));
-  git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
-
-  const { sessionId } = record.session;
-  dashboard.claudeSessionBecomes(sessionId, "done-live");
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: sessionId,
-  });
-  expect(response.status, response.body).toBe(200);
-
-  const recorded = await post();
-  expect(recorded.status, recorded.body).toBe(200);
-  expect(landingReceiptSchema.parse(JSON.parse(recorded.body))).toEqual({
-    ...receipt,
-    state: "recorded",
-  });
-  expect(await adHocReview(request, dashboard, sessionId)).toMatchObject({
-    kind: "landed",
-    baseline: base,
-    tree: revision,
-  });
-});
 
 test("an early quiet Done keeps its verified manual pair when the native session binds", async ({
   dashboard,

@@ -26,11 +26,11 @@ import {
   keep,
   markDone,
   minutesAgo,
-  review,
   source,
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 import {
   aDeclaringLaunch,
   identifyBranch,

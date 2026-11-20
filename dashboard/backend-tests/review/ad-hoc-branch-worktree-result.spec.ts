@@ -9,21 +9,19 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   retireAdHocBranch,
   sessionBranchPins,
-} from "../../test-support/support/adHocReview.ts";
+} from "../../test-support/support/adHocBranchRefs.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   aCheckout,
   aHeldDone,
   anIsolatedLaunch,
-  fileDiff,
-  fileText,
   historyBeforeTheCase,
   inWorktree,
   keep,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
 
 const launchFiles = historyBeforeTheCase({
   files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },

@@ -5,42 +5,29 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
-import { retireAdHocBranch } from "../../test-support/support/adHocReview.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
-  aCheckout,
-  anIsolatedLaunch,
-  fileText,
+  anIsolatedBranch,
   inWorktree,
-  keep,
   markDone,
   minutesAgo,
-  review,
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
 const unverified = expect.stringContaining(
   "Delivery to trunk is unverified",
 ) as string;
 
-// The project's checkout with an origin and the isolated launch whose start
-// created the draft worktree at its base.
+// The isolated draft, its base holding the original draft, worked on its
+// branch or on trunk.
 async function anIsolatedDraft() {
-  const checkout = await aCheckout({
-    history: makeMe.aRepository
-      .withRevision("base", {
-        backlog: null,
-        files: { "draft.txt": "Original draft\n" },
-      })
-      .withWorkspace(branch, { from: "base" }),
-    withOrigin: true,
+  const { checkout, workspace, record } = await anIsolatedBranch(branch, {
+    "draft.txt": "Original draft\n",
   });
-  const workspace = checkout.execution;
-  if (workspace === undefined) throw new Error("Missing the draft worktree.");
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
-  keep(record);
   const onBranch = <Name extends string>(steps: CheckoutWorkBuilder<Name>) =>
     work(inWorktree(checkout, workspace), steps);
   const onTrunk = <Name extends string>(steps: CheckoutWorkBuilder<Name>) =>

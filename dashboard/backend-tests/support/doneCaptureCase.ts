@@ -1,6 +1,6 @@
 // The Done capture family's stereotype: a Default main checkout whose history
 // predates the case, launch records kept in a private machine store, dated
-// checkout work, the Done mark and the typed review that reads the result.
+// checkout work and the Done mark; doneCaptureReview.ts reads the result.
 // Times are minutes before the case's clock: launch at 60, Done at 10.
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -20,11 +20,6 @@ import {
   keptRecords,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
-import {
-  reviewedFileDiff,
-  reviewedFileText,
-} from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 
@@ -60,6 +55,11 @@ export async function aCheckout({
   onTestFinished(repository.cleanup);
   return { ...repository, base: repository.revisions.base };
 }
+
+// The checkout's Git directory as Git resolves it, so its worktrees report the
+// same repository.
+export const canonicalGitDirectory = (checkout: Checkout) =>
+  realpathSync(path.join(checkout.integration, ".git"));
 
 type LaunchFacts = {
   sessionId?: string;
@@ -131,10 +131,48 @@ export const anIsolatedLaunch = (
       workspace,
       branch,
       startingRevision,
-      repository: realpathSync(path.join(checkout.integration, ".git")),
+      repository: canonicalGitDirectory(checkout),
     })
     .inClaudeSession({ sessionId })
     .launchedAt(launchedAt);
+
+// The project's checkout with an origin, holding `files` at its base, and its
+// worktree on `branch` there.
+export async function aCheckoutWithWorktree(
+  branch: string,
+  files: Readonly<Record<string, string>> = {},
+) {
+  const checkout = await aCheckout({
+    history: historyBeforeTheCase({ files }).withWorkspace(branch, {
+      from: "base",
+    }),
+    withOrigin: true,
+  });
+  const workspace = checkout.execution;
+  if (workspace === undefined)
+    throw new Error(`Missing the ${branch} worktree.`);
+  return { checkout, workspace };
+}
+
+// That checkout with its worktree named by the canonical path Git registers.
+export async function aCheckoutWithCanonicalWorktree(
+  branch: string,
+  files: Readonly<Record<string, string>> = {},
+) {
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
+  return { checkout, workspace: realpathSync(workspace) };
+}
+
+// That checkout and the kept isolated launch whose start created the worktree.
+export async function anIsolatedBranch(
+  branch: string,
+  files: Readonly<Record<string, string>> = {},
+) {
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
+  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  keep(record);
+  return { checkout, workspace, record };
+}
 
 // Keeps these records as the project's whole store in a private machine
 // home, and answers the home.
@@ -150,6 +188,12 @@ export function keep(...records: LaunchRecord[]) {
   keepLaunchStore(home, { [source]: records });
   return home;
 }
+
+// The record the store now keeps for the session `sessionId`.
+export const keptRecordOf = async (sessionId: string) =>
+  (await keptRecords(source)).find(
+    (kept) => kept.session.sessionId === sessionId,
+  );
 
 // A kept session established in a checkout at its base: the family's usual start.
 export async function aKeptSession(options: { withOrigin?: boolean } = {}) {
@@ -194,49 +238,3 @@ export function aHeldDone(record: LaunchRecord, at = minutesAgo(10)) {
 
 export const undoDone = (record: LaunchRecord) =>
   setRecordDoneAt(source, record.session, undefined);
-
-const reviewRead = async (record: LaunchRecord) =>
-  makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId, record.session.host)
-    .keeping(await keptRecords(source));
-
-// The typed review of the kept session, at its first run or at `run`.
-export async function review(record: LaunchRecord, run?: number | string) {
-  const input = (await reviewRead(record)).please();
-  const read =
-    run === undefined
-      ? input
-      : { ...input, read: { ...input.read, run: `${run}` } };
-  return storyReview(read, new AbortController().signal);
-}
-
-// A file of one comparison; a landed run's read also names its reference.
-type NamedFile = {
-  baseline: string;
-  tree: string;
-  path: string;
-  oldPath?: string;
-  reference?: string;
-};
-
-export async function fileText(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
-  return reviewedFileText(read, new AbortController().signal);
-}
-
-export async function fileDiff(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
-  return reviewedFileDiff(read, new AbortController().signal);
-}
-
-export const notCaptured = {
-  kind: "landing-unavailable",
-  comparison: "session-commits",
-  explanation: "This session's changes were not captured.",
-};
-
-export const noCommits = {
-  kind: "landing-unavailable",
-  comparison: "session-commits",
-  explanation: "This session made no commits in the Default main checkout.",
-};

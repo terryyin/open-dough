@@ -1,101 +1,51 @@
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { markDone } from "../../test-support/agentLaunchBoundary.ts";
+// A failed verification of one Done branch's delivery leaves it to retry at
+// the same revision while another Done branch's delivery settles.
+import { expect, test } from "vitest";
+import { keptSession } from "../../server/launchRecordStore.ts";
+import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
+import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
 import {
-  adHocReview,
-  launchIsolatedReview,
-} from "../../test-support/support/adHocReview.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/branchResultValidation.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
+  observedTrunk,
+  twoDoneBranchesMergedByHand,
+} from "../support/doneBranchObservation.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
-test.use({ serverMode: "boundary" });
-
-test("a failed verification retries at the same revision and lets other deliveries settle", async ({
-  origin,
-  request,
-  dashboard,
-  validation,
-}) => {
-  const retrying = await launchIsolatedReview(
-    dashboard,
-    "Keep draft for retry",
-  );
-  const draft = commit(retrying.workspace, "retry.txt");
-  dashboard.claudeSessionBecomes(retrying.session, "done-live");
-  const retryingDone = await markDone(dashboard, {
-    source: "open-dough",
-    session: retrying.session,
+test("a failed verification retries at the same revision and lets other deliveries settle", async () => {
+  const { checkout, first, second, firstMerge, head } =
+    await twoDoneBranchesMergedByHand("retry", "independent");
+  const { record: retrying, tip: draft } = first;
+  const { record: independent } = second;
+  let failed = false;
+  const observations = sessionLandingObservations(async (...inspection) => {
+    if (inspection[1] === draft && !failed) {
+      failed = true;
+      throw new Error("Verification failed once.");
+    }
+    return inspectManualLanding(...inspection);
   });
-  expect(retryingDone.status, retryingDone.body).toBe(200);
-  const independent = await launchIsolatedReview(
-    dashboard,
-    "Keep independent work",
-  );
-  const other = commit(independent.workspace, "independent.txt");
-  dashboard.claudeSessionBecomes(independent.session, "done-live");
-  const independentDone = await markDone(dashboard, {
-    source: "open-dough",
-    session: independent.session,
+
+  await observations.observe(observedTrunk, head);
+  expect(await review(independent)).toMatchObject({
+    kind: "landed",
+    baseline: firstMerge,
+    tree: head,
+    files: [{ path: "independent.txt" }],
   });
-  expect(independentDone.status, independentDone.body).toBe(200);
-
-  git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", draft);
-  const firstMerge = git(origin.project, "rev-parse", "HEAD");
-  git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", other);
-  const head = git(origin.project, "rev-parse", "HEAD");
-  git(origin.project, "push", "--quiet", "origin", "main");
-  validation.failOnceFor(draft);
-
-  const query = { source: "open-dough", since: retrying.baseline };
-  const first = await getReview(
-    request,
-    dashboard,
-    authenticatedReadEndpoint,
-    query,
-  );
-  expect(first.status()).toBe(200);
-  expect(await first.json()).toMatchObject({ revision: head });
-  await expect
-    .poll(() => adHocReview(request, dashboard, independent.session))
-    .toMatchObject({
-      kind: "landed",
-      baseline: firstMerge,
-      tree: head,
-      files: [{ path: "independent.txt" }],
-    });
-  expect(validation.failed()).toBe(true);
-  expect(await adHocReview(request, dashboard, retrying.session)).toMatchObject(
-    {
-      kind: "branch-result",
-      tree: draft,
-    },
+  expect(failed).toBe(true);
+  expect(await review(retrying)).toMatchObject({
+    kind: "branch-result",
+    tree: draft,
+  });
+  expect((await keptSession(source, retrying.session))?.landing).toBe(
+    undefined,
   );
 
-  await expect
-    .poll(async () => {
-      const repeated = await getReview(
-        request,
-        dashboard,
-        authenticatedReadEndpoint,
-        {
-          ...query,
-          since: head,
-        },
-      );
-      expect(repeated.status()).toBe(200);
-      expect(await repeated.json()).toMatchObject({
-        revision: head,
-        changed: false,
-      });
-      return adHocReview(request, dashboard, retrying.session);
-    })
-    .toMatchObject({
-      kind: "landed",
-      baseline: retrying.baseline,
-      tree: firstMerge,
-      files: [{ path: "retry.txt" }],
-    });
+  await observations.observe(observedTrunk, head);
+  expect(await review(retrying)).toMatchObject({
+    kind: "landed",
+    baseline: checkout.base,
+    tree: firstMerge,
+    files: [{ path: "retry.txt" }],
+  });
 });

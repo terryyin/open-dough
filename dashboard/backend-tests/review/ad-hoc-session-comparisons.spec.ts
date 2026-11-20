@@ -1,124 +1,106 @@
+// After the installed publisher delivers a Done isolated session and its
+// branch is retired, the session still opens both its delivered rename and
+// its different working-tree comparison, each only through its own pair.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import {
-  reviewedFileTextSchema,
-  storyReviewFileTextEndpoint,
-} from "../../src/storyReviewContract.ts";
-import { markDone } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  adHocReview,
-  retireAdHocBranch,
-} from "../../test-support/support/adHocReview.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { git } from "../../test-support/support/launchLanding.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { launched } from "../../test-support/support/startSessionLandingCapture.ts";
-import {
-  land,
-  landingHandoff,
-} from "../../test-support/support/startSessionLandingContext.ts";
-import { lines } from "../../test-support/support/storyReviewWorktree.ts";
+import { expect, test } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
+import { markDone } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
+import { publishInstalled } from "../support/installedPublisher.ts";
+import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
 
-test.use({
-  serverMode: "boundary",
-  liveServer: "synchronous delivery child blocks the mounted receiver",
-});
+const baseline = [...Array(12).keys()]
+  .map((line) => `unchanged ${line}\n`)
+  .join("");
+const renamed = { path: "review.txt", oldPath: "draft.txt" };
+const committed = `${baseline}Delivered draft\n`;
+const working = `${baseline}Left for review\n`;
 
-test("the same Done session opens its delivery and keeps its different branch result after retirement", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const baseline = lines("unchanged");
-  writeFileSync(path.join(origin.project, "draft.txt"), baseline);
-  git(origin.project, "add", "draft.txt");
-  git(origin.project, "commit", "--quiet", "-m", "Draft baseline");
-  git(origin.project, "push", "--quiet", "origin", "main");
-
-  const { record } = await launched(dashboard, {
-    instruction: "Rename the draft",
-    policy: { workspace: "isolated", landing: "review" },
-  });
-  const { session, reporting } = landingHandoff(record);
-  const id = record.session.sessionId;
-  const renamed = { path: "review.txt", oldPath: "draft.txt" };
-  git(session.workspace, "mv", renamed.oldPath, renamed.path);
+test("the same Done session opens its delivery and keeps its different branch result after retirement", async () => {
+  const branch = "rename-the-draft";
+  const { checkout, workspace, record, reference, landingContext } =
+    await aReportedIsolatedBranch(branch, { [renamed.oldPath]: baseline });
   const write = (text: string) => {
-    writeFileSync(path.join(session.workspace, renamed.path), text);
+    writeFileSync(path.join(workspace, renamed.path), text);
   };
-  const committed = `${baseline}Delivered draft\n`;
-  const working = `${baseline}Left for review\n`;
+  await git(workspace, "mv", renamed.oldPath, renamed.path);
   write(committed);
-  git(session.workspace, "add", renamed.path);
-  git(session.workspace, "commit", "--quiet", "-m", "Rename the draft");
+  await git(workspace, "add", renamed.path);
+  await git(workspace, "commit", "--quiet", "-m", "Rename the draft");
   write(working);
-  dashboard.claudeSessionBecomes(id, "done-live");
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: id,
-  });
-  expect(response.status, response.body).toBe(200);
+  await markDone(record);
 
   write(committed);
-  const { result } = land(record, origin, dashboard.home);
-  retireAdHocBranch(origin.project, session.workspace, session.branch);
+  const { landing, beforePush: before } = await publishInstalled(
+    {
+      workspace,
+      branch,
+      previouslyPublishedBase: checkout.base,
+      remote: "origin",
+      targetRef: "refs/heads/main",
+      landingContext,
+    },
+    async () =>
+      (await keptAttempts())?.find((attempt) => attempt.id === reference)
+        ?.landingPreparations,
+  );
+  // The installed publisher prepared exactly the pair it then recorded.
+  expect(before.trunk).toBe(checkout.base);
+  expect(before.prepared).toMatchObject([
+    { base: landing.receipt.base, revision: landing.receipt.revision },
+  ]);
+  retireAdHocBranch(checkout.integration, workspace, branch);
 
   const choices = ["delivered", "branch-result"];
-  const delivered = await adHocReview(request, dashboard, id);
-  const branch = await adHocReview(request, dashboard, id, "branch-result");
+  const delivered = await review(record);
+  const branchResult = await review(record, "branch-result");
+  const renamedFile = { kind: "renamed", ...renamed };
   expect(delivered).toMatchObject({
     kind: "landed",
     selectedRun: "delivered",
     sessionComparisonKeys: choices,
-    baseline: result.landing.receipt.base,
-    tree: result.landing.receipt.revision,
-    files: [expect.objectContaining({ kind: "renamed", ...renamed })],
+    baseline: landing.receipt.base,
+    tree: landing.receipt.revision,
+    files: [renamedFile],
   });
-  expect(branch).toMatchObject({
+  expect(branchResult).toMatchObject({
     kind: "branch-result",
     selectedRun: "branch-result",
     sessionComparisonKeys: choices,
-    baseline: session.startingRevision,
-    files: [expect.objectContaining({ kind: "renamed", ...renamed })],
+    baseline: checkout.base,
+    files: [renamedFile],
   });
-  if (delivered.kind !== "landed" || branch.kind !== "branch-result")
+  if (delivered.kind !== "landed" || branchResult.kind !== "branch-result")
     throw new Error("Missing the retained comparisons.");
 
-  const file = {
-    source: "open-dough",
-    host: "claude",
-    session: id,
-    ...renamed,
-  };
-  const read = (query: Readonly<Record<string, string>>) =>
-    getReview(request, dashboard, storyReviewFileTextEndpoint, {
-      ...file,
-      ...query,
-    });
   const deliveryPair = {
     baseline: delivered.baseline,
     tree: delivered.tree,
-    reference: reporting.reference,
+    reference,
   };
-  const branchPair = { baseline: branch.baseline, tree: branch.tree };
-  const deliveredText = await read(deliveryPair);
-  const branchText = await read(branchPair);
-  expect(deliveredText.status()).toBe(200);
-  expect(branchText.status()).toBe(200);
-  expect(reviewedFileTextSchema.parse(await deliveredText.json())).toEqual({
+  const branchPair = {
+    baseline: branchResult.baseline,
+    tree: branchResult.tree,
+  };
+  expect(await fileText(record, { ...renamed, ...deliveryPair })).toEqual({
     kind: "text",
     baseline,
     tree: committed,
   });
-  expect(reviewedFileTextSchema.parse(await branchText.json())).toEqual({
+  expect(await fileText(record, { ...renamed, ...branchPair })).toEqual({
     kind: "text",
     baseline,
     tree: working,
   });
-  expect((await read({ ...deliveryPair, tree: branch.tree })).status()).toBe(
-    409,
-  );
-  expect((await read({ ...branchPair, oldPath: "other.txt" })).status()).toBe(
-    409,
-  );
+  const foreignTree = { ...deliveryPair, tree: branchResult.tree };
+  await expect(
+    fileText(record, { ...renamed, ...foreignTree }),
+  ).rejects.toMatchObject({ status: 409 });
+  const wrongOldPath = { ...renamed, oldPath: "other.txt" };
+  await expect(
+    fileText(record, { ...wrongOldPath, ...branchPair }),
+  ).rejects.toMatchObject({ status: 409 });
 });

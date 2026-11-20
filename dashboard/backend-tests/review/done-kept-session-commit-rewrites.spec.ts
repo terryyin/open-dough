@@ -6,13 +6,12 @@ import {
   aCheckout,
   aKeptSession,
   anEstablishedSession,
-  fileText,
   keep,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
 
 test("a continued cherry-pick is kept with the session's conflict resolution", async () => {
   const checkout = await aCheckout({ withOrigin: true });

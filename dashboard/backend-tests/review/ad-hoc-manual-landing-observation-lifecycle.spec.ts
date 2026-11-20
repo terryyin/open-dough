@@ -1,222 +1,126 @@
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+// Deleting or expiring one Done branch while its delivery is being inspected
+// wins: the other branch's delivery settles and only its evidence remains.
+import { expect, test } from "vitest";
+import { replaceRecords } from "../../server/launchRecordDocument.ts";
+import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
+import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
+import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launchRetentionDays } from "../../src/launchRecord.ts";
 import {
-  deleteRecord,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  adHocReview,
-  keptAdHocRecord,
-  launchIsolatedReview,
+  landingPins,
   sessionBranchPins,
-} from "../../test-support/support/adHocReview.ts";
+} from "../../test-support/support/adHocBranchRefs.ts";
+import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/support/branchResultValidation.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
-import {
-  changeLaunchStore,
-  keptLaunchRecords,
-} from "../../test-support/support/launchStore.ts";
-import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
+  observedTrunk,
+  twoDoneBranchesMergedByHand,
+} from "../support/doneBranchObservation.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
-test.use({ serverMode: "boundary" });
+// Two kept Done branches merged by hand into published trunk, and an
+// observation of that revision whose inspection of `leaving` waits until
+// released.
+async function heldObservation() {
+  installRecordRemovalDispatch();
+  const {
+    checkout,
+    home,
+    first: { record: leaving, tip: leavingTip },
+    second: { record: staying },
+    head,
+  } = await twoDoneBranchesMergedByHand("leaving", "staying");
+  expect(
+    sessionBranchPins(checkout.integration, leaving.session.sessionId),
+  ).toContain(leavingTip);
 
-async function doneBranch(dashboard: DashboardServer, name: string) {
-  const launch = await launchIsolatedReview(dashboard, `Keep ${name}`);
-  const tip = commit(launch.workspace, `${name}.txt`);
-  dashboard.claudeSessionBecomes(launch.session, "done-live");
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: launch.session,
+  let release = () => {};
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
   });
-  expect(response.status, response.body).toBe(200);
-  return { ...launch, tip };
-}
-
-function mergeBranch(origin: StartOrigin, tip: string) {
-  git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", tip);
-  return git(origin.project, "rev-parse", "HEAD");
-}
-
-const landingPins = (project: string) =>
-  git(
-    project,
-    "for-each-ref",
-    "--format=%(refname)",
-    "refs/open-dough/one-shot",
-  )
-    .split("\n")
-    .filter(Boolean);
-
-test("ordinary revision checks retain one delivery across repeated observations", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const { baseline, session, tip } = await doneBranch(dashboard, "branch");
-  const merge = mergeBranch(origin, tip);
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const query = { source: "open-dough", since: baseline };
-  const answer = await getReview(
-    request,
-    dashboard,
-    authenticatedReadEndpoint,
-    query,
-  );
-  expect(answer.status()).toBe(200);
-  expect(await answer.json()).toMatchObject({ revision: merge, changed: true });
-  await expect
-    .poll(() => adHocReview(request, dashboard, session))
-    .toMatchObject({
-      kind: "landed",
-      baseline,
-      tree: merge,
-      files: [{ path: "branch.txt" }],
-    });
-  const captured = await adHocReview(request, dashboard, session);
-  const saved = (await keptAdHocRecord(dashboard, session))?.landing;
-  const pins = landingPins(origin.project);
-  expect(pins).toHaveLength(2);
-  await getReview(request, dashboard, authenticatedReadEndpoint, query);
-
-  const advance = await origin.publishRevision({
-    files: { "later.txt": "Later\n" },
+  let reached = () => {};
+  const held = new Promise<void>((resolve) => {
+    reached = resolve;
   });
-  const refreshed = await getReview(
-    request,
-    dashboard,
-    authenticatedReadEndpoint,
-    { ...query, since: merge },
-  );
-  expect(refreshed.status()).toBe(200);
-  expect(await refreshed.json()).toMatchObject({ revision: advance });
-  expect(await adHocReview(request, dashboard, session)).toEqual(captured);
-  expect((await keptAdHocRecord(dashboard, session))?.landing).toEqual(saved);
-  expect(landingPins(origin.project)).toEqual(pins);
-
-  dashboard.claudeListingFails(true);
-  const response = await deleteRecord(dashboard, {
-    source: "open-dough",
-    session,
-  });
-  expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
-  expect(sessionBranchPins(origin.project, session)).toEqual([]);
-  expect(landingPins(origin.project)).toEqual([]);
-});
-
-const race = test.extend<{
-  observation: Awaited<ReturnType<typeof doneBranch>> & {
-    readonly other: string;
-  };
-}>({
-  observation: async ({ request, dashboard, origin, validation }, use) => {
-    const leaving = await doneBranch(dashboard, "leaving");
-    const staying = await doneBranch(dashboard, "staying");
-    expect(sessionBranchPins(origin.project, leaving.session)).toContain(
-      leaving.tip,
-    );
-    mergeBranch(origin, leaving.tip);
-    const merge = mergeBranch(origin, staying.tip);
-    git(origin.project, "push", "--quiet", "origin", "main");
-
-    validation.hold();
-    try {
-      const response = await getReview(
-        request,
-        dashboard,
-        authenticatedReadEndpoint,
-        {
-          source: "open-dough",
-          since: leaving.baseline,
-        },
-      );
-      expect(response.status()).toBe(200);
-      expect(await response.json()).toMatchObject({ revision: merge });
-      await expect.poll(validation.held).toBe(true);
-      await use({ ...leaving, other: staying.session });
-    } finally {
-      validation.release();
+  const observation = sessionLandingObservations(async (...inspection) => {
+    if (inspection[1] === leavingTip) {
+      reached();
+      await released;
     }
-  },
-});
+    return inspectManualLanding(...inspection);
+  }).observe(observedTrunk, head);
+  await held;
+  return { checkout, home, leaving, staying, observation, release };
+}
 
-async function completedObservation(
-  request: Parameters<typeof adHocReview>[0],
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-  session: string,
-  other: string,
+async function expectOnlyTheSurvivorDelivered(
+  checkout: { integration: string },
+  removed: LaunchRecord,
+  survivor: LaunchRecord,
 ) {
-  // The latter record can land only after the held candidate has been settled.
-  await expect
-    .poll(() => adHocReview(request, dashboard, other))
-    .toMatchObject({
-      kind: "landed",
-      files: [{ path: "staying.txt" }],
-    });
-  const retained = await adHocReview(request, dashboard, other);
-  if (retained.kind !== "landed")
+  const delivered = await review(survivor);
+  expect(delivered).toMatchObject({
+    kind: "landed",
+    files: [{ path: "staying.txt" }],
+  });
+  if (delivered.kind !== "landed")
     throw new Error("Missing independent delivery");
   expect(
-    keptLaunchRecords(dashboard).some(
-      (record) => "session" in record && record.session.sessionId === session,
-    ),
-  ).toBe(false);
-  expect(sessionBranchPins(origin.project, session)).toEqual([]);
-  expect(landingPins(origin.project)).toEqual([
-    `refs/open-dough/one-shot/${retained.landing.reference}/${retained.landing.delivery}/base`,
-    `refs/open-dough/one-shot/${retained.landing.reference}/${retained.landing.delivery}/revision`,
+    (await keptRecords(source)).map((record) => record.session.sessionId),
+  ).toEqual([survivor.session.sessionId]);
+  expect(
+    sessionBranchPins(checkout.integration, removed.session.sessionId),
+  ).toEqual([]);
+  const pinned = `refs/open-dough/one-shot/${delivered.landing.reference}/${delivered.landing.delivery}`;
+  expect(landingPins(checkout.integration)).toEqual([
+    `${pinned}/base`,
+    `${pinned}/revision`,
   ]);
 }
 
-function ageDoneRecord(dashboard: DashboardServer, session: string) {
+function ageDoneRecord(home: string, record: LaunchRecord) {
   const expired = new Date(
     Date.now() - (launchRetentionDays + 1) * 86_400_000,
   ).toISOString();
-  changeLaunchStore(dashboard, (kept) => ({
+  changeLaunchStore(home, (kept) => ({
     ...kept,
-    "open-dough":
-      kept["open-dough"]?.map((record) =>
-        "session" in record && record.session.sessionId === session
-          ? { ...record, doneAt: expired }
-          : record,
+    [source]:
+      kept[source]?.map((entry) =>
+        "session" in entry &&
+        entry.session.sessionId === record.session.sessionId
+          ? { ...entry, doneAt: expired }
+          : entry,
       ) ?? [],
   }));
 }
 
-race(
-  "deleting while the target is being inspected cannot recreate the launch or leave delivery pins",
-  async ({ request, dashboard, origin, validation, observation }) => {
-    const { session, other } = observation;
-    dashboard.claudeListingFails(true);
-    const response = await deleteRecord(dashboard, {
-      source: "open-dough",
-      session,
-    });
-    expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
-    validation.release();
-    await completedObservation(request, dashboard, origin, session, other);
-  },
-);
+test("deleting while the target is being inspected cannot recreate the launch or leave delivery pins", async () => {
+  const { checkout, leaving, staying, observation, release } =
+    await heldObservation();
 
-race(
-  "expiry while the target is being inspected releases evidence and cannot recreate the launch",
-  async ({ request, dashboard, origin, validation, observation }) => {
-    const { session, other } = observation;
-    ageDoneRecord(dashboard, session);
-    validation.release();
-    await completedObservation(request, dashboard, origin, session, other);
+  expect(await deleteRecord(source, leaving.session)).toBe(true);
+  release();
+  await observation;
 
-    ageDoneRecord(dashboard, other);
-    await launchIsolatedReview(
-      dashboard,
-      "Start after retained delivery expires",
-    );
-    await expect.poll(() => landingPins(origin.project)).toEqual([]);
-    expect(sessionBranchPins(origin.project, other)).toEqual([]);
-  },
-);
+  await expectOnlyTheSurvivorDelivered(checkout, leaving, staying);
+});
+
+test("expiry while the target is being inspected releases evidence and cannot recreate the launch", async () => {
+  const { checkout, home, leaving, staying, observation, release } =
+    await heldObservation();
+
+  ageDoneRecord(home, leaving);
+  release();
+  await observation;
+  await expectOnlyTheSurvivorDelivered(checkout, leaving, staying);
+
+  ageDoneRecord(home, staying);
+  await replaceRecords((kept) => kept);
+  expect(await keptRecords(source)).toEqual([]);
+  expect(landingPins(checkout.integration)).toEqual([]);
+  expect(
+    sessionBranchPins(checkout.integration, staying.session.sessionId),
+  ).toEqual([]);
+});

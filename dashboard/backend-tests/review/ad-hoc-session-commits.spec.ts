@@ -7,10 +7,10 @@ import { localFolder } from "../../server/projectFolders.ts";
 import {
   aCheckout,
   minutesAgo,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 import {
   aKeptReportingLaunch,
   marksWithRename,

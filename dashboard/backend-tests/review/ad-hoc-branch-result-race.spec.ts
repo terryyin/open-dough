@@ -1,8 +1,8 @@
 import { markDone } from "../../test-support/agentLaunchBoundary.ts";
+import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   adHocReview,
   launchIsolatedReview,
-  sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
 import {
   expect,

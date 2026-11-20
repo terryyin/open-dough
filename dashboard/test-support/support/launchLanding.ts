@@ -5,17 +5,9 @@ import { execFileSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { z } from "zod";
-import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
-// Keep the CLI envelope intact while typing its existing public landing receipt.
-export const capturedPublicationSchema = z.looseObject({
-  landing: z.object({
-    state: z.literal("recorded"),
-    receipt: landingReceiptSchema,
-  }),
-});
+export { capturedPublicationSchema } from "./capturedPublication.ts";
 export const git = (cwd: string, ...args: string[]) =>
   execFileSync("git", args, { cwd, encoding: "utf8", stdio: "pipe" }).trim();
 export const scripts = (workspace: string, skill = "dough-execute-plan") =>

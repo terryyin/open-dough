@@ -6,36 +6,27 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sessionBranchPins } from "../../test-support/support/adHocReview.ts";
+import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaringLaunch,
   identifyBranch,
 } from "../support/declaredBranchCase.ts";
 import {
   aCheckout,
+  aCheckoutWithCanonicalWorktree,
   aDefaultLaunch,
   type Checkout,
-  fileText,
-  historyBeforeTheCase,
   inWorktree,
   keep,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
 
-async function aDraftWorktree() {
-  const checkout = await aCheckout({
-    history: historyBeforeTheCase().withWorkspace(branch, { from: "base" }),
-    withOrigin: true,
-  });
-  const workspace = checkout.execution;
-  if (workspace === undefined) throw new Error("Missing the draft worktree.");
-  return { checkout, workspace: realpathSync(workspace) };
-}
+const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
 
 // A worktree of the checkout on its own branch `other`.
 async function anOtherWorktree(checkout: Checkout) {

@@ -74,7 +74,8 @@ The Done capture family arranges each case through
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history
 predates the case, the stereotype launches, a private launch store, dated
 `makeMe.aCheckoutWork`, the Done mark through
-[`setRecordDoneAt`](../server/recordDoneAt.ts) and the typed review. State
+[`setRecordDoneAt`](../server/recordDoneAt.ts), and reads the typed review
+through [`doneCaptureReview.ts`](support/doneCaptureReview.ts). State
 work times with `minutesAgo`, after the launch (60) and before Done (10). A review-only case
 builds the kept records and passes them straight to its typed handler with
 `makeMe.aSessionReviewRead`, as

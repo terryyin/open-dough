@@ -11,12 +11,14 @@ import {
   keep,
   markDone,
   minutesAgo,
-  noCommits,
-  notCaptured,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import {
+  noCommits,
+  notCaptured,
+  review,
+} from "../support/doneCaptureReview.ts";
 
 const doneAt = minutesAgo(10);
 

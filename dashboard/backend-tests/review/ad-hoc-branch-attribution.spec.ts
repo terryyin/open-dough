@@ -4,40 +4,20 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  aCheckout,
-  anIsolatedLaunch,
-  fileDiff,
+  anIsolatedBranch,
   inWorktree,
-  keep,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, review } from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 
-// The project's checkout with an origin and the topic worktree at its base.
-const aTopicCheckout = () =>
-  aCheckout({
-    history: makeMe.aRepository
-      .withRevision("base", {
-        backlog: null,
-        files: { "shared.txt": "original\n" },
-      })
-      .withWorkspace(branch, { from: "base" }),
-    withOrigin: true,
-  });
-
-// The topic checkout and the isolated launch whose start created its worktree.
-async function anIsolatedTopic() {
-  const checkout = await aTopicCheckout();
-  const workspace = checkout.execution;
-  if (workspace === undefined) throw new Error("Missing the topic worktree.");
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
-  keep(record);
-  return { checkout, workspace, record };
-}
+// The topic checkout, its base holding the shared file, and the isolated
+// launch whose start created its worktree.
+const anIsolatedTopic = () =>
+  anIsolatedBranch(branch, { "shared.txt": "original\n" });
 
 test("an isolated Done retains its committed and working changes across a trunk import", async () => {
   const { checkout, workspace, record } = await anIsolatedTopic();
