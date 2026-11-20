@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#optimization-candidates-revision-cases
 **Source:** [Read the Optimization Candidates record across Show latest in mounted cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimization-candidates-revision-cases)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -91,7 +92,7 @@ with `SEED-413#renovate-later-dashboard-frontend-unit-test-families`.
 ### 1. The chosen view and the new record across Show latest are proven on the mounted reading
 
 Type: Structure
-Status: planned
+Status: done
 
 This removes the built-app mount, the moving project publication and
 page-clock driving from the stays-chosen proof. Extend the record page
@@ -104,6 +105,11 @@ held-answer case.
 | The stays-chosen example holds | The new mounted case passes and asserts every signal in its row. |
 | The case discriminates | A scratch edit makes `IntentCandidatesPanel` render the record at a fixed first revision. The case fails on the revision line or the entries, then passes once the edit is reverted. |
 | Production reads unchanged | The remaining built-app held-answer case and `intent/intent-source-target-recovery-mounted` still pass. |
+
+Learning: `npm run test:dashboard:frontend` given a mix of Vitest and
+Playwright selections runs only the Vitest ones. Select the built-app spec on
+its own and set `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` to confirm its
+result.
 
 ### 2. Both endings of the old read are proven on the mounted reading, and the built-app spec is gone
 
