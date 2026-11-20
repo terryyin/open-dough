@@ -1,49 +1,40 @@
 // This repository's installed publisher, run in process. Its sender reaches
-// the typed landing handler through a bridge that admits only the receiver's
-// route, body schema and origin, so the publisher's retained comparison is
-// exactly what the handler prepares and records.
+// the typed landing handler through production landing admission, so the
+// publisher's retained comparison is exactly what the handler prepares and
+// records.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { onTestFinished, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
-import { landingSubmissionSchema } from "../../server/launchLandingAdmission.ts";
+import { admitLandingRequest } from "../../server/launchLandingAdmission.ts";
 import {
   handleLanding,
-  landingEndpoint,
-  type LandingOperation,
-  landingPrepareEndpoint,
+  type LandingStores,
 } from "../../server/launchLandingReporting.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { capturedPublicationSchema } from "../../test-support/support/capturedPublication.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import { dashboardOrigin } from "./declaredPublisherBranch.ts";
 
-const operations = new Map<string, LandingOperation>([
-  [landingPrepareEndpoint, "prepare"],
-  [landingEndpoint, "record"],
-]);
-
-// The receiver's side of the sender's one request.
+// The receiver's side of the sender's one request: production admission, then
+// the landing adapter; only the fetch stub and Response mapping stay here.
 async function receive(
+  stores: LandingStores,
   input: string | URL | Request,
   init?: RequestInit,
 ): Promise<Response> {
   const url = new URL(input instanceof Request ? input.url : input);
-  const operation = operations.get(url.pathname);
-  if (
-    url.origin !== dashboardOrigin ||
-    operation === undefined ||
-    init?.method !== "POST" ||
-    new Headers(init.headers).get("Origin") !== dashboardOrigin ||
-    typeof init.body !== "string"
-  )
-    throw new Error(`Not the landing receiver: ${url.href}`);
-  const submission = landingSubmissionSchema.parse(JSON.parse(init.body));
   try {
+    const { operation, submission } = admitLandingRequest({
+      route: url.pathname,
+      method: init?.method,
+      origin: new Headers(init?.headers).get("Origin"),
+      host: url.host,
+      bodyText: typeof init?.body === "string" ? init.body : "",
+    });
     return Response.json(
-      await handleLanding(submission, url.origin, operation),
+      await handleLanding(submission, url.origin, operation, stores),
     );
   } catch (error) {
     if (!(error instanceof RefusedRequest)) throw error;
@@ -73,8 +64,10 @@ export type BeforePush = {
   prepared?: readonly object[] | undefined;
 };
 
-function bridgeToReceiver() {
-  vi.stubGlobal("fetch", receive);
+function bridgeToReceiver(stores: LandingStores) {
+  vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+    receive(stores, input, init),
+  );
   onTestFinished(() => {
     vi.unstubAllGlobals();
   });
@@ -86,8 +79,9 @@ function bridgeToReceiver() {
 export async function publishInstalled(
   publication: Publication,
   preparedPairs: () => Promise<readonly object[] | undefined>,
+  stores: LandingStores,
 ) {
-  bridgeToReceiver();
+  bridgeToReceiver(stores);
   const module = path.join(
     repoRoot,
     ".claude/skills/dough-execute-plan/scripts/execution-increment-publication.mjs",
@@ -117,8 +111,11 @@ type Reporter = { reportCompletion(argv: string[]): Promise<unknown> };
 // Retries the landing input the sender's handoff retained beside
 // `landingContext`, through its surviving reporting entry, as
 // `--operation landing --retry <pending>`.
-export async function retryInstalledLanding(landingContext: string) {
-  bridgeToReceiver();
+export async function retryInstalledLanding(
+  landingContext: string,
+  stores: LandingStores,
+) {
+  bridgeToReceiver(stores);
   const directory = path.dirname(landingContext);
   const { pending } = JSON.parse(
     await readFile(path.join(directory, "landing-current.json"), "utf8"),

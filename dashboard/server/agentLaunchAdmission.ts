@@ -6,7 +6,7 @@ import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import {
   landingEndpoint,
   landingPrepareEndpoint,
-} from "./launchLandingReporting.ts";
+} from "./launchLandingAdmission.ts";
 import { completionEndpoint } from "./completionReporting.ts";
 import {
   admitLaunchSettings,

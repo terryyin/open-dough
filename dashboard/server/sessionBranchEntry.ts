@@ -1,5 +1,6 @@
 // An explicit entry identifies an existing checkout and keeps, with its pins,
 // the entry state proposed for the launch.
+import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { z } from "zod";
@@ -16,7 +17,10 @@ import {
   existingEntry,
   proposeBranchEntry,
 } from "./branchEntryProposal.ts";
-import { branchLandingContext } from "./branchLandingContext.ts";
+import {
+  acceptBranchLandingAnswer,
+  branchLandingContext,
+} from "./branchLandingContext.ts";
 import { isReportingRecord } from "./completionAdmission.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
@@ -25,6 +29,7 @@ import {
 } from "./launchRecordPins.ts";
 import { changeSessionRecord, keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 import {
   knownSource,
   namedKeptSession,
@@ -118,11 +123,20 @@ export async function submitSessionBranchEntry(req: IncomingMessage) {
     `http://${req.headers.host}`,
   );
   const entry = await recordSessionBranchEntry(source, record, request);
-  const landingContext = await branchLandingContext(
-    source.id,
-    record,
-    `http://${req.headers.host}`,
+  const origin = `http://${req.headers.host}`;
+  const reference = record.request.reporting?.reference ?? randomUUID();
+  const answered = await branchLandingContext(
+    machineDashboardPath("reporting", reference, "branch-landing"),
+    { ...record, branchEntry: entry },
+    { origin, source: source.id, reference },
   );
+  let landingContext: string | undefined;
+  if (answered !== undefined) {
+    await changeSessionRecord(source.id, record.session, (current) =>
+      acceptBranchLandingAnswer(current, answered.record),
+    );
+    landingContext = answered.file;
+  }
   return {
     session: record.session.sessionId,
     branchEntry: entry,

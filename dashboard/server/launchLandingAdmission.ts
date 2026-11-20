@@ -1,109 +1,58 @@
-// A bound launch keeps its capture authority after normal startup-attempt expiry.
+// Landing request admission: route, method, origin, host and body text to an
+// operation and submission, or a refusal. Shared by the HTTP adapter and the
+// installed publisher's fetch bridge.
 import { z } from "zod";
-import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
-import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
 import { launchLandingSchema } from "../src/launchLanding.ts";
-import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
-import { reportingAttempt } from "./completionAdmission.ts";
-import { establishedStory } from "./launchRecord.ts";
-import { keptRecords } from "./launchRecordStore.ts";
-import { RefusedRequest } from "./localOrigin.ts";
+import { RefusedRequest, verifySameOrigin } from "./localOrigin.ts";
+
+export const landingEndpoint = "/__agent-launch/landing";
+export const landingPrepareEndpoint = `${landingEndpoint}/prepare`;
+export type LandingOperation = "prepare" | "record";
+
+const landingOperations = new Map<string, LandingOperation>([
+  [landingPrepareEndpoint, "prepare"],
+  [landingEndpoint, "record"],
+]);
+
 export const landingSubmissionSchema = launchLandingSchema
   .omit({ repository: true, receipt: true, receivedAt: true })
   .extend({ source: z.string().min(1), host: sessionHostSchema })
   .strict();
 export type LandingSubmission = z.infer<typeof landingSubmissionSchema>;
 
-// The bound record is authoritative for a branch handoff, even while
-// the original startup attempt is still kept.
-export async function declaredLandingRecord(
-  report: LandingSubmission,
-  origin: string,
-): Promise<LaunchRecord | undefined> {
-  const record = (await keptRecords(report.source)).find(
-    (entry) =>
-      entry.landingReporting?.branchContext?.reference === report.reference,
-  );
-  if (record === undefined) return undefined;
-  const retained = record.landingReporting;
-  const entry = record.branchEntry;
-  const authority = retained?.authority;
-  if (
-    record.request.workflow !== "ad-hoc" ||
-    record.request.host !== report.host ||
-    record.session.host !== report.host ||
-    retained?.origin !== origin ||
-    retained.deletedAt !== undefined ||
-    authority?.identity !== undefined ||
-    entry?.trunk === undefined ||
-    authority?.repository !== entry.repository ||
-    authority.workspace !== entry.workspace ||
-    authority.branch !== entry.branch ||
-    authority.remote !== entry.trunk.remote ||
-    authority.target !== entry.trunk.target
-  )
-    throw new RefusedRequest(
-      409,
-      "This is not the session's authorized branch landing.",
-    );
-  return record;
-}
+export type AdmittedLandingRequest = {
+  readonly operation: LandingOperation;
+  readonly submission: LandingSubmission;
+};
 
-export async function expiredAttemptRecord(
-  attempts: readonly LaunchAttemptRecord[] | undefined,
-  report: LandingSubmission,
-  origin: string,
-): Promise<LaunchRecord | undefined> {
-  if (
-    attempts === undefined ||
-    attempts.some((entry) => entry.id === report.reference)
-  ) {
-    reportingAttempt(attempts, report, origin);
-    return undefined;
+export type LandingRequestAdmission = {
+  readonly route: string;
+  readonly method: string | undefined;
+  readonly origin: string | null | undefined;
+  readonly host: string | undefined;
+  readonly bodyText: string;
+};
+
+// Admits a landing request from its wire values: the prepare or record route,
+// POST, same-origin Origin against Host, and a body matching the submission.
+export function admitLandingRequest(
+  request: LandingRequestAdmission,
+): AdmittedLandingRequest {
+  const operation = landingOperations.get(request.route);
+  if (operation === undefined)
+    throw new RefusedRequest(404, "This is not a landing route.");
+  if (request.method !== "POST")
+    throw new RefusedRequest(405, "Only POST is accepted here.");
+  verifySameOrigin(request.origin, request.host);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(request.bodyText);
+  } catch {
+    throw new RefusedRequest(400, "The landing request is malformed.");
   }
-  const record = (await keptRecords(report.source)).find(
-    (entry) =>
-      entry.request.reporting?.reference === report.reference &&
-      entry.session.host === report.host,
-  );
-  const retained = record?.landingReporting;
-  if (
-    retained === undefined ||
-    retained.settledAt === undefined ||
-    Date.now() - Date.parse(retained.settledAt) <=
-      launchRetentionDays * 86_400_000 ||
-    retained.origin !== origin
-  )
-    throw new RefusedRequest(
-      404,
-      "This dashboard accepted no such reporting launch.",
-    );
-  if (retained.deletedAt !== undefined)
-    throw new RefusedRequest(409, "The reporting session was deleted.");
-  // The workflow a record names decides which of its facts is its own; an
-  // unattached launch's is its established session, which names no story.
-  const established =
-    record?.request.workflow === "execution"
-      ? record.start
-      : record?.request.workflow === "refinement"
-        ? record.preparation
-        : record?.establishedSession;
-  const authority = retained.authority;
-  if (
-    record?.request.host !== report.host ||
-    record.request.reporting?.origin !== origin ||
-    storyOf(record.request) !== report.identity ||
-    established === undefined ||
-    establishedStory(established) !== authority.identity ||
-    established.workspace !== authority.workspace ||
-    established.branch !== authority.branch ||
-    established.remote !== authority.remote ||
-    `refs/heads/${established.target}` !== authority.target
-  )
-    throw new RefusedRequest(
-      409,
-      "This is not the established launch's authorized landing.",
-    );
-  return record;
+  const submission = landingSubmissionSchema.safeParse(parsed);
+  if (!submission.success)
+    throw new RefusedRequest(400, "The landing request is malformed.");
+  return { operation, submission: submission.data };
 }

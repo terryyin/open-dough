@@ -30,7 +30,7 @@ import {
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { removeLaunchAttachments } from "./launchAttachmentClaims.ts";
-import { retainLandingSettlement } from "./launchLandingRecord.ts";
+import { retainLandingSettlement } from "./landingSettlementRetention.ts";
 import { removeSessionStart } from "./sessionStartStore.ts";
 import { record } from "./startRecording.ts";
 

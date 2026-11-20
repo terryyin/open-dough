@@ -27,6 +27,41 @@ function loopbackHostname(hostname: string): boolean {
   );
 }
 
+// Same-origin Origin against Host for wire-shaped callers (landing admission)
+// and for IncomingMessage guards after loopback checks.
+export function verifySameOrigin(
+  origin: string | null | undefined,
+  host: string | undefined,
+): void {
+  if (typeof host !== "string" || host.length === 0) {
+    throw new RefusedRequest(
+      403,
+      "This endpoint only answers on the local loopback host.",
+    );
+  }
+  if (typeof origin !== "string") {
+    throw new RefusedRequest(
+      403,
+      "This endpoint requires a same-origin request.",
+    );
+  }
+  let originHost: string;
+  try {
+    originHost = new URL(origin).host;
+  } catch {
+    throw new RefusedRequest(
+      403,
+      "This endpoint requires a same-origin request.",
+    );
+  }
+  if (originHost !== host) {
+    throw new RefusedRequest(
+      403,
+      "This endpoint refuses cross-origin requests.",
+    );
+  }
+}
+
 export function verifyLocalOrigin(req: IncomingMessage): void {
   if (!loopbackHostname(req.socket.remoteAddress ?? "")) {
     throw new RefusedRequest(
@@ -59,26 +94,5 @@ export function verifyLocalOrigin(req: IncomingMessage): void {
   if (req.headers["sec-fetch-site"] === "same-origin") {
     return;
   }
-  const origin = req.headers.origin;
-  if (typeof origin !== "string") {
-    throw new RefusedRequest(
-      403,
-      "This endpoint requires a same-origin request.",
-    );
-  }
-  let originHost: string;
-  try {
-    originHost = new URL(origin).host;
-  } catch {
-    throw new RefusedRequest(
-      403,
-      "This endpoint requires a same-origin request.",
-    );
-  }
-  if (originHost !== host) {
-    throw new RefusedRequest(
-      403,
-      "This endpoint refuses cross-origin requests.",
-    );
-  }
+  verifySameOrigin(req.headers.origin, host);
 }
