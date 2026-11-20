@@ -444,3 +444,11 @@ from the two initial specs. It keeps the two review-only arrangements at the
 typed handler so they add no capture setup or new checkout-work steps. Until
 slice 7, support methods the deleted specs used may remain without a caller.
 Slice 7 removes them. This review found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: Keep the existing order for the later dashboard backend
+families. The direct Done store entry now supplies a proven starting point
+for branch result and manual landing. The retained native lifecycle and
+wire cases still cover their own boundaries. The observed comparison
+meets this story's timing threshold at the respective recorded loads.
