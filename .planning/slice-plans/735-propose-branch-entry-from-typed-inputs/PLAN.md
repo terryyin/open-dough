@@ -290,6 +290,26 @@ reaches only writes that take it, so the observation story's split must keep
 this parameter. Proof ran at load 7, with the bypassed callback failing at
 the pin assertion.
 
+## Execution complete
+
+Product advice:
+- The [Done transition story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store)
+  removes the remaining store use from the review, attribution and publisher
+  cases (HOME-stubbing `keep` calls went 11 → 12 because they still need real
+  Done capture). Its composed-Done step must first move the capture evidence
+  steps out of `launchOutcomeTestData.mjs`, which is at 248 of 250 lines.
+- The [observation story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records)
+  keeps `sessionLandingObservations`' `droppedByRetention` parameter through
+  its split. An explicit retention collaborator reaches only the writes that
+  take it.
+- The [MakeMe launch story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)
+  can fold propose → `enteredBranch` → `keep` (four sites) and the duplicated
+  expiry `removals` blocks into case-builder steps.
+- The [case-time story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases)
+  should target real Done capture and fixture Git: entry setup is gone, yet
+  the Done review, attribution, declared publication and lifecycle deletion
+  cases still reach 4.1–4.6 s at load ~20.
+
 ## Local gates
 
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
