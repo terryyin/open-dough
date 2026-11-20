@@ -413,36 +413,59 @@ the analysis is in its addendum on delivery observation and publication.
 ### Build Done capture cases from MakeMe launch steps
 
 **Identity:** SEED-413#fold-done-capture-launches-into-makeme
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#fold-done-capture-launches-into-makeme","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Composed typed Done state for the Done capture family.","rationale":"The case preset must supply the delivered review input and timeline. Folding the present keep-and-mark setup would embed the store replay this story is meant to remove.","condition":"MakeMe can compose a Done record with captured branch or commit evidence, and the review-topic Done capture cases accept composed records.","state":"waiting"},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal and composed branch-entry preconditions.","rationale":"The declaring-launch recipe needs the delivered branch-entry value and a separate operation for cases that prove keeping it. Folding the old helper would hide the operation that the handoff cases observe.","condition":"The branch-entry proposal is callable separately from persistence, and review and publisher preconditions can be composed with a typed branch entry.","state":"waiting"},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Delivery observation over typed Done records with a separate store adapter.","rationale":"The two-branch preset supplies the delivered decision input. Reusing the ambient-store preset first would encode the store effects in the shared builder and require rebuilding it around the typed boundary.","condition":"Observation decides delivery from typed kept records with real Git inspection, and the store adapter separately owns persistence and lifecycle races.","state":"waiting"},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Composable landing attempts and launch records with production request admission for the installed publisher.","rationale":"Both publisher recipes must share the delivered reporting values. Composing the current machine-store setup would put staging effects or the duplicate receiver behind a new builder API.","condition":"Landing preparation and recording take typed attempts and records, MakeMe can compose their shared reporting context, and the publisher bridge uses production request admission.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3b1c66d77ad4ac0d8c2fabeb17e8db63c72660ba88abe160c729ea62aeefe46","plan":"c1abc4a8a650d6c785a986242adbd16c19a629505b1120cfd5dba973c596bcd6"}}
 ```
 
 Fifth of the [Done capture import-list stories](#split-done-mark-decision-from-store);
-the analysis and decisions are recorded there.
+which records the initial analysis and the decision to fold the final typed
+arrangements after the four preceding renovations.
 
-- **Goal.** Dashboard maintainers read a Done capture case as one built
-  scenario. A spec imports `makeMe` and the production entry it proves,
-  not a list of support verbs.
-- **Scope.** Turn `anEstablishedSession`, `aDefaultLaunch`,
-  `anIsolatedLaunch`, `aDeclaringLaunch` and `historyBeforeTheCase` into
-  domain-named steps of the MakeMe launch and repository builders. Do the
-  same for the delivery and publication presets, `twoDoneBranchesMergedByHand`,
-  `aDeclaredPublisherBranch` and `aReportedIsolatedBranch`, and the
-  `observedTrunk` constant, so `doneBranchObservation.ts`,
-  `declaredPublisherBranch.ts` and `reportedIsolatedBranch.ts` keep only
-  what MakeMe cannot hold, or are retired. Give the
-  case one object that carries its checkout, record and timeline, so calls
-  no longer thread `checkout` and `record` separately and launch and Done
-  times are visible in the case. Shrink `doneCaptureCase.ts`,
-  `reportedDoneCase.ts` and the remaining spec-local helpers to what MakeMe
-  cannot hold. Add no new support wrappers.
+- **Goal.** Dashboard maintainers can read a Done capture case from its
+  MakeMe setup through the production entry and assertions. One scenario value
+  carries the checkout, its launch record or records, and the timeline so a
+  maintainer can see which work occurred during each launch.
+- **Scope.**
+  - Move the established Default main, blank Default main, isolated and
+    declaring launch presets onto the existing launch builder. Give the
+    repository builder the shared pre-launch history and use the real checkout
+    fixture to materialize named worktrees, with an origin where the case
+    publishes. State launch and Done times at the call site and retain the
+    distinction between case work and the action under test.
+  - Compose the two manually merged Done branches, the declared publisher
+    branch and the reported isolated branch from those same builders. Derive
+    the observed trunk from the case's source and ref. Reuse the delivered
+    Done, branch-entry, observation and landing-report values. Cases that
+    exercise persistence, a race, or the installed publisher keep the real
+    operation and its independent observations.
+  - Remove arrangements and redundant verbs from `doneCaptureCase.ts`,
+    `doneBranchObservation.ts`, `declaredPublisherBranch.ts`,
+    `reportedIsolatedBranch.ts`, `reportedDoneCase.ts` and the specs. Retire
+    modules once their last caller moves. Keep any remaining effect in its
+    existing owner and add no support wrappers. The four supplier stories
+    own the production seam changes. Runtime optimization has its own story.
 - **Key examples.**
-  - `ad-hoc-session-branch-entry.spec.ts` imports no names from
-    `doneCaptureCase.ts` beyond a case builder, and has no spec-local setup
-    helpers.
-  - A case states its launch and Done times in its own builder chain.
-- **Evaluation.** Imports per spec, support lines and spec lines before
-  and after, under
+  - A Default main case names its launch and Done times in MakeMe. Real work
+    before, within and after those times keeps the existing inclusion and
+    exclusion assertions, including a shared checkout with overlapping sessions.
+  - The branch-entry spec declares the worktrees and launch facts in MakeMe.
+    A dirty entry still preserves its first tree and Default main tip, review
+    still reads the separate comparisons, and foreign or conflicting places
+    are still refused. The spec has no local setup helpers, and any remaining
+    import from `doneCaptureCase.ts` is limited to one case builder.
+  - A two-branch observation case starts from dated Done records and a real
+    manually merged trunk; it keeps the existing delivery, retry and removal
+    assertions. A publisher case starts from the matching launch, attempt
+    and context and keeps the distinct branch and delivered comparisons,
+    including across retirement and exact retry.
+- **Evaluation.** Compare support imports and named bindings per affected
+  spec, and lines in the affected specs and support, including builders that
+  receive moved setup. Rebase the comparison on the delivered supplier state.
+  Fewer support verbs and visible scenario facts with every assertion preserved
+  are the gain, with any added lines counted in the trade-off.
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Effort hypothesis.** S–M, one plan.
 
