@@ -8,7 +8,7 @@ import {
 import {
   rangeRequest,
   type AdmittedStoryReviewRange,
-} from "./storyReviewAdmission.ts";
+} from "./storyReviewRangeRequest.ts";
 import {
   fileDiffRequest,
   fileTextRequest,

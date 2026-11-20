@@ -12,12 +12,11 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { reviewInput } from "./storyReviewSessionAdmission.ts";
+import { reviewInput, type StoryReviewInput } from "./storyReviewInput.ts";
 import type { AdmittedStoryReview } from "./storyReviewRequest.ts";
 import {
   keptStoryReview,
   type KeptStoryReview,
-  type StoryReviewInput,
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";

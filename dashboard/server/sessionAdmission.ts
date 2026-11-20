@@ -82,8 +82,8 @@ export async function recordedSession(
 }
 
 // A kept session named as other session reads name it, or the unknown-session
-// refusal. Review and similar GETs resolve through this; mutating namedSession
-// adds the request body and folder.
+// refusal. Mutating namedSession and unread-report reads resolve through this;
+// review builds kept state through the review-input adapter instead.
 export async function namedKeptSession(
   source: PublishedSource,
   session: SessionReference,

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_narrow-ad-hoc-review-handler-contracts.json",
+      "identity": "SEED-413#narrow-ad-hoc-review-handler-contracts",
+      "completedAt": "2026-11-20T05:44:56.426Z",
+      "blob": "130de9bd682d18cbff5fb70ab04912b848d7ad05"
+    },
+    {
       "fileName": "SEED-413_refuse-story-launch-session-file-reads.json",
       "identity": "SEED-413#refuse-story-launch-session-file-reads",
       "completedAt": "2026-11-20T04:51:13.508Z",

@@ -83,7 +83,7 @@ for (const [subject, handler, mismatch] of [
         comparing: { base, revision: result },
         reference: owned,
       });
-      const other = makeMe.aSessionReviewRead
+      const other = makeMe.aLaunchRecord
         .ofLandedAdHocSession("other-session", landing(otherReference))
         .please();
       const named = {
@@ -95,7 +95,7 @@ for (const [subject, handler, mismatch] of [
       };
       const read = makeMe.aSessionReviewRead
         .ofLandedAdHocSession("ad-hoc-file-refuse", landing(reference))
-        .alsoKeeping(other.kept.records)
+        .alsoKeeping([other])
         .readingFile(named)
         .please();
 

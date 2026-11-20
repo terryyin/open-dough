@@ -8,15 +8,12 @@ import {
   type ReviewedFileDiff,
   type ReviewedFileText,
 } from "../src/storyReviewContract.ts";
-import {
-  admitReviewedFile,
-  type ReviewedFileInput,
-} from "./storyReviewAdmission.ts";
+import { admitReviewedFile } from "./storyReviewAdmission.ts";
 import type { AdmittedReviewedFileRead } from "./storyReviewFileRequest.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
-import { reviewInput } from "./storyReviewSessionAdmission.ts";
+import { reviewInput, type ReviewedFileInput } from "./storyReviewInput.ts";
 import { textAtTree } from "./storyReviewFileText.ts";
 
 const outputLimit = 64 * 1024 * 1024;
@@ -59,7 +56,7 @@ export async function reviewedFileDiff(
     tree,
     path: file,
     oldPath,
-  } = await admitReviewedFile(input);
+  } = await admitReviewedFile(input, signal);
   try {
     const { stdout } = await runGit(
       [
@@ -97,7 +94,7 @@ export async function reviewedFileText(
     tree,
     path: file,
     oldPath,
-  } = await admitReviewedFile(input);
+  } = await admitReviewedFile(input, signal);
   const atBaseline = await textAtTree(
     repository,
     baseline,
