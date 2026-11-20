@@ -49,6 +49,15 @@ its arrangement only when that step is the behavior under test. The
 `review/ad-hoc-review-{landed,kept-unavailable,subject,file}.spec.ts` specs
 call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
 launch boundary's routes for them with a URL.
+[`ad-hoc-session-commits.spec.ts`](review/ad-hoc-session-commits.spec.ts) and
+[`ad-hoc-session-commits-done.spec.ts`](review/ad-hoc-session-commits-done.spec.ts)
+call typed completion delivery and Done marks.
+[`ad-hoc-session-commits-pending-done.spec.ts`](review/ad-hoc-session-commits-pending-done.spec.ts)
+checks stale review and capture at the resolved Git tip.
+[`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the
+kept-record store for deletion and expiry, and
+[`default-launch-start-facts.spec.ts`](review/default-launch-start-facts.spec.ts)
+reads the start from the Default main checkout.
 
 The Done capture family arranges each case through
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history

@@ -257,7 +257,7 @@ See `open-dough/evidence/731-slice-5-return.md`.
 ### 6. An unreadable checkout keeps no start, and the family leaves Playwright
 
 Type: Structure
-Status: planned
+Status: done
 
 Write a `defaultLaunchStartFacts` unit case for a checkout Git cannot read,
 and delete `ad-hoc-review-unavailable.spec.ts`. Recheck test-support
@@ -269,6 +269,32 @@ consumers. Name the moved specs in the ad hoc review paragraph of
 | No start kept | The case answers `{}` for an unreadable checkout and start facts for a readable one. |
 | No orphan, gates pass | The test-support grep finds no orphaned export. `npm run typecheck:dashboard` and `npm run lint` pass. `npm run --silent test:dashboard:backend -- review/ad-hoc-session-commits review/kept-commits review/done-kept review/ad-hoc-review sessions/agent-completion-quiet-rename` passes. |
 | Focused speed | Run the old selection at `5eae84032` and the new one at the candidate: three interleaved warm runs each of `npm run --silent test:dashboard:backend -- <the five specs> --workers=2`. Record median command time and load in this plan. |
+
+Accepted evidence: exact start facts from readable Git and an empty result
+after the checkout's Git directory moves. The legacy unavailable spec is
+retired, its other outcomes are covered by the typed unavailable owners,
+and the backend test guide names all five Node specs. The support audit
+found no remaining orphan. The 66-case focused selection, dashboard
+typecheck, full lint and whitespace check passed. See
+`open-dough/evidence/731-slice-6-return.md`.
+
+The benchmark used Node 24.21.0, identical dependency lockfiles, two
+workers and one warm-up per variant on the local AC-powered 16-thread Mac.
+The baseline was `5eae84032b6edbf0e69719fff57fcb1f7a513be5`; the candidate
+was `7cb81d8bfa2e9f518119fdc852490652b748025f` with the slice 6 edits.
+Both variants selected all fourteen cases. Each warm run passed.
+
+| Warm pair | Baseline wall s | Baseline load before → after | Candidate wall s | Candidate load before → after |
+| --- | ---: | --- | ---: | --- |
+| 1 | 25.234 | 14.66/11.23/9.21 → 17.02/12.02/9.55 | 5.492 | 17.02/12.02/9.55 → 16.93/12.09/9.59 |
+| 2 | 22.726 | 16.93/12.09/9.59 → 15.19/12.01/9.62 | 4.801 | 15.19/12.01/9.62 → 14.54/11.93/9.61 |
+| 3 | 25.522 | 14.54/11.93/9.61 → 15.85/12.42/9.85 | 6.487 | 15.85/12.42/9.85 → 15.62/12.49/9.90 |
+| Median | 25.234 | | 5.492 | |
+
+Load is the 1/5/15-minute host average. The measured median wall time fell
+78.2% under overlapping warm load conditions. The disposable baseline
+worktree was retired. Exact per-command records and selection are in
+`open-dough/evidence/731-s6-benchmark-runs.json`.
 
 ## Local gates
 
