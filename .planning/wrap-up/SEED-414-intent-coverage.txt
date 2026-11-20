@@ -1,0 +1,1 @@
+Intent coverage checked revision 758e195d3e40e29099689e84addce4411f97bb99: Caught — unfinished-card Done-home preference already caught by recently-done-active-story-sessions and story-card-done-disclosure; no follow-up.
