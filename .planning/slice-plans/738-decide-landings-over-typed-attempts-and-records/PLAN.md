@@ -298,3 +298,18 @@ remaining publisher cases. Each slice has its own proof loop and the server
 specs as its regression gate. This review found no remaining slice-specific
 concern. The sibling-story overlap is a reconciliation decision, not a
 blocking dependency: this story's production seams do not wait on theirs.
+
+## Execution complete
+
+Product advice: Outcome held — `decideLanding` / attempt+retained decisions,
+`LandingStores` on `handleLanding`, caller-directed `branchLandingContext`,
+shared `admitLandingRequest`, publisher bridge on production admission and
+composed stores. Key examples covered; source-review commitments 1–17 observed
+at `233d31e6c`. Publisher medians ~0.8–1.4s vs ~2.5–3.5s baseline; HOME removed
+for prepared-done and session-comparisons. Approved remainders: blank/worktree
+still HOME via `keep` for machine deletion; ~29 server specs stay real-server
+regression; local `LandingStores` until plan-736 `ObservedLandingStore` lands.
+Forward: reconcile record-side collaborator with observe-done-deliveries;
+later backend families bind to these seams; fold-done-capture can reuse composed
+landing stores. Process review deferred into wrap-up (Intent Coverage). CI
+conclusions conditional until `233d31e6c` is accepted.
