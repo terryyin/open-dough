@@ -174,7 +174,7 @@ specs pass.
 ### 4. A declared branch's landing context is written where its caller says
 
 Type: Structure
-Status: planned
+Status: done
 
 Make `branchLandingContext` take the directory and answer the next record
 and file. `submitSessionBranchEntry` keeps writing under the machine

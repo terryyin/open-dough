@@ -1,10 +1,23 @@
 // A Default main launch that declared its worktree, whose installed publisher
 // received a landing context, and the typed landing handler it reports to.
-import { appendFileSync, copyFileSync, mkdirSync, readFileSync } from "node:fs";
+import {
+  appendFileSync,
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { branchLandingContext } from "../../server/branchLandingContext.ts";
-import { handleLanding } from "../../server/launchLandingReporting.ts";
+import { onTestFinished } from "vitest";
+import {
+  acceptBranchLandingAnswer,
+  branchLandingContext,
+} from "../../server/branchLandingContext.ts";
 import type { LandingSubmission } from "../../server/launchLandingAdmission.ts";
+import { handleLanding } from "../../server/launchLandingReporting.ts";
+import { changeSessionRecord } from "../../server/launchRecordStore.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { aDeclaredBranch, type DeclaringLaunch } from "./declaredBranchCase.ts";
 import {
@@ -58,9 +71,25 @@ export async function aDeclaredPublisherBranch(
     workspace,
     branch,
   });
-  const context = await branchLandingContext(source, record, dashboardOrigin);
-  if (context === undefined) throw new Error("Missing the landing context.");
-  return { checkout, workspace, record, entry, context };
+  const directory = mkdtempSync(path.join(tmpdir(), "dough-branch-landing-"));
+  onTestFinished(() => {
+    rmSync(directory, { recursive: true, force: true });
+  });
+  const answered = await branchLandingContext(directory, record, {
+    origin: dashboardOrigin,
+    source,
+  });
+  if (answered === undefined) throw new Error("Missing the landing context.");
+  await changeSessionRecord(source, record.session, (current) =>
+    acceptBranchLandingAnswer(current, answered.record),
+  );
+  return {
+    checkout,
+    workspace,
+    record: answered.record,
+    entry,
+    context: answered.file,
+  };
 }
 
 // The launch reference the landing context at `file` reports for.

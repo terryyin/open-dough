@@ -61,5 +61,5 @@ export async function aDeclaredBranch(
   ).please();
   keep(record, ...others(checkout));
   const entry = await identifyBranch(checkout, record, { workspace, branch });
-  return { record, entry };
+  return { record: { ...record, branchEntry: entry }, entry };
 }
