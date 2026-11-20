@@ -4,10 +4,6 @@ import {
   greetDiff,
   greetText,
 } from "../../test-support/support/diffSyntaxFixtures.ts";
-import {
-  limitDiff,
-  limitText,
-} from "../../test-support/support/diffWordEmphasisFixtures.ts";
 import { diffColorScheme } from "./diffColorScheme.ts";
 import { styledDiffReading } from "./mountedFileDiff.ts";
 import {
@@ -15,16 +11,11 @@ import {
   tokenAppearance,
   tokenContrast,
 } from "./mountedReviewDiffPage.ts";
+import { limitAtPath } from "./wordEmphasisCases.ts";
 
 async function mountLimitDiff() {
   const path = "limit.ts";
-  await mountComponent(
-    styledDiffReading({
-      path,
-      printed: limitDiff(path).printed,
-      text: limitText,
-    }),
-  );
+  await mountComponent(styledDiffReading({ path, ...limitAtPath(path) }));
   const diff = mountedReviewDiff();
   return { added: diff.newLine(25), removed: diff.removedLine(25) };
 }

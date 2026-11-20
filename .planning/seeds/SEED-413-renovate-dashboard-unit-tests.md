@@ -1092,6 +1092,97 @@ one-minute goal at two workers allows about 150 ms a case. Moving every case
 onto Vitest reaches the engine goal and can still miss the minute, so each
 piece prefers the narrowest owner and records its mounted time per case.
 
+##### Review diff reading after migration
+
+On the same AC-powered Mac with Node 24.21.0, the focused
+`review/story-review-diff --workers=2` selection ran on clean
+`4e991ea00` and on the slice 6 working tree at `a3563cf18`.
+Both worktrees used their own locked dependencies. Three baseline/revised
+pairs ran alternately on 20–21 November 2026 with the macOS sleep guard.
+Elapsed seconds include runner preparation. One-minute load was natural.
+
+| Selection | Elapsed seconds | Load before → after |
+| --- | ---: | ---: |
+| Before 1 | 38.85 | 10.54 → 10.89 |
+| After 1 | 21.41 | 10.89 → 18.07 |
+| Before 2 | 31.57 | 20.15 → 19.93 |
+| After 2 | 17.96 | 19.93 → 20.59 |
+| Before 3 | 24.37 | 20.59 → 17.56 |
+| After 3 | 13.18 | 17.56 → 16.09 |
+
+The median elapsed time fell 43%, from 31.57 s before to 17.96 s after.
+The three original clean runs earlier in the story took 30.924, 29.209
+and 28.382 s. This comparison covers the focused Review diff selection
+under the observed loads. The full frontend group's time is a separate
+measurement.
+
+The original eight built-app specs passed 22 cases. The revised selection
+passed 43 mounted cases in six specs and five retained built-app cases in
+three specs. The five built-app cases still cover these boundaries.
+
+- File diff and text reads. `syntax-arrival` checks Retry after an
+  unavailable file text and plain rendering after a failed grammar load.
+- Review revision selection. `syntax-intent-hints` checks the live snapshot
+  revision and the published Done revision used to resolve syntax hints.
+- Review and Intent rendering. `syntax-appearance` checks token appearance
+  against the same Intent source in both schemes. It also observes zero
+  additional diff or text reads while switching schemes in Review.
+
+The five audited shared support files fell from 568 to 220 lines.
+The word-emphasis opener and fixture retired, the retained diff helper
+kept the observations the built-app cases still read, and both grammar
+helpers still serve the Intent cases that hold or fail a module load.
+
+Mounted attempts had a median of 56 ms and a maximum of 761 ms.
+The table gives each case's median of three attempts, rounded to milliseconds.
+Spec names omit `story-review-diff-` and `.spec.ts`.
+
+| Mounted spec | Case | Median ms |
+| --- | --- | ---: |
+| `syntax-appearance-mounted` | styled changed words keep token colours inside insertions and deletions | 63 |
+| `syntax-appearance-mounted` | emphasized tokens and underlines stay readable in light and dark | 97 |
+| `syntax-appearance-mounted` | diff tokens on added, removed and unchanged lines read at 4.5:1 in both appearances | 50 |
+| `syntax-arrival-mounted` | a diff shown before its text is read stays plain and complete until the text arrives | 172 |
+| `syntax-arrival-mounted` | styling that arrives after the diff keeps the reading position, revealed context and an open line menu | 473 |
+| `syntax-arrival-mounted` | emphasis is present before tokens arrive and stays on the same words after | 138 |
+| `syntax-languages-mounted` | a modified README heading and fence take distinct token colours while markers and backgrounds stay | 45 |
+| `syntax-languages-mounted` | a JSON property name and string value take distinct colours from each other and punctuation | 35 |
+| `syntax-languages-mounted` | a removed CSS property and colour value differ and stay readable when appearance switches | 71 |
+| `syntax-mounted` | a TypeScript diff styles each line by its side's whole text and keeps the plain diff's change facts | 672 |
+| `syntax-paths-mounted` | a.ts styles the file's keyword | 159 |
+| `syntax-paths-mounted` | a.mts styles the file's keyword | 106 |
+| `syntax-paths-mounted` | a.cts styles the file's keyword | 54 |
+| `syntax-paths-mounted` | a.tsx styles the file's keyword | 53 |
+| `syntax-paths-mounted` | a.js styles the file's keyword | 115 |
+| `syntax-paths-mounted` | a.mjs styles the file's keyword | 8 |
+| `syntax-paths-mounted` | a.cjs styles the file's keyword | 12 |
+| `syntax-paths-mounted` | a.jsx styles the file's keyword | 27 |
+| `syntax-paths-mounted` | A.java styles the file's keyword | 22 |
+| `syntax-paths-mounted` | a.py styles the file's keyword | 73 |
+| `syntax-paths-mounted` | a.sh styles the file's keyword | 33 |
+| `syntax-paths-mounted` | a.bash styles the file's keyword | 7 |
+| `syntax-paths-mounted` | a.feature styles the file's keyword | 14 |
+| `syntax-paths-mounted` | README.md styles the file's keyword | 123 |
+| `syntax-paths-mounted` | data.json styles the file's keyword | 39 |
+| `syntax-paths-mounted` | a.css styles the file's keyword | 58 |
+| `syntax-paths-mounted` | a.yaml styles the file's keyword | 8 |
+| `syntax-paths-mounted` | a.yml styles the file's keyword | 21 |
+| `syntax-paths-mounted` | a rename from old.txt to new.ts styles by its new path | 10 |
+| `syntax-paths-mounted` | a rename from settings.yaml to settings.yml styles by its new path | 22 |
+| `syntax-paths-mounted` | notes.txt with no supported extension reads plain | 86 |
+| `syntax-paths-mounted` | new.txt with no supported extension reads plain | 84 |
+| `syntax-paths-mounted` | scripts/setup.test uses a known hint when its path names no grammar | 23 |
+| `syntax-paths-mounted` | scripts/setup-renamed.test uses a known hint when its path names no grammar | 7 |
+| `syntax-paths-mounted` | an unfamiliar hint leaves a path-silent file plain | 106 |
+| `syntax-paths-mounted` | the file's path grammar wins over a known hint | 17 |
+| `word-emphasis-mounted` | changed words in a block are deletions and insertions; copy stays plain | 69 |
+| `word-emphasis-mounted` | a three-line rewrap gaining a word emphasizes only that word | 63 |
+| `word-emphasis-mounted` | splitting a call across lines emphasizes the added comma, indent and argument | 114 |
+| `word-emphasis-mounted` | re-indent emphasizes the changed whitespace on both lines | 109 |
+| `word-emphasis-mounted` | a pure addition and revealed context have no word emphasis | 131 |
+| `word-emphasis-mounted` | a low-similarity rewrite stays line-level with no word emphasis | 2 |
+| `word-emphasis-mounted` | a several-hundred-line block stays line-level while a small block is emphasized | 31 |
+
 #### Frontend campaign baseline
 
 At `267a27502` there are 304 frontend spec files, including nine

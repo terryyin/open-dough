@@ -29,9 +29,7 @@ const files = [styledPath, plainPath].map((path) => ({
 
 async function expectPlainAndComplete(diff: StoryReviewDiff) {
   await expect(diff.newLine(31).line).toHaveText(" export default greeting;");
-  expect((await diff.lineFacts()).map(({ text }) => text)).toEqual(
-    greetingDiffHunkLines,
-  );
+  expect(await diff.lineTexts()).toEqual(greetingDiffHunkLines);
   await expect(diff.codeTokens()).toHaveCount(0);
 }
 

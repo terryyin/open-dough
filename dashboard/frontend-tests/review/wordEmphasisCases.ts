@@ -1,30 +1,41 @@
 // Printed diffs and both file texts for the mounted word-emphasis cases.
 import type { ReviewedFileText } from "../../src/storyReviewContract.ts";
-import { limit as sharedLimit } from "../../test-support/support/diffWordEmphasisFixtures.ts";
+import { printedDiff } from "./styledDiffCases.ts";
 
 type FileText = Extract<ReviewedFileText, { kind: "text" }>;
 
-function wordEmphasisCase(
+function wordEmphasisCase<Text extends FileText>(
   path: string,
-  text: FileText,
+  text: Text,
   lines: readonly string[],
 ) {
   return {
     text,
-    printed: [
-      `diff --git a/${path} b/${path}`,
-      `--- a/${path}`,
-      `+++ b/${path}`,
-      ...lines,
-      "",
-    ].join("\n"),
+    printed: printedDiff(path, lines),
   };
 }
 
-export const limit = {
-  text: sharedLimit.text,
-  printed: sharedLimit.diff("limit.txt").printed,
-};
+const fillers = [...Array(24).keys()].map(
+  (index) => `filler line ${String(index + 1)}`,
+);
+
+const limitText = {
+  kind: "text",
+  baseline: [...fillers, "const limit = 20;", "keep this line;", ""].join("\n"),
+  tree: [...fillers, "const limit = 25;", "keep this line;", ""].join("\n"),
+} as const satisfies FileText;
+
+export function limitAtPath(path: string) {
+  return wordEmphasisCase(path, limitText, [
+    "@@ -24,3 +24,3 @@",
+    " filler line 24",
+    "-const limit = 20;",
+    "+const limit = 25;",
+    " keep this line;",
+  ]);
+}
+
+export const limit = limitAtPath("limit.txt");
 
 const rewrapText = {
   kind: "text",

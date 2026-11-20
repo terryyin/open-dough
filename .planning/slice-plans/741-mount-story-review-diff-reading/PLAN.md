@@ -28,6 +28,9 @@
 - Slice 4 accepted on the story branch at
   `30eb1f3f98c14b9f854fa215f39886c150c56a6f` and registered with the same
   observer. Its candidate used slice 3 as its suffix base.
+- Slice 5 accepted on the story branch at
+  `a3563cf186b557b084c5f219bbdc1597ca46f1d2` and registered with the same
+  observer. Its candidate used slice 4 as its suffix base.
 
 ## Goal and scope
 
@@ -242,7 +245,7 @@ Proof and coverage are in `slice-5-return.md` and
 ### 6. The moved cases leave their support and show their cost
 
 Type: Behavior
-Status: planned
+Status: done
 
 Remove each `dashboard/test-support/` export or module left with no consumer
 (`diffWordEmphasisOpen.ts`, `diffWordEmphasisFixtures.ts`, and unread exports
@@ -255,6 +258,49 @@ with the cases left built-app and their owner.
 
 **Proof.** The recorded comparison, the support line count before and after,
 and a list pairing every removed built-app title with its mounted case.
+
+**Observed.** All six interleaved focused runs passed. The 22 built-app
+baseline cases took 38.85, 31.57 and 24.37 seconds. The revised selection
+of 43 mounted and five retained built-app cases took 21.41, 17.96 and
+13.18 seconds, a 43% reduction in median elapsed time. The five audited
+support files fell from 568 to 220 lines. The parent state records
+retained owners, loads and per-case medians. The three retained Intent
+grammar cases, exact fixture comparison and typecheck passed. See
+`slice-6-return.md` and `slice-6-retirement-map.md` in Git evidence.
+
+## Case migration
+
+Spec names in the table omit the common `story-review-diff-` prefix and
+`.spec.ts` suffix. The slice returns record the observing assertions.
+
+| Built-app spec | Original title | Mounted proof |
+| --- | --- | --- |
+| `word-emphasis` | changed words in a block are deletions and insertions; copy stays plain | Same title in `word-emphasis-mounted`. |
+| `word-emphasis` | a three-line rewrap gaining a word emphasizes only that word | Same title in `word-emphasis-mounted`. |
+| `word-emphasis` | splitting a call across lines emphasizes the added comma, indent and argument | Same title in `word-emphasis-mounted`. |
+| `word-emphasis` | re-indent emphasizes the changed whitespace on both lines | Same title in `word-emphasis-mounted`. |
+| `word-emphasis` | a pure addition and revealed context have no word emphasis | Same title in `word-emphasis-mounted`. |
+| `word-emphasis` | a low-similarity rewrite stays line-level with no word emphasis | Same title in `word-emphasis-mounted`. |
+| `word-emphasis` | a several-hundred-line block stays line-level while a small block is emphasized | Same title in `word-emphasis-mounted`. |
+| `syntax` | a TypeScript diff styles each line by its side's whole text and keeps the plain diff's change facts | Same title in `syntax-mounted`. |
+| `syntax-paths` | each supported extension and a rename's new path style the diff; other files stay plain | The supported path, renamed path and plain path cases in `syntax-paths-mounted`. |
+| `syntax-appearance-languages` | a modified README heading and fence take distinct token colours while markers and backgrounds stay | Same title in `syntax-languages-mounted`. |
+| `syntax-appearance-languages` | a JSON property name and string value take distinct colours from each other and punctuation | Same title in `syntax-languages-mounted`. |
+| `syntax-appearance-languages` | a removed CSS property and colour value differ and stay readable when appearance switches | Same title in `syntax-languages-mounted`. |
+| `syntax-arrival` | a diff shown before its text is read stays plain and complete until the text arrives | Same title in `syntax-arrival-mounted`. |
+| `syntax-arrival` | styling that arrives after the diff keeps the reading position, revealed context and an open line menu | Same title in `syntax-arrival-mounted`. |
+| `word-emphasis-composition` | emphasis is present before tokens arrive and stays on the same words after | Same title in `syntax-arrival-mounted`. |
+| `word-emphasis-composition` | styled changed words keep token colours inside insertions and deletions | Same title in `syntax-appearance-mounted`. |
+| `word-emphasis-composition` | emphasized tokens and underlines stay readable in light and dark | Same title in `syntax-appearance-mounted`. |
+
+The composition case's file-read assertion stays with `FileDiff` in the
+retained `syntax-appearance` case. It observes both appearance readings
+before the Intent navigation.
+
+| Narrowed built-app case | Mounted proof and retained owner |
+| --- | --- |
+| Intent syntax hints style path-silent diffs; path grammar, outside Intent and unfamiliar hints stay as today | The known hint, rename, unfamiliar hint and path precedence cases run in `syntax-paths-mounted`. The retained `syntax-intent-hints` case observes the live snapshot revision, the configured and renamed files, and the outside-location file. |
+| diff tokens read at 4.5:1 in both appearances and match Intent's source reading of the same code | `diff tokens on added, removed and unchanged lines read at 4.5:1 in both appearances` runs in `syntax-appearance-mounted`. The built-app `syntax-appearance` case compares the diff and Intent readers and checks for additional file reads. |
 
 ## Local gates and review
 
