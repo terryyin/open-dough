@@ -23,8 +23,8 @@ of speed, clarity and support removed.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| P01 | The inventoried capture cases and two review-only cases run as plain Node Vitest specs. | slice 7 | |
-| P02 | The inventory retains every existing case and observation. The excerpt gives the inventory by reference, including reworded-commit and unreadable-log cases whose existing review assertions it does not state. | slice 7 | |
+| P01 | The inventoried capture cases and two review-only cases run as plain Node Vitest specs. | slice 7 | observed: slice7-timing-proof.json records exactly 26 passing Node cases in the eight replacement specs and slice7-matched-case-times.json joins each to one earlier case |
+| P02 | The inventory retains every existing case and observation. The excerpt gives the inventory by reference, including reworded-commit and unreadable-log cases whose existing review assertions it does not state. | slice 7 | observed: slice-7-implementation.md inventories all eight final specs and links the assertion-level parity observations in slice 1–6 proof |
 | P03 | A capture case puts its starting launch records in the launch document. | slice 6 | observed: slice-6-implementation.md family-wide commitments lists all seven capture specs writing their starting launch document through keepLaunchStore |
 | P04 | A capture case marks the session Done in-process through `setRecordDoneAt`, passing the Done time stated by the case. | slice 6 | observed: slice-6-implementation.md maps all seven capture specs to their stated Done time passed to setRecordDoneAt |
 | P05 | A case deletes a record only when it is proving reference release. | slice 6 | observed: done-kept-commit-refs-release.spec.ts uses deleteRecord only in cases asserting actual ref release or continued absence |
@@ -62,13 +62,13 @@ of speed, clarity and support removed.
 | P37 | When two kept sessions share one checkout and each makes a commit, Done on one yields a review containing commits made while that session was open. | slice 5 | observed: done-kept-session-shared-checkout.spec.ts two-open-launch case reads a two-commit run from the original base to the second commit after either Done |
 | P38 | The same review says the checkout was shared. | slice 5 | observed: done-kept-session-shared-checkout.spec.ts two-open-launch case expects session.shared true in both independently read reviews |
 | P39 | When a Done session has a kept run and a later Done cannot read its log, the earlier run’s references are gone from the repository. | slice 6 | observed: done-kept-commit-refs-release.spec.ts second case sees the original actual pair disappear after failed recapture and before deletion |
-| P40 | At two workers, the moved cases’ summed case time is at most half the same cases’ Playwright time, measured in one session at a stated load. | slice 7 | |
-| P41 | `dashboard/backend-tests/README.md` adds the guidance to state checkout work through MakeMe. | slice 7 | |
-| P42 | The README adds the guidance to state times against the case’s clock. | slice 7 | |
-| P43 | The README adds the guidance to use the store function under a native operation when the kept record is the whole fact the case adds. | slice 7 | |
-| P44 | The README carries the rule limiting stored launch document setup to cases exercising the store. | slice 7 | |
-| P45 | No callerless methods remain in `DefaultMainSessionWork` and no callerless functions remain in `sessionCheckoutGit.ts` or `adHocReview.ts`. | slice 7 | |
-| P46 | New test support is confined to MakeMe builders. | slice 7 | |
-| P47 | The deferred cases remain Playwright specs, including the explicit quiet-report example. | slice 7 | |
-| P48 | Retained Playwright coverage continues to prove that the developer’s Done reaches capture. | slice 7 | |
+| P40 | At two workers, the moved cases’ summed case time is at most half the same cases’ Playwright time, measured in one session at a stated load. | slice 7 | observed: slice7-matched-case-times.json shows 34.299 s against 178.589 s for the same 26 cases at two workers on the same Mac and records the differing natural loads |
+| P41 | `dashboard/backend-tests/README.md` adds the guidance to state checkout work through MakeMe. | slice 7 | observed: dashboard/backend-tests/README.md Which entry a case uses describes aCheckoutWork and performCheckoutWork for real Git |
+| P42 | The README adds the guidance to state times against the case’s clock. | slice 7 | observed: dashboard/backend-tests/README.md Which entry a case uses states the launch, work and Done relative to the case clock |
+| P43 | The README adds the guidance to use the store function under a native operation when the kept record is the whole fact the case adds. | slice 7 | observed: dashboard/backend-tests/README.md Which entry a case uses describes the store function as the entry when the persisted record is the entire fact and names setRecordDoneAt |
+| P44 | The README carries the rule limiting stored launch document setup to cases exercising the store. | slice 7 | observed: dashboard/backend-tests/README.md Which entry a case uses limits stored launch setup to store cases and names the typed kept-record review-only spec |
+| P45 | No callerless methods remain in `DefaultMainSessionWork` and no callerless functions remain in `sessionCheckoutGit.ts` or `adHocReview.ts`. | slice 7 | observed: slice7-callers-after.txt finds callers for every remaining routine across all three modules; the diff removes 13 unused declarations |
+| P46 | New test support is confined to MakeMe builders. | slice 7 | observed: slice-7-implementation.md accounts for all three dashboard test-support edits as removals with one import consolidation and the shared Distribution MakeMe construction |
+| P47 | The deferred cases remain Playwright specs, including the explicit quiet-report example. | slice 7 | observed: slice7-review-proof.json and slice7-retained-playwright-cases.json preserve and observe the retained lifecycle, release, branch, manual landing and comparison Playwright cases |
+| P48 | Retained Playwright coverage continues to prove that the developer’s Done reaches capture. | slice 7 | observed: ad-hoc-session-commits-done.spec.ts native Done and reopen case observes the persisted first pair and updated two-commit result on next native Done; passed in slice7-review-proof.json |
 | P49 | Retained Playwright coverage continues to prove that a quiet report reaches capture. | slice 1 | observed: ad-hoc-session-commits.spec.ts quiet-report Playwright case observes the report's Done time and captured commit via review |

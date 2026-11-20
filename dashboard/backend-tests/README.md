@@ -20,12 +20,12 @@ and a presentation case in `../frontend-tests/`.
 ## Which entry a case uses
 
 Call the typed handler in this process on plain Node Vitest, in a spec that
-imports its `test` from `vitest`. Give the case a temporary machine home and store its
-data with a MakeMe stored document, such as
-`makeMe.aStoredStoryNotesDocument`. The adapter's request admission is a
-unit case too: it takes the request as typed values (method, URL, body
-reader) and any process-wide lookup as a function, and the case passes plain
-values. A new case never starts a server, mounts a boundary or runs on
+imports its `test` from `vitest`. When a case exercises a store, give it a
+temporary machine home and use the store's document format, such as
+`makeMe.aStoredStoryNotesDocument` for Story Notes. The adapter's request
+admission is a unit case too: it takes the request as typed values (method,
+URL, body reader) and any process-wide lookup as a function, and the case
+passes plain values. A new case never starts a server, mounts a boundary or runs on
 Playwright. A behavior that truly needs a started server or a browser is an
 end-to-end journey in [`../../e2e/`](../../e2e/README.md); the boundary's
 shared origin, method, caching and status framing stay with their own
@@ -49,6 +49,20 @@ its arrangement only when that step is the behavior under test. The
 `review/ad-hoc-review-{landed,kept-unavailable,subject,file}.spec.ts` specs
 call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
 launch boundary's routes for them with a URL.
+
+The Done capture family states dated checkout work with
+`makeMe.aCheckoutWork` and runs it through
+[`performCheckoutWork`](../../Distribution/tests/support/repository-checkout-work.mjs).
+State the launch, work and Done times against the case's clock. Date the
+relevant work after launch and before Done, with Done no later than now.
+When the kept record is the whole fact a case adds, call the store function
+behind the native operation. The capture cases keep their starting records
+through [`keepLaunchStore`](../test-support/support/launchStore.ts), then
+call [`setRecordDoneAt`](../server/recordDoneAt.ts). A review-only case
+builds the kept records and passes them straight to its typed handler with
+`makeMe.aSessionReviewRead`, as
+[`kept-session-commits-review.spec.ts`](review/kept-session-commits-review.spec.ts)
+shows.
 
 Older cases still prove the boundary the server mounts on Playwright, as
 below. They are not a pattern for new cases: each moves to a unit case or, if

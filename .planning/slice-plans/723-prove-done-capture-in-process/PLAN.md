@@ -337,7 +337,7 @@ produce or release the new combination of references.
 ### 7. The backend guidance states the family's rules, and spent support is gone
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A contributor reading `dashboard/backend-tests/README.md` finds,
 under "Which entry a case uses", the rules this family adds: state a
@@ -358,6 +358,21 @@ summed time with case count, worker count and load beside the baseline.
 `ad-hoc-session-commits-done`, `ad-hoc-session-commits-pending-done`,
 `ad-hoc-session-branch-handoff` and `kept-commits-release` pass. `npm run
 lint` and `npm run typecheck:dashboard` pass.
+
+Accepted proof in `slice-7-implementation.md` and its named run records
+in the checkout's Git evidence directory. All 26 migrated cases were
+selected as Node Vitest. The unique title mapping matched all 26 to the
+passing two-worker Playwright baseline. Vitest took 34.299 seconds at
+natural one-minute load 7.61 to 10.97. Playwright took 178.589 seconds at
+load 42.21 to 49.20. Both runs were on the awake AC Mac in this execution.
+The Vitest sum is 19.2% of the observed baseline.
+
+The backend review folder passed all 213 cases, 74 in Node Vitest and
+139 in Playwright. The named lifecycle and release journeys remain
+covered. Full lint and dashboard typecheck passed. The caller audit
+found uses for all remaining routines after removing 13 declarations
+and 224 lines from the three support modules. All 49 README references
+passed the static path, definition and anchor check.
 
 ## Proof map
 
