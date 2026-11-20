@@ -98,3 +98,10 @@ Keep default test timeouts.
 Slice-plan refinement was not needed. The work is one mechanical Structure
 change across 9 specs with one proof run, well within the 15-minute budget.
 This review found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The correction removed the only Done helper this
+story owns. The other Done helper, `sessionCheckoutWork.markDone`, still
+waits on plan 726's unmeasured hypothesis, which needs measuring before any
+work is queued.
