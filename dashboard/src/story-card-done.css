@@ -1,0 +1,24 @@
+/* Done history disclosure on an unfinished story card
+   (`./StoryCardDoneSessions.tsx`). Open-session list styles stay in
+   ./agent-launch.css; nested rows share that raised surface here. */
+
+.story-card-done {
+  margin-top: 0.45rem;
+}
+
+.story-card-done-count {
+  color: var(--quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.story-card-done-sessions {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+}
+
+/* Nested Done rows share the raised surface open sessions use on the card. */
+.story-card-done-sessions .session-entry {
+  background: var(--raised-surface);
+}

@@ -32,6 +32,7 @@ import {
 import { storyCardMarks } from "./storyCardFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StoryCardLaunches } from "./StoryCardLaunches.tsx";
+import { StoryCardDoneSessions } from "./StoryCardDoneSessions.tsx";
 import {
   dependencyStartReason,
   startEligibilityOf,
@@ -39,6 +40,7 @@ import {
 import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { storyCardSessionsOf } from "./agentLaunch.ts";
+import { storyCardAssignmentsOf } from "./agentAssignments.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
 
@@ -134,6 +136,13 @@ export function StoryCard({
           offersStart={offersStart}
           dependencyProblem={dependencyStartReason(eligibility)}
           statusId={statusId}
+        />
+        <StoryCardDoneSessions
+          sourceId={sourceId}
+          project={work.source.label}
+          identity={entry.identity}
+          launches={launches}
+          storyCardAssignments={storyCardAssignmentsOf(entry)}
         />
       </StartupFrame>
       <div

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-414#review-done-sessions-on-open-story-cards
 **Source:** [Review done sessions on open story cards](../../seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -54,7 +55,7 @@ The local commands are under [Local gates](#local-gates).
 ### 1. Review retained Done sessions from their unfinished story
 
 Type: Behavior
-Status: planned
+Status: done
 
 With published Backlog or Taken membership and retained launches for the same
 story, opening the card's Done disclosure reveals the sessions in existing
@@ -65,6 +66,16 @@ Board placement seam, add the disclosure beside the existing launch area, and
 reuse session destination handling to open it on an explicit reveal. Compose
 the disclosure alongside `StoryCardLaunches.tsx` and render it with the shared
 `SessionEntry.tsx`. Both files are already 250 lines.
+
+**Accepted proof (pre-delivery).** Unfinished cards hold Done sessions in
+`StoryCardDoneSessions` (sibling of launches); `newestFirst` skips unfinished
+identities before Recently done paging/counts; navigation opens
+`details.story-card-done` on reveal. Focused proof: disclosure vitest,
+recently-done frontend siblings, E2E mark-done/returned/sidebar, Review
+changes card action, typecheck, lint. Accessible list label is `Done history`
+(avoid substring clash with `Sessions`). Refactor: `storyCardAssignmentsOf`,
+`storyCardDone` class module, `story-card-done.css`, disclosure page-object
+helpers.
 
 | Promise | Owning browser proof |
 | --- | --- |

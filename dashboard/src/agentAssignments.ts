@@ -173,3 +173,17 @@ export async function readAssignments(
     };
   }
 }
+
+// Recorded owner and preparation assignments a story card's session entries
+// share with Session entry attribution.
+export function storyCardAssignmentsOf(entry: {
+  readonly owner?: TakenOwner | undefined;
+  readonly preparing?: Preparing | undefined;
+}): readonly AgentAssignment[] {
+  return [
+    ...(entry.owner?.status === "recorded" ? entry.owner.assignments : []),
+    ...(entry.preparing?.status === "recorded"
+      ? entry.preparing.assignments
+      : []),
+  ];
+}

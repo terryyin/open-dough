@@ -3,6 +3,7 @@
 // in one place.
 
 import type { Locator, Page } from "@playwright/test";
+import { storyCardDoneClass } from "../src/storyCardDone.ts";
 
 export function parts(page: Page) {
   const board = page.getByRole("region", { name: "Board" });
@@ -83,6 +84,17 @@ export const standaloneSessionName = (workflow: string, title: string) =>
 // A card's session entries, newest first.
 export const storyCardSessions = (card: Locator) =>
   card.getByRole("list", { name: "Sessions" }).getByRole("article");
+
+// An unfinished card's Done history disclosure (`./StoryCardDoneSessions.tsx`).
+export const storyCardDoneDisclosure = (card: Locator) =>
+  card.locator(`details.${storyCardDoneClass}`);
+
+// Opens the card's Done history so nested Session entries can be observed.
+export async function expandStoryCardDoneHistory(card: Locator) {
+  const disclosure = storyCardDoneDisclosure(card);
+  await disclosure.locator("summary").click();
+  return disclosure;
+}
 
 // What a card says of how many of its sessions need attention, when any do.
 export const storyCardAttentionOf = (card: Locator) =>
