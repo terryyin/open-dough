@@ -201,7 +201,7 @@ Git-heavy case in these specs, including the unchanged adapter case, ran
 ### 5. Declared publication starts from a composed kept entry
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given the installed publisher and a kept record whose entry names its real
 worktree, production `branchLandingContext` derives the launch's existing
@@ -222,8 +222,8 @@ the comparison after retirement and Done, and the deletion result.
 Git directory to the canonical path production records, and the publisher
 preset composes the proposal's entry. The publisher cases never needed the
 session-branch pins the old adapter path wrote. Local proof ran at load 25–39
-with the Git-heavy timeouts recorded under slice 4; hosted CI proves this
-revision.
+with the Git-heavy timeouts recorded under slice 4. Hosted CI run
+44768641314 passed on `9dc3e66`.
 
 ### 6. Expiry cases pass the cleanup operation explicitly
 
