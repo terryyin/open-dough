@@ -114,7 +114,7 @@ result.
 ### 2. Both endings of the old read are proven on the mounted reading, and the built-app spec is gone
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the departing and late-answer cases with their held replies. Delete
 `intent-test-optimization-candidates-revision.spec.ts`. Fold
@@ -127,6 +127,24 @@ delete `intentMovingOpenDough.ts`, and recheck test-support consumers.
 | Each case discriminates | With the `catch` guard in `IntentCandidatesRecord.tsx` made always true in a scratch edit, the departing case fails. With the `then` guard made always true, the late-answer case fails. Both pass once reverted. |
 | Spec removed with no orphan | `grep -rn "intent-test-optimization-candidates-revision\\|intentMovingOpenDough\\|passTimeUntilCheckedWhileReadsOutstanding" dashboard e2e` lists nothing. `npm run typecheck:dashboard` and `npm run lint` pass. Run `npm run test:dashboard:frontend -- navigation/story-reference-done-recovery` as a caller of the folded `passTimeUntilChecked`; it passes. |
 | Focused speed | Run `npm run test:dashboard:frontend -- intent/intent-test-optimization-candidates-revision --workers=2` at `37dc94fbd`, and the new spec's selection after the change. Interleave three warm runs each and record median command time and load. |
+
+Learnings:
+
+- The **Old reads** decision was wrong in one respect: the revision notice
+  appears only after the first read at `before` settles. Each old-read case
+  answers that first read at once, and its departing or late reply applies
+  from the re-read at the offer onward.
+- The late-answer case waits one task after the late answers resolve;
+  without it the case passed with the `then` guard broken.
+- Focused speed, three interleaved warm runs at `--workers=2`, with proof
+  records confirming the cases ran: the built-app spec at `e92db760b` (same
+  spec as `37dc94fbd`, 2 cases) took 5.5, 4.5 and 3.1 s, median 4.5 s at
+  load about 11. The mounted spec (3 cases) took 4.4, 3.0 and 2.9 s, median
+  3.0 s at load about 10.6.
+- The fold of `passTimeUntilChecked` is a pure inline with the same
+  statements in order. Its 39 other callers reuse unchanged behavior;
+  `navigation/story-reference-done-recovery` ran as the representative
+  caller and CI covers the rest.
 
 ## Local gates
 

@@ -1,7 +1,7 @@
 // Intent's Optimization Candidates record as the reader operates it: the
-// view is chosen, the record names the revision it was recorded at, and one
-// recorded entry opens its source file in the reading
-// (./intent-file-reading-page.ts).
+// view is chosen, the record names the revision it was recorded at, says
+// while it is being read, shows no failure, and one recorded entry opens its
+// source file in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
@@ -31,6 +31,20 @@ export function intentCandidates() {
         .toContain(
           `Recorded at revision ${shortRevision(revision)} (${revision}).`,
         );
+      return candidates;
+    },
+    async isReading() {
+      await expect
+        .element(
+          record.getByText("Reading Test Optimization Candidates…", {
+            exact: true,
+          }),
+        )
+        .toBeVisible();
+      return candidates;
+    },
+    async showsNoFailure() {
+      await expect.element(record.getByRole("alert")).not.toBeInTheDocument();
       return candidates;
     },
     async shows(name: string) {
