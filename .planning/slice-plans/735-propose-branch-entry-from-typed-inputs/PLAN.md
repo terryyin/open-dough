@@ -13,7 +13,7 @@ The same deletion, expiry, replacement and publication promises keep their proof
 
 The [Done transition](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store)
 owns Done state and Git capture. The [observation](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records)
-and [landing report](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records)
+and landing report (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records`)
 stories own their respective store splits. The [launch arrangement story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)
 owns the general presets. Reuse any composed Done state already delivered.
 The branches, revisions and timelines supplied by this plan also work with

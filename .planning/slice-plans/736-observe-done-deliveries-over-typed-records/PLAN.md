@@ -39,7 +39,7 @@ recorded as this story's blocking supplier); exposing production pin-ref
 queries in place of `adHocBranchRefs.ts`
 ([branch entry story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store));
 splitting `handleLanding`
-([landing reports](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records));
+(landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records`));
 and folding `twoDoneBranchesMergedByHand` and `observedTrunk` into MakeMe
 ([launch flavors](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)).
 `observeProjectRevision` keeps its signature for `performedRead.ts` and

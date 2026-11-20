@@ -87,7 +87,7 @@ family’s import lists. Terry accepted the first analysis and its order; the
 addendum’s two stories were added at Terry’s request. The other four stories are
 [branch entry](#split-branch-entry-proposal-from-store),
 [delivery observation](#observe-done-deliveries-over-typed-records),
-[landing reports](#decide-landings-over-typed-attempts-and-records) and
+landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records`) and
 [launch flavors as MakeMe steps](#fold-done-capture-launches-into-makeme).
 
 - **Analysis (shared by the five stories, at `25f76e98d`).**
@@ -180,7 +180,7 @@ addendum’s two stories were added at Terry’s request. The other four stories
     copy of the wire admission.
   - *Decisions.* Apply the same split to the two new seams in
     [delivery observation](#observe-done-deliveries-over-typed-records) and
-    [landing reports](#decide-landings-over-typed-attempts-and-records),
+    landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records`),
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 - **Goal.** Dashboard maintainers can prove Done capture and the review of
@@ -365,68 +365,6 @@ the analysis is in its addendum on delivery observation and publication.
   imports and calls, `HOME` stubs, and per-case time across the observation
   specs before and after at comparable load.
 - **Effort hypothesis.** S–M, one plan.
-
-<a id="decide-landings-over-typed-attempts-and-records"></a>
-
-### Decide reported landings over typed attempts and records
-
-**Identity:** SEED-413#decide-landings-over-typed-attempts-and-records
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"99441286c7ed355fb1dd12bf6bac83ca347e482e7ecdffa43a6d7456b9a89476","plan":"9ca5006cacbd39e599c9b4b7ad2c57f798dc5d7c2c049273e9024d3ed6947b2d"}}
-```
-
-Fourth of the [Done capture import-list stories](#done-capture-import-list-analysis);
-the analysis is in its addendum on delivery observation and publication.
-
-- **Goal.** Dashboard maintainers can prove landing preparation and
-  recording from composed attempts and records. The installed publisher's
-  cases reach the dashboard through production's own request admission, so
-  no test code repeats it.
-- **Scope.** Split `handleLanding` and `submitRetainedLanding` into a typed
-  decision over the submission, origin, operation, kept attempts and kept
-  records that returns the receipt or refusal and the next attempts and
-  records, and the adapter that persists them under the existing lock
-  order. The comparison check against Git (`verifyLanding`) stays in the
-  decision over its typed repository. Ref pinning and the follow-up receipt
-  registration stay effects that run before any save, as today. The receipt
-  ID and receipt time become inputs. Let `branchLandingContext` take its
-  reporting directory and record from its caller instead of
-  `machineDashboardPath` and `changeSessionRecord`. Expose the landing
-  request admission (route, method, origin, body → operation and
-  submission, or refusal) as a typed production function that
-  `submitLanding` uses, and make the publisher bridge in
-  `installedPublisher.ts` delegate to it. Let the landing adapter take its
-  attempt and record stores as an explicit collaborator, so cases hand it
-  MakeMe attempts and records instead of the stores under HOME. Add MakeMe
-  steps for a reporting attempt and a record with a landing context, and
-  retire `aReportedIsolatedBranch`'s `replaceAttempts` call. The landing
-  context file stays written by production `writeLandingContext`, because
-  it is the installed publisher's real input. Keep a few
-  installed-publisher cases whose topic is the publisher's retained
-  comparison and retry. Move the rest to the typed
-  decision. The installed-publisher specs are
-  `declared-blank-launch-publication`, `declared-worktree-publication`,
-  `ad-hoc-prepared-landing-done` and `ad-hoc-session-comparisons`.
-- **Scope limits.** About 30 more specs reach the same handler through a
-  real dashboard server: the one-shot landing, story-branch landing, landed
-  CI and start-session landing specs, many through
-  `startSessionLandingCapture.ts`. They stay as the adapter's regression
-  gate here, and
-  [the later backend families](#renovate-later-dashboard-backend-unit-test-families)
-  move onto this story's typed decision.
-- **Key examples.**
-  - A record of a deleted reporting session refuses a landing, decided from
-    composed values.
-  - A prepared pair survives Done and is recorded at landing, without the
-    attempt store under HOME.
-  - Recording a comparison that was never prepared is refused, and a second
-    prepare of the same delivery answers the first receipt, as plain values.
-  - A wrong origin or route is refused by the production admission in
-    the publisher's bridge.
-- **Evaluation.** As in the first story, also counting
-  `installedPublisher.ts`, `declaredPublisherBranch.ts` and
-  `reportedIsolatedBranch.ts` lines and imports.
-- **Effort hypothesis.** M, one plan.
 
 <a id="fold-done-capture-launches-into-makeme"></a>
 

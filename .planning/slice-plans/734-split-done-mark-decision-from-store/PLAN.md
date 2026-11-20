@@ -25,7 +25,7 @@ Excluded: branch entry, its pin-ref query and `identifyBranch`
 ([branch entry story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store));
 `captureObservedLandings` and `handleLanding` reading the stores
 ([delivery observation](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records),
-[landing reports](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records)),
+landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records`)),
 so observation cases still keep their composed record in the store; and folding
 launch flavors into MakeMe
 ([launch flavors](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)).
