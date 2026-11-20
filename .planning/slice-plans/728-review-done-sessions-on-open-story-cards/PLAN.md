@@ -90,7 +90,13 @@ stories now observe the card Done disclosure instead; product placement unchange
 ### 2. Make current work easiest to scan
 
 Type: Behavior
-Status: planned
+Status: done
+
+**Accepted proof (pre-delivery).** Title and compact slice progress lead in
+`.story-card-meta`; current open sessions get an accent wash; Done and
+inspection stay quiet. Focused proof: `story-card-scan-emphasis`, preserve
+`taken-slice-progress` / selection / accessible-board-touch and e2e roster,
+preparing, start-eligibility. Scan CSS consolidated in `story-card-scan.css`.
 
 A developer reading a Backlog or Taken card with current work sees the title
 and applicable compact slice progress first. Give the current session and its

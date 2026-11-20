@@ -1,11 +1,12 @@
 // One work item's card in its column (`./Columns.tsx`), read at two levels.
-// Its scan view leads with the title, then its priority in the Backlog, the
-// assigned or preparing developer, preparation badges with the story's
-// start eligibility (`./startEligibility.ts`), dependencies, slice progress
-// on Taken work with a brief source
-// qualification, its launches (`./StoryCardLaunches.tsx`), and its inspection
-// group. Inspect story opens and closes secondary detail (`./StoryDetail.tsx`,
-// inspection in `./pageStoryInspection.tsx`), and Review changes
+// Its scan view leads with the title, then a quiet meta line of Backlog
+// priority, the assigned or preparing developer, and compact slice progress
+// on Taken work (with a brief source qualification). Preparation badges and
+// the story's start eligibility (`./startEligibility.ts`), dependencies, then
+// launches (`./StoryCardLaunches.tsx`) and Done history follow; the current
+// session and its primary action carry the strongest emphasis. The inspection
+// group stays secondary: Inspect story opens and closes detail
+// (`./StoryDetail.tsx`, `./pageStoryInspection.tsx`), and Review changes
 // (`./StoryReviewAction.tsx`) is shown when offered. Clicking an empty area of
 // the card toggles the page's selected story (`./pageStorySelection.tsx`).
 // While its story starts on this machine (`./storyStartup.ts`), the card's
@@ -111,6 +112,13 @@ export function StoryCard({
             preparing={entry.preparing}
             onOpenRoster={onOpenRoster}
           />
+          {showsSliceProgress && (
+            <SliceProgress
+              planSlices={entry.planSlices}
+              progressSource={entry.progressSource}
+              sliceClock={entry.sliceClock}
+            />
+          )}
         </div>
         <StoryCardPreparationFacts
           preparation={entry.preparation}
@@ -122,13 +130,6 @@ export function StoryCard({
           ).some((record) => record.request.workflow === "execution")}
         />
         <StoryCardDependencies work={work} dependencies={entry.dependencies} />
-        {showsSliceProgress && (
-          <SliceProgress
-            planSlices={entry.planSlices}
-            progressSource={entry.progressSource}
-            sliceClock={entry.sliceClock}
-          />
-        )}
         <StoryCardLaunches
           sourceId={sourceId}
           entry={entry}
