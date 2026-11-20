@@ -119,6 +119,18 @@ route with one fixture. One Behavior slice fits the 15-active-minute budget
 with the proof commands excluded. The expected edited files are below the
 250-line check. This review found no remaining slice-specific concern.
 
+## Execution complete
+
+Product advice: no change to direction or the queue. The refusal now gives
+the session review's story direction on both file endpoints through one
+shared check. For wrap-up, an unconfirmed test-cost hypothesis:
+`dashboard/test-support/support/sessionCheckoutWork.ts` `markDone` also
+marks fake-Claude sessions Done without listing them idle first. If those
+sessions are listed busy, each mark waits out the same 5 s rename wait.
+`ad-hoc-session-branch-handoff.spec.ts` "a blank launch identifies one
+registered worktree…" was the slowest gate case at 11.7 s. Measure it before
+deciding on a follow-up.
+
 ## Execution record
 
 - Slice 1 accepted at `e4970798e` + uncommitted change. `reviewedSessionRecord`
