@@ -1,14 +1,15 @@
 // A standalone session's review read from its published close record: the
 // UUID resolves through the configured project's published revision, and the
 // recorded pair is read from that project's Git objects alone. No launch
-// history is needed.
+// history is needed. A record is read as valid only at its own UUID's path,
+// here and in the published-session listing (`./publishedSessionsRead.ts`).
 import { sessionRecordPath } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import {
   publishedSessionRecordSchema,
   type PublishedSessionRecord,
 } from "../src/publishedSessionRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
-import { runGit } from "./gitRunner.ts";
+import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
@@ -31,6 +32,30 @@ export interface PublishedSessionSource {
 const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
 
+// The record a published file holds, undefined unless it is valid and sits at
+// its own UUID's path.
+export async function publishedRecordAt(
+  source: PublishedSessionSource,
+  path: string,
+  signal: AbortSignal,
+): Promise<PublishedSessionRecord | undefined> {
+  const { stdout } = await runGit(["show", `${source.revision}:${path}`], {
+    cwd: source.repository,
+    signal,
+    maxBuffer: defaultGitOutputLimit,
+  });
+  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
+  try {
+    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(stdout));
+  } catch {
+    return undefined;
+  }
+  return parsed.success &&
+    sessionRecordPath(parsed.data.sessionId, source.backlogPath) === path
+    ? parsed.data
+    : undefined;
+}
+
 export async function publishedSessionRecord(
   source: PublishedSessionSource,
   session: string,
@@ -42,27 +67,14 @@ export async function publishedSessionRecord(
   } catch {
     throw new RefusedRequest(400, "The review session is malformed.");
   }
-  let text: string;
+  let record: PublishedSessionRecord | undefined;
   try {
-    text = (
-      await runGit(["show", `${source.revision}:${file}`], {
-        cwd: source.repository,
-        signal,
-        maxBuffer: 1024 * 1024,
-      })
-    ).stdout;
+    record = await publishedRecordAt(source, file, signal);
   } catch {
     throw unknownSession();
   }
-  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
-  try {
-    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(text));
-  } catch {
-    throw unknownSession();
-  }
-  if (!parsed.success || parsed.data.sessionId !== session)
-    throw unknownSession();
-  return parsed.data;
+  if (record === undefined) throw unknownSession();
+  return record;
 }
 
 // The files of one recorded pair, read from the configured checkout's objects.

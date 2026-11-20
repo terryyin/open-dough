@@ -38,6 +38,10 @@ import {
   type IntentRequestedRead,
 } from "./intentRequestedRead.ts";
 import { parseAdditionRead, type AdditionRead } from "./additionRead.ts";
+import {
+  parsePublishedSessionsRead,
+  type PublishedSessionsRead,
+} from "./publishedSessionsRead.ts";
 
 // A story branch as a read names it: the branch, and the head commit this
 // boundary already resolved it to.
@@ -57,6 +61,7 @@ export type RequestedRead =
   | DoneCatalogRead
   | IntentRequestedRead
   | AdditionRead
+  | PublishedSessionsRead
   | {
       readonly kind: "branch-head-at";
       readonly revision: string;
@@ -189,6 +194,10 @@ export function parseRequestedRead(
   const intentRead = parseIntentRequestedRead(params);
   if (intentRead !== undefined) {
     return intentRead;
+  }
+  const sessionsRead = parsePublishedSessionsRead(params);
+  if (sessionsRead !== undefined) {
+    return sessionsRead;
   }
   const listedRead = parseListedRecordsRead(params);
   if (listedRead !== undefined) {

@@ -28,6 +28,7 @@ const streamAlone = [
   "agents",
   "done",
   "intent",
+  "sessions",
 ] as const;
 
 export function parseRequestedRevisionStream(

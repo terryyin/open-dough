@@ -170,7 +170,7 @@ Its clock runs as `3s`, split from the old slice 3.
 ### 4. List published session records at fetched trunk
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** A typed published-session listing read through the
 authenticated read boundary lists `.planning/sessions/*.json` at the
@@ -181,6 +181,16 @@ parameter admission and authenticated-read path rule.
 
 **Proof.** Backend specs with real Git: records are listed, an unpinned
 revision is refused, and malformed records are skipped.
+
+**Accepted.** `published-sessions-at` (`sessions=published` at a pinned
+revision) is `performPublishedSessionsRead` in
+`dashboard/server/publishedSessionsRead.ts`, sharing record validity
+(`publishedRecordAt`) with slice 2's review and pinned-listing admission with
+`agent-profiles-at`. Proof: `dashboard/backend-tests/review/published-session-listing.spec.ts`
+plus the listed-records and refusal observation specs. For slice 5: the read
+does not fetch, so ask at the revision `fetchedPublishedSessionSource`
+resolves or fetch first; and add a MakeMe session-record builder when the E2E
+becomes the record setup's third consumer.
 
 ### 5. Open a published standalone comparison on a second machine
 

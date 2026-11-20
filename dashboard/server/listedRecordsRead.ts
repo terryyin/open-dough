@@ -22,15 +22,11 @@ import {
   listedAgentProfiles,
 } from "./recordsBesideBacklog.ts";
 import { answered, type Outcome, type PinnedFile } from "./readOutcome.ts";
-import {
-  isPinnedRevision,
-  refused,
-  unpinnedRevision,
-  type RefusedParameters,
-} from "./refusedParameters.ts";
+import type { RefusedParameters } from "./refusedParameters.ts";
 import {
   listedReadParameterNames,
   listedReadParameters,
+  parsePinnedListing,
 } from "./listedReadParameters.ts";
 export { listedReadParameters };
 
@@ -78,25 +74,8 @@ export function parseListedRecordsRead(
     (each) => params.get(listedReads[each].parameter) !== null,
   );
   if (kind === undefined) return undefined;
-  const named = listedReads[kind];
-  const others = [
-    "path",
-    "since",
-    "committed",
-    "file",
-    ...listedReadParameters,
-  ];
-  if (
-    params.get(named.parameter) !== named.value ||
-    others.some((name) => name !== named.parameter && params.get(name) !== null)
-  ) {
-    return refused(named.refusal);
-  }
-  const revision = params.get("revision");
-  if (!isPinnedRevision(revision)) {
-    return unpinnedRevision;
-  }
-  return { kind, revision };
+  const read = parsePinnedListing(params, listedReads[kind]);
+  return read && "revision" in read ? { kind, revision: read.revision } : read;
 }
 
 // What a listed read names as being read before any file is.

@@ -26,6 +26,7 @@ import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import { performListedRecordsRead } from "./listedRecordsRead.ts";
 import { performAdditionRead } from "./additionRead.ts";
+import { performPublishedSessionsRead } from "./publishedSessionsRead.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
 import {
   pathSelectedByIntentLocations,
@@ -151,6 +152,15 @@ export async function perform(
                 read,
                 signal,
                 projectFolder(source).path,
+              );
+            case "published-sessions-at":
+              return await performPublishedSessionsRead(
+                {
+                  repository: projectFolder(source).path,
+                  revision: read.revision,
+                  backlogPath: source.backlogPath,
+                },
+                signal,
               );
             case "addition-at":
               return await performAdditionRead(pinned, source, read, signal);
