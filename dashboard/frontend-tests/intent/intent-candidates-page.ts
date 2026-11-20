@@ -3,9 +3,12 @@
 // while it is being read, shows no failure, and one recorded entry opens its
 // source file in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page, userEvent, type Locator } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
-import { intentFileReading } from "./intent-file-reading-page.ts";
+import {
+  intentFileReading,
+  withoutBreakingHints,
+} from "./intent-file-reading-page.ts";
 
 export function intentCandidates() {
   const record = page.getByRole("region", {
@@ -67,3 +70,12 @@ export function intentCandidates() {
   };
   return candidates;
 }
+
+// Text as read: without the line breaking hints the record renders, and
+// with its whitespace collapsed.
+export const textAsRead = (locator: Locator) =>
+  withoutBreakingHints(locator.query()?.textContent).replace(/\s+/g, " ");
+
+// Each matched element's text, in reading order.
+export const textsOf = (locator: Locator) =>
+  locator.elements().map((element) => element.textContent);

@@ -4,8 +4,17 @@ import {
   pygardonFeatures,
   type PublishedFiles,
 } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import type { IntentCandidatesReadResult } from "../../src/authenticatedIntentCandidatesRead.ts";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentMode } from "../../src/intentProjectTabs.ts";
+import {
+  IntentModeProvider,
+  useIntentModeChoice,
+} from "../../src/pageIntentMode.tsx";
+import {
+  StorySelectionProvider,
+  usePageStorySelection,
+} from "../../src/pageStorySelection.tsx";
 import {
   IntentReadSourceOnPage,
   type IntentReadSource,
@@ -129,4 +138,67 @@ export async function mountIntentReading(
       intent.rerender(reading(work, true));
     },
   };
+}
+
+// Project Intent on the view the page keeps for its project and selected
+// story, as the page offers it when the reader enters Intent.
+function PageChosenView({ work }: { readonly work: PublishedWork }) {
+  return createElement(ProjectIntentReading, {
+    source: work.source,
+    work,
+    project: useIntentModeChoice(work.source.id),
+    projectShown: true,
+  });
+}
+
+function PageIntent({ work }: { readonly work: PublishedWork }) {
+  return createElement(StorySelectionProvider, {
+    selection: usePageStorySelection(),
+    children: createElement(IntentModeProvider, {
+      project: work.source.id,
+      children: createElement(IntentReadingProvider, {
+        project: work.source.id,
+        children: createElement(PageChosenView, { work }),
+      }),
+    }),
+  });
+}
+
+// Pygardon's published features with `record` as its candidates record,
+// counting every record read by the revision it asked for.
+export function publishedWithCandidates(record: string) {
+  const reads: string[] = [];
+  const features = featuresOpening("List jobs");
+  const readSource: IntentReadSource = {
+    readLocations: (...[, , signal]) => features.readLocations(signal),
+    readFile(...[, path, , signal]) {
+      const file = features.files[path];
+      if (file === undefined) throw new Error(`No published file ${path}`);
+      return file(signal);
+    },
+    readCandidates(...[, requested]) {
+      reads.push(requested);
+      return Promise.resolve<IntentCandidatesReadResult>({
+        status: "present",
+        text: record,
+      });
+    },
+  };
+  return { reads, readSource };
+}
+
+// Mounts Project Intent for `work` as the reader enters it on the page,
+// reading through `readSource`.
+export async function mountPageIntentReading(
+  readSource: IntentReadSource,
+  work: PublishedWork,
+) {
+  await mountComponent(
+    createElement(
+      IntentReadSourceOnPage,
+      { value: readSource },
+      createElement(PageIntent, { work }),
+    ),
+    { viewport: { width: 1280, height: 900 }, fillsViewport: true },
+  );
 }

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#mount-optimization-candidates-frontend-proof
 **Source:** [Prove Optimization Candidates in mounted frontend tests](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-optimization-candidates-frontend-proof)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -74,7 +75,7 @@ the [later frontend families](../../seeds/SEED-413-renovate-dashboard-unit-tests
 ### 1. The named revision’s finding record reads across the full Intent view
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the legacy finding-record cases to the typed Project Intent fixture.
 Keep tab activation and keyboard behavior, width and hidden locations,

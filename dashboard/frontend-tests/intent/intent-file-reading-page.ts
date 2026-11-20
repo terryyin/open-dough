@@ -5,12 +5,14 @@ import { expect } from "vitest";
 import { page } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
 
+// Text as read, without the line breaking hints the reading renders.
+export const withoutBreakingHints = (text: string | null | undefined) =>
+  (text ?? "").replace(/[\u200B\u00AD]/g, "");
+
 export function intentFileReading(path: string) {
   const file = page.getByRole("button", { name: path, exact: true });
   const source = page.getByLabelText(`${path} source`, { exact: true });
-  // Text as read, without the line breaking hints it renders.
-  const sourceText = () =>
-    (source.query()?.textContent ?? "").replace(/[\u200B\u00AD]/g, "");
+  const sourceText = () => withoutBreakingHints(source.query()?.textContent);
 
   const reading = {
     async shows(text: string) {

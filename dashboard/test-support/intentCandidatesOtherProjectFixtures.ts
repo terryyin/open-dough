@@ -1,6 +1,5 @@
 // Doughnut- and Pygardon-shaped Test Optimization Candidates records for
-// Intent journeys (`../frontend-tests/intent/intent-test-optimization-candidates-open.spec.ts`,
-// `../frontend-tests/intent/intent-test-optimization-candidates.spec.ts`).
+// Intent journeys (`../frontend-tests/intent/intent-test-optimization-candidates-open.spec.ts`).
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import {
