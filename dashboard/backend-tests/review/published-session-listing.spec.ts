@@ -6,23 +6,13 @@ import { randomUUID } from "node:crypto";
 import { posix } from "node:path";
 import { expect, test } from "vitest";
 import { backlogPath } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import {
-  sessionRecord,
-  sessionRecordPath,
-} from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionRecordPath } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import { performPublishedSessionsRead } from "../../server/publishedSessionsRead.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
 import { aCheckout, historyBeforeTheCase } from "../support/doneCaptureCase.ts";
 
 const commit = (digit: string) => digit.repeat(40);
-
-const aRecord = (sessionId = randomUUID()) =>
-  sessionRecord({
-    sessionId,
-    workflow: "ad-hoc",
-    closedAt: "2026-11-20T10:00:00.000Z",
-    ranges: [{ base: commit("a"), candidate: commit("b") }],
-  });
 
 const atItsPath = (record: { sessionId: string }) => ({
   [sessionRecordPath(record.sessionId, backlogPath)]: JSON.stringify(record),
@@ -40,7 +30,10 @@ async function listed(files: Readonly<Record<string, string>>) {
 }
 
 test("Given published session records at a revision, when the listing is read there, then each record is listed", async () => {
-  const [one, other] = [aRecord(), aRecord()];
+  const [one, other] = [
+    makeMe.aSessionRecord.please(),
+    makeMe.aSessionRecord.please(),
+  ];
 
   const outcome = await listed({ ...atItsPath(one), ...atItsPath(other) });
 
@@ -53,7 +46,7 @@ test("Given published session records at a revision, when the listing is read th
 });
 
 test("Given malformed files beside a valid record, when the listing is read, then only the valid record is listed", async () => {
-  const valid = aRecord();
+  const valid = makeMe.aSessionRecord.please();
   const directory = posix.dirname(
     sessionRecordPath(valid.sessionId, backlogPath),
   );
@@ -62,7 +55,9 @@ test("Given malformed files beside a valid record, when the listing is read, the
     ...atItsPath(valid),
     [`${directory}/${randomUUID()}.json`]: "not json",
     [`${directory}/${randomUUID()}.json`]: JSON.stringify({ version: 2 }),
-    [`${directory}/${randomUUID()}.json`]: JSON.stringify(aRecord()),
+    [`${directory}/${randomUUID()}.json`]: JSON.stringify(
+      makeMe.aSessionRecord.please(),
+    ),
   });
 
   expect(outcome).toMatchObject({

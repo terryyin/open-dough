@@ -6,10 +6,8 @@ import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-revision-commit.mjs";
 import { backlogPath } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import {
-  sessionRecord,
-  sessionRecordPath,
-} from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionRecordPath } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
@@ -24,13 +22,8 @@ async function aPublishedSession(range?: { base: string; candidate: string }) {
     files: { "notes.md": "edited\n" },
   });
   const recorded = range ?? { base: checkout.base, candidate };
-  const sessionId = randomUUID();
-  const record = sessionRecord({
-    sessionId,
-    workflow: "ad-hoc",
-    closedAt: "2026-11-20T10:00:00.000Z",
-    ranges: [recorded],
-  });
+  const record = makeMe.aSessionRecord.closing(recorded).please();
+  const { sessionId } = record;
   await commitDeclaredRevision(repository, {
     files: {
       [sessionRecordPath(sessionId, backlogPath)]:

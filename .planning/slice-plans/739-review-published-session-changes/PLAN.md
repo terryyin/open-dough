@@ -64,7 +64,7 @@ relevant implementation paths untouched. Rows for the moved slices went to
 | --- | --- |
 | Accepted publication supplies the comparison used by slice 1 | Ran distribution Node tests `execution-increment-comparison.test.mjs` and `trunk-closure-rebased-rerun.test.mjs` in the owned checkout. The real temporary Git remote accepted the retry's rewritten candidate with its new base. The pair diff contained just the increment. Closure resumed from the original request after acceptance and retired without replaying the publication. |
 | Current comparison behavior to reuse in slice 2 | Ran `npm run --silent test:dashboard:backend -- review/ad-hoc-review-subject review/ad-hoc-review-file review/done-kept-session-shared-checkout`. All 17 cases passed in the Vitest profile. File reads admit the exact selected pair and rename path, and refuse a foreign path or pair. Today's review rejects the same subject when local kept state is empty. Slice 2 changes that boundary for published UUIDs. |
-| Focused Chromium selection for the Done-session journey in slice 5 | `npm run test:e2e -- --reporter=list --list e2e/sessions/recently-done-sessions-select-ad-hoc-development.spec.ts` selected one Chromium case. The listing verifies the runner route. The slice owns the new second-machine journey. |
+| Focused Chromium selection for the Done-session journeys in slices 6 and 7 | `npm run test:e2e -- --reporter=list --list e2e/sessions/recently-done-sessions-select-ad-hoc-development.spec.ts` selected one Chromium case. The listing verifies the runner route. The slice owns the new second-machine journey. |
 
 ## Outside-in proof
 
@@ -74,7 +74,9 @@ relevant implementation paths untouched. Rows for the moved slices went to
 | Review a published UUID through the review routes | 2. Backend cases prove the published subject, wrong project, unknown UUID, missing objects and off-comparison file handling. |
 | Read route dispatch stays intact after the structural move | 3. Existing read route response and authentication specs pass unchanged. |
 | List published records at fetched trunk | 4. Backend specs with real Git list the records, refuse an unpinned revision and skip malformed records. |
-| Discover and review on the second machine | 5. Browser journey through the standalone Done entry and existing review page using a second configured checkout and empty launch storage. Open the actual file diff after origin advances. An originating-machine case shows one entry with native controls. |
+| Published record setup is shared | 5. The two published backend specs build records through one MakeMe step and pass. |
+| Discover and review on the second machine | 6. Browser journey through the standalone Done entry and existing review page with a second configured checkout and empty launch storage; opens the actual file diff after origin advances. |
+| One entry on the originating machine | 7. Browser case shows one entry with native controls; kept-local listing cases pass. |
 
 ## Ordered slices
 
@@ -192,26 +194,65 @@ does not fetch, so ask at the revision `fetchedPublishedSessionSource`
 resolves or fetch first; and add a MakeMe session-record builder when the E2E
 becomes the record setup's third consumer.
 
-### 5. Open a published standalone comparison on a second machine
+### 5. Build published session records with MakeMe
+
+Type: Structure
+Status: done
+
+**Structure.** Add a MakeMe session-record builder step (for example
+`makeMe.aSessionRecord`) and use it for the repeated record setup in
+`dashboard/backend-tests/review/published-session-listing.spec.ts` and
+`published-session-review.spec.ts`, so slice 6's journey can reuse it. Check
+first what native journeys' hashing of MakeMe's runtime import closure means
+for the builder's imports, and keep builders free of runtime `dashboard/`
+imports.
+
+**Proof.** Both specs' existing cases pass unchanged in substance.
+
+**Split from the earlier slice 5** ("Open a published standalone comparison on
+a second machine"), whose attempt read for about 2 active minutes and stopped
+before edits holding four independent outcomes: this builder, the page's
+published review subject with second-machine discovery, and the originating
+machine merge.
+
+**Accepted.** `makeMe.aSessionRecord` in
+`Distribution/tests/support/sessionRecordTestData.mjs` (`closing(range)`,
+types-only import of the producer so the native journeys' MakeMe import
+closure excludes Land code) builds the record in both published backend
+specs. The closure hash changes as for any builder addition, so recorded
+native evidence keyed on it is stale until its next manual run.
+
+### 6. Discover and open a published session on a second machine
 
 Type: Behavior
 Status: planned
 
 **Behavior.** Given a published record and a newer revision of trunk, a
 configured second machine with empty launch history shows the standalone Done
-entry without a local launch and opens the original comparison and file diff
-through slice 2's route. The Done listing merges records by UUID with local
-launches whose launch `reference` equals the record UUID, so the originating
-machine shows one entry with its native controls. The page's
-`ReviewedWorkSubject` gains the published case with `reviewedWorkKey` and
-`reviewedWorkQuery` (slice 2's Accepted note names this slice by its
-pre-resplit number, 3).
+entry without a local launch, from the slice 4 listing read at the page's
+snapshot revision (`work.revision` in `dashboard/src/publishedWork.ts`, the
+revision the done catalog is read at). Its **Review changes** opens the
+original comparison and file diff through slice 2's route, which re-resolves
+the fetched trunk itself. The page's `ReviewedWorkSubject` gains the published
+case with its key, query and equality and the views that branch on it.
 
 **Proof.** An E2E second-machine journey in `e2e/sessions/` uses actual
-published Git data through the existing
-[review page object](../../../dashboard/test-support/reviewChangesPage.ts),
-plus the originating-machine single-entry case. Preserve the kept-local
-listing cases.
+published Git data (a real `publishSessionClose` record, then an origin
+advance) through the existing
+[review page object](../../../dashboard/test-support/reviewChangesPage.ts)
+with a second configured checkout and empty launch storage.
+
+### 7. Show one entry for a published session on its originating machine
+
+Type: Behavior
+Status: planned
+
+**Behavior.** The Done listing merges a published record with the local launch
+whose launch `reference` equals the record UUID, so the originating machine
+shows one entry with its native controls instead of a duplicate.
+
+**Proof.** An E2E originating-machine case shows one entry with its native
+controls. The existing kept-local listing cases pass.
 
 ## Local gates
 
@@ -237,4 +278,6 @@ implementer's recommendation: one structural move with existing proof, one
 backend listing read with its own real-Git specs, and the listing merge and
 page subject proved by the second-machine journey. Old slices 4–9 became
 slices 1–6 of [plan 744](../744-attribute-every-workflow-session-record/PLAN.md).
-No remaining slice-specific concern was identified.
+On 2026-11-21 slice 5 split again in place into slices 5–7 (builder, second
+machine discovery and review, originating-machine merge) after its attempt
+found four independent outcomes; the plan holds seven slices.
