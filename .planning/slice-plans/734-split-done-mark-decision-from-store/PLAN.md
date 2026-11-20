@@ -293,7 +293,7 @@ candidate's 4 among base's), so branch CI is the family verdict.
 ### 7. Delivery observation and publication cases compose their Done precondition
 
 Type: Structure
-Status: planned
+Status: done
 
 Compose the Done records in `twoDoneBranchesMergedByHand`,
 `ad-hoc-prepared-landing-done`, `ad-hoc-manual-landing-revision-observation`,
@@ -305,6 +305,28 @@ adapter. Measure the evaluation.
 **Proof.** The observation, publication and lifecycle specs keep their
 assertions. The whole Done capture family and `dashboard/backend-tests/launches/`
 pass. The evaluation table is recorded under [Local gates](#local-gates).
+
+**Accepted.** `twoDoneBranchesMergedByHand` composes both Done records with
+`aDoneBranch` and keeps them in the store; its `pinned` option keeps the
+adapter for the lifecycle spec, which asserts pin release. Prepared-landing
+Done writes the captured result over the stored record (`keptAsDone`); the
+declared publication specs, which retire before Done, write the failed
+branch read the adapter stores then (`keptAsDoneAfterRetirement`). The six
+specs passed (s7-coord, s7-coord2 at load 18–23, one worker) with unchanged assertion counts, apart from
+prepared-landing Done dropping its `doneAt` check, which now repeats its setup. Remaining adapter calls, by topic: manual delivery
+comparison and undo (`ad-hoc-manual-landing`), retirement after Done
+(`-observation`, `ad-hoc-session-comparisons`, `ad-hoc-branch-result`),
+pin release (lifecycle, `done-kept-commit-refs-release`, `kept-commits-release`),
+store replacement and transition (`ad-hoc-branch-cursor-recovery`,
+`ad-hoc-session-commits-done`), supersession and deletion during capture
+(`-supersession`, `-worktree-result`), the Default main reflog read and prune
+(`done-kept-session-commits`), the undeclared checkout move's capture
+(`ad-hoc-session-branch-entry`) and Done surviving a failed read
+(`done-kept-session-unavailable`). Assertion counts against `fd05ea2d2` are
+equal or higher except `done-kept-session-unavailable` (14 to 9): its failure
+reasons became capture cases, its repeated `notCaptured` review is asserted
+once, and Done surviving a failed read keeps its one adapter case, since the
+adapter handles every capture failure alike.
 
 ## Local gates
 
@@ -348,3 +370,27 @@ the 28 specs: 75 cases, summed 84.8 s, median 1,052 ms per case (proof record
 `undoDone(` 5, `keptRecordOf(` 10, `vi.stubEnv("HOME"` 0 in specs (HOME is
 stubbed inside `keep`; 16 cases call `keep` directly). After slice 7, compare
 with three interleaved base and candidate runs at comparable load.
+
+### Evaluation result
+
+Three interleaved runs of the 28 family specs at base `fd05ea2d2` and the
+slice 7 candidate, 2026-11-21 00:36–00:43, one-minute load 16–26 (relative
+comparison under the same external load):
+
+| Run | Cases | Summed | Median per case | 5 s timeouts |
+| --- | --- | --- | --- | --- |
+| base 1 / 2 / 3 | 75 | 183.7 / 142.9 / 117.7 s | 2,173 / 1,722 / 1,294 ms | 10 / 2 / 2 |
+| candidate 1 / 2 / 3 | 79 | 119.0 / 127.9 / 95.7 s | 1,224 / 1,305 / 793 ms | 1 / 2 / 1 |
+
+Mean summed time fell 23% (148.1 to 114.2 s) with four more cases. Calls
+across the 28 specs: `doneCaptureCase.ts` importers 28 (unchanged),
+`markDone(` 60 to 30, `keep(` 20 to 15 (cases calling it 16 to 11),
+`aHeldDone(` 3, `undoDone(` 5 and `keptRecordOf(` 10 unchanged, `expect(` 251
+to 249, with the moved decisions now in `done-transition.spec.ts` (7 cases)
+and `done-session-commit-attribution.spec.ts` (11 cases). The family gate
+(review, launches, sessions) ran at load 21–25: 150 of 158 passed and the 8
+failures were 5 s timeouts; at one worker all but
+`ad-hoc-manual-landing-observation` "the first observation after restart…"
+passed, and base times out on that case alone at the same load. The
+[family optimization story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases)
+owns that margin; branch CI is the verdict.

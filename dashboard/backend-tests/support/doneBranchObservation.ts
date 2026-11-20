@@ -14,6 +14,7 @@ import {
   source,
   work,
 } from "./doneCaptureCase.ts";
+import { aDoneBranch } from "./doneCaptureReview.ts";
 
 // The project and ref whose published revisions an observation reads.
 export const observedTrunk = { id: source, ref: "main" };
@@ -34,11 +35,13 @@ async function committedIn<Name extends string>(
 // Two kept Done branches, each with one commit adding `<branch>.txt` in its
 // own worktree, merged by hand in that order into trunk, which is then
 // published. Answers each branch's launch and tip, the merge of the first
-// and the published head, which merges the second.
+// and the published head, which merges the second. The records are composed
+// Done unless `pinned`: then the Done adapter marks them and pins their
+// branches, for cases about releasing that evidence.
 export async function twoDoneBranchesMergedByHand<
   First extends string,
   Second extends string,
->(first: First, second: Second) {
+>(first: First, second: Second, { pinned = false } = {}) {
   const checkout = await aCheckout({
     history: historyBeforeTheCase()
       .withWorkspace(first, { from: "base" })
@@ -50,19 +53,21 @@ export async function twoDoneBranchesMergedByHand<
     throw new Error(`Missing the ${first} worktree.`);
   // Further declared workspaces are linked under the checkout's .worktrees.
   const secondWorkspace = path.join(checkout.integration, ".worktrees", second);
-  const firstRecord = anIsolatedLaunch(checkout, {
-    workspace: firstWorkspace,
-    branch: first,
-  }).please();
-  const secondRecord = anIsolatedLaunch(checkout, {
-    workspace: secondWorkspace,
-    branch: second,
-  }).please();
-  const home = keep(firstRecord, secondRecord);
   const firstTip = await committedIn(checkout, firstWorkspace, first);
   const secondTip = await committedIn(checkout, secondWorkspace, second);
-  await markDone(firstRecord);
-  await markDone(secondRecord);
+  const recorded = (launch: ReturnType<typeof anIsolatedLaunch>) =>
+    pinned ? launch.please() : aDoneBranch(launch);
+  const firstRecord = await recorded(
+    anIsolatedLaunch(checkout, { workspace: firstWorkspace, branch: first }),
+  );
+  const secondRecord = await recorded(
+    anIsolatedLaunch(checkout, { workspace: secondWorkspace, branch: second }),
+  );
+  const home = keep(firstRecord, secondRecord);
+  if (pinned) {
+    await markDone(firstRecord);
+    await markDone(secondRecord);
+  }
   const { firstMerge, head } = await work(
     checkout,
     makeMe.aCheckoutWork

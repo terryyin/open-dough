@@ -19,12 +19,15 @@ import {
   type Checkout,
   inWorktree,
   keptRecordOf,
-  markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
+import {
+  fileText,
+  review,
+  keptAsDoneAfterRetirement,
+} from "../support/doneCaptureReview.ts";
 import {
   publishInstalled,
   retryInstalledLanding,
@@ -167,7 +170,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
   ).toBeUndefined();
 
   retireAdHocBranch(checkout.integration, workspace, branch);
-  await markDone(record);
+  await keptAsDoneAfterRetirement(record);
   expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect(await trunk()).toBe(candidate);
   expect(await review(await keptRecords(source), record)).toMatchObject({

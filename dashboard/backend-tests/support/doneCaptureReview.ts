@@ -11,9 +11,11 @@ import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { SessionBranchEntry } from "../../src/sessionBranchResult.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
+import { changeSessionRecord } from "../../server/launchRecordStore.ts";
 import {
   anEstablishedSession,
   minutesAgo,
+  source,
   type Checkout,
 } from "./doneCaptureCase.ts";
 
@@ -48,6 +50,26 @@ export async function aDoneBranch(
   );
   return entered(launch.branchResultFrom(result).markedDoneAt(doneAt).please());
 }
+
+// The kept record of `record`'s session, now Done at `doneAt` with the branch
+// result its Git captures then, as the landing handlers read it.
+export const keptAsDone = (record: LaunchRecord, doneAt = minutesAgo(10)) =>
+  changeSessionRecord(source, record.session, async (kept) => {
+    const { result } = await captureBranchResult(kept, doneAt);
+    return { ...kept, branchResult: result, doneAt };
+  });
+
+// The kept record of `record`'s session, now Done at `doneAt` after its
+// branch was retired, so that Done's branch read failed.
+export const keptAsDoneAfterRetirement = (
+  record: LaunchRecord,
+  doneAt = minutesAgo(10),
+) =>
+  changeSessionRecord(source, record.session, (kept) => ({
+    ...kept,
+    doneAt,
+    branchResultFailedAt: doneAt,
+  }));
 
 const reviewRead = (kept: Kept, record: LaunchRecord) =>
   makeMe.aSessionReviewRead

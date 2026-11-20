@@ -14,26 +14,30 @@ import {
   sessionBranchPins,
 } from "../../test-support/support/adHocBranchRefs.ts";
 import {
-  anIsolatedBranch,
+  aCheckoutWithWorktree,
+  anIsolatedLaunch,
   inWorktree,
-  markDone,
+  keep,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
+import { aDoneBranch, fileText, review } from "../support/doneCaptureReview.ts";
 import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";
 
 test("ordinary revision checks retain one delivery across repeated observations", async () => {
-  const { checkout, workspace, record } = await anIsolatedBranch(branch);
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch);
   const { integration } = checkout;
   const { draft: tip } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
   );
-  await markDone(record);
+  const record = await aDoneBranch(
+    anIsolatedLaunch(checkout, { workspace, branch }),
+  );
+  keep(record);
   const { merge } = await work(
     checkout,
     makeMe.aCheckoutWork

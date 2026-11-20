@@ -16,12 +16,14 @@ import {
 import {
   inWorktree,
   keptRecordOf,
-  markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
+import {
+  review,
+  keptAsDoneAfterRetirement,
+} from "../support/doneCaptureReview.ts";
 import {
   publishInstalled,
   retryInstalledLanding,
@@ -68,7 +70,7 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await trunk()).toBe(candidate);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  await markDone(record);
+  await keptAsDoneAfterRetirement(record);
   expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect((await keptRecordOf(session))?.request.reporting).toBeUndefined();
   expect(await review(await keptRecords(source), record)).toMatchObject({

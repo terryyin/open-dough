@@ -31,7 +31,9 @@ async function heldObservation() {
     first: { record: leaving, tip: leavingTip },
     second: { record: staying },
     head,
-  } = await twoDoneBranchesMergedByHand("leaving", "staying");
+  } = await twoDoneBranchesMergedByHand("leaving", "staying", {
+    pinned: true,
+  });
   expect(
     sessionBranchPins(checkout.integration, leaving.session.sessionId),
   ).toContain(leavingTip);
