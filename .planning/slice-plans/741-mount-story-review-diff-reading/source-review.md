@@ -1,0 +1,61 @@
+# Source-only review
+
+The execution coordinator launched `/root/source_review` with no conversation history. Its only input was the selected [story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) at `4e991ea00`: title, identity, Goal, Scope, Key examples and Effort hypothesis. The launch asked for independently observable promises and prohibited reading files or making changes. The launch and numbered return are recorded in the execution conversation for dashboard launch `f3cb5184-fcfc-42ef-bdf0-a1b32be84268`.
+
+The reviewer retained these points as context:
+
+- The existing built-app proof comprises 22 cases across eight `story-review-diff-*` specs. Before their first assertion they load `<App />`, publish a reviewed story, open its review and choose a file. CI run `44741808717` recorded 54.5 summed seconds, about 2.5 seconds per case. Review is the costliest folder per case after Navigation, and this part has its narrowest owner.
+- `DiffLines` already renders from `printed`, `sides` and `lineTokens`. The source identifies word emphasis, revealed context, reading position and the open line menu as its responsibilities. `FileDiff` currently joins styled reading to the service reads, story notes, Follow up and the page’s launches. The extracted rendering responsibility covers grammar selection, side-specific tokens and plain reading before text arrives.
+- The parent story keeps built-app coverage for retrying the file-text read, grammar-module load failure, the Intent settings revision supplying the hint in live and published Done reviews, and comparison with Intent’s source reading of the same code. The other thirteen `story-review-*` specs, full-group timing comparison and `frontendApp.ts` retirement also stay with the parent story.
+- The effort hypothesis is M, with about eighteen cases across two typed owners, one small extraction and six slices.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | Every built-app case whose behavior the diff’s own rendering owns moves to plain Vitest cases against mounted Chromium. The migrated built-app cases retire. (*Goal*, *Scope*) | slice 6 | |
+| 2 | The styled reading of one file is extracted from `FileDiff` into a component that renders styled lines from a path, a printed diff, the file’s text and an optional `syntax` hint. (*Scope*) | slice 2 | |
+| 3 | The two service reads remain in `FileDiff`. (*Scope*) | slice 2 | |
+| 4 | Story notes remain in `FileDiff`. (*Scope*) | slice 2 | |
+| 5 | Follow up remains in `FileDiff`. (*Scope*) | slice 2 | |
+| 6 | Mounted cases construct their inputs as typed values: a printed unified diff and a `ReviewedFileText` where text is supplied. Cases observing tokens arriving use the tokens produced for that text by production `highlightSourceLines`. (*Goal*, *Scope*) | slice 4 | |
+| 7 | The mounted cases introduce zero test-support wrappers. (*Scope*) | slice 6 | |
+| 8 | The mounted cases introduce no service substitute. (*Scope*) | slice 6 | |
+| 9 | The page objects for the diff’s lines, marks and tokens live beside the specs. (*Scope*) | slice 6 | |
+| 10 | Each distinct assertion from the retired cases is preserved in mounted coverage. The examples below capture the expressly named assertions, including copied text, contrast and reading position. (*Scope*, *Key examples*) | slice 6 | |
+| 11 | The story names every built-app case it retires and the mounted case that carries its assertions. (*Scope*) | slice 6 | |
+| 12 | Each `dashboard/test-support/` export or module whose last consumer moves is retired. (*Scope*) | slice 6 | |
+| 13 | The `dashboard/test-support/` exports and modules still used by remaining review specs or E2E are kept. (*Scope*) | slice 6 | |
+| 14 | The story compares the focused selection before and after the move. (*Scope limits*) | slice 6 | |
+| 15 | In the `.txt` replacement of `const limit = 20;` with `const limit = 25;`, the removed line marks `20` as a deletion. The small block beside the several-hundred-line block still marks `20`. (*A changed word*, *No emphasis where it would mislead*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, changed words case and several-hundred-line case: deleted words on line 25 and on the small block are exactly 20 |
+| 16 | In that `.txt` replacement, the added line marks `25` as an insertion. The small block beside the several-hundred-line block still marks `25`. (*A changed word*, *No emphasis where it would mislead*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, changed words case and several-hundred-line case: inserted words on line 25 and on the small block are exactly 25 |
+| 17 | Both changed-word marks are underlined. (*A changed word*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, changed words case: computed text decoration on both marks is underline |
+| 18 | Neither changed-word mark is struck through. (*A changed word*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, changed words case: computed text decoration on both marks excludes line-through |
+| 19 | The unchanged line in the changed-word example carries no mark. (*A changed word*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, changed words case: visible new line 26 has no inserted or deleted words |
+| 20 | Selecting the two changed lines copies `-const limit = 20;` and `+const limit = 25;`. (*Scope*, *A changed word*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, changed words case: Selecting the removed and added line returns their exact plain prefixed text with the two line breaks |
+| 21 | A pure addition shows no marks. (*No emphasis where it would mislead*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, pure addition and revealed context case: visible added line 2 reads +only new and there are no marks |
+| 22 | A revealed context line shows no marks. (*No emphasis where it would mislead*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, pure addition and revealed context case: Show 20 preceding lines reveals an unmarked line and the real insertion remains marked |
+| 23 | A low-similarity rewrite shows no marks. (*No emphasis where it would mislead*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, low-similarity rewrite case: visible old and new lines have no marks. Setting the similarity threshold to zero made this assertion fail and was reverted |
+| 24 | A several-hundred-line block shows no marks, even with a small emphasized block beside it. (*No emphasis where it would mislead*) | slice 1 | observed: dashboard/frontend-tests/review/story-review-diff-word-emphasis-mounted.spec.ts, several-hundred-line case: the 150 removed and 150 added lines in the large hunk have no marks while the neighboring small hunk retains both |
+| 25 | A removed line in the TypeScript diff takes its tokens from the old side’s whole text. (*Each side styles from its own whole text*) | slice 3 | |
+| 26 | Every other line in the TypeScript diff takes its tokens from the new side’s whole text, including revealed context. (*Each side styles from its own whole text*) | slice 3 | |
+| 27 | Styled diff markers stay as the plain diff shows them. (*Each side styles from its own whole text*) | slice 3 | |
+| 28 | Styled diff line numbers stay as the plain diff shows them. (*Each side styles from its own whole text*) | slice 3 | |
+| 29 | Added-line backgrounds stay as the plain diff shows them. (*Each side styles from its own whole text*) | slice 3 | |
+| 30 | Removed-line backgrounds stay as the plain diff shows them. (*Each side styles from its own whole text*) | slice 3 | |
+| 31 | Each supported extension styles its keyword as a token. (*The path chooses the grammar, then the hint*) | slice 3 | |
+| 32 | A renamed file follows the grammar selected by its new path. (*The path chooses the grammar, then the hint*) | slice 3 | |
+| 33 | A path that names no grammar reads plain when no `syntax` hint is given. (*The path chooses the grammar, then the hint*) | slice 3 | |
+| 34 | A path that names no grammar takes a known `syntax` hint. (*The path chooses the grammar, then the hint*) | slice 3 | |
+| 35 | A path that names no grammar stays plain under an unfamiliar `syntax` hint. (*The path chooses the grammar, then the hint*) | slice 3 | |
+| 36 | A path’s own grammar wins over a `syntax` hint. (*The path chooses the grammar, then the hint*) | slice 3 | |
+| 37 | Before the file’s text is given, the diff shows complete plain lines. (*Styling arrives in place*) | slice 4 | |
+| 38 | Before the file’s text is given, the plain diff already shows its word marks. (*Styling arrives in place*) | slice 4 | |
+| 39 | Once the file’s text is given, those same lines gain syntax tokens. (*Styling arrives in place*) | slice 4 | |
+| 40 | When styling arrives, the marks stay on the same words. (*Styling arrives in place*) | slice 4 | |
+| 41 | When styling arrives, the reading position stays unchanged. (*Scope*, *Styling arrives in place*) | slice 4 | |
+| 42 | When styling arrives, revealed context stays revealed. (*Styling arrives in place*) | slice 4 | |
+| 43 | When styling arrives, an open line menu stays open. (*Styling arrives in place*) | slice 4 | |
+| 44 | In both dark and light appearances, tokens inside an insertion or deletion reach 4.5:1 against the line’s tint. (*Scope*, *Readable in both appearances*) | slice 5 | |
+| 45 | In both dark and light appearances, the insertion or deletion underline reaches 3:1 against the line’s tint. (*Scope*, *Readable in both appearances*) | slice 5 | |
+| 46 | The colours differ between the dark and light appearances. (*Readable in both appearances*) | slice 5 | |

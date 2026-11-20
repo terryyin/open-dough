@@ -2,6 +2,20 @@
 
 **Identity:** SEED-413#mount-story-review-diff-reading
 **Source:** [Read a story review's diff emphasis and syntax in mounted cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading)
+**Source review:** [Source-only commitments](source-review.md)
+
+## Execution context
+
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent
+  Shunka-chan, remote `origin`, integration target `main`. The accepted
+  Take and initial story-branch base are `4e991ea00624cb78ffdb3c047f96f7100ed5d4ee`
+  from starting revision `6faffac1b3632a45f622f3acc05aebcc17aaecf2`.
+- Owned workspace `/Users/terryyin/git/open-dough/.worktrees/read-a-story-review-s-diff-emphasis-and-syntax-i`,
+  branch `codex/read-a-story-review-s-diff-emphasis-and-syntax-i`.
+  Integration checkout `/Users/terryyin/git/open-dough`.
+- GitHub Actions `ci.yml` (CI), observing the story branch. Codex coordinator
+  `shunka-741`, observer directory `/tmp/dough-ci-501/watch-KeMUBs`,
+  PID 23134, stream session 1808, cell `g44:14`.
 
 ## Goal and scope
 
@@ -95,7 +109,7 @@ and the scratch spec was removed afterwards.
 ### 1. Changed words read as marks on a mounted diff
 
 Type: Behavior
-Status: planned
+Status: done
 
 Take the local focused baseline first: run the eight built-app specs alone,
 three times, and keep the elapsed times for slice 6. Then mount `DiffLines`
@@ -106,6 +120,20 @@ file.
 **Proof.** The mounted word-emphasis spec passes with all seven titles. One
 scratch break in `emphasizedRangesByLine` (drop the similarity limit) fails
 the rewrite case and is reverted.
+
+**Local baseline.** All three runs of the plan's focused frontend command
+passed with two workers at clean `4e991ea00` on the AC-powered execution
+Mac, Node 24.21.0. Elapsed times were 30.924, 29.209 and 28.382 seconds
+(median 29.209 seconds). One-minute load at launch was 7.49. The run
+records are `baseline-{1,2,3}.log.run.json` in the checkout's Git evidence
+directory.
+
+**Observed.** The seven old titles each have a mounted counterpart with the
+same title in `story-review-diff-word-emphasis-mounted.spec.ts`. The seven
+mounted cases and the three retained composition cases passed together. The
+scratch break gave the rewrite unexpected word marks, and the similarity limit
+was restored. The case and assertion map is in `slice-1-return.md`, and the
+actual mixed selection is in `slice-1-restored-diffs.proof.json`.
 
 ### 2. The styled reading of one file stands alone
 
@@ -195,8 +223,10 @@ and a list pairing every removed built-app title with its mounted case.
 - Focused frontend command:
   `npm run --silent test:dashboard:frontend -- review/story-review-diff --workers=2`,
   prefixed with `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`.
-  A selection mixing both engines runs only its Vitest specs, so run the
-  built-app specs by file for their own result.
+  For a mixed selection, inspect the
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` to confirm both engines ran.
+  The mixed word-emphasis and composition run reported both engines there,
+  although the foreground output listed only the Vitest cases.
 - Run `npm run typecheck:dashboard` and `npm run lint` for each slice. Run
   the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
   over slice 2's extraction and each slice's removed support, and run every
