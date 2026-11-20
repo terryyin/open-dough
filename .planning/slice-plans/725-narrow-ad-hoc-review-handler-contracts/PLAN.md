@@ -192,7 +192,7 @@ returns in `reviewInput`. Source commitments 1, 2, 3, 18 observed in
 ### 2. Adapter and handler responsibilities sit in separate modules
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Make the placement and naming changes of finding 3:
 - Move `reviewInput` to an adapter module.
@@ -212,6 +212,14 @@ Proof:
 - Every path and name the README states exists.
 - `npm run typecheck:dashboard`, `npm run lint` and
   `npm run test:dashboard:backend -- review/` pass.
+
+Accepted (uncommitted on `b32001e7`): `storyReviewInput.ts` and
+`storyReviewRangeRequest.ts`; `AdmittedReviewedFile` without Historical
+alias; `keptSessionOf`; `namedKeptSession` comment fixed; README points at
+`storyReviewInput.ts`. Typecheck, lint, `review/` (`review-backend-s2`),
+and import search hold. Post-change refactor collapsed leftover type
+re-exports onto `storyReviewInput.ts`. Commitments 9–14 observed in
+[source-review.md](source-review.md).
 
 ### 3. A departed reader's file read stops its admission Git
 

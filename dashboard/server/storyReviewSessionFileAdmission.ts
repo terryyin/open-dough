@@ -10,15 +10,14 @@ import {
   retainedBranchPairFiles,
   retainedCommitPairFiles,
 } from "./retainedReviewPair.ts";
-import { namedSessionRecord } from "./sessionAdmission.ts";
 import {
   admitLandedRun,
   belongsOnRetainedPair,
   notOnCapturedRun,
-  type AdmittedHistoricalReviewedFile,
+  type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import type { KeptSessionState } from "./storyReviewSessionAdmission.ts";
+import { keptSessionOf, type KeptSessionState } from "./storyReviewInput.ts";
 import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 
@@ -29,11 +28,8 @@ export async function admitSessionReviewedFile(
   reference: string | undefined,
   file: HistoricalReviewedFileFields,
   kept: KeptSessionState,
-): Promise<AdmittedHistoricalReviewedFile> {
-  const record = namedSessionRecord(kept.records, {
-    host: subject.host,
-    sessionId: subject.session,
-  });
+): Promise<AdmittedReviewedFile> {
+  const record = keptSessionOf(kept, subject);
   return reference === undefined
     ? admitKeptPairFile(record, file)
     : admitSessionLandedRun(record, reference, file);
@@ -43,7 +39,7 @@ async function admitSessionLandedRun(
   record: LaunchRecord,
   reference: string,
   file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
+): Promise<AdmittedReviewedFile> {
   const established = establishedPlace(record);
   if (established === undefined && record.landing === undefined)
     throw new RefusedRequest(
@@ -61,7 +57,7 @@ async function admitSessionLandedRun(
 async function admitKeptPairFile(
   record: LaunchRecord,
   file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
+): Promise<AdmittedReviewedFile> {
   const branch = branchResultAtDone(record);
   const matchingBranch =
     branch?.base === file.baseline && branch.revision === file.tree

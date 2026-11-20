@@ -35,12 +35,12 @@ was instructed to read no other project files and change nothing.
 | 6 | Expiry while the caller stays active keeps the existing refusal — "Expiry while the caller stays active keeps the existing refusal." | slice 3 | |
 | 7 | Follow-up admission keeps its existing deadlines — "Follow-up admission also keeps its existing deadlines." | slice 3 | |
 | 8 | Non-aborted wire answers unchanged — "The wire answers every non-aborted read as it does today." | slice 4 | |
-| 9 | Process-wide store reads live in adapter modules — "the reading of process-wide stores sits in adapter modules." | slice 2 | |
-| 10 | File admission is separate from the range-read adapter — "File admission is separate from the range read's adapter." | slice 2 | |
-| 11 | Admitted-file type named for every file read — "The admitted-file type is named for every file read." | slice 2 | |
-| 12 | Session lookup written once — "the session lookup is written once." | slice 2 | |
-| 13 | Stale comment fixed — "the stale comment is fixed." | slice 2 | |
-| 14 | Backend README points at the moved module — "The backend README points at the moved module." | slice 2 | |
+| 9 | Process-wide store reads live in adapter modules — "the reading of process-wide stores sits in adapter modules." | slice 2 | observed: session `keptRecords`/`knownSource` only via `storyReviewInput.ts`; handlers import `reviewInput`/`keptSessionOf` (`slice-2-import-search.log`) |
+| 10 | File admission is separate from the range-read adapter — "File admission is separate from the range read's adapter." | slice 2 | observed: `admitReviewedFile` remains in `storyReviewAdmission.ts`; `rangeRequest`/`AdmittedStoryReviewRange` in `storyReviewRangeRequest.ts` |
+| 11 | Admitted-file type named for every file read — "The admitted-file type is named for every file read." | slice 2 | observed: `AdmittedReviewedFile` (no `AdmittedHistoricalReviewedFile` alias) |
+| 12 | Session lookup written once — "the session lookup is written once." | slice 2 | observed: `keptSessionOf` used by both session admissions |
+| 13 | Stale comment fixed — "the stale comment is fixed." | slice 2 | observed: `namedKeptSession` comment names mutating/unread paths; review via review-input adapter |
+| 14 | Backend README points at the moved module — "The backend README points at the moved module." | slice 2 | observed: README cites `storyReviewInput.ts` for `ReviewInput` |
 | 15 | Landed ad hoc session is a `LaunchRecordBuilder` step — "The landed ad hoc session … become `LaunchRecordBuilder` steps." | slice 4 | |
 | 16 | Session with a kept run is a `LaunchRecordBuilder` step — "the session with a kept run become `LaunchRecordBuilder` steps." | slice 4 | |
 | 17 | Session review read builder composes those steps — "the session review read builder composes them." | slice 4 | |

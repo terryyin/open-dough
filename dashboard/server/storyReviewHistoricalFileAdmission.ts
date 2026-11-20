@@ -26,7 +26,9 @@ export interface HistoricalReviewedFileFields {
   readonly oldPath?: string;
 }
 
-export interface AdmittedHistoricalReviewedFile extends HistoricalReviewedFileFields {
+// One admitted comparison identity for printed diff or revision file text,
+// covering workspace, historical, and kept-session file reads.
+export interface AdmittedReviewedFile extends HistoricalReviewedFileFields {
   readonly repository: string;
 }
 
@@ -85,7 +87,7 @@ async function admitPublishedCompletion(
   identity: string,
   completion: string,
   file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
+): Promise<AdmittedReviewedFile> {
   const review = await publishedStoryReview(
     source,
     identity,
@@ -115,7 +117,7 @@ async function admitPublishedCompletion(
 export async function admitLandedRun(
   run: LandingReviewSource,
   file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
+): Promise<AdmittedReviewedFile> {
   const review = await landedStoryReview(run, AbortSignal.timeout(30_000));
   const landing = run.record.landing;
   if (review.kind !== "landed" || landing === undefined)
@@ -140,7 +142,7 @@ export async function admitLandedRun(
 // Admit a historical file against a Published completion or landed run.
 export async function admitHistoricalReviewedFile(
   named: NamedHistoricalReviewedFile,
-): Promise<AdmittedHistoricalReviewedFile> {
+): Promise<AdmittedReviewedFile> {
   const { source, baseline, tree, path, oldPath } = named;
   const file: HistoricalReviewedFileFields = {
     baseline,

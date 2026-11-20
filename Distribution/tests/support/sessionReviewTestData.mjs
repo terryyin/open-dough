@@ -10,8 +10,8 @@ import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
-/** @typedef {Extract<import("../../../dashboard/server/storyReviewRecordAdmission.ts").StoryReviewInput, { readonly kept: unknown }>} SessionReviewRead */
-/** @typedef {Extract<import("../../../dashboard/server/storyReviewAdmission.ts").ReviewedFileInput, { readonly kept: unknown }>} SessionFileRead */
+/** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").StoryReviewInput, { readonly kept: unknown }>} SessionReviewRead */
+/** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").ReviewedFileInput, { readonly kept: unknown }>} SessionFileRead */
 /**
  * The file a session file read names within a comparison, and the landed
  * run's launch reference when it names one.

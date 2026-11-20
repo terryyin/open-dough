@@ -42,7 +42,7 @@ A handler takes the state it reads as typed input, and only its adapter
 reads process-wide stores: `storyReview` (`dashboard/server/storyReviewSnapshot.ts`)
 and `reviewedFileDiff` and `reviewedFileText`
 (`dashboard/server/storyReviewFileResponse.ts`) take a `ReviewInput`
-(`dashboard/server/storyReviewSessionAdmission.ts`) that carries the kept
+(`dashboard/server/storyReviewInput.ts`) that carries the kept
 records. A case constructs exactly that state and its repositories through
 MakeMe, here `makeMe.aSessionReviewRead`. A case calls another handler in
 its arrangement only when that step is the behavior under test. The
