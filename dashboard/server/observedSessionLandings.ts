@@ -24,35 +24,54 @@ import {
   readBranchTrunkRevision,
 } from "./sessionBranchAttribution.ts";
 
+type ObservedSource = Pick<PublishedSource, "id" | "ref">;
+
 type ProjectObservation = {
   readonly revision: string;
   readonly checked: Set<string>;
-  running: boolean;
+  pass: Promise<void> | undefined;
 };
 
-const observations = new Map<string, ProjectObservation>();
+// The process-lifetime owner of observed deliveries: it holds each project's
+// checked witnesses and in-flight pass for the revision it last observed.
+// A fresh owner starts as a restarted Dashboard would.
+export function sessionLandingObservations() {
+  const observations = new Map<string, ProjectObservation>();
+  return {
+    observe(source: ObservedSource, revision: string): Promise<void> {
+      let observation = observations.get(source.id);
+      if (observation?.revision !== revision) {
+        observation = { revision, checked: new Set(), pass: undefined };
+        observations.set(source.id, observation);
+      }
+      if (observation.pass !== undefined) return observation.pass;
+      const current = observation;
+      const settle = () => {
+        current.pass = undefined;
+      };
+      current.pass = captureObservedLandings(source, current).then(
+        settle,
+        settle,
+      );
+      return current.pass;
+    },
+  };
+}
 
+const liveObservations = sessionLandingObservations();
+
+// Board reads and revision checks answer without waiting for the pass.
 export function observeProjectRevision(
   pinned: PinnedTexts,
   source: PublishedSource,
   revision: string,
 ): void {
   pinned.namedByRef(source, revision);
-  let observation = observations.get(source.id);
-  if (observation?.revision !== revision) {
-    observation = { revision, checked: new Set(), running: false };
-    observations.set(source.id, observation);
-  }
-  if (observation.running) return;
-  observation.running = true;
-  const settle = () => {
-    observation.running = false;
-  };
-  void captureObservedLandings(source, observation).then(settle, settle);
+  void liveObservations.observe(source, revision);
 }
 
 async function captureObservedLandings(
-  source: PublishedSource,
+  source: ObservedSource,
   { revision, checked }: ProjectObservation,
 ) {
   const heads = new Map<string, string | undefined>();

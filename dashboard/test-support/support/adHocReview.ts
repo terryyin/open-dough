@@ -67,6 +67,17 @@ export function sessionBranchPins(checkout: string, session: string): string[] {
     .filter(Boolean);
 }
 
+export function landingPins(checkout: string): string[] {
+  return git(
+    checkout,
+    "for-each-ref",
+    "--format=%(refname)",
+    "refs/open-dough/one-shot",
+  )
+    .split("\n")
+    .filter(Boolean);
+}
+
 export async function adHocReview(
   request: APIRequestContext,
   dashboard: DashboardServer,

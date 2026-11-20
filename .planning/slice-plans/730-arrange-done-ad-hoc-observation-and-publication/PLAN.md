@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#arrange-done-ad-hoc-observation-and-publication
 **Source:** [Arrange Done ad hoc sessions directly for delivery observation and publication](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#arrange-done-ad-hoc-observation-and-publication)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -99,7 +100,7 @@ power guard below. All four checks passed on 2026-11-20 at 16:53 +08.
 ### 1. A repeated revision check keeps one delivery
 
 Type: Structure
-Status: planned
+Status: done
 
 Expose the awaitable owner and make the existing adapter delegate to it.
 Move the ordinary revision-check case in
@@ -220,6 +221,17 @@ has lost its final caller. Trace `launchIsolatedReview`,
 `keptAdHocRecord`, and the declared-publication helpers across dashboard
 and e2e before deletion. Keep the shared review helpers used by the
 deferred branch and session-commits cases.
+
+## Learnings
+
+- Slice 1: `sessionLandingObservations()` owns observation without an
+  inspection parameter; slice 3 adds the `inspectManualLanding`-shaped
+  parameter with its first caller. `landingPins(checkout)` now sits beside
+  `sessionBranchPins` in `adHocReview.ts`. The moved case takes about
+  1.2–2.2 s at load 8–13; one 5.1 s timeout came from load 32 plus a
+  concurrent `tsc` build, so run typecheck apart from timed suites. The
+  strict backend reporter prints nothing on success; read selected counts
+  from `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`.
 
 ## Local gates
 

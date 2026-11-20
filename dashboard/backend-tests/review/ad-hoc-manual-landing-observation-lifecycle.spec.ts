@@ -6,7 +6,7 @@ import {
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
-  keptAdHocRecord,
+  landingPins,
   launchIsolatedReview,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
@@ -41,72 +41,6 @@ function mergeBranch(origin: StartOrigin, tip: string) {
   git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", tip);
   return git(origin.project, "rev-parse", "HEAD");
 }
-
-const landingPins = (project: string) =>
-  git(
-    project,
-    "for-each-ref",
-    "--format=%(refname)",
-    "refs/open-dough/one-shot",
-  )
-    .split("\n")
-    .filter(Boolean);
-
-test("ordinary revision checks retain one delivery across repeated observations", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const { baseline, session, tip } = await doneBranch(dashboard, "branch");
-  const merge = mergeBranch(origin, tip);
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const query = { source: "open-dough", since: baseline };
-  const answer = await getReview(
-    request,
-    dashboard,
-    authenticatedReadEndpoint,
-    query,
-  );
-  expect(answer.status()).toBe(200);
-  expect(await answer.json()).toMatchObject({ revision: merge, changed: true });
-  await expect
-    .poll(() => adHocReview(request, dashboard, session))
-    .toMatchObject({
-      kind: "landed",
-      baseline,
-      tree: merge,
-      files: [{ path: "branch.txt" }],
-    });
-  const captured = await adHocReview(request, dashboard, session);
-  const saved = (await keptAdHocRecord(dashboard, session))?.landing;
-  const pins = landingPins(origin.project);
-  expect(pins).toHaveLength(2);
-  await getReview(request, dashboard, authenticatedReadEndpoint, query);
-
-  const advance = await origin.publishRevision({
-    files: { "later.txt": "Later\n" },
-  });
-  const refreshed = await getReview(
-    request,
-    dashboard,
-    authenticatedReadEndpoint,
-    { ...query, since: merge },
-  );
-  expect(refreshed.status()).toBe(200);
-  expect(await refreshed.json()).toMatchObject({ revision: advance });
-  expect(await adHocReview(request, dashboard, session)).toEqual(captured);
-  expect((await keptAdHocRecord(dashboard, session))?.landing).toEqual(saved);
-  expect(landingPins(origin.project)).toEqual(pins);
-
-  dashboard.claudeListingFails(true);
-  const response = await deleteRecord(dashboard, {
-    source: "open-dough",
-    session,
-  });
-  expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
-  expect(sessionBranchPins(origin.project, session)).toEqual([]);
-  expect(landingPins(origin.project)).toEqual([]);
-});
 
 const race = test.extend<{
   observation: Awaited<ReturnType<typeof doneBranch>> & {
