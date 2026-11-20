@@ -1,14 +1,18 @@
-// Done keeps its timestamp even when a Default main session has no readable run.
+// Why a Default main session's capture finds no readable run, how its review
+// says so, and that Done keeps its timestamp when the capture fails.
 import { renameSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptRecords } from "../../server/launchRecordStore.ts";
+import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   aCheckout,
   aDefaultLaunch,
   aKeptSession,
-  keep,
+  anEstablishedSession,
+  type Checkout,
   markDone,
   minutesAgo,
   source,
@@ -22,32 +26,50 @@ import {
 
 const doneAt = minutesAgo(10);
 
+// What production's Git-only capture reads for the session (an established
+// one by default) in the checkout at Done.
+const captured = (
+  checkout: Checkout,
+  record: LaunchRecord = anEstablishedSession(checkout).please(),
+) => readSessionCommits(record, { workspace: checkout.integration });
+
 test("a blank default launch that edited files and committed nothing says it made no commits in the Default main checkout", async () => {
   const checkout = await aCheckout();
-  const record = aDefaultLaunch(checkout).please();
-  keep(record);
+  const launch = aDefaultLaunch(checkout);
   await work(
     checkout,
     makeMe.aCheckoutWork.editing("edit", { at: minutesAgo(30) }),
   );
 
-  await markDone(record, doneAt);
+  const { repository, runs } = await captured(checkout, launch.please());
+  const record = launch
+    .keptSessionCommits({ repository, runs })
+    .markedDoneAt(doneAt)
+    .please();
 
-  expect(await keptRecords(source)).toMatchObject([{ doneAt }]);
-  expect(await review(await keptRecords(source), record)).toEqual(noCommits);
+  expect(await review([record], record)).toEqual(noCommits);
 });
 
-test("a session whose only commit stays on another branch says its changes were not captured", async () => {
-  const { checkout, record } = await aKeptSession();
+test("a session whose checkout read failed at Done says its changes were not captured", async () => {
+  const checkout = await aCheckout();
+  const record = anEstablishedSession(checkout)
+    .sessionCommitsFailedAt(doneAt)
+    .markedDoneAt(doneAt)
+    .please();
+
+  expect(await review([record], record)).toEqual(notCaptured);
+});
+
+test("a session whose only commit stays on another branch fails its capture", async () => {
+  const checkout = await aCheckout();
   await work(
     checkout,
     makeMe.aCheckoutWork.committingOnBranch("side", { at: minutesAgo(30) }),
   );
 
-  await markDone(record, doneAt);
-
-  expect(await keptRecords(source)).toMatchObject([{ doneAt }]);
-  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
+  await expect(captured(checkout)).rejects.toThrow(
+    "None of the session's commits is in the checkout's HEAD.",
+  );
 });
 
 for (const { when, earlier } of [
@@ -57,8 +79,8 @@ for (const { when, earlier } of [
     earlier: makeMe.aCheckoutWork.committing("earlier", { at: minutesAgo(40) }),
   },
 ]) {
-  test(`a session commit reworded ${when} leaves changes not captured`, async () => {
-    const { checkout, record } = await aKeptSession();
+  test(`a session commit reworded ${when} fails its capture`, async () => {
+    const checkout = await aCheckout();
     await work(
       checkout,
       earlier
@@ -69,15 +91,13 @@ for (const { when, earlier } of [
         }),
     );
 
-    await markDone(record, doneAt);
-
-    expect(await keptRecords(source)).toMatchObject([{ doneAt }]);
-    expect(await review(await keptRecords(source), record)).toEqual(
-      notCaptured,
+    await expect(captured(checkout)).rejects.toThrow(
+      "The checkout's log has a commit that cannot be placed.",
     );
   });
 }
 
+// The adapter keeps the Done when its capture fails.
 test("a session whose checkout log cannot be read at Done is done and says its changes were not captured", async () => {
   const { checkout, record } = await aKeptSession();
   await work(
@@ -95,15 +115,12 @@ test("a session whose checkout log cannot be read at Done is done and says its c
   expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
 });
 
-test("a session whose checkout log holds no entry at Done is done and says its changes were not captured", async () => {
-  const { checkout, record } = await aKeptSession();
+test("a session whose checkout log holds no entry at Done fails its capture", async () => {
+  const checkout = await aCheckout();
   // Git still reads the checkout. Remove all logs so it cannot fall back to the branch log.
   rmSync(path.join(checkout.integration, ".git", "logs"), { recursive: true });
 
-  expect((await markDone(record, doneAt))?.doneAt).toBe(doneAt);
-
-  const [kept] = await keptRecords(source);
-  expect(kept).toMatchObject({ doneAt });
-  expect(kept?.sessionCommits).toBeUndefined();
-  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
+  await expect(captured(checkout)).rejects.toThrow(
+    "The checkout's log has no entries.",
+  );
 });

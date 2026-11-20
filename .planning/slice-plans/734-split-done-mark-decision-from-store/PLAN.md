@@ -221,7 +221,7 @@ callers changed only by the added kept-records argument timed out at 5 s under
 external load 27–39 (other worktrees' lint and typecheck, a six-day-old
 native-substitute shell, fseventsd); a base copy of
 `ad-hoc-branch-attribution` timed out the same way at that load. Branch CI on
-the delivered revision is their verdict.
+the delivered revision `93cc82cf7` passed them.
 The refactor pass shared the three specs' Done composition as `aDoneSession`
 in `doneCaptureReview.ts`, over the `anEstablishedSession` preset; the
 [launch flavors story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)
@@ -230,7 +230,7 @@ folds both into MakeMe.
 ### 5. Other Default main review cases start from composed Done records
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the review-topic cases in `done-kept-session-shared-checkout`,
 `done-kept-session-unavailable` and `ad-hoc-session-commits-pending-done`.
@@ -244,6 +244,19 @@ it with typed records.
 **Proof.** The moved cases keep their review assertions and explanation text
 (`notCaptured`, `noCommits`) without HOME stubs. Breaking the shared rule in a
 scratch edit fails its typed case.
+
+**Accepted.** The shared-checkout cases compose shared and unshared runs and
+prove `checkoutSharedMeanwhile` on plain records (a scratch break failed the
+isolated-workspace case). The unavailable cases take no-commit runs from
+`readSessionCommits`, keep a direct capture case for each failure message, and
+compose `sessionCommitsFailedAt`; the unreadable-log case keeps the adapter, as
+its topic is Done surviving a failed capture. `ad-hoc-session-commits-pending-done`
+already composed its records. After the refactor pass, shared-checkout has three
+typed rule cases and two review cases; unavailable has four capture-failure
+cases, two composed review cases and the adapter case. Review halves that
+composed the same decision result (the repeated `notCaptured` and unshared
+reviews) are asserted once, since each read the same record field. Both specs
+passed (12/12) at load ~23; the scratch break failed both negative rule cases.
 
 ### 6. Isolated branch review cases start from composed Done records
 
