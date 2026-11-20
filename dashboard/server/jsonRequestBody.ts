@@ -45,16 +45,30 @@ function readBody(
   });
 }
 
+export async function textBody(
+  req: IncomingMessage,
+  signal?: AbortSignal,
+  limitBytes = bodyLimitBytes,
+): Promise<string> {
+  if (!/^application\/json\b/.test(req.headers["content-type"] ?? "")) {
+    throw new RefusedRequest(415, "A request here is JSON.");
+  }
+  try {
+    return await readBody(req, limitBytes, signal);
+  } catch (error) {
+    if (signal?.aborted) throw signal.reason;
+    if (error instanceof RefusedRequest) throw error;
+    throw new RefusedRequest(400, "The request is not JSON.");
+  }
+}
+
 export async function jsonBody(
   req: IncomingMessage,
   signal?: AbortSignal,
   limitBytes = bodyLimitBytes,
 ): Promise<unknown> {
-  if (!/^application\/json\b/.test(req.headers["content-type"] ?? "")) {
-    throw new RefusedRequest(415, "A request here is JSON.");
-  }
   try {
-    return JSON.parse(await readBody(req, limitBytes, signal));
+    return JSON.parse(await textBody(req, signal, limitBytes));
   } catch (error) {
     if (signal?.aborted) throw signal.reason;
     if (error instanceof RefusedRequest) {

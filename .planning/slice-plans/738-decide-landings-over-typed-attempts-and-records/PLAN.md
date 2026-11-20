@@ -191,7 +191,7 @@ nothing.
 ### 5. The publisher bridge uses production's landing admission
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the typed admission and make `submitLanding` and `receive` in
 `installedPublisher.ts` use it. Add typed cases for another origin, another

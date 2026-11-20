@@ -8,8 +8,9 @@ import {
 } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
+  admitLandingRequest,
+  type LandingOperation,
   type LandingSubmission,
-  landingSubmissionSchema,
 } from "./launchLandingAdmission.ts";
 import {
   decideLanding,
@@ -24,12 +25,8 @@ import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { jsonBody } from "./jsonRequestBody.ts";
+import { textBody } from "./jsonRequestBody.ts";
 import { knownSource } from "./sessionAdmission.ts";
-export const landingEndpoint = "/__agent-launch/landing";
-export const landingPrepareEndpoint = `${landingEndpoint}/prepare`;
-// Preparing retains a pair before publication; recording accepts it.
-export type LandingOperation = "prepare" | "record";
 
 // Attempt read/replace and record read/replace the adapter persists through.
 // Optional on `handleLanding`; defaults to this machine's stores.
@@ -60,18 +57,22 @@ async function persistSourceRecords(
 
 export async function submitLanding(
   req: IncomingMessage,
-  operation: LandingOperation,
 ): Promise<LandingReceipt> {
   verifyLocalOrigin(req);
-  if (req.method !== "POST")
-    throw new RefusedRequest(405, "Only POST is accepted here.");
-  const parsed = landingSubmissionSchema.safeParse(
-    await jsonBody(req, undefined, 128 * 1024),
-  );
-  if (!parsed.success)
-    throw new RefusedRequest(400, "The landing request is malformed.");
-  knownSource(parsed.data.source);
-  return handleLanding(parsed.data, `http://${req.headers.host}`, operation);
+  const host = req.headers.host;
+  const { operation, submission } = admitLandingRequest({
+    route: new URL(req.url ?? "", `http://${host ?? "local"}`).pathname,
+    method: req.method,
+    origin: headerValue(req.headers.origin),
+    host,
+    bodyText: await textBody(req, undefined, 128 * 1024),
+  });
+  knownSource(submission.source);
+  return handleLanding(submission, `http://${host}`, operation);
+}
+
+function headerValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 async function pinNewLanding(
