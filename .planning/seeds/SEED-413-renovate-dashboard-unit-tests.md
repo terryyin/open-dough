@@ -551,10 +551,13 @@ does not depend on them.
     the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
     and `dashboard/backend-tests/launches/`, with their shared support:
     `doneCaptureCase.ts`, `doneCaptureReview.ts`, `doneBranchObservation.ts`,
-    `declaredBranchCase.ts`, `declaredPublisherBranch.ts`,
-    `installedPublisher.ts`, `reportedIsolatedBranch.ts` and
-    `adHocBranchRefs.ts`, as the five import-list stories leave them. Profile per case first: checkout creation, checkout
-    work, production Done capture, observation and review reads.
+    `declaredPublisherBranch.ts`, `installedPublisher.ts`,
+    `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
+    import-list stories leave them. Profile per case first: checkout creation,
+    checkout work, production Done capture, observation and review reads.
+    After the branch-entry story, entry setup is gone; the Done review,
+    attribution, declared publication and lifecycle deletion cases still take
+    4.1–4.6 s at load ~20 in real Done capture and fixture Git.
   - Keep the Git that developers run, the production handlers and every
     assertion. The proof is of Git's own behavior (reflog times, merges,
     worktrees, pins), so a Git library in the test process does not replace
