@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#ad-hoc-branch-result-handoff
 **Source:** [Prove the ad hoc branch result and its handoff at typed Done seams](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#ad-hoc-branch-result-handoff)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -110,7 +111,7 @@ Exclusions:
 ### 1. A held Done capture is superseded by a newer Done in a typed case
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the ancestry-read collaborator. Write
 `ad-hoc-branch-result-supersession.spec.ts`, which covers:
@@ -121,6 +122,14 @@ Add the ancestry-read collaborator. Write
 - deleting a record while its capture is held leaves no pins.
 
 Remove those two cases from the Playwright race file.
+
+Accepted proof: the new spec passes 3 cases; the guard-disabled scratch fails
+the newer-Done case at the tree, and `keepBranchResultRefs` before the write
+fails the deletion case with 2 pins. `review/ad-hoc-branch-result`,
+`review/ad-hoc-branch-attribution`, the remaining Playwright race case,
+typecheck and lint pass. Learning for slice 2: the held read is the spec-local
+`aHeldDone`; if slice 2 needs it too, share it from `doneCaptureCase.ts`, not
+Dashboard Test Support.
 
 | Promise | Slice 1 proof |
 | --- | --- |
