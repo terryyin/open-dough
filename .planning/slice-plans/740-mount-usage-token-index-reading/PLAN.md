@@ -138,7 +138,7 @@ reverted.
 ### 3. Each selection shows only its own read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Mount the three cases of `-usage-selection` and the two of `-usage-tool`,
 each holding or rejecting its own Claude Code reply. Remove both built-app
@@ -148,6 +148,11 @@ files.
 check after a settled read fails the late-answer case and is reverted. The
 late-answer case waits one task after releasing the reply before it asserts
 that nothing joined.
+
+- **Replaced built-app cases (all 5 titles and every assertion preserved in place):**
+  - `system-settings-usage-selection.spec.ts`: `"a failure leaves once its selection is read again"`, `"a failure leaves once a day round trip reads its period again"`, `"an answer for a selection already left never joins the one shown"`.
+  - `system-settings-usage-tool.spec.ts`: `"adding Claude Code keeps a Codex-only model, offering both tools' models once; hiding Codex then resets that model and keeps the workflow and a shared effort"`, `"the Claude Code cohort names, once and in words, the background work it leaves out and each task's own missing usage; Codex names no left-out work"`.
+- **Learning for slice 4:** In React 19 (`createRoot`), a `setState` inside a multi-hop Promise chain schedules its `MessageChannel` commit during microtask drain after any synchronous 0 ms `setTimeout`, so a nested `setTimeout(() => { setTimeout(resolve, 0); }, 0)` reliably waits past both the Promise chain and React's commit task.
 
 ### 4. Refresh keeps the trend while it checks
 
