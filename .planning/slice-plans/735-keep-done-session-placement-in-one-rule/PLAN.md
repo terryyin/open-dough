@@ -142,7 +142,7 @@ the `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` JSON.
 ### 2. The Done disclosure renders the sessions it is given
 
 Type: Structure
-Status: planned
+Status: done
 
 `StoryCardDoneSessions` takes `sessions`, `storyCardAssignments` and a
 follow-up slot; `StoryCard` supplies `SessionFollowUp`. Rewrite
@@ -150,13 +150,24 @@ follow-up slot; `StoryCard` supplies `SessionFollowUp`. Rewrite
 from page-loadable MakeMe (register the launch-record and session-state
 builders in `pageMakeMe.mjs` if absent) and a small page object beside the
 spec for the disclosure, its rows and its summary. Supply `SessionsOnPage`
-through one typed test-support value rather than an inline stub. Keep its two
+through one typed value beside the spec rather than an inline stub. Keep its two
 behavior cases: collapsed count of two, newest-first rows when expanded, focus
 kept on the summary when collapsed; and no disclosure without Done sessions.
 
 **Proof.** The rewritten spec passes with no `as` casts of domain records or
 `MachineSessions` and no direct `querySelector`; slice 1's specs and E2E
 `agent-launch-story-card-done` still pass.
+
+**Accepted proof (slice 2).** `npm run test:dashboard:frontend -- story-card-done-disclosure board-done-session-placement`
+(9 passed); retained frontend `recently-done-active-story-sessions`; E2E
+`agent-launch-story-card-done`, `recently-done-returned-sessions`,
+`agent-terminal-done-reopen`, `agent-launch-recent-delete`,
+`agent-terminal-done-codex-page` (8 passed); typecheck and lint.
+
+**Learnings (slice 2).** The [frontend README](../../../dashboard/frontend-tests/README.md)
+freezes Dashboard Test Support to MakeMe builders, so the inert
+`PageSessions` value lives beside its spec in `frontend-tests/sessions/`;
+slice 3's mounted-board arrangement follows the same rule.
 
 ### 3. Scan emphasis is proven in a mounted Vitest board
 

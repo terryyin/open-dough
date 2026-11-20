@@ -1,16 +1,15 @@
 // Done history on an unfinished Backlog or Taken card: collapsed count of
 // that story's retained Done sessions, expanded with the shared Session entry
-// (`./SessionEntry.tsx`) and conditional Session Follow up. The Board's one
+// (`./SessionEntry.tsx`) and the Follow up its card supplies for each. The Board's one
 // placement rule (`./columnSessions.ts`) gives this card those sessions ahead
 // of a published done card or standalone Recently done entry. Expanding alone does not change story
 // selection. Session navigation opens the disclosure to reveal a nested entry
 // (`./sessionNavigation.ts`).
 
 import { ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
-import type { MachineSessions } from "./agentLaunches.ts";
 import type { AgentAssignment } from "./agentAssignments.ts";
-import { SessionFollowUp } from "./FollowUp.tsx";
 import { Icon } from "./Icon.tsx";
 import { sessionKey } from "./sessionReference.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
@@ -19,19 +18,15 @@ import "./story-card-done.css";
 import "./frame-controls.css";
 
 export function StoryCardDoneSessions({
-  sourceId,
-  project,
   sessions,
-  launches,
   storyCardAssignments,
+  followUpOf,
 }: {
-  readonly sourceId: string;
-  // The published project label Session Follow up already needs.
-  readonly project: string;
   // This story's own Done sessions, oldest first.
   readonly sessions: readonly LaunchWithState[];
-  readonly launches: MachineSessions;
   readonly storyCardAssignments: readonly AgentAssignment[];
+  // The Follow up each Done session's entry offers.
+  readonly followUpOf: (record: LaunchWithState) => ReactNode;
 }) {
   if (sessions.length === 0) return null;
   return (
@@ -48,14 +43,7 @@ export function StoryCardDoneSessions({
               record={record}
               onStoryCard
               storyCardAssignments={storyCardAssignments}
-              followUp={
-                <SessionFollowUp
-                  record={record}
-                  project={project}
-                  sourceId={sourceId}
-                  launches={launches}
-                />
-              }
+              followUp={followUpOf(record)}
             />
           </li>
         ))}

@@ -34,6 +34,7 @@ import { storyCardMarks } from "./storyCardFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StoryCardLaunches } from "./StoryCardLaunches.tsx";
 import { StoryCardDoneSessions } from "./StoryCardDoneSessions.tsx";
+import { SessionFollowUp } from "./FollowUp.tsx";
 import {
   dependencyStartReason,
   startEligibilityOf,
@@ -142,11 +143,16 @@ export function StoryCard({
           statusId={statusId}
         />
         <StoryCardDoneSessions
-          sourceId={sourceId}
-          project={work.source.label}
           sessions={doneSessions}
-          launches={launches}
           storyCardAssignments={storyCardAssignmentsOf(entry)}
+          followUpOf={(record) => (
+            <SessionFollowUp
+              record={record}
+              project={work.source.label}
+              sourceId={sourceId}
+              launches={launches}
+            />
+          )}
         />
       </StartupFrame>
       <div
