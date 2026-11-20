@@ -119,7 +119,7 @@ pass. The refusal-wording case passes.
 ### 2. A cohort and its period read from typed answers
 
 Type: Behavior
-Status: planned
+Status: done
 
 Mount `SystemSettingsUsage` over a case-supplied source, with the Usage page
 object beside the specs, for the three cases of `system-settings-usage`
@@ -128,6 +128,12 @@ and the two of `-usage-period`. Remove both built-app files.
 **Proof.** The mounted specs pass with all five titles. One scratch break
 that lets an invalid day count read again fails the period case and is
 reverted.
+
+- **Replaced built-app cases (all 5 titles and every assertion preserved in place):**
+  - `system-settings-usage.spec.ts`: `"ten eligible tasks draw their one rolling median value"`, `"partial and unpriced tasks explain a sparse trend, and an empty cohort explains its absence"`, `"task detail distinguishes repeated launches and unknown outcomes, with keyboard selection and focus restoration"`.
+  - `system-settings-usage-period.spec.ts`: `"local calendar requests retain the last valid day view through invalid input and cohort changes"`, `"empty periods explain their counts and do not show an old median"`.
+- **Learnings for slices 3–4:** `UsageDays` error alert inside `<label>` expands the textbox accessible name (`/^Last N days/`); narrow `cdp()` from `"vitest/browser"` to `{ send(...) }`; `userEvent.keyboard` uses `{Enter}` / `{Space}`; `system-settings-usage-page.ts` is 220 lines, so split out a cohesive part (such as task detail or tool comparison) before exceeding 250 lines when adding tool-selection and Refresh operations.
+- **Story-boundary reassessment (`storyOverruns: 2` after slices 1 and 2 crossed 15m during report writing at 15.5m and 16.1m with all code and proof already complete):** Delivered value so far is the production `UsageSource` seam, `pageMakeMe.aTokenIndexAnswer`, `system-settings-usage-source.spec.ts`, `system-settings-usage-page.ts`, and 5 of 13 migrated cases across 2 of 6 specs. Remaining scope is 5 cases in slice 3 (`-usage-selection`, `-usage-tool`), 3 cases in slice 4 (`-usage-checking`, `-usage-estimate`), and support cleanup + 3-run timing comparison in slice 5. Concrete sizing reason to continue without splitting the story: slices 1–2 carried the one-time cost of the production seam and 220-line page object, whereas slices 3–4 reuse both across only 2 small specs each and are needed together to retire shared `test-support` exports and measure the 6-spec focused selection.
 
 ### 3. Each selection shows only its own read
 
