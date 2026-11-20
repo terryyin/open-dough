@@ -1,25 +1,20 @@
 // Done saves a declared branch's own changes apart from what the branch held
 // when the session identified it and from the trunk history it took in, or
 // explains why it cannot.
-import { realpathSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
+import { aLaunchDeclaring } from "../support/declaredBranch.ts";
 import {
   aCheckoutWithWorktree,
-  aDefaultLaunch,
   type Checkout,
   fileDiff,
   fileText,
   inWorktree,
-  keep,
   markDone,
   minutesAgo,
   review,
-  source,
   work,
 } from "../support/doneCaptureCase.ts";
 
@@ -32,24 +27,8 @@ const aTopicWorktree = () =>
 
 // A Default main launch that then identified the existing topic worktree as
 // its branch, with whatever the worktree already held.
-async function aDeclaredTopic(checkout: Checkout, workspace: string) {
-  const record = aDefaultLaunch(checkout, {
-    gitDirectory: realpathSync(path.join(checkout.integration, ".git")),
-  }).please();
-  keep(record);
-  const entry = await recordSessionBranchEntry(
-    {
-      id: source,
-      label: "Open Dough",
-      repository: checkout.integration,
-      ref: "main",
-      backlogPath: ".planning/PRODUCT-BACKLOG.md",
-    },
-    record,
-    { workspace, branch },
-  );
-  return { record, entry };
-}
+const aDeclaredTopic = (checkout: Checkout, workspace: string) =>
+  aLaunchDeclaring(checkout, { workspace, branch });
 
 test("a declared branch's saved comparison shows only its new work and its edit to imported text", async () => {
   const { checkout, workspace } = await aTopicWorktree();

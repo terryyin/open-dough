@@ -160,7 +160,7 @@ store rewrite, and verify its remaining evidence is released too.
 ### 5. A prepared receipt remains recordable across Done
 
 Type: Structure
-Status: planned
+Status: done
 
 Expose the typed landing handler without moving the admission
 contract or the attempted/retained write logic. Move only the
@@ -254,6 +254,12 @@ deferred branch and session-commits cases.
   applies retention through the installed dispatch. No test now holds a
   live pass; commitment 6 rests on the `void` adapter and the revision
   check and stream specs.
+- Slice 5: `handleLanding(report, origin, operation)` with
+  `LandingOperation` is the typed landing handler; `declaredPublisherBranch.ts`
+  arranges a declared worktree with copied publisher scripts and a context,
+  and `declaredBranch.ts` holds `aLaunchDeclaring`. Before recording, a Done
+  declared branch reviews as `branch-result`; precedence is the stored
+  prepared pair. Wide consumer runs pass at `--workers=2`.
 
 ## Local gates
 

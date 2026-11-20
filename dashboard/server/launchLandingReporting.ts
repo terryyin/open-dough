@@ -7,6 +7,7 @@ import {
 } from "../src/launchLanding.ts";
 import {
   declaredLandingRecord,
+  type LandingSubmission,
   landingSubmissionSchema,
   expiredAttemptRecord,
 } from "./launchLandingAdmission.ts";
@@ -27,9 +28,11 @@ import { jsonBody } from "./jsonRequestBody.ts";
 import { knownSource } from "./sessionAdmission.ts";
 export const landingEndpoint = "/__agent-launch/landing";
 export const landingPrepareEndpoint = `${landingEndpoint}/prepare`;
+// Preparing retains a pair before publication; recording accepts it.
+export type LandingOperation = "prepare" | "record";
 export async function submitLanding(
   req: IncomingMessage,
-  prepare = false,
+  operation: LandingOperation,
 ): Promise<LandingReceipt> {
   verifyLocalOrigin(req);
   if (req.method !== "POST")
@@ -39,9 +42,17 @@ export async function submitLanding(
   );
   if (!parsed.success)
     throw new RefusedRequest(400, "The landing request is malformed.");
-  const report = parsed.data;
-  knownSource(report.source);
-  const origin = `http://${req.headers.host}`;
+  knownSource(parsed.data.source);
+  return handleLanding(parsed.data, `http://${req.headers.host}`, operation);
+}
+
+// Prepares or records one admitted submission for the dashboard at `origin`.
+export async function handleLanding(
+  report: LandingSubmission,
+  origin: string,
+  operation: LandingOperation,
+): Promise<LandingReceipt> {
+  const prepare = operation === "prepare";
   try {
     const retained = await withKeptAttempts(async (attempts) => {
       const record =

@@ -112,9 +112,9 @@ export async function answer(
 ): Promise<AgentLaunchAnswer> {
   try {
     if (url.pathname === landingPrepareEndpoint)
-      return { status: 200, body: await submitLanding(req, true) };
+      return { status: 200, body: await submitLanding(req, "prepare") };
     if (url.pathname === landingEndpoint) {
-      const receipt = await submitLanding(req);
+      const receipt = await submitLanding(req, "record");
       // The recorded landing's CI is collected whether or not a page is open.
       landedCi.nudge();
       return { status: 200, body: receipt };
