@@ -80,6 +80,12 @@ type Mounted = {
 
 const MountedPlace = createContext<Mounted | undefined>(undefined);
 
+type ReadingPlaceProps = {
+  readonly project: string;
+  readonly story: string | undefined;
+  readonly children: ReactNode;
+};
+
 // Intent's mount of `project`'s reading place, with `story` the page's
 // selected story. Mounted again for each project (`key`), so nothing one
 // project kept is shown for another.
@@ -87,11 +93,7 @@ export function IntentReadingPlace({
   project,
   story,
   children,
-}: {
-  readonly project: string;
-  readonly story: string | undefined;
-  readonly children: ReactNode;
-}) {
+}: ReadingPlaceProps) {
   const page = useContext(ReadingPlaceOnPage);
   // A page still showing another project, or no page, lends no place.
   const [mounted] = useState<Mounted>(() => {
@@ -112,8 +114,20 @@ export function IntentReadingPlace({
   return <MountedPlace value={mounted}>{children}</MountedPlace>;
 }
 
+export function ProjectIntentReadingPlace({
+  project,
+  story,
+  children,
+}: ReadingPlaceProps) {
+  return (
+    <IntentReadingPlace key={project} project={project} story={story}>
+      <IntentReadingScope name="project">{children}</IntentReadingScope>
+    </IntentReadingPlace>
+  );
+}
+
 // A reading mounted where no Intent perspective holds a place keeps one of
-// its own for as long as it is mounted, read under the `project` scope.
+// its own under the project scope, borrowing the page's place when present.
 export function IntentReadingPlaceOfItsOwn({
   project,
   children,
@@ -123,9 +137,9 @@ export function IntentReadingPlaceOfItsOwn({
 }) {
   if (useContext(MountedPlace) !== undefined) return children;
   return (
-    <IntentReadingPlace project={project} story={undefined}>
-      <IntentReadingScope name="project">{children}</IntentReadingScope>
-    </IntentReadingPlace>
+    <ProjectIntentReadingPlace project={project} story={undefined}>
+      {children}
+    </ProjectIntentReadingPlace>
   );
 }
 

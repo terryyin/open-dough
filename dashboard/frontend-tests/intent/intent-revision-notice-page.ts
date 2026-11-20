@@ -22,12 +22,6 @@ export function intentRevisionNotice() {
         .toContain(text);
       return revisionNotice;
     },
-    async readsNo(text: string) {
-      await expect
-        .poll(() => notice.query()?.textContent ?? "")
-        .not.toContain(text);
-      return revisionNotice;
-    },
     async offers(controls: readonly string[]) {
       await expect
         .poll(() =>

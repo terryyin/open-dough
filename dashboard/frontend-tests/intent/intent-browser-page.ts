@@ -27,6 +27,12 @@ export function intentBrowser() {
   };
 
   const browser = {
+    async isClosed() {
+      await expect
+        .element(page.getByRole("region", { name: "Project Intent" }))
+        .not.toBeInTheDocument();
+      return browser;
+    },
     async isAt(published: string) {
       await expect
         .element(revision)
@@ -46,6 +52,10 @@ export function intentBrowser() {
       await expect
         .element(folder(path))
         .toHaveAttribute("aria-expanded", "true");
+      return browser;
+    },
+    async showsNoFolder(path: string) {
+      await expect.element(folder(path)).not.toBeInTheDocument();
       return browser;
     },
     async listsUnselected(path: string) {

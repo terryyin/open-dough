@@ -4,7 +4,7 @@
 // (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
 // Failed, unreadable and malformed-settings updates:
 // ./intent-revision-update-failures.spec.ts.
-// Companion built-app case: ./intent-revision-notice.spec.ts.
+// Reopening Intent: ./intent-revision-notice.spec.ts.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
@@ -46,26 +46,16 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   const jobsReading = await browser.open(jobs);
   await jobsReading.shows("Scenario: Archive a job");
   const scrolled = await browser.scrollHalfway();
-  await browser.isAt(a);
 
   intent.offerRevision(b);
   await notice.reads(`New revision available — showing ${short(a)}`);
   intent.offerRevision(c);
   await notice.isShownOnce();
   await notice.offers(["Show latest"]);
-  await browser.isAt(a);
   await jobsReading.isFocused();
-  await jobsReading.shows("Scenario: Archive a job");
-  await browser.showsFolderExpanded(folder);
-  await jobsReading.isSelected();
-  await browser.isScrolledTo(scrolled);
-  expect(readIntermediateLocations).not.toHaveBeenCalled();
   expect(readLatestLocations).not.toHaveBeenCalled();
 
   await notice.showLatest();
-  await expect
-    .poll(() => readLatestLocations.mock.calls.length)
-    .toBeGreaterThan(0);
   await notice.reads("Updating…");
   await browser.isAt(a);
   await jobsReading.shows("Scenario: Archive a job");

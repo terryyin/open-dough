@@ -10,6 +10,8 @@ import {
   type IntentReadSource,
 } from "../../src/intentReadSource.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
+import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
+import type { PublishedWork } from "../../src/publishedWork.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 
 type Read<T> = (signal: AbortSignal) => Promise<T>;
@@ -19,12 +21,15 @@ export type FeaturePublication = {
   readonly files: Readonly<Record<string, Read<string>>>;
 };
 
-export function publishedFeatures(files: PublishedFiles): FeaturePublication {
+export function publishedFeatures(
+  files: PublishedFiles,
+  folder: string = pygardonFeatures.folder,
+): FeaturePublication {
   const locations: IntentLocations = {
     status: "configured",
     locations: [
       makeMe.anIntentLocation
-        .at(pygardonFeatures.folder)
+        .at(folder)
         .ofKind("gherkin")
         .selecting(...Object.keys(files))
         .please(),
@@ -54,10 +59,6 @@ function fixtureFor<T>(fixtures: Readonly<Record<string, T>>, key: string): T {
   return fixture;
 }
 
-export function featureRead(publication: FeaturePublication, path: string) {
-  return fixtureFor(publication.files, path);
-}
-
 export async function mountProjectIntent(
   revision: string,
   publications: Readonly<Record<string, FeaturePublication>>,
@@ -67,36 +68,45 @@ export async function mountProjectIntent(
       return fixtureFor(publications, requestedRevision).readLocations(signal);
     },
     readFile(...[, path, requestedRevision, signal]) {
-      return featureRead(
-        fixtureFor(publications, requestedRevision),
-        path,
-      )(signal);
+      const publication = fixtureFor(publications, requestedRevision);
+      return fixtureFor(publication.files, path)(signal);
     },
   };
-  const readingAt = (observed: string) => {
-    const work = makeMe.aPublishedWork.ofPygardon.at(observed).please();
-    return createElement(
+  const workAt = (observed: string) =>
+    makeMe.aPublishedWork.ofPygardon.at(observed).please();
+  const reading = (work: PublishedWork, shown: boolean) =>
+    createElement(
       IntentReadSourceOnPage,
       { value: readSource },
-      createElement(ProjectIntentReading, {
-        source: work.source,
-        work,
-        project: {
-          mode: "ci",
-          modeIdPrefix: "project-intent",
-          onModeChange() {},
-        },
-        projectShown: true,
+      createElement(IntentReadingProvider, {
+        project: work.source.id,
+        children:
+          shown &&
+          createElement(ProjectIntentReading, {
+            source: work.source,
+            work,
+            project: {
+              mode: "ci",
+              modeIdPrefix: "project-intent",
+              onModeChange() {},
+            },
+            projectShown: true,
+          }),
       }),
     );
-  };
-  const intent = await mountComponent(readingAt(revision), {
+  const intent = await mountComponent(reading(workAt(revision), true), {
     viewport: { width: 1280, height: 600 },
     fillsViewport: true,
   });
   return {
     offerRevision: (observed: string) => {
-      intent.rerender(readingAt(observed));
+      intent.rerender(reading(workAt(observed), true));
+    },
+    closeReading: (observed: string) => {
+      intent.rerender(reading(workAt(observed), false));
+    },
+    showProject: (work: PublishedWork) => {
+      intent.rerender(reading(work, true));
     },
   };
 }

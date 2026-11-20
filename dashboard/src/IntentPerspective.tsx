@@ -43,10 +43,7 @@ import {
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
-import {
-  IntentReadingPlace,
-  IntentReadingScope,
-} from "./pageIntentReading.tsx";
+import { ProjectIntentReadingPlace } from "./pageIntentReading.tsx";
 import {
   useStorySelection,
   type SelectedStory,
@@ -223,22 +220,16 @@ export function IntentPerspective({
         ? { "data-selected-story": selectedIdentity }
         : {})}
     >
-      <IntentReadingPlace
-        key={source.id}
-        project={source.id}
-        story={selectedIdentity}
-      >
-        <IntentReadingScope name="project">
-          <IntentBody
-            source={source}
-            work={work}
-            selection={selection}
-            project={project}
-            storySummary={storySummary}
-            story={compared}
-          />
-        </IntentReadingScope>
-      </IntentReadingPlace>
+      <ProjectIntentReadingPlace project={source.id} story={selectedIdentity}>
+        <IntentBody
+          source={source}
+          work={work}
+          selection={selection}
+          project={project}
+          storySummary={storySummary}
+          story={compared}
+        />
+      </ProjectIntentReadingPlace>
     </main>
   );
 }
