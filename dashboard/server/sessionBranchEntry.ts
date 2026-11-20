@@ -1,19 +1,23 @@
-// An explicit entry identifies an existing checkout and fixes the files the
-// launch found there, using only the original launch's repository.
+// An explicit entry identifies an existing checkout and keeps, with its pins,
+// the entry state proposed for the launch.
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { z } from "zod";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { commitIdSchema } from "../src/launchLanding.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import {
   branchPinOwner,
   type SessionBranchEntry,
 } from "../src/sessionBranchResult.ts";
+import {
+  type BranchPlace,
+  entryRepository,
+  existingEntry,
+  proposeBranchEntry,
+} from "./branchEntryProposal.ts";
 import { branchLandingContext } from "./branchLandingContext.ts";
 import { isReportingRecord } from "./completionAdmission.ts";
-import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
   keepBranchEntryRefs,
@@ -26,9 +30,6 @@ import {
   namedKeptSession,
   noSuchSession,
 } from "./sessionAdmission.ts";
-import { readBranchWorkspace } from "./sessionBranchCapture.ts";
-import { branchTrunk, observeBranchTrunk } from "./sessionBranchAttribution.ts";
-import { resolvedCheckout } from "./sessionCommitsCapture.ts";
 
 const branchRequest = z.strictObject({
   source: z.string().min(1),
@@ -41,42 +42,6 @@ const requestSchema = z.union([
   branchRequest.extend({ session: z.string().min(1) }),
 ]);
 type BranchRequest = z.infer<typeof requestSchema>;
-
-function branchEntryConflict(): RefusedRequest {
-  return new RefusedRequest(
-    409,
-    "This session already identified a different branch or workspace.",
-  );
-}
-
-function existingEntry(
-  record: LaunchRecord,
-  workspace: string,
-  branch: string,
-) {
-  const entry = record.branchEntry;
-  if (
-    entry !== undefined &&
-    (entry.workspace !== workspace || entry.branch !== branch)
-  )
-    throw branchEntryConflict();
-  return entry;
-}
-
-function entryRepository(record: LaunchRecord): string {
-  const repository = record.defaultStart?.repository;
-  if (record.request.workflow !== "ad-hoc" || repository === undefined)
-    throw new RefusedRequest(
-      409,
-      "This launch has no recorded Default main repository for a branch handoff.",
-    );
-  if (record.doneAt !== undefined)
-    throw new RefusedRequest(
-      409,
-      "Identify the branch while the session is still open.",
-    );
-  return repository;
-}
 
 async function namedLaunch(
   source: PublishedSource,
@@ -97,85 +62,19 @@ async function namedLaunch(
   return record;
 }
 
-async function verifyRegisteredWorkspace(
-  repository: string,
-  workspace: string,
-  branch: string,
-) {
-  const listed = (
-    await runGit(["worktree", "list", "--porcelain", "-z"], {
-      cwd: repository,
-      maxBuffer: defaultGitOutputLimit,
-      signal: AbortSignal.timeout(30_000),
-    })
-  ).stdout;
-  const registered = listed.split("\0\0").some((record) => {
-    const fields = record.split("\0");
-    return (
-      fields[0] === `worktree ${workspace}` &&
-      fields.includes(`branch refs/heads/${branch}`)
-    );
-  });
-  if (!registered)
-    throw new Error("This branch and path are not a registered worktree pair.");
-}
-
-async function defaultTipOf(record: LaunchRecord, repository: string) {
-  const ref = record.defaultStart?.branch;
-  if (ref === undefined) return undefined;
-  const tip = await runGit(["rev-parse", "--verify", `${ref}^{commit}`], {
-    cwd: repository,
-    maxBuffer: defaultGitOutputLimit,
-    signal: AbortSignal.timeout(30_000),
-  }).catch(() => undefined);
-  const parsed = commitIdSchema.safeParse(tip?.stdout.trim());
-  return parsed.success ? parsed.data : undefined;
-}
-
 // Records the checkout the kept launch `record` names as its own branch,
 // pinning the entry state, and answers the entry kept.
 export async function recordSessionBranchEntry(
-  source: PublishedSource,
+  source: Pick<PublishedSource, "id" | "ref">,
   record: LaunchRecord,
-  request: Pick<BranchRequest, "workspace" | "branch">,
+  request: BranchPlace,
 ): Promise<SessionBranchEntry> {
-  const workspace = (() => {
-    try {
-      return resolvedCheckout(request.workspace);
-    } catch {
-      return path.resolve(request.workspace);
-    }
-  })();
-  const { branch } = request;
-  const previous = existingEntry(record, workspace, branch);
-  if (previous !== undefined) return previous;
-  const repository = entryRepository(record);
-  if (branch === source.ref.replace(/^refs\/heads\//, ""))
-    throw new RefusedRequest(
-      409,
-      "Identify your own branch after leaving the project's trunk.",
-    );
-  const place = { repository, workspace, branch };
-  let proposed: SessionBranchEntry;
-  try {
-    await verifyRegisteredWorkspace(repository, workspace, branch);
-    const trunk = branchTrunk("origin", source.ref);
-    const [{ committedTip, tree }, defaultTip, observed] = await Promise.all([
-      readBranchWorkspace(place),
-      defaultTipOf(record, repository),
-      observeBranchTrunk(trunk, {
-        cwd: repository,
-        maxBuffer: defaultGitOutputLimit,
-        signal: AbortSignal.timeout(30_000),
-      }).catch(() => trunk),
-    ]);
-    proposed = { ...place, committedTip, tree, defaultTip, trunk: observed };
-  } catch {
-    throw new RefusedRequest(
-      409,
-      "This checkout does not hold the named branch in the launch's registered repository, or its entry state could not be captured.",
-    );
-  }
+  const { kept, entry: proposed } = await proposeBranchEntry(
+    source.ref,
+    record,
+    request,
+  );
+  if (kept) return proposed;
   const owner = branchPinOwner(record);
   const evidence = { pinning: false };
   try {
@@ -184,9 +83,8 @@ export async function recordSessionBranchEntry(
       record.session,
       async (current) => {
         if (current.launchedAt !== record.launchedAt) throw noSuchSession();
-        if (existingEntry(current, workspace, branch) !== undefined)
-          return current;
-        if (entryRepository(current) !== repository)
+        if (existingEntry(current, proposed) !== undefined) return current;
+        if (entryRepository(current) !== proposed.repository)
           throw new RefusedRequest(
             409,
             "This launch no longer names that repository.",

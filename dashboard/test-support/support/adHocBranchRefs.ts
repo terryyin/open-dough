@@ -1,6 +1,18 @@
 // Git operations on an ad hoc session's branch and the refs that pin its
 // kept commits, usable from either test runner.
+import { realpathSync } from "node:fs";
 import { git } from "./storyReviewWorktree.ts";
+
+// Adds `workspace` as a worktree of `checkout` on a new `branch` and answers
+// the path Git registers for it.
+export function addAdHocWorktree(
+  checkout: string,
+  workspace: string,
+  branch: string,
+) {
+  git(checkout, "worktree", "add", "--quiet", "-b", branch, workspace);
+  return realpathSync(workspace);
+}
 
 export function retireAdHocBranch(
   checkout: string,

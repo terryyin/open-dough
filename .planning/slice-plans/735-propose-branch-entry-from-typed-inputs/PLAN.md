@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#split-branch-entry-proposal-from-store
 **Source:** [Propose a branch entry from typed inputs and expose its pin refs](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -93,7 +94,7 @@ test runners was
 ### 1. A typed launch can propose its branch entry
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given the launch record and a worktree, the proposal answers the captured or
 previously kept entry, or refuses the conflicting place. Keep lazy admission
@@ -111,6 +112,15 @@ entry returned on repeat. Run the two entry specs, Cursor recovery and the
 declared publisher specs. Exercise the actual branch-entry route with a
 valid local handoff in the affected boundary proof, observing its stored
 entry and returned answer.
+
+**Learning.** `proposeBranchEntry` lives in `dashboard/server/branchEntryProposal.ts`;
+`branch-entry-proposal.spec.ts` holds the typed cases and still builds its
+record with `aDeclaringLaunch`, which slice 5 replaces. At load 19–23 the
+13-file consumer run timed out at the 5 s default in ten 3–5 s Git-heavy
+cases across untouched files (Cursor recovery, declared publication, manual
+observation lifecycle, attribution); the same cases passed at load ~15. Slices
+2–6 remove setup from exactly these cases; the final ADR 0010 comparison must
+show them clear of the edge, and any CI timeout on them is this execution's repair.
 
 ### 2. Branch evidence is read by host and session
 

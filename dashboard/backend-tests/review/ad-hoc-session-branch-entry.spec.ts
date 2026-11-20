@@ -1,12 +1,14 @@
 // A Default main launch identifies its own branch: the entry keeps the state
-// and Default main tip it found, refuses any other place, and Done reviews the
-// branch apart from the captured Default main commits.
-import { realpathSync } from "node:fs";
+// and Default main tip it found, and Done reviews the branch apart from the
+// captured Default main commits.
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
+import {
+  addAdHocWorktree,
+  sessionBranchPins,
+} from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaringLaunch,
   identifyBranch,
@@ -27,21 +29,6 @@ import { fileText, review } from "../support/doneCaptureReview.ts";
 const branch = "draft";
 
 const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
-
-// A worktree of the checkout on its own branch `other`.
-async function anOtherWorktree(checkout: Checkout) {
-  const other = path.join(checkout.fixture, "other");
-  await git(
-    checkout.integration,
-    "worktree",
-    "add",
-    "--quiet",
-    "-b",
-    "other",
-    other,
-  );
-  return realpathSync(other);
-}
 
 // A kept launch that committed on main, then identified the draft worktree
 // holding a commit and an uncommitted edit of its own.
@@ -129,36 +116,16 @@ test("Done reviews a declared branch apart from the Default main commits before 
   });
 });
 
-test("a branch entry refuses a foreign clone, a wrong branch and a second place", async () => {
-  const { checkout, workspace } = await aDraftWorktree();
-  const record = aDeclaringLaunch(checkout, { sessionId: "first" }).please();
-  const second = aDeclaringLaunch(checkout, { sessionId: "second" }).please();
-  keep(record, second);
-  const other = await anOtherWorktree(checkout);
-  const foreign = path.join(checkout.fixture, "foreign");
-  await git(checkout.integration, "clone", "--quiet", "--local", ".", foreign);
-  await git(foreign, "switch", "--quiet", "-c", branch);
-  const refused = { status: 409 };
-
-  await expect(
-    identifyBranch(checkout, record, { workspace: foreign, branch }),
-  ).rejects.toMatchObject(refused);
-  await expect(
-    identifyBranch(checkout, record, { workspace: other, branch }),
-  ).rejects.toMatchObject(refused);
-  await identifyBranch(checkout, record, { workspace, branch });
-  await expect(
-    identifyBranch(checkout, record, { workspace: other, branch: "other" }),
-  ).rejects.toMatchObject(refused);
-  await identifyBranch(checkout, second, { workspace: other, branch: "other" });
-});
-
 test("two declared sessions each review their own branch", async () => {
   const { checkout, workspace } = await aDraftWorktree();
   const record = aDeclaringLaunch(checkout, { sessionId: "first" }).please();
   const second = aDeclaringLaunch(checkout, { sessionId: "second" }).please();
   keep(record, second);
-  const other = await anOtherWorktree(checkout);
+  const other = addAdHocWorktree(
+    checkout.integration,
+    path.join(checkout.fixture, "other"),
+    "other",
+  );
   await identifyBranch(checkout, record, { workspace, branch });
   await identifyBranch(checkout, second, { workspace: other, branch: "other" });
   const [{ ours }, { theirs }] = await Promise.all([
