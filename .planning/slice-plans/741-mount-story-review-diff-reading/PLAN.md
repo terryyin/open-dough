@@ -16,6 +16,9 @@
 - GitHub Actions `ci.yml` (CI), observing the story branch. Codex coordinator
   `shunka-741`, observer directory `/tmp/dough-ci-501/watch-KeMUBs`,
   PID 23134, stream session 1808, cell `g44:14`.
+- Slice 1 accepted on the story branch at
+  `c87a616154910043189fe0f8a2cb58b482b8e0ce` and registered with this
+  observer. Its candidate used the Take revision as its suffix base.
 
 ## Goal and scope
 
@@ -138,7 +141,7 @@ actual mixed selection is in `slice-1-restored-diffs.proof.json`.
 ### 2. The styled reading of one file stands alone
 
 Type: Structure
-Status: planned
+Status: done
 
 Extract from `FileDiff` the component that turns a path, printed diff, read
 text and hint into styled `DiffLines`. `FileDiff` keeps its reads, notes and
@@ -148,6 +151,13 @@ Follow up and renders it. This enables slice 3's mounted syntax cases.
 `story-review-diff-*` specs pass unchanged, with
 `review/story-review-notes.spec.ts` and the other review, Intent story and
 E2E readers of a file diff that the consumer trace names.
+
+**Observed.** `StyledFileDiff` owns the two sides and syntax tokens.
+`FileDiff` still owns both service reads, Retry, notes and Follow up.
+Typecheck passed, and the reached readers passed 75 frontend and 81 E2E
+cases with no retries, including all 15 cases in the seven retained diff
+specs. The exact selections, observed assertions and trace are in
+`slice-2-return.md` in Git evidence.
 
 ### 3. A file's path and hint style each side of its diff
 

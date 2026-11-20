@@ -14,10 +14,10 @@ The reviewer retained these points as context:
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | Every built-app case whose behavior the diff’s own rendering owns moves to plain Vitest cases against mounted Chromium. The migrated built-app cases retire. (*Goal*, *Scope*) | slice 6 | |
-| 2 | The styled reading of one file is extracted from `FileDiff` into a component that renders styled lines from a path, a printed diff, the file’s text and an optional `syntax` hint. (*Scope*) | slice 2 | |
-| 3 | The two service reads remain in `FileDiff`. (*Scope*) | slice 2 | |
-| 4 | Story notes remain in `FileDiff`. (*Scope*) | slice 2 | |
-| 5 | Follow up remains in `FileDiff`. (*Scope*) | slice 2 | |
+| 2 | The styled reading of one file is extracted from `FileDiff` into a component that renders styled lines from a path, a printed diff, the file’s text and an optional `syntax` hint. (*Scope*) | slice 2 | observed: dashboard/src/StyledFileDiff.tsx derives the two sides from typed text and tokens from the path and optional hint. Existing TypeScript, paths and Intent hint frontend tests observed styled output. |
+| 3 | The two service reads remain in `FileDiff`. (*Scope*) | slice 2 | observed: Both useReviewRead calls and the text retry round stay in dashboard/src/StoryReviewFileDiff.tsx. intent-read-reuse-story observes exactly one diff and one text read, and the built-app syntax arrival Retry observes the text reread and tokens. |
+| 4 | Story notes remain in `FileDiff`. (*Scope*) | slice 2 | observed: useDiffStoryNote, its callback and rendered content stay in FileDiff. story-review-notes and E2E story-review-diff-add-note observe saved line notes and comparison anchors. |
+| 5 | Follow up remains in `FileDiff`. (*Scope*) | slice 2 | observed: FileDiff keeps useDoneStoryFollowUp and StoryLineFollowUp. E2E story-review-diff-line-follow-up opens it from line menus and intent-story-follow-up observes the selected line, side and path. |
 | 6 | Mounted cases construct their inputs as typed values: a printed unified diff and a `ReviewedFileText` where text is supplied. Cases observing tokens arriving use the tokens produced for that text by production `highlightSourceLines`. (*Goal*, *Scope*) | slice 4 | |
 | 7 | The mounted cases introduce zero test-support wrappers. (*Scope*) | slice 6 | |
 | 8 | The mounted cases introduce no service substitute. (*Scope*) | slice 6 | |
