@@ -12,11 +12,13 @@ builders (MakeMe) and page objects**, with the rare exception of minimal seam
 code strictly forced by a framework limitation. **Adding any new wrapper to test
 support is forbidden; every further change outside data builders and page
 objects may only remove code from test support** until tests exercise production
-code directly instead of testing test code. When a case would otherwise want a
-wrapper or wide helper imports, reshape the production seam instead — keep wire
-and command adapters thin over strongly typed handlers, and give UI components
-narrow typed inputs and shared boundary contracts so specs mount the owning
-component rather than `<App />`.
+code directly. Count setup and support when judging the cost of a test. Keep
+the case's inputs and expected outcomes visible.
+
+When a case would need a wrapper or wide helper imports, reshape the production
+seam while preserving behavior. Keep wire and command adapters thin over
+strongly typed handlers. Give UI components narrow typed inputs and shared
+boundary contracts so specs mount the owning component.
 
 ## Act as soon as the page allows; retire `actSettled`
 

@@ -53,6 +53,9 @@ Edit only after its scope and subsystem gates permit the candidates.
 Give handlers, controllers, and UI components strongly typed contracts.
 Each variant accepts only the data and services it uses. A unit case builds
 those inputs and calls or renders the same entry point production uses.
+You may restructure production code for testability while preserving its
+observable behavior. Never add behavior to production code solely for tests.
+
 For request handlers, the adapter resolves request context and supplies the
 process-wide state the handler needs. Pass the request signal through every
 cancellable read, including admission, and keep local deadlines.
