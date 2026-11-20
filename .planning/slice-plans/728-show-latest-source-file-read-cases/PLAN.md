@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#show-latest-source-file-read-cases
 **Source:** [Keep a selected case's source through the Show latest file read in mounted cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#show-latest-source-file-read-cases)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -80,7 +81,7 @@ all stay with
 ### 1. The failed Show latest file read is proven on the mounted reading
 
 Type: Structure
-Status: planned
+Status: done
 
 This removes the built-app mount, held HTTP reads and page-clock driving from
 the failed-read proof. Add the `readCandidates` seam, the pageMakeMe record
@@ -93,6 +94,18 @@ built-app spec to its held-then-released outcome.
 | The failed-read example holds | The new mounted case passes and asserts every signal in the failed-then-retried row. |
 | The case discriminates | A scratch edit makes `IntentCandidatesRecord` or the source reading ignore the failure and show the new revision's text at once. The case fails, then passes once the edit is reverted. |
 | Production reads unchanged | The remaining built-app source-target case and `intent/intent-test-optimization-candidates` still pass. They read the record through the page default. |
+
+Accepted proof and learnings:
+
+- `intent-source-target-recovery-mounted.spec.ts` ("…failed then retried")
+  mounts through `mountIntentReading(readSource, before, "candidates")` in
+  `intent-revision-fixtures.ts`, which now owns the module-level chosen view;
+  slice 2's held case reuses it. Discrimination: a scratch immediate retry in
+  `useIntentFileRead.ts` failed the case at `failsWith`, then passed once
+  reverted. The narrowed built-app spec, `intent/intent-test-optimization-candidates*`,
+  the revision specs and typecheck passed.
+- After Show latest, focus rests on the file's button, not the previously
+  focused source element; the case asserts it there as the built-app spec did.
 
 ### 2. The held Show latest file read is proven on the mounted reading, and the built-app spec is gone
 
