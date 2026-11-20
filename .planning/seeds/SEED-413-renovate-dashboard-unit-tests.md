@@ -147,6 +147,10 @@ precondition.
   timing and the test-support calls removed against the prior cases under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
+- **Accepted timing.** Terry accepted the delivered timing on 2026-11-20.
+  The migrated cases' local timeout margin under load moves to
+  [Bring the Done capture family's cases to 100–200 ms](#optimize-done-capture-family-cases).
+
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers

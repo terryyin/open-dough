@@ -209,7 +209,7 @@ case running until slice 8.
 ### 8. A blank launch keeps its declared delivery until deletion
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the blank Default main case from the same launch spec. Keep a
 blank record, declare its own worktree, and check pre-push preparation,
@@ -320,5 +320,4 @@ review found no remaining concern requiring slice-plan refinement.
 ### G1. Migrated Done cases time out locally under load
 Reported: slice 8 — "Measured cases halve the scoped time (median 24.1 s vs 51.3 s at load 6–12) but 3 of 5 replacement runs at load 14–16 timed out 2–3 Vitest cases at the 5 s default, while baseline Playwright runs passed (evidence t-report.md)"
 Story clause: "Give dashboard maintainers faster, compile-time-checked proof"
-Disposition: return
-Commitment: 9
+Disposition: owner changed "Terry accepted the delivered timing on 2026-11-20."
