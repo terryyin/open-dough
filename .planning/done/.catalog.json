@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-414_review-done-sessions-on-open-story-cards.json",
+      "identity": "SEED-414#review-done-sessions-on-open-story-cards",
+      "completedAt": "2026-11-20T10:28:14.846Z",
+      "blob": "ecca50a94466b9216888fccbe2c26677f36ec9e1"
+    },
+    {
       "fileName": "SEED-413_remove-ad-hoc-done-helper.json",
       "identity": "SEED-413#remove-ad-hoc-done-helper",
       "completedAt": "2026-11-20T07:27:54.874Z",
@@ -2670,24 +2676,6 @@
       "identity": "SEED-010#learn-from-unreviewed-execution-paths",
       "completedAt": "2026-10-21T10:35:26.139Z",
       "blob": "01820b6ee328ab3fe689a2193176e1152fba9d2d"
-    },
-    {
-      "fileName": "SEED-010_learn-from-preparation-history.json",
-      "identity": "SEED-010#learn-from-preparation-history",
-      "completedAt": "2026-10-21T08:13:38.535Z",
-      "blob": "69041a66fd45c0d43be2d6d57f59039de51bf9be"
-    },
-    {
-      "fileName": "SEED-053_match-historical-replay-inputs.json",
-      "identity": "SEED-053#match-historical-replay-inputs",
-      "completedAt": "2026-10-21T08:08:31.640Z",
-      "blob": "9c5481d14fb92984d6475a0dc82de6a13cf0f2ad"
-    },
-    {
-      "fileName": "SEED-052_remove-orphaned-runner-port-helper.json",
-      "identity": "SEED-052#remove-orphaned-runner-port-helper",
-      "completedAt": "2026-10-21T07:36:26.033Z",
-      "blob": "0b261baf8e86bbf174cfa8cb642f55280d886421"
     }
   ],
   "unreadable": []
