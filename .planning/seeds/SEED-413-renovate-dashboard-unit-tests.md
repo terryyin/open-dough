@@ -728,7 +728,7 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 
 **Identity:** SEED-413#mount-story-review-diff-reading
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/739-mount-story-review-diff-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d109b67009814ab207ec0e098e83fc62f151ed41974bf24f15276e1234186add","plan":"221cde97428f7f03963f8b2c02cd706a22ba0138ada717da387adb470a80f516"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/741-mount-story-review-diff-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6b61bb0feff5a1c7183a2af4b33f0ce6b94f04dd0c128d8e666d27feb173286e","plan":"221cde97428f7f03963f8b2c02cd706a22ba0138ada717da387adb470a80f516"}}
 ```
 
 Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
@@ -808,7 +808,7 @@ families. It follows the
     at 3:1 against it, and the colours differ between the two appearances.
 - **Effort hypothesis.** M: about eighteen cases over two typed owners, one
   small extraction, six slices.
-- **Plan.** [739](../slice-plans/739-mount-story-review-diff-reading/PLAN.md)
+- **Plan.** [741](../slice-plans/741-mount-story-review-diff-reading/PLAN.md)
 
 <a id="mount-usage-token-index-reading"></a>
 
