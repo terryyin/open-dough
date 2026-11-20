@@ -3,7 +3,7 @@ import { openWithFeatureSelected } from "../../test-support/support/frontendInte
 // A held update of a project left behind never shows in another's reading
 // (../../src/useIntentLocations.ts, ../../src/IntentRevisionNotice.tsx).
 // Malformed latest settings, and failed and unreadable updates that keep the
-// shown reading: ./intent-revision-update-failures.mounted.spec.ts and
+// shown reading: ./intent-revision-update-failures.spec.ts and
 // ./intent-revision-update-outcomes.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";

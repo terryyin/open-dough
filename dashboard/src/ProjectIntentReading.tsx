@@ -3,7 +3,8 @@
 // Show latest, read once for the perspective (`./IntentPerspective.tsx`) under
 // its reading place and `project` scope (`./pageIntentReading.tsx`), with the
 // page's read recovery. It renders Project Intent (`./IntentPage.tsx`) with
-// its own workspace selection while Project Intent shows. The selected story's
+// its own workspace selection while Project Intent shows. Mounted on its own,
+// it keeps its own reading place and read recovery. The selected story's
 // pages read the same followed reading through `storyPages`, under the
 // `story` reading scope, so the story's browser follows Show latest too. It
 // does not own the story lens, selection, chosen view, scope choice, arrival
@@ -13,7 +14,11 @@ import type { ReactNode } from "react";
 import { IntentPage } from "./IntentPage.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import type { ModeChoice } from "./pageIntentMode.tsx";
-import { IntentReadingScope } from "./pageIntentReading.tsx";
+import { IntentReadRecoveryOfItsOwn } from "./intentReadRecovery.tsx";
+import {
+  IntentReadingPlaceOfItsOwn,
+  IntentReadingScope,
+} from "./pageIntentReading.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
@@ -21,14 +26,7 @@ import {
   type ShownIntentLocations,
 } from "./useShownIntentLocations.tsx";
 
-export function ProjectIntentReading({
-  source,
-  work,
-  project,
-  projectShown,
-  onBackToStory,
-  storyPages,
-}: {
+type Props = {
   readonly source: PublishedSource;
   // The project's observed work; undefined while unknown or not yet read.
   readonly work: PublishedWork | undefined;
@@ -40,7 +38,26 @@ export function ProjectIntentReading({
   readonly onBackToStory?: (() => void) | undefined;
   // The selected story's pages, given the same followed reading.
   readonly storyPages?: (reading: ShownIntentLocations) => ReactNode;
-}) {
+};
+
+export function ProjectIntentReading(props: Props) {
+  return (
+    <IntentReadRecoveryOfItsOwn>
+      <IntentReadingPlaceOfItsOwn project={props.source.id}>
+        <FollowedReading {...props} />
+      </IntentReadingPlaceOfItsOwn>
+    </IntentReadRecoveryOfItsOwn>
+  );
+}
+
+function FollowedReading({
+  source,
+  work,
+  project,
+  projectShown,
+  onBackToStory,
+  storyPages,
+}: Props) {
   const reading = useShownIntentLocations(source, work);
   return (
     <>

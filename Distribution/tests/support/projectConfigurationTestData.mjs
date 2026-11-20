@@ -28,6 +28,15 @@ export class PublishedSourceBuilder {
   with(facts) {
     return { please: () => publishedSource(facts) };
   }
+
+  // The named example: Pygardon, published from its GitHub repository.
+  get pygardon() {
+    return this.with({
+      id: "pygardon",
+      label: "Pygardon",
+      repository: "terryyin/pygardon",
+    });
+  }
 }
 
 // A project this machine configures: the published source it reads and the

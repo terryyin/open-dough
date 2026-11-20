@@ -2,7 +2,7 @@ import { openWithFeatureSelected } from "../../test-support/support/frontendInte
 // Development follows newer revisions while Intent keeps its reading behind
 // the notice (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
 // Show latest keeping the reading or explaining a deleted selected feature:
-// ./intent-revision-apply.mounted.spec.ts.
+// ./intent-revision-apply.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { parts } from "../../test-support/dashboardPage.ts";

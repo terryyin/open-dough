@@ -4,7 +4,7 @@ import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
 import { isVitestFile } from "./test-support/support/groupSelection.mjs";
 
 // Retained Playwright specs for Dashboard Frontend Test. The npm command also
-// runs mounted specs. Both owners share OPEN_DOUGH_DASHBOARD_FRONTEND_*
+// runs the Vitest specs. Both owners share OPEN_DOUGH_DASHBOARD_FRONTEND_*
 // split, times, proof record and deadline, the shards its
 // `dashboard-frontend` job declares in ../.github/workflows/ci.yml and their
 // own run directories under

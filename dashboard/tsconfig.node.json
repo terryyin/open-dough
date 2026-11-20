@@ -9,10 +9,9 @@
   },
   "exclude": [
     "test-support/comparison-mount",
+    "test-support/component-mount",
     "test-support/mounted-dashboard",
-    "test-support/phone-board-mount",
-    "frontend-tests/**/*.mounted.spec.ts",
-    "frontend-tests/**/*.mounted.ts"
+    "test-support/phone-board-mount"
   ],
   "include": [
     "vite.config.mts",
@@ -22,7 +21,6 @@
     "backend.playwright.config.ts",
     "server",
     "test-support",
-    "frontend-tests",
     "backend-tests",
     "../e2e"
   ]

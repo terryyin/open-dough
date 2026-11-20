@@ -9,7 +9,7 @@
 // gap and a stale pending landing, which no pass asks CI about again
 // (SEED-285#see-landed-ci-wall-time-history example 8). Which entries
 // Project Intent shows from a fuller history is in
-// ../../frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts.
+// ../../frontend-tests/intent/intent-ci-wall-time-history-evidence.spec.ts.
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

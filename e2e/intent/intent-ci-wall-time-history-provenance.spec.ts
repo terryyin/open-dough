@@ -18,9 +18,9 @@
 // later trunk build and a failed build are in
 // ./intent-ci-wall-time-history-later.spec.ts. The single exact point and
 // empty history are in
-// ../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts.
+// ../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.spec.ts.
 // The window is in
-// ../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts.
+// ../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.spec.ts.
 
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {

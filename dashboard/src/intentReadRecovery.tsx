@@ -14,7 +14,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Visibility } from "./pageVisibility.ts";
+import { usePageVisibility, type Visibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { ReadProblem } from "./readProblem.ts";
 import { standingLimit } from "./readingLimit.ts";
@@ -68,6 +68,26 @@ export function IntentReadRecovery({
     <intentRecovery.Provider value={{ transientDue, limitedDue, record }}>
       {children}
     </intentRecovery.Provider>
+  );
+}
+
+// A reader mounted outside the page's recovery schedule recovers on the
+// document's own visibility and the standing limit.
+export function IntentReadRecoveryOfItsOwn({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  const recovery = useContext(intentRecovery);
+  const { visibility } = usePageVisibility();
+  if (recovery !== null) return children;
+  return (
+    <IntentReadRecovery
+      visibility={visibility}
+      limitStands={standingLimit() !== undefined}
+    >
+      {children}
+    </IntentReadRecovery>
   );
 }
 

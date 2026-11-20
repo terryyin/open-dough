@@ -17,9 +17,6 @@ export function isVitestFile(file) {
   return vitestImport.test(readFileSync(path.resolve(dashboard, file), "utf8"));
 }
 
-// A frontend spec moved to Vitest keeps its Playwright title in filters.
-const mountedMarker = /\.mounted(?=\.(?:spec|test)\.[cm]?[jt]sx?$)/;
-
 export function groupFiles(group, split) {
   const { directory } = group;
   return selectedFiles(directory, split, browserGroupSelection(group)).map(
@@ -28,7 +25,6 @@ export function groupFiles(group, split) {
       return {
         file,
         label,
-        logicalLabel: label.replace(mountedMarker, ""),
         vitest: isVitestFile(file),
       };
     },
@@ -114,10 +110,7 @@ export function groupArguments(argv) {
 }
 
 function fileMatches(entry, { pattern }) {
-  return (
-    pattern.test(entry.file) ||
-    pattern.test(entry.file.replace(mountedMarker, ""))
-  );
+  return pattern.test(entry.file);
 }
 
 export function matchesGroupFile(entry, args) {
@@ -128,7 +121,7 @@ export function matchesGroupFile(entry, args) {
 }
 
 export function matchesVitestCase(entry, args, title, location) {
-  const grepTitle = `chromium ${entry.logicalLabel} ${title}`;
+  const grepTitle = `chromium ${entry.label} ${title}`;
   return (
     (args.grep?.test(grepTitle) ?? true) &&
     !(args.grepInvert?.test(grepTitle) ?? false) &&

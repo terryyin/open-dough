@@ -3,7 +3,7 @@ import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry after Development → Intent; the
 // failures themselves, unreadable and malformed settings and their Retry are
-// proven mounted in ./intent-revision-update-failures.mounted.spec.ts
+// proven mounted in ./intent-revision-update-failures.spec.ts
 // (../../src/useIntentLocations.ts, ../../src/useIntentFileRead.ts,
 // ../../src/IntentRevisionNotice.tsx).
 // Held updates across projects: ./intent-revision-update-boundaries.spec.ts.

@@ -40,8 +40,7 @@ direction:
   objects only removes from it.
 - **Plain Vitest runs unit tests; `@playwright/test` stays in `e2e/` only:**
   `dashboard/frontend-tests/` runs on plain Vitest + embedded headless Chromium
-  (retiring `frontend.playwright.config.ts`, `.mounted.spec.ts` split naming,
-  and dual-runner glue in `scripts/test-frontend.mjs`), and
+  (retiring `frontend.playwright.config.ts` and dual-runner glue in `scripts/test-frontend.mjs`), and
   `dashboard/backend-tests/` runs on plain Vitest in Node (retiring
   `backend.playwright.config.ts`).
 
@@ -497,7 +496,7 @@ cost and which shared contracts are available as families finish.
   new wrappers. Audit harness cases against the product behavior they protect
   before retiring machinery whose only checks exercise the harness itself.
 - At the last frontend migration retire `frontend.playwright.config.ts`,
-  `.mounted.spec.ts` split naming, frontend dual-engine dispatch and its
+  frontend dual-engine dispatch and its
   dedicated selection/output glue, `frontendApp.ts`, `mountedDashboard.ts`,
   `frontendServiceSubstitutes.ts` and spent `frontend*Rule.ts` modules.
   Preserve shared runner behavior still used by the backend, the frontend npm
@@ -512,7 +511,7 @@ cost and which shared contracts are available as families finish.
 
 #### Rework from the completed frontend families
 
-- **Story Notes control.** The [mounted control suite](../../dashboard/frontend-tests/stories/story-notes-control.mounted.spec.ts)
+- **Story Notes control.** The [mounted control suite](../../dashboard/frontend-tests/stories/story-notes-control.spec.ts)
   builds a page-wide project map and passes the project key again to render
   one story's control. Have the production page resolve the project's shared
   notes state and let the suite render the same control with that state
@@ -523,10 +522,10 @@ cost and which shared contracts are available as families finish.
   reader uses that field and the panel never reads it. Narrow the panel's
   typed input so its suite can omit the round. Move the seven gap rows,
   run links, keyboard traversal within the
-  history, and phone overflow proof in the [gap-only case](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts)
+  history, and phone overflow proof in the [gap-only case](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts)
   to the history-only mount already demonstrated by the
-  [evidence suite](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.mounted.spec.ts).
-  It should need only the history reading. Keep the [panel cases](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.mounted.spec.ts)
+  [evidence suite](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history-evidence.spec.ts).
+  It should need only the history reading. Keep the [panel cases](../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.spec.ts)
   that prove judgment and Proof beside history, including keyboard movement
   from **Check again** to **Builds and evidence**.
 

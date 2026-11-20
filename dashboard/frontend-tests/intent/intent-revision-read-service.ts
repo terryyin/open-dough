@@ -1,36 +1,19 @@
-// The local authenticated read service at the browser's fetch boundary, with
-// the published content it answers, for the mounted Intent revision cases
-// (./intent-revision-*.mounted.spec.ts, ./intent-revision-reading.mounted.ts).
+// The local authenticated read service at the browser's fetch boundary,
+// answering the files each revision publishes and their Intent locations, for
+// the mounted Intent revision cases (./intent-revision-*.spec.ts).
 import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import {
+  pygardonFeatures,
+  type PublishedFiles,
+} from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import { forgetAnswers } from "../../src/answerMemo.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
 import { clearAllTransientFailures } from "../../src/transientRecovery.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
 
-export const featuresFolder = "e2e_test/features";
-export const featurePath = `${featuresFolder}/jobs.feature`;
-export const otherPath = `${featuresFolder}/disk_space.feature`;
-export const otherFeature = `Feature: Disk space
-  Scenario: Report free space
-    Then I see its free space
-`;
-// A feature long enough for the reading pane to scroll.
-const longFeature = (scenario: string) =>
-  `Feature: Jobs\n  Scenario: ${scenario}\n    Then it is done\n${[
-    ...Array(60).keys(),
-  ]
-    .map((n) => `\n  Scenario: Keep job ${n}\n    Then it stays\n`)
-    .join("")}`;
-
-export type Snapshot = Readonly<Record<string, string>>;
-
-// A revision publishing the long feature, at its first scenario, and the other.
-export const at = (scenario: string): Snapshot => ({
-  [featurePath]: longFeature(scenario),
-  [otherPath]: otherFeature,
-});
+const { folder } = pygardonFeatures;
 
 const answer = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -40,18 +23,16 @@ const answer = (body: unknown, status = 200) =>
 
 const locationsOf = (
   revision: string,
-  files: Snapshot,
+  files: PublishedFiles,
 ): IntentLocationsAnswer =>
   makeMe.anIntentLocationsAnswer
     .at(revision)
     .locating(
       makeMe.anIntentLocation
-        .at(featuresFolder)
+        .at(folder)
         .ofKind("gherkin")
         .selecting(
-          ...Object.keys(files).filter((file) =>
-            file.startsWith(`${featuresFolder}/`),
-          ),
+          ...Object.keys(files).filter((file) => file.startsWith(`${folder}/`)),
         )
         .please(),
     )
@@ -66,7 +47,7 @@ type HoldOutcome = "published" | "unreachable" | IntentLocationsAnswer;
 // `unexpected` any other call; `holdRead` keeps the next such read until the
 // case releases or fails it. Each service starts the browser session's read
 // caches and transient failures empty, so every read a case causes reaches it.
-export function publishedReadService(published: Map<string, Snapshot>) {
+export function publishedReadService(published: Map<string, PublishedFiles>) {
   forgetAnswers();
   forgetCachedFiles();
   clearAllTransientFailures();
@@ -120,8 +101,8 @@ export function publishedReadService(published: Map<string, Snapshot>) {
     held: () => held.length,
     // Holds the next read named `<what>@<revision>`. `release` lets it
     // answer, `fail` makes it unreachable and `answerLocations` answers a
-    // locations read with the given answer; the case waits for what each
-    // changes. Later reads of the same name answer at once.
+    // locations read with the given answer. Later reads of the same name
+    // answer at once.
     holdRead(read: string) {
       let settle: (outcome: HoldOutcome) => void = () => {};
       holds.set(

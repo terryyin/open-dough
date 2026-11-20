@@ -1,6 +1,7 @@
 // @ts-check
 // Prepared canonical answers for the production Intent providers.
 import { copyFacts } from "./factBuilder.mjs";
+import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
 /**
@@ -46,6 +47,22 @@ export class PublishedWorkBuilder {
   /** @param {import("../../../dashboard/src/publishedWork.ts").PublishedWork} facts */
   with(facts) {
     return copyFacts(facts);
+  }
+
+  // The named example: Pygardon's work, read with no direction and no stories.
+  get ofPygardon() {
+    return {
+      /** @param {string} revision the published revision read */
+      at: (revision) =>
+        this.with({
+          source: new PublishedSourceBuilder().pygardon.please(),
+          revision,
+          retrievedAt: new Date("2026-11-05T08:00:00.000Z"),
+          direction: "",
+          taken: [],
+          backlog: [],
+        }),
+    };
   }
 }
 

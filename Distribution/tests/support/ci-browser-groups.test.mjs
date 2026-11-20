@@ -50,7 +50,7 @@ test("each browser group's job names its own command, settings, root and shards"
 
 test("the frontend times report records Vitest durations under runner-relative spec labels", (t) => {
   const directory = fileURLToPath(frontendGroup.directory);
-  const specLabel = posix.join(frontendGroup.root, "timed.mounted.spec.ts");
+  const specLabel = posix.join(frontendGroup.root, "timed.spec.ts");
   const temp = mkdtempSync(join(tmpdir(), "frontend-ci-times-"));
   t.after(() => rmSync(temp, { recursive: true, force: true }));
   const times = join(temp, "times.txt");

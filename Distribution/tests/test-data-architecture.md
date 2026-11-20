@@ -13,7 +13,7 @@ follow the convention the shell check selects, though their own paths match no
 entry. A test reaches a builder as `makeMe.aThing` or `makeMe.anThing`, and
 `.please()` returns the finished product value.
 
-A browser case, such as a Vitest browser-mode `*.mounted.spec.ts`, imports
+A browser case, such as a Vitest browser-mode spec, imports
 the page-loadable entry `Distribution/tests/support/pageMakeMe.mjs` instead.
 It exposes the Node-free builders from the same definitions `makeMe.mjs`
 uses.

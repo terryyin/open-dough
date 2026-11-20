@@ -14,17 +14,17 @@ for this README and generated test output.
 Use an existing feature group whenever it covers the behavior. Add a folder
 only for a distinct area that none of the existing groups covers.
 
-| Folder | Behavior |
-| --- | --- |
+| Folder           | Behavior                                                      |
+| ---------------- | ------------------------------------------------------------- |
 | `configuration/` | Project setup, system settings, appearance and usage history. |
-| `intent/` | Intent browsing, Proof, CI comparisons and timing history. |
-| `launches/` | Launch choices, instructions, startup and launch recovery. |
-| `navigation/` | Dashboard frame, header, board movement and destinations. |
-| `review/` | Story review, comparisons and diffs. |
-| `sessions/` | Session listings, status, completion and history. |
-| `stories/` | Story content, notes and execution progress. |
-| `terminals/` | Terminal attachment, input, selection and recovery. |
-| `test-harness/` | Tests of browser measurement, touch and mount helpers. |
+| `intent/`        | Intent browsing, Proof, CI comparisons and timing history.    |
+| `launches/`      | Launch choices, instructions, startup and launch recovery.    |
+| `navigation/`    | Dashboard frame, header, board movement and destinations.     |
+| `review/`        | Story review, comparisons and diffs.                          |
+| `sessions/`      | Session listings, status, completion and history.             |
+| `stories/`       | Story content, notes and execution progress.                  |
+| `terminals/`     | Terminal attachment, input, selection and recovery.           |
+| `test-harness/`  | Tests of browser measurement, touch and mount helpers.        |
 
 Reusable harness helpers and fixtures live in [Dashboard Test Support](../test-support/).
 Use the shared [MakeMe library](../../Distribution/tests/README.md#test-data-architecture)
@@ -60,13 +60,21 @@ stories and machine reads through `frontendServiceState.ts`.
 
 ## Which entry a case uses
 
-Mount the component that owns the behavior, in a Vitest browser-mode spec
-(`*.mounted.spec.ts`), with typed inputs. A component that reads a service
+Mount the component that owns the behavior, in a Vitest browser-mode spec,
+with typed inputs. A component that reads a service
 through a hook takes a typed source behind that hook, such as
 `storyNotesState(source)` from `dashboard/src/storyNotes.ts`, which the case
 supplies. Use native keyboard or pointer input only where native input is
 the behavior. Build domain data with the page-loadable MakeMe entry
 (`Distribution/tests/support/pageMakeMe.mjs`).
+
+Mount the component alone through `mountComponent`
+([`component-mount/`](../test-support/component-mount/mountComponent.ts)),
+which knows no component; a component that cannot stand alone is made to.
+Operate it through small page objects beside the specs, one per part of the
+component, as the Project Intent revision cases
+(`intent/intent-revision-*.spec.ts`) do with
+`intent/intent-browser-page.ts` and its siblings.
 
 Act as the reader does, as soon as the page allows it. Render and deliver
 input directly, with `IS_REACT_ACT_ENVIRONMENT` unset, and wait only for what
@@ -74,12 +82,12 @@ the action changes through retrying assertions (`expect.element`,
 `expect.poll`). A synchronous read follows a retrying assertion on the same
 render. Locator input such as `userEvent.click` already waits until its
 target can take it. The Project Intent revision cases
-(`intent/intent-revision-*.mounted.*`) are the example: rendering and
+(`intent/intent-revision-*.spec.ts`) are the example: rendering and
 clicking without a settle wait cut their summed time by about a fifth.
 
 Story Notes is the reference family:
-`stories/story-notes-dialog.mounted.spec.ts` mounts the dialog,
-`stories/story-notes-control.mounted.spec.ts` mounts the control, and one
+`stories/story-notes-dialog.spec.ts` mounts the dialog,
+`stories/story-notes-control.spec.ts` mounts the control, and one
 step in
 [`e2e/terminals/agent-terminal-lifetime.spec.ts`](../../e2e/terminals/agent-terminal-lifetime.spec.ts)
 proves notes beside an attached terminal. Its service rules are proved in
@@ -128,19 +136,16 @@ Representative workflows live in
 
 ## Running the tests
 
-`npm run test:dashboard:frontend` runs the full group. Specs named
-`*.mounted.spec.ts` use Vitest browser mode with Playwright Chromium; the
-case-owned modules they import beside them are named `*.mounted.ts`.
-Retained specs use Playwright, whose setup prepares the app and comparison
+`npm run test:dashboard:frontend` runs the full group. Specs that import
+`vitest` use Vitest browser mode with Playwright Chromium. Retained specs use
+Playwright, whose setup prepares the app and comparison
 mount builds on demand. Both engines share the group's worker limit and
 `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`, `_PROOF_RECORD` and
 `_DEADLINE_MS` settings. The unfiltered local run takes full-suite admission.
 Failed runs keep their output under `test-results/`.
 
 Select by file, `--grep`, or both, for example
-`npm run test:dashboard:frontend -- intent/ --grep 'wording'`. A mounted
-spec matches its physical filename and the filename without `.mounted`, so a
-file filter continues to work as its cases move. Use `--list --reporter=line`
+`npm run test:dashboard:frontend -- intent/ --grep 'wording'`. Use `--list --reporter=line`
 to see the selection. The direct command
 `npx playwright test --config <repository>/dashboard/frontend.playwright.config.ts`
 runs retained specs from any working directory and accepts Playwright-specific

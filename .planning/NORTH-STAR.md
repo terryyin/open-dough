@@ -40,8 +40,8 @@ Remove `@playwright/test` completely from `dashboard/frontend-tests/` (and
 `dashboard/frontend-tests/` on **plain Vitest with embedded headless Chromium**
 (Vitest Browser Mode, as in Doughnut — real Chromium DOM and CSS without
 `@playwright/test` imports, `page.route(...)`, `test.step(...)`, or page
-objects), deleting `dashboard/frontend.playwright.config.ts`, `.mounted.spec.ts`
-split naming, and the dual-runner glue in `scripts/test-frontend.mjs`,
+objects), deleting `dashboard/frontend.playwright.config.ts` and the
+dual-runner glue in `scripts/test-frontend.mjs`,
 `scripts/dashboard-group-run.mjs`, `scripts/retained-playwright.mjs`, `groupVitest.mjs`, `groupOutputs.mjs`, and `groupSelection.mjs`; move
 any true multi-service or full-reload straggler to `e2e/` (or drop duplicates)
 rather than retaining Playwright in `frontend-tests/`. Run

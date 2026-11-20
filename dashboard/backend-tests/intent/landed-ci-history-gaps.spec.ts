@@ -17,7 +17,7 @@
 // when their landings were recorded, so history answers in trunk order.
 // Missing proof: ./landed-ci-history-pending-proof.spec.ts. Never built:
 // ./landed-ci-history-pending.spec.ts. The Project Intent view is proved in
-// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts.
+// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts.
 
 import path from "node:path";
 import { collectedScopeHistory } from "../../test-support/support/collectedScopeHistory.ts";
