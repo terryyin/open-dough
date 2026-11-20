@@ -286,8 +286,11 @@ the analysis and decisions are recorded there.
 ### Observe Done deliveries over typed kept records
 
 **Identity:** SEED-413#observe-done-deliveries-over-typed-records
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#observe-done-deliveries-over-typed-records","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"MakeMe branch-result steps for Done records, Git-only branch capture, and composed-record review helpers in doneCaptureReview.ts.","rationale":"This story composes Done isolated-branch records with MakeMe and verifies their reviews without a machine home; common direction and reconciliation cannot supply the missing MakeMe branch-result builder or composed review support while SEED-413#split-done-mark-decision-from-store is reorganizing launchOutcomeTestData.mjs, doneCaptureReview.ts, doneBranchObservation.ts, and the observation specs in flight.","condition":"makeMe.aLaunchRecord provides a step for a Done record's captured branch result and doneCaptureReview.ts reads supplied kept records without reading the machine store.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97042139380f11b82a47a5743303780e65ec4e0deed0ef41cc7b138dcc168b43","plan":"af6701486622645c306cee2434e96fbda3a50984f8c5d73b0662e02fbb321e3e"}}
 ```
 
 Third of the [Done capture import-list stories](#split-done-mark-decision-from-store);
@@ -295,26 +298,72 @@ the analysis is in its addendum on delivery observation and publication.
 
 - **Goal.** Dashboard maintainers can prove which Done branches a trunk
   revision delivers from composed Done records and real Git, without a
-  machine home. Only the store adapter saves the delivery and keeps or
-  releases its pins.
-- **Scope.** Split `captureObservedLandings` into a typed decision over the
-  kept records, the observed revision, the authorized trunk head and the
-  inspection that returns each delivery to keep, and the adapter that
-  applies each one to the live record and releases it on loss. Keep the
-  process-lifetime owner and its witnesses on the typed decision. Prove
-  delivery selection, skipped witnesses and retry with composed records.
-  Keep the deletion and expiry races as adapter cases over an explicit
-  record-store collaborator, instead of a stubbed HOME,
-  `changeLaunchStore` and `installRecordRemovalDispatch`. Move the
-  `ad-hoc-manual-landing-observation*` and
-  `ad-hoc-manual-landing-revision-observation` specs accordingly.
+  machine home. Only the store adapter saves a discovered delivery to the
+  live record and keeps or releases its delivery pins, removing repeated
+  store and Done-capture replay from delivery-observation proof.
+- **Scope.**
+  - Split `captureObservedLandings` into a typed decision over the kept
+    records, the project's trunk ref and observed revision, the authorized
+    trunk head reader, and the manual-landing inspection that returns each
+    delivery to keep, and the store adapter that applies each delivery to
+    the live record and releases its pins on loss. Keep the process-lifetime
+    owner (each project's last observed revision, checked witnesses, and
+    in-flight pass coalescing) on the typed decision.
+  - Preserve the observation's domain restrictions: only an unlanded Done
+    branch whose `branchResult` matches the record's current `doneAt` with
+    `manualDeliveryChecked: true`, whose witnessed trunk revision is present
+    and differs from the observed revision, and whose target matches the
+    project's trunk ref is eligible (preventing unverified, stale-Done, or
+    wrong-branch delivery associations); a checked witness with no delivery
+    is skipped at the same observed revision while an unreachable trunk head
+    or thrown inspection stays unchecked to retry and a new observed
+    revision resets witnesses; and the adapter verifies the live record
+    still exists in retention with the same `launchedAt`, `branchPinOwner`,
+    and `branchResult` before pinning and saving, releasing unkept delivery
+    pins if saving fails or loses (preventing recreated launches, overwritten
+    newer Done state, and orphaned Git refs).
+  - Prove delivery selection, skipped witnesses, newly-Done discovery at an
+    unchanged revision, and failed-inspection retry from composed Done
+    records and real Git with no machine home (`twoDoneBranchesMergedByHand`,
+    `ad-hoc-manual-landing-observation`, and
+    `ad-hoc-manual-landing-observation-retry`).
+  - Keep repeated-observation single-delivery retention and the deletion,
+    expiry, and write-loss races as adapter cases over an explicit
+    record-store collaborator instead of a stubbed `HOME`,
+    `changeLaunchStore`, `launchRecordStore` imports, and
+    `installRecordRemovalDispatch` (`ad-hoc-manual-landing-observation-lifecycle`
+    and `ad-hoc-manual-landing-revision-observation`).
+  - The sibling stories own the Done transition and MakeMe branch-result
+    steps, production pin-ref queries, `handleLanding`, and folding launch
+    and observation presets into MakeMe. `observeProjectRevision` keeps its
+    contract for `performedRead.ts` and `performedRevisionCheck.ts`.
 - **Key examples.**
-  - Two Done branches merged by hand are each delivered by the published
-    head, decided from composed records with no kept store.
-  - A record deleted or expired while its inspection waits is not
-    recreated and leaves no delivery pins, proved once at the adapter.
-- **Evaluation.** As in the first story, also counting store-module imports
-  and `doneBranchObservation.ts` imports in the observation specs.
+  - Given two composed Done branches merged in order onto published trunk,
+    deciding observed deliveries at the published head returns each branch's
+    delivered base-and-merge comparison with no kept store and no delivery
+    pins written.
+  - Given a process-lifetime observation owner at one revision, an
+    unmerged Done branch is inspected once and skipped on a repeat check at
+    that revision; a session newly Done before the repeat check is
+    inspected and delivered; a branch whose inspection throws retries on
+    the repeat check while an independent branch's delivery settles; and an
+    advanced revision rechecks previously skipped branches.
+  - Given a Done branch whose branch result was pinned before branch
+    retirement and manually merged with conflict resolution onto trunk,
+    observing the later trunk head preserves both `"delivered"` and
+    `"branch-result"` comparisons and file diffs when `origin` is offline,
+    and repeated or later observations through the adapter retain one
+    delivery and one pin pair until removal.
+  - Given two Done branches observed through the adapter over an explicit
+    record store, deleting or expiring one branch while its inspection
+    waits settles only the survivor's delivery and pins without recreating
+    the removed launch, and a store write that fails after pinning releases
+    the unkept delivery pins.
+- **Evaluation.** Preserve every replaced assertion. Under
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md),
+  compare `doneCaptureCase.ts`, store-module, and `doneBranchObservation.ts`
+  imports and calls, `HOME` stubs, and per-case time across the observation
+  specs before and after at comparable load.
 - **Effort hypothesis.** S–M, one plan.
 
 <a id="decide-landings-over-typed-attempts-and-records"></a>
