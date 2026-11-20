@@ -179,6 +179,78 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
+<a id="optimization-candidates-revision-cases"></a>
+
+### Read the Optimization Candidates record across Show latest in mounted cases
+
+**Identity:** SEED-413#optimization-candidates-revision-cases
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/729-optimization-candidates-revision-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fd356df35802eb30de7394d9820f66a24fac6def2f494f861fd582828048ca5a","plan":"2effaae79d6ee59fa0d4b0fdccf7132b22088bcafe069784100ff77415be02c0"}}
+```
+
+Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
+on 2026-11-20 as the next small Intent piece, queued ahead of the remaining
+families. The completed Show latest source file read cases left the typed
+`readCandidates` reply on
+[`IntentReadSource`](../../dashboard/src/intentReadSource.ts) and the
+[record page object](../../dashboard/frontend-tests/intent/intent-candidates-page.ts)
+that these cases reuse.
+
+- **Goal.** Dashboard developers read the proof that Optimization Candidates
+  stays the chosen view across a new revision, and shows only the record
+  **Show latest** selected, as plain Vitest cases on mounted Chromium with
+  typed replies. Today it is two built-app cases that mount `<App />`, publish
+  a moving project, hold HTTP reads and drive the page clock (6.4 summed
+  seconds in CI run 44691634502). The move takes one more built-app consumer
+  off the frontend group's one-minute goal.
+- **Scope.** Move both cases of
+  [`intent-test-optimization-candidates-revision.spec.ts`](../../dashboard/frontend-tests/intent/intent-test-optimization-candidates-revision.spec.ts).
+  Follow the
+  [Project Intent revision family](#project-intent-revision-family-example)
+  and the
+  [source file read cases](../../dashboard/frontend-tests/intent/intent-source-target-recovery-mounted.spec.ts):
+  mount the real `ProjectIntentReading` on Optimization Candidates with typed
+  locations and record replies, and offer the new revision by rerendering with
+  the newly published work. A case that observes a pending read holds its own
+  deferred reply. Add zero test-support wrappers.
+  - Preserve each distinct assertion: the chosen view, the record's revision
+    line, and the old entry before **Show latest**; the new entry alone
+    after it; `Reading Test Optimization Candidates…` with no failure while
+    the new read is outstanding; and the new record still shown once the old
+    read has ended.
+  - The old read ends in the two ways a typed reply can end it. It departs
+    with its abort, as the page's own read does, and a late answer arrives
+    after the new record shows. Neither may show a failure or the old entry.
+  - The built-app cases pass page time until the page checks its revision.
+    The mounted cases offer the revision directly. The page's check schedule
+    stays proven by the auto-refresh journeys.
+  - Retire each `dashboard/test-support/` export or module whose last
+    consumer is the moved spec.
+  - **Scope limits.** The other Optimization Candidates cases (record
+    content, opening sources, record states, live records and read recovery)
+    and every other family stay in the parent story, as do the full-group
+    timing comparison and the `frontendApp.ts` retirement. This story
+    compares the focused selection before and after.
+- **Key examples.**
+  - *Stays chosen and reads the new record.* Optimization Candidates shows
+    the record at revision `before` with entry `launch-records-poll-waits`.
+    A newer revision is offered. The view stays chosen and the record still
+    reads `Recorded at revision <before>` with that entry. **Show latest** is
+    chosen. The view stays chosen, the record reads
+    `Recorded at revision <after>` with entry `launch-records-page-clock`,
+    and the old entry is gone.
+  - *The old read departs.* The read at `before` is still outstanding when
+    the newer revision is offered and **Show latest** is chosen, and it ends
+    with its abort. While the read at `after` is held, the record reads
+    `Recorded at revision <after>` and
+    `Reading Test Optimization Candidates…`, with no failure. When that read
+    is released, the new entry shows.
+  - *A late old answer.* The same setup, but the old read ignores its abort
+    and answers with the old record after the new entry shows. The record
+    stays at `after` with the new entry alone.
+- **Effort hypothesis.** S.
+- **Plan.** [729](../slice-plans/729-optimization-candidates-revision-cases/PLAN.md)
+
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -190,6 +262,8 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 
 Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
 moved the Project Intent apply-and-retry cases.
+[Read the Optimization Candidates record across Show latest](#optimization-candidates-revision-cases)
+took the two Optimization Candidates revision cases.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -199,8 +273,9 @@ SEED-404's timing goal and SEED-301's Intent MakeMe work.
 **Scope and order.** Select families by feature folder and the interaction
 each view owns. Continue in Intent and Sessions. Use the completed
 [Project Intent revision family](#project-intent-revision-family-example)
-as the reference for the remaining migrations. The two Optimization
-Candidates revision cases remain in scope, including late answers. Keep
+as the reference for the remaining migrations. The other Optimization
+Candidates cases remain in scope: record content, opening sources, record
+states, live records and read recovery. Keep
 each legacy case until its replacement exercises its actual boundary.
 Use shared typed Intent inputs in place of `putFrontend*` project arrangements;
 coordinate session proof with [SEED-341](SEED-341-simplify-session-tests.md).

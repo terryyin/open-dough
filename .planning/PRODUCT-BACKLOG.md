@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
+- [Read the Optimization Candidates record across Show latest in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimization-candidates-revision-cases) — SEED-413#optimization-candidates-revision-cases
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
