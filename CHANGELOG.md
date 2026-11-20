@@ -1,3 +1,16 @@
+## 0.3.109 - 2026-11-20
+
+- MakeMe gives recurring test data a named builder example. Tests can refine the example before completion and read the identities they need from the result.
+- Refactoring and proof planning use typed production entry points whose variants accept only the inputs and collaborators they need. Restructuring for testability preserves observable behavior. The proof guidance connects final-state promises to slice observations, traces affected consumers, and records the conditions for reusing evidence or running expensive checks.
+- Dashboard Story Notes and ad hoc review tests exercise typed backend handlers in-process. Project Intent revision and CI history tests mount the relevant UI in Chromium. Dashboard groups combine Vitest and Playwright results, and test runs use disposable homes.
+- Local lint runs ESLint with explicit TypeScript projects and checks independent ShellCheck files in parallel. CI still reports the dashboard type-check when lint fails.
+
+The Promoted payload contains 383 files. Three guidance files changed, with no additions or retirements. Dashboard and lint changes stay in the source repository.
+
+The self-installation baseline, ten focused Distribution checks, 18 Dashboard backend cases, and dashboard type-check passed locally. Representative guidance review covered refining shared test data, narrowing a review handler's inputs, and tracing typed revision replies to the mounted Intent tests. [Hosted CI for source candidate `f74789aea`](https://github.com/terryyin/open-dough/actions/runs/44666217990) passed.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this release reuses native evidence for the unchanged installation, discovery, and host-hook integrations. No native exception was needed. Natural supplier-watch sampling and the previously pending native observations for freshness ordering and oversized-file reorganization remain open.
+
 ## 0.3.108 - 2026-11-19
 
 - The Dashboard banner can return to the selected story or open a list of the ten most recent selections. Choosing a row follows the story across projects and preserves the Board or Intent perspective. History persists in the current browser when storage is available.
