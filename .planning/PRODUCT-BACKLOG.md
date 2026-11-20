@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Refuse story-launch session file reads again in sub-second cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#story-launch-session-review-cases) — SEED-413#story-launch-session-review-cases
-- [Keep a selected case's source through the Show latest file read in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#show-latest-source-file-read-cases) — SEED-413#show-latest-source-file-read-cases ([plan](slice-plans/728-show-latest-source-file-read-cases/PLAN.md))
 
 ## Backlog list
 
