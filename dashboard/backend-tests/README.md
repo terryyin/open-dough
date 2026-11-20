@@ -48,7 +48,17 @@ MakeMe, here `makeMe.aSessionReviewRead`. A case calls another handler in
 its arrangement only when that step is the behavior under test. The
 `review/ad-hoc-review-{landed,kept-unavailable,subject,file}.spec.ts` specs
 call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
-launch boundary's routes for them with a URL.
+launch boundary's routes for them with a URL. The branch result and its
+handoff are proved the same way:
+`review/ad-hoc-branch-result-supersession.spec.ts`,
+`review/ad-hoc-branch-worktree-result.spec.ts`,
+`review/ad-hoc-session-branch-entry.spec.ts` and
+`review/ad-hoc-branch-cursor-recovery.spec.ts` call `setRecordDoneAt`,
+`recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
+`deleteRecord` in this process on MakeMe kept records and real Git. A
+declared branch comes from
+[`declaredBranchCase.ts`](support/declaredBranchCase.ts), the rest of the
+arrangement from the Done capture helpers below.
 
 The Done capture family arranges each case through
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history

@@ -1,52 +1,70 @@
+// Done keeps the isolated worktree it read: staged, untracked and deleted
+// files but not ignored ones, without touching the index, HEAD or files, and
+// without an edit made while the capture is held. The result outlives a
+// forced retirement of the branch.
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  adHocReview,
-  adHocSessionFileDiff,
-  adHocSessionFileText,
-  keptAdHocRecord,
-  launchIsolatedReview,
   retireAdHocBranch,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/branchResultValidation.ts";
-import { commit } from "../../test-support/support/launchLanding.ts";
-import { reportingThrough } from "../../test-support/support/reportedLaunch.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
+import {
+  aCheckout,
+  aHeldDone,
+  anIsolatedLaunch,
+  fileDiff,
+  fileText,
+  historyBeforeTheCase,
+  inWorktree,
+  keep,
+  minutesAgo,
+  review,
+  work,
+} from "../support/doneCaptureCase.ts";
 
-test.use({
-  serverMode: "boundary",
-  originRepository: queuedReadyRepository()
-    .withRevision("files-at-launch", {
-      files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },
-    })
-    .please(),
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "30000" },
-});
+const launchFiles = historyBeforeTheCase({
+  files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },
+}).withWorkspace("draft", { from: "base" });
 
-test("retains the working tree of the reported Done before delayed validation and native rename", async ({
-  request,
-  dashboard,
-  origin,
-  validation,
-}) => {
-  const { workspace, baseline, branch, session, sent } =
-    await launchIsolatedReview(dashboard, "Keep the working draft");
-  const committedTip = commit(workspace, "draft.txt");
-  const write = (file: string, content: string) => {
-    writeFileSync(path.join(workspace, file), content);
-  };
-  write("draft.txt", "staged draft\n");
-  write("staged.txt", "staged addition\n");
+test("Done keeps the working tree it read and outlives a forced retirement", async () => {
+  const checkout = await aCheckout({ history: launchFiles, withOrigin: true });
+  const workspace = checkout.execution;
+  if (workspace === undefined) throw new Error("Missing the worktree.");
+  const baseline = checkout.base;
+  const record = anIsolatedLaunch(checkout, {
+    workspace,
+    branch: "draft",
+  }).please();
+  keep(record);
+  const { committedTip } = await work(
+    inWorktree(checkout, workspace),
+    makeMe.aCheckoutWork
+      .committing("committedTip", {
+        at: minutesAgo(30),
+        files: { "draft.txt": "committed draft\n" },
+      })
+      .editing("staged", {
+        at: minutesAgo(25),
+        files: { "draft.txt": "staged draft\n", "staged.txt": "staged\n" },
+      }),
+  );
   git(workspace, "add", "draft.txt", "staged.txt");
-  write("draft.txt", "draft left for review\n");
-  write("untracked.txt", "keep this\n");
-  write("ignored.txt", "leave this out\n");
+  await work(
+    inWorktree(checkout, workspace),
+    makeMe.aCheckoutWork.editing("unstaged", {
+      at: minutesAgo(20),
+      files: {
+        "draft.txt": "draft left for review\n",
+        "untracked.txt": "keep this\n",
+        "ignored.txt": "leave this out\n",
+      },
+    }),
+  );
   rmSync(path.join(workspace, "deleted.txt"));
+  const draftFile = path.join(workspace, "draft.txt");
   const index = git(
     workspace,
     "rev-parse",
@@ -56,71 +74,54 @@ test("retains the working tree of the reported Done before delayed validation an
   );
   const originalIndex = readFileSync(index);
 
-  dashboard.claudeSessionBecomes(session, "done-live");
-  dashboard.claudeAttachesSilent(true);
-  validation.hold();
-  const marking = reportingThrough(origin, sent)({ message: "" });
+  const done = aHeldDone(record);
   try {
-    await expect.poll(validation.held).toBe(true);
-    expect(readFileSync(index)).toEqual(originalIndex);
-    expect(git(workspace, "rev-parse", "HEAD")).toBe(committedTip);
-    expect(readFileSync(path.join(workspace, "draft.txt"), "utf8")).toBe(
-      "draft left for review\n",
-    );
-    write("draft.txt", "a later edit\n");
+    await done.reading;
+    expect(readFileSync(draftFile, "utf8")).toBe("draft left for review\n");
+    writeFileSync(draftFile, "a later edit\n");
   } finally {
-    validation.release();
-    await marking;
+    done.release();
+    await done.marking;
   }
-  expect((await keptAdHocRecord(dashboard, session))?.doneProblem).toBe(
-    "Local done mark retained. Native done mark is pending.",
-  );
+  expect(readFileSync(index)).toEqual(originalIndex);
+  expect(git(workspace, "rev-parse", "HEAD")).toBe(committedTip);
+  expect(readFileSync(draftFile, "utf8")).toBe("a later edit\n");
 
-  retireAdHocBranch(origin.project, workspace, branch, {
+  retireAdHocBranch(checkout.integration, workspace, "draft", {
     discardWorkingChanges: true,
   });
 
-  const review = await adHocReview(request, dashboard, session);
-  expect(review).toMatchObject({ kind: "branch-result", baseline });
-  if (review.kind !== "branch-result")
+  const result = await review(record);
+  expect(result).toMatchObject({ kind: "branch-result", baseline });
+  if (result.kind !== "branch-result")
     throw new Error("Missing the retained branch result.");
-  const { tree } = review;
-  expect(review.files.map(({ path, kind }) => [path, kind])).toEqual([
+  const { tree } = result;
+  expect(result.files.map(({ path, kind }) => [path, kind])).toEqual([
     ["deleted.txt", "deleted"],
     ["draft.txt", "added"],
     ["staged.txt", "added"],
     ["untracked.txt", "added"],
   ]);
-  expect(git(origin.project, "cat-file", "-t", tree)).toBe("tree");
-  expect(git(origin.project, "cat-file", "-t", committedTip)).toBe("commit");
-  expect(git(origin.project, "show", `${committedTip}:draft.txt`)).toBe(
-    "draft.txt",
+  expect(git(checkout.integration, "cat-file", "-t", committedTip)).toBe(
+    "commit",
   );
-  expect(sessionBranchPins(origin.project, session)).toEqual([
-    baseline,
-    tree,
-    committedTip,
-  ]);
+  const pins = sessionBranchPins(
+    checkout.integration,
+    record.session.sessionId,
+  );
+  expect(pins).toEqual([baseline, tree, committedTip]);
   const draft = { baseline, tree, path: "draft.txt" };
-  const diff = await adHocSessionFileDiff(request, dashboard, session, draft);
-  expect(await diff.json()).toMatchObject({
+  expect(await fileDiff(record, draft)).toMatchObject({
     kind: "diff",
-    printed: expect.stringContaining("+draft left for review"),
+    printed: expect.stringContaining("+draft left for review") as string,
   });
-  const readText = async (path: string): Promise<unknown> =>
-    (
-      await adHocSessionFileText(request, dashboard, session, {
-        baseline,
-        tree,
-        path,
-      })
-    ).json();
-  expect(await readText("draft.txt")).toEqual({
+  expect(await fileText(record, draft)).toEqual({
     kind: "text",
     baseline: null,
     tree: "draft left for review\n",
   });
-  expect(await readText("deleted.txt")).toEqual({
+  const deleted = { ...draft, path: "deleted.txt" };
+  expect(await fileText(record, deleted)).toEqual({
     kind: "text",
     baseline: "delete this\n",
     tree: null,

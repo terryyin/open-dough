@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_ad-hoc-branch-result-handoff.json",
+      "identity": "SEED-413#ad-hoc-branch-result-handoff",
+      "completedAt": "2026-11-20T10:44:20.373Z",
+      "blob": "2ba277a1e36d66ef5b6e7d46d11fcf0557793544"
+    },
+    {
       "fileName": "SEED-414_review-done-sessions-on-open-story-cards.json",
       "identity": "SEED-414#review-done-sessions-on-open-story-cards",
       "completedAt": "2026-11-20T10:28:14.846Z",
@@ -2676,12 +2682,6 @@
       "identity": "SEED-010#evaluate-later-product-consequences",
       "completedAt": "2026-10-21T12:26:03.650Z",
       "blob": "1e99bfe8dae148f222e4f202db8196d90a28b34f"
-    },
-    {
-      "fileName": "SEED-010_learn-from-unreviewed-execution-paths.json",
-      "identity": "SEED-010#learn-from-unreviewed-execution-paths",
-      "completedAt": "2026-10-21T10:35:26.139Z",
-      "blob": "01820b6ee328ab3fe689a2193176e1152fba9d2d"
     }
   ],
   "unreadable": []
