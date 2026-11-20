@@ -206,7 +206,7 @@ The four publisher specs pass. `installedPublisher.ts` imports no
 ### 6. Installed-publisher cases run over composed attempts and records
 
 Type: Structure
-Status: planned
+Status: done
 
 Pass the store collaborator through the bridge. Make `aReportedIsolatedBranch`
 hand its MakeMe attempt and record to it, retiring `replaceAttempts` and
@@ -266,6 +266,27 @@ through `doneCaptureCase` / declared and reported branch helpers.
 
 Publisher per-case times (one timed run): worktree 3054 ms, session-comparisons
 3526 ms, blank 2918 ms, prepared-landing-done 2570 ms (4/4 pass, 9.11 s).
+
+
+### Evaluation after slice 6 (at `89ac5ce79` + uncommitted)
+
+Recorded 2026-11-21 on AC power (load ~4–7). Evidence:
+`open-dough/evidence/slice6-evaluation.md` (three timed publisher runs).
+
+| File | Lines | Backend-test importers |
+| --- | ---: | ---: |
+| `installedPublisher.ts` | 133 | 3 |
+| `declaredPublisherBranch.ts` | 113 | 5 |
+| `reportedIsolatedBranch.ts` | 66 | 1 |
+
+`replaceAttempts` reach in the four publisher specs: **none** (production
+import). `vi.stubEnv("HOME"` reach: prepared-landing-done and
+session-comparisons none; blank and worktree still via `aDeclaredBranch` /
+`keep` for machine record deletion and branch identification.
+
+Publisher per-case times (median of three timed runs, ms): worktree 1140,
+session-comparisons 1377, blank 1144, prepared-landing-done 778 (4/4 each run).
+
 
 ## Plan review
 

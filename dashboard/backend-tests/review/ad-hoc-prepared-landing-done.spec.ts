@@ -4,7 +4,6 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { aComposedDeclaredLanding } from "../support/composedLandingStores.ts";
 import { dashboardOrigin } from "../support/declaredPublisherBranch.ts";
 import {
@@ -14,6 +13,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
 test("Done leaves the prepared receipt recordable after acceptance", async () => {
   const branch = "prepared-draft";
@@ -55,14 +55,9 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
     ...receipt,
     state: "recorded",
   });
-  const reviewed = await storyReview(
-    makeMe.aSessionReviewRead
-      .ofSession(record.session.sessionId, record.session.host)
-      .keeping(await stores.keptRecords(source))
-      .please(),
-    new AbortController().signal,
-  );
-  expect(reviewed).toMatchObject({
+  expect(
+    await review(record, { keeping: await stores.keptRecords(source) }),
+  ).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: revision,

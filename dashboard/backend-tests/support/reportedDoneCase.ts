@@ -9,9 +9,10 @@ import type { ProjectFolder } from "../../server/projectFolders.ts";
 import type { CompletionReceipt } from "../../src/completionReport.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { aDefaultLaunch, type Checkout, keep } from "./doneCaptureCase.ts";
+import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
 
 const reporting = {
-  origin: "http://127.0.0.1:4173",
+  origin: dashboardOrigin,
   reference: reportingReference,
   command: "dashboard-completion",
 };

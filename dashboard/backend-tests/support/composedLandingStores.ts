@@ -4,13 +4,14 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { LandingStores } from "../../server/launchLandingReporting.ts";
 import { leaveMachineJson } from "../../server/machineJsonStore.ts";
+import { withBranchResultAtDone } from "../../server/sessionBranchCapture.ts";
 import { aDeclaringLaunch } from "./declaredBranchCase.ts";
-import { dashboardOrigin } from "./declaredPublisherBranch.ts";
 import {
   canonicalGitDirectory,
   source,
   type Checkout,
 } from "./doneCaptureCase.ts";
+import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
 
 type AttemptDocument = Parameters<LandingStores["replaceAttempts"]>[0] extends (
   kept: infer K,
@@ -49,15 +50,34 @@ export function composedLandingStores(initial?: {
     attempts: () => attempts,
     records: () => records,
     recordOf,
-    markDone: (sessionId, at) =>
-      replaceRecords((kept) => ({
-        ...kept,
-        [source]: (kept[source] ?? []).map((entry) =>
-          "session" in entry && entry.session.sessionId === sessionId
-            ? { ...entry, doneAt: at }
-            : entry,
-        ),
-      })),
+    markDone: async (sessionId, at) => {
+      const candidate = recordOf(sessionId);
+      if (candidate === undefined) return;
+      await withBranchResultAtDone(candidate, at, async (settle) => {
+        let saved: LaunchRecord | undefined;
+        await replaceRecords(async (kept) => {
+          const list = kept[source] ?? [];
+          const next = [];
+          for (const entry of list) {
+            if (
+              !("session" in entry) ||
+              entry.session.sessionId !== sessionId
+            ) {
+              next.push(entry);
+              continue;
+            }
+            saved = await settle({
+              ...entry,
+              dispositionChangedAt: new Date().toISOString(),
+              doneAt: at,
+            });
+            next.push(saved);
+          }
+          return { ...kept, [source]: next };
+        });
+        return saved;
+      });
+    },
     withKeptAttempts: (observe) => observe(Object.values(attempts).flat()),
     replaceAttempts: async (change) => {
       const next = await change(attempts);

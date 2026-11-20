@@ -5,9 +5,8 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { keptAttempts } from "../../server/launchAttemptStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { markDone } from "../support/doneCaptureCase.ts";
+import { minutesAgo, source } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";
 import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
@@ -21,7 +20,7 @@ const working = `${baseline}Left for review\n`;
 
 test("the same Done session opens its delivery and keeps its different branch result after retirement", async () => {
   const branch = "rename-the-draft";
-  const { checkout, workspace, record, reference, landingContext } =
+  const { checkout, workspace, record, reference, landingContext, stores } =
     await aReportedIsolatedBranch(branch, { [renamed.oldPath]: baseline });
   const write = (text: string) => {
     writeFileSync(path.join(workspace, renamed.path), text);
@@ -31,7 +30,7 @@ test("the same Done session opens its delivery and keeps its different branch re
   await git(workspace, "add", renamed.path);
   await git(workspace, "commit", "--quiet", "-m", "Rename the draft");
   write(working);
-  await markDone(record);
+  await stores.markDone(record.session.sessionId, minutesAgo(10));
 
   write(committed);
   const { landing, beforePush: before } = await publishInstalled(
@@ -43,9 +42,12 @@ test("the same Done session opens its delivery and keeps its different branch re
       targetRef: "refs/heads/main",
       landingContext,
     },
-    async () =>
-      (await keptAttempts())?.find((attempt) => attempt.id === reference)
-        ?.landingPreparations,
+    () =>
+      Promise.resolve(
+        stores.attempts()[source]?.find((attempt) => attempt.id === reference)
+          ?.landingPreparations,
+      ),
+    stores,
   );
   // The installed publisher prepared exactly the pair it then recorded.
   expect(before.trunk).toBe(checkout.base);
@@ -54,9 +56,13 @@ test("the same Done session opens its delivery and keeps its different branch re
   ]);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
+  const kept = await stores.keptRecords(source);
   const choices = ["delivered", "branch-result"];
-  const delivered = await review(record);
-  const branchResult = await review(record, "branch-result");
+  const delivered = await review(record, { keeping: kept });
+  const branchResult = await review(record, {
+    run: "branch-result",
+    keeping: kept,
+  });
   const renamedFile = { kind: "renamed", ...renamed };
   expect(delivered).toMatchObject({
     kind: "landed",
@@ -85,22 +91,24 @@ test("the same Done session opens its delivery and keeps its different branch re
     baseline: branchResult.baseline,
     tree: branchResult.tree,
   };
-  expect(await fileText(record, { ...renamed, ...deliveryPair })).toEqual({
-    kind: "text",
-    baseline,
-    tree: committed,
-  });
-  expect(await fileText(record, { ...renamed, ...branchPair })).toEqual({
+  expect(await fileText(record, { ...renamed, ...deliveryPair }, kept)).toEqual(
+    {
+      kind: "text",
+      baseline,
+      tree: committed,
+    },
+  );
+  expect(await fileText(record, { ...renamed, ...branchPair }, kept)).toEqual({
     kind: "text",
     baseline,
     tree: working,
   });
   const foreignTree = { ...deliveryPair, tree: branchResult.tree };
   await expect(
-    fileText(record, { ...renamed, ...foreignTree }),
+    fileText(record, { ...renamed, ...foreignTree }, kept),
   ).rejects.toMatchObject({ status: 409 });
   const wrongOldPath = { ...renamed, oldPath: "other.txt" };
   await expect(
-    fileText(record, { ...wrongOldPath, ...branchPair }),
+    fileText(record, { ...wrongOldPath, ...branchPair }, kept),
   ).rejects.toMatchObject({ status: 409 });
 });

@@ -16,18 +16,22 @@ import {
   branchLandingContext,
 } from "../../server/branchLandingContext.ts";
 import type { LandingSubmission } from "../../server/launchLandingAdmission.ts";
-import { handleLanding } from "../../server/launchLandingReporting.ts";
+import {
+  handleLanding,
+  type LandingStores,
+} from "../../server/launchLandingReporting.ts";
 import { changeSessionRecord } from "../../server/launchRecordStore.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { composedLandingStores } from "./composedLandingStores.ts";
 import { aDeclaredBranch, type DeclaringLaunch } from "./declaredBranchCase.ts";
 import {
   aCheckoutWithCanonicalWorktree,
   type Checkout,
   source,
 } from "./doneCaptureCase.ts";
+import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
 
-// The dashboard the installed publisher reports to.
-export const dashboardOrigin = "http://127.0.0.1:4173";
+export { dashboardOrigin };
 
 const publisherScripts = [
   "dashboard-completion.mjs",
@@ -59,7 +63,8 @@ function installPublisher(checkout: Checkout, workspace: string) {
 
 // The checkout with an origin and its worktree on `branch`, declared by a
 // kept Default main launch (blank unless `launch` says it reports) whose
-// installed publisher holds a context.
+// installed publisher holds a context. Landing stores are composed; record
+// deletion stays on the machine record store.
 export async function aDeclaredPublisherBranch(
   branch: string,
   launch: Omit<DeclaringLaunch, "workspace" | "branch"> = {},
@@ -80,15 +85,21 @@ export async function aDeclaredPublisherBranch(
     source,
   });
   if (answered === undefined) throw new Error("Missing the landing context.");
+  // Machine store keeps the answered record for deleteRecord pin cleanup.
   await changeSessionRecord(source, record.session, (current) =>
     acceptBranchLandingAnswer(current, answered.record),
   );
+  const others = launch.others?.(checkout) ?? [];
+  const stores = composedLandingStores({
+    records: { [source]: [answered.record, ...others] },
+  });
   return {
     checkout,
     workspace,
     record: answered.record,
     entry,
     context: answered.file,
+    stores,
   };
 }
 
@@ -96,8 +107,7 @@ export async function aDeclaredPublisherBranch(
 export const contextReference = (file: string) =>
   (JSON.parse(readFileSync(file, "utf8")) as { reference: string }).reference;
 
-export const prepareLanding = (submission: LandingSubmission) =>
-  handleLanding(submission, dashboardOrigin, "prepare");
-
-export const recordLanding = (submission: LandingSubmission) =>
-  handleLanding(submission, dashboardOrigin, "record");
+export const recordLanding = (
+  submission: LandingSubmission,
+  stores: LandingStores,
+) => handleLanding(submission, dashboardOrigin, "record", stores);

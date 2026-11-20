@@ -10,14 +10,37 @@ import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { source } from "./doneCaptureCase.ts";
 
-const reviewRead = async (record: LaunchRecord) =>
+type ReviewOptions = {
+  run?: number | string;
+  keeping?: readonly LaunchRecord[];
+};
+
+const asOptions = (
+  runOrOptions?: number | string | ReviewOptions,
+): ReviewOptions =>
+  typeof runOrOptions === "object"
+    ? runOrOptions
+    : runOrOptions === undefined
+      ? {}
+      : { run: runOrOptions };
+
+const reviewRead = async (
+  record: LaunchRecord,
+  keeping?: readonly LaunchRecord[],
+) =>
   makeMe.aSessionReviewRead
     .ofSession(record.session.sessionId, record.session.host)
-    .keeping(await keptRecords(source));
+    .keeping(keeping !== undefined ? [...keeping] : await keptRecords(source));
 
 // The typed review of the kept session, at its first run or at `run`.
-export async function review(record: LaunchRecord, run?: number | string) {
-  const input = (await reviewRead(record)).please();
+// Pass `{ keeping }` when the case reads composed records instead of the
+// machine store.
+export async function review(
+  record: LaunchRecord,
+  runOrOptions?: number | string | ReviewOptions,
+) {
+  const { run, keeping } = asOptions(runOrOptions);
+  const input = (await reviewRead(record, keeping)).please();
   const read =
     run === undefined
       ? input
@@ -34,13 +57,21 @@ type NamedFile = {
   reference?: string;
 };
 
-export async function fileText(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
+export async function fileText(
+  record: LaunchRecord,
+  file: NamedFile,
+  keeping?: readonly LaunchRecord[],
+) {
+  const read = (await reviewRead(record, keeping)).readingFile(file).please();
   return reviewedFileText(read, new AbortController().signal);
 }
 
-export async function fileDiff(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
+export async function fileDiff(
+  record: LaunchRecord,
+  file: NamedFile,
+  keeping?: readonly LaunchRecord[],
+) {
+  const read = (await reviewRead(record, keeping)).readingFile(file).please();
   return reviewedFileDiff(read, new AbortController().signal);
 }
 

@@ -15,8 +15,6 @@ import {
 } from "../support/declaredPublisherBranch.ts";
 import {
   inWorktree,
-  keptRecordOf,
-  markDone,
   minutesAgo,
   source,
   work,
@@ -29,7 +27,7 @@ import {
 
 test("a blank Default main launch keeps its declared landing until record deletion", async () => {
   const branch = "blank-draft";
-  const { checkout, workspace, record, context } =
+  const { checkout, workspace, record, context, stores } =
     await aDeclaredPublisherBranch(branch);
   const session = record.session.sessionId;
   expect(record.request.reporting).toBeUndefined();
@@ -56,7 +54,9 @@ test("a blank Default main launch keeps its declared landing until record deleti
       targetRef: "refs/heads/main",
       landingContext: context,
     },
-    async () => (await keptRecordOf(session))?.landingReporting?.preparations,
+    () =>
+      Promise.resolve(stores.recordOf(session)?.landingReporting?.preparations),
+    stores,
   );
   expect(landing.receipt).toMatchObject({
     reference,
@@ -68,10 +68,11 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await trunk()).toBe(candidate);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  await markDone(record);
-  expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
-  expect((await keptRecordOf(session))?.request.reporting).toBeUndefined();
-  expect(await review(record)).toMatchObject({
+  await stores.markDone(session, minutesAgo(10));
+  const kept = await stores.keptRecords(source);
+  expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
+  expect(stores.recordOf(session)?.request.reporting).toBeUndefined();
+  expect(await review(record, { keeping: kept })).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: candidate,
@@ -92,6 +93,7 @@ test("a blank Default main launch keeps its declared landing until record deleti
   );
   expect(pinned).toContain(candidate);
 
+  // Record deletion stays on the machine record store.
   expect(await deleteRecord(source, record.session)).toBe(true);
   expect(landingPins(checkout.integration)).toEqual([]);
 });

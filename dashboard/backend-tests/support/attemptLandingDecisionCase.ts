@@ -15,8 +15,9 @@ import type {
   LandingRepository,
 } from "../../src/launchLanding.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
+import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
 
-export const origin = "http://127.0.0.1:4173";
+export const origin = dashboardOrigin;
 export const receiptTime = "2026-11-20T12:00:00.000Z";
 export const baseSha = "a1".repeat(20);
 export const revisionSha = "b2".repeat(20);
