@@ -60,6 +60,14 @@ test("Given a kept landed session whose comparison renames a file, when the diff
   }
 });
 
+async function expectRefusedAsNotOnCapturedRun(refused: Promise<unknown>) {
+  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
+  await expect(refused).rejects.toMatchObject({
+    status: 409,
+    message: "The file or comparison does not belong to this captured run.",
+  });
+}
+
 type Pair = { base: string; result: string };
 for (const [subject, handler, mismatch] of [
   ["a foreign path", reviewedFileDiff, () => ({ path: "missing.txt" })],
@@ -101,16 +109,33 @@ for (const [subject, handler, mismatch] of [
 
       const refused = handler(read, signal());
 
-      await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-      await expect(refused).rejects.toMatchObject({
-        status: 409,
-        message: "The file or comparison does not belong to this captured run.",
-      });
+      await expectRefusedAsNotOnCapturedRun(refused);
     } finally {
       await repository.cleanup();
     }
   });
 }
+
+test("Given a kept landed session, when a file diff names its baseline and file at a foreign tree, then it is refused as not on the captured run", async () => {
+  const repository = await renameRevisionRepo();
+  try {
+    const { base, result } = repository.revisions;
+    const read = makeMe.aSessionReviewRead
+      .ofLandedAdHocSession("ad-hoc-foreign-tree", {
+        repository: repository.integration,
+        comparing: { base, revision: result },
+        reference,
+      })
+      .readingFile({ reference, baseline: base, tree: base, ...renamedFile })
+      .please();
+
+    const refused = reviewedFileDiff(read, signal());
+
+    await expectRefusedAsNotOnCapturedRun(refused);
+  } finally {
+    await repository.cleanup();
+  }
+});
 
 // Reads, in a session with one kept run, the file diff of the named pair
 // and file, and hands the answer to `observe`.
