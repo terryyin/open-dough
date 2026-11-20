@@ -79,7 +79,7 @@ and deleted `test-support` surface together under
 
 **Identity:** SEED-413#split-done-mark-decision-from-store
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/734-split-done-mark-decision-from-store/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"016f87495fe2a0222226f80b6549ca2e4f8888c3a6f5ef47f22142879e149c67","plan":"cf1eccb8d442a2d35747d20ee05c7a5c9479ea190b28a8fa4601c270d2d92c4b"}}
 ```
 
 First of five stories from Terry’s 2026-11-20 reviews of the Done capture

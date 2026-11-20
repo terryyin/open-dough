@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Ai-chan",
-  "email": "ai-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-413#split-done-mark-decision-from-store",
-  "host": "claude"
-}
