@@ -4,7 +4,7 @@
 // the `open-dough` project, with the launch records kept for that project.
 // `.readingFile(...)` turns it into the file read the file handlers take
 // (../../../dashboard/server/storyReviewFileResponse.ts).
-import { LaunchAdHocSessionBuilder } from "./launchAdHocSessionTestData.mjs";
+import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").StoryReviewInput, { readonly kept: unknown }>} SessionReviewRead */
@@ -15,7 +15,7 @@ import { LaunchAdHocSessionBuilder } from "./launchAdHocSessionTestData.mjs";
  * @typedef {Omit<SessionFileRead["read"], "subject">} NamedFile
  */
 /**
- * @typedef {import("./launchAdHocSessionTestData.mjs").CapturedLanding} CapturedLanding
+ * @typedef {import("./launchReviewedSessionTestData.mjs").CapturedLanding} CapturedLanding
  */
 
 export class SessionReviewReadBuilder {
@@ -50,7 +50,7 @@ export class SessionReviewReadBuilder {
    */
   ofLandedAdHocSession(session, landing) {
     return this.ofSession(session).keeping([
-      new LaunchAdHocSessionBuilder()
+      new LaunchReviewedSessionBuilder()
         .ofLandedAdHocSession(session, landing)
         .please(),
     ]);
@@ -64,7 +64,7 @@ export class SessionReviewReadBuilder {
    */
   ofAdHocSessionWithKeptRun(session, kept) {
     return this.ofSession(session).keeping([
-      new LaunchAdHocSessionBuilder()
+      new LaunchReviewedSessionBuilder()
         .ofAdHocSessionWithKeptRun(session, kept)
         .please(),
     ]);

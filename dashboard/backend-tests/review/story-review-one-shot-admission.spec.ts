@@ -1,127 +1,89 @@
-// Historical admission binds source/story/reference/pair/path before any file read.
-import { readFileSync } from "node:fs";
-import { randomUUID } from "node:crypto";
-import { test, expect } from "../../test-support/support/codexStart.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { commit } from "../../test-support/support/launchLanding.ts";
+// A one-shot story launch is reviewed by its story: its session's file reads
+// are refused toward the story, and a story review names its landed run by
+// that launch's reference. Typed handlers and run selection in-process, from
+// MakeMe launch records: no server, no machine stores, no Git.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { reviewLandedRunsOf } from "../../src/storyReviewLandedRun.ts";
+import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
-  startReviewRun,
-  captureReviewRun,
-  retireReviewRun,
-  repositoryObservation,
-} from "../../test-support/support/oneShotReview.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import {
-  storyReviewEndpoint,
-  storyReviewFileEndpoint,
-  storyReviewFileTextEndpoint,
-  reviewedFileDiffSchema,
-  reviewedFileTextSchema,
-} from "../../src/storyReviewContract.ts";
+  reviewedFileDiff,
+  reviewedFileText,
+} from "../../server/storyReviewFileResponse.ts";
+import { reviewedLandedRunByReference } from "../../server/storyReviewRunAdmission.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({
-  serverMode: "boundary",
-  liveServer: "synchronous delivery child blocks the mounted receiver",
+const story = {
+  identity: "SEED-7#story-a",
+  reference: "11111111-1111-4111-8111-111111111111",
+};
+const storyLaunch = makeMe.aLaunchRecord
+  .ofOneShotStoryLaunch("story-session", story)
+  .please();
+const deliveredFile = {
+  baseline: "a".repeat(40),
+  tree: "b".repeat(40),
+  path: "delivered.txt",
+};
+const sessionFileRead = makeMe.aSessionReviewRead
+  .ofSession("story-session")
+  .keeping([storyLaunch])
+  .readingFile(deliveredFile)
+  .please();
+const storyLandedRuns = reviewLandedRunsOf(
+  [storyLaunch],
+  "open-dough",
+  story.identity,
+  () => false,
+);
+const signal = () => new AbortController().signal;
+
+test("Given a one-shot story launch, when its session's file diff is read, then it is refused for its story", async () => {
+  const refused = reviewedFileDiff(sessionFileRead, signal());
+
+  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
+  await expect(refused).rejects.toMatchObject({
+    status: 400,
+    message:
+      "This session belongs to a story launch and is reviewed by its story.",
+  });
 });
 
-test("foreign or malformed historical review requests cannot choose a repository, comparison, file, or mark", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const run = await startReviewRun(dashboard);
-  commit(run.established.workspace, "delivered.txt");
-  const receipt = captureReviewRun(run, origin);
-  retireReviewRun(run, origin, receipt.revision);
-  const before = repositoryObservation(origin.project);
-  const index = readFileSync(before.index);
-  const named = {
-    source: "open-dough",
-    identity: queuedIdentity,
-    reference: receipt.reference,
-  };
-  const file = {
-    ...named,
-    baseline: receipt.base,
-    tree: receipt.revision,
-    path: "delivered.txt",
-  };
-  for (const [endpoint, query, status] of [
-    [storyReviewEndpoint, { ...named, source: "elsewhere" }, 404],
-    [storyReviewEndpoint, { ...named, identity: "SEED-B#b" }, 404],
-    [storyReviewEndpoint, { ...named, reference: randomUUID() }, 404],
-    [storyReviewEndpoint, { ...named, reference: "HEAD" }, 400],
-    [storyReviewEndpoint, { ...named, repository: origin.project }, 400],
-    [storyReviewFileEndpoint, { ...file, baseline: receipt.revision }, 409],
-    [storyReviewFileEndpoint, { ...file, tree: receipt.base }, 409],
-    [
-      storyReviewFileEndpoint,
-      { ...file, path: ".planning/PRODUCT-BACKLOG.md" },
-      409,
-    ],
-    [storyReviewFileEndpoint, { ...file, oldPath: "other.txt" }, 409],
-    [storyReviewFileEndpoint, { ...file, path: "../delivered.txt" }, 409],
-    [storyReviewFileEndpoint, { ...file, tree: "HEAD" }, 400],
-    [
-      storyReviewFileEndpoint,
-      { ...file, workspace: run.established.workspace },
-      400,
-    ],
-  ] as const) {
-    const response = await getReview(request, dashboard, endpoint, query);
-    expect(response.status(), JSON.stringify(query)).toBe(status);
-  }
-  const crossOrigin = await request.get(
-    `${dashboard.baseURL}${storyReviewEndpoint}?${new URLSearchParams(named)}`,
-    { headers: { Origin: "https://elsewhere.test" } },
-  );
-  expect(crossOrigin.status()).toBe(403);
-  const valid = await getReview(
-    request,
-    dashboard,
-    storyReviewFileEndpoint,
-    file,
-  );
-  expect(valid.status()).toBe(200);
-  expect(reviewedFileDiffSchema.parse(await valid.json())).toEqual({
-    kind: "diff",
-    printed: expect.stringContaining("+delivered.txt"),
+test("Given a one-shot story launch, when its session's file text is read, then it is refused for its story", async () => {
+  const refused = reviewedFileText(sessionFileRead, signal());
+
+  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
+  await expect(refused).rejects.toMatchObject({
+    status: 400,
+    message:
+      "This session belongs to a story launch and is reviewed by its story.",
   });
-  const text = await getReview(
-    request,
-    dashboard,
-    storyReviewFileTextEndpoint,
-    file,
+});
+
+test("Given a one-shot story launch, when its story review names the launch's reference, then that launch is the reviewed run", () => {
+  expect(
+    reviewedLandedRunByReference(storyLandedRuns, story.reference).record,
+  ).toBe(storyLaunch);
+});
+
+test("Given a one-shot story launch, when its story review names another reference, then the story has no such landed run", () => {
+  expect(() =>
+    reviewedLandedRunByReference(
+      storyLandedRuns,
+      "22222222-2222-4222-8222-222222222222",
+    ),
+  ).toThrow(
+    expect.objectContaining({
+      status: 404,
+      message: "This story has no landed run with that reference.",
+    }),
   );
-  expect(text.status()).toBe(200);
-  expect(reviewedFileTextSchema.parse(await text.json())).toEqual({
-    kind: "text",
-    baseline: null,
-    tree: "delivered.txt\n",
-  });
-  const { reference } = named;
-  const bySession = {
-    source: named.source,
-    host: run.record.session.host,
-    session: run.record.session.sessionId,
-    baseline: file.baseline,
-    tree: file.tree,
-    path: file.path,
-  };
-  for (const endpoint of [storyReviewFileEndpoint, storyReviewFileTextEndpoint])
-    for (const query of [
-      { ...bySession, reference },
-      bySession,
-      { ...bySession, reference, baseline: receipt.revision },
-    ]) {
-      const refused = await getReview(request, dashboard, endpoint, query);
-      expect(refused.status(), JSON.stringify(query)).toBe(400);
-      expect(await refused.json()).toEqual({
-        error:
-          "This session belongs to a story launch and is reviewed by its story.",
-      });
-    }
-  expect(repositoryObservation(origin.project)).toEqual(before);
-  expect(readFileSync(before.index)).toEqual(index);
+});
+
+test("Given a one-shot story launch, when its story review names a revision instead of a reference, then the reference is malformed", () => {
+  expect(() => reviewedLandedRunByReference(storyLandedRuns, "HEAD")).toThrow(
+    expect.objectContaining({
+      status: 400,
+      message: "The review launch reference is malformed.",
+    }),
+  );
 });

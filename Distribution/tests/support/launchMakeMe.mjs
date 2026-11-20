@@ -1,6 +1,6 @@
 // @ts-check
 // Launch/landing MakeMe builders kept as accessors for fresh-builder semantics.
-import { LaunchAdHocSessionBuilder } from "./launchAdHocSessionTestData.mjs";
+import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mjs";
 import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
 import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
@@ -40,7 +40,7 @@ import { SessionReviewReadBuilder } from "./sessionReviewTestData.mjs";
  *
  * @typedef {object} LaunchMakeMe
  * @property {FactBuilder<StartRecord>} aStartRecord
- * @property {import("./launchAdHocSessionTestData.mjs").LaunchAdHocSessionBuilder} aLaunchRecord
+ * @property {import("./launchReviewedSessionTestData.mjs").LaunchReviewedSessionBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
  * @property {import("./launchCreationTestData.mjs").CreationRecordBuilder} aCreationRecord
  * @property {import("./completionReportTestData.mjs").CompletionReportBuilder} aCompletionReport
@@ -76,7 +76,7 @@ export function launchMakeMeProperties() {
     aLaunchRecord: {
       enumerable: true,
       get() {
-        return new LaunchAdHocSessionBuilder();
+        return new LaunchReviewedSessionBuilder();
       },
     },
     aLaunchRequest: {

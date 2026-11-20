@@ -1,9 +1,9 @@
 // @ts-check
-// Named Done ad hoc session records that review cases share: a landed
-// isolated session, and a Default-main session with one kept run. Both are
-// steps on the launch record builder (`./launchTestData.mjs`) that
-// `makeMe.aLaunchRecord` returns; this layer keeps `launchTestData.mjs`
-// within the 250-line check.
+// Named Done session records that review cases share: a landed isolated
+// ad hoc session, a Default-main ad hoc session with one kept run, and a
+// one-shot story launch. All are steps on the launch record builder
+// (`./launchTestData.mjs`) that `makeMe.aLaunchRecord` returns; this layer
+// keeps `launchTestData.mjs` within the 250-line check.
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
@@ -16,7 +16,7 @@ import { LaunchRecordBuilder } from "./launchTestData.mjs";
  * @typedef {{ repository: string, comparing: { base: string, revision: string }, launchedAt?: string, reference?: string }} CapturedLanding
  */
 
-export class LaunchAdHocSessionBuilder extends LaunchRecordBuilder {
+export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   /**
    * The project keeps one Done ad hoc session that landed with this capture;
    * its isolated workspace has since been retired.
@@ -60,6 +60,31 @@ export class LaunchAdHocSessionBuilder extends LaunchRecordBuilder {
       })
       .inClaudeSession({ sessionId: session })
       .keptSessionCommits({ repository, runs: [run] })
+      .markedDone();
+  }
+
+  /**
+   * The project keeps one Done one-shot execution of the story in this
+   * `claude` session, reporting under `reference`; a one-shot start counts as
+   * the story's landed run.
+   * @param {string} session the story launch's `claude` session ID
+   * @param {{ identity: string, reference: string }} story
+   */
+  ofOneShotStoryLaunch(session, { identity, reference }) {
+    return this.executing({ identity, title: "One-shot story" })
+      .onStoryBranch({
+        workspace: path.join(tmpdir(), `one-shot-${process.pid}-${session}`),
+        branch: "one-shot/story",
+        tracking: "one-shot",
+        role: "isolated",
+        landing: "auto-land",
+      })
+      .inClaudeSession({ sessionId: session })
+      .reportingThrough({
+        origin: "http://127.0.0.1:4173",
+        command: "claude",
+        reference,
+      })
       .markedDone();
   }
 }
