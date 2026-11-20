@@ -19,9 +19,9 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";
-const project = { id: source, ref: "main" };
 
 test("ordinary revision checks retain one delivery across repeated observations", async () => {
   const { checkout, workspace, record } = await anIsolatedBranch(branch);
@@ -38,7 +38,7 @@ test("ordinary revision checks retain one delivery across repeated observations"
       .pushingToTrunk("pushed", { at: minutesAgo(5) }),
   );
 
-  await sessionLandingObservations().observe(project, merge);
+  await sessionLandingObservations().observe(observedTrunk, merge);
   const captured = await review(record);
   expect(captured).toMatchObject({
     kind: "landed",
@@ -63,14 +63,14 @@ test("ordinary revision checks retain one delivery across repeated observations"
   ]);
 
   const observations = sessionLandingObservations();
-  await observations.observe(project, merge);
+  await observations.observe(observedTrunk, merge);
   const { advance } = await work(
     checkout,
     makeMe.aCheckoutWork
       .committing("later", { at: minutesAgo(5) })
       .pushingToTrunk("advance", { at: minutesAgo(5) }),
   );
-  await observations.observe(project, advance);
+  await observations.observe(observedTrunk, advance);
   expect(await review(record)).toEqual(captured);
   expect((await keptSession(source, record.session))?.landing).toEqual(saved);
   expect(landingPins(integration)).toEqual(pins);

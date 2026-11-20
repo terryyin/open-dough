@@ -146,7 +146,7 @@ its file. This owns the retry and per-record isolation proof.
 ### 4. Deletion and expiry still win while inspection is held
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the two held-inspection cases from
 `review/ad-hoc-manual-landing-observation-lifecycle.spec.ts`. Gate the
@@ -249,6 +249,11 @@ deferred branch and session-commits cases.
   CI. A case-local allowance or a runner change (the refactor pass
   suspected the `/usr/bin/git` launcher; a load-4.5 check of 50 calls
   showed no difference) awaits Terry's decision.
+- Slice 4: `doneBranchObservation.ts` holds `observedTrunk` and
+  `twoDoneBranchesMergedByHand`. A no-op production `replaceRecords`
+  applies retention through the installed dispatch. No test now holds a
+  live pass; commitment 6 rests on the `void` adapter and the revision
+  check and stream specs.
 
 ## Local gates
 

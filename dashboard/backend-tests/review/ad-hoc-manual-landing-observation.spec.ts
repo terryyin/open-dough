@@ -21,9 +21,9 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";
-const project = { id: source, ref: "main" };
 const head = async (checkout: string) =>
   (await git(checkout, "rev-parse", "HEAD")).stdout.trim();
 
@@ -80,7 +80,7 @@ test("the first observation after restart discovers a delivery while preserving 
 
   const restarted = sessionLandingObservations();
   expect(await review(record)).toEqual(branchAtDone);
-  await restarted.observe(project, latest);
+  await restarted.observe(observedTrunk, latest);
   const delivered = await review(record);
   expect(delivered).toMatchObject({
     kind: "landed",
@@ -151,7 +151,7 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
       .pushingToTrunk("pushed", { at: minutesAgo(5) }),
   );
   const observations = sessionLandingObservations();
-  await observations.observe(project, merge);
+  await observations.observe(observedTrunk, merge);
 
   const remote = (
     await git(integration, "remote", "get-url", "origin")
@@ -172,7 +172,7 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
   expect(intermediate?.branchResult?.manualDeliveryChecked).toBe(true);
   expect(intermediate?.landing).toBeUndefined();
 
-  await observations.observe(project, merge);
+  await observations.observe(observedTrunk, merge);
   expect(await review(record)).toMatchObject({
     kind: "landed",
     baseline: checkout.base,
