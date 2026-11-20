@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Narrow the ad hoc review handlers' contracts to what they read](seeds/SEED-413-renovate-dashboard-unit-tests.md#narrow-ad-hoc-review-handler-contracts) — SEED-413#narrow-ad-hoc-review-handler-contracts ([plan](slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md))
 - [Direct story-launch file reads to their story](seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads) — SEED-413#refuse-story-launch-session-file-reads ([plan](slice-plans/726-direct-story-launch-file-reads-to-their-story/PLAN.md))
-- [Prove what Done keeps of a Default main session's commits in-process](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests ([plan](slice-plans/723-prove-done-capture-in-process/PLAN.md))
 
 ## Backlog list
 
