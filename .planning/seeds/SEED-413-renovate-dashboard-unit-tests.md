@@ -382,6 +382,9 @@ the analysis and decisions are recorded there.
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-413#optimize-done-capture-family-cases","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Typed Done transition, Git branch-result capture, and review cases composed from Done state.","rationale":"Profiling the old review setup would measure machine-store writes and Done replay that this story removes.","condition":"The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.","state":"waiting"},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal, production pin-ref query, and review cases composed from branch-entry state.","rationale":"The optimization needs to measure the branch-entry setup that remains after repeated store-backed entry actions are removed from review cases.","condition":"Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.","state":"waiting"},{"supplier":{"identity":"SEED-413#fold-done-capture-launches-into-makeme","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme"},"implementation":"Done capture launch cases built through domain-named MakeMe steps.","rationale":"The launch arrangement changes the setup that the optimization measures, so the remaining costs need to be established with the delivered builders.","condition":"The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.","state":"waiting"},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Typed delivery-observation decision over composed Done records, with the store adapter alone saving deliveries and pins.","rationale":"Profiling the observation cases before the split would measure machine-store reads and writes in a stubbed HOME that this story removes.","condition":"Delivery observation decides from typed kept records separately from its store adapter, and observation cases other than the adapter's races use composed records.","state":"waiting"},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Typed landing decision over composed attempts and records, production landing request admission, and the publisher bridge delegating to it.","rationale":"Profiling the publication cases before the split would measure attempt and record store writes and the test-side receiver that this story removes.","condition":"Landing preparation and recording decide from typed attempts and records separately from their store adapter, the landing request admission is a production function, and only the publisher-topic cases run the installed publisher.","state":"waiting"}]}
 ```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
 
 Follows the closed SEED-413#arrange-done-ad-hoc-observation-and-publication
 (plan recoverable at
@@ -390,37 +393,111 @@ which made its ten cases plain Vitest, about twice as fast as their
 Playwright versions.
 Queued after the five [Done capture import-list stories](#split-done-mark-decision-from-store),
 which move most of the family off the machine store and the replayed
-actions. Profile what remains after them.
+actions. Profile what remains after them. The Git binary finding below
+does not depend on them.
 
 - **Goal.** Dashboard maintainers get Done capture proof that runs at about
   100–200 ms per case and passes reliably under local load. The family's
   cases now take about 1–2 s each at load 6–12 and 3–5 s at load 14–16. Under
   Vitest's 5 s default, two or three of them time out at that load. Hosted CI
   runs them in under 1 s.
-- **Scope.** The Git-heavy Done capture family under
-  `dashboard/backend-tests/review/` and `dashboard/backend-tests/launches/`,
-  and its shared support, `doneCaptureCase.ts`, `doneCaptureReview.ts`,
-  `doneBranchObservation.ts`, `declaredBranchCase.ts`,
-  `declaredPublisherBranch.ts`, `installedPublisher.ts`,
-  `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
-  import-list stories leave them. Profile where checkout creation, checkout work,
-  production Done capture, observation and review reads spend each case's
-  time, then cut the cost while keeping real Git, the production handlers and
-  every assertion. Shared fixtures, cheaper Git setup and production seams
-  that do avoidable work are all in scope. Raising timeouts is out of scope.
+- **Measured on 2026-11-20 at `78778ad74`** (trunk's 21 specs and 65 cases
+  that import `doneCaptureCase.ts`, macOS, `--workers=2`, load 12–19 from
+  other sessions).
+  - Each case starts about 41 Git processes (2,685 for the family, counted
+    with `GIT_TRACE2_EVENT`). Git itself runs about 7 ms in each. The most
+    frequent are `rev-parse` (579), `rev-list` (250), `update-ref` (214),
+    `add` (195), `cat-file` (175) and `commit` (148). `push`, `clone` and
+    `pull` are few and take 73–87 ms each.
+  - `git` resolves to `/usr/bin/git`, Apple's `xcrun` launcher. Starting it
+    from Node took 36 ms at load 15, against 7 ms for the binary it runs
+    (`xcrun -f git`) and 4 ms for `/usr/bin/true`. Linux has no launcher,
+    which fits the hosted CI times.
+  - With that binary's directory first on `PATH`, two interleaved pairs of
+    family runs summed 54.7 s and 26.3 s of case time, against 70.1 s and
+    109.1 s unchanged. Cases of 2 s or more fell from 7 and 23 to 3 and 0.
+    The second unchanged run timed one case out at 5 s. At load 12–14 the
+    median case was 357 ms and 20 of 65 cases ran within 200 ms.
+  - That directory also holds `python3`, `make` and `clang`, so putting it
+    first on `PATH` changes more than Git. A private directory holding one
+    `git` script that runs the binary gave 61.6 s and 58.5 s against 67.9 s
+    unchanged: the extra shell start spends most of the saving. A symbolic
+    link starts as fast as the binary, but Git then looks for its templates
+    under `/Applications/Xcode.app` and warns on `init`.
+  - Load moved between runs and the same arrangement varied twofold, so a
+    duration at a named load does not reproduce. The count of Git processes
+    per case does.
+- **Scope.**
+  - On macOS the family's cases run the Git binary directly, resolved once
+    per run. Where `git` is already another binary, and on Linux, nothing
+    changes. How the binary is reached is the open decision below.
+  - Cut the Git processes each case starts, in the family's support and in
+    production seams that start more than their answer needs. The family is
+    the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
+    and `dashboard/backend-tests/launches/`, with their shared support:
+    `doneCaptureCase.ts`, `doneCaptureReview.ts`, `doneBranchObservation.ts`,
+    `declaredBranchCase.ts`, `declaredPublisherBranch.ts`,
+    `installedPublisher.ts`, `reportedIsolatedBranch.ts` and
+    `adHocBranchRefs.ts`, as the five import-list stories leave them. Profile per case first: checkout creation, checkout
+    work, production Done capture, observation and review reads.
+  - Keep the Git that developers run, the production handlers and every
+    assertion. The proof is of Git's own behavior (reflog times, merges,
+    worktrees, pins), so a Git library in the test process does not replace
+    it. Raising timeouts is out of scope.
+- **Open decision (Terry).** Which owner reaches the binary. Slice planning
+  waits for it.
+  - *The Git runners resolve it* (recommended). `dashboard/server/gitRunner.ts`
+    and the installed `publication-git.mjs` start the binary `xcrun -f git`
+    names when `git` is the launcher. Tests and a developer's own dashboard
+    both save the launcher on every Git call, and no other tool's
+    resolution changes. It changes shipped code in two places.
+  - *The test environment puts the binary's directory first on `PATH`.* No
+    product change, and the family gets the measured saving. Every check
+    then also takes `python3`, `make` and `clang` from that directory.
+  - *Fewer processes only.* No change to how Git starts. The family keeps
+    the launcher's cost on each remaining call.
+- **Alternatives considered.**
+  - *Run the binary directly* (first, by the owner decided below). Measured
+    above and independent of the earlier stories. On its own it leaves the
+    median case near 350 ms under load.
+  - *Fewer processes per case* (chosen second). Build a checkout's history in
+    fewer calls, and answer several production reads from one call. The
+    saving is whatever the per-case profile shows. Each change is judged by
+    the process count.
+  - *One built checkout copied per case*, as a machine image is cloned for
+    each instance. The image is the materialized base history and the
+    instance is a case's checkout. Git stores absolute paths for worktrees
+    and the origin, so a copy fits only checkouts with neither. A candidate
+    for those cases, to be judged by the profile.
+  - *One long-lived `git cat-file --batch` process for reads*, as a
+    connection pool reuses one connection. It serves object reads only and
+    adds a process lifetime to the production server. Not pursued in this
+    story.
 - **Key examples.**
+  - On macOS a family run starts Git without the launcher. Its cases pass
+    with their assertions unchanged.
   - A Done branch capture with a real merge and a typed review read finishes
     within about 200 ms at low load.
   - At load 15 or more, the family passes several runs in a row at
     `--workers=2` with no timeout.
+  - A case whose topic is the review of an already Done session starts no
+    more Git processes than its real commits and its review reads need.
 - **Evaluation.** Use [`dough-test-optimization`](../../.claude/skills/dough-test-optimization/SKILL.md)
   and the [`done-capture-family-timeout-margin`](../TEST-OPTIMIZATION-CANDIDATES.md#done-capture-family-timeout-margin)
-  candidate. Compare per-case durations against the current family at the
-  same worker count and load, under
+  candidate. Count Git processes per case before and after with
+  `GIT_TRACE2_EVENT`. Compare per-case durations in interleaved runs of the
+  family before and after, at the same worker count, and record the load of
+  each, under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-  If 100–200 ms is not reachable, report the measured floor and the cost that
-  remains for each case. Explain why it cannot be removed without losing
-  protection, and give the margin the family reaches instead.
+  If 100–200 ms is not reachable, report the measured floor and the Git
+  processes that remain for each case. Explain why they cannot be removed
+  without losing protection, and give the margin the family reaches instead.
+- **Architecture.** Choosing the Git binary is a new responsibility under
+  either of the first two options. No Accepted ADR covers it. In the runners
+  it has two owners, one per runner, each resolving once per process. In the
+  test environment it has three entries to reach: `scripts/test-environment.bash`
+  for shell checks, and the Playwright and Vitest configurations of the
+  dashboard groups.
 
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
