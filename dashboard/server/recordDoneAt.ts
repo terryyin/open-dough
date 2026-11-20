@@ -6,9 +6,11 @@ import {
   type DoneTransitionOptions,
   doneTransition,
 } from "./doneTransition.ts";
-import type { runGit } from "./gitRunner.ts";
 import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
-import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
+import {
+  type BranchCapture,
+  withBranchResultAtDone,
+} from "./sessionBranchCapture.ts";
 
 // Sets one kept session's done time to `doneAt`, marking it done, or clears
 // it when `doneAt` is undefined, keeping the session like any unclosed one.
@@ -19,12 +21,12 @@ export async function setRecordDoneAt(
   session: SessionReference,
   doneAt: string | undefined,
   options: Omit<DoneTransitionOptions, "candidate"> & {
-    // The branch capture's ancestry read, between its workspace read and
-    // the record write.
-    readonly readAncestry?: typeof runGit;
+    // Reads the branch result before the record write; production's
+    // Git-only capture by default.
+    readonly capture?: BranchCapture;
   } = {},
 ): Promise<LaunchRecord | undefined> {
-  const { readAncestry, ...transition } = options;
+  const { capture, ...transition } = options;
   // A write that keeps the Done time it expects finishes that Done.
   const finishing = transition.expectedDoneAt === doneAt;
   const candidate =
@@ -42,7 +44,7 @@ export async function setRecordDoneAt(
         });
         return next === record || doneAt === undefined ? next : settle(next);
       }),
-    readAncestry,
+    capture,
   );
   if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
     return marked;

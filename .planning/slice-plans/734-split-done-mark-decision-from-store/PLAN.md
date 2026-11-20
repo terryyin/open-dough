@@ -141,7 +141,7 @@ the backend runner prints nothing for passing Playwright specs; set
 ### 2. The adapter takes its branch capture as a typed collaborator
 
 Type: Structure
-Status: planned
+Status: done
 
 Replace `readAncestry` with the capture collaborator. Rewrite `aHeldDone`
 over it. `ad-hoc-branch-result-supersession` ("a newer Done wins over a held
@@ -153,6 +153,16 @@ assertions as the adapter's race cases.
 adapter skip the candidate guard in a scratch edit fails the newer-Done case.
 `rg readAncestry dashboard` finds nothing. Enables slice 6's use of the
 Git-only capture.
+
+**Accepted.** `captureBranchResult` (type `BranchCapture`) in
+`sessionBranchCapture.ts`; `setRecordDoneAt` takes `capture`; `aHeldDone`
+wraps the real capture and holds before answering. The named race specs and
+the isolated-branch family passed (42/42), the candidate-guard break failed
+exactly the newer-Done case, and the trace-selected remaining family and
+retention specs passed (15 specs). Learning: four isolated-branch cases hit
+the 5 s default timeout when run beside typecheck and lint at load ~14 and
+passed alone; run tests alone, and the queued family optimization owns their
+margin.
 
 ### 3. Default main commit attribution decides over typed log entries
 

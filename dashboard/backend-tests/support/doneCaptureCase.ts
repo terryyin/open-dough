@@ -15,11 +15,11 @@ import {
 } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { runGit } from "../../server/gitRunner.ts";
 import {
   keptRecords,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 
@@ -217,7 +217,8 @@ export const inWorktree = (checkout: Checkout, workspace: string) => ({
 export const markDone = (record: LaunchRecord, at = minutesAgo(10)) =>
   setRecordDoneAt(source, record.session, at);
 
-// A Done whose capture waits in its ancestry read until released.
+// A Done whose branch capture, once read, waits until released before
+// answering its result.
 export function aHeldDone(record: LaunchRecord, at = minutesAgo(10)) {
   let release!: () => void;
   let reached!: () => void;
@@ -228,9 +229,11 @@ export function aHeldDone(record: LaunchRecord, at = minutesAgo(10)) {
     reached = resolve;
   });
   const marking = setRecordDoneAt(source, record.session, at, {
-    readAncestry: (args, call) => {
+    capture: async (candidate, doneAt) => {
+      const read = await captureBranchResult(candidate, doneAt);
       reached();
-      return held.then(() => runGit(args, call));
+      await held;
+      return read;
     },
   });
   return { reading, release, marking };
