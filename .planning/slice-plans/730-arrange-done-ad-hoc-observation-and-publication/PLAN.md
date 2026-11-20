@@ -177,7 +177,7 @@ wire refusal and accepted capture through the delegated adapter.
 ### 6. A Done session keeps its different delivered and working comparisons
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `review/ad-hoc-session-comparisons.spec.ts`. Keep the established
 isolated launch and its matching reporting attempt and context in the
@@ -260,6 +260,14 @@ deferred branch and session-commits cases.
   and `declaredBranch.ts` holds `aLaunchDeclaring`. Before recording, a Done
   declared branch reviews as `branch-result`; precedence is the stored
   prepared pair. Wide consumer runs pass at `--workers=2`.
+- Slice 6: `installedPublisher.ts` (`publishInstalled`, checked fetch
+  bridge to `handleLanding`) and `reportedIsolatedBranch.ts` arrange
+  installed publication; `capturedPublication.ts` holds the result schema
+  without Playwright. Vitest support must not import Playwright support.
+  Slice 7 owns the before-push reader; if it repeats the comparisons
+  spec's check, give it one domain name in `installedPublisher.ts`.
+  Canonical checkout paths repeat in three support modules; settle them
+  when `doneCaptureCase.ts` is split.
 
 ## Local gates
 
