@@ -1,111 +1,166 @@
-// Synthetic host-status figures in the Sessions sidebar title row — no real
-// host sampling or session launches.
-
+// Session and host title figures from typed inputs: unread disk or CPU, new
+// samples, unread sessions, and a failed host read converted to unavailable.
+import { createElement, type ReactElement } from "react";
+import { expect, onTestFinished, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { watchRecordReads } from "../../test-support/sessionStatePace.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+  cpuShown,
+  freeDiskShown,
+  readHostStatus,
+  type HostStatus,
+} from "../../src/hostStatus.ts";
 import {
-  expectFigure,
-  sessionsSidebarFigures,
-} from "../../test-support/sessionsSidebarFigures.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  activeSessionsWords,
+  attentionWords,
+} from "../../src/sessionCounts.ts";
+import { SessionsSidebarStatus } from "../../src/SessionsSidebarStatus.tsx";
+import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { observe } from "./sessions-sidebar-open-mount.ts";
 
-test.describe("the Sessions sidebar's title row status", () => {
-  test("an unread host figure says it is unavailable while the other figures still show", async ({
-    page,
-    frontendServices,
-  }) => {
-    await pausePageClockAt(page, new Date());
-    // One waiting session so active/waiting counts still render beside host figures.
-    frontendServices.answerMachine(
-      makeMe.aMachineAnswer
-        .observing(
-          makeMe.anObservedLaunch
-            .of(
-              makeMe.aLaunchRecord
-                .adHoc({ instruction: "Status story", title: "Status story" })
-                .inClaudeSession({
-                  sessionId: "status-session-7",
-                  shortId: "status7",
-                })
-                .please(),
-            )
-            .withSessionState(makeMe.aSessionState.loaded("waiting").please())
-            .please(),
-        )
+function statusReading(options: {
+  readonly sessions: readonly LaunchWithState[] | undefined;
+  readonly host: HostStatus | undefined;
+}): ReactElement {
+  return createElement(SessionsSidebarStatus, options);
+}
+
+function figures() {
+  return [
+    ...document.querySelectorAll<HTMLElement>(
+      ".sessions-sidebar-status-figure",
+    ),
+  ];
+}
+
+function figureNamed(words: string) {
+  return figures().find(
+    (figure) => figure.getAttribute("aria-label") === words,
+  );
+}
+
+function expectFigure(shown: string | number, words: string) {
+  const figure = figureNamed(words);
+  expect(figure, `figure ${words}`).toBeDefined();
+  expect(figure?.getAttribute("title")).toBe(words);
+  expect(figure?.textContent).toBe(String(shown));
+  expect(figure?.querySelector("svg")).not.toBeNull();
+  expect(figure?.querySelectorAll("button, a")).toHaveLength(0);
+}
+
+function expectHostFigure(host: HostStatus) {
+  const cpu = cpuShown(host.cpuPercent);
+  const disk = freeDiskShown(host.freeBytes);
+  expectFigure(cpu.shown, cpu.words);
+  expectFigure(disk.shown, disk.words);
+}
+
+function expectSessionFigures(active: number, waiting: number) {
+  expectFigure(active, activeSessionsWords(active));
+  expectFigure(waiting, attentionWords(waiting));
+}
+
+function waitingSession() {
+  return observe([
+    {
+      record: makeMe.aLaunchRecord
+        .adHoc({ instruction: "Status story", title: "Status story" })
+        .inClaudeSession({
+          sessionId: "status-session-7",
+          shortId: "status7",
+        })
         .please(),
-    );
-    frontendServices.answerHostStatus(
-      makeMe.aHostStatus.with({ cpuPercent: 24, freeBytes: null }).please(),
-    );
-    const { passOnePace } = await watchRecordReads(page);
-    await openFrontendTakenBacklog(page);
-    const sidebar = sessionsSidebarParts(page);
-    const { figures, active, waiting, cpu, disk } =
-      sessionsSidebarFigures(page);
-    await sidebar.button.click();
-    await expect(sidebar.entries).toHaveCount(1);
-    await test.step("free disk unread: it says so, invents no amount, and CPU and the counts still show", async () => {
-      await expect(figures).toHaveCount(4);
-      await expectFigure(disk, "—", "Free disk unavailable");
-      await expectFigure(cpu, "24%", "CPU 24%");
-      await expectFigure(active, 0, "0 active sessions");
-      await expectFigure(waiting, 1, "1 session needs attention");
-    });
-    await test.step("the next host read one check interval later changes both figures to its values", async () => {
-      frontendServices.answerHostStatus(
-        makeMe.aHostStatus
-          .with({ cpuPercent: 61.4, freeBytes: 1_234_000_000_000 })
-          .please(),
-      );
-      await passOnePace();
-      await expectFigure(cpu, "61%", "CPU 61%");
-      await expectFigure(disk, "1.2 TB", "1.2 TB free");
-    });
-    await test.step("CPU unread alone: it says so while free disk shows", async () => {
-      frontendServices.answerHostStatus(
-        makeMe.aHostStatus
-          .with({ cpuPercent: null, freeBytes: 110_000_000_000 })
-          .please(),
-      );
-      await passOnePace();
-      await expectFigure(cpu, "—", "CPU unavailable");
-      await expectFigure(disk, "110 GB", "110 GB free");
-    });
-    await test.step("the host status unanswered: both host figures say unavailable and the counts still show", async () => {
-      frontendServices.answerHostStatus(undefined);
-      await passOnePace();
-      await expectFigure(cpu, "—", "CPU unavailable");
-      await expectFigure(disk, "—", "Free disk unavailable");
-      await expectFigure(waiting, 1, "1 session needs attention");
-    });
+      state: makeMe.aSessionState.loaded("waiting").please(),
+    },
+  ]);
+}
+
+function hostStatus(fields: {
+  readonly cpuPercent: number | null;
+  readonly freeBytes: number | null;
+}): HostStatus {
+  return makeMe.aHostStatus.with(fields).please();
+}
+
+test("an unread free-disk figure says unavailable while CPU and the counts still show", async () => {
+  const sessions = waitingSession();
+  const host = hostStatus({ cpuPercent: 24, freeBytes: null });
+  await mountComponent(statusReading({ sessions, host }));
+  await expect.poll(() => figures().length).toBe(4);
+  expectHostFigure(host);
+  expectSessionFigures(0, 1);
+});
+
+test("newer host samples replace both host figures", async () => {
+  const sessions = waitingSession();
+  const mounted = await mountComponent(
+    statusReading({
+      sessions,
+      host: hostStatus({ cpuPercent: 24, freeBytes: null }),
+    }),
+  );
+  await expect.poll(() => figures().length).toBe(4);
+  const host = hostStatus({
+    cpuPercent: 61.4,
+    freeBytes: 1_234_000_000_000,
   });
+  mounted.rerender(statusReading({ sessions, host }));
+  const cpu = cpuShown(host.cpuPercent);
+  await expect.poll(() => figureNamed(cpu.words) !== undefined).toBe(true);
+  expectHostFigure(host);
+});
 
-  test("with the machine's sessions unread, the host figures still show from the host read", async ({
-    page,
-    frontendServices,
-  }) => {
-    await pausePageClockAt(page, new Date());
-    frontendServices.answerMachine(undefined);
-    frontendServices.answerHostStatus(
-      makeMe.aHostStatus
-        .with({ cpuPercent: 37, freeBytes: 52_000_000_000 })
-        .please(),
+test("an unread CPU figure says unavailable while free disk still shows", async () => {
+  const sessions = waitingSession();
+  const host = hostStatus({
+    cpuPercent: null,
+    freeBytes: 110_000_000_000,
+  });
+  await mountComponent(statusReading({ sessions, host }));
+  await expect.poll(() => figures().length).toBe(4);
+  expectHostFigure(host);
+  expectSessionFigures(0, 1);
+});
+
+test("both unread host figures say unavailable while session counts remain", async () => {
+  const sessions = waitingSession();
+  const host = hostStatus({ cpuPercent: null, freeBytes: null });
+  await mountComponent(statusReading({ sessions, host }));
+  await expect.poll(() => figures().length).toBe(4);
+  expectHostFigure(host);
+  expectSessionFigures(0, 1);
+});
+
+test("with the machine's sessions unread, the host figures still show; sessions can join later", async () => {
+  const host = hostStatus({
+    cpuPercent: 37,
+    freeBytes: 52_000_000_000,
+  });
+  const mounted = await mountComponent(
+    statusReading({ sessions: undefined, host }),
+  );
+  await expect.poll(() => figures().length).toBe(2);
+  expectHostFigure(host);
+  expect(figureNamed(activeSessionsWords(0))).toBeUndefined();
+  expect(figureNamed(attentionWords(0))).toBeUndefined();
+
+  mounted.rerender(statusReading({ sessions: waitingSession(), host }));
+  await expect.poll(() => figures().length).toBe(4);
+  expectSessionFigures(0, 1);
+  expectHostFigure(host);
+});
+
+test("a failed host response answers both figures unread", async () => {
+  const previous = globalThis.fetch;
+  onTestFinished(() => {
+    globalThis.fetch = previous;
+  });
+  globalThis.fetch = () =>
+    Promise.resolve(
+      new Response(JSON.stringify({ error: "Ask again." }), { status: 503 }),
     );
-    await openFrontendTakenBacklog(page);
-    const sidebar = sessionsSidebarParts(page);
-    const { figures, active, waiting, cpu, disk } =
-      sessionsSidebarFigures(page);
-    await sidebar.button.click();
-    await expectFigure(cpu, "37%", "CPU 37%");
-    await expectFigure(disk, "52 GB", "52 GB free");
-    await expect(active).toHaveCount(0);
-    await expect(waiting).toHaveCount(0);
-    await expect(figures).toHaveCount(2);
+  await expect(readHostStatus(new AbortController().signal)).resolves.toEqual({
+    cpuPercent: null,
+    freeBytes: null,
   });
 });

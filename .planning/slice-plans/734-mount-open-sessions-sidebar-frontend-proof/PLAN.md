@@ -166,7 +166,7 @@ must break the corresponding computed-style assertion.
 ### 5. Session and host figures remain independently readable
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the status cases to the real title figures with typed inputs for unread
 disk, unread CPU, new samples and unread sessions. Preserve conversion of an
@@ -179,6 +179,12 @@ unavailable and zero figures. Rerender with newer e.g. `61%` and `1.2 TB`
 and with hosts available before sessions. Check that a failed host response
 yields both unavailable figures while the session figures remain. Run the
 four moved families, the host-status E2E and a final engine listing.
+
+**Accepted.** Mounted `SessionsSidebarStatus` + failed-transport adapter case;
+E2E pace owner retained. Family 4 files / 7 Vitest Chromium tests. Focused
+comparison (AC, warm discarded, interleaved medians wall `real`): base
+**7.50s** vs candidate **3.79s** (−3.71s). Evidence:
+`open-dough/evidence/SEED-413-mount-open-sessions-sidebar-frontend-proof/slice-5-return-report.md`.
 
 ## Local gates
 
