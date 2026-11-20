@@ -40,7 +40,7 @@ import {
 } from "./startEligibility.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
-import { storyCardSessionsOf } from "./agentLaunch.ts";
+import { storyCardSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
 import { storyCardAssignmentsOf } from "./agentAssignments.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
@@ -51,6 +51,7 @@ export function StoryCard({
   priority,
   showsSliceProgress,
   launches,
+  doneSessions,
   offersStart,
   selected,
   onSelect,
@@ -65,6 +66,8 @@ export function StoryCard({
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
   launches: MachineSessions;
+  // This story's own Done sessions, oldest first (`./columnSessions.ts`).
+  doneSessions: readonly LaunchWithState[];
   // Backlog cards only: Taken work offers no launch.
   offersStart: boolean;
   // Whether this card is the page's selected story, which highlights it.
@@ -141,7 +144,7 @@ export function StoryCard({
         <StoryCardDoneSessions
           sourceId={sourceId}
           project={work.source.label}
-          identity={entry.identity}
+          sessions={doneSessions}
           launches={launches}
           storyCardAssignments={storyCardAssignmentsOf(entry)}
         />

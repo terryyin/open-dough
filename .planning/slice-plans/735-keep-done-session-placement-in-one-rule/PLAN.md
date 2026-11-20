@@ -2,6 +2,7 @@
 
 **Identity:** SEED-419#keep-done-session-placement-in-one-rule
 **Source:** [Keep Done session placement in one rule and its proof cohesive](../../seeds/SEED-419-correct-done-session-history-structure.md#keep-done-session-placement-in-one-rule)
+**Source review:** [source-only review](source-review.md)
 
 ## Provenance
 
@@ -99,7 +100,7 @@ their current runner.
 ### 1. One Board rule places every Done session
 
 Type: Structure
-Status: planned
+Status: done
 
 Move Done-session placement into `columnSessionsOf` and feed both homes from
 it, as Current decisions describe. Remove `heldByUnfinished`,
@@ -119,6 +120,24 @@ sessions keep their current placement. Delete the `newestFirst` case from
 `recently-done-follow-up-membership`, `recently-done-sessions-select-development`
 and E2E `agent-launch-story-card-done`, `recently-done-returned-sessions`,
 `agent-launch-done-listing`.
+
+**Accepted proof (slice 1).** `board-done-session-placement.spec.ts` (seven
+cases, one per placement result) and `story-card-done-disclosure.spec.ts`:
+`npm run test:dashboard:frontend -- board-done-session-placement story-card-done-disclosure`,
+9 passed. Retained frontend `recently-done-active-story-sessions`,
+`recently-done-story-sessions`, `recently-done-follow-up-membership`,
+`recently-done-sessions-select-development` (8 passed) and E2E
+`agent-launch-story-card-done`, `recently-done-returned-sessions`,
+`agent-launch-done-listing`, `launches/agent-launch-codex`,
+`responsive-session-start` (5 passed), plus typecheck and lint.
+
+**Learnings (slice 1).** The Board places over `launches.launched` and gates
+the column and Recently done readings on `launches.records`, so a card shows
+its Done history before the first sessions read answers, as it shows its open
+sessions. The browser-loadable `aLaunchRecord`, `aSessionState` and
+`anObservedLaunch` are now in `pageMakeMe.mjs` for slice 2. Retained
+Playwright frontend specs run only when named by path; their pass evidence is
+the `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` JSON.
 
 ### 2. The Done disclosure renders the sessions it is given
 

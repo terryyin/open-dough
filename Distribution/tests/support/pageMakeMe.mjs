@@ -7,8 +7,13 @@ import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { intentCiStatusMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
+import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import {
+  ObservedLaunchBuilder,
+  SessionStateBuilder,
+} from "./launchObservationTestData.mjs";
 
-/** @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & { readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder }} PageMakeMe */
+/** @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & { readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder, readonly aLaunchRecord: LaunchRecordBuilder, readonly aSessionState: SessionStateBuilder, readonly anObservedLaunch: ObservedLaunchBuilder }} PageMakeMe */
 
 /** @type {PageMakeMe} */
 export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
@@ -21,6 +26,25 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new TestOptimizationCandidatesRecordBuilder();
+    },
+  },
+  // launchMakeMe.mjs's aLaunchRecord extends this builder with Node-only steps.
+  aLaunchRecord: {
+    enumerable: true,
+    get() {
+      return new LaunchRecordBuilder();
+    },
+  },
+  aSessionState: {
+    enumerable: true,
+    get() {
+      return new SessionStateBuilder();
+    },
+  },
+  anObservedLaunch: {
+    enumerable: true,
+    get() {
+      return new ObservedLaunchBuilder();
     },
   },
 });
