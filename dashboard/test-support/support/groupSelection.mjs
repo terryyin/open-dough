@@ -1,27 +1,37 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { browserGroupSelection } from "./browserTestGroups.mjs";
 import { selectedFiles } from "./testFiles.mjs";
 
-// Transitional marker while a dashboard group holds both engines: a
-// `.mounted` frontend spec or a `.unit` backend spec runs on Vitest, and every
-// other spec on Playwright. The group command and the group's Playwright config
-// share this one predicate.
-const vitestMarker = /\.(?:mounted|unit)(?=\.(?:spec|test)\.[cm]?[jt]sx?$)/;
+const dashboard = fileURLToPath(new URL("../../", import.meta.url));
 
+// While a dashboard group holds both engines, a spec that imports Vitest runs
+// on Vitest and every other spec on Playwright. The group command, the
+// group's Playwright config and the backend Vitest config share this one
+// predicate. `file` is absolute or relative to `dashboard/`.
+const vitestImport = /^import\s[^;]*?\sfrom\s+["']vitest["'];?$/m;
+
+/** @param {string} file */
 export function isVitestFile(file) {
-  return vitestMarker.test(file);
+  return vitestImport.test(readFileSync(path.resolve(dashboard, file), "utf8"));
 }
+
+// A frontend spec moved to Vitest keeps its Playwright title in filters.
+const mountedMarker = /\.mounted(?=\.(?:spec|test)\.[cm]?[jt]sx?$)/;
 
 export function groupFiles(group, split) {
   const { directory } = group;
   return selectedFiles(directory, split, browserGroupSelection(group)).map(
-    (file) => ({
-      file: path.resolve(fileURLToPath(directory), file),
-      label: file,
-      logicalLabel: file.replace(vitestMarker, ""),
-      vitest: isVitestFile(file),
-    }),
+    (label) => {
+      const file = path.resolve(fileURLToPath(directory), label);
+      return {
+        file,
+        label,
+        logicalLabel: label.replace(mountedMarker, ""),
+        vitest: isVitestFile(file),
+      };
+    },
   );
 }
 
@@ -106,7 +116,7 @@ export function groupArguments(argv) {
 function fileMatches(entry, { pattern }) {
   return (
     pattern.test(entry.file) ||
-    (entry.vitest && pattern.test(entry.file.replace(vitestMarker, "")))
+    pattern.test(entry.file.replace(mountedMarker, ""))
   );
 }
 

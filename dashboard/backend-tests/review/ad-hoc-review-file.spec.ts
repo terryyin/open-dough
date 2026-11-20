@@ -1,8 +1,7 @@
 // The typed file diff and file text handlers in-process admit an ad hoc
 // session's file read by its captured reference, comparison and listed
 // rename, or by its kept run's pair, given the session's typed kept state: no
-// server, no machine stores. The wire answers these refusals with their
-// status (./ad-hoc-review-wire.spec.ts).
+// server, no machine stores. Each refusal carries its HTTP status.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";

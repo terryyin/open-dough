@@ -72,7 +72,7 @@ apply, and no Accepted ADR conflicts.
 - **Times against the case's clock.** A case states a launch about an hour
   ago, work after it and a Done no later than now. The base revision of the
   MakeMe repository is dated before the launch (`committer.date`).
-- **Group run (reuse).** The cases are `*.unit.spec.ts` specs in
+- **Group run (reuse).** The cases are Vitest specs in
   `dashboard/backend-tests/review/`, run by `scripts/test-backend.mjs` on
   Vitest in Node. This plan adds no runner code.
 - **File sizes.** `Distribution/tests/support/makeMe.mjs` is 245 lines and
@@ -277,7 +277,7 @@ lint` and `npm run typecheck:dashboard` pass.
 
 - Read the current handler input and MakeMe builder signatures before moving
   cases. The handler entry points stay the same across the contract correction.
-- The new cases are `*.unit.spec.ts` specs in
+- The new cases are Vitest specs in
   `dashboard/backend-tests/review/`, named for what Done keeps.
 - The checkout-work builder's exact step names and whether it extends the
   repository builder or stands beside it are the executor's choice within

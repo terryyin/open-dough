@@ -11,7 +11,7 @@ import { storyReview } from "../../server/storyReviewSnapshot.ts";
 
 // A path no test creates: kept records name it as gone.
 const gone = (name: string) =>
-  path.join(tmpdir(), `ad-hoc-review-unit-${process.pid}-${name}`);
+  path.join(tmpdir(), `ad-hoc-review-${process.pid}-${name}`);
 const review = (input: Parameters<typeof storyReview>[0]) =>
   storyReview(input, new AbortController().signal);
 

@@ -169,7 +169,7 @@ follow it.
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Scope: cases.**
   - Move the Done capture cases and two review-only cases to plain Node Vitest
-    in `*.unit.spec.ts` specs. The 2026-11-19 inventory is all of
+    specs. The 2026-11-19 inventory is all of
     `review/ad-hoc-session-commit-runs.spec.ts`,
     `ad-hoc-session-commit-rewrites.spec.ts`,
     `ad-hoc-session-commits-shared.spec.ts`,
@@ -347,9 +347,11 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
     with those inputs. Resolve request context and process-wide state in the
     adapter. Keep each domain shape on its MakeMe builder.
   - Give each behavior one owner. Move single-service cases to plain Node
-    Vitest through the handlers; keep one focused wire check where admission,
-    origin refusal, status or framing is the behavior; drop a case another
-    group already owns.
+    Vitest through the handlers. Downgrade a wire check to a unit case of
+    the adapter's request admission with typed request values. Upgrade it to
+    an `e2e/` journey only when a started server is essential. Drop a case
+    another group already owns. No case in this collection starts a server,
+    mounts a boundary or runs on Playwright.
   - State arrangement through MakeMe. Driving a launch to arrange a review
     costs 6–13 s per case in CI against about 1 s from kept records, so the
     handler seam alone leaves most of a launch-arranged family's time in
@@ -358,12 +360,12 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
     behavioral regression gap.
 - **Revisit the completed Story Notes pilot.** The
   [handler](../../dashboard/server/storyNotes.ts) chooses its file through the
-  machine home, so the [unit test suite](../../dashboard/backend-tests/review/story-notes.unit.spec.ts)
+  machine home, so the [unit test suite](../../dashboard/backend-tests/review/story-notes.spec.ts)
   changes `process.env.HOME` for every case. Let the production caller bind the
   default notes store and the suite supply its own temporary notes file or
   file-backed store explicitly. Run the existing persistence, isolation and
   unreadable-file cases against real files with the process home untouched.
-  Keep the wire check for project admission, request parsing and HTTP responses.
+  Its request admission is already a unit case (`story-notes-request.spec.ts`).
 - **Order.** Highest CI seconds first among the families whose seam the
   earlier ones have shown, as a railway converts its busiest lines first
   while both gauges run. The count of specs still on `@playwright/test` is
@@ -404,8 +406,9 @@ kept the [Done capture family](#renovate-remaining-dashboard-backend-unit-tests)
     runners. Those cases retire with the runner they prove; the rest change
     engine.
   - About 68 specs need a separate server process (a signal, a restart, a
-    preload, a held connection). They stay wire or process checks and run on
-    Node Vitest.
+    preload, a held connection). Each is downgraded to a unit case of the
+    behavior beneath it or, when the process itself is essential, upgraded
+    to an `e2e/` journey. None stays in this collection.
   - The 18 specs that open a page belong to `dashboard/frontend-tests/` or
     `e2e/`.
   - 43 of the 445 files in `dashboard/server/` import `node:http` types; the

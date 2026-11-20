@@ -1,7 +1,6 @@
 // The typed review handler in-process refuses a session that is not a
 // standalone ad hoc session of the project, given its typed kept state: no
-// server, no machine stores. The wire answers these refusals with their
-// status (./ad-hoc-review-wire.spec.ts).
+// server, no machine stores. Each refusal carries its HTTP status.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";

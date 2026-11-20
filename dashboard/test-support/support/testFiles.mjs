@@ -36,6 +36,11 @@ function specTree(directory, label) {
 // same relative path). A root of `.` is the directory itself. Each runner
 // names its own roots (../../frontend.playwright.config.ts,
 // ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts).
+/**
+ * @param {string} directory
+ * @param {string[]} roots
+ * @returns {string[]}
+ */
 export function dashboardSpecFiles(directory, roots) {
   return roots
     .flatMap((root) =>

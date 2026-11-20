@@ -6,7 +6,7 @@
 // into the checkout is no session commit, and the kept comparison stays
 // readable from the saved repository alone after trunk advances and the
 // commit leaves every branch. A kept landing answers as
-// ./ad-hoc-review-landed.unit.spec.ts states.
+// ./ad-hoc-review-landed.spec.ts states.
 
 import path from "node:path";
 import { readFileSync } from "node:fs";

@@ -87,7 +87,7 @@ Excluded:
    are steps on `SessionReviewReadBuilder`. Some callers need only the
    records, and they take `.please().kept.records` from a read:
    - `keepSessionWithKeptRun` in `dashboard/test-support/support/adHocReview.ts`;
-   - the "other session" in `ad-hoc-review-file.unit.spec.ts`.
+   - the "other session" in `ad-hoc-review-file.spec.ts`.
 
 ## Preserved promises and constraints
 
@@ -150,10 +150,10 @@ Vitest 5.1.0, load about 3). The scratch files were removed after each run.
 | Consuming operation | Observed result and limit |
 | --- | --- |
 | An already-aborted signal ends a `runGit` call at once (slice 3) | Ran `execFile("git", ["cat-file", "-t", "HEAD"], { signal: AbortSignal.abort() })` three times. Each call rejected with `AbortError` / `ABORT_ERR` in 2–3 ms. `retainedPairFiles` maps such a rejection to `{ missing: "objects" }`. |
-| A unit case observes that admission ignores the signal today (slice 3) | Ran a scratch `*.unit.spec.ts` through `npx vitest run --root . --config dashboard/backend.vitest.config.mts`. It used the existing kept-run arrangement (`makeMe.aSessionReviewRead.ofAdHocSessionWithKeptRun(…).readingFile(…)`) and called `reviewedFileDiff` and `reviewedFileText` with `AbortSignal.abort()`. Both resolved `{ kind: "unavailable", explanation: "The file's diff/text could not be read: The operation was aborted" }`. Admission passed, so this case fails before the fix. After the fix, a rejection with the abort is expected; that result is inferred from the code and is the slice's own red-to-green step. |
+| A unit case observes that admission ignores the signal today (slice 3) | Ran a scratch Vitest spec through `npx vitest run --root . --config dashboard/backend.vitest.config.mts`. It used the existing kept-run arrangement (`makeMe.aSessionReviewRead.ofAdHocSessionWithKeptRun(…).readingFile(…)`) and called `reviewedFileDiff` and `reviewedFileText` with `AbortSignal.abort()`. Both resolved `{ kind: "unavailable", explanation: "The file's diff/text could not be read: The operation was aborted" }`. Admission passed, so this case fails before the fix. After the fix, a rejection with the abort is expected; that result is inferred from the code and is the slice's own red-to-green step. |
 | Admission deadline expiry keeps its refusal (slice 3) | On 2026-11-20 at `ab0feff62`, a Node 24.21.0 probe made the requested `AbortSignal.timeout(30_000)` expire immediately with the caller still active. Over a real MakeMe repository, `reviewedFileText` for a kept pair refused with 409 for the kept commits, and `reviewedFileDiff` for a retained landing refused with 409 for missing or unreadable comparison objects. |
 | Which modules import the moved names (slice 2) | `reviewInput` is imported by `storyReviewSnapshot.ts` and `storyReviewFileResponse.ts`. `ReviewInput` is imported by `storyReviewAdmission.ts` and `storyReviewRecordAdmission.ts`. `KeptSessionState` is imported by `storyReviewSessionFileAdmission.ts`. `AdmittedStoryReviewRange` is imported by `storyReviewRange.ts`. |
-| Who builds the two scenarios (slice 4) | `ofLandedAdHocSession`: `ad-hoc-review-landed`, `-unavailable` and `-file.unit.spec.ts`. `ofAdHocSessionWithKeptRun`: `ad-hoc-review-file.unit.spec.ts` and `keepSessionWithKeptRun`, whose only importer is `review/ad-hoc-session-commits-file-text.spec.ts`. |
+| Who builds the two scenarios (slice 4) | `ofLandedAdHocSession`: `ad-hoc-review-landed`, `-kept-unavailable` and `-file.spec.ts`. `ofAdHocSessionWithKeptRun`: `ad-hoc-review-file.spec.ts` and `keepSessionWithKeptRun`, whose only importer is `review/ad-hoc-session-commits-file-text.spec.ts`. |
 
 ## Ordered slices
 
@@ -175,8 +175,8 @@ Proof:
   `completion` on a session file input, fails the typecheck. Remove the
   scratch case afterwards.
 - `npm run test:dashboard:backend -- review/` passes unchanged. This covers
-  the `ad-hoc-review-*.unit.spec.ts` cases, `ad-hoc-review-wire.spec.ts` and
-  the story `story-review-*` specs.
+  the `ad-hoc-review-{landed,kept-unavailable,subject,file,request}.spec.ts`
+  cases and the story `story-review-*` specs.
 
 ### 2. Adapter and handler responsibilities sit in separate modules
 
@@ -216,7 +216,7 @@ answers its existing refusal. Follow-up file admission keeps its own
 30-second deadlines.
 
 Proof:
-- New cases in `review/ad-hoc-review-file.unit.spec.ts` fail at the current
+- New cases in `review/ad-hoc-review-file.spec.ts` fail at the current
   revision, which answers `unavailable` as observed. They pass after the
   change.
 - The cases also fail under a scratch edit that gives admission its own
@@ -239,7 +239,7 @@ Structure: Make the landed ad hoc session and the session with a kept run
 named steps that `makeMe.aLaunchRecord` reaches. Then make these changes:
 - `SessionReviewReadBuilder` composes the two steps.
 - `keepSessionWithKeptRun` takes its records from `makeMe.aLaunchRecord`.
-- The "other session" in `ad-hoc-review-file.unit.spec.ts` also takes its
+- The "other session" in `ad-hoc-review-file.spec.ts` also takes its
   records from `makeMe.aLaunchRecord`.
 
 `launchTestData.mjs` stays within the 250-line check. If it would not, a
@@ -261,7 +261,7 @@ Proof:
 | 2. Request cancellation reaches admission and existing 30-second deadlines retain their refusals | 3 |
 | 3. Store reads only in adapter modules; names and lookup; README | 2 |
 | 4. Launch-record scenarios on `LaunchRecordBuilder` | 4 |
-| Wire unchanged for non-aborted reads | 1–4 (`review/` backend folder, wire check) |
+| Wire unchanged for non-aborted reads | 1–4 (`review/` backend folder, `ad-hoc-review-request.spec.ts`) |
 
 ## Current decisions
 

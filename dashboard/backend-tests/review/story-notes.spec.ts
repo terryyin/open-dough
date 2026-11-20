@@ -42,7 +42,7 @@ const realHome = process.env.HOME;
 const notesFile = () => storyNotesFile(home);
 
 beforeEach(() => {
-  home = mkdtempSync(path.join(tmpdir(), "story-notes-unit-"));
+  home = mkdtempSync(path.join(tmpdir(), "story-notes-"));
   process.env.HOME = home;
 });
 afterEach(() => {

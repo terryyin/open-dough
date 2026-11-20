@@ -2,8 +2,10 @@
 
 Focused dashboard server and test-runtime tests live here, beside [Dashboard Test Support](../test-support/)
 and `../frontend-tests/`. They prove server behavior, its variants and
-failures at stable public boundaries: HTTP, WebSocket, stored-file, command
-and module boundaries, without a browser workflow. Use the shared
+failures in this process through typed handlers and their request
+admission, without a started server or a browser workflow. Older cases
+still enter at HTTP, WebSocket, stored-file and command boundaries until
+their family is renovated. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 
 Their product collaborators are the boundary under test, real Git origins,
@@ -17,16 +19,23 @@ and a presentation case in `../frontend-tests/`.
 
 ## Which entry a case uses
 
-Call the typed handler in this process on plain Node Vitest, in a
-`*.unit.spec.ts` spec. Give the case a temporary machine home and store its
+Call the typed handler in this process on plain Node Vitest, in a spec that
+imports its `test` from `vitest`. Give the case a temporary machine home and store its
 data with a MakeMe stored document, such as
-`makeMe.aStoredStoryNotesDocument`. One wire check through a started server
-proves the handler is admitted at its route.
+`makeMe.aStoredStoryNotesDocument`. The adapter's request admission is a
+unit case too: it takes the request as typed values (method, URL, body
+reader) and any process-wide lookup as a function, and the case passes plain
+values. A new case never starts a server, mounts a boundary or runs on
+Playwright. A behavior that truly needs a started server or a browser is an
+end-to-end journey in [`../../e2e/`](../../e2e/README.md); the boundary's
+shared origin, method, caching and status framing stay with their own
+existing cases.
 
-Story Notes is the reference family: `review/story-notes.unit.spec.ts` calls
+Story Notes is the reference family: `review/story-notes.spec.ts` calls
 `storyNotes(project, change?)` from `dashboard/server/storyNotes.ts`, and
-`review/story-notes-admission.spec.ts` is its wire check. Dashboard Test
-Support is frozen: new cases add only MakeMe builders to `../test-support/`.
+`review/story-notes-request.spec.ts` calls its request admission,
+`admittedStoryNotesRequest`. Dashboard Test Support is frozen: new cases add
+only MakeMe builders to `../test-support/`.
 
 The ad hoc review family is the second reference, and adds three rules.
 A handler takes the state it reads as typed input, and only its adapter
@@ -37,11 +46,13 @@ and `reviewedFileDiff` and `reviewedFileText`
 records. A case constructs exactly that state and its repositories through
 MakeMe, here `makeMe.aSessionReviewRead`. A case calls another handler in
 its arrangement only when that step is the behavior under test. The
-`review/ad-hoc-review-*.unit.spec.ts` specs call these handlers, and
-`review/ad-hoc-review-wire.spec.ts` is their wire check.
+`review/ad-hoc-review-{landed,kept-unavailable,subject,file}.spec.ts` specs
+call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
+launch boundary's routes for them with a URL.
 
-Older cases prove the boundary the server mounts, as below, until their
-folders move to this entry.
+Older cases still prove the boundary the server mounts on Playwright, as
+below. They are not a pattern for new cases: each moves to a unit case or, if
+essential, to an end-to-end journey when its family is renovated.
 
 Prove the boundary the server mounts, in this process. Call that boundary's
 exported install, mounted on an HTTP server the test owns
@@ -93,8 +104,8 @@ boundary is a page the harness opens rather than a product workflow.
 
 ## Running
 
-`npm run test:dashboard:backend` runs only this group. Specs named
-`*.unit.spec.ts` run on Vitest in Node (`../backend.vitest.config.mts`); the
+`npm run test:dashboard:backend` runs only this group. Specs that import
+`vitest` run on Vitest in Node (`../backend.vitest.config.mts`); the
 rest run on Playwright from its own configuration
 (`../backend.playwright.config.ts`). Playwright's global setup
 (`../test-support/support/backendGlobalSetup.ts`) runs the fixture executables once,
