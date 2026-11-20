@@ -133,7 +133,7 @@ newly discovered exact pair.
 ### 3. A failed verification can retry while another delivery settles
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `review/ad-hoc-manual-landing-observation-retry.spec.ts`. Supply
 two Done records and two successive real merges. Fail the typed
@@ -239,6 +239,16 @@ deferred branch and session-commits cases.
   responsibility. A by-hand `--no-ff` merge pushed to trunk now repeats in
   three specs; extract it as a `makeMe.aCheckoutWork` step if later moves
   repeat it again.
+- Slice 3: `sessionLandingObservations(inspect)` takes the optional
+  inspection; `makeMe.aCheckoutWork.mergingTipByHand` is the by-hand merge
+  step, and several `withWorkspace` declarations give several Done
+  worktrees. Locally the Done-capture Vitest cases take 1.3–2.1 s at load
+  4–7 but reach the 5 s default at load 12 or more; hosted CI ran the
+  family in 0.2–0.8 s on `77d845a`. The older cases of this family show the
+  same exposure. Deliveries rest on targeted proof at recorded load plus
+  CI. A case-local allowance or a runner change (the refactor pass
+  suspected the `/usr/bin/git` launcher; a load-4.5 check of 50 calls
+  showed no difference) awaits Terry's decision.
 
 ## Local gates
 

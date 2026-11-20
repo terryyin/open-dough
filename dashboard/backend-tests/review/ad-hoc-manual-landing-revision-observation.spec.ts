@@ -2,7 +2,6 @@
 // hand once: repeated and later observations, also after a restart, keep the
 // same receipt and landing pins until the launch is deleted.
 import { expect, test } from "vitest";
-import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
@@ -32,9 +31,12 @@ test("ordinary revision checks retain one delivery across repeated observations"
     makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
   );
   await markDone(record);
-  await git(integration, "merge", "--quiet", "--no-ff", "--no-edit", tip);
-  await git(integration, "push", "--quiet", "origin", "main");
-  const merge = (await git(integration, "rev-parse", "HEAD")).stdout.trim();
+  const { merge } = await work(
+    checkout,
+    makeMe.aCheckoutWork
+      .mergingTipByHand("merge", { tip, at: minutesAgo(5) })
+      .pushingToTrunk("pushed", { at: minutesAgo(5) }),
+  );
 
   await sessionLandingObservations().observe(project, merge);
   const captured = await review(record);

@@ -10,8 +10,9 @@
 /** @typedef {DatedStep & { readonly message: string }} DatedReword */
 /** @typedef {DatedStep & { file: string, incoming: string, resolution: string }} DatedCherryPick */
 /** @typedef {DatedStep & { target: string, mode: "fixup" | "squash", file: string, content: string }} DatedAutosquash */
+/** @typedef {DatedStep & { readonly tip: string }} DatedTipMerge */
 /** @typedef {"fast-forward" | "merge" | "rebase" | "rebase-onto"} TrunkWork */
-/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" | "edit" } & DatedFileChanges | { kind: "branch-commit" } & DatedSideCommit | { kind: "reword" } & DatedReword | { kind: "push" } & DatedStep | { kind: "cherry-pick" } & DatedCherryPick | { kind: "autosquash" } & DatedAutosquash} WorkStep */
+/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" | "edit" } & DatedFileChanges | { kind: "branch-commit" } & DatedSideCommit | { kind: "reword" } & DatedReword | { kind: "push" } & DatedStep | { kind: "cherry-pick" } & DatedCherryPick | { kind: "autosquash" } & DatedAutosquash | { kind: "merge-tip" } & DatedTipMerge} WorkStep */
 /** @template {string} Name @typedef {WorkStep & { name: Name }} NamedStep */
 /** @typedef {DatedStep & Partial<Pick<DatedFileChanges, "files">>} FileChangesFacts */
 /** @typedef {FileChangesFacts & Partial<Pick<DatedCommit, "message">>} CommitFacts */
@@ -129,6 +130,16 @@ export class CheckoutWorkBuilder {
    */
   autosquashing(name, rewrite) {
     return this.#with(name, { ...rewrite, kind: "autosquash" });
+  }
+
+  /**
+   * Merges a branch tip by hand with a merge commit and answers that merge.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedTipMerge} merge
+   */
+  mergingTipByHand(name, merge) {
+    return this.#with(name, { ...merge, kind: "merge-tip" });
   }
 
   /**

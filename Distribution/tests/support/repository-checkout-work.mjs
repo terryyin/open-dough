@@ -211,6 +211,16 @@ export async function performCheckoutWork(checkout, work) {
       case "autosquash":
         commits.push([step.name, await autosquashAt(integration, step)]);
         break;
+      case "merge-tip":
+        await gitAt(integration, step.at, [
+          "merge",
+          "--quiet",
+          "--no-ff",
+          "--no-edit",
+          step.tip,
+        ]);
+        commits.push([step.name, await revParse(integration, "HEAD")]);
+        break;
       case "push":
         await gitAt(integration, step.at, [
           "push",

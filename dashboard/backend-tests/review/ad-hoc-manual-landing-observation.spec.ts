@@ -144,9 +144,12 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("newly-done", { at: minutesAgo(30) }),
   );
-  await git(integration, "merge", "--quiet", "--no-ff", "--no-edit", tip);
-  await git(integration, "push", "--quiet", "origin", "main");
-  const merge = await head(integration);
+  const { merge } = await work(
+    checkout,
+    makeMe.aCheckoutWork
+      .mergingTipByHand("merge", { tip, at: minutesAgo(5) })
+      .pushingToTrunk("pushed", { at: minutesAgo(5) }),
+  );
   const observations = sessionLandingObservations();
   await observations.observe(project, merge);
 

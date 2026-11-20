@@ -35,7 +35,9 @@ type ProjectObservation = {
 // The process-lifetime owner of observed deliveries: it holds each project's
 // checked witnesses and in-flight pass for the revision it last observed.
 // A fresh owner starts as a restarted Dashboard would.
-export function sessionLandingObservations() {
+export function sessionLandingObservations(
+  inspect: typeof inspectManualLanding = inspectManualLanding,
+) {
   const observations = new Map<string, ProjectObservation>();
   return {
     observe(source: ObservedSource, revision: string): Promise<void> {
@@ -49,7 +51,7 @@ export function sessionLandingObservations() {
       const settle = () => {
         current.pass = undefined;
       };
-      current.pass = captureObservedLandings(source, current).then(
+      current.pass = captureObservedLandings(source, current, inspect).then(
         settle,
         settle,
       );
@@ -73,6 +75,7 @@ export function observeProjectRevision(
 async function captureObservedLandings(
   source: ObservedSource,
   { revision, checked }: ProjectObservation,
+  inspect: typeof inspectManualLanding,
 ) {
   const heads = new Map<string, string | undefined>();
   for (const record of await keptRecords(source.id)) {
@@ -116,7 +119,7 @@ async function captureObservedLandings(
     try {
       // The Board revision triggers the read. The saved launch's remote
       // target and committed tip establish its delivered pair.
-      const pair = await inspectManualLanding(
+      const pair = await inspect(
         result.repository,
         result.committedTip,
         trunk,
