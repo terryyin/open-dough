@@ -14,7 +14,7 @@ import {
   mountPageIntentReading,
   projectsPublishedWithCandidates,
   type CandidatesPublication,
-} from "./intent-revision-fixtures.ts";
+} from "./intent-candidates-publication.ts";
 
 // A project's candidates publication and its published work.
 type PublishedProject = CandidatesPublication & {

@@ -22,7 +22,7 @@ import { intentFileReading } from "./intent-file-reading-page.ts";
 import {
   mountPageIntentReading,
   publishedWithCandidates,
-} from "./intent-revision-fixtures.ts";
+} from "./intent-candidates-publication.ts";
 
 const revision = "97".repeat(20);
 const work: PublishedWork = makeMe.aPublishedWork.ofPygardon

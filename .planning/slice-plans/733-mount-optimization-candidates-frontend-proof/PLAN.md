@@ -37,8 +37,9 @@ the [later frontend families](../../seeds/SEED-413-renovate-dashboard-unit-tests
 ## Current decisions
 
 - Reuse [`ProjectIntentReading`](../../../dashboard/src/ProjectIntentReading.tsx)
-  and the [revision fixture](../../../dashboard/frontend-tests/intent/intent-revision-fixtures.ts)
-  wherever mode, locations, tree or Purpose participate. Allow a fixture's
+  and the [revision fixture](../../../dashboard/frontend-tests/intent/intent-revision-fixtures.ts),
+  with its [candidates publication](../../../dashboard/frontend-tests/intent/intent-candidates-publication.ts)
+  sibling, wherever mode, locations, tree or Purpose participate. Allow a fixture's
   published project and initial mode to be supplied when a case needs them,
   preserving existing callers. Render `IntentCandidatesRecord` with the real
   read-recovery provider for record-only cases. Use the existing adjacent
@@ -122,7 +123,7 @@ project must fail the visible project or record expectation.
 ### 4. Opening a candidate reveals the file and returning keeps the entry
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the full path, nested folder, multi-link entry, evidence link, and
 return behavior from `intent-test-optimization-candidates-open`. Use the

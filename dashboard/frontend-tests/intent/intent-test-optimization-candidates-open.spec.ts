@@ -7,10 +7,10 @@ import {
   fileSource,
   sourceFile,
 } from "../../test-support/intentCodeBrowsePage.ts";
-// Project Intent opens recorded test locations from a candidate entry on the
-// Optimization Candidates tab into the CI status tab's Purpose selection,
-// and choosing Optimization Candidates again returns the keyboard to that
-// entry without rereading (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
+// Project Intent's Optimization Candidates entries whose recorded paths
+// cannot simply open: an ambiguous name lists its full paths, a moved path
+// opens nothing, a path outside configured locations is explained, and prose
+// naming no path leaves no gap (SEED-192 examples 3, 4 and 6).
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { parts } from "../../test-support/dashboardPage.ts";
@@ -32,7 +32,7 @@ import {
   pygardon,
 } from "../../test-support/intentCodeBrowseFixtures.ts";
 
-test("Intent opens a recorded location into the Intent tab's Purpose, marks the tree, and returns to the entry without rereading", async ({
+test("Intent lists an ambiguous bare name's full paths and opens nothing for a moved path", async ({
   page,
   frontendServices,
 }) => {
@@ -43,70 +43,8 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
   const { intent } = parts(page);
   await parts(page).intentChoice.click();
   await chooseOptimizationCandidates(intent);
-
-  const record = candidatesRecord(intent);
   await expectCandidatesRevision(intent, openDough.revision);
-  const intentTab = intentModeTab(intent, "CI status");
   const candidatesTab = intentModeTab(intent, "Optimization Candidates");
-
-  await test.step("Ex 1: open full path from agent-launch-poles; tree and Purpose agree; return keeps entry", async () => {
-    const poles = record.getByRole("article", { name: "agent-launch-poles" });
-    // Wait until the first settled candidates read is recorded; capturing
-    // while still "0" races the open/return assertion on CI.
-    await expect(record).toHaveAttribute("data-candidates-reads", /^[1-9]\d*$/);
-    const readsBefore = await record.getAttribute("data-candidates-reads");
-    await sourceFile(poles, openDoughSpecPaths.polesSecond).click();
-
-    await expect(
-      fileSource(intent, openDoughSpecPaths.polesSecond),
-    ).toContainText('test("browses"');
-    await expect(
-      sourceFile(intent, openDoughSpecPaths.polesSecond),
-    ).toHaveAttribute("aria-pressed", "true");
-    await expect(intentTab).toHaveAttribute("aria-selected", "true");
-    await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
-    await expect(record).toBeHidden();
-
-    await chooseOptimizationCandidates(intent);
-    const returned = candidatesRecord(intent);
-    await expect(
-      returned.getByRole("article", { name: "agent-launch-poles" }),
-    ).toBeFocused();
-    await expect(returned).toHaveAttribute(
-      "data-candidates-reads",
-      readsBefore ?? "",
-    );
-  });
-
-  await test.step("Ex 2: long-integrated-journeys links four files; others remain after opening one", async () => {
-    await chooseOptimizationCandidates(intent);
-    const family = candidatesRecord(intent).getByRole("article", {
-      name: "long-integrated-journeys",
-    });
-    for (const path of [
-      openDoughSpecPaths.attention,
-      openDoughSpecPaths.watcher,
-      openDoughSpecPaths.watcherUpdates,
-      openDoughSpecPaths.watcherFailures,
-    ]) {
-      await expect(sourceFile(family, path)).toBeVisible();
-    }
-    await sourceFile(family, openDoughSpecPaths.watcher).click();
-    await expect(fileSource(intent, openDoughSpecPaths.watcher)).toContainText(
-      'test("browses"',
-    );
-    await chooseOptimizationCandidates(intent);
-    const after = candidatesRecord(intent).getByRole("article", {
-      name: "long-integrated-journeys",
-    });
-    for (const path of [
-      openDoughSpecPaths.attention,
-      openDoughSpecPaths.watcherUpdates,
-      openDoughSpecPaths.watcherFailures,
-    ]) {
-      await expect(sourceFile(after, path)).toBeVisible();
-    }
-  });
 
   await test.step("Ex 3: ambiguous bare name lists two full paths; neither opens alone", async () => {
     const ambiguous = candidatesRecord(intent).getByRole("article", {
@@ -126,23 +64,6 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     ).toBeVisible();
   });
 
-  await test.step("Ex 8: a file opened from the record inside a folder shows selected, its folders opened in the collapsed tree", async () => {
-    await chooseOptimizationCandidates(intent);
-    const entry = candidatesRecord(intent).getByRole("article", {
-      name: "story-review-completed-journey-landed-runs-tail",
-    });
-    await sourceFile(entry, openDoughSpecPaths.storyReviewBoundary).click();
-    await expect(
-      fileSource(intent, openDoughSpecPaths.storyReviewBoundary),
-    ).toBeVisible();
-    const row = sourceFile(intent, openDoughSpecPaths.storyReviewBoundary);
-    await expect(row).toBeVisible();
-    await expect(row).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      intent.getByRole("button", { name: "Collapse boundary" }),
-    ).toHaveAttribute("aria-expanded", "true");
-  });
-
   await test.step("Ex 6: moved path is not published; opens nothing", async () => {
     await chooseOptimizationCandidates(intent);
     const moved = candidatesRecord(intent).getByRole("article", {
@@ -153,16 +74,6 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
       0,
     );
     await expect(candidatesTab).toHaveAttribute("aria-selected", "true");
-  });
-
-  await test.step("Evidence Markdown link to a configured Intent file opens in Intent", async () => {
-    const poles = candidatesRecord(intent).getByRole("article", {
-      name: "agent-launch-poles",
-    });
-    await poles.getByRole("button", { name: /second-server journey/i }).click();
-    await expect(
-      fileSource(intent, openDoughSpecPaths.polesSecond),
-    ).toBeVisible();
   });
 });
 

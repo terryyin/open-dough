@@ -1,7 +1,7 @@
 // Intent's Optimization Candidates record as the reader operates it: the
 // reader chooses its view or leaves it for CI status, the record names the revision it was recorded
 // at, says while it is being read, shows no failure, and one recorded entry
-// opens its source file in the reading (./intent-file-reading-page.ts).
+// links and opens its source files in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
@@ -24,8 +24,12 @@ export function intentCandidates() {
   });
   const tab = intentViewTab("Optimization Candidates");
   const entry = (name: string) => record.getByRole("article", { name });
+  const sourceLink = (name: string, path: string) =>
+    entry(name).getByRole("button", { name: path, exact: true });
   const candidates = {
     record,
+    entry,
+    sourceLink,
     async choose() {
       await userEvent.click(tab);
       return candidates.isChosen();
@@ -70,10 +74,7 @@ export function intentCandidates() {
       return candidates;
     },
     async openSource(name: string, path: string) {
-      const source = entry(name).getByRole("button", {
-        name: path,
-        exact: true,
-      });
+      const source = sourceLink(name, path);
       await expect.element(source).toBeVisible();
       await userEvent.click(source);
       return intentFileReading(path);
