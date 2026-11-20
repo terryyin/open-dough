@@ -23,7 +23,7 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  doneSessionsOnCard,
+  shownDoneSessionEntriesOf,
   storyCardSessionName,
   storyCardSessions,
   expectMembership,
@@ -120,7 +120,7 @@ test.describe("marking a session done from its terminal", () => {
     await expectSelected(story, true);
 
     await expect(listed).toHaveCount(0);
-    const entry = await doneSessionsOnCard(story);
+    const entry = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     // Claude Code keeps the conversation, so the entry still opens it.
@@ -129,7 +129,7 @@ test.describe("marking a session done from its terminal", () => {
 
     await page.reload();
     await settled();
-    const retained = await doneSessionsOnCard(story);
+    const retained = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(retained)).toHaveText("Done");
     await expect(retained).toContainText(`Named ${doneName}`);
     await expect(listed).toHaveCount(0);

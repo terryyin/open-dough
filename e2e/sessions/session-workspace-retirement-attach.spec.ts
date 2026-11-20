@@ -15,7 +15,7 @@ import {
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   storyCardSessions,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTerminalControl,
@@ -81,7 +81,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const entry =
       doneAt === undefined
         ? storyCardSessions(card(notRefinedStory))
-        : await doneSessionsOnUnfinishedCard(
+        : await shownDoneSessionEntriesOf(
             page,
             notRefinedStory,
             native.threadId,

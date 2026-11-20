@@ -10,7 +10,7 @@ import {
   storyCardAttentionOf,
   storyCardSessions,
   storyCardUnreadReportsOf,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
@@ -217,7 +217,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
   await expect(storyCardSessions(cardA)).toHaveCount(0);
-  const doneA = await doneSessionsOnUnfinishedCard(page, titleA);
+  const doneA = await shownDoneSessionEntriesOf(page, titleA);
   await expect(sessionStateOf(doneA)).toHaveText("Done");
   await expect(sessionUnreadReportOf(doneA)).toHaveCount(0);
   await expect(doneA).toContainText(`Named ${doneNameA}`);

@@ -1,8 +1,8 @@
 // What Recently done lists for the project shown. It combines published
-// stories by completion time and saved Done sessions by launch time; listed
+// stories by completion time and the saved Done sessions the Board's
+// placement leaves to it (`./columnSessions.ts`) by launch time; listed
 // cards nest their own closed sessions and closed story follow-ups
-// (`./recentlyDoneListing.ts`), after unfinished Backlog/Taken cards take
-// those stories' own Done sessions, and unknown or failed published details
+// (`./recentlyDoneListing.ts`), and unknown or failed published details
 // leave their standalone access intact. The done catalog places every done
 // story before its record is read, so the combined list, its count, and where
 // each session belongs are known at once. Only the first ten entries show
@@ -90,8 +90,6 @@ export function useRecentlyDone({
   records,
   noneKept,
   sessionsSettled,
-  // Backlog and Taken identities; their own Done sessions live on those cards.
-  unfinishedIdentities,
   // A selected Done story this list must still place, even outside the
   // Board's default recent window (retained ad hoc association). An
   // explicit follow-up source reveal may add another via the page range.
@@ -105,7 +103,6 @@ export function useRecentlyDone({
   // Whether a read of the machine's sessions asked after the latest change
   // of the project list has ended, answered or not.
   readonly sessionsSettled: boolean;
-  readonly unfinishedIdentities: readonly string[];
   readonly includeIdentity?: string | undefined;
 }) {
   const range = usePageRange();
@@ -134,12 +131,7 @@ export function useRecentlyDone({
               !recent.some((each) => each.identity === record.identity),
           ),
         ];
-  const listed = newestFirst(
-    included,
-    records ?? [],
-    sourceId,
-    unfinishedIdentities,
-  );
+  const listed = newestFirst(included, records ?? [], sourceId);
   // The entry holding the keyboard stays shown wherever it now stands.
   const held = range.heldIn(sourceId);
   const heldAt =

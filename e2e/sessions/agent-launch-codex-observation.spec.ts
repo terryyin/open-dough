@@ -13,7 +13,7 @@ import {
   storyCardSessions,
   parts,
   sessionStateOf,
-  doneSessionsOnCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
@@ -191,7 +191,7 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
     );
     await expect(
       sessionStateOf(
-        entry(await doneSessionsOnCard(card(notRefinedStory)), "done"),
+        entry(await shownDoneSessionEntriesOf(page, notRefinedStory), "done"),
       ),
     ).toHaveText("Done");
     await expect(

@@ -8,10 +8,8 @@ import { rmSync } from "node:fs";
 import { test, expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
-  doneSessionsOnCard,
-  doneSessionsOnUnfinishedCard,
   sessionProblemOf,
-  unfinishedStoryCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
@@ -63,19 +61,26 @@ test("a Done-history entry's Mark as done stays where a settled page shows it", 
       ),
     [],
   );
-  const card = unfinishedStoryCard(page, notRefinedStory);
   let settled: () => Promise<void>;
   let entry: Locator | undefined;
   try {
     ({ settled } = await openStoryColumnsJourney(page, journey));
     await expect.poll(details.held).toBeGreaterThan(0);
-    entry = await doneSessionsOnCard(card, record.session.sessionId);
+    entry = await shownDoneSessionEntriesOf(
+      page,
+      notRefinedStory,
+      record.session.sessionId,
+    );
     await sessionActions(entry);
   } finally {
     details.release();
   }
   await settled();
-  entry = await doneSessionsOnCard(card, record.session.sessionId);
+  entry = await shownDoneSessionEntriesOf(
+    page,
+    notRefinedStory,
+    record.session.sessionId,
+  );
   await sessionActions(entry);
   const control = markAsDone(entry);
   await control.scrollIntoViewIfNeeded();
@@ -117,7 +122,7 @@ test.describe("Done history renames a retired-workspace Claude session", () => {
       const doneName = `done-${record.session.name}`;
       const { settled } = await openStoryColumnsJourney(page, journey);
       await settled();
-      const doneEntry = await doneSessionsOnUnfinishedCard(
+      const doneEntry = await shownDoneSessionEntriesOf(
         page,
         notRefinedStory,
         record.session.sessionId,

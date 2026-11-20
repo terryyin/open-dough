@@ -17,7 +17,7 @@ import {
   sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
-  doneSessionsOnUnfinishedCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
@@ -111,7 +111,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   expect(doneAt).toBeDefined();
   await reloadUntilRead(page);
   await settled();
-  const doneEntry = await doneSessionsOnUnfinishedCard(
+  const doneEntry = await shownDoneSessionEntriesOf(
     page,
     notRefinedStory,
     record.session.sessionId,
@@ -160,7 +160,7 @@ for (const context of ["preparation", "start"] as const) {
     });
     const { settled } = await openStoryColumnsJourney(page, journey);
     await settled();
-    const entry = await doneSessionsOnUnfinishedCard(
+    const entry = await shownDoneSessionEntriesOf(
       page,
       notRefinedStory,
       record.session.sessionId,

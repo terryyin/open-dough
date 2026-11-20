@@ -34,13 +34,14 @@ import { storyCardMarks } from "./storyCardFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StoryCardLaunches } from "./StoryCardLaunches.tsx";
 import { StoryCardDoneSessions } from "./StoryCardDoneSessions.tsx";
+import { SessionFollowUp } from "./FollowUp.tsx";
 import {
   dependencyStartReason,
   startEligibilityOf,
 } from "./startEligibility.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
-import { storyCardSessionsOf } from "./agentLaunch.ts";
+import { storyCardSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
 import { storyCardAssignmentsOf } from "./agentAssignments.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
@@ -51,6 +52,7 @@ export function StoryCard({
   priority,
   showsSliceProgress,
   launches,
+  doneSessions,
   offersStart,
   selected,
   onSelect,
@@ -65,6 +67,8 @@ export function StoryCard({
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
   launches: MachineSessions;
+  // This story's own Done sessions, oldest first (`./columnSessions.ts`).
+  doneSessions: readonly LaunchWithState[];
   // Backlog cards only: Taken work offers no launch.
   offersStart: boolean;
   // Whether this card is the page's selected story, which highlights it.
@@ -139,11 +143,16 @@ export function StoryCard({
           statusId={statusId}
         />
         <StoryCardDoneSessions
-          sourceId={sourceId}
-          project={work.source.label}
-          identity={entry.identity}
-          launches={launches}
+          sessions={doneSessions}
           storyCardAssignments={storyCardAssignmentsOf(entry)}
+          followUpOf={(record) => (
+            <SessionFollowUp
+              record={record}
+              project={work.source.label}
+              sourceId={sourceId}
+              launches={launches}
+            />
+          )}
         />
       </StartupFrame>
       <div

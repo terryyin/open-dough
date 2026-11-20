@@ -21,7 +21,7 @@ import {
   expectMembership,
   parts,
   sessionNamedBy,
-  doneSessionsOnCard,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
@@ -88,7 +88,7 @@ test.describe("retained launches in their current column homes", () => {
       for (const [index, [title, workflow]] of launches.entries()) {
         const closed = title === readyStory && workflow === "Refinement";
         const entry = closed
-          ? await doneSessionsOnCard(card(title))
+          ? await shownDoneSessionEntriesOf(page, title)
           : storyCardSessionOf(card(title), workflow);
         await expect(entry).toHaveAccessibleName(
           storyCardSessionName(workflow),

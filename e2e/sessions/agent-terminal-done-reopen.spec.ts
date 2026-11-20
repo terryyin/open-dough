@@ -17,8 +17,8 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  doneSessionsOnCard,
-  storyCardDoneSessions,
+  doneSessionEntriesOf,
+  shownDoneSessionEntriesOf,
   storyCardSessions,
   expectMembership,
   sessionNamedBy,
@@ -60,7 +60,7 @@ test.describe("reopening a session marked done from its card's Done history", ()
     const story = card(readyStory);
     const panel = terminalPanel(page);
     const listed = storyCardSessions(story);
-    const doneOnCard = storyCardDoneSessions(story);
+    const doneOnCard = doneSessionEntriesOf(page, readyStory);
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -79,7 +79,7 @@ test.describe("reopening a session marked done from its card's Done history", ()
     await page.reload();
     await settled();
     await expect(listed).toHaveCount(0);
-    const entry = await doneSessionsOnCard(story);
+    const entry = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(entry).toContainText(`Named ${doneName}`);
@@ -121,7 +121,7 @@ test.describe("reopening a session marked done from its card's Done history", ()
     idleBetweenSteps(dashboard, session);
     await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
-    const markedAgain = await doneSessionsOnCard(story);
+    const markedAgain = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(markedAgain)).toHaveText("Done");
     await expect(markedAgain).toContainText(`Named ${doneName}`);
     await expect(markedAgain).not.toContainText("rename failed");
