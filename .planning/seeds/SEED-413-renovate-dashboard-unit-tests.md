@@ -82,13 +82,15 @@ and deleted `test-support` surface together under
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-First of three stories from Terry's 2026-11-20 review of the Done capture
-family's import lists. Terry accepted the analysis and the recommended order
-below. The other two stories are
-[branch entry](#split-branch-entry-proposal-from-store) and
+First of five stories from Terry’s 2026-11-20 reviews of the Done capture
+family’s import lists. Terry accepted the first analysis and its order; the
+addendum’s two stories were added at Terry’s request. The other four stories are
+[branch entry](#split-branch-entry-proposal-from-store),
+[delivery observation](#observe-done-deliveries-over-typed-records),
+[landing reports](#decide-landings-over-typed-attempts-and-records) and
 [launch flavors as MakeMe steps](#fold-done-capture-launches-into-makeme).
 
-- **Analysis (shared by the three stories, at `25f76e98d`).**
+- **Analysis (shared by the five stories, at `25f76e98d`).**
   - *Symptom.* 21 specs under `dashboard/backend-tests/review/` import from
     `support/doneCaptureCase.ts`. Most import the same verbs: `minutesAgo`
     (19 specs, 140 calls), `aCheckout` (19, 32), `work` (19, 67), `review`
@@ -142,6 +144,45 @@ below. The other two stories are
     review directly. A few cases keep each action as their topic. Order:
     this story (Done), then branch entry and the pin-ref query, then the
     launch flavors as MakeMe steps.
+- **Addendum: delivery observation and publication (at `4fd00aed1`).**
+  Terry's 2026-11-20 review of the closed
+  SEED-413#arrange-done-ad-hoc-observation-and-publication found the same
+  problem one layer further on. That story shortened the family's support
+  overall, but added six backend-specific modules: `doneCaptureReview.ts`
+  (26 specs), `adHocBranchRefs.ts` (12), `doneBranchObservation.ts` (4),
+  `declaredPublisherBranch.ts` (3), `installedPublisher.ts` (3) and
+  `reportedIsolatedBranch.ts` (1). Its specs import 5–9 support names from
+  3–5 support modules beside the production store modules. Much of that
+  support translates between typed cases and the machine stores, so the
+  specs end up proving their own arrangement.
+  - *Shared with these stories.* Every observation and publication case
+    still runs `keep` and `markDone` in a stubbed HOME, and `review` reads
+    `keptRecords(source)` back. `twoDoneBranchesMergedByHand`,
+    `aDeclaredPublisherBranch` and `aReportedIsolatedBranch` are more preset
+    MakeMe chains outside MakeMe. `landingPins` copies the
+    `refs/open-dough/one-shot` layout as `sessionBranchPins` copies the
+    session-branch one. The scopes below now name these.
+  - *New write seams.* Two more production entries take a source string
+    and read and write the ambient stores themselves.
+    `captureObservedLandings` (`server/observedSessionLandings.ts`) reads
+    `keptRecords`, decides each delivery and saves with
+    `changeSessionRecord`. `handleLanding`
+    (`server/launchLandingReporting.ts`) reads and replaces both the attempt
+    store and the record store, and `branchLandingContext` writes reporting
+    files under `machineDashboardPath`. That is why
+    `aReportedIsolatedBranch` calls `replaceAttempts` and
+    `writeLandingContext`, and why the lifecycle spec ages records through
+    `changeLaunchStore(home, …)`.
+  - *Test code that re-implements production.* `installedPublisher.ts`
+    stubs global `fetch` with its own receiver. That receiver repeats the
+    landing route table, method, origin and body admission that
+    `submitLanding` owns. The publication cases therefore depend on a test
+    copy of the wire admission.
+  - *Decisions.* Apply the same split to the two new seams in
+    [delivery observation](#observe-done-deliveries-over-typed-records) and
+    [landing reports](#decide-landings-over-typed-attempts-and-records),
+    after branch entry and before the launch flavors fold into MakeMe, so
+    the fold covers the final builders.
 - **Goal.** Dashboard maintainers can prove Done capture and the review of
   Done sessions without a machine home. Marking Done is a typed decision on
   the record plus a Git-only branch-result capture. The store write and pin
@@ -159,6 +200,11 @@ below. The other two stories are
   specs that prove the capture, the transition rules (expected, automatic,
   undo) or the adapter's persistence. Cover `madeSince` and run grouping
   with typed-log unit cases, and keep one real-Git case for the reflog read.
+  Include the delivery observation and publication cases, where Done is a
+  precondition: `twoDoneBranchesMergedByHand`, `ad-hoc-prepared-landing-done`,
+  `ad-hoc-manual-landing-revision-observation` and the declared publication
+  specs. Make `doneCaptureReview.ts` take composed records rather than read
+  `keptRecords(source)`.
 - **Key examples.**
   - A review case of a Done isolated branch builds its record with a MakeMe
     branch result and real Git commits, then reads the typed review, with no
@@ -195,7 +241,9 @@ the analysis and decisions are recorded there.
   `PublishedSource` input to what it reads. Expose the session's pin refs as
   a production query beside `sessionBranchRefPrefix` in
   `server/launchRecordPins.ts`, and retire `sessionBranchPins` and its
-  hard-coded host. Add a MakeMe step for a record with a branch entry, and
+  hard-coded host. Do the same for a landing's one-shot pins, retiring
+  `landingPins`, so `adHocBranchRefs.ts` keeps only `retireAdHocBranch`.
+  Move `aDeclaredPublisherBranch` onto the composed entry. Add a MakeMe step for a record with a branch entry, and
   move cases where entry is a precondition off `identifyBranch`. Retire
   `declaredBranchCase.ts` when its last caller moves. Replace the
   `installRecordRemovalDispatch` setup with an explicit collaborator where
@@ -210,6 +258,84 @@ the analysis and decisions are recorded there.
   imports from `dashboard/backend-tests/`.
 - **Effort hypothesis.** M, one plan.
 
+<a id="observe-done-deliveries-over-typed-records"></a>
+
+### Observe Done deliveries over typed kept records
+
+**Identity:** SEED-413#observe-done-deliveries-over-typed-records
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Third of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+the analysis is in its addendum on delivery observation and publication.
+
+- **Goal.** Dashboard maintainers can prove which Done branches a trunk
+  revision delivers from composed Done records and real Git, without a
+  machine home. Only the store adapter saves the delivery and keeps or
+  releases its pins.
+- **Scope.** Split `captureObservedLandings` into a typed decision over the
+  kept records, the observed revision, the authorized trunk head and the
+  inspection that returns each delivery to keep, and the adapter that
+  applies each one to the live record and releases it on loss. Keep the
+  process-lifetime owner and its witnesses on the typed decision. Prove
+  delivery selection, skipped witnesses and retry with composed records.
+  Keep the deletion and expiry races as adapter cases over an explicit
+  record-store collaborator, instead of a stubbed HOME,
+  `changeLaunchStore` and `installRecordRemovalDispatch`. Move the
+  `ad-hoc-manual-landing-observation*` and
+  `ad-hoc-manual-landing-revision-observation` specs accordingly.
+- **Key examples.**
+  - Two Done branches merged by hand are each delivered by the published
+    head, decided from composed records with no kept store.
+  - A record deleted or expired while its inspection waits is not
+    recreated and leaves no delivery pins, proved once at the adapter.
+- **Evaluation.** As in the first story, also counting store-module imports
+  and `doneBranchObservation.ts` imports in the observation specs.
+- **Effort hypothesis.** S–M, one plan.
+
+<a id="decide-landings-over-typed-attempts-and-records"></a>
+
+### Decide reported landings over typed attempts and records
+
+**Identity:** SEED-413#decide-landings-over-typed-attempts-and-records
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Fourth of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+the analysis is in its addendum on delivery observation and publication.
+
+- **Goal.** Dashboard maintainers can prove landing preparation and
+  recording from composed attempts and records. The installed publisher's
+  cases reach the dashboard through production's own request admission, so
+  no test code repeats it.
+- **Scope.** Split `handleLanding` into a typed decision over the
+  submission, origin, operation, kept attempts and kept records that returns
+  the receipt or refusal and the next attempts and records, and the adapter
+  that persists them. Let `branchLandingContext` take its reporting
+  directory and record from its caller instead of `machineDashboardPath`
+  and `changeSessionRecord`. Expose the landing request admission (route,
+  method, origin, body → operation and submission, or refusal) as a typed
+  production function that `submitLanding` uses, and make the publisher
+  bridge in `installedPublisher.ts` delegate to it. Add MakeMe steps for
+  a reporting attempt and record with a landing context, and retire
+  `aReportedIsolatedBranch`'s `replaceAttempts` and `writeLandingContext`
+  calls. Keep a few installed-publisher cases whose topic is the
+  publisher's retained comparison and retry. Move the rest to the typed
+  decision.
+- **Key examples.**
+  - A record of a deleted reporting session refuses a landing, decided from
+    composed values.
+  - A prepared pair survives Done and is recorded at landing, without the
+    attempt store under HOME.
+  - A wrong origin or route is refused by the production admission in
+    the publisher's bridge.
+- **Evaluation.** As in the first story, also counting
+  `installedPublisher.ts`, `declaredPublisherBranch.ts` and
+  `reportedIsolatedBranch.ts` lines and imports.
+- **Effort hypothesis.** M, one plan.
+
 <a id="fold-done-capture-launches-into-makeme"></a>
 
 ### Build Done capture cases from MakeMe launch steps
@@ -219,7 +345,7 @@ the analysis and decisions are recorded there.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-Third of the [Done capture import-list stories](#split-done-mark-decision-from-store);
+Fifth of the [Done capture import-list stories](#split-done-mark-decision-from-store);
 the analysis and decisions are recorded there.
 
 - **Goal.** Dashboard maintainers read a Done capture case as one built
@@ -227,7 +353,12 @@ the analysis and decisions are recorded there.
   not a list of support verbs.
 - **Scope.** Turn `anEstablishedSession`, `aDefaultLaunch`,
   `anIsolatedLaunch`, `aDeclaringLaunch` and `historyBeforeTheCase` into
-  domain-named steps of the MakeMe launch and repository builders. Give the
+  domain-named steps of the MakeMe launch and repository builders. Do the
+  same for the delivery and publication presets, `twoDoneBranchesMergedByHand`,
+  `aDeclaredPublisherBranch` and `aReportedIsolatedBranch`, and the
+  `observedTrunk` constant, so `doneBranchObservation.ts`,
+  `declaredPublisherBranch.ts` and `reportedIsolatedBranch.ts` keep only
+  what MakeMe cannot hold, or are retired. Give the
   case one object that carries its checkout, record and timeline, so calls
   no longer thread `checkout` and `record` separately and launch and Done
   times are visible in the case. Shrink `doneCaptureCase.ts`,
@@ -249,7 +380,7 @@ the analysis and decisions are recorded there.
 
 **Identity:** SEED-413#optimize-done-capture-family-cases
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#optimize-done-capture-family-cases","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Typed Done transition, Git branch-result capture, and review cases composed from Done state.","rationale":"Profiling the old review setup would measure machine-store writes and Done replay that this story removes.","condition":"The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.","state":"waiting"},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal, production pin-ref query, and review cases composed from branch-entry state.","rationale":"The optimization needs to measure the branch-entry setup that remains after repeated store-backed entry actions are removed from review cases.","condition":"Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.","state":"waiting"},{"supplier":{"identity":"SEED-413#fold-done-capture-launches-into-makeme","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme"},"implementation":"Done capture launch cases built through domain-named MakeMe steps.","rationale":"The launch arrangement changes the setup that the optimization measures, so the remaining costs need to be established with the delivered builders.","condition":"The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-413#optimize-done-capture-family-cases","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Typed Done transition, Git branch-result capture, and review cases composed from Done state.","rationale":"Profiling the old review setup would measure machine-store writes and Done replay that this story removes.","condition":"The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.","state":"waiting"},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal, production pin-ref query, and review cases composed from branch-entry state.","rationale":"The optimization needs to measure the branch-entry setup that remains after repeated store-backed entry actions are removed from review cases.","condition":"Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.","state":"waiting"},{"supplier":{"identity":"SEED-413#fold-done-capture-launches-into-makeme","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme"},"implementation":"Done capture launch cases built through domain-named MakeMe steps.","rationale":"The launch arrangement changes the setup that the optimization measures, so the remaining costs need to be established with the delivered builders.","condition":"The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.","state":"waiting"},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Typed delivery-observation decision over composed Done records, with the store adapter alone saving deliveries and pins.","rationale":"Profiling the observation cases before the split would measure machine-store reads and writes in a stubbed HOME that this story removes.","condition":"Delivery observation decides from typed kept records separately from its store adapter, and observation cases other than the adapter's races use composed records.","state":"waiting"},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Typed landing decision over composed attempts and records, production landing request admission, and the publisher bridge delegating to it.","rationale":"Profiling the publication cases before the split would measure attempt and record store writes and the test-side receiver that this story removes.","condition":"Landing preparation and recording decide from typed attempts and records separately from their store adapter, the landing request admission is a production function, and only the publisher-topic cases run the installed publisher.","state":"waiting"}]}
 ```
 
 Follows the closed SEED-413#arrange-done-ad-hoc-observation-and-publication
@@ -257,7 +388,7 @@ Follows the closed SEED-413#arrange-done-ad-hoc-observation-and-publication
 `0f1fe2cdd:.planning/slice-plans/730-arrange-done-ad-hoc-observation-and-publication/PLAN.md`),
 which made its ten cases plain Vitest, about twice as fast as their
 Playwright versions.
-Queued after the three [Done capture import-list stories](#split-done-mark-decision-from-store),
+Queued after the five [Done capture import-list stories](#split-done-mark-decision-from-store),
 which move most of the family off the machine store and the replayed
 actions. Profile what remains after them.
 
@@ -270,8 +401,9 @@ actions. Profile what remains after them.
   `dashboard/backend-tests/review/` and `dashboard/backend-tests/launches/`,
   and its shared support, `doneCaptureCase.ts`, `doneCaptureReview.ts`,
   `doneBranchObservation.ts`, `declaredBranchCase.ts`,
-  `declaredPublisherBranch.ts`, `installedPublisher.ts` and
-  `adHocBranchRefs.ts`. Profile where checkout creation, checkout work,
+  `declaredPublisherBranch.ts`, `installedPublisher.ts`,
+  `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
+  import-list stories leave them. Profile where checkout creation, checkout work,
   production Done capture, observation and review reads spend each case's
   time, then cut the cost while keeping real Git, the production handlers and
   every assertion. Shared fixtures, cheaper Git setup and production seams
