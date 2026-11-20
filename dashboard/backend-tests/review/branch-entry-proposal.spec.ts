@@ -5,11 +5,11 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { addAdHocWorktree } from "../../test-support/support/adHocBranchRefs.ts";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { aDeclaringLaunch } from "../support/declaredBranchCase.ts";
 import {
-  aCheckoutWithCanonicalWorktree,
+  aCheckout,
+  historyBeforeTheCase,
   inWorktree,
   minutesAgo,
   work,
@@ -18,10 +18,14 @@ import {
 const trunkRef = "refs/heads/main";
 const branch = "draft";
 
+const aDraft = () =>
+  historyBeforeTheCase().withWorkspace(branch, { from: "base" });
+
 // An open launch that committed on main before its draft worktree held a
 // commit and an uncommitted edit of its own.
-async function anOpenDraft() {
-  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
+async function anOpenDraft(history = aDraft()) {
+  const checkout = await aCheckout({ history, withOrigin: true });
+  const workspace = checkout.execution ?? "";
   const record = aDeclaringLaunch(checkout, { sessionId: "first" }).please();
   const { onMain } = await work(
     checkout,
@@ -63,12 +67,10 @@ test("an open launch proposes its draft's working tree, Default main tip and tru
 });
 
 test("a proposal refuses a foreign clone, a wrong branch and a second place", async () => {
-  const { checkout, workspace, record } = await anOpenDraft();
-  const other = addAdHocWorktree(
-    checkout.integration,
-    path.join(checkout.fixture, "other"),
-    "other",
+  const { checkout, workspace, record } = await anOpenDraft(
+    aDraft().withWorkspace("other", { from: "base" }),
   );
+  const other = path.join(checkout.integration, ".worktrees", "other");
   const foreign = path.join(checkout.fixture, "foreign");
   await git(checkout.integration, "clone", "--quiet", "--local", ".", foreign);
   await git(foreign, "switch", "--quiet", "-c", branch);

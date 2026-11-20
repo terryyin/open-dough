@@ -3,10 +3,10 @@
 // same receipt and landing pins until the launch is deleted.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
-import { landingPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   anIsolatedBranch,
   inWorktree,
@@ -53,10 +53,11 @@ test("ordinary revision checks retain one delivery across repeated observations"
     }),
   ).toEqual({ kind: "text", baseline: null, tree: "draft work\n" });
   const saved = (await keptSession(source, record.session))?.landing;
-  const pins = landingPins(integration);
+  const pinned = `refs/open-dough/one-shot/${captured.landing.reference}/${captured.landing.delivery}`;
+  const pins = await heldLandingPins(integration, captured.landing);
   expect(pins).toEqual([
-    `refs/open-dough/one-shot/${captured.landing.reference}/${captured.landing.delivery}/base`,
-    `refs/open-dough/one-shot/${captured.landing.reference}/${captured.landing.delivery}/revision`,
+    { ref: `${pinned}/base`, objectId: checkout.base },
+    { ref: `${pinned}/revision`, objectId: merge },
   ]);
 
   const observations = sessionLandingObservations();
@@ -70,9 +71,9 @@ test("ordinary revision checks retain one delivery across repeated observations"
   await observations.observe(observedTrunk, advance);
   expect(await review(record)).toEqual(captured);
   expect((await keptSession(source, record.session))?.landing).toEqual(saved);
-  expect(landingPins(integration)).toEqual(pins);
+  expect(await heldLandingPins(integration)).toEqual(pins);
 
   await deleteRecord(source, record.session);
   expect(await sessionBranchPins(integration, record.session)).toEqual([]);
-  expect(landingPins(integration)).toEqual([]);
+  expect(await heldLandingPins(integration)).toEqual([]);
 });

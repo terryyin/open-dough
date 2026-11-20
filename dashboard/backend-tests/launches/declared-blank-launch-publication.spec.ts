@@ -4,11 +4,9 @@
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { deleteRecord } from "../../server/launchRecordStore.ts";
-import {
-  landingPins,
-  retireAdHocBranch,
-} from "../../test-support/support/adHocBranchRefs.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaredPublisherBranch,
   contextReference,
@@ -71,27 +69,21 @@ test("a blank Default main launch keeps its declared landing until record deleti
   await markDone(record);
   expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect((await keptRecordOf(session))?.request.reporting).toBeUndefined();
-  expect(await review(record)).toMatchObject({
+  const reviewed = await review(record);
+  expect(reviewed).toMatchObject({
     kind: "landed",
     baseline: base,
     tree: candidate,
     landing: { reference },
     files: [{ kind: "added", path: "blank-landing.txt" }],
   });
-  const pins = landingPins(checkout.integration);
-  expect(pins.length).toBeGreaterThan(0);
-  expect(
-    pins.every((pin) =>
-      pin.startsWith(`refs/open-dough/one-shot/${reference}/`),
-    ),
-  ).toBe(true);
-  const pinned = await Promise.all(
-    pins.map(async (pin) =>
-      (await git(checkout.integration, "rev-parse", pin)).stdout.trim(),
-    ),
-  );
-  expect(pinned).toContain(candidate);
+  if (reviewed.kind !== "landed") throw new Error("Missing the delivery.");
+  const pinned = `refs/open-dough/one-shot/${reference}/${reviewed.landing.delivery}`;
+  expect(await heldLandingPins(checkout.integration)).toEqual([
+    { ref: `${pinned}/base`, objectId: base },
+    { ref: `${pinned}/revision`, objectId: candidate },
+  ]);
 
   expect(await deleteRecord(source, record.session)).toBe(true);
-  expect(landingPins(checkout.integration)).toEqual([]);
+  expect(await heldLandingPins(checkout.integration)).toEqual([]);
 });

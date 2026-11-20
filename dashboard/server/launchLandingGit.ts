@@ -8,9 +8,11 @@ const git = (repository: string, args: readonly string[]) =>
     maxBuffer: defaultGitOutputLimit,
     signal: AbortSignal.timeout(30_000),
   });
+const oneShotRefPrefix = "refs/open-dough/one-shot/";
 const landingRefPrefix = (reference: string) =>
-  `refs/open-dough/one-shot/${reference}/`;
-const landingDeliveryRefPrefix = ({ reference, delivery }: LaunchLanding) =>
+  `${oneShotRefPrefix}${reference}/`;
+type LandingDelivery = Pick<LaunchLanding, "reference" | "delivery">;
+const landingDeliveryRefPrefix = ({ reference, delivery }: LandingDelivery) =>
   `${landingRefPrefix(reference)}${delivery}/`;
 
 // Recorded landing ancestry from already retained local Git objects, across
@@ -180,6 +182,20 @@ export async function removePins(
   for (const { ref } of await heldPins(repository, prefix))
     await git(repository, ["update-ref", "-d", ref]);
 }
+// The landing pins `repository` holds, ordered by Git ref name: the whole
+// one-shot namespace, one reporting reference's pins, or one delivery's pair.
+export const heldLandingPins = (
+  repository: string,
+  scope?: { readonly reference: string; readonly delivery?: string },
+): Promise<HeldPin[]> =>
+  heldPins(
+    repository,
+    scope === undefined
+      ? oneShotRefPrefix
+      : scope.delivery === undefined
+        ? landingRefPrefix(scope.reference)
+        : landingDeliveryRefPrefix({ ...scope, delivery: scope.delivery }),
+  );
 export const pinLanding = (landing: LaunchLanding): Promise<void> =>
   pinPair(landing.repository, landingDeliveryRefPrefix(landing), landing);
 

@@ -17,7 +17,6 @@ import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
-import { sessionBranchPinnedObjects } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   anIsolatedLaunch,
@@ -138,11 +137,8 @@ for (const [reason, remove] of Object.entries(removals)) {
       files: [{ path: "latest.txt" }, { path: "prior.txt" }],
     });
     expect(
-      await sessionBranchPinnedObjects(
-        checkout.integration,
-        topic.record.session,
-      ),
-    ).toContain(latest);
+      await sessionBranchPins(checkout.integration, topic.record.session),
+    ).toContainEqual(expect.objectContaining({ objectId: latest }));
     expect(
       await sessionBranchPins(checkout.integration, replacement.session),
     ).toEqual([]);

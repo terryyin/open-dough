@@ -3,9 +3,9 @@
 // with only its pins, and deletion leaves none.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { deleteRecord } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { sessionBranchPinnedObjects } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   aHeldDone,
@@ -41,8 +41,7 @@ async function anIsolatedDraft() {
         makeMe.aCheckoutWork.committing(name, { at: minutesAgo(minutes) }),
       )
     )[name];
-  const pins = () =>
-    sessionBranchPinnedObjects(checkout.integration, record.session);
+  const pins = () => sessionBranchPins(checkout.integration, record.session);
   return { baseline: checkout.base, record, commit, pins };
 }
 
@@ -87,7 +86,10 @@ test("a newer Done wins over a held stale capture with only its pins", async () 
     kind: "branch-result",
     tree: latest,
   });
-  expect(await pins()).toEqual([baseline, latest]);
+  expect(await pins()).toMatchObject([
+    { objectId: baseline },
+    { objectId: latest },
+  ]);
 });
 
 test("deleting a record while its Done capture is reading leaves no pins", async () => {

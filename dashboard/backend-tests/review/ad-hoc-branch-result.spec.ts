@@ -6,6 +6,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   changeSessionRecord,
   deleteRecord,
@@ -16,10 +17,7 @@ import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
-import {
-  retireAdHocBranch,
-  sessionBranchPinnedObjects,
-} from "../../test-support/support/adHocBranchRefs.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   anIsolatedLaunch,
@@ -156,11 +154,15 @@ for (const [reason, remove] of Object.entries(removals)) {
     await markDone(leaving.record);
     await markDone(staying.record);
     const pins = (launch: typeof leaving) =>
-      sessionBranchPinnedObjects(checkout.integration, launch.record.session);
-    expect(await pins(leaving)).toContain(first);
+      sessionBranchPins(checkout.integration, launch.record.session);
+    expect(await pins(leaving)).toContainEqual(
+      expect.objectContaining({ objectId: first }),
+    );
     expect(await pins(leaving)).toHaveLength(3);
     const stayingPins = await pins(staying);
-    expect(stayingPins).toContain(second);
+    expect(stayingPins).toContainEqual(
+      expect.objectContaining({ objectId: second }),
+    );
 
     await remove(leaving.record);
 

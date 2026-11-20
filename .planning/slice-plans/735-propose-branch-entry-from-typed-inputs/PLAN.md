@@ -141,14 +141,14 @@ the earlier result, and the unrelated owner's refs after deletion or expiry.
 
 **Learning.** `heldPins` in `launchLandingGit.ts` is the one `for-each-ref`
 read; `sessionBranchPins` in `launchRecordPins.ts` reads by `SessionReference`,
-and support's `sessionBranchPinnedObjects` maps it to object ids. The Cursor
+and specs assert its `{ref, objectId}` entries directly. The Cursor
 recovery deletion case timed out at 5.0 s at load 15 (also once in slice 1)
 and passed at 3.2–3.5 s: a flaky case that slice 6 repairs.
 
 ### 3. Landing evidence is read through its own namespace
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a repository with one-shot delivery pins, query the actual pins through
 the shared landing prefixes. Migrate the observation lifecycle, repeated
@@ -160,6 +160,15 @@ the copied helper. Keep the branch-retirement operation in that support file.
 **Proof.** The two observation specs and blank publication case still show
 the expected base and revision, preserve the same refs after repeated
 observation, and show the expected survivors or empty ref set after removal.
+
+**Learning.** `heldLandingPins(repository, scope?)` reads the one-shot
+namespace, one reporting reference or one delivery. The one-shot recovery
+deletion and capture admission specs use it too. Session-commits queries and
+whole-repository snapshots are outside both pin namespaces. Test support only
+shrinks in this story: extra worktrees come from MakeMe's `withWorkspace`, and
+`adHocBranchRefs.ts` keeps only `retireAdHocBranch`. The vitest backend runner
+silently skips Playwright-backed specs; run those through
+`dashboard/backend.playwright.config.ts`.
 
 ### 4. Review and attribution start from composed branch entries
 

@@ -5,10 +5,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  addAdHocWorktree,
-  sessionBranchPinnedObjects,
-} from "../../test-support/support/adHocBranchRefs.ts";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   aDeclaringLaunch,
   identifyBranch,
@@ -18,6 +15,7 @@ import {
   aCheckoutWithCanonicalWorktree,
   aDefaultLaunch,
   type Checkout,
+  historyBeforeTheCase,
   inWorktree,
   keep,
   markDone,
@@ -69,10 +67,10 @@ test("a declared branch keeps its entry state and Default main tip after main mo
     committedTip: entered,
     defaultTip: onMain,
   });
-  expect(await sessionBranchPinnedObjects(workspace, record.session)).toEqual([
-    entered,
-    onMain,
-    entry.tree,
+  expect(await sessionBranchPins(workspace, record.session)).toMatchObject([
+    { objectId: entered },
+    { objectId: onMain },
+    { objectId: entry.tree },
   ]);
   await mainMoves(checkout);
   expect(await identifyBranch(checkout, record, { workspace, branch })).toEqual(
@@ -117,15 +115,17 @@ test("Done reviews a declared branch apart from the Default main commits before 
 });
 
 test("two declared sessions each review their own branch", async () => {
-  const { checkout, workspace } = await aDraftWorktree();
+  const checkout = await aCheckout({
+    history: historyBeforeTheCase()
+      .withWorkspace(branch, { from: "base" })
+      .withWorkspace("other", { from: "base" }),
+    withOrigin: true,
+  });
+  const workspace = checkout.execution ?? "";
+  const other = path.join(checkout.integration, ".worktrees", "other");
   const record = aDeclaringLaunch(checkout, { sessionId: "first" }).please();
   const second = aDeclaringLaunch(checkout, { sessionId: "second" }).please();
   keep(record, second);
-  const other = addAdHocWorktree(
-    checkout.integration,
-    path.join(checkout.fixture, "other"),
-    "other",
-  );
   await identifyBranch(checkout, record, { workspace, branch });
   await identifyBranch(checkout, second, { workspace: other, branch: "other" });
   const [{ ours }, { theirs }] = await Promise.all([
