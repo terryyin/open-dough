@@ -687,79 +687,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="mount-usage-token-index-reading"></a>
-
-### Read the Usage Token index's selections and refreshes in mounted cases
-
-**Identity:** SEED-413#mount-usage-token-index-reading
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/740-mount-usage-token-index-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"927017454805fd1d73b5ffeedea5c6b0bcf94aa11d923573f2f20bb718e6a77b","plan":"6014f4a65be3cb63f32e562f77dffd8358c2e5eb34d41575e322a4526f4bc3d7"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-20 as the first Configuration piece, queued ahead of the remaining
-families. It follows the
-[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
-
-- **Goal.** Dashboard developers read the proof of what System settings →
-  Usage shows for a selection, a period and a Refresh as plain Vitest cases
-  on mounted Chromium, with each tool's Token index answer given as a typed
-  reply. Today these cases load `<App />` on the settings view, open Usage
-  and answer `/__usage/token-index` through page routes (13 cases in six
-  specs, 16.0 summed seconds in CI run 44741808717). The typed source this
-  story adds is also what the 20 chart cases left in the parent story need.
-- **Scope.** Move the six specs whose behavior is what Usage reads and
-  when: `system-settings-usage`, `-period`, `-estimate`, `-selection`,
-  `-checking` and `-tool`.
-  - [`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx)
-    reads each tool's answer and posts Refresh through `fetch`. Give it a
-    typed usage source behind
-    [`useUsageAnswers`](../../dashboard/src/useUsageAnswers.ts), as Story
-    Notes reads through `storyNotesState(source)`: one read of a cohort and
-    period that honours its abort signal, and one refresh. The page supplies
-    the source that speaks to the two endpoints and keeps their refusal
-    wording. A case supplies replies of the shared
-    [`TokenIndexAnswer`](../../dashboard/src/usageTokenIndex.ts) contract.
-  - Build answers with `makeMe.aTokenIndexAnswer`, offered through the
-    page-loadable MakeMe entry. A case that observes a pending read or
-    Refresh holds its own deferred reply.
-  - Operate Usage through small page objects beside the specs. The existing
-    Playwright page objects stay with the four
-    `e2e/configuration/system-settings-usage*` journeys, which keep proving
-    the real store, filters and Refresh.
-  - Preserve each distinct assertion. Remove a case only where an E2E
-    journey already proves the same thing, and name that journey.
-  - **Scope limits.** The five chart specs (`-average`, `-compare`,
-    `-legend`, `-overflow`, `-spacing`, 20 cases) stay in the parent story
-    with their pointer, touch and geometry proof. So do the other eight
-    Configuration specs, the full-group timing comparison and the
-    `frontendApp.ts` retirement. This story compares the focused selection
-    before and after.
-- **Key examples.**
-  - *A cohort's trend.* Codex answers ten eligible tasks with a rolling
-    median of 1,450. Usage shows the cohort note `10 tasks · Last 30 days`,
-    ten points and the median `1,450`.
-  - *An empty cohort.* The reader chooses the Refinement workflow and its
-    answer has no tasks. Usage reads `0 tasks · Last 30 days` and
-    `No finished task matches in the last 30 days.`, with no old median.
-  - *A failure belongs to its read.* Claude Code's read fails and Usage
-    names it: `Claude Code: Usage could not be read.` The reader hides and
-    shows Claude Code again, the read answers, and the failure is gone.
-  - *A late answer for a selection already left.* Claude Code's answer is
-    held, the reader hides Claude Code, and the answer is released. Usage
-    shows Codex alone.
-  - *Refresh keeps what is shown.* While a Refresh is pending Usage keeps
-    the trend, says `Checking for new usage…` and disables Refresh until the
-    selection has been read again. A Refresh that fails keeps the trend and
-    its check time beside the error.
-  - *An invalid period.* Under New York time the first read asks for the
-    last 30 local calendar days. The reader types `0`, `1.5` or `abc`. The
-    field reads invalid with `Enter a positive whole number of days. Showing
-    the last 30 days.`, the trend stays and nothing is read again.
-- **Effort hypothesis.** M: thirteen cases over one owner, one typed source
-  and new page objects, five slices.
-- **Plan.** [740](../slice-plans/740-mount-usage-token-index-reading/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -773,9 +700,9 @@ Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
 moved the Project Intent apply-and-retry cases. The two Optimization
 Candidates revision cases already run as mounted cases in
 [`intent-candidates-revision.spec.ts`](../../dashboard/frontend-tests/intent/intent-candidates-revision.spec.ts).
-[Story Review diff reading](#review-diff-reading-after-migration) now runs in
-mounted Chromium. The [Usage Token index migration](#mount-usage-token-index-reading)
-was also split out ahead of this story.
+[Story Review diff reading](#review-diff-reading-after-migration) and
+[Usage Token index reading](#usage-token-index-reading-after-migration) now run
+in mounted Chromium.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -1059,6 +986,77 @@ Spec names omit `story-review-diff-` and `.spec.ts`.
 | `word-emphasis-mounted` | a pure addition and revealed context have no word emphasis | 131 |
 | `word-emphasis-mounted` | a low-similarity rewrite stays line-level with no word emphasis | 2 |
 | `word-emphasis-mounted` | a several-hundred-line block stays line-level while a small block is emphasized | 31 |
+
+##### Usage Token index reading after migration
+
+All 13 cases across the six moved Usage reading specs (`system-settings-usage`,
+`-period`, `-estimate`, `-selection`, `-checking`, `-tool`) now mount
+[`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx) directly on
+headless Chromium over a typed [`UsageSource`](../../dashboard/src/usageSource.ts),
+plus 3 mounted cases in
+[`system-settings-usage-source.spec.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-source.spec.ts)
+proving `pageUsageSource`'s refusal wording and abort forwarding.
+
+- **Focused 6-spec timing comparison** (`--workers=2`, AC power,
+  `caffeinate -s -i`, Node 24.21.0, explicit paths for the 6 moved specs):
+  three interleaved warm runs comparing pre-story baseline `1817333330f5`
+  against the mounted replacement at matching 1-minute natural load
+  (`8.09–12.60`) cut median command elapsed time from **`9.66 s` to `5.78 s`**
+  (**`-40.2%`**, `-3.88 s`; summed per-case medians `12.49 s → 5.85 s`,
+  `-53.2%`):
+  - Pair 1: Before `8.89 s` (load `9.03 → 8.56`) vs After `5.78 s` (load `8.56 → 8.28`)
+  - Pair 2: Before `9.66 s` (load `8.28 → 8.09`) vs After `5.63 s` (load `8.09 → 8.32`)
+  - Pair 3: Before `12.75 s` (load `8.32 → 12.60`) vs After `8.06 s` (load `12.60 → 12.47`)
+  - Slice 1's earlier clean baseline at `1817333330f5` under heavier host load
+    (`35.16–40.97`) took `39.25 s`, `45.13 s`, `39.75 s` (median `39.75 s`).
+  - Including [`system-settings-usage-source.spec.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-source.spec.ts)
+    (all 7 mounted Vitest specs, 16 cases), three warm runs took `7.09 s`,
+    `6.63 s`, `6.23 s` (median **`6.63 s`**, load `7.82–8.24`).
+- **Audited `dashboard/test-support/support/` Usage support (`wc -l`):**
+  `697 → 675` total lines (`-22` lines):
+  - [`systemSettingsUsagePage.ts`](../../dashboard/test-support/support/systemSettingsUsagePage.ts):
+    `216 → 194` lines (`-22`). Removed zero-consumer re-export `UsageToolName`,
+    unexported internal `expectGeneralSettingsShown`, `openUsage`,
+    `TaskDetail`, and `usageView`, and removed zero-consumer `usageView`
+    methods `showsDaysProblem`, `showsLoading`, `showsPartialPoints`,
+    `showsNoPoints`, and `showsNoProblem`. Kept `visitUsage` and the remaining
+    19 `usageView` methods consumed by the 5 retained built-app chart specs
+    (`-average`, `-compare`, `-legend`, `-overflow`, `-spacing`) and 4
+    `e2e/configuration/system-settings-usage*` journeys.
+  - [`usageSpacingPage.ts`](../../dashboard/test-support/support/usageSpacingPage.ts):
+    `71 → 71` lines. Unexported internal `taskOrderWords`; kept `usageSpacing`
+    and its 7 methods for `-spacing` and
+    [`e2e/configuration/system-settings-usage-tools.spec.ts`](../../e2e/configuration/system-settings-usage-tools.spec.ts).
+  - [`usageToolsPage.ts`](../../dashboard/test-support/support/usageToolsPage.ts)
+    (`115`), [`usageChartPage.ts`](../../dashboard/test-support/support/usageChartPage.ts)
+    (`221`), and [`usageLegendPage.ts`](../../dashboard/test-support/support/usageLegendPage.ts)
+    (`74`): unchanged; every export and method remains consumed by the 5 chart
+    specs and/or 4 E2E journeys.
+- **Reusable building blocks for the 20 retained chart cases** (`-average`,
+  `-compare`, `-legend`, `-overflow`, `-spacing`):
+  - the typed source (`UsageSource` in [`dashboard/src/usageSource.ts`](../../dashboard/src/usageSource.ts))
+  - the page MakeMe entry (`makeMe.aTokenIndexAnswer` in [`Distribution/tests/support/pageMakeMe.mjs`](../../Distribution/tests/support/pageMakeMe.mjs))
+  - the mounted Usage page objects ([`system-settings-usage-page.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-page.ts) and [`system-settings-usage-tools-page.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-tools-page.ts))
+- **Removed built-app cases paired with mounted replacements and per-case median durations** (`0` cases removed as E2E-only duplicates; every distinct assertion across all 13 moved cases preserved in place; the 4 `e2e/configuration/system-settings-usage*` journeys — [`system-settings-usage.spec.ts`](../../e2e/configuration/system-settings-usage.spec.ts), [`-period.spec.ts`](../../e2e/configuration/system-settings-usage-period.spec.ts), [`-tools.spec.ts`](../../e2e/configuration/system-settings-usage-tools.spec.ts), [`-estimate.spec.ts`](../../e2e/configuration/system-settings-usage-estimate.spec.ts) — stay intact proving the real store, filters, and Refresh; average median `450 ms` across the 13 moved cases, `428 ms` with the 3 `pageUsageSource` cases):
+
+| Spec (`dashboard/frontend-tests/configuration/`) | Removed built-app case title | Mounted Vitest case | 3-run attempts (ms) | Median (ms) |
+| --- | --- | --- | --- | ---: |
+| `system-settings-usage.spec.ts` | `"ten eligible tasks draw their one rolling median value"` | `system-settings-usage.spec.ts:34` (same title) | `59, 57, 93` | `59` |
+| `system-settings-usage.spec.ts` | `"partial and unpriced tasks explain a sparse trend, and an empty cohort explains its absence"` | `system-settings-usage.spec.ts:45` (same title) | `392, 173, 229` | `229` |
+| `system-settings-usage.spec.ts` | `"task detail distinguishes repeated launches and unknown outcomes, with keyboard selection and focus restoration"` | `system-settings-usage.spec.ts:97` (same title) | `684, 594, 1002` | `684` |
+| `system-settings-usage-period.spec.ts` | `"local calendar requests retain the last valid day view through invalid input and cohort changes"` | `system-settings-usage-period.spec.ts:27` (same title) | `291, 317, 322` | `317` |
+| `system-settings-usage-period.spec.ts` | `"empty periods explain their counts and do not show an old median"` | `system-settings-usage-period.spec.ts:89` (same title) | `20, 26, 36` | `26` |
+| `system-settings-usage-selection.spec.ts` | `"a failure leaves once its selection is read again"` | `system-settings-usage-selection.spec.ts:25` (same title) | `775, 499, 1045` | `775` |
+| `system-settings-usage-selection.spec.ts` | `"a failure leaves once a day round trip reads its period again"` | `system-settings-usage-selection.spec.ts:59` (same title) | `389, 262, 276` | `276` |
+| `system-settings-usage-selection.spec.ts` | `"an answer for a selection already left never joins the one shown"` | `system-settings-usage-selection.spec.ts:95` (same title) | `475, 264, 696` | `475` |
+| `system-settings-usage-tool.spec.ts` | `"adding Claude Code keeps a Codex-only model, offering both tools' models once; hiding Codex then resets that model and keeps the workflow and a shared effort"` | `system-settings-usage-tool.spec.ts:24` (same title) | `736, 424, 713` | `713` |
+| `system-settings-usage-tool.spec.ts` | `"the Claude Code cohort names, once and in words, the background work it leaves out and each task's own missing usage; Codex names no left-out work"` | `system-settings-usage-tool.spec.ts:98` (same title) | `929, 440, 1319` | `929` |
+| `system-settings-usage-checking.spec.ts` | `"checking survives a selected cohort read and waits for Refresh's selected-cohort reread"` | `system-settings-usage-checking.spec.ts:41` (same title) | `713, 553, 744` | `713` |
+| `system-settings-usage-checking.spec.ts` | `"a failed Refresh after a filter change retains the selected chart and time beside its error"` | `system-settings-usage-checking.spec.ts:96` (same title) | `337, 296, 396` | `337` |
+| `system-settings-usage-estimate.spec.ts` | `"refreshing to an explicit rate replaces the estimate and keeps another model's warning"` | `system-settings-usage-estimate.spec.ts:42` (same title) | `316, 233, 665` | `316` |
+| `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:30` (`"a refused read shows Usage could not be read. or the endpoint's own message"`) | `58, 81, 91` | `81` |
+| `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:61` (`"a refused Refresh shows Usage could not be refreshed. or the endpoint's own message"`) | `440, 465, 477` | `465` |
+| `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:99` (`"leaving a pending read aborts the page source's request"`) | `104, 111, 106` | `106` |
 
 #### Frontend campaign baseline
 

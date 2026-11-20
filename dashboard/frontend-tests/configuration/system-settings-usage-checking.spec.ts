@@ -1,15 +1,17 @@
 // Refresh owns its checking state through filter reads and its current-cohort reread.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  usageRefreshEndpoint,
-  usageTokenIndexEndpoint,
-} from "../../src/usageTokenIndex.ts";
-import { test } from "../../test-support/support/frontendApp.ts";
-import {
-  answerHeld,
-  holdAnswer,
-} from "../../test-support/support/frontendSubstituteAnswers.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { UsageSource } from "../../src/usageSource.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-15T12:00:00.000Z"));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 const oldCheck = "2026-11-15T09:00:00.000Z";
 const nextCheck = "2026-11-15T10:00:00.000Z";
@@ -36,99 +38,92 @@ const refinements = (at: string, extra = 0) =>
     .checkedAt(at)
     .please();
 
-test("checking survives a selected cohort read and waits for Refresh's selected-cohort reread", async ({
-  page,
-}) => {
-  const refresh = holdAnswer(page);
-  const selection = holdAnswer(page);
-  const reread = holdAnswer(page);
+test("checking survives a selected cohort read and waits for Refresh's selected-cohort reread", async () => {
+  let refreshStarted = false;
+  let releaseRefresh!: () => void;
+  const refreshHeld = new Promise<void>((resolve) => {
+    releaseRefresh = resolve;
+  });
+  let releaseSelection!: () => void;
+  const selectionHeld = new Promise<void>((resolve) => {
+    releaseSelection = resolve;
+  });
+  let releaseReread!: () => void;
+  const rereadHeld = new Promise<void>((resolve) => {
+    releaseReread = resolve;
+  });
   let selectedReads = 0;
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    async (route) => {
-      if (
-        new URL(route.request().url()).searchParams.get("workflow") !==
-        "refinement"
-      )
-        return route.fulfill({ json: executions() });
-      selectedReads++;
-      return answerHeld(
-        selectedReads === 1 ? selection.hold : reread.hold,
-        () =>
-          route.fulfill({
-            json: refinements(
-              selectedReads === 1 ? oldCheck : nextCheck,
-              selectedReads === 1 ? 0 : 1_000,
-            ),
-          }),
-      );
+  const source: UsageSource = {
+    read: async (cohort) => {
+      if (cohort.workflow !== "refinement") {
+        return executions();
+      }
+      selectedReads += 1;
+      if (selectedReads === 1) {
+        await selectionHeld;
+        return refinements(oldCheck);
+      }
+      await rereadHeld;
+      return refinements(nextCheck, 1_000);
     },
-  );
-  await page.route(
-    (url) => url.pathname === usageRefreshEndpoint,
-    (route) =>
-      answerHeld(refresh.hold, () =>
-        route.fulfill({ json: { checkedAt: nextCheck } }),
-      ),
-  );
-  const usage = await visitUsage(page);
+    refresh: () => {
+      refreshStarted = true;
+      return refreshHeld;
+    },
+  };
+
+  const usage = await mountUsage(source);
   await usage.showsMedian("1,450");
   await usage.refresh();
-  await refresh.held.received;
+  await expect.poll(() => refreshStarted).toBe(true);
   await usage.showsChecking();
   await usage.choose("Launch workflow", "Refinement");
-  await selection.held.received;
+  await expect.poll(() => selectedReads).toBe(1);
   await usage.showsChecking();
-  selection.held.release();
+  releaseSelection();
   await usage.showsMedian("2,450");
   await usage.showsChecking();
-  refresh.held.release();
-  await reread.held.received;
+  releaseRefresh();
+  await expect.poll(() => selectedReads).toBe(2);
   await usage.showsChecking();
   await usage.showsMedian("2,450");
-  reread.held.release();
+  releaseReread();
   await usage.showsMedian("3,450");
   await usage.showsCheckedAt(nextCheck);
   await usage.showsChecked();
 });
 
-test("a failed Refresh after a filter change retains the selected chart and time beside its error", async ({
-  page,
-}) => {
-  const refresh = holdAnswer(page);
+test("a failed Refresh after a filter change retains the selected chart and time beside its error", async () => {
+  let refreshStarted = false;
+  let rejectRefresh!: (reason: Error) => void;
+  const refreshHeld = new Promise<void>((...[, reject]) => {
+    rejectRefresh = reject;
+  });
   const selectedCheck = "2026-11-15T09:30:00.000Z";
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) =>
-      route.fulfill({
-        json:
-          new URL(route.request().url()).searchParams.get("workflow") ===
-          "refinement"
-            ? refinements(selectedCheck)
-            : executions(),
-      }),
-  );
-  await page.route(
-    (url) => url.pathname === usageRefreshEndpoint,
-    (route) =>
-      answerHeld(refresh.hold, () =>
-        route.fulfill({
-          status: 503,
-          json: {
-            error: "Usage could not be refreshed: rollouts unavailable.",
-          },
-        }),
+  const source: UsageSource = {
+    read: (cohort) =>
+      Promise.resolve(
+        cohort.workflow === "refinement"
+          ? refinements(selectedCheck)
+          : executions(),
       ),
-  );
-  const usage = await visitUsage(page);
+    refresh: () => {
+      refreshStarted = true;
+      return refreshHeld;
+    },
+  };
+
+  const usage = await mountUsage(source);
   await usage.showsMedian("1,450");
   await usage.refresh();
-  await refresh.held.received;
+  await expect.poll(() => refreshStarted).toBe(true);
   await usage.choose("Launch workflow", "Refinement");
   await usage.showsMedian("2,450");
   await usage.showsCheckedAt(selectedCheck);
   await usage.showsChecking();
-  refresh.held.release();
+  rejectRefresh(
+    new Error("Usage could not be refreshed: rollouts unavailable."),
+  );
   await usage.showsProblem(
     "Usage could not be refreshed: rollouts unavailable.",
   );

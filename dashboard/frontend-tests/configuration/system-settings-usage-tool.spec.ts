@@ -1,35 +1,36 @@
 // The tool selection chooses whose cohorts the view reads, keeping the other
 // filters while any selected tool still offers them.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  requestedCohort,
-  usageTokenIndexEndpoint,
-} from "../../src/usageTokenIndex.ts";
-import { expect } from "../../test-support/dashboardTest.ts";
-import { test } from "../../test-support/support/frontendApp.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { UsagePeriod } from "../../src/usagePeriod.ts";
+import type { UsageSource } from "../../src/usageSource.ts";
+import type { TokenIndexCohort, UsageTool } from "../../src/usageTokenIndex.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
-const sol = { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" },
-  astra = { id: "gpt-6-astra", name: "GPT-6 Astra" },
-  opus = { id: "claude-opus-5-5", name: "Claude Opus 5.5" };
+const sol = { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" };
+const astra = { id: "gpt-6-astra", name: "GPT-6 Astra" };
+const opus = { id: "claude-opus-5-5", name: "Claude Opus 5.5" };
 const claudeTariff = "Claude test rate card";
 
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-15T12:00:00.000Z"));
 });
 
-test("adding Claude Code keeps a Codex-only model, offering both tools' models once; hiding Codex then resets that model and keeps the workflow and a shared effort", async ({
-  page,
-}) => {
-  const requests: string[] = [];
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => {
-      const query = new URL(route.request().url()).searchParams;
-      requests.push(query.toString());
-      const cohort = requestedCohort(query);
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+test("adding Claude Code keeps a Codex-only model, offering both tools' models once; hiding Codex then resets that model and keeps the workflow and a shared effort", async () => {
+  const reads: {
+    readonly cohort: TokenIndexCohort;
+    readonly period: UsagePeriod | undefined;
+  }[] = [];
+  const source: UsageSource = {
+    read: (cohort, period) => {
+      reads.push({ cohort, period });
       const answer =
-        cohort?.tool === "claude"
+        cohort.tool === "claude"
           ? makeMe.aTokenIndexAnswer
               // Like the service, no Claude task matches a model it never ran.
               .with({
@@ -42,12 +43,12 @@ test("adding Claude Code keeps a Codex-only model, offering both tools' models o
               models: [sol, astra],
               efforts: ["xhigh", "high"],
             });
-      return route.fulfill({
-        json: answer.forCohort(cohort ?? {}).please(),
-      });
+      return Promise.resolve(answer.forCohort(cohort).please());
     },
-  );
-  const usage = await visitUsage(page);
+    refresh: () => Promise.resolve(),
+  };
+
+  const usage = await mountUsage(source);
   await usage.showsTools({ Codex: true, "Claude Code": false });
   await usage.choose("Launch workflow", "Refinement");
   await usage.choose("Model", astra.name);
@@ -58,18 +59,18 @@ test("adding Claude Code keeps a Codex-only model, offering both tools' models o
   await usage.offers("Model", ["All models", sol.name, astra.name, opus.name]);
   await usage.offers("Effort", ["Any effort", "xhigh", "high", "medium"]);
   await usage.showsCohort({ Model: astra.name, Effort: "high" });
+
   // Each tool reads its own cohort with the same filters and period.
-  const latest = (tool: string) =>
-    [...requests]
-      .reverse()
-      .map((query) => Object.fromEntries(new URLSearchParams(query)))
-      .find((query) => query.tool === tool);
+  const latest = (tool: UsageTool) =>
+    [...reads].reverse().find((read) => read.cohort.tool === tool);
   expect(latest("claude")).toEqual({
     ...latest("codex"),
-    tool: "claude",
-    workflow: "refinement",
-    model: astra.id,
-    effort: "high",
+    cohort: {
+      tool: "claude",
+      workflow: "refinement",
+      model: astra.id,
+      effort: "high",
+    },
   });
 
   await usage.showTool("Codex", false);
@@ -94,18 +95,12 @@ test("adding Claude Code keeps a Codex-only model, offering both tools' models o
   });
 });
 
-test("the Claude Code cohort names, once and in words, the background work it leaves out and each task's own missing usage; Codex names no left-out work", async ({
-  page,
-}) => {
+test("the Claude Code cohort names, once and in words, the background work it leaves out and each task's own missing usage; Codex names no left-out work", async () => {
   const codexTariff = "Codex test rate card";
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => {
-      const cohort = requestedCohort(
-        new URL(route.request().url()).searchParams,
-      );
+  const source: UsageSource = {
+    read: (cohort) => {
       const answer =
-        cohort?.tool === "claude"
+        cohort.tool === "claude"
           ? makeMe.aTokenIndexAnswer
               .with({ indexes: [2_000, 3_000] })
               .withTask(1, {
@@ -119,12 +114,12 @@ test("the Claude Code cohort names, once and in words, the background work it le
               })
               .underTariff(claudeTariff)
           : makeMe.aTokenIndexAnswer.underTariff(codexTariff);
-      return route.fulfill({
-        json: answer.forCohort(cohort ?? {}).please(),
-      });
+      return Promise.resolve(answer.forCohort(cohort).please());
     },
-  );
-  const usage = await visitUsage(page);
+    refresh: () => Promise.resolve(),
+  };
+
+  const usage = await mountUsage(source);
   await usage.showsToolNotes([codexTariff]);
 
   await usage.showTool("Codex", false);

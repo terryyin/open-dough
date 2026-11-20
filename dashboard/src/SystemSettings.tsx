@@ -8,6 +8,7 @@ import { ProjectsSettings } from "./ProjectsSettings.tsx";
 import { SystemSettingsUsage } from "./SystemSettingsUsage.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
+import { pageUsageSource } from "./usageSource.ts";
 import "./frame-controls.css";
 import "./project-configuration.css";
 
@@ -69,7 +70,7 @@ export function SystemSettings({
           <FeedbackMaintenanceSettings />
         </>
       ) : (
-        <SystemSettingsUsage />
+        <SystemSettingsUsage source={pageUsageSource} />
       )}
     </main>
   );

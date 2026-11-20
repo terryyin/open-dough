@@ -1,54 +1,77 @@
 // Display variants stay in the frontend; real store/filter/refresh wiring is E2E.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageTokenIndexEndpoint } from "../../src/usageTokenIndex.ts";
-import { test } from "../../test-support/support/frontendApp.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
+import { afterEach, beforeEach, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { UsageSource } from "../../src/usageSource.ts";
+import type {
+  TokenIndexAnswer,
+  TokenIndexCohort,
+} from "../../src/usageTokenIndex.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-15T12:00:00.000Z"));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const day = (date: number) =>
   `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 
-test("ten eligible tasks draw their one rolling median value", async ({
-  page,
-}) => {
+const tenIndexes = [
+  1_000, 1_100, 1_200, 1_300, 1_400, 1_500, 1_600, 1_700, 1_800, 1_900,
+];
+
+const sourceAnswering = (
+  reply: (cohort: TokenIndexCohort) => TokenIndexAnswer,
+): UsageSource => ({
+  read: (cohort) => Promise.resolve(reply(cohort)),
+  refresh: () => Promise.resolve(),
+});
+
+test("ten eligible tasks draw their one rolling median value", async () => {
   const answer = makeMe.aTokenIndexAnswer
-    .with({
-      indexes: [
-        1_000, 1_100, 1_200, 1_300, 1_400, 1_500, 1_600, 1_700, 1_800, 1_900,
-      ],
-    })
+    .with({ indexes: tenIndexes })
     .withTrend([{ at: day(10), value: 1_450 }])
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page);
+  const usage = await mountUsage(sourceAnswering(() => answer));
+  await usage.showsCohortNote("10 tasks · Last 30 days");
+  await usage.showsPointCount(10);
   await usage.showsMedian("1,450");
 });
 
-test("partial and unpriced tasks explain a sparse trend, and an empty cohort explains its absence", async ({
-  page,
-}) => {
-  let answer = makeMe.aTokenIndexAnswer
-    .with({
-      indexes: [
-        1_000, 1_100, 1_200, 1_300, 1_400, 1_500, 1_600, 1_700, 1_800, 1_900,
-      ],
-    })
+test("partial and unpriced tasks explain a sparse trend, and an empty cohort explains its absence", async () => {
+  const sparseExecution = makeMe.aTokenIndexAnswer
+    .with({ indexes: tenIndexes })
     .withTask(4, {
       coverage: { kind: "partial", gaps: ["missing-worker-evidence"] },
     })
     .withUnpricedTasks(1)
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
+  const adHocWithMedian = makeMe.aTokenIndexAnswer
+    .inWorkflow("ad-hoc")
+    .with({ indexes: tenIndexes })
+    .withTrend([{ at: day(10), value: 1_450 }])
+    .please();
+  const emptyRefinement = makeMe.aTokenIndexAnswer
+    .with({ indexes: [] })
+    .inWorkflow("refinement")
+    .please();
+
+  const usage = await mountUsage(
+    sourceAnswering((cohort) => {
+      if (cohort.workflow === "ad-hoc") {
+        return adHocWithMedian;
+      }
+      if (cohort.workflow === "refinement") {
+        return emptyRefinement;
+      }
+      return sparseExecution;
+    }),
   );
-  const usage = await visitUsage(page);
+
   await usage.showsCohortNote(
     "11 tasks · 1 partial · 1 unpriced · Last 30 days",
   );
@@ -60,18 +83,18 @@ test("partial and unpriced tasks explain a sparse trend, and an empty cohort exp
   await usage.selectPoint("Nov 5 · Codex · 1,400 · Partial", "pointer");
   await usage.showsFact("Coverage", "Partial · Worker usage missing");
 
-  answer = makeMe.aTokenIndexAnswer
-    .with({ indexes: [] })
-    .inWorkflow("refinement")
-    .please();
+  await usage.choose("Launch workflow", "Ad hoc");
+  await usage.showsMedian("1,450");
+
   await usage.choose("Launch workflow", "Refinement");
   await usage.showsCohortNote("0 tasks · Last 30 days");
   await usage.showsNoPoints("No finished task matches in the last 30 days.");
+  await usage.showsNoMedian(
+    "A rolling median needs 10 eligible tasks; none is available in this period",
+  );
 });
 
-test("task detail distinguishes repeated launches and unknown outcomes, with keyboard selection and focus restoration", async ({
-  page,
-}) => {
+test("task detail distinguishes repeated launches and unknown outcomes, with keyboard selection and focus restoration", async () => {
   const story = {
     identity: "SEED-42#keep-launch-history",
     title: "Keep launch history",
@@ -92,11 +115,8 @@ test("task detail distinguishes repeated launches and unknown outcomes, with key
     .withTask(1, story)
     .withTask(2, { title: "Recovered execution", outcome: null })
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page);
+
+  const usage = await mountUsage(sourceAnswering(() => answer));
   await usage.selectPoint("Nov 1 · Codex · 1,950", "keyboard");
   await usage.showsDetail({
     ...story,
