@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-413#restore-done-capture-proof-after-composed-reviews",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
