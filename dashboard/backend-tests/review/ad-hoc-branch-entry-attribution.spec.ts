@@ -9,14 +9,16 @@ import { aDeclaredBranch } from "../support/declaredBranchCase.ts";
 import {
   aCheckoutWithWorktree,
   inWorktree,
-  markDone,
   minutesAgo,
-  source,
   type Checkout,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import {
+  aDoneBranch,
+  fileDiff,
+  fileText,
+  review,
+} from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 
@@ -30,6 +32,14 @@ const aTopicWorktree = () =>
 const aDeclaredTopic = (checkout: Checkout, workspace: string) =>
   aDeclaredBranch(checkout, { workspace, branch });
 
+// That launch with its branch entry, marked Done with the branch result Git
+// captures.
+const theDoneTopic = ({
+  launch,
+  entry,
+}: Awaited<ReturnType<typeof aDeclaredTopic>>) =>
+  aDoneBranch(launch, { branchEntry: entry });
+
 test("a declared branch's saved comparison shows only its new work and its edit to imported text", async () => {
   const { checkout, workspace } = await aTopicWorktree();
   await work(
@@ -38,7 +48,7 @@ test("a declared branch's saved comparison shows only its new work and its edit 
       .committing("earlier-commit", { at: minutesAgo(70) })
       .editing("earlier-draft", { at: minutesAgo(65) }),
   );
-  const { record } = await aDeclaredTopic(checkout, workspace);
+  const declared = await aDeclaredTopic(checkout, workspace);
   await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork
@@ -56,9 +66,9 @@ test("a declared branch's saved comparison shows only its new work and its edit 
       }),
   );
 
-  await markDone(record);
+  const record = await theDoneTopic(declared);
 
-  const answer = await review(await keptRecords(source), record);
+  const answer = await review([record], record);
   if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
   expect(answer.files.map(({ path }) => path)).toEqual([
     "session-only.txt",
@@ -69,21 +79,19 @@ test("a declared branch's saved comparison shows only its new work and its edit 
     tree: answer.tree,
     path: "shared.txt",
   };
-  expect(
-    await fileDiff(await keptRecords(source), record, shared),
-  ).toMatchObject({
+  expect(await fileDiff([record], record, shared)).toMatchObject({
     kind: "diff",
     printed: expect.stringContaining(
       "-imported line\n+session edit of imported line",
     ) as string,
   });
-  expect(await fileText(await keptRecords(source), record, shared)).toEqual({
+  expect(await fileText([record], record, shared)).toEqual({
     kind: "text",
     baseline: "imported line\n",
     tree: "session edit of imported line\n",
   });
   await expect(
-    fileDiff(await keptRecords(source), record, {
+    fileDiff([record], record, {
       ...shared,
       path: "import-only.txt",
     }),
@@ -99,7 +107,8 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
       files: { "shared.txt": "branch line from before entry\n" },
     }),
   );
-  const { record, entry } = await aDeclaredTopic(checkout, workspace);
+  const declared = await aDeclaredTopic(checkout, workspace);
+  const { entry } = declared;
   const { imported } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -116,15 +125,15 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
     makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
   );
 
-  await markDone(record);
+  const record = await theDoneTopic(declared);
 
-  expect(await review(await keptRecords(source), record)).toMatchObject({
+  expect(await review([record], record)).toMatchObject({
     kind: "unavailable",
     explanation: expect.stringContaining(
       "Earlier branch changes conflict with imported trunk",
     ) as string,
   });
-  const refused = fileDiff(await keptRecords(source), record, {
+  const refused = fileDiff([record], record, {
     baseline: entry.tree,
     tree: tip,
     path: "tip.txt",

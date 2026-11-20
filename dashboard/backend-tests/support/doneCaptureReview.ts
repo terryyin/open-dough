@@ -9,7 +9,13 @@ import {
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { anEstablishedSession, type Checkout } from "./doneCaptureCase.ts";
+import type { SessionBranchEntry } from "../../src/sessionBranchResult.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
+import {
+  anEstablishedSession,
+  minutesAgo,
+  type Checkout,
+} from "./doneCaptureCase.ts";
 
 type Kept = readonly LaunchRecord[];
 
@@ -24,6 +30,24 @@ export const aDoneSession = (
     .keptSessionCommits({ repository: checkout.integration, runs })
     .markedDone()
     .please();
+
+// The launch marked Done at `doneAt` with the branch result its Git captures
+// then; a declared branch's record carries its `branchEntry`.
+export async function aDoneBranch(
+  launch: typeof makeMe.aLaunchRecord,
+  {
+    doneAt = minutesAgo(10),
+    branchEntry,
+  }: { doneAt?: string; branchEntry?: SessionBranchEntry } = {},
+): Promise<LaunchRecord> {
+  const entered = (record: LaunchRecord) =>
+    branchEntry === undefined ? record : { ...record, branchEntry };
+  const { result } = await captureBranchResult(
+    entered(launch.please()),
+    doneAt,
+  );
+  return entered(launch.branchResultFrom(result).markedDoneAt(doneAt).please());
+}
 
 const reviewRead = (kept: Kept, record: LaunchRecord) =>
   makeMe.aSessionReviewRead

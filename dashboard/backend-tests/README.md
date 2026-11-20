@@ -81,7 +81,8 @@ steps, then `.markedDone()`, and passes the records to
 [`doneCaptureReview.ts`](support/doneCaptureReview.ts), whose `aDoneSession`
 composes a Done session's kept runs, as
 [`done-kept-session-commit-runs.spec.ts`](review/done-kept-session-commit-runs.spec.ts)
-shows. Mark Done through a private launch store and
+shows, and whose `aDoneBranch` marks a launch Done with the branch result its
+Git captures. Mark Done through a private launch store and
 [`setRecordDoneAt`](../server/recordDoneAt.ts) only where the capture, the
 Done transition or its adapter is the topic; such a case passes
 `await keptRecords(source)` to the review. A review-only case passes its

@@ -261,7 +261,7 @@ passed (12/12) at load ~23; the scratch break failed both negative rule cases.
 ### 6. Isolated branch review cases start from composed Done records
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the remaining isolated review-topic cases onto composed branch results,
 for example "reopening keeps the branch evidence and refuses the old file
@@ -272,6 +272,23 @@ capture. Cases that retire after Done keep the adapter. Remove `aHeldDone` or
 
 **Proof.** Moved cases keep their assertions. Each isolated spec in the family
 passes. The moved specs contain no `keep(` or `markDone(` call.
+
+**Accepted.** `doneCaptureReview.ts` adds `aDoneBranch` (MakeMe
+`branchResultFrom` and `markedDoneAt` over `captureBranchResult`), with a
+`branchEntry` spread for declared branches until the branch entry story adds
+its MakeMe step. Moved: `ad-hoc-branch-attribution` (3 cases),
+`ad-hoc-branch-entry-attribution` (2), two `ad-hoc-session-branch-entry`
+review cases, and `ad-hoc-branch-result`'s empty-versus-missing case, split
+into a capture case and a composed review (12 to 14 assertions). The other
+cases keep the adapter under the Pins and Topic rules: retirement, release,
+supersession, reopening (its pins are asserted), store replacement, quiet and
+native Done, and the undeclared checkout move whose Default main capture is
+the topic. `ad-hoc-branch-entry-attribution` still arranges its branch entry
+through `aDeclaredBranch` and its HOME stub, which the
+[branch entry story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store)
+owns. The four changed specs passed as whole files at load 21–24; at load ~22
+the family's timed-out set gave 4 candidate and 8 base 5 s timeouts (the
+candidate's 4 among base's), so branch CI is the family verdict.
 
 ### 7. Delivery observation and publication cases compose their Done precondition
 

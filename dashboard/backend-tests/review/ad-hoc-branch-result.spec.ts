@@ -32,11 +32,17 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
+import {
+  aDoneBranch,
+  fileDiff,
+  fileText,
+  review,
+} from "../support/doneCaptureReview.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 
 // A checkout whose isolated launches each started a worktree at its base,
 // answered by branch.
-async function aCheckoutWithWorktrees<Branch extends string>(
+async function aCheckoutWithWorktreeLaunches<Branch extends string>(
   first: Branch,
   ...others: Branch[]
 ) {
@@ -45,10 +51,14 @@ async function aCheckoutWithWorktrees<Branch extends string>(
     historyBeforeTheCase().withWorkspace(first, { from: "base" }),
   );
   const checkout = await aCheckout({ history, withOrigin: true });
-  const records = [];
   const worktrees = {} as Record<
     Branch,
-    { workspace: string; branch: Branch; record: LaunchRecord }
+    {
+      workspace: string;
+      branch: Branch;
+      launch: ReturnType<typeof anIsolatedLaunch>;
+      record: LaunchRecord;
+    }
   >;
   for (const branch of [first, ...others]) {
     const workspace =
@@ -56,12 +66,24 @@ async function aCheckoutWithWorktrees<Branch extends string>(
         ? checkout.execution
         : path.join(checkout.integration, ".worktrees", branch);
     if (workspace === undefined) throw new Error("Missing the worktree.");
-    const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
-    worktrees[branch] = { workspace, branch, record };
-    records.push(record);
+    const launch = anIsolatedLaunch(checkout, { workspace, branch });
+    worktrees[branch] = { workspace, branch, launch, record: launch.please() };
   }
-  keep(...records);
   return { checkout, worktrees };
+}
+
+// That checkout with its launches kept.
+async function aCheckoutWithWorktrees<Branch extends string>(
+  first: Branch,
+  ...others: Branch[]
+) {
+  const launched = await aCheckoutWithWorktreeLaunches(first, ...others);
+  keep(
+    ...Object.values<{ record: LaunchRecord }>(launched.worktrees).map(
+      ({ record }) => record,
+    ),
+  );
+  return launched;
 }
 
 test("the branch comparison at Done and its files survive worktree and branch removal and pruning", async () => {
@@ -102,28 +124,47 @@ test("the branch comparison at Done and its files survive worktree and branch re
   await expect(refused).rejects.toMatchObject({ status: 409 });
 });
 
-test("Done distinguishes an empty branch result from a missing checkout", async () => {
+test("Done's capture reads an empty branch and refuses a missing checkout", async () => {
   const {
     checkout,
     worktrees: { empty, missing },
-  } = await aCheckoutWithWorktrees("empty", "missing");
+  } = await aCheckoutWithWorktreeLaunches("empty", "missing");
   await git(checkout.integration, "worktree", "remove", missing.workspace);
+  const doneAt = minutesAgo(10);
 
-  await markDone(empty.record);
-  await markDone(missing.record);
+  expect(
+    (await captureBranchResult(empty.record, doneAt)).result,
+  ).toMatchObject({
+    base: checkout.base,
+    revision: checkout.base,
+    committedTip: checkout.base,
+  });
+  await expect(captureBranchResult(missing.record, doneAt)).rejects.toThrow();
+});
 
-  expect(await review(await keptRecords(source), empty.record)).toMatchObject({
+test("Done reviews an empty branch result apart from a missing checkout", async () => {
+  const {
+    checkout,
+    worktrees: { empty, missing },
+  } = await aCheckoutWithWorktreeLaunches("empty", "missing");
+  const doneAt = minutesAgo(10);
+  const emptyDone = await aDoneBranch(empty.launch, { doneAt });
+  const missingDone = missing.launch
+    .branchResultFailedAt(doneAt)
+    .markedDoneAt(doneAt)
+    .please();
+  const done = [emptyDone, missingDone];
+
+  expect(await review(done, emptyDone)).toMatchObject({
     kind: "branch-result",
     baseline: checkout.base,
     tree: checkout.base,
     files: [],
   });
-  expect(await review(await keptRecords(source), missing.record)).toMatchObject(
-    {
-      kind: "unavailable",
-      explanation: "This session's branch changes at Done were not captured.",
-    },
-  );
+  expect(await review(done, missingDone)).toMatchObject({
+    kind: "unavailable",
+    explanation: "This session's branch changes at Done were not captured.",
+  });
 });
 
 const retentionAgo = new Date(

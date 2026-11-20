@@ -23,7 +23,7 @@ import {
   type Checkout,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
+import { aDoneBranch, fileText, review } from "../support/doneCaptureReview.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const branch = "draft";
@@ -49,7 +49,8 @@ async function anOtherWorktree(checkout: Checkout) {
 // holding a commit and an uncommitted edit of its own.
 async function aDeclaredDraft() {
   const { checkout, workspace } = await aDraftWorktree();
-  const record = aDeclaringLaunch(checkout, { sessionId: "declared" }).please();
+  const launch = aDeclaringLaunch(checkout, { sessionId: "declared" });
+  const record = launch.please();
   keep(record);
   const { onMain } = await work(
     checkout,
@@ -65,7 +66,7 @@ async function aDeclaredDraft() {
       .editing("prior-draft", { at: minutesAgo(44) }),
   );
   const entry = await identifyBranch(checkout, record, { workspace, branch });
-  return { checkout, workspace, record, onMain, entered, entry };
+  return { checkout, workspace, launch, record, onMain, entered, entry };
 }
 
 const mainMoves = (checkout: Checkout) =>
@@ -96,7 +97,7 @@ test("a declared branch keeps its entry state and Default main tip after main mo
 });
 
 test("Done reviews a declared branch apart from the Default main commits before its entry", async () => {
-  const { checkout, workspace, record, onMain, entry } = await aDeclaredDraft();
+  const { checkout, workspace, launch, onMain, entry } = await aDeclaredDraft();
   const { result } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("result", {
@@ -105,9 +106,15 @@ test("Done reviews a declared branch apart from the Default main commits before 
     }),
   );
   await mainMoves(checkout);
-  await markDone(record);
+  const record = await aDoneBranch(
+    launch.keptSessionCommits({
+      repository: checkout.integration,
+      runs: [{ base: checkout.base, revision: onMain }],
+    }),
+    { branchEntry: entry },
+  );
 
-  expect(await review(await keptRecords(source), record)).toMatchObject({
+  expect(await review([record], record)).toMatchObject({
     kind: "branch-result",
     selectedRun: "branch-result",
     sessionComparisonKeys: ["branch-result", "0"],
@@ -116,13 +123,13 @@ test("Done reviews a declared branch apart from the Default main commits before 
     files: [{ kind: "added", path: "session.txt" }],
   });
   expect(
-    await fileText(await keptRecords(source), record, {
+    await fileText([record], record, {
       baseline: entry.tree,
       tree: result,
       path: "session.txt",
     }),
   ).toEqual({ kind: "text", baseline: null, tree: "session.txt\n" });
-  expect(await review(await keptRecords(source), record, 0)).toMatchObject({
+  expect(await review([record], record, 0)).toMatchObject({
     kind: "session-commits",
     selectedRun: "0",
     sessionComparisonKeys: ["branch-result", "0"],
@@ -157,12 +164,19 @@ test("a branch entry refuses a foreign clone, a wrong branch and a second place"
 
 test("two declared sessions each review their own branch", async () => {
   const { checkout, workspace } = await aDraftWorktree();
-  const record = aDeclaringLaunch(checkout, { sessionId: "first" }).please();
-  const second = aDeclaringLaunch(checkout, { sessionId: "second" }).please();
-  keep(record, second);
+  const first = aDeclaringLaunch(checkout, { sessionId: "first" });
+  const second = aDeclaringLaunch(checkout, { sessionId: "second" });
+  const [firstRecord, secondRecord] = [first.please(), second.please()];
+  keep(firstRecord, secondRecord);
   const other = await anOtherWorktree(checkout);
-  await identifyBranch(checkout, record, { workspace, branch });
-  await identifyBranch(checkout, second, { workspace: other, branch: "other" });
+  const firstEntry = await identifyBranch(checkout, firstRecord, {
+    workspace,
+    branch,
+  });
+  const secondEntry = await identifyBranch(checkout, secondRecord, {
+    workspace: other,
+    branch: "other",
+  });
   const [{ ours }, { theirs }] = await Promise.all([
     work(
       inWorktree(checkout, workspace),
@@ -173,14 +187,13 @@ test("two declared sessions each review their own branch", async () => {
       makeMe.aCheckoutWork.committing("theirs", { at: minutesAgo(30) }),
     ),
   ]);
-  await markDone(record);
-  await markDone(second);
+  const done = await Promise.all([
+    aDoneBranch(first, { branchEntry: firstEntry }),
+    aDoneBranch(second, { branchEntry: secondEntry }),
+  ]);
 
   expect(
-    await Promise.all([
-      review(await keptRecords(source), record),
-      review(await keptRecords(source), second),
-    ]),
+    await Promise.all(done.map((launch) => review(done, launch))),
   ).toMatchObject([
     { kind: "branch-result", tree: ours, files: [{ path: "ours.txt" }] },
     { kind: "branch-result", tree: theirs, files: [{ path: "theirs.txt" }] },
