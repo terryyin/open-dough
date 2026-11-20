@@ -37,6 +37,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Prove Optimization Candidates in mounted frontend tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-optimization-candidates-frontend-proof) — SEED-413#mount-optimization-candidates-frontend-proof
+- [Prove open Sessions sidebar readings in mounted frontend tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-open-sessions-sidebar-frontend-proof) — SEED-413#mount-open-sessions-sidebar-frontend-proof
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
