@@ -218,6 +218,27 @@ addendum’s two stories were added at Terry’s request. The other four stories
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Effort hypothesis.** M, one plan.
 
+<a id="restore-done-capture-proof-after-composed-reviews"></a>
+
+### Restore Done capture proof after the composed review move
+
+**Identity:** SEED-413#restore-done-capture-proof-after-composed-reviews
+
+Correction from the execution retrospective of
+[Mark Done through a typed decision](#split-done-mark-decision-from-store).
+
+- **Goal.** Dashboard maintainers again have a failing test when Done's
+  capture or adapter stops writing what reviews and landings rely on: the
+  reflog actions Git really writes, a shared checkout, the branch entry's
+  Default main tip, a prepared receipt, and a delivery kept beside the branch
+  comparison. Composed review cases state only what production stores.
+- **Scope.** Restore that proof at the production capture or adapter, retire
+  the test-support writers that imitate the adapter, and correct the stale
+  hold comment and vacuous assertions. The review cases stay composed. Branch
+  entry, the observation and landing store reads, and the launch preset fold
+  stay with their stories.
+- **Plan.** [743](../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
+
 <a id="split-branch-entry-proposal-from-store"></a>
 
 ### Propose a branch entry from typed inputs and expose its pin refs

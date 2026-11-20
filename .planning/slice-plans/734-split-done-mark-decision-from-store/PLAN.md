@@ -328,6 +328,17 @@ reasons became capture cases, its repeated `notCaptured` review is asserted
 once, and Done surviving a failed read keeps its one adapter case, since the
 adapter handles every capture failure alike.
 
+## Execution complete
+
+Product advice: The typed Done seams hold and the family runs 23% faster
+under the same load, but moving cases onto composed state dropped some
+capture and adapter proof. Run the
+[correction](../743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
+before the [family optimization](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases)
+measures this family, and carry its rule into the branch entry, observation
+and landing stories: test support composes through MakeMe and never writes
+adapter state by hand; a case whose topic is the adapter marks Done through it.
+
 ## Local gates
 
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
