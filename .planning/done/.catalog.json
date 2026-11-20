@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_mount-open-sessions-sidebar-frontend-proof.json",
+      "identity": "SEED-413#mount-open-sessions-sidebar-frontend-proof",
+      "completedAt": "2026-11-20T13:02:21.366Z",
+      "blob": "a0aa9239a5cf626b45744a46b1a834f9af66e896"
+    },
+    {
       "fileName": "SEED-413_ad-hoc-branch-result-handoff.json",
       "identity": "SEED-413#ad-hoc-branch-result-handoff",
       "completedAt": "2026-11-20T10:44:20.373Z",
@@ -2682,12 +2688,6 @@
       "identity": "SEED-010#run-due-feedback-maintenance",
       "completedAt": "2026-10-22T00:34:43.781Z",
       "blob": "7e6de83baebb8b4873d7104a34d38d239e32ad0c"
-    },
-    {
-      "fileName": "SEED-010_evaluate-later-product-consequences.json",
-      "identity": "SEED-010#evaluate-later-product-consequences",
-      "completedAt": "2026-10-21T12:26:03.650Z",
-      "blob": "1e99bfe8dae148f222e4f202db8196d90a28b34f"
     }
   ],
   "unreadable": []
