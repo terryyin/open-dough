@@ -1092,6 +1092,77 @@ one-minute goal at two workers allows about 150 ms a case. Moving every case
 onto Vitest reaches the engine goal and can still miss the minute, so each
 piece prefers the narrowest owner and records its mounted time per case.
 
+##### Usage Token index reading after migration
+
+All 13 cases across the six moved Usage reading specs (`system-settings-usage`,
+`-period`, `-estimate`, `-selection`, `-checking`, `-tool`) now mount
+[`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx) directly on
+headless Chromium over a typed [`UsageSource`](../../dashboard/src/usageSource.ts),
+plus 3 mounted cases in
+[`system-settings-usage-source.spec.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-source.spec.ts)
+proving `pageUsageSource`'s refusal wording and abort forwarding.
+
+- **Focused 6-spec timing comparison** (`--workers=2`, AC power,
+  `caffeinate -s -i`, Node 24.21.0, explicit paths for the 6 moved specs):
+  three interleaved warm runs comparing pre-story baseline `1817333330f5`
+  against the mounted replacement at matching 1-minute natural load
+  (`8.09–12.60`) cut median command elapsed time from **`9.66 s` to `5.78 s`**
+  (**`-40.2%`**, `-3.88 s`; summed per-case medians `12.49 s → 5.85 s`,
+  `-53.2%`):
+  - Pair 1: Before `8.89 s` (load `9.03 → 8.56`) vs After `5.78 s` (load `8.56 → 8.28`)
+  - Pair 2: Before `9.66 s` (load `8.28 → 8.09`) vs After `5.63 s` (load `8.09 → 8.32`)
+  - Pair 3: Before `12.75 s` (load `8.32 → 12.60`) vs After `8.06 s` (load `12.60 → 12.47`)
+  - Slice 1's earlier clean baseline at `1817333330f5` under heavier host load
+    (`35.16–40.97`) took `39.25 s`, `45.13 s`, `39.75 s` (median `39.75 s`).
+  - Including [`system-settings-usage-source.spec.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-source.spec.ts)
+    (all 7 mounted Vitest specs, 16 cases), three warm runs took `7.09 s`,
+    `6.63 s`, `6.23 s` (median **`6.63 s`**, load `7.82–8.24`).
+- **Audited `dashboard/test-support/support/` Usage support (`wc -l`):**
+  `697 → 675` total lines (`-22` lines):
+  - [`systemSettingsUsagePage.ts`](../../dashboard/test-support/support/systemSettingsUsagePage.ts):
+    `216 → 194` lines (`-22`). Removed zero-consumer re-export `UsageToolName`,
+    unexported internal `expectGeneralSettingsShown`, `openUsage`,
+    `TaskDetail`, and `usageView`, and removed zero-consumer `usageView`
+    methods `showsDaysProblem`, `showsLoading`, `showsPartialPoints`,
+    `showsNoPoints`, and `showsNoProblem`. Kept `visitUsage` and the remaining
+    19 `usageView` methods consumed by the 5 retained built-app chart specs
+    (`-average`, `-compare`, `-legend`, `-overflow`, `-spacing`) and 4
+    `e2e/configuration/system-settings-usage*` journeys.
+  - [`usageSpacingPage.ts`](../../dashboard/test-support/support/usageSpacingPage.ts):
+    `71 → 71` lines. Unexported internal `taskOrderWords`; kept `usageSpacing`
+    and its 7 methods for `-spacing` and
+    [`e2e/configuration/system-settings-usage-tools.spec.ts`](../../e2e/configuration/system-settings-usage-tools.spec.ts).
+  - [`usageToolsPage.ts`](../../dashboard/test-support/support/usageToolsPage.ts)
+    (`115`), [`usageChartPage.ts`](../../dashboard/test-support/support/usageChartPage.ts)
+    (`221`), and [`usageLegendPage.ts`](../../dashboard/test-support/support/usageLegendPage.ts)
+    (`74`): unchanged; every export and method remains consumed by the 5 chart
+    specs and/or 4 E2E journeys.
+- **Reusable building blocks for the 20 retained chart cases** (`-average`,
+  `-compare`, `-legend`, `-overflow`, `-spacing`):
+  - the typed source (`UsageSource` in [`dashboard/src/usageSource.ts`](../../dashboard/src/usageSource.ts))
+  - the page MakeMe entry (`makeMe.aTokenIndexAnswer` in [`Distribution/tests/support/pageMakeMe.mjs`](../../Distribution/tests/support/pageMakeMe.mjs))
+  - the mounted Usage page objects ([`system-settings-usage-page.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-page.ts) and [`system-settings-usage-tools-page.ts`](../../dashboard/frontend-tests/configuration/system-settings-usage-tools-page.ts))
+- **Removed built-app cases paired with mounted replacements and per-case median durations** (`0` cases removed as E2E-only duplicates; every distinct assertion across all 13 moved cases preserved in place; the 4 `e2e/configuration/system-settings-usage*` journeys — [`system-settings-usage.spec.ts`](../../e2e/configuration/system-settings-usage.spec.ts), [`-period.spec.ts`](../../e2e/configuration/system-settings-usage-period.spec.ts), [`-tools.spec.ts`](../../e2e/configuration/system-settings-usage-tools.spec.ts), [`-estimate.spec.ts`](../../e2e/configuration/system-settings-usage-estimate.spec.ts) — stay intact proving the real store, filters, and Refresh; average median `450 ms` across the 13 moved cases, `428 ms` with the 3 `pageUsageSource` cases):
+
+| Spec (`dashboard/frontend-tests/configuration/`) | Removed built-app case title | Mounted Vitest case | 3-run attempts (ms) | Median (ms) |
+| --- | --- | --- | --- | ---: |
+| `system-settings-usage.spec.ts` | `"ten eligible tasks draw their one rolling median value"` | `system-settings-usage.spec.ts:34` (same title) | `59, 57, 93` | `59` |
+| `system-settings-usage.spec.ts` | `"partial and unpriced tasks explain a sparse trend, and an empty cohort explains its absence"` | `system-settings-usage.spec.ts:45` (same title) | `392, 173, 229` | `229` |
+| `system-settings-usage.spec.ts` | `"task detail distinguishes repeated launches and unknown outcomes, with keyboard selection and focus restoration"` | `system-settings-usage.spec.ts:97` (same title) | `684, 594, 1002` | `684` |
+| `system-settings-usage-period.spec.ts` | `"local calendar requests retain the last valid day view through invalid input and cohort changes"` | `system-settings-usage-period.spec.ts:27` (same title) | `291, 317, 322` | `317` |
+| `system-settings-usage-period.spec.ts` | `"empty periods explain their counts and do not show an old median"` | `system-settings-usage-period.spec.ts:89` (same title) | `20, 26, 36` | `26` |
+| `system-settings-usage-selection.spec.ts` | `"a failure leaves once its selection is read again"` | `system-settings-usage-selection.spec.ts:25` (same title) | `775, 499, 1045` | `775` |
+| `system-settings-usage-selection.spec.ts` | `"a failure leaves once a day round trip reads its period again"` | `system-settings-usage-selection.spec.ts:59` (same title) | `389, 262, 276` | `276` |
+| `system-settings-usage-selection.spec.ts` | `"an answer for a selection already left never joins the one shown"` | `system-settings-usage-selection.spec.ts:95` (same title) | `475, 264, 696` | `475` |
+| `system-settings-usage-tool.spec.ts` | `"adding Claude Code keeps a Codex-only model, offering both tools' models once; hiding Codex then resets that model and keeps the workflow and a shared effort"` | `system-settings-usage-tool.spec.ts:24` (same title) | `736, 424, 713` | `713` |
+| `system-settings-usage-tool.spec.ts` | `"the Claude Code cohort names, once and in words, the background work it leaves out and each task's own missing usage; Codex names no left-out work"` | `system-settings-usage-tool.spec.ts:98` (same title) | `929, 440, 1319` | `929` |
+| `system-settings-usage-checking.spec.ts` | `"checking survives a selected cohort read and waits for Refresh's selected-cohort reread"` | `system-settings-usage-checking.spec.ts:41` (same title) | `713, 553, 744` | `713` |
+| `system-settings-usage-checking.spec.ts` | `"a failed Refresh after a filter change retains the selected chart and time beside its error"` | `system-settings-usage-checking.spec.ts:96` (same title) | `337, 296, 396` | `337` |
+| `system-settings-usage-estimate.spec.ts` | `"refreshing to an explicit rate replaces the estimate and keeps another model's warning"` | `system-settings-usage-estimate.spec.ts:42` (same title) | `316, 233, 665` | `316` |
+| `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:30` (`"a refused read shows Usage could not be read. or the endpoint's own message"`) | `58, 81, 91` | `81` |
+| `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:61` (`"a refused Refresh shows Usage could not be refreshed. or the endpoint's own message"`) | `440, 465, 477` | `465` |
+| `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:99` (`"leaving a pending read aborts the page source's request"`) | `104, 111, 106` | `106` |
+
 #### Frontend campaign baseline
 
 At `267a27502` there are 304 frontend spec files, including nine

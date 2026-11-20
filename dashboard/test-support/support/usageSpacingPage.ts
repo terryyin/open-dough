@@ -6,7 +6,7 @@ import { centreOf, historyChart } from "../historyChartPage.ts";
 import { usageChartName } from "./usageChartPage.ts";
 import type { UsageToolName } from "./usageToolsPage.ts";
 
-export const taskOrderWords = "Task order, earliest first";
+const taskOrderWords = "Task order, earliest first";
 
 export function usageSpacing(page: Page) {
   const trend = page.getByRole("region", {
