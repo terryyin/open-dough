@@ -7,11 +7,11 @@ import {
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
 } from "../../src/storyReviewContract.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
   keptAdHocRecord,
   launchIsolatedReview,
-  markAdHocDone,
   retireAdHocBranch,
 } from "../../test-support/support/adHocReview.ts";
 import { getReview } from "../../test-support/support/completedReviewRequests.ts";
@@ -44,7 +44,9 @@ test("the first Board read after restart discovers a delivery while preserving t
   writeAt(workspace, "draft.txt", "Committed draft\n");
   commitAll(workspace, "Commit the branch draft");
   writeAt(workspace, "draft.txt", "Working draft\n");
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   const done = (await keptAdHocRecord(dashboard, session))?.doneAt;
   const branchAtDone = await adHocReview(request, dashboard, session);
   expect(branchAtDone.kind).toBe("branch-result");
@@ -202,7 +204,12 @@ test("an unchanged target can discover delivery for a newly retained Done", asyn
     path.join(origin.machine, "offline"),
   );
   try {
-    await markAdHocDone(dashboard, session);
+    dashboard.claudeSessionBecomes(session, "done-live");
+    const response = await markDone(dashboard, {
+      source: "open-dough",
+      session,
+    });
+    expect(response.status, response.body).toBe(200);
     const record = await keptAdHocRecord(dashboard, session);
     expect(record?.branchResult?.manualDeliveryChecked).toBe(true);
     expect(record?.landing).toBeUndefined();

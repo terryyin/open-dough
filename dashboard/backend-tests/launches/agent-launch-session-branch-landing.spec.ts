@@ -1,6 +1,9 @@
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { deleteRecord } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  deleteRecord,
+  markDone,
+} from "../../test-support/agentLaunchBoundary.ts";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import {
   reviewedFileTextSchema,
@@ -9,7 +12,6 @@ import {
 import {
   adHocReview,
   keptAdHocRecord,
-  markAdHocDone,
   retireAdHocBranch,
 } from "../../test-support/support/adHocReview.ts";
 import { getReview } from "../../test-support/support/completedReviewRequests.ts";
@@ -121,7 +123,9 @@ test("the declared worktree's installed landing and exact retry stay with the or
   expect((await keptAdHocRecord(dashboard, session))?.doneAt).toBeUndefined();
 
   retireAdHocBranch(origin.project, workspace, "draft");
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   expect(
     await retryDeclaredLanding(handoff.landingContext, origin.machine),
   ).toEqual(receipt);
@@ -201,7 +205,9 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await originMain(origin)).toBe(candidate);
   retireAdHocBranch(origin.project, workspace, "blank-draft");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   expect(
     await retryDeclaredLanding(handoff.landingContext, origin.machine),
   ).toEqual(result.landing.receipt);

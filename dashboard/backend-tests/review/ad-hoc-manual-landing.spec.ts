@@ -3,11 +3,11 @@ import {
   reviewedFileTextSchema,
   storyReviewFileTextEndpoint,
 } from "../../src/storyReviewContract.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
   adHocSessionFileText,
   launchIsolatedReview,
-  markAdHocDone,
   retireAdHocBranch,
 } from "../../test-support/support/adHocReview.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
@@ -62,7 +62,9 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
   await origin.publishRevision({
     files: { "before-done.txt": "Advance before Done\n" },
   });
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   await origin.publishRevision({
     files: { "later.txt": "Unrelated advance\n" },
   });
@@ -134,7 +136,9 @@ test("acceptance on another remote branch leaves trunk delivery unverified", asy
   git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", branch);
   git(origin.project, "push", "--quiet", "origin", "HEAD:refs/heads/elsewhere");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
     kind: "branch-result",
@@ -157,7 +161,9 @@ test("a continuous fast-forward from the witnessed parent retains both compariso
   git(origin.project, "merge", "--quiet", "--ff-only", tip);
   git(origin.project, "push", "--quiet", "origin", "main");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
     kind: "landed",
@@ -189,7 +195,9 @@ test("a fast-forward with an unwitnessed previous tip leaves delivery unverified
   git(origin.project, "merge", "--quiet", "--ff-only", tip);
   git(origin.project, "push", "--quiet", "origin", "main");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
     kind: "unavailable",
@@ -211,7 +219,9 @@ test("a same-content squash leaves the saved branch readable and delivery unveri
   commitAll(origin.project, "Squash without the branch parent");
   git(origin.project, "push", "--quiet", "origin", "main");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({

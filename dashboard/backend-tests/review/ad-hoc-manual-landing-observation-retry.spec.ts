@@ -1,8 +1,8 @@
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
   launchIsolatedReview,
-  markAdHocDone,
 } from "../../test-support/support/adHocReview.ts";
 import {
   expect,
@@ -24,13 +24,23 @@ test("a failed verification retries at the same revision and lets other deliveri
     "Keep draft for retry",
   );
   const draft = commit(retrying.workspace, "retry.txt");
-  await markAdHocDone(dashboard, retrying.session);
+  dashboard.claudeSessionBecomes(retrying.session, "done-live");
+  const retryingDone = await markDone(dashboard, {
+    source: "open-dough",
+    session: retrying.session,
+  });
+  expect(retryingDone.status, retryingDone.body).toBe(200);
   const independent = await launchIsolatedReview(
     dashboard,
     "Keep independent work",
   );
   const other = commit(independent.workspace, "independent.txt");
-  await markAdHocDone(dashboard, independent.session);
+  dashboard.claudeSessionBecomes(independent.session, "done-live");
+  const independentDone = await markDone(dashboard, {
+    source: "open-dough",
+    session: independent.session,
+  });
+  expect(independentDone.status, independentDone.body).toBe(200);
 
   git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", draft);
   const firstMerge = git(origin.project, "rev-parse", "HEAD");

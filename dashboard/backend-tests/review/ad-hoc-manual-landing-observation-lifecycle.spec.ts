@@ -1,11 +1,13 @@
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { launchRetentionDays } from "../../src/launchRecord.ts";
-import { deleteRecord } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  deleteRecord,
+  markDone,
+} from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
   keptAdHocRecord,
   launchIsolatedReview,
-  markAdHocDone,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
 import {
@@ -26,7 +28,12 @@ test.use({ serverMode: "boundary" });
 async function doneBranch(dashboard: DashboardServer, name: string) {
   const launch = await launchIsolatedReview(dashboard, `Keep ${name}`);
   const tip = commit(launch.workspace, `${name}.txt`);
-  await markAdHocDone(dashboard, launch.session);
+  dashboard.claudeSessionBecomes(launch.session, "done-live");
+  const response = await markDone(dashboard, {
+    source: "open-dough",
+    session: launch.session,
+  });
+  expect(response.status, response.body).toBe(200);
   return { ...launch, tip };
 }
 

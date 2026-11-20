@@ -7,11 +7,10 @@ import {
   keptAttempts,
   settledOutcome,
 } from "../../test-support/acceptedAttempts.ts";
-import { accept } from "../../test-support/agentLaunchBoundary.ts";
+import { accept, markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
   launchIsolatedReview,
-  markAdHocDone,
 } from "../../test-support/support/adHocReview.ts";
 import {
   declareThroughLaunchInput,
@@ -57,7 +56,12 @@ test("Done leaves the installed publisher's prepared receipt recoverable after a
   git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
 
   const { sessionId } = record.session;
-  await markAdHocDone(dashboard, sessionId);
+  dashboard.claudeSessionBecomes(sessionId, "done-live");
+  const response = await markDone(dashboard, {
+    source: "open-dough",
+    session: sessionId,
+  });
+  expect(response.status, response.body).toBe(200);
 
   const recorded = await post();
   expect(recorded.status, recorded.body).toBe(200);
@@ -86,7 +90,9 @@ test("an unrelated accepted change leaves the saved branch available", async ({
     files: { "other-change.txt": "Another delivery\n" },
   });
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
     kind: "branch-result",

@@ -1,13 +1,15 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { deleteRecord } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  deleteRecord,
+  markDone,
+} from "../../test-support/agentLaunchBoundary.ts";
 import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
 import {
   adHocReview,
   adHocSessionFileDiff,
   adHocSessionFileText,
   launchIsolatedReview,
-  markAdHocDone,
   retireAdHocBranch,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
@@ -37,7 +39,9 @@ test("the branch comparison at Done and its files survive worktree and branch re
   );
   const file = "draft.txt";
   const tree = commit(workspace, file);
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
@@ -122,8 +126,18 @@ test("Done distinguishes an empty branch result from a missing checkout", async 
   const missing = await launchIsolatedReview(dashboard, "A missing workspace");
   git(origin.project, "worktree", "remove", missing.workspace);
 
-  await markAdHocDone(dashboard, empty.session);
-  await markAdHocDone(dashboard, missing.session);
+  dashboard.claudeSessionBecomes(empty.session, "done-live");
+  const emptyDone = await markDone(dashboard, {
+    source: "open-dough",
+    session: empty.session,
+  });
+  expect(emptyDone.status, emptyDone.body).toBe(200);
+  dashboard.claudeSessionBecomes(missing.session, "done-live");
+  const missingDone = await markDone(dashboard, {
+    source: "open-dough",
+    session: missing.session,
+  });
+  expect(missingDone.status, missingDone.body).toBe(200);
 
   expect(await adHocReview(request, dashboard, empty.session)).toMatchObject({
     kind: "branch-result",
@@ -150,8 +164,18 @@ for (const reason of ["deletion", "expiry"]) {
       path.join(leaving.workspace, "draft.txt"),
       "A draft to keep.\n",
     );
-    await markAdHocDone(dashboard, leaving.session);
-    await markAdHocDone(dashboard, staying.session);
+    dashboard.claudeSessionBecomes(leaving.session, "done-live");
+    const leavingDone = await markDone(dashboard, {
+      source: "open-dough",
+      session: leaving.session,
+    });
+    expect(leavingDone.status, leavingDone.body).toBe(200);
+    dashboard.claudeSessionBecomes(staying.session, "done-live");
+    const stayingDone = await markDone(dashboard, {
+      source: "open-dough",
+      session: staying.session,
+    });
+    expect(stayingDone.status, stayingDone.body).toBe(200);
     expect(sessionBranchPins(origin.project, leaving.session)).toContain(first);
     expect(sessionBranchPins(origin.project, leaving.session)).toHaveLength(3);
     const stayingPins = sessionBranchPins(origin.project, staying.session);

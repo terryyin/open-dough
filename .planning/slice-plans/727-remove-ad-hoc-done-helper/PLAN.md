@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#remove-ad-hoc-done-helper
 **Source:** [Mark ad hoc sessions Done in their own cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#remove-ad-hoc-done-helper)
+**Source review:** [source-review.md](source-review.md)
 
 ## Source and provenance
 
@@ -59,7 +60,7 @@ measurement before any work.
 ### 1. Each ad hoc case marks its finished session Done itself
 
 Type: Structure
-Status: planned
+Status: done
 
 Inline the helper at all 25 call sites, then delete `markAdHocDone` and its
 comment from `adHocReview.ts`. No test-support line is added.
@@ -69,6 +70,17 @@ comment from `adHocReview.ts`. No test-support line is added.
 | No consumer remains and the helper is gone | `grep -rn markAdHocDone dashboard` finds nothing. The `adHocReview.ts` diff only removes lines. |
 | Every consumer keeps its behavior and speed | Run the 9 consumer specs with `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`. All pass, and per-case durations match plan 726's `d2-after` within load variation; record the load. |
 | Types and lint hold | `npm run typecheck:dashboard` and `npm run lint`. |
+
+Accepted proof (2026-11-20): the 9 consumer specs passed 27 of 27 before
+the change at HEAD (load 3–5, wall 50.5 s, summed 89.7 s) and after it
+(load 7.6–7.8, wall 47.1 s, summed 88.9 s); the largest per-case rise was
++0.9 s. `grep -rn markAdHocDone dashboard` is empty, the `adHocReview.ts`
+diff only removes lines, and typecheck and lint pass. The refactor pass
+kept `ad-hoc-branch-attribution.spec.ts` at the 250-line limit by reusing
+the case's `naming` object for its 409 read; that spec reran 5 of 5.
+
+Learning: inlining a multi-line step at many call sites can push a spec
+over the file-size limit; check sizes when planning such inlining.
 
 ## Local gates
 

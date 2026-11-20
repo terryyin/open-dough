@@ -1,12 +1,12 @@
 import path from "node:path";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { sessionBranchEntrySchema } from "../../src/sessionBranchResult.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
   adHocReview,
   adHocSessionFileDiff,
   adHocSessionFileText,
   launchIsolatedReview,
-  markAdHocDone,
   retireAdHocBranch,
 } from "../../test-support/support/adHocReview.ts";
 import { reportingChild } from "../../test-support/support/completionRecovery.ts";
@@ -72,7 +72,9 @@ test("a declared branch's saved comparison shows only its new work and its edit 
   commit(workspace, "session-only.txt");
   writeAt(workspace, "shared.txt", "session edit of imported line\n");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch, {
     discardWorkingChanges: true,
   });
@@ -98,15 +100,14 @@ test("a declared branch's saved comparison shows only its new work and its edit 
     baseline: "imported line\n",
     tree: "session edit of imported line\n",
   });
-  expect(
-    (
-      await adHocSessionFileDiff(request, dashboard, session, {
-        baseline,
-        tree,
-        path: "import-only.txt",
-      })
-    ).status(),
-  ).toBe(409);
+  const importOnly = { ...naming, path: "import-only.txt" };
+  const refused = await adHocSessionFileDiff(
+    request,
+    dashboard,
+    session,
+    importOnly,
+  );
+  expect(refused.status()).toBe(409);
 });
 
 test("an isolated Done retains its committed and working changes across a trunk import", async ({
@@ -125,7 +126,9 @@ test("an isolated Done retains its committed and working changes across a trunk 
   git(workspace, "merge", "--quiet", "--no-edit", imported);
   writeAt(workspace, "draft.txt", "draft.txt\nworking change\n");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch, {
     discardWorkingChanges: true,
   });
@@ -160,7 +163,9 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
   git(workspace, "merge", "--quiet", "--no-edit", "-X", "ours", imported);
   const tip = commit(workspace, "session-only.txt");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
@@ -205,7 +210,9 @@ test("a branch merged into trunk still retains its own Done comparison", async (
   commitAll(later, "Advance published trunk");
   git(later, "push", "--quiet", "origin", "main");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch);
 
   expect(
@@ -230,7 +237,9 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
   git(origin.project, "push", "--quiet", "origin", "main");
   commit(workspace, "after-direct.txt");
 
-  await markAdHocDone(dashboard, session);
+  dashboard.claudeSessionBecomes(session, "done-live");
+  const response = await markDone(dashboard, { source: "open-dough", session });
+  expect(response.status, response.body).toBe(200);
   retireAdHocBranch(origin.project, workspace, branch);
 
   expect(await adHocReview(request, dashboard, session)).toMatchObject({
