@@ -147,6 +147,142 @@ precondition.
   timing and the test-support calls removed against the prior cases under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
+<a id="ad-hoc-branch-result-handoff"></a>
+
+### Prove the ad hoc branch result and its handoff at typed Done seams
+
+**Identity:** SEED-413#ad-hoc-branch-result-handoff
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/730-ad-hoc-branch-result-handoff/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1c8599b12a0c26e38e557e903d3ff778376127374e868c31cec008e80796088f","plan":"497ce045f67bfd3c759a0072257d6d848c476b549d4f3e53c0f370c9c8ee25fb"}}
+```
+
+Split from
+[`SEED-413#renovate-later-dashboard-backend-unit-test-families`](#renovate-later-dashboard-backend-unit-test-families)
+on 2026-11-20 as the first of its ad hoc review families.
+
+- **Goal.** Developers changing how Done saves an isolated or declared
+  branch get plain Node Vitest cases that call `setRecordDoneAt`,
+  `recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
+  `deleteRecord` directly with MakeMe kept records and real Git. Today these
+  nine cases start the boundary server, launch sessions, run the reporting
+  CLI and hold Git through a `PATH` shim: 41 s summed in CI run
+  44698610582, against 0.2–2.5 s for the moved cases of the Done capture
+  family.
+- **Scope.** Move these cases, keeping each one's distinct inputs and
+  expected outcomes:
+  - `review/ad-hoc-branch-result-race.spec.ts`: reopening keeps the branch
+    evidence and refuses the old file pair; while a stale Done's capture is
+    held the review is unavailable, and a newer Done wins with only its pins;
+    deleting a record while its capture reads leaves no pins.
+  - `review/ad-hoc-branch-worktree-result.spec.ts`: Done keeps the working
+    tree it read (staged, untracked and deleted files, not ignored ones)
+    without touching the index, HEAD or files; an edit made while the capture
+    is held is excluded; the result survives a forced retirement.
+  - `review/ad-hoc-session-branch-handoff.spec.ts`: a declared branch keeps
+    its entry state and default tip, and answers the same entry after main
+    moves; a foreign clone, a wrong branch for the worktree, or a second
+    different entry is refused; an undeclared checkout move explains the
+    missing branch association.
+  - `review/ad-hoc-branch-cursor-recovery.spec.ts`: after Cursor replaces its
+    chat, the branch pins stay owned by the original chat, and deleting or
+    expiring the replacement releases only them; a stale native replacement
+    keeps a branch identified while it was pending.
+  - A capture is held by a typed ancestry read that the production capture
+    accepts, in place of the `PATH` shim.
+  - Drop `review/ad-hoc-branch-result-quiet-retry.spec.ts`: the applied
+    duplicate retry returns before any capture, and
+    `sessions/agent-completion-identity.spec.ts` already proves that it
+    writes nothing.
+  - Retire each `dashboard/test-support/` module or export whose last
+    consumer leaves, starting with `cursorBranchRecovery.ts`. Add none.
+  - **Scope limits.** "A newer quiet Done takes precedence over a manual mark
+    still capturing its branch" stays in the parent story with the
+    developer's native Done. The observation and publication cases stay with
+    [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication),
+    and the Done lifecycle with
+    [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle).
+- **Key examples.**
+  - *A newer Done wins.* An isolated launch commits `stale` and is marked
+    Done; its capture is held. The review reads unavailable. The branch
+    commits `latest` and is marked Done again. Once the hold is released, the
+    review shows the branch result at `latest`, and the session's pins are the
+    baseline and `latest`, never `stale`.
+  - *Cursor replacement.* A Cursor launch's branch result pins under chat
+    `A`. Cursor replaces the chat with `B`. Deleting `B` removes `A`'s pins
+    and leaves another launch's pins.
+  - *Undeclared move.* A Default main launch switches to `not-identified`
+    and commits there, then is marked Done. The review explains: "No branch
+    was identified for this session, and no Default main commits were
+    captured."
+- **Effort hypothesis.** M: five slices.
+- **Plan.** [730](../slice-plans/730-ad-hoc-branch-result-handoff/PLAN.md)
+
+<a id="ad-hoc-done-lifecycle"></a>
+
+### Prove the ad hoc Done lifecycle and kept-record release at typed seams
+
+**Identity:** SEED-413#ad-hoc-done-lifecycle
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/731-ad-hoc-done-lifecycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4853a9cd7f22c81bd05c1d1f33556c456ebbcea798dbd6915864b7021b1a57e6","plan":"f77da97a37e1c5a9ab9cb227b74dc94c1162c62f75471bc1be56958407593107"}}
+```
+
+Split from
+[`SEED-413#renovate-later-dashboard-backend-unit-test-families`](#renovate-later-dashboard-backend-unit-test-families)
+on 2026-11-20 as the second of its ad hoc review families.
+
+- **Goal.** Developers changing what a Default main session keeps at Done,
+  and what a record releases when it leaves, get plain Node Vitest cases
+  that call `deliverCompletion`, `NativeDoneMarks`, `setRecordDoneAt`,
+  `readSessionCommits`, the typed review and `deleteRecord` directly with
+  MakeMe kept records, attempts and real Git. Today these fourteen cases
+  start the boundary server, run the reporting CLI, hold the reflog through a
+  `PATH` shim and close servers: 23 s summed in CI run 44698610582.
+- **Scope.** Move these cases, keeping each one's distinct inputs and
+  expected outcomes:
+  - `review/ad-hoc-session-commits.spec.ts`: a quiet report marks Done at its
+    receipt time and keeps the session's commits.
+  - `review/ad-hoc-session-commits-done.spec.ts`: a reopened session keeps
+    its earlier capture until its next Done; a quiet report after a confirmed
+    native Done keeps the additional commit; a quiet report during an earlier
+    rename wait refreshes the capture; retrying the same quiet delivery
+    resumes native Done without reading the checkout again; a rename wait
+    that the closing dashboard abandons still keeps the commits.
+  - `review/ad-hoc-session-commits-pending-done.spec.ts`: a later Done whose
+    capture has not finished refuses the previous review and its files, and
+    does not inherit its "no commits" finding; a commit that arrives after
+    Done's tip is read is excluded.
+  - `review/ad-hoc-review-unavailable.spec.ts`: a launch in a checkout Git
+    cannot read keeps no start. Its Done and review halves are already owned
+    by `done-kept-session-unavailable.spec.ts` and
+    `ad-hoc-review-kept-unavailable.spec.ts`.
+  - `review/kept-commits-release.spec.ts`: deleting or expiring a record
+    removes its session-run and landing references and leaves another kept
+    record's; a record whose saved repository is gone still deletes and
+    expires.
+  - `NativeDoneMarks` takes the host lookup and reporting folder it uses as
+    typed collaborators, and a case can await a report's continuation.
+  - Retire each `dashboard/test-support/` export whose last consumer leaves,
+    starting with `DefaultMainSessionWork.launchReporting`. Add none.
+  - **Scope limits.** The developer's native Done, including "a newer quiet
+    Done takes precedence over a manual mark", and the other `sessions/`
+    completion cases stay in the parent story. The branch result belongs to
+    [`SEED-413#ad-hoc-branch-result-handoff`](#ad-hoc-branch-result-handoff).
+- **Key examples.**
+  - *Quiet report.* A Default main launch reporting through reference `R`
+    commits `typo`. A quiet completion for `R` is delivered. The record is
+    Done at the receipt's `receivedAt`, and the review shows one commit run
+    with `typo`.
+  - *Abandoned rename.* A quiet report's native rename is still waiting
+    when the dashboard closes its Done marks. The rename stops, and the
+    record keeps the commits read at that Done.
+  - *Stale capture.* A record whose commits were read before its latest Done
+    refuses the review of the previous capture and its files.
+  - *Release.* Two kept records pin session runs and a landing comparison in
+    one repository. Deleting one, or letting it expire, removes only its
+    references.
+- **Effort hypothesis.** M: six slices.
+- **Plan.** [731](../slice-plans/731-ad-hoc-done-lifecycle/PLAN.md)
+
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -200,14 +336,16 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   while both gauges run. The count of specs still on `@playwright/test` is
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
-  1. The rest of ad hoc review, which retires `adHocReview.ts`: the branch
-     result with its handoff (115 s in 18 cases) and manual landing (94 s in
-     12 cases), on the Done seam the capture family shows; then Done's
-     lifecycle (native and reported Done, the held checkout read) and record
-     deletion and expiry (about 24 s in 14 cases). Attribution, branch result
-     release and the manual check at Done already moved under
-     [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication),
-     which owns the observation and publication cases next.
+  1. The rest of ad hoc review, which retires `adHocReview.ts`. The branch
+     result with its handoff moved to
+     [`SEED-413#ad-hoc-branch-result-handoff`](#ad-hoc-branch-result-handoff)
+     and the Done lifecycle with record release to
+     [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle). The
+     observation and publication cases belong to
+     [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication).
+     "A newer quiet Done takes precedence over a manual mark still capturing
+     its branch" stays here, with the developer's native Done in
+     `sessions/`.
   2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and
      `SEED-319`. Preserve freshness, invalidation, and close behavior when
      moving reads to typed handler inputs. Check whether those inputs can

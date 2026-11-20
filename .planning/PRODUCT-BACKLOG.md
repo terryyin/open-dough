@@ -34,6 +34,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Prove the ad hoc branch result and its handoff at typed Done seams](seeds/SEED-413-renovate-dashboard-unit-tests.md#ad-hoc-branch-result-handoff) — SEED-413#ad-hoc-branch-result-handoff
+- [Prove the ad hoc Done lifecycle and kept-record release at typed seams](seeds/SEED-413-renovate-dashboard-unit-tests.md#ad-hoc-done-lifecycle) — SEED-413#ad-hoc-done-lifecycle
 - [Arrange Done ad hoc sessions directly for delivery observation and publication](seeds/SEED-413-renovate-dashboard-unit-tests.md#arrange-done-ad-hoc-observation-and-publication) — SEED-413#arrange-done-ad-hoc-observation-and-publication
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
