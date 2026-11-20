@@ -57,7 +57,7 @@ admission and the shared review contract.
   payload or what admission and the handler do with it.
 - **Concurrent changes.** Recheck the landed forms of plans
   [734](../734-split-done-mark-decision-from-store/PLAN.md),
-  [735](../735-propose-branch-entry-from-typed-inputs/PLAN.md) and
+  735 (done; `9969388:.planning/slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md`) and
   [738](../738-decide-landings-over-typed-attempts-and-records/PLAN.md) before
   editing their shared entries. Those plans may improve the existing seams.
   This plan can use today's adapters and preserves the same named proof

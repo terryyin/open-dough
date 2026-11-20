@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Julia-chan",
-  "email": "julia-chan@example.org",
-  "identity": "SEED-413#split-branch-entry-proposal-from-store",
-  "mode": "story-branch",
-  "branch": "claude/propose-a-branch-entry-from-typed-inputs-and-exp",
-  "host": "claude"
-}

@@ -22,7 +22,7 @@ Included:
   publication cases where Done is a precondition, onto composed Done records.
 
 Excluded: branch entry, its pin-ref query and `identifyBranch`
-([branch entry story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store));
+(the branch entry story (SEED-413#split-branch-entry-proposal-from-store, done; recoverable at `9969388`));
 `captureObservedLandings` and `handleLanding` reading the stores
 ([delivery observation](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records),
 [landing reports](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records)),

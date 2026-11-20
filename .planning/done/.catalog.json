@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_split-branch-entry-proposal-from-store.json",
+      "identity": "SEED-413#split-branch-entry-proposal-from-store",
+      "completedAt": "2026-11-20T17:07:18.934Z",
+      "blob": "c60cbacc685ccef9fdf91e3e7b0b72b714ec5e1e"
+    },
+    {
       "fileName": "SEED-413_mount-story-review-diff-reading.json",
       "identity": "SEED-413#mount-story-review-diff-reading",
       "completedAt": "2026-11-20T16:27:40.703Z",
