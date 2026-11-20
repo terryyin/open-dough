@@ -810,79 +810,6 @@ families. It follows the
   small extraction, six slices.
 - **Plan.** [741](../slice-plans/741-mount-story-review-diff-reading/PLAN.md)
 
-<a id="mount-usage-token-index-reading"></a>
-
-### Read the Usage Token index's selections and refreshes in mounted cases
-
-**Identity:** SEED-413#mount-usage-token-index-reading
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/740-mount-usage-token-index-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"927017454805fd1d73b5ffeedea5c6b0bcf94aa11d923573f2f20bb718e6a77b","plan":"6014f4a65be3cb63f32e562f77dffd8358c2e5eb34d41575e322a4526f4bc3d7"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-20 as the first Configuration piece, queued ahead of the remaining
-families. It follows the
-[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
-
-- **Goal.** Dashboard developers read the proof of what System settings →
-  Usage shows for a selection, a period and a Refresh as plain Vitest cases
-  on mounted Chromium, with each tool's Token index answer given as a typed
-  reply. Today these cases load `<App />` on the settings view, open Usage
-  and answer `/__usage/token-index` through page routes (13 cases in six
-  specs, 16.0 summed seconds in CI run 44741808717). The typed source this
-  story adds is also what the 20 chart cases left in the parent story need.
-- **Scope.** Move the six specs whose behavior is what Usage reads and
-  when: `system-settings-usage`, `-period`, `-estimate`, `-selection`,
-  `-checking` and `-tool`.
-  - [`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx)
-    reads each tool's answer and posts Refresh through `fetch`. Give it a
-    typed usage source behind
-    [`useUsageAnswers`](../../dashboard/src/useUsageAnswers.ts), as Story
-    Notes reads through `storyNotesState(source)`: one read of a cohort and
-    period that honours its abort signal, and one refresh. The page supplies
-    the source that speaks to the two endpoints and keeps their refusal
-    wording. A case supplies replies of the shared
-    [`TokenIndexAnswer`](../../dashboard/src/usageTokenIndex.ts) contract.
-  - Build answers with `makeMe.aTokenIndexAnswer`, offered through the
-    page-loadable MakeMe entry. A case that observes a pending read or
-    Refresh holds its own deferred reply.
-  - Operate Usage through small page objects beside the specs. The existing
-    Playwright page objects stay with the four
-    `e2e/configuration/system-settings-usage*` journeys, which keep proving
-    the real store, filters and Refresh.
-  - Preserve each distinct assertion. Remove a case only where an E2E
-    journey already proves the same thing, and name that journey.
-  - **Scope limits.** The five chart specs (`-average`, `-compare`,
-    `-legend`, `-overflow`, `-spacing`, 20 cases) stay in the parent story
-    with their pointer, touch and geometry proof. So do the other eight
-    Configuration specs, the full-group timing comparison and the
-    `frontendApp.ts` retirement. This story compares the focused selection
-    before and after.
-- **Key examples.**
-  - *A cohort's trend.* Codex answers ten eligible tasks with a rolling
-    median of 1,450. Usage shows the cohort note `10 tasks · Last 30 days`,
-    ten points and the median `1,450`.
-  - *An empty cohort.* The reader chooses the Refinement workflow and its
-    answer has no tasks. Usage reads `0 tasks · Last 30 days` and
-    `No finished task matches in the last 30 days.`, with no old median.
-  - *A failure belongs to its read.* Claude Code's read fails and Usage
-    names it: `Claude Code: Usage could not be read.` The reader hides and
-    shows Claude Code again, the read answers, and the failure is gone.
-  - *A late answer for a selection already left.* Claude Code's answer is
-    held, the reader hides Claude Code, and the answer is released. Usage
-    shows Codex alone.
-  - *Refresh keeps what is shown.* While a Refresh is pending Usage keeps
-    the trend, says `Checking for new usage…` and disables Refresh until the
-    selection has been read again. A Refresh that fails keeps the trend and
-    its check time beside the error.
-  - *An invalid period.* Under New York time the first read asks for the
-    last 30 local calendar days. The reader types `0`, `1.5` or `abc`. The
-    field reads invalid with `Enter a positive whole number of days. Showing
-    the last 30 days.`, the trend stays and nothing is read again.
-- **Effort hypothesis.** M: thirteen cases over one owner, one typed source
-  and new page objects, five slices.
-- **Plan.** [740](../slice-plans/740-mount-usage-token-index-reading/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -898,7 +825,8 @@ Candidates revision cases already run as mounted cases in
 [`intent-candidates-revision.spec.ts`](../../dashboard/frontend-tests/intent/intent-candidates-revision.spec.ts).
 Two pieces are split out and queued ahead of this story:
 [the story review's diff reading](#mount-story-review-diff-reading) and
-[the Usage Token index's selections and refreshes](#mount-usage-token-index-reading).
+[the Usage Token index's selections and refreshes](#usage-token-index-reading-after-migration)
+(now running in mounted Chromium).
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,

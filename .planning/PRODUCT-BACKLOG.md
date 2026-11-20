@@ -35,7 +35,6 @@ intent introduced or affected by a newly developed story.
 - [Decide reported landings over typed attempts and records](seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records) — SEED-413#decide-landings-over-typed-attempts-and-records ([plan](slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md))
 - [Read a story review's diff emphasis and syntax in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-diff-reading) — SEED-413#mount-story-review-diff-reading ([plan](slice-plans/741-mount-story-review-diff-reading/PLAN.md))
 - [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes ([plan](slice-plans/739-review-published-session-changes/PLAN.md))
-- [Read the Usage Token index's selections and refreshes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-usage-token-index-reading) — SEED-413#mount-usage-token-index-reading ([plan](slice-plans/740-mount-usage-token-index-reading/PLAN.md))
 
 ## Backlog list
 
