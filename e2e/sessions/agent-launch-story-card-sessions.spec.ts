@@ -17,7 +17,7 @@ import {
   doneSessionsOnCard,
   storyCardDoneDisclosure,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { expectSessionEntrySetOff } from "../../dashboard/test-support/pageColours.ts";
+import { expectSessionEntryInCardText } from "../../dashboard/test-support/pageColours.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -79,7 +79,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
     expect(launches()).toHaveLength(3);
 
-    await test.step("a Preparing card keeps its sessions, each set off on the panel in the card's text, and notes Start refinement", async () => {
+    await test.step("a Preparing card keeps its sessions, each in the card's text, and notes Start refinement", async () => {
       await show(columnsJourney.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
       await expect(
@@ -92,10 +92,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       ).toHaveAccessibleDescription(
         new RegExp(`Being prepared.*${describedBy(openSessionNote).source}`),
       );
-      await expectSessionEntrySetOff(
-        storyCardSessions(card(readyStory)),
-        "--accent-soft",
-      );
+      await expectSessionEntryInCardText(storyCardSessions(card(readyStory)));
 
       await page.reload();
       await settled();
@@ -105,7 +102,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     expect(launches()).toHaveLength(3);
   });
 
-  test("the published Take shows the story under Taken, whose card keeps every session, set off on the panel in the card's text, and offers no Start, through reload", async ({
+  test("the published Take shows the story under Taken, whose card keeps every session in the card's text and offers no Start, through reload", async ({
     page,
     dashboard,
   }) => {
@@ -123,9 +120,8 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expect(
       takenStoryCard.getByRole("button", { name: /^Start / }),
     ).toHaveCount(0);
-    await expectSessionEntrySetOff(
+    await expectSessionEntryInCardText(
       storyCardSessions(takenStoryCard).first(),
-      "--accent-soft",
     );
     await page.reload();
     await expectMembership(page, { taken: [readyStory], backlog });

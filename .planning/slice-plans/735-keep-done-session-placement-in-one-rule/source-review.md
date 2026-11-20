@@ -18,7 +18,7 @@ files and changed none.
 | P6 | Preserved: otherwise they stand alone in Recently done. Correction Goal and scope. | slice 1 | observed: sessions of no card and another project's same identity stand alone: board-done-session-placement.spec.ts; e2e/sessions/recently-done-returned-sessions.spec.ts |
 | P7 | Preserved: Recently done counts its rendered top-level entries. Correction Goal and scope; Story Scope. | slice 1 | observed: Column paging count uses rendered top-level entries: dashboard/frontend-tests/sessions/recently-done-active-story-sessions.spec.ts; e2e/sessions/agent-launch-done-listing.spec.ts |
 | P8 | Preserved: sidebar navigation reveals a nested entry. Correction Goal and scope. | slice 1 | observed: sidebar open reveals the nested Done entry on its unfinished card: e2e/sessions/recently-done-returned-sessions.spec.ts; dashboard/frontend-tests/sessions/recently-done-sessions-select-development.spec.ts |
-| P9 | Preserved: scan emphasis leads with title and progress and emphasizes the current session. Correction Goal and scope; Story Scope. | slice 3 | |
+| P9 | Preserved: scan emphasis leads with title and progress and emphasizes the current session. Correction Goal and scope; Story Scope. | slice 3 | observed: title and progress lead, open session carries --accent-soft while Done and Inspect read --quiet, focus order and 360 px fit: dashboard/frontend-tests/stories/story-card-scan-emphasis.spec.ts |
 
 ## Unnumbered source context
 

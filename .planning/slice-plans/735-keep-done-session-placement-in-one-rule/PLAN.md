@@ -172,7 +172,7 @@ slice 3's mounted-board arrangement follows the same rule.
 ### 3. Scan emphasis is proven in a mounted Vitest board
 
 Type: Structure
-Status: planned
+Status: done
 
 Replace `dashboard/frontend-tests/stories/story-card-scan-emphasis.spec.ts`
 with a Vitest Browser Mode spec on the mounted dashboard harness, arranged
@@ -190,6 +190,19 @@ other caller needs the parameter.
 **Proof.** The new spec passes and the Playwright scan spec is deleted;
 `agent-launch-story-card-sessions`, `taken-slice-progress`,
 `story-card-selection` and `recently-done-review-cue` still pass.
+
+**Accepted proof (slice 3).** Vitest `story-card-scan-emphasis` (4 passed) on
+the mounted dashboard through the `scanEmphasisBoard` command, all
+mounted-harness specs (14 passed); retained frontend `taken-slice-progress`,
+`story-card-selection`, `recently-done-review-cue`,
+`recently-done-story-sessions`; E2E `agent-launch-story-card-sessions`
+(3 passed); typecheck and lint.
+
+**Learnings (slice 3).** `expectSessionEntrySetOff` also proved that an open
+card session reads in the card's text with a quiet local-launch note. That
+reading stays in E2E as `expectSessionEntryInCardText`; only the background
+wash moved to the Vitest spec, compared with the resolved `--accent-soft` and
+`--quiet` tokens.
 
 ### 4. E2E journeys read a Done session wherever the Board places it
 
