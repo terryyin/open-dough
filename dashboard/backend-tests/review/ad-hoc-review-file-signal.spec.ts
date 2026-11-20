@@ -47,29 +47,25 @@ async function withImmediateAdmissionDeadline<T>(
   }
 }
 
-for (const [label, handler] of [
-  ["diff", reviewedFileDiff],
-  ["text", reviewedFileText],
-] as const) {
-  test(`Given a session with one kept run, when a cancelled file ${label} request reaches admission, then it rejects with the abort`, async () => {
-    const repository = await renameRevisionRepo();
-    try {
-      const { base, result } = repository.revisions;
-      const read = makeMe.aSessionReviewRead
-        .ofAdHocSessionWithKeptRun("session-abort-kept", {
-          repository: repository.integration,
-          run: { base, revision: result },
-        })
-        .readingFile({ baseline: base, tree: result, ...renamedFile })
-        .please();
-      await expect(handler(read, AbortSignal.abort())).rejects.toMatchObject({
-        name: "AbortError",
-      });
-    } finally {
-      await repository.cleanup();
-    }
-  });
-}
+// Diff and text share one admission, so one read per admission path proves it.
+test("Given a session with one kept run, when a cancelled file text request reaches admission, then it rejects with the abort", async () => {
+  const repository = await renameRevisionRepo();
+  try {
+    const { base, result } = repository.revisions;
+    const read = makeMe.aSessionReviewRead
+      .ofAdHocSessionWithKeptRun("session-abort-kept", {
+        repository: repository.integration,
+        run: { base, revision: result },
+      })
+      .readingFile({ baseline: base, tree: result, ...renamedFile })
+      .please();
+    await expect(
+      reviewedFileText(read, AbortSignal.abort()),
+    ).rejects.toMatchObject({ name: "AbortError" });
+  } finally {
+    await repository.cleanup();
+  }
+});
 
 test("Given a kept landed session, when a cancelled file diff request reaches admission, then it rejects with the abort", async () => {
   const repository = await renameRevisionRepo();
