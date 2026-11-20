@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deleteRecord } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { sessionBranchPins } from "../../test-support/support/adHocBranchRefs.ts";
+import { sessionBranchPinnedObjects } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   aHeldDone,
@@ -42,7 +42,7 @@ async function anIsolatedDraft() {
       )
     )[name];
   const pins = () =>
-    sessionBranchPins(checkout.integration, record.session.sessionId);
+    sessionBranchPinnedObjects(checkout.integration, record.session);
   return { baseline: checkout.base, record, commit, pins };
 }
 
@@ -54,11 +54,11 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
     kind: "branch-result",
     tree: first,
   });
-  const originalPins = pins();
+  const originalPins = await pins();
 
   await undoDone(record);
 
-  expect(pins()).toEqual(originalPins);
+  expect(await pins()).toEqual(originalPins);
   const oldFile = fileText(record, {
     baseline,
     tree: first,
@@ -87,7 +87,7 @@ test("a newer Done wins over a held stale capture with only its pins", async () 
     kind: "branch-result",
     tree: latest,
   });
-  expect(pins()).toEqual([baseline, latest]);
+  expect(await pins()).toEqual([baseline, latest]);
 });
 
 test("deleting a record while its Done capture is reading leaves no pins", async () => {
@@ -102,5 +102,5 @@ test("deleting a record while its Done capture is reading leaves no pins", async
     await done.marking;
   }
 
-  expect(pins()).toEqual([]);
+  expect(await pins()).toEqual([]);
 });

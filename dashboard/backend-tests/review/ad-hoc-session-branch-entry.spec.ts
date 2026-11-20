@@ -7,7 +7,7 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   addAdHocWorktree,
-  sessionBranchPins,
+  sessionBranchPinnedObjects,
 } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaringLaunch,
@@ -69,7 +69,7 @@ test("a declared branch keeps its entry state and Default main tip after main mo
     committedTip: entered,
     defaultTip: onMain,
   });
-  expect(sessionBranchPins(workspace, "declared")).toEqual([
+  expect(await sessionBranchPinnedObjects(workspace, record.session)).toEqual([
     entered,
     onMain,
     entry.tree,

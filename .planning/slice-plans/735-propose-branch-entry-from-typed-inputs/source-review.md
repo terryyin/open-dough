@@ -28,7 +28,7 @@ plan; "while the launch is open" qualifies C3 and is not a separate rejection ru
 | C11 | Cases whose topic is persistence or pin survival keep the real store adapter. Source: Scope | slice 6 |  |
 | C12 | When a review's launch already holds its branch entry, the branch comparison shows only post-entry branch changes and earlier Default main commits appear in their own comparison. Source: Key examples | slice 4 |  |
 | C13 | Evidence cases query session branch pins and one-shot landing pins through their production owners, reading the actual refs; the test-only pin queries are retired. Source: Goal; Scope | slice 3 |  |
-| C14 | After Cursor replaces a native session, its pins still belong to, and are queried under, the original host-qualified session. Source: Scope; Key examples | slice 2 |  |
+| C14 | After Cursor replaces a native session, its pins still belong to, and are queried under, the original host-qualified session. Source: Scope; Key examples | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-branch-cursor-recovery.spec.ts deletion/expiry cases: sessionBranchPins(repository, topic.record.session) holds prior and latest after replacement, replacement.session reads []; production query dashboard/server/launchRecordPins.ts sessionBranchPins |
 | C15 | Expiry removes the replaced session's pins and keeps the other session's pins. Source: Key examples | slice 6 |  |
 | C16 | The expiry cases name their cleanup collaborator explicitly. Source: Scope | slice 6 |  |
 | C17 | Deleting a declared landing releases its one-shot pins after the comparison has outlived retirement, and deletion cases use the production deletion operation. Source: Scope; Key examples | slice 5 |  |

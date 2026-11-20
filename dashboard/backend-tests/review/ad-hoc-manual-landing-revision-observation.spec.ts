@@ -3,12 +3,10 @@
 // same receipt and landing pins until the launch is deleted.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
-import {
-  landingPins,
-  sessionBranchPins,
-} from "../../test-support/support/adHocBranchRefs.ts";
+import { landingPins } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   anIsolatedBranch,
   inWorktree,
@@ -75,6 +73,6 @@ test("ordinary revision checks retain one delivery across repeated observations"
   expect(landingPins(integration)).toEqual(pins);
 
   await deleteRecord(source, record.session);
-  expect(sessionBranchPins(integration, record.session.sessionId)).toEqual([]);
+  expect(await sessionBranchPins(integration, record.session)).toEqual([]);
   expect(landingPins(integration)).toEqual([]);
 });

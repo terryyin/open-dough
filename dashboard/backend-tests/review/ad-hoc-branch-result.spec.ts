@@ -18,7 +18,7 @@ import {
 } from "../../src/launchRecord.ts";
 import {
   retireAdHocBranch,
-  sessionBranchPins,
+  sessionBranchPinnedObjects,
 } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
@@ -156,15 +156,15 @@ for (const [reason, remove] of Object.entries(removals)) {
     await markDone(leaving.record);
     await markDone(staying.record);
     const pins = (launch: typeof leaving) =>
-      sessionBranchPins(checkout.integration, launch.record.session.sessionId);
-    expect(pins(leaving)).toContain(first);
-    expect(pins(leaving)).toHaveLength(3);
-    const stayingPins = pins(staying);
+      sessionBranchPinnedObjects(checkout.integration, launch.record.session);
+    expect(await pins(leaving)).toContain(first);
+    expect(await pins(leaving)).toHaveLength(3);
+    const stayingPins = await pins(staying);
     expect(stayingPins).toContain(second);
 
     await remove(leaving.record);
 
-    expect(pins(leaving)).toEqual([]);
-    expect(pins(staying)).toEqual(stayingPins);
+    expect(await pins(leaving)).toEqual([]);
+    expect(await pins(staying)).toEqual(stayingPins);
   });
 }

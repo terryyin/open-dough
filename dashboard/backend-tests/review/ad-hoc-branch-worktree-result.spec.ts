@@ -8,7 +8,7 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   retireAdHocBranch,
-  sessionBranchPins,
+  sessionBranchPinnedObjects,
 } from "../../test-support/support/adHocBranchRefs.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
@@ -103,9 +103,9 @@ test("Done keeps the working tree it read and outlives a forced retirement", asy
   expect(git(checkout.integration, "cat-file", "-t", committedTip)).toBe(
     "commit",
   );
-  const pins = sessionBranchPins(
+  const pins = await sessionBranchPinnedObjects(
     checkout.integration,
-    record.session.sessionId,
+    record.session,
   );
   expect(pins).toEqual([baseline, tree, committedTip]);
   const draft = { baseline, tree, path: "draft.txt" };

@@ -3,8 +3,8 @@
 // releases it.
 import path from "node:path";
 import { expect, test } from "vitest";
-import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   bindRecord,
   changeSessionRecord,
@@ -17,6 +17,7 @@ import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
+import { sessionBranchPinnedObjects } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
   anIsolatedLaunch,
@@ -50,16 +51,6 @@ const replacedBy = (record: LaunchRecord, sessionId: string): LaunchRecord => ({
   ...record,
   session: { ...record.session, sessionId },
 });
-
-async function cursorPins(checkout: Checkout, sessionId: string) {
-  const { stdout } = await git(
-    checkout.integration,
-    "for-each-ref",
-    "--format=%(objectname)",
-    `refs/open-dough/session-branch/cursor/${sessionId}/`,
-  );
-  return stdout.split("\n").filter(Boolean);
-}
 
 // An isolated Cursor launch on the checkout's worktree `workspace`.
 const anIsolatedCursorLaunch = (
@@ -120,13 +111,20 @@ for (const [reason, remove] of Object.entries(removals)) {
       makeMe.aCheckoutWork.committing("prior", { at: minutesAgo(40) }),
     );
     await markDone(topic.record, minutesAgo(35));
-    const originalPins = await cursorPins(checkout, originalId);
-    expect(originalPins).toContain(prior);
+    const originalPins = await sessionBranchPins(
+      checkout.integration,
+      topic.record.session,
+    );
+    expect(originalPins).toContainEqual(
+      expect.objectContaining({ objectId: prior }),
+    );
 
     await undoDone(topic.record);
     const replacement = replacedBy(topic.record, replacementId);
     await replaceKeptSession(source, topic.record.session, replacement);
-    expect(await cursorPins(checkout, originalId)).toEqual(originalPins);
+    expect(
+      await sessionBranchPins(checkout.integration, topic.record.session),
+    ).toEqual(originalPins);
 
     const { latest } = await work(
       inWorktree(checkout, topic.workspace),
@@ -139,20 +137,36 @@ for (const [reason, remove] of Object.entries(removals)) {
       tree: latest,
       files: [{ path: "latest.txt" }, { path: "prior.txt" }],
     });
-    expect(await cursorPins(checkout, originalId)).toContain(latest);
-    expect(await cursorPins(checkout, replacementId)).toEqual([]);
+    expect(
+      await sessionBranchPinnedObjects(
+        checkout.integration,
+        topic.record.session,
+      ),
+    ).toContain(latest);
+    expect(
+      await sessionBranchPins(checkout.integration, replacement.session),
+    ).toEqual([]);
     const { kept } = await work(
       inWorktree(checkout, separate.workspace),
       makeMe.aCheckoutWork.committing("kept", { at: minutesAgo(30) }),
     );
     await markDone(separate.record);
-    const otherPins = await cursorPins(checkout, otherId);
-    expect(otherPins).toContain(kept);
+    const otherPins = await sessionBranchPins(
+      checkout.integration,
+      separate.record.session,
+    );
+    expect(otherPins).toContainEqual(
+      expect.objectContaining({ objectId: kept }),
+    );
 
     await remove(replacement);
 
-    expect(await cursorPins(checkout, originalId)).toEqual([]);
-    expect(await cursorPins(checkout, otherId)).toEqual(otherPins);
+    expect(
+      await sessionBranchPins(checkout.integration, topic.record.session),
+    ).toEqual([]);
+    expect(
+      await sessionBranchPins(checkout.integration, separate.record.session),
+    ).toEqual(otherPins);
   });
 }
 

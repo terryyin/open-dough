@@ -2,6 +2,7 @@
 // wins: the other branch's delivery settles and only its evidence remains.
 import { expect, test } from "vitest";
 import { replaceRecords } from "../../server/launchRecordDocument.ts";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
 import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
 import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
@@ -10,7 +11,7 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launchRetentionDays } from "../../src/launchRecord.ts";
 import {
   landingPins,
-  sessionBranchPins,
+  sessionBranchPinnedObjects,
 } from "../../test-support/support/adHocBranchRefs.ts";
 import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
@@ -33,7 +34,7 @@ async function heldObservation() {
     head,
   } = await twoDoneBranchesMergedByHand("leaving", "staying");
   expect(
-    sessionBranchPins(checkout.integration, leaving.session.sessionId),
+    await sessionBranchPinnedObjects(checkout.integration, leaving.session),
   ).toContain(leavingTip);
 
   let release = () => {};
@@ -71,7 +72,7 @@ async function expectOnlyTheSurvivorDelivered(
     (await keptRecords(source)).map((record) => record.session.sessionId),
   ).toEqual([survivor.session.sessionId]);
   expect(
-    sessionBranchPins(checkout.integration, removed.session.sessionId),
+    await sessionBranchPins(checkout.integration, removed.session),
   ).toEqual([]);
   const pinned = `refs/open-dough/one-shot/${delivered.landing.reference}/${delivered.landing.delivery}`;
   expect(landingPins(checkout.integration)).toEqual([
@@ -121,6 +122,6 @@ test("expiry while the target is being inspected releases evidence and cannot re
   expect(await keptRecords(source)).toEqual([]);
   expect(landingPins(checkout.integration)).toEqual([]);
   expect(
-    sessionBranchPins(checkout.integration, staying.session.sessionId),
+    await sessionBranchPins(checkout.integration, staying.session),
   ).toEqual([]);
 });

@@ -152,17 +152,32 @@ export async function pinPair(
   await git(repository, ["update-ref", `${prefix}base`, pair.base]);
   await git(repository, ["update-ref", `${prefix}revision`, pair.revision]);
 }
+export type HeldPin = { readonly ref: string; readonly objectId: string };
+// Every reference held under `prefix`, ordered by Git ref name.
+export async function heldPins(
+  repository: string,
+  prefix: string,
+): Promise<HeldPin[]> {
+  const listed = await git(repository, [
+    "for-each-ref",
+    "--format=%(refname) %(objectname)",
+    prefix,
+  ]);
+  return listed.stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const [ref = "", objectId = ""] = line.split(" ");
+      return { ref, objectId };
+    });
+}
 // Releases every pair held under `prefix`.
 export async function removePins(
   repository: string,
   prefix: string,
 ): Promise<void> {
-  const listed = await git(repository, [
-    "for-each-ref",
-    "--format=%(refname)",
-    prefix,
-  ]);
-  for (const ref of listed.stdout.trim().split("\n").filter(Boolean))
+  for (const { ref } of await heldPins(repository, prefix))
     await git(repository, ["update-ref", "-d", ref]);
 }
 export const pinLanding = (landing: LaunchLanding): Promise<void> =>

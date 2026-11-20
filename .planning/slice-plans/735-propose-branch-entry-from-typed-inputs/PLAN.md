@@ -125,7 +125,7 @@ show them clear of the edge, and any CI timeout on them is this execution's repa
 ### 2. Branch evidence is read by host and session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a repository and a `SessionReference`, the production query reads
 only the requested host and session's refs. Migrate all `sessionBranchPins`
@@ -138,6 +138,12 @@ branch-result lifecycle, worktree and supersession specs, the manual
 observation lifecycle and the retained `ad-hoc-branch-result-race` case.
 Keep the entry's three object ids, the newer Done's pins and exclusion of
 the earlier result, and the unrelated owner's refs after deletion or expiry.
+
+**Learning.** `heldPins` in `launchLandingGit.ts` is the one `for-each-ref`
+read; `sessionBranchPins` in `launchRecordPins.ts` reads by `SessionReference`,
+and support's `sessionBranchPinnedObjects` maps it to object ids. The Cursor
+recovery deletion case timed out at 5.0 s at load 15 (also once in slice 1)
+and passed at 3.2–3.5 s: a flaky case that slice 6 repairs.
 
 ### 3. Landing evidence is read through its own namespace
 
@@ -213,6 +219,11 @@ history readers. Keep the proof that only the leaving record's pins are
 released, the survivor can finish an observation, and a removed launch
 cannot be recreated by its held inspection. Rerun the pin-cleanup
 discrimination from the premises against the explicit callback.
+
+**Repair carried here.** The Cursor recovery deletion and expiry cases flake
+at the 5 s default under load ~15 (slices 1–2). Make their setup cheaper while
+converting this spec, without raising timeouts, and show both cases well clear
+of the limit across three runs at comparable load.
 
 ## Local gates
 

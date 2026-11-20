@@ -1,6 +1,8 @@
 // Git operations on an ad hoc session's branch and the refs that pin its
 // kept commits, usable from either test runner.
 import { realpathSync } from "node:fs";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
+import type { SessionReference } from "../../src/sessionReference.ts";
 import { git } from "./storyReviewWorktree.ts";
 
 // Adds `workspace` as a worktree of `checkout` on a new `branch` and answers
@@ -32,16 +34,14 @@ export function retireAdHocBranch(
   git(checkout, "gc", "--quiet", "--prune=now");
 }
 
-export function sessionBranchPins(checkout: string, session: string): string[] {
-  return git(
-    checkout,
-    "for-each-ref",
-    "--format=%(objectname)",
-    `refs/open-dough/session-branch/claude/${session}/`,
-  )
-    .split("\n")
-    .filter(Boolean);
-}
+// The objects `repository` pins for `session`'s branch, ordered by ref name.
+export const sessionBranchPinnedObjects = async (
+  repository: string,
+  session: SessionReference,
+) =>
+  (await sessionBranchPins(repository, session)).map(
+    ({ objectId }) => objectId,
+  );
 
 export function landingPins(checkout: string): string[] {
   return git(
