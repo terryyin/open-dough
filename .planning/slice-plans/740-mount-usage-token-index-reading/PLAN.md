@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#mount-usage-token-index-reading
 **Source:** [Read the Usage Token index's selections and refreshes in mounted cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-usage-token-index-reading)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -98,7 +99,7 @@ and the scratch spec was removed afterwards.
 ### 1. Usage reads and refreshes through a typed source
 
 Type: Structure
-Status: planned
+Status: done
 
 Take the local focused baseline first: run the six built-app specs alone,
 three times, and keep the elapsed times for slice 5. Then put the usage
@@ -111,6 +112,9 @@ proves the refusal wording for a refused read and a refused Refresh.
 `system-settings-usage*` specs and `system-settings-navigation.spec.ts` pass
 unchanged, and the four `e2e/configuration/system-settings-usage*` journeys
 pass. The refusal-wording case passes.
+
+- **Retained baseline (`1817333330f5`, `--workers=2`, AC power):** 6 moving built-app specs (13 cases) warm command elapsed `39.25 s`, `45.13 s`, `39.75 s` (median `39.75 s`; runner summed `44.2 s`, `51.9 s`, `47.5 s`, median `47.5 s`; 1m load `35.16–40.97`).
+- **Learnings for slices 2–4:** `UsageFilters.tsx` wraps `<select>` inside `<label>`, so target filter selects via `getByRole("combobox", { name: label, exact: true })`; observe passive `useEffect` cleanup effects (such as `AbortSignal.aborted`) through `expect.poll`.
 
 ### 2. A cohort and its period read from typed answers
 

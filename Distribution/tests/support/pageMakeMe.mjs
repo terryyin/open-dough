@@ -14,6 +14,7 @@ import {
   SessionStateBuilder,
 } from "./launchObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 
 /**
  * @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe &
@@ -26,6 +27,7 @@ import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
  *     readonly aSessionState: SessionStateBuilder;
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
+ *     readonly aTokenIndexAnswer: TokenIndexAnswerBuilder;
  *     readonly aHostStatus: import("./factBuilder.mjs").FactBuilder<
  *       import("../../../dashboard/src/hostStatus.ts").HostStatus
  *     >;
@@ -68,6 +70,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new MachineAnswerBuilder();
+    },
+  },
+  aTokenIndexAnswer: {
+    enumerable: true,
+    get() {
+      return new TokenIndexAnswerBuilder();
     },
   },
   aHostStatus: {
