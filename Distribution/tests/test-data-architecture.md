@@ -64,8 +64,10 @@ Declare the Git state a test starts from with `makeMe.aRepository`.
 workspaces and their uncommitted state, releases, claims and served revisions.
 Dated work in a materialized checkout is declared with
 `makeMe.aCheckoutWork`. [The Git performer](support/repository-checkout-work.mjs)
-runs those steps and returns the commit each named step reached. Use it when
-the case observes the checkout's actions through Git's own log.
+runs those steps and returns their named Git revisions. A fast-forward or
+rebase names the trunk commit taken in. A merging pull names the merge the
+checkout created. Use it when the case observes the checkout's actions
+through Git's own log.
 A completed-story review starts from a declared history — named claim,
 implementation, merges and `completionRevision` — published through the origin
 or `publishDeclaredTrunk`, not a variant replay. See

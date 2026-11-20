@@ -11,9 +11,12 @@ import {
   commitDeclaredRevision,
   integrationDeveloper,
 } from "./repository-revision-commit.mjs";
+import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 /** @typedef {{ integration: string, fixture: string, origin?: string }} Checkout */
 /** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedCommit} DatedCommit */
+/** @typedef {import("./repositoryCheckoutWorkTestData.mjs").DatedAmendment} DatedAmendment */
+/** @typedef {import("./repositoryCheckoutWorkTestData.mjs").TrunkWork} TrunkWork */
 
 /**
  * @param {string} cwd
@@ -34,8 +37,16 @@ const commitAt = (cwd, { at, message, files }) =>
     committer: { ...integrationDeveloper, date: at },
   });
 
+/** @param {string} checkout @param {DatedAmendment} work */
+async function amendAt(checkout, { at, files }) {
+  writeRevisionFiles(checkout, { files });
+  await gitAt(checkout, at, ["add", "--", ...Object.keys(files)]);
+  await gitAt(checkout, at, ["commit", "--quiet", "--amend", "--no-edit"]);
+  return revParse(checkout, "HEAD");
+}
+
 /** @param {Checkout} checkout @param {DatedCommit} work */
-async function fastForwardToTrunkWork({ fixture, integration, origin }, work) {
+async function publishTrunkWork({ fixture, origin }, work) {
   if (origin === undefined)
     throw new Error("Published trunk work needs a repository with an origin.");
   const other = mkdtempSync(join(fixture, "trunk-work-"));
@@ -47,14 +58,27 @@ async function fastForwardToTrunkWork({ fixture, integration, origin }, work) {
   ]);
   const published = await commitAt(other, work);
   await gitAt(other, work.at, ["push", "--quiet", "origin", "HEAD"]);
-  await gitAt(integration, work.at, [
-    "pull",
-    "--quiet",
-    "--ff-only",
-    "origin",
-    stdout.trim(),
-  ]);
-  return published;
+  return { branch: stdout.trim(), published };
+}
+
+/** @param {Checkout} checkout @param {DatedCommit & { kind: TrunkWork }} work */
+async function takeInTrunkWork(checkout, work) {
+  const { integration } = checkout;
+  const { branch, published } = await publishTrunkWork(checkout, work);
+  const git = (/** @type {string[]} */ ...args) =>
+    gitAt(integration, work.at, args);
+  if (work.kind === "rebase-onto") {
+    await git("fetch", "--quiet", "origin", branch);
+    await git("rebase", "--quiet", "--onto", `origin/${branch}`, "HEAD~1");
+  } else {
+    const pullOptions = {
+      "fast-forward": ["--ff-only"],
+      merge: ["--no-rebase", "--no-edit"],
+      rebase: ["--rebase"],
+    };
+    await git("pull", "--quiet", ...pullOptions[work.kind], "origin", branch);
+  }
+  return work.kind === "merge" ? revParse(integration, "HEAD") : published;
 }
 
 /**
@@ -72,6 +96,9 @@ export async function performCheckoutWork(checkout, work) {
       case "commit":
         commits.push([step.name, await commitAt(integration, step)]);
         break;
+      case "amend":
+        commits.push([step.name, await amendAt(integration, step)]);
+        break;
       case "push":
         await gitAt(integration, step.at, [
           "push",
@@ -82,7 +109,10 @@ export async function performCheckoutWork(checkout, work) {
         commits.push([step.name, await revParse(integration, "HEAD")]);
         break;
       case "fast-forward":
-        commits.push([step.name, await fastForwardToTrunkWork(checkout, step)]);
+      case "merge":
+      case "rebase":
+      case "rebase-onto":
+        commits.push([step.name, await takeInTrunkWork(checkout, step)]);
         break;
     }
   }

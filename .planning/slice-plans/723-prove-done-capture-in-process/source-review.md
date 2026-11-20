@@ -46,12 +46,12 @@ of speed, clarity and support removed.
 | P21 | For a Default main session established at base an hour ago, with one commit half an hour ago and Done ten minutes ago, the kept record holds one run from base to that commit. | slice 1 | observed: done-kept-session-commits.spec.ts established-session case reads exactly one persisted run with base and the committed revision after Done |
 | P22 | In the same example, the repository holds the two references that keep that pair. | slice 1 | observed: done-kept-session-commits.spec.ts established-session case asserts both comparison refs and object IDs |
 | P23 | In the same example, typed review answers `session-commits` with that run. | slice 1 | observed: done-kept-session-commits.spec.ts established-session case asserts session-commits, selected run 0 and the single complete run |
-| P24 | For the same session with one commit on each side of a pull that merged trunk’s work, Done keeps two runs. | slice 2 | |
-| P25 | Those runs appear oldest first. | slice 2 | |
-| P26 | Neither run includes the merge. | slice 2 | |
-| P27 | Neither run includes trunk’s changes. | slice 2 | |
-| P28 | When a session makes two commits, amends the second, and rebases onto pulled trunk, Done keeps one run. | slice 2 | |
-| P29 | That run contains the two commits as they ended. | slice 2 | |
+| P24 | For the same session with one commit on each side of a pull that merged trunk’s work, Done keeps two runs. | slice 2 | observed: done-kept-session-commit-runs.spec.ts merging-pull case asserts an exact two-run list |
+| P25 | Those runs appear oldest first. | slice 2 | observed: done-kept-session-commit-runs.spec.ts merging-pull case selects indices 0 and 1 for the exact ordered pairs |
+| P26 | Neither run includes the merge. | slice 2 | observed: done-kept-session-commit-runs.spec.ts merging-pull case expects the merge only as the second baseline |
+| P27 | Neither run includes trunk’s changes. | slice 2 | observed: done-kept-session-commit-runs.spec.ts merging-pull case asserts only its first and second session files in their own runs |
+| P28 | When a session makes two commits, amends the second, and rebases onto pulled trunk, Done keeps one run. | slice 2 | observed: done-kept-session-rebased-runs.spec.ts amended-series case expects one run at index 0 after the rebasing pull |
+| P29 | That run contains the two commits as they ended. | slice 2 | observed: done-kept-session-rebased-runs.spec.ts amended-series case expects two commits from pulled trunk to actual origin tip with both session files and the amendment |
 | P30 | Where a kept Default main session has a retained landing and a later kept run, review answers with the landing. This is the precedence check repeated in **Scope: cases** and **Key examples**. | slice 1 | observed: kept-session-commits-review.spec.ts retained-landing case expects landed with the landing pair despite a later kept run |
 | P31 | That landing review lists its changed file. | slice 1 | observed: kept-session-commits-review.spec.ts retained-landing case asserts that landed.txt is added |
 | P32 | A file-text read of the kept run’s exact pair returns the base-side version. | slice 1 | observed: kept-session-commits-review.spec.ts exact-pair text asserts the before version |

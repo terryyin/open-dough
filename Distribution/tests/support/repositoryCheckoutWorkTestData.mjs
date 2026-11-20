@@ -3,7 +3,9 @@
 
 /** @typedef {{ at: string, message: string, files: Readonly<Record<string, string>> }} DatedCommit */
 /** @typedef {{ at: string }} DatedStep */
-/** @typedef {{ kind: "commit" | "fast-forward" } & DatedCommit | { kind: "push" } & DatedStep} WorkStep */
+/** @typedef {Omit<DatedCommit, "message">} DatedAmendment */
+/** @typedef {"fast-forward" | "merge" | "rebase" | "rebase-onto"} TrunkWork */
+/** @typedef {{ kind: "commit" } & DatedCommit | { kind: TrunkWork } & DatedCommit | { kind: "amend" } & DatedAmendment | { kind: "push" } & DatedStep} WorkStep */
 /** @template {string} Name @typedef {WorkStep & { name: Name }} NamedStep */
 /** @template {string} [Name=string] @typedef {readonly NamedStep<Name>[]} CheckoutWork */
 
@@ -45,6 +47,15 @@ export class CheckoutWorkBuilder {
   /**
    * @template {string} NewName
    * @param {NewName} name
+   * @param {DatedAmendment} amendment
+   */
+  amending(name, amendment) {
+    return this.#with(name, { ...amendment, kind: "amend" });
+  }
+
+  /**
+   * @template {string} NewName
+   * @param {NewName} name
    * @param {DatedStep} push
    */
   pushingToTrunk(name, push) {
@@ -59,6 +70,36 @@ export class CheckoutWorkBuilder {
    */
   fastForwardingToTrunkWork(name, commit) {
     return this.#with(name, { ...commit, kind: "fast-forward" });
+  }
+
+  /**
+   * Answers the merge commit the checkout creates when it pulls trunk.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedCommit} commit
+   */
+  mergingTrunkWork(name, commit) {
+    return this.#with(name, { ...commit, kind: "merge" });
+  }
+
+  /**
+   * Answers the trunk commit the checkout rebases onto while pulling it.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedCommit} commit
+   */
+  rebasingOntoTrunkWork(name, commit) {
+    return this.#with(name, { ...commit, kind: "rebase" });
+  }
+
+  /**
+   * Answers the fetched trunk commit onto which the checkout rebases its tip.
+   * @template {string} NewName
+   * @param {NewName} name
+   * @param {DatedCommit} commit
+   */
+  rebasingTipOntoFetchedTrunkWork(name, commit) {
+    return this.#with(name, { ...commit, kind: "rebase-onto" });
   }
 
   /** @returns {CheckoutWork<Name>} */

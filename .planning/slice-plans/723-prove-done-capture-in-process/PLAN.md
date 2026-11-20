@@ -192,7 +192,7 @@ story-addressed wire proof stays with that story. Slice 7 owns cleanup of
 ### 2. Runs across trunk work taken into the checkout are proven in-process
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the same kept session and checkout work with commits either
 side of trunk work pulled, merged or rebased onto, when the case marks the
@@ -207,6 +207,18 @@ deleted.
 Proof: The six cases pass through the focused backend run. Each fails under a
 scratch edit to the placing rule it depends on in
 `sessionCommitsCapture.ts`. The performer's cases for the new steps pass.
+
+Accepted proof in `slice-2-implementation.md` and its named run records
+in the checkout's Git evidence directory. The six Vitest cases preserve
+the old selections, pairs, files, diffs and explanation. Six scratch
+variants produced the expected wrong results. Four Distribution fixture
+cases observed the performer through Git, the slice 1 fast-forward and
+pruned-commit case passed again, and dashboard typecheck passed.
+The six matched cases summed to 12.238 seconds against the 50.764-second
+Playwright baseline at two workers.
+The selective formatter flagged the diff matcher's inferred type. Giving
+the matcher an explicit `unknown` type kept its assertion unchanged. The
+pulled-landing case passed again in `slice2-file-diff-lint-proof.json`.
 
 ### 3. Rewritten commits are kept as they ended, proven in-process
 
