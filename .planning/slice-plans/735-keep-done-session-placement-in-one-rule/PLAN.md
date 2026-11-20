@@ -258,3 +258,13 @@ Slice-plan refinement was not needed: each slice changes one concept
 (placement rule, disclosure input, scan proof runner, E2E reading) with its
 own focused proof, and later slices depend only on earlier delivered
 structure. No remaining slice-specific concern was found.
+
+## Execution complete
+
+Product advice: no change. The correction preserves every delivered Done
+history, Recently done and scan-emphasis behavior, so product priorities are
+unaffected. Optional test-structure follow-ups seen during refactoring, not
+queued: a MakeMe builder for done-catalog records, a domain step for
+"launched or marked done N minutes ago" on the launch-record builder, and the
+open-session counterpart of the placement rule (`storyCardSessionsOf` beside
+`columnSessionsOf`), which predates this correction.
