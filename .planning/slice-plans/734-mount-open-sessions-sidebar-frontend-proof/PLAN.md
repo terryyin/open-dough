@@ -222,3 +222,18 @@ remaining slice-specific concern.
 - Playwright-only frontend filters need `CI=1` / `--reporter=list` for visible
   case results in evidence logs.
 - Vitest browser mounts default to touch (`hasTouch`); desktop disclosure CSS needs fine-pointer CDP for that assertion.
+
+## Execution complete
+
+Product advice:
+- Close this Taken item when CI and wrap-up complete; outcome matches goal/scope
+  (typed open-list, compact row/tick, state edges, independent session/host
+  figures).
+- Keep shared E2E readers and host-status pace ownership; do not treat the
+  focused family gain as the full frontend-group measurement — that stays with
+  SEED-413#renovate-later-dashboard-frontend-unit-test-families.
+- No backlog reorder or new story from this review; sibling mount work (733) and
+  the later-families epic remain the campaign path.
+- Direction aligns with the North Star (direct production seams, Vitest
+  Chromium, pageMakeMe, no new test-support wrappers). Process review is
+  deferred into wrap-up for Intent Coverage.
