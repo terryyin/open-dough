@@ -2,7 +2,7 @@
 // predates the case, launch records kept in a private machine store, dated
 // checkout work, the Done mark and the typed review that reads the result.
 // Times are minutes before the case's clock: launch at 60, Done at 10.
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
@@ -103,6 +103,34 @@ export const aDefaultLaunch = (
     .inClaudeSession({ sessionId })
     .launchedAt(launchedAt);
 
+// A launch whose start established the worktree `workspace` of the checkout
+// on `branch` at `startingRevision` (the base by default), for review.
+export const anIsolatedLaunch = (
+  checkout: Checkout,
+  {
+    workspace,
+    branch,
+    startingRevision = checkout.base,
+    sessionId = `isolated-${branch}`,
+    title = "Keep a draft",
+    launchedAt = minutesAgo(60),
+  }: LaunchFacts & {
+    workspace: string;
+    branch: string;
+    startingRevision?: string;
+  },
+) =>
+  makeMe.aLaunchRecord
+    .adHoc({ title })
+    .inIsolatedWorkspace({
+      workspace,
+      branch,
+      startingRevision,
+      repository: realpathSync(path.join(checkout.integration, ".git")),
+    })
+    .inClaudeSession({ sessionId })
+    .launchedAt(launchedAt);
+
 // Keeps these records as the project's whole store in a private machine
 // home, and answers the home.
 export function keep(...records: LaunchRecord[]) {
@@ -131,6 +159,12 @@ export const work = <Name extends string>(
   steps: CheckoutWorkBuilder<Name>,
 ) => performCheckoutWork(checkout, steps.please());
 
+// The same checkout, working in its worktree `workspace` instead.
+export const inWorktree = (checkout: Checkout, workspace: string) => ({
+  ...checkout,
+  integration: workspace,
+});
+
 export const markDone = (record: LaunchRecord, at = minutesAgo(10)) =>
   setRecordDoneAt(source, record.session, at);
 
@@ -143,7 +177,7 @@ const reviewRead = async (record: LaunchRecord) =>
     .keeping(await keptRecords(source));
 
 // The typed review of the kept session, at its first run or at `run`.
-export async function review(record: LaunchRecord, run?: number) {
+export async function review(record: LaunchRecord, run?: number | string) {
   const input = (await reviewRead(record)).please();
   const read =
     run === undefined

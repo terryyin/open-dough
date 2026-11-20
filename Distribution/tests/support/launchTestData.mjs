@@ -175,11 +175,12 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
 
   /**
    * The ad hoc launch's start established an isolated workspace of the
-   * project on this branch, waiting for review.
-   * @param {{ workspace: string, branch: string }} isolated
+   * project on this branch, waiting for review; a start that read the
+   * worktree names its starting revision and the repository it keeps.
+   * @param {{ workspace: string, branch: string, startingRevision?: string, repository?: string }} isolated
    */
-  inIsolatedWorkspace({ workspace, branch }) {
-    this.#adHocWorkspace = { role: "isolated", workspace, branch };
+  inIsolatedWorkspace(isolated) {
+    this.#adHocWorkspace = { role: "isolated", ...isolated };
     return this;
   }
 

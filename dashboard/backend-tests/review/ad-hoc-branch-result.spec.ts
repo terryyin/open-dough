@@ -1,208 +1,172 @@
+// Done saves an isolated ad hoc branch's result with Git references, so its
+// review outlives the worktree and branch, and only that launch's removal
+// releases them.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect, test } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  changeSessionRecord,
   deleteRecord,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
+} from "../../server/launchRecordStore.ts";
+import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
-  adHocReview,
-  adHocSessionFileDiff,
-  adHocSessionFileText,
-  launchIsolatedReview,
+  launchRetentionDays,
+  type LaunchRecord,
+} from "../../src/launchRecord.ts";
+import {
   retireAdHocBranch,
   sessionBranchPins,
 } from "../../test-support/support/adHocReview.ts";
 import {
-  quote,
-  reportingChild,
-} from "../../test-support/support/completionRecovery.ts";
-import { commit } from "../../test-support/support/launchLanding.ts";
-import {
-  keepLaunchRecords,
-  keptLaunchRecords,
-} from "../../test-support/support/launchStore.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { reportingThrough } from "../../test-support/support/reportedLaunch.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
+  aCheckout,
+  anIsolatedLaunch,
+  fileDiff,
+  fileText,
+  historyBeforeTheCase,
+  inWorktree,
+  keep,
+  markDone,
+  minutesAgo,
+  review,
+  source,
+  work,
+} from "../support/doneCaptureCase.ts";
 
-test.use({ serverMode: "boundary" });
-
-test("the branch comparison at Done and its files survive worktree and branch removal and pruning", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, branch, baseline, session } = await launchIsolatedReview(
-    dashboard,
-    "Save the draft",
+// A checkout whose isolated launches each started a worktree at its base,
+// answered by branch.
+async function aCheckoutWithWorktrees<Branch extends string>(
+  first: Branch,
+  ...others: Branch[]
+) {
+  const history = others.reduce(
+    (described, branch) => described.withWorkspace(branch, { from: "base" }),
+    historyBeforeTheCase().withWorkspace(first, { from: "base" }),
   );
-  const file = "draft.txt";
-  const tree = commit(workspace, file);
-  dashboard.claudeSessionBecomes(session, "done-live");
-  const response = await markDone(dashboard, { source: "open-dough", session });
-  expect(response.status, response.body).toBe(200);
-  retireAdHocBranch(origin.project, workspace, branch);
+  const checkout = await aCheckout({ history, withOrigin: true });
+  const records = [];
+  const worktrees = {} as Record<
+    Branch,
+    { workspace: string; branch: Branch; record: LaunchRecord }
+  >;
+  for (const branch of [first, ...others]) {
+    const workspace =
+      branch === first
+        ? checkout.execution
+        : path.join(checkout.integration, ".worktrees", branch);
+    if (workspace === undefined) throw new Error("Missing the worktree.");
+    const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+    worktrees[branch] = { workspace, branch, record };
+    records.push(record);
+  }
+  keep(...records);
+  return { checkout, worktrees };
+}
 
-  expect(await adHocReview(request, dashboard, session)).toMatchObject({
+test("the branch comparison at Done and its files survive worktree and branch removal and pruning", async () => {
+  const { checkout, worktrees } = await aCheckoutWithWorktrees("draft");
+  const { workspace, branch, record } = worktrees.draft;
+  const { draft: tree } = await work(
+    inWorktree(checkout, workspace),
+    makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
+  );
+
+  await markDone(record);
+  retireAdHocBranch(checkout.integration, workspace, branch);
+
+  const baseline = checkout.base;
+  expect(await review(record)).toMatchObject({
     kind: "branch-result",
     baseline,
     tree,
-    files: [expect.objectContaining({ path: file, kind: "added" })],
+    files: [expect.objectContaining({ path: "draft.txt", kind: "added" })],
   });
-  const named = { baseline, tree, path: file };
-  const diff = await adHocSessionFileDiff(request, dashboard, session, named);
-  expect(await diff.json()).toMatchObject({
+  const named = { baseline, tree, path: "draft.txt" };
+  expect(await fileDiff(record, named)).toMatchObject({
     kind: "diff",
-    printed: expect.stringContaining("+draft.txt"),
+    printed: expect.stringContaining("+draft work") as string,
   });
-  const text = await adHocSessionFileText(request, dashboard, session, named);
-  expect(await text.json()).toEqual({
+  expect(await fileText(record, named)).toEqual({
     kind: "text",
     baseline: null,
-    tree: "draft.txt\n",
+    tree: "draft work\n",
   });
-  expect(
-    (
-      await adHocSessionFileText(request, dashboard, session, {
-        ...named,
-        baseline: tree,
-      })
-    ).status(),
-  ).toBe(409);
+  const refused = fileText(record, { ...named, baseline: tree });
+  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
+  await expect(refused).rejects.toMatchObject({ status: 409 });
 });
 
-test("an exact quiet completion retry keeps the revision captured by its Done", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, baseline, session, sent } = await launchIsolatedReview(
-    dashboard,
-    "Write the update",
-  );
-  const tree = commit(workspace, "done.txt");
-  await reportingThrough(origin, sent)({ message: "" });
-  await expect
-    .poll(() => adHocReview(request, dashboard, session))
-    .toMatchObject({ kind: "branch-result", baseline, tree });
-  const record = keptLaunchRecords(dashboard).find(
-    (entry) => "session" in entry && entry.session.sessionId === session,
-  );
-  if (record === undefined || !("session" in record))
-    throw new Error("Missing the retained session.");
-  const receipt = record.completion;
-  const command = record.request.reporting?.command;
-  if (receipt?.delivery === undefined || command === undefined)
-    throw new Error("Missing the quiet completion submission.");
-  const submission = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/reporting",
-    receipt.reference,
-    `completion-${receipt.delivery}.json`,
-  );
+test("Done distinguishes an empty branch result from a missing checkout", async () => {
+  const {
+    checkout,
+    worktrees: { empty, missing },
+  } = await aCheckoutWithWorktrees("empty", "missing");
+  await git(checkout.integration, "worktree", "remove", missing.workspace);
 
-  commit(workspace, "after-done.txt");
-  const retry = await reportingChild(
-    `${command} --retry ${quote(submission)}`,
-    origin.machine,
-  );
+  await markDone(empty.record);
+  await markDone(missing.record);
 
-  expect(retry.ok, retry.stderr).toBe(true);
-  expect(await adHocReview(request, dashboard, session)).toMatchObject({
+  expect(await review(empty.record)).toMatchObject({
     kind: "branch-result",
-    baseline,
-    tree,
-    files: [expect.objectContaining({ path: "done.txt" })],
-  });
-});
-
-test("Done distinguishes an empty branch result from a missing checkout", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const empty = await launchIsolatedReview(dashboard, "An empty branch");
-  const missing = await launchIsolatedReview(dashboard, "A missing workspace");
-  git(origin.project, "worktree", "remove", missing.workspace);
-
-  dashboard.claudeSessionBecomes(empty.session, "done-live");
-  const emptyDone = await markDone(dashboard, {
-    source: "open-dough",
-    session: empty.session,
-  });
-  expect(emptyDone.status, emptyDone.body).toBe(200);
-  dashboard.claudeSessionBecomes(missing.session, "done-live");
-  const missingDone = await markDone(dashboard, {
-    source: "open-dough",
-    session: missing.session,
-  });
-  expect(missingDone.status, missingDone.body).toBe(200);
-
-  expect(await adHocReview(request, dashboard, empty.session)).toMatchObject({
-    kind: "branch-result",
-    baseline: empty.baseline,
-    tree: empty.baseline,
+    baseline: checkout.base,
+    tree: checkout.base,
     files: [],
   });
-  expect(await adHocReview(request, dashboard, missing.session)).toMatchObject({
+  expect(await review(missing.record)).toMatchObject({
     kind: "unavailable",
     explanation: "This session's branch changes at Done were not captured.",
   });
 });
 
-for (const reason of ["deletion", "expiry"]) {
-  test(`${reason} releases only that launch's retained branch evidence`, async ({
-    dashboard,
-    origin,
-  }) => {
-    const leaving = await launchIsolatedReview(dashboard, "First task");
-    const staying = await launchIsolatedReview(dashboard, "Second task");
-    const first = commit(leaving.workspace, "first.txt");
-    const second = commit(staying.workspace, "second.txt");
+const retentionAgo = new Date(
+  Date.now() - (launchRetentionDays + 1) * 86_400_000,
+).toISOString();
+
+const removals = {
+  deletion: (record) => deleteRecord(source, record.session),
+  // Retention drops the aged record at the project's next record write.
+  expiry: async (record) => {
+    installRecordRemovalDispatch();
+    await changeSessionRecord(source, record.session, (kept) => ({
+      ...kept,
+      doneAt: retentionAgo,
+    }));
+    await changeSessionRecord(source, record.session, (kept) => kept);
+  },
+} satisfies Record<string, (record: LaunchRecord) => Promise<unknown>>;
+
+for (const [reason, remove] of Object.entries(removals)) {
+  test(`${reason} releases only that launch's retained branch evidence`, async () => {
+    const {
+      checkout,
+      worktrees: { leaving, staying },
+    } = await aCheckoutWithWorktrees("leaving", "staying");
+    const { first } = await work(
+      inWorktree(checkout, leaving.workspace),
+      makeMe.aCheckoutWork.committing("first", { at: minutesAgo(30) }),
+    );
     writeFileSync(
       path.join(leaving.workspace, "draft.txt"),
       "A draft to keep.\n",
     );
-    dashboard.claudeSessionBecomes(leaving.session, "done-live");
-    const leavingDone = await markDone(dashboard, {
-      source: "open-dough",
-      session: leaving.session,
-    });
-    expect(leavingDone.status, leavingDone.body).toBe(200);
-    dashboard.claudeSessionBecomes(staying.session, "done-live");
-    const stayingDone = await markDone(dashboard, {
-      source: "open-dough",
-      session: staying.session,
-    });
-    expect(stayingDone.status, stayingDone.body).toBe(200);
-    expect(sessionBranchPins(origin.project, leaving.session)).toContain(first);
-    expect(sessionBranchPins(origin.project, leaving.session)).toHaveLength(3);
-    const stayingPins = sessionBranchPins(origin.project, staying.session);
+    const { second } = await work(
+      inWorktree(checkout, staying.workspace),
+      makeMe.aCheckoutWork.committing("second", { at: minutesAgo(30) }),
+    );
+    await markDone(leaving.record);
+    await markDone(staying.record);
+    const pins = (launch: typeof leaving) =>
+      sessionBranchPins(checkout.integration, launch.record.session.sessionId);
+    expect(pins(leaving)).toContain(first);
+    expect(pins(leaving)).toHaveLength(3);
+    const stayingPins = pins(staying);
     expect(stayingPins).toContain(second);
 
-    if (reason === "deletion") {
-      dashboard.claudeListingFails(true);
-      const response = await deleteRecord(dashboard, {
-        source: "open-dough",
-        session: leaving.session,
-      });
-      expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
-    } else {
-      keepLaunchRecords(
-        dashboard,
-        keptLaunchRecords(dashboard).map((record) =>
-          "session" in record && record.session.sessionId === leaving.session
-            ? { ...record, doneAt: daysAgo(31) }
-            : record,
-        ),
-      );
-      await launchIsolatedReview(dashboard, "Trigger normal retention");
-    }
+    await remove(leaving.record);
 
-    expect(sessionBranchPins(origin.project, leaving.session)).toEqual([]);
-    expect(sessionBranchPins(origin.project, staying.session)).toEqual(
-      stayingPins,
-    );
+    expect(pins(leaving)).toEqual([]);
+    expect(pins(staying)).toEqual(stayingPins);
   });
 }

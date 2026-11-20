@@ -132,10 +132,12 @@ async function defaultTipOf(record: LaunchRecord, repository: string) {
   return parsed.success ? parsed.data : undefined;
 }
 
-async function recordEntry(
+// Records the checkout the kept launch `record` names as its own branch,
+// pinning the entry state, and answers the entry kept.
+export async function recordSessionBranchEntry(
   source: PublishedSource,
   record: LaunchRecord,
-  request: BranchRequest,
+  request: Pick<BranchRequest, "workspace" | "branch">,
 ): Promise<SessionBranchEntry> {
   const workspace = (() => {
     try {
@@ -217,7 +219,7 @@ export async function submitSessionBranchEntry(req: IncomingMessage) {
     request,
     `http://${req.headers.host}`,
   );
-  const entry = await recordEntry(source, record, request);
+  const entry = await recordSessionBranchEntry(source, record, request);
   const landingContext = await branchLandingContext(
     source.id,
     record,
