@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards ([plan](slice-plans/728-review-done-sessions-on-open-story-cards/PLAN.md))
 - [Prove the ad hoc branch result and its handoff at typed Done seams](seeds/SEED-413-renovate-dashboard-unit-tests.md#ad-hoc-branch-result-handoff) — SEED-413#ad-hoc-branch-result-handoff ([plan](slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md))
-- [Prove the ad hoc Done lifecycle and kept-record release at typed seams](seeds/SEED-413-renovate-dashboard-unit-tests.md#ad-hoc-done-lifecycle) — SEED-413#ad-hoc-done-lifecycle ([plan](slice-plans/731-ad-hoc-done-lifecycle/PLAN.md))
 
 ## Backlog list
 

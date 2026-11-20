@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_ad-hoc-done-lifecycle.json",
+      "identity": "SEED-413#ad-hoc-done-lifecycle",
+      "completedAt": "2026-11-20T10:31:25.612Z",
+      "blob": "7d7dfb88dc8e214a28ee487771d6c5e7514c6c40"
+    },
+    {
       "fileName": "SEED-413_optimization-candidates-revision-cases.json",
       "identity": "SEED-413#optimization-candidates-revision-cases",
       "completedAt": "2026-11-20T08:41:05.491Z",
