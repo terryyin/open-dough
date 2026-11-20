@@ -24,13 +24,9 @@ import {
 // The kept launch of one story's execution or refinement, or of an ad hoc
 // session: its request (`./launchRequestTestData.mjs`), its host session
 // (`./hostSessionTestData.mjs`), and the workspace its start established
-// (`./launchWorkspaceTestData.mjs`): a story branch, an ad hoc session's
-// isolated workspace, or its place in the default checkout. Without one the
-// record keeps no established start, preparation or session. The session
-// defaults to a `claude` one named after the title, the start's claim to
-// fixed published facts, and the launch time to a fixed instant. Its
-// reporting and stored landing come from `LaunchReportingBuilder`, and what
-// the launch recorded after it started from `LaunchOutcomeBuilder`.
+// (`./launchWorkspaceTestData.mjs`). The default session is a `claude` session
+// named after the title. Reporting and landing come from
+// `LaunchReportingBuilder`, subsequent outcomes from `LaunchOutcomeBuilder`.
 export class LaunchRecordBuilder extends LaunchReportingBuilder {
   /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
@@ -41,6 +37,8 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
   #launchedAt = testDataTimestamp;
   /** @type {LaunchRecord["firstInput"]} */
   #firstInput;
+  /** @type {LaunchRecord["defaultStart"]} */
+  #defaultStart;
   /** @type {import("./launchWorkspaceTestData.mjs").AdHocWorkspace | undefined} */
   #adHocWorkspace;
   /** @type {LaunchRecord["request"]["model"]} */
@@ -169,6 +167,12 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
     return this;
   }
 
+  /** @param {NonNullable<LaunchRecord["defaultStart"]>} start */
+  startingInDefaultCheckout(start) {
+    this.#defaultStart = { ...start };
+    return this;
+  }
+
   /**
    * The ad hoc launch's start established an isolated workspace of the
    * project on this branch, waiting for review.
@@ -220,6 +224,7 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
     const launchFacts = {
       launchedAt: this.#launchedAt,
       ...(this.#firstInput && { firstInput: this.#firstInput }),
+      ...(this.#defaultStart && { defaultStart: this.#defaultStart }),
       ...this.outcomeFacts(this.#launchedAt),
     };
     const { reporting, landing } = this.reportingFacts();

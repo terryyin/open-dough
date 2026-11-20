@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#renovate-remaining-dashboard-backend-unit-tests
 **Source:** [Prove what Done keeps of a Default main session's commits in-process](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -115,12 +116,28 @@ run.
 | Baseline for the timing promise (slice 7, measured in slice 1) | CI medians over main runs 44528572337, 44512335806, 44503789713, 44500660591 and 44494044199: 27.5 s for the five specs that move whole (16 cases), about 40 s with the moved share of the two partly moved specs. Slice 1 measures the local Playwright baseline before deleting a case. |
 | Which specs still use the support this plan removes from (slice 7) | Search for `DefaultMainSessionWork` and `sessionCheckoutGit`: the seven moved specs, and `ad-hoc-session-branch-handoff`, `ad-hoc-session-commits-done`, `ad-hoc-session-commits-pending-done` and `kept-commits-release`, which stay. No `e2e/` or frontend spec uses them. The staying specs bound what slice 7 can delete. |
 
+### Local Playwright baseline
+
+All seven specs ran at `d7bcd9af3` on the execution Mac on 2026-11-20.
+The two-worker repeat passed all 28 cases at natural one-minute load
+42.21 to 49.20 on AC with `caffeinate -s -i`. The 26 cases moving to
+Vitest summed to 178.589 seconds. The sum uses the per-case durations
+and excludes the quiet-report and launch-without-a-start cases. The
+comparison threshold is 89.2945 seconds for those same 26 cases.
+
+The first baseline run passed 27 cases and timed out in the
+disappearing-commit case as load rose from 19.45 to 40.38. The Mac stayed
+awake. The repeat started after a concurrent backend proof finished.
+The capture migration addresses the slow case within the default
+timeout. The checkout's Git evidence directory holds both runs, the
+timeout trace, the per-case proof record and the load samples.
+
 ## Ordered slices
 
 ### 1. A session's commit is kept at Done, proven in-process from MakeMe checkout work
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a stored record for a session established an hour ago in a
 Default main checkout at `base` and a commit made there half an hour ago,
@@ -148,6 +165,29 @@ record. Each fails under a scratch edit disabling its rule in the capture or
 review modules. The builder's and performer's own cases under
 `Distribution/tests/` pass. The remaining Playwright cases of
 `ad-hoc-session-commits` pass.
+
+Accepted proof in the checkout's Git evidence directory, in
+`slice-1-implementation.md` and its named run records. Four Node Vitest
+cases passed, including the launch's kept start and the established
+session's stored run, its two Git pins and the typed review. Four scratch
+rule breaks failed at the targeted assertions. A separate pin-suppression
+check let the first review pass, then made the review after pruning fail.
+The Git performer and the retained Playwright quiet report also passed.
+
+The disappeared-commit case needs a real fast-forward to preserve the
+incoming-work attribution from Playwright. Slice 1 includes that step.
+Rebasing, merging and amending stay in slice 2. The stable
+`aSessionReviewRead.ofSession(...).keeping(...)` entry lets both review-only
+cases build their records through existing launch-record operations.
+
+[Plan 726](../726-direct-story-launch-file-reads-to-their-story/PLAN.md)
+cites the retired file-text wire case. The new
+`review/kept-session-commits-review.spec.ts` keeps its accepted pair's text,
+mismatch error and 409 at the typed handler. The retained ad hoc
+comparisons spec checks standalone HTTP 200 and 409. The retained
+pending-Done spec checks kept-commit file refusal at the wire. Plan 726's
+story-addressed wire proof stays with that story. Slice 7 owns cleanup of
+`keepSessionWithKeptRun` if it still has no caller.
 
 ### 2. Runs across trunk work taken into the checkout are proven in-process
 
@@ -275,6 +315,16 @@ lint` and `npm run typecheck:dashboard` pass.
 
 ## Current decisions
 
+- Story Branch Mode, owner Nao-chan (`dashboard-territory.local-open-dough`).
+  Checkout and execution branch follow the established start on
+  `codex/prove-what-done-keeps-of-a-default-main-session`, starting at
+  `e4970798e09dd61e1f05adcd50831f630c6ae2fa`. The Take and first published
+  base `d7bcd9af34eb109a6878876c8b56641edf4fc50e` are on `origin/main` and
+  the remote story branch. The locked checkout install and dashboard typecheck
+  passed.
+- Codex CI observer `nao-chan-723`, GitHub Actions `ci.yml` (CI), on the
+  published story branch at `/tmp/dough-ci-501/watch-3vlPPM`
+  (session 4214, cell g2:16, PID 94208).
 - Read the current handler input and MakeMe builder signatures before moving
   cases. The handler entry points stay the same across the contract correction.
 - The review-only cases of slice 1 build their kept records through the
