@@ -19,27 +19,35 @@ function markWords(marks: Locator) {
 }
 
 function diffMarks(scope: Locator) {
-  const insertions = scope.getByRole("insertion");
-  const deletions = scope.getByRole("deletion");
+  const insertion = scope.getByRole("insertion");
+  const deletion = scope.getByRole("deletion");
   return {
-    insertedWords: () => markWords(insertions),
-    deletedWords: () => markWords(deletions),
-    insertionDecoration: () =>
-      getComputedStyle(insertions.element()).textDecorationLine,
-    deletionDecoration: () =>
-      getComputedStyle(deletions.element()).textDecorationLine,
+    insertion,
+    deletion,
+    observations: {
+      insertedWords: () => markWords(insertion),
+      deletedWords: () => markWords(deletion),
+      insertionDecoration: () =>
+        getComputedStyle(insertion.element()).textDecorationLine,
+      deletionDecoration: () =>
+        getComputedStyle(deletion.element()).textDecorationLine,
+    },
   };
 }
 
 function diffLine(line: Locator) {
   const tokens = line.getByCSS(".source-token");
+  const { insertion, deletion, observations } = diffMarks(line);
   return {
     line,
-    ...diffMarks(line),
+    text: () => line.element().textContent,
+    ...observations,
     token: (text: RegExp) => tokens.filter({ hasText: text }).first(),
     firstToken: () => tokens.first(),
-    tokensInInsertion: () =>
-      line.getByRole("insertion").getByCSS(".source-token"),
+    tokensInInsertion: () => insertion.getByCSS(".source-token"),
+    tokensInDeletion: () => deletion.getByCSS(".source-token"),
+    insertionUnderline: () => underlineAppearance(insertion, line),
+    deletionUnderline: () => underlineAppearance(deletion, line),
     background: () => getComputedStyle(line.element()).backgroundColor,
     scrollIntoView: () => {
       line.element().scrollIntoView({ block: "center" });
@@ -58,15 +66,24 @@ export function tokenAppearance(token: Locator) {
   };
 }
 
-export function tokenContrast(token: Locator) {
-  const node = token.element();
+function composedBackground(node: Element) {
   const backgrounds: string[] = [];
   for (let at: Element | null = node; at; at = at.parentElement)
     backgrounds.push(getComputedStyle(at).backgroundColor);
-  return contrastRatio(
-    getComputedStyle(node).color,
-    composeBackgrounds(backgrounds),
-  );
+  return composeBackgrounds(backgrounds);
+}
+
+export function tokenContrast(token: Locator) {
+  const node = token.element();
+  return contrastRatio(getComputedStyle(node).color, composedBackground(node));
+}
+
+function underlineAppearance(mark: Locator, line: Locator) {
+  const color = getComputedStyle(mark.element()).textDecorationColor;
+  return {
+    color,
+    contrast: contrastRatio(color, composedBackground(line.element())),
+  };
 }
 
 export function mountedReviewDiff() {
@@ -75,7 +92,7 @@ export function mountedReviewDiff() {
     name: "Omitted lines before the next change",
   });
   return {
-    ...diffMarks(reading),
+    ...diffMarks(reading).observations,
     newLine: (number: number) =>
       diffLine(
         reading.getByCSS(`li.story-review-line[data-new="${String(number)}"]`),
@@ -87,7 +104,8 @@ export function mountedReviewDiff() {
         ),
       ),
     hunkMarks: (header: string) =>
-      diffMarks(reading.getByRole("list", { name: header, exact: true })),
+      diffMarks(reading.getByRole("list", { name: header, exact: true }))
+        .observations,
     firstToken: () => reading.getByCSS(".source-token").first(),
     scrollTop: () => reading.element().scrollTop,
     openLineMenu: (label: string) =>

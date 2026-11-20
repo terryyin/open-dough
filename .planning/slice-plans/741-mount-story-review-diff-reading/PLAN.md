@@ -25,6 +25,9 @@
 - Slice 3 accepted on the story branch at
   `44add151125fbd7bad1811a180eab78013b4c9ef` and registered with the same
   observer. Its candidate used slice 2 as its suffix base.
+- Slice 4 accepted on the story branch at
+  `30eb1f3f98c14b9f854fa215f39886c150c56a6f` and registered with the same
+  observer. Its candidate used slice 3 as its suffix base.
 
 ## Goal and scope
 
@@ -216,7 +219,7 @@ and typecheck passed, with the exact coverage map and commands in
 ### 5. Marks and tokens stay readable in dark and light
 
 Type: Behavior
-Status: planned
+Status: done
 
 Mount the two remaining composition cases and the contrast assertions of the
 appearance case under both colour schemes, switching the scheme without
@@ -227,6 +230,14 @@ appearance spec the comparison with Intent's source reading.
 **Proof.** The mounted appearance spec passes in both schemes. One scratch
 break that removes the dark underline colour fails the 3:1 assertion and is
 reverted.
+
+**Observed.** The three mounted appearance cases passed, including 4.5:1
+token and 3:1 underline checks in both schemes. Removing the dark deletion
+colour failed the underline check at 2.10:1 and was reverted. The retained
+built-app case confirms source appearance equivalence and no file reads
+through both scheme readings. All 48 focused cases and typecheck passed.
+Proof and coverage are in `slice-5-return.md` and
+`slice-5-retirement-map.md` in Git evidence.
 
 ### 6. The moved cases leave their support and show their cost
 
