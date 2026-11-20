@@ -277,6 +277,12 @@ lint` and `npm run typecheck:dashboard` pass.
 
 - Read the current handler input and MakeMe builder signatures before moving
   cases. The handler entry points stay the same across the contract correction.
+- The review-only cases of slice 1 build their kept records through the
+  launch record builder's steps for a landed ad hoc session and a session
+  with a kept run, which the
+  [contract correction](../725-narrow-ad-hoc-review-handler-contracts/PLAN.md)
+  adds. If that correction is still open when slice 1 starts, reconcile with
+  its steps rather than add a parallel builder.
 - The new cases are Vitest specs in
   `dashboard/backend-tests/review/`, named for what Done keeps.
 - The checkout-work builder's exact step names and whether it extends the
