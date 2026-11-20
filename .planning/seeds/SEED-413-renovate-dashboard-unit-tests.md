@@ -147,79 +147,6 @@ precondition.
   timing and the test-support calls removed against the prior cases under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
-<a id="ad-hoc-branch-result-handoff"></a>
-
-### Prove the ad hoc branch result and its handoff at typed Done seams
-
-**Identity:** SEED-413#ad-hoc-branch-result-handoff
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ebf3fb318afd895476bc42a18fa3ec72a404a73739465cad9f8650f494e7cda3","plan":"4ddbd6a0939b85dffbc7a474458173278116a839fa8c9faf7bfb200c30e985ff"}}
-```
-
-Split from
-[`SEED-413#renovate-later-dashboard-backend-unit-test-families`](#renovate-later-dashboard-backend-unit-test-families)
-on 2026-11-20 as the first of its ad hoc review families.
-
-- **Goal.** Developers changing how Done saves an isolated or declared
-  branch get plain Node Vitest cases that call `setRecordDoneAt`,
-  `recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
-  `deleteRecord` directly with MakeMe kept records and real Git. Today these
-  nine cases start the boundary server, launch sessions, run the reporting
-  CLI and hold Git through a `PATH` shim: 41 s summed in CI run
-  44698610582, against 0.2–2.5 s for the moved cases of the Done capture
-  family.
-- **Scope.** Move these cases, keeping each one's distinct inputs and
-  expected outcomes:
-  - `review/ad-hoc-branch-result-race.spec.ts`: reopening keeps the branch
-    evidence and refuses the old file pair; while a stale Done's capture is
-    held the review is unavailable, and a newer Done wins with only its pins;
-    deleting a record while its capture reads leaves no pins.
-  - `review/ad-hoc-branch-worktree-result.spec.ts`: Done keeps the working
-    tree it read (staged, untracked and deleted files, not ignored ones)
-    without touching the index, HEAD or files; an edit made while the capture
-    is held is excluded; the result survives a forced retirement.
-  - `review/ad-hoc-session-branch-handoff.spec.ts`: a declared branch keeps
-    its entry state and default tip, and answers the same entry after main
-    moves; a foreign clone, a wrong branch for the worktree, or a second
-    different entry is refused; an undeclared checkout move explains the
-    missing branch association.
-  - `review/ad-hoc-branch-cursor-recovery.spec.ts`: after Cursor replaces its
-    chat, the branch pins stay owned by the original chat, and deleting or
-    expiring the replacement releases only them; a stale native replacement
-    keeps a branch identified while it was pending.
-  - A capture is held by a typed ancestry read that the production capture
-    accepts, in place of the `PATH` shim.
-  - Drop `review/ad-hoc-branch-result-quiet-retry.spec.ts`: the applied
-    duplicate retry returns before any capture, and
-    `sessions/agent-completion-identity.spec.ts` already proves that it
-    writes nothing.
-  - Retire each `dashboard/test-support/` module or export whose last
-    consumer leaves, starting with `cursorBranchRecovery.ts`. Add none.
-  - **Scope limits.** "A newer quiet Done takes precedence over a manual mark
-    still capturing its branch" stays in the parent story with the
-    developer's native Done. So does the handoff case that runs the generated
-    branch handoff command from the launch input. That command is an inline
-    script that posts over HTTP, and the arrange-done plan relies on this case
-    as the wiring's owner. The observation and publication cases stay with
-    [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication),
-    and the Done lifecycle with
-    [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle).
-- **Key examples.**
-  - *A newer Done wins.* An isolated launch commits `stale` and is marked
-    Done; its capture is held. The review reads unavailable. The branch
-    commits `latest` and is marked Done again. Once the hold is released, the
-    review shows the branch result at `latest`, and the session's pins are the
-    baseline and `latest`, never `stale`.
-  - *Cursor replacement.* A Cursor launch's branch result pins under chat
-    `A`. Cursor replaces the chat with `B`. Deleting `B` removes `A`'s pins
-    and leaves another launch's pins.
-  - *Undeclared move.* A Default main launch switches to `not-identified`
-    and commits there, then is marked Done. The review explains: "No branch
-    was identified for this session, and no Default main commits were
-    captured."
-- **Effort hypothesis.** M: five slices.
-- **Plan.** [732](../slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md)
-
 <a id="ad-hoc-done-lifecycle"></a>
 
 ### Prove the ad hoc Done lifecycle and kept-record release at typed seams
@@ -268,8 +195,8 @@ on 2026-11-20 as the second of its ad hoc review families.
     starting with `DefaultMainSessionWork.launchReporting`. Add none.
   - **Scope limits.** The developer's native Done, including "a newer quiet
     Done takes precedence over a manual mark", and the other `sessions/`
-    completion cases stay in the parent story. The branch result belongs to
-    [`SEED-413#ad-hoc-branch-result-handoff`](#ad-hoc-branch-result-handoff).
+    completion cases stay in the parent story. The branch result and its
+    handoff already run on Vitest.
 - **Key examples.**
   - *Quiet report.* A Default main launch reporting through reference `R`
     commits `typo`. A quiet completion for `R` is delivered. The record is
@@ -340,9 +267,8 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
   1. The rest of ad hoc review, which retires `adHocReview.ts`. The branch
-     result with its handoff moved to
-     [`SEED-413#ad-hoc-branch-result-handoff`](#ad-hoc-branch-result-handoff)
-     and the Done lifecycle with record release to
+     result with its handoff already runs on Vitest,
+     and the Done lifecycle with record release moved to
      [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle). The
      observation and publication cases belong to
      [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication).
