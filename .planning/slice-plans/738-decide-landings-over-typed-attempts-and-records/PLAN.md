@@ -143,7 +143,7 @@ unchanged. Enables slice 2.
 ### 2. Retained-record landings decide in the same decision
 
 Type: Structure
-Status: planned
+Status: done
 
 Fold `declaredLandingRecord`, `expiredAttemptRecord` and
 `submitRetainedLanding` into the decision over the composed records, so the

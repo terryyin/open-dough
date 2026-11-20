@@ -1,4 +1,4 @@
-// Attempt-reported landings decide over composed attempts and records.
+// Attempt-path landings decide over composed attempts and records.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {

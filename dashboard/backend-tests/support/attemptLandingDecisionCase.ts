@@ -73,6 +73,85 @@ export function aBoundRecord(facts: {
     .please();
 }
 
+// A declared branch handoff record: storyless authority matching its entry.
+export function aDeclaredRecord(facts: {
+  authority?: LandingRepository;
+  origin?: string;
+  deletedAt?: string;
+}) {
+  const authority = facts.authority ?? aWorktreeAuthority();
+  const storyless = {
+    repository: authority.repository,
+    workspace: authority.workspace,
+    branch: authority.branch,
+    remote: authority.remote,
+    target: authority.target,
+  };
+  const reportingOrigin = facts.origin ?? origin;
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "Declared landing" })
+    .inClaudeSession({ sessionId: "declared-decision-session" })
+    .withLandingReporting({
+      origin: reportingOrigin,
+      authority: storyless,
+      preparations: [],
+      branchContext: {
+        reference: reportingReference,
+        file: "/tmp/declared-landing-context.json",
+      },
+      ...(facts.deletedAt === undefined ? {} : { deletedAt: facts.deletedAt }),
+    })
+    .please();
+  return {
+    ...record,
+    branchEntry: {
+      repository: storyless.repository,
+      workspace: storyless.workspace,
+      branch: storyless.branch,
+      committedTip: baseSha,
+      tree: baseSha,
+      trunk: { remote: storyless.remote, target: storyless.target },
+    },
+  };
+}
+
+// A bound record whose attempt is gone; `settledAt` drives retention.
+export function aSettledRetainedRecord(facts: {
+  authority: LandingRepository;
+  settledAt: string;
+  preparations?: readonly LaunchLanding[];
+  origin?: string;
+}) {
+  const reportingOrigin = facts.origin ?? origin;
+  const authority = {
+    repository: facts.authority.repository,
+    workspace: facts.authority.workspace,
+    branch: facts.authority.branch,
+    remote: "origin" as const,
+    target: facts.authority.target,
+  };
+  return makeMe.aLaunchRecord
+    .adHoc({ title: "Settled retained landing" })
+    .inClaudeSession({ sessionId: "settled-decision-session" })
+    .inIsolatedWorkspace({
+      workspace: authority.workspace,
+      branch: authority.branch,
+      repository: authority.repository,
+    })
+    .reportingThrough({
+      origin: reportingOrigin,
+      reference: reportingReference,
+      command: "report",
+    })
+    .withLandingReporting({
+      origin: reportingOrigin,
+      authority,
+      preparations: facts.preparations ? [...facts.preparations] : [],
+      settledAt: facts.settledAt,
+    })
+    .please();
+}
+
 export function aSubmission(
   comparing: { base: string; revision: string },
   identity?: string,

@@ -1,9 +1,7 @@
 // One immutable comparison is prepared before publication and accepted afterward.
-import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
-import { randomUUID } from "node:crypto";
 import type { LandingRepository, LaunchLanding } from "../src/launchLanding.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
-import { verifyLanding, pinLanding } from "./launchLandingGit.ts";
+import { verifyLanding } from "./launchLandingGit.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export function sameComparison(
@@ -86,30 +84,4 @@ export async function resolveLandingComparison(
   };
   await verifyLanding(landing, prepare ? authority : undefined);
   return { landing, isNew: true };
-}
-
-export async function reserveLandingComparison(
-  authority: LandingRepository,
-  report: LandingSubmission,
-  prepare: boolean,
-  accepted: LaunchLanding | undefined,
-  preparations: readonly LaunchLanding[] = [],
-): Promise<{ landing: LaunchLanding; needsSave: boolean }> {
-  const prepared = preparations.find(
-    (entry) => entry.delivery === report.delivery,
-  );
-  const { landing, isNew } = await resolveLandingComparison(
-    authority,
-    report,
-    prepare,
-    accepted,
-    preparations,
-    randomUUID(),
-    new Date().toISOString(),
-  );
-  if (!isNew) return { landing, needsSave: false };
-  await pinLanding(landing); // Both ends survive before any metadata is saved.
-  if (prepared === undefined)
-    await registerFollowUpReceipt(report.source, landing);
-  return { landing, needsSave: true };
 }
