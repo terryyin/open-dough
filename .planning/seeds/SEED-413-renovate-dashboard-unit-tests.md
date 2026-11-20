@@ -256,47 +256,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="mount-optimization-candidates-frontend-proof"></a>
-
-### Prove Optimization Candidates in mounted frontend tests
-
-**Identity:** SEED-413#mount-optimization-candidates-frontend-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b91546e81b7b060b0fb52dc69f7059ea72acbf4a9dd0a13a3b776605fd8d5f6f","plan":"3744673d9d9a3c49a59f823d71a029fd31873e20ad208b5f01152842621cc042"}}
-```
-
-Split from the [later frontend families](#renovate-later-dashboard-frontend-unit-test-families).
-
-- **Goal.** Dashboard developers can check what a reader sees in Optimization
-  Candidates, where a recorded source opens, and how a failed record recovers
-  with a focused Vitest Chromium run. Today six specs arrange a whole dashboard
-  with project routes for 12 cases. The revision cases already use a typed
-  mount, so this family can remove its remaining built-app arrangements first.
-- **Scope.** Move record formats, field order, revision evidence links, tab
-  layout and keyboard operation, record availability, opening files and cases,
-  and candidate-read recovery. Keep the real record and Project Intent reading
-  owners. Keep the revision cases and the composed GitHub timeout journey as
-  proof at their current boundaries. Remove the candidate-specific setup whose
-  last consumer moves. General Intent locations recovery, Gherkin settings,
-  CI views, and frontend runner retirement stay with later families.
-- **Key examples.** The CI status tab starts selected. The reader opens
-  Optimization Candidates and sees the ordered record for the shown revision
-  across the full reading width. A live record and a profile-only mechanism
-  show their own fields. Absent, empty, mismatched and unreadable records each
-  have distinct wording and the locations remain usable. A configured source
-  opens in Purpose at its recorded file or case line, with the tree selected.
-  Returning focuses the entry without rereading. Ambiguous and out-of-scope
-  sources explain what can be opened. A shorter backoff cannot bypass a
-  standing GitHub wait. A refusal or malformed response needs manual Retry.
-- **Effort hypothesis.** M, six slices. The mounted revision family and existing
-  MakeMe inputs cover the main setup. Recovery needs its shared clock and
-  response classification.
-- **Evaluation and stopping point.** Compare the same behavior selection at
-  two workers with the legacy baseline and inspect the candidate-specific
-  arrangements removed. The family passes independently while the remaining
-  frontend tests still use both engines.
-- **Plan.** [733](../slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md)
-
 <a id="mount-open-sessions-sidebar-frontend-proof"></a>
 
 ### Prove open Sessions sidebar readings in mounted frontend tests
@@ -358,12 +317,10 @@ including preparation. This carries the suite-wide commitments, including
 SEED-404's timing goal and SEED-301's Intent MakeMe work.
 
 **Scope and order.** Select families by feature folder and the interaction
-each view owns. First, the
-[Optimization Candidates family](#mount-optimization-candidates-frontend-proof)
-extends the existing revision mount to the remaining candidate cases. Next,
-the [open Sessions sidebar family](#mount-open-sessions-sidebar-frontend-proof)
+each view owns. The Optimization Candidates cases already run as mounted
+cases. Next, the [open Sessions sidebar family](#mount-open-sessions-sidebar-frontend-proof)
 takes only the open list and its figures, whose E2E wiring already has owners.
-Both stand independently. Continue with the rest of Intent and Sessions. Use
+Continue with the rest of Intent and Sessions. Use
 the completed
 [Project Intent revision family](#project-intent-revision-family-example)
 as the reference for the remaining migrations. Keep each legacy case until

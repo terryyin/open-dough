@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Arrange Done ad hoc sessions directly for delivery observation and publication](seeds/SEED-413-renovate-dashboard-unit-tests.md#arrange-done-ad-hoc-observation-and-publication) — SEED-413#arrange-done-ad-hoc-observation-and-publication ([plan](slice-plans/730-arrange-done-ad-hoc-observation-and-publication/PLAN.md))
-- [Prove Optimization Candidates in mounted frontend tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-optimization-candidates-frontend-proof) — SEED-413#mount-optimization-candidates-frontend-proof ([plan](slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md))
 
 ## Backlog list
 
