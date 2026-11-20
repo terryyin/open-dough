@@ -153,7 +153,7 @@ precondition.
 
 **Identity:** SEED-413#ad-hoc-branch-result-handoff
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/730-ad-hoc-branch-result-handoff/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1c8599b12a0c26e38e557e903d3ff778376127374e868c31cec008e80796088f","plan":"497ce045f67bfd3c759a0072257d6d848c476b549d4f3e53c0f370c9c8ee25fb"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ebf3fb318afd895476bc42a18fa3ec72a404a73739465cad9f8650f494e7cda3","plan":"4ddbd6a0939b85dffbc7a474458173278116a839fa8c9faf7bfb200c30e985ff"}}
 ```
 
 Split from
@@ -197,7 +197,10 @@ on 2026-11-20 as the first of its ad hoc review families.
     consumer leaves, starting with `cursorBranchRecovery.ts`. Add none.
   - **Scope limits.** "A newer quiet Done takes precedence over a manual mark
     still capturing its branch" stays in the parent story with the
-    developer's native Done. The observation and publication cases stay with
+    developer's native Done. So does the handoff case that runs the generated
+    branch handoff command from the launch input. That command is an inline
+    script that posts over HTTP, and the arrange-done plan relies on this case
+    as the wiring's owner. The observation and publication cases stay with
     [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication),
     and the Done lifecycle with
     [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle).
@@ -215,7 +218,7 @@ on 2026-11-20 as the first of its ad hoc review families.
     was identified for this session, and no Default main commits were
     captured."
 - **Effort hypothesis.** M: five slices.
-- **Plan.** [730](../slice-plans/730-ad-hoc-branch-result-handoff/PLAN.md)
+- **Plan.** [732](../slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md)
 
 <a id="ad-hoc-done-lifecycle"></a>
 
@@ -345,7 +348,8 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
      [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication).
      "A newer quiet Done takes precedence over a manual mark still capturing
      its branch" stays here, with the developer's native Done in
-     `sessions/`.
+     `sessions/`. So does the launch-input wiring case of
+     `ad-hoc-session-branch-handoff.spec.ts`.
   2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and
      `SEED-319`. Preserve freshness, invalidation, and close behavior when
      moving reads to typed handler inputs. Check whether those inputs can

@@ -5,7 +5,7 @@
 
 ## Goal and scope
 
-Move the nine cases of
+Move eight of the nine cases of
 `review/ad-hoc-branch-result-race.spec.ts` (two of its three),
 `ad-hoc-branch-worktree-result.spec.ts`,
 `ad-hoc-session-branch-handoff.spec.ts` and
@@ -21,6 +21,9 @@ Exclusions:
 - "A newer quiet Done takes precedence over a manual mark still capturing
   its branch" stays on Playwright in `ad-hoc-branch-result-race.spec.ts`,
   owned by `SEED-413#renovate-later-dashboard-backend-unit-test-families`.
+- The launch-input wiring case of `ad-hoc-session-branch-handoff.spec.ts`
+  stays on Playwright under the same parent story. It is the only case that
+  runs the generated branch handoff command.
 - The observation and publication cases belong to
   `SEED-413#arrange-done-ad-hoc-observation-and-publication`.
 - The Done lifecycle belongs to `SEED-413#ad-hoc-done-lifecycle`.
@@ -55,11 +58,20 @@ Exclusions:
   [`ad-hoc-branch-result.spec.ts`](../../../dashboard/backend-tests/review/ad-hoc-branch-result.spec.ts)
   does. Read pins with `git for-each-ref` on the host's prefix in the spec.
   `sessionBranchPins` hard-codes `claude`.
-- **What each topic keeps.** The launch command and the reporting CLI are
-  preconditions. The command's instruction text is proven by
-  `reportingInputAssertions.ts` consumers. The CLI's branch declaration is
-  driven by `launches/agent-launch-session-branch-landing.spec.ts`. Keep each
-  case's unique facts:
+- **What each topic keeps.** The reporting CLI is a precondition in every
+  case except one. The command's instruction text is proven by
+  `reportingInputAssertions.ts` consumers. The exception is the launch-input
+  wiring: the branch handoff command a launch's input names reaches the
+  receiver and declares that branch. The
+  [arrange-done plan](../730-arrange-done-ad-hoc-observation-and-publication/PLAN.md)
+  names this spec as that wiring's owner while it moves
+  `agent-launch-session-branch-landing.spec.ts`. The command is an inline
+  `node -e` script built in `reportingInstruction.ts` that posts over HTTP,
+  so no typed entry reaches it in process. Slice 3 therefore keeps one
+  Playwright case, "the launch command binds the original checkout's own
+  branch", which runs that command, as the wiring owner. Its other facts
+  move to Vitest. The parent story moves that case with the remaining server
+  cases. Keep each case's unique facts:
   - entry state and default tip;
   - the same answer after main moves;
   - each refusal, with status 409;
@@ -137,12 +149,14 @@ any native Done.
 Type: Structure
 Status: planned
 
-Rewrite `ad-hoc-session-branch-handoff.spec.ts` on Vitest with its three
-cases and the unique facts listed in Current decisions.
+Move the handoff cases to a Vitest `ad-hoc-session-branch-entry.spec.ts`,
+with the unique facts listed in Current decisions. Leave only the
+launch-input wiring case in the Playwright `ad-hoc-session-branch-handoff.spec.ts`.
 
 | Promise | Slice 3 proof |
 | --- | --- |
 | Handoff examples | All three cases pass, including the undeclared-move explanation and each 409 refusal. |
+| Launch-input wiring keeps its owner | The Playwright file keeps only the wiring case, which still passes. The Vitest file holds the entry-state, repeated-entry and Done facts. |
 | The cases discriminate | Each in a scratch edit: `verifyRegisteredWorkspace` always passing fails the refusal case; `existingEntry` returning `undefined` fails the repeated-entry assertion; `branchEntryMissing` never set fails the undeclared case. All pass once reverted. |
 
 ### 4. Branch pins follow the original Cursor chat through replacement
