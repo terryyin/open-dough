@@ -22,16 +22,16 @@ The reviewer retained the earlier boundary-server, reporting CLI and reflog-shim
 | 12 | While that capture is unfinished, the record does not inherit the previous capture’s “no commits” finding. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts, a stale empty capture yields the pending-capture explanation |
 | 13 | The capture excludes a commit that arrives after Done reads the tip. | slice 4 | observed: dashboard/backend-tests/review/ad-hoc-session-commits-pending-done.spec.ts, real later Git commit exists while resolved-tip reader keeps only the prior pair |
 | 14 | A launch in a checkout Git cannot read keeps no start. | slice 6 | |
-| 15 | Deleting a kept record removes that record’s session-run references. | slice 5 | |
-| 16 | Deleting a kept record removes that record’s landing references. | slice 5 | |
-| 17 | Deleting a kept record preserves another kept record’s session-run references in the same repository. | slice 5 | |
-| 18 | Deleting a kept record preserves another kept record’s landing references in the same repository. | slice 5 | |
-| 19 | Expiring a kept record removes that record’s session-run references. | slice 5 | |
-| 20 | Expiring a kept record removes that record’s landing references. | slice 5 | |
-| 21 | Expiring a kept record preserves another kept record’s session-run references in the same repository. | slice 5 | |
-| 22 | Expiring a kept record preserves another kept record’s landing references in the same repository. | slice 5 | |
-| 23 | A kept record can still be deleted when its saved repository is gone. | slice 5 | |
-| 24 | A kept record can still expire when its saved repository is gone. | slice 5 | |
+| 15 | Deleting a kept record removes that record’s session-run references. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, deletion case compares every exact Git ref before and after: leaving session-run refs removed |
+| 16 | Deleting a kept record removes that record’s landing references. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, deletion case compares every exact Git ref before and after: leaving landing refs removed |
+| 17 | Deleting a kept record preserves another kept record’s session-run references in the same repository. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, deletion case compares every exact Git ref before and after: other session-run refs preserved with their object IDs |
+| 18 | Deleting a kept record preserves another kept record’s landing references in the same repository. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, deletion case compares every exact Git ref before and after: other landing refs preserved with their object IDs |
+| 19 | Expiring a kept record removes that record’s session-run references. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, expiry case compares every exact Git ref before and after: leaving session-run refs removed |
+| 20 | Expiring a kept record removes that record’s landing references. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, expiry case compares every exact Git ref before and after: leaving landing refs removed |
+| 21 | Expiring a kept record preserves another kept record’s session-run references in the same repository. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, expiry case compares every exact Git ref before and after: other session-run refs preserved with their object IDs |
+| 22 | Expiring a kept record preserves another kept record’s landing references in the same repository. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, expiry case compares every exact Git ref before and after: other landing refs preserved with their object IDs |
+| 23 | A kept record can still be deleted when its saved repository is gone. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, deletion succeeds on a stored record whose temporary .git directory was removed |
+| 24 | A kept record can still expire when its saved repository is gone. | slice 5 | observed: dashboard/backend-tests/review/kept-commits-release.spec.ts, expiry write removes the already stored record after .git disappears, verified from the unfiltered document |
 | 25 | The fourteen selected cases move to plain Node Vitest and retain their distinct inputs and expected outcomes. | slice 6 | |
 | 26 | The moved cases exercise `deliverCompletion`, `NativeDoneMarks`, `setRecordDoneAt`, `readSessionCommits`, the typed review and `deleteRecord` directly where applicable. | slice 6 | |
 | 27 | The moved cases use MakeMe kept records and attempts where applicable. | slice 6 | |

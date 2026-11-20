@@ -234,7 +234,7 @@ last consumer of `launchReporting` moved and the method was retired. See
 ### 5. A kept record releases only its own references, even with its repository gone
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the four `kept-commits-release.spec.ts` cases onto `deleteRecord` and
 the expiry write, keeping only their unique facts (landing references, the
@@ -244,6 +244,15 @@ other record's references, a gone repository). Delete the Playwright spec.
 | --- | --- |
 | Release example | All cases pass. |
 | The cases discriminate | With `releaseExpiredRecordPins` skipped in a scratch edit, the expiry case fails on a left reference. It passes once reverted. |
+
+Accepted evidence: all four typed cases distinguish deletion and expiry,
+observe both kinds of Git ref removed for the leaving record and preserved
+for the other record, and read the stored document after removing the saved
+repository. Disabling expiry pin release made the expiry assertion see all
+four leaving refs. Restored proof passes 12 cases including the existing
+session-only and branch result controls. The reference-release Node spec
+keeps its original path to avoid overlapping the branch-result sibling.
+See `open-dough/evidence/731-slice-5-return.md`.
 
 ### 6. An unreadable checkout keeps no start, and the family leaves Playwright
 
