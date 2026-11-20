@@ -10,8 +10,15 @@ import {
   isReviewedSessionSubject,
   type ReviewedSessionSubject,
   type ReviewedStorySubject,
-  type ReviewedWorkSubject,
 } from "../src/reviewedWorkSubject.ts";
+import type {
+  ReviewedFileRead,
+  SessionFileRead,
+} from "../src/reviewedFileRead.ts";
+import type {
+  SessionReviewRead,
+  StoryReviewRead,
+} from "../src/storyReviewRead.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource, namedSessionRecord } from "./sessionAdmission.ts";
@@ -33,27 +40,72 @@ export interface KeptSessionState {
   readonly records: readonly LaunchRecord[];
 }
 
-// A review handler's typed input: a story read, which today's admission path
-// admits, or a session read with the kept session state the adapter read.
-export type ReviewInput<R extends { readonly subject: ReviewedWorkSubject }> =
-  | { readonly read: R & { readonly subject: ReviewedStorySubject } }
+// A review handler's typed input: a story read on today's admission path, or a
+// session read whose shape holds only what that session read uses, with the
+// kept session state the adapter read.
+export type ReviewInput<
+  StoryR extends { readonly subject: ReviewedStorySubject },
+  SessionR extends { readonly subject: ReviewedSessionSubject },
+> =
+  | { readonly read: StoryR }
   | {
-      readonly read: R & { readonly subject: ReviewedSessionSubject };
+      readonly read: SessionR;
       readonly kept: KeptSessionState;
     };
 
+export type StoryReviewInput = ReviewInput<
+  StoryReviewRead & { readonly subject: ReviewedStorySubject },
+  SessionReviewRead
+>;
+
+export type ReviewedFileInput = ReviewInput<
+  ReviewedFileRead & { readonly subject: ReviewedStorySubject },
+  SessionFileRead
+>;
+
 // The adapters read a session's kept launch records on every request; an
-// unknown source is refused here, before any record is read.
-export async function reviewInput<
-  R extends { readonly subject: ReviewedWorkSubject },
->(read: R): Promise<ReviewInput<R>> {
-  const subject: ReviewedWorkSubject = read.subject;
-  if (!isReviewedSessionSubject(subject)) return { read: { ...read, subject } };
-  const source = knownSource(subject.source);
-  return {
-    read: { ...read, subject },
-    kept: { records: await keptRecords(source.id) },
-  };
+// unknown source is refused here, before any record is read. Session reads are
+// narrowed to SessionReviewRead / SessionFileRead so story-only fields cannot
+// reach the session handlers.
+export async function reviewInput(
+  read: StoryReviewRead | SessionReviewRead,
+): Promise<StoryReviewInput>;
+export async function reviewInput(
+  read: ReviewedFileRead | SessionFileRead,
+): Promise<ReviewedFileInput>;
+export async function reviewInput(
+  read:
+    StoryReviewRead | SessionReviewRead | ReviewedFileRead | SessionFileRead,
+): Promise<StoryReviewInput | ReviewedFileInput> {
+  const { subject } = read;
+  if (isReviewedSessionSubject(subject)) {
+    const kept = {
+      records: await keptRecords(knownSource(subject.source).id),
+    };
+    if ("baseline" in read) {
+      return {
+        read: {
+          subject,
+          ...(read.reference === undefined
+            ? {}
+            : { reference: read.reference }),
+          baseline: read.baseline,
+          tree: read.tree,
+          path: read.path,
+          ...(read.oldPath === undefined ? {} : { oldPath: read.oldPath }),
+        },
+        kept,
+      };
+    }
+    return {
+      read: {
+        subject,
+        ...(read.run === undefined ? {} : { run: read.run }),
+      },
+      kept,
+    };
+  }
+  return { read: { ...read, subject } };
 }
 
 export type AdmittedSessionReview = {

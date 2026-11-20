@@ -1,8 +1,10 @@
 // One review read: the reviewed subject and, when it names more, which
 // comparison. The page builds its review query from this shape and the
-// boundary parses the query back into it.
+// boundary parses the query back into it. Session handler inputs use the
+// narrower SessionReviewRead; the page query still emits from StoryReviewRead.
 import {
   reviewedWorkQuery,
+  type ReviewedSessionSubject,
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
 
@@ -16,6 +18,12 @@ export interface StoryReviewRead {
   readonly completed?: boolean;
   // Read the completed story's published historical comparison.
   readonly historical?: boolean;
+}
+
+// What a session review handler reads: the session subject and optional run.
+export interface SessionReviewRead {
+  readonly subject: ReviewedSessionSubject;
+  readonly run?: string;
 }
 
 export function storyReviewQuery(

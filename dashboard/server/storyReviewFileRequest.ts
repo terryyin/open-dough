@@ -2,7 +2,11 @@
 // one typed read. Refusals of that shape answer here; the kept records and
 // repository decide the rest in the handlers (`./storyReviewFileResponse.ts`).
 import { z } from "zod";
-import type { ReviewedFileRead } from "../src/reviewedFileRead.ts";
+import type {
+  ReviewedFileRead,
+  SessionFileRead,
+} from "../src/reviewedFileRead.ts";
+import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import {
   objectIdSchema,
   reviewedPathSchema,
@@ -17,7 +21,9 @@ import { requireExactQuery } from "./sessionAdmission.ts";
 
 export interface AdmittedReviewedFileRead {
   readonly kind: "story-review-file" | "story-review-file-text";
-  readonly read: ReviewedFileRead;
+  readonly read:
+    | (ReviewedFileRead & { readonly subject: ReviewedStorySubject })
+    | SessionFileRead;
 }
 
 const reviewedFileQuerySchema = z.object({
@@ -30,7 +36,9 @@ const reviewedFileQuerySchema = z.object({
 function reviewedFileRead(
   url: URL,
   label: "file diff" | "file text",
-): ReviewedFileRead {
+):
+  | (ReviewedFileRead & { readonly subject: ReviewedStorySubject })
+  | SessionFileRead {
   const subject = reviewedWorkSubjectQuery(url);
   const reference = url.searchParams.get("reference");
   const completion = url.searchParams.get("completion");
@@ -81,11 +89,12 @@ function reviewedFileRead(
   const session = queriedSessionSubject(url);
   if (reference !== null && !z.uuid().safeParse(reference).success)
     throw new RefusedRequest(400, "The review launch reference is malformed.");
-  return {
+  const sessionFile: SessionFileRead = {
     subject: session,
     ...(reference === null ? {} : { reference }),
     ...file,
   };
+  return sessionFile;
 }
 
 export function fileDiffRequest(url: URL): AdmittedReviewedFileRead {

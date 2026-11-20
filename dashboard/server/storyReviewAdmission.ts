@@ -12,7 +12,6 @@
 // baselines, without accepting paths or rereading history.
 
 import { z } from "zod";
-import type { ReviewedFileRead } from "../src/reviewedFileRead.ts";
 import {
   objectIdSchema,
   reviewIntegrationSchema,
@@ -26,7 +25,7 @@ import {
   type AdmittedHistoricalReviewedFile,
 } from "./storyReviewHistoricalFileAdmission.ts";
 import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
-import type { ReviewInput } from "./storyReviewSessionAdmission.ts";
+import type { ReviewedFileInput } from "./storyReviewSessionAdmission.ts";
 import {
   queriedWorkspace,
   storyWorkspace,
@@ -35,8 +34,7 @@ import {
 // One admitted comparison identity for printed diff or revision file text.
 type AdmittedReviewedFile = AdmittedHistoricalReviewedFile;
 
-// The file handlers' typed input over the file read.
-export type ReviewedFileInput = ReviewInput<ReviewedFileRead>;
+export type { ReviewedFileInput };
 
 export interface AdmittedStoryReviewRange {
   readonly kind: "story-review-range";
@@ -100,21 +98,12 @@ export async function rangeRequest(
 export async function admitReviewedFile(
   input: ReviewedFileInput,
 ): Promise<AdmittedReviewedFile> {
-  const { subject, reference, completion, ...file } = input.read;
   if ("kept" in input) {
-    if (completion !== undefined)
-      throw new RefusedRequest(
-        400,
-        "The published comparison identity is malformed.",
-      );
-    return admitSessionReviewedFile(
-      input.read.subject,
-      reference,
-      file,
-      input.kept,
-    );
+    const { subject, reference, ...file } = input.read;
+    return admitSessionReviewedFile(subject, reference, file, input.kept);
   }
-  const { identity } = input.read.subject;
+  const { subject, reference, completion, ...file } = input.read;
+  const { identity } = subject;
   const source = knownSource(subject.source);
   if (completion !== undefined)
     return admitHistoricalReviewedFile({

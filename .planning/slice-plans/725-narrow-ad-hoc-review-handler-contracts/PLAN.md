@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#narrow-ad-hoc-review-handler-contracts
 **Source:** [Narrow the ad hoc review handlers' contracts to what they read](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#narrow-ad-hoc-review-handler-contracts)
+**Source review:** [source-review.md](source-review.md)
 
 ## Source and provenance
 
@@ -160,7 +161,7 @@ Vitest 5.1.0, load about 3). The scratch files were removed after each run.
 ### 1. Session handler inputs carry only what a session read uses
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Give the session review read and the session file read their own
 typed shapes (finding 1), and use them in the session variant of
@@ -177,6 +178,16 @@ Proof:
 - `npm run test:dashboard:backend -- review/` passes unchanged. This covers
   the `ad-hoc-review-{landed,kept-unavailable,subject,file,request}.spec.ts`
   cases and the story `story-review-*` specs.
+
+Accepted (uncommitted, base `1e1f2e08`): `SessionReviewRead` /
+`SessionFileRead` beside the wire story reads; biparametric session
+`ReviewInput`; adapters return session shapes; session `completion` refusal
+removed; builder no longer Omits `completion`. Scratch typecheck refused
+`historical` / `completion` (TS2353); typecheck, lint, and
+`test:dashboard:backend -- review/` passed (`review-backend-2` after one
+Playwright ECONNRESET flake). Post-change refactor collapsed duplicate story
+returns in `reviewInput`. Source commitments 1, 2, 3, 18 observed in
+[source-review.md](source-review.md).
 
 ### 2. Adapter and handler responsibilities sit in separate modules
 
@@ -269,6 +280,15 @@ Proof:
   within Approach.
 - The existing scenarios and specs keep their names unless a move requires a
   change.
+- Slice 1 chose dedicated `SessionReviewRead` / `SessionFileRead` beside the
+  wire story reads; page query builders stay on the wire shapes; adapters and
+  `reviewInput` narrow session inputs.
+
+## Learnings
+
+- First full `review/` run failed once on Playwright `ECONNRESET` against
+  `__authenticated-read` in `ad-hoc-manual-landing-observation.spec.ts`
+  (outside narrowed admission). Isolated and full reruns passed.
 
 ## Proof and local gates
 

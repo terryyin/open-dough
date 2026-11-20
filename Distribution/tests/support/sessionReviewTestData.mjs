@@ -15,7 +15,7 @@ import { LaunchRecordBuilder } from "./launchTestData.mjs";
 /**
  * The file a session file read names within a comparison, and the landed
  * run's launch reference when it names one.
- * @typedef {Omit<SessionFileRead["read"], "subject" | "completion">} NamedFile
+ * @typedef {Omit<SessionFileRead["read"], "subject">} NamedFile
  */
 
 /**

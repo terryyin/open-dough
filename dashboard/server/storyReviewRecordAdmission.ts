@@ -15,7 +15,7 @@ import { RefusedRequest } from "./localOrigin.ts";
 import {
   admittedSessionReview,
   type AdmittedSessionReview,
-  type ReviewInput,
+  type StoryReviewInput,
 } from "./storyReviewSessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
@@ -140,8 +140,7 @@ async function admittedIdentityReview(
   };
 }
 
-// The review handler's typed input over the review read.
-export type StoryReviewInput = ReviewInput<StoryReviewRead>;
+export type { StoryReviewInput };
 
 // Admits a typed review read against the kept records; a session read
 // against its kept session state.

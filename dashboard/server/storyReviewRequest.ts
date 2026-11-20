@@ -2,7 +2,11 @@
 // Refusals of that shape answer here; the kept records decide the rest in the
 // handler (`storyReview` in `./storyReviewSnapshot.ts`).
 import { sessionComparisonKeySchema } from "../src/sessionReviewComparisons.ts";
-import type { StoryReviewRead } from "../src/storyReviewRead.ts";
+import type {
+  SessionReviewRead,
+  StoryReviewRead,
+} from "../src/storyReviewRead.ts";
+import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   queriedSessionSubject,
@@ -13,10 +17,12 @@ import { requireExactQuery } from "./sessionAdmission.ts";
 
 export interface AdmittedStoryReview {
   readonly kind: "story-review";
-  readonly read: StoryReviewRead;
+  readonly read:
+    | (StoryReviewRead & { readonly subject: ReviewedStorySubject })
+    | SessionReviewRead;
 }
 
-function sessionReviewRead(url: URL): StoryReviewRead {
+function sessionReviewRead(url: URL): SessionReviewRead {
   const named = url.searchParams.get("run");
   requireExactQuery(
     url,
@@ -31,7 +37,9 @@ function sessionReviewRead(url: URL): StoryReviewRead {
   };
 }
 
-function identityReviewRead(url: URL): StoryReviewRead {
+function identityReviewRead(
+  url: URL,
+): StoryReviewRead & { readonly subject: ReviewedStorySubject } {
   const reference = url.searchParams.get("reference");
   const run = url.searchParams.get("run");
   const completed = url.searchParams.get("completed");
