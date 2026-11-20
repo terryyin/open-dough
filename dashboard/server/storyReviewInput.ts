@@ -15,7 +15,9 @@ import type {
   SessionReviewRead,
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
+import { launchSubject } from "../src/launchWorkflow.ts";
 import { keptRecords } from "./launchRecordStore.ts";
+import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource, namedSessionRecord } from "./sessionAdmission.ts";
 
 // What a session review reads: the launch records kept for the subject's
@@ -48,14 +50,22 @@ export type ReviewedFileInput = ReviewInput<
 >;
 
 // The kept launch record for a session subject among already-read kept state.
+// Story-launch sessions are refused here so session review and file admission
+// share one refusal.
 export function keptSessionOf(
   kept: KeptSessionState,
   subject: ReviewedSessionSubject,
 ): LaunchRecord {
-  return namedSessionRecord(kept.records, {
+  const record = namedSessionRecord(kept.records, {
     host: subject.host,
     sessionId: subject.session,
   });
+  if (launchSubject(record.request).identity !== undefined)
+    throw new RefusedRequest(
+      400,
+      "This session belongs to a story launch and is reviewed by its story.",
+    );
+  return record;
 }
 
 // The adapters read a session's kept launch records on every request; an

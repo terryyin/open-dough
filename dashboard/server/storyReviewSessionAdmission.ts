@@ -1,5 +1,4 @@
 // Standalone session review selects one retained result by its run key.
-import { launchSubject } from "../src/launchWorkflow.ts";
 import {
   sessionBranchRun,
   sessionDeliveryRun,
@@ -33,11 +32,6 @@ export function admittedSessionReview(
   kept: KeptSessionState,
 ): AdmittedSessionReview {
   const record = keptSessionOf(kept, subject);
-  if (launchSubject(record.request).identity !== undefined)
-    throw new RefusedRequest(
-      400,
-      "This session belongs to a story launch and is reviewed by its story.",
-    );
 
   const branch = branchResultAtDone(record);
   const firstRun = keptSessionRun(record);
