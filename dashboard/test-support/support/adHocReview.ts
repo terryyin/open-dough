@@ -126,15 +126,14 @@ export function keepSessionWithKeptRun(
   { base, revision }: { base: string; revision: string },
 ): string {
   const sessionId = "session-with-kept-run";
-  keepLaunchRecords(
-    dashboard,
-    makeMe.aSessionReviewRead
+  keepLaunchRecords(dashboard, [
+    makeMe.aLaunchRecord
       .ofAdHocSessionWithKeptRun(sessionId, {
         repository,
         run: { base, revision },
       })
-      .please().kept.records,
-  );
+      .please(),
+  ]);
   return sessionId;
 }
 

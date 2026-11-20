@@ -4,10 +4,7 @@
 // the `open-dough` project, with the launch records kept for that project.
 // `.readingFile(...)` turns it into the file read the file handlers take
 // (../../../dashboard/server/storyReviewFileResponse.ts).
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
-import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { LaunchAdHocSessionBuilder } from "./launchAdHocSessionTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").StoryReviewInput, { readonly kept: unknown }>} SessionReviewRead */
@@ -17,12 +14,8 @@ import { LaunchRecordBuilder } from "./launchTestData.mjs";
  * run's launch reference when it names one.
  * @typedef {Omit<SessionFileRead["read"], "subject">} NamedFile
  */
-
 /**
- * What a landed ad hoc session captured: the repository it landed in and the
- * comparison it captured there, launched at a fixed instant and reporting
- * under the fixed reference unless stated.
- * @typedef {{ repository: string, comparing: { base: string, revision: string }, launchedAt?: string, reference?: string }} CapturedLanding
+ * @typedef {import("./launchAdHocSessionTestData.mjs").CapturedLanding} CapturedLanding
  */
 
 export class SessionReviewReadBuilder {
@@ -55,27 +48,12 @@ export class SessionReviewReadBuilder {
    * @param {string} session the reviewed `claude` session's ID
    * @param {CapturedLanding} landing
    */
-  ofLandedAdHocSession(
-    session,
-    { repository, comparing, launchedAt, reference },
-  ) {
-    const landing = new LaunchLandingBuilder()
-      .capturedFrom({ repository })
-      .comparing(comparing);
-    if (reference !== undefined) landing.forLaunch(reference);
-    const record = new LaunchRecordBuilder()
-      .adHoc({ title: "Landed ad hoc" })
-      .inIsolatedWorkspace({
-        workspace: path.join(
-          tmpdir(),
-          `retired-ad-hoc-workspace-${process.pid}-${session}`,
-        ),
-        branch: "ad-hoc/landed",
-      })
-      .inClaudeSession({ sessionId: session })
-      .withLanding(landing);
-    if (launchedAt !== undefined) record.launchedAt(launchedAt);
-    return this.ofSession(session).keeping([record.markedDone().please()]);
+  ofLandedAdHocSession(session, landing) {
+    return this.ofSession(session).keeping([
+      new LaunchAdHocSessionBuilder()
+        .ofLandedAdHocSession(session, landing)
+        .please(),
+    ]);
   }
 
   /**
@@ -84,19 +62,12 @@ export class SessionReviewReadBuilder {
    * @param {string} session the reviewed `claude` session's ID
    * @param {{ repository: string, run: { base: string, revision: string } }} kept
    */
-  ofAdHocSessionWithKeptRun(session, { repository, run }) {
-    const record = new LaunchRecordBuilder()
-      .adHoc({ title: "Session with a kept run" })
-      .inDefaultCheckout({
-        workspace: repository,
-        landing: "review",
-        revision: run.base,
-      })
-      .inClaudeSession({ sessionId: session })
-      .keptSessionCommits({ repository, runs: [run] })
-      .markedDone()
-      .please();
-    return this.ofSession(session).keeping([record]);
+  ofAdHocSessionWithKeptRun(session, kept) {
+    return this.ofSession(session).keeping([
+      new LaunchAdHocSessionBuilder()
+        .ofAdHocSessionWithKeptRun(session, kept)
+        .please(),
+    ]);
   }
 
   /**

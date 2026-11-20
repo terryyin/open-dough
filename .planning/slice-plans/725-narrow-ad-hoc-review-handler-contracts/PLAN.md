@@ -262,7 +262,7 @@ Commitments 4, 6, 7, 8 observed in [source-review.md](source-review.md).
 ### 4. Launch-record scenarios are launch record builder steps
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Make the landed ad hoc session and the session with a kept run
 named steps that `makeMe.aLaunchRecord` reaches. Then make these changes:
@@ -281,6 +281,15 @@ Proof:
 - A search finds no `.kept.records` taken from a read builder outside
   `sessionReviewTestData.mjs`.
 - `npm run typecheck:dashboard` and `npm run lint` pass.
+
+
+Accepted (uncommitted on `9fd975ba`): `LaunchAdHocSessionBuilder` steps on
+`makeMe.aLaunchRecord`; `SessionReviewReadBuilder` composes; record-only
+callers take `aLaunchRecord`. `launchTestData.mjs` stays 244 lines via new
+layer. Focused ad-hoc review + file-text suites, kept-records search,
+typecheck, lint hold. Commitments 5, 15–17 observed in
+[source-review.md](source-review.md). Post-change refactor: none — already
+clean.
 
 ## Proof map
 
