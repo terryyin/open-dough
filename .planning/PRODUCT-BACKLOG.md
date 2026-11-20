@@ -31,11 +31,11 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Narrow the ad hoc review handlers' contracts to what they read](seeds/SEED-413-renovate-dashboard-unit-tests.md#narrow-ad-hoc-review-handler-contracts) — SEED-413#narrow-ad-hoc-review-handler-contracts ([plan](slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md))
+- [Direct story-launch file reads to their story](seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads) — SEED-413#refuse-story-launch-session-file-reads ([plan](slice-plans/726-direct-story-launch-file-reads-to-their-story/PLAN.md))
 
 ## Backlog list
 
 - [Review done sessions on open story cards](seeds/SEED-414-review-done-sessions-on-open-story-cards.md#review-done-sessions-on-open-story-cards) — SEED-414#review-done-sessions-on-open-story-cards
-- [Direct story-launch file reads to their story](seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads) — SEED-413#refuse-story-launch-session-file-reads
 - [Prove what Done keeps of a Default main session's commits in-process](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests) — SEED-413#renovate-remaining-dashboard-backend-unit-tests
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
