@@ -23,6 +23,16 @@ export type ReviewedSessionSubject = z.infer<
 
 export type ReviewedWorkSubject = ReviewedStorySubject | ReviewedSessionSubject;
 
+// A closed session named by its published close record's UUID, read through
+// the configured project without local launch history.
+export const reviewedPublishedSessionSubjectSchema = z.object({
+  source: z.string().min(1),
+  published: z.uuid(),
+});
+export type ReviewedPublishedSessionSubject = z.infer<
+  typeof reviewedPublishedSessionSubjectSchema
+>;
+
 export const isReviewedSessionSubject = (
   subject: ReviewedWorkSubject,
 ): subject is ReviewedSessionSubject => "session" in subject;

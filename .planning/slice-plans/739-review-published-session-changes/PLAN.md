@@ -55,7 +55,7 @@ historical recovery and adding follow-up message context are separate stories.
   Keep typed boundaries narrow and avoid adding test-support wrappers. Preserve
   one comparison model for all workflow variants. Keep changes to the publication
   and observation entry points thin. If the currently 250-line
-  `dashboard/server/performedRead.ts` needs a dispatch change in slice 2,
+  `dashboard/server/performedRead.ts` needs a dispatch change in slice 3,
   move the published-record read responsibility behind its typed handler and
   keep the existing read route responses and authentication tests as proof.
 
@@ -67,23 +67,23 @@ relevant implementation paths untouched.
 
 | Consuming operation | Observation |
 | --- | --- |
-| Accepted publication supplies the comparison used by slices 1, 3 and 4 | Ran distribution Node tests `execution-increment-comparison.test.mjs` and `trunk-closure-rebased-rerun.test.mjs` in the owned checkout. The real temporary Git remote accepted the retry's rewritten candidate with its new base. The pair diff contained just the increment. Closure resumed from the original request after acceptance and retired without replaying the publication. |
-| Earlier branch comparisons survive integration and branch deletion in slice 5 | Ran `history-preserving-landing-expectation.test.mjs` against a temporary remote, confirming branch publication carries no one-time trunk landing and the first trunk integration captures once. Separately, with Apple Git 2.50.1, pushed a branch, merged it with both histories, published a sample UUID JSON on trunk and removed the branch. A `git clone --no-local --single-branch` could read the JSON and diff the original exact pair after retirement. Diffing the broader initial base through the merge included `unrelated.txt`. The scratch test exercised Git reachability, with record serialization and Dashboard wiring owned by the slices. |
-| Current comparison and shared-checkout behavior to reuse in slices 2 and 6 | Ran `npm run --silent test:dashboard:backend -- review/ad-hoc-review-subject review/ad-hoc-review-file review/done-kept-session-shared-checkout`. All 17 cases passed in the Vitest profile. File reads admit the exact selected pair and rename path, and refuse a foreign path or pair. Two overlapping sessions in the same checkout show uncertainty; isolated and nonoverlapping sessions do not. Today's review rejects the same subject when local kept state is empty. Slice 2 changes that boundary for published UUIDs. |
-| Focused Chromium selection for the Done-session journey in slice 2 | `npm run test:e2e -- --reporter=list --list e2e/sessions/recently-done-sessions-select-ad-hoc-development.spec.ts` selected one Chromium case. The listing verifies the runner route. The slice owns the new second-machine journey. |
-| Refinement closure still releases the assignment with its accepted result in slice 7 | Ran `preparation-assignment-land.test.mjs` against a temporary remote. The accepted snapshot retained the queued story's recorded facts, removed only its own assignment and kept the other profiles. The new session record has its own acceptance after that snapshot. |
+| Accepted publication supplies the comparison used by slices 1, 4 and 5 | Ran distribution Node tests `execution-increment-comparison.test.mjs` and `trunk-closure-rebased-rerun.test.mjs` in the owned checkout. The real temporary Git remote accepted the retry's rewritten candidate with its new base. The pair diff contained just the increment. Closure resumed from the original request after acceptance and retired without replaying the publication. |
+| Earlier branch comparisons survive integration and branch deletion in slice 6 | Ran `history-preserving-landing-expectation.test.mjs` against a temporary remote, confirming branch publication carries no one-time trunk landing and the first trunk integration captures once. Separately, with Apple Git 2.50.1, pushed a branch, merged it with both histories, published a sample UUID JSON on trunk and removed the branch. A `git clone --no-local --single-branch` could read the JSON and diff the original exact pair after retirement. Diffing the broader initial base through the merge included `unrelated.txt`. The scratch test exercised Git reachability, with record serialization and Dashboard wiring owned by the slices. |
+| Current comparison and shared-checkout behavior to reuse in slices 2 and 7 | Ran `npm run --silent test:dashboard:backend -- review/ad-hoc-review-subject review/ad-hoc-review-file review/done-kept-session-shared-checkout`. All 17 cases passed in the Vitest profile. File reads admit the exact selected pair and rename path, and refuse a foreign path or pair. Two overlapping sessions in the same checkout show uncertainty; isolated and nonoverlapping sessions do not. Today's review rejects the same subject when local kept state is empty. Slice 2 changes that boundary for published UUIDs. |
+| Focused Chromium selection for the Done-session journey in slice 3 | `npm run test:e2e -- --reporter=list --list e2e/sessions/recently-done-sessions-select-ad-hoc-development.spec.ts` selected one Chromium case. The listing verifies the runner route. The slice owns the new second-machine journey. |
+| Refinement closure still releases the assignment with its accepted result in slice 8 | Ran `preparation-assignment-land.test.mjs` against a temporary remote. The accepted snapshot retained the queued story's recorded facts, removed only its own assignment and kept the other profiles. The new session record has its own acceptance after that snapshot. |
 
 ## Outside-in proof
 
 | Promise | Owning slice and observation |
 | --- | --- |
 | One portable session record for an accepted standalone result | 1. Invoke the Land publication path with an authorized temp Git origin, then read the UUID JSON and diff its pair from an independent clone. Inspect the actual commit and file changes. |
-| Discover and review on the second machine | 2. Browser journey through the standalone Done entry and existing review page using a second configured checkout and empty launch storage. Open the actual file diff after origin advances. Backend cases prove wrong project, unknown UUID, missing objects and off-comparison file handling. |
-| Retry after work or record acceptance | 3. Interrupt record publication before acceptance and lose its response after acceptance in separate temp-origin cases. Resume at the first unfinished stage, with one work publication, one UUID file and an unchanged close time. |
-| Include earlier trunk and story-branch work with faithful attribution | 4–5. Drive execution publication and wrap-up using real Git. Read every recorded comparison from a fresh clone and assert the first and later changes, the absence of an intervening writer's file, and resolvable branch hashes after retirement. |
-| Shared changes carry visible uncertainty | 6. Publish overlapping shared-checkout runs separated by a pull. Review the same runs and their warning on the receiving machine. Assert that pulled-only and unpublished edits are absent. |
-| Workflow and story association | 7. Close a refinement and ad hoc follow-up for the same story. The published tree contains independent UUIDs with the correct workflow and story association. Execution variants are proved in 4–5. |
-| 30-day lifetime | 8. A controlled clock proves availability just before expiry and removal at expiry. An authorized publication prunes the aged JSON, preserves a live record and leaves the aged one in the earlier published commit. |
+| Discover and review on the second machine | 2–3. Browser journey through the standalone Done entry and existing review page using a second configured checkout and empty launch storage. Open the actual file diff after origin advances. Backend cases prove wrong project, unknown UUID, missing objects and off-comparison file handling. |
+| Retry after work or record acceptance | 4. Interrupt record publication before acceptance and lose its response after acceptance in separate temp-origin cases. Resume at the first unfinished stage, with one work publication, one UUID file and an unchanged close time. |
+| Include earlier trunk and story-branch work with faithful attribution | 5–6. Drive execution publication and wrap-up using real Git. Read every recorded comparison from a fresh clone and assert the first and later changes, the absence of an intervening writer's file, and resolvable branch hashes after retirement. |
+| Shared changes carry visible uncertainty | 7. Publish overlapping shared-checkout runs separated by a pull. Review the same runs and their warning on the receiving machine. Assert that pulled-only and unpublished edits are absent. |
+| Workflow and story association | 8. Close a refinement and ad hoc follow-up for the same story. The published tree contains independent UUIDs with the correct workflow and story association. Execution variants are proved in 5–6. |
+| 30-day lifetime | 9. A controlled clock proves availability just before expiry and removal at expiry. An authorized publication prunes the aged JSON, preserves a live record and leaves the aged one in the earlier published commit. |
 
 ## Ordered slices
 
@@ -113,24 +113,62 @@ The UUID is the Dashboard launch's landing-context `reference`, or a retained
 push. The record publishes as a second accepted publication after the work, and
 its result (`published | stopped | not-published`) is separate from `work`.
 
-### 2. Open a published standalone comparison on a second machine
+### 2. Review a published session by UUID through the review route
+
+Type: Behavior
+Status: done
+
+**Behavior.** Given a published record read at a newer trunk revision of the
+configured project, the existing review request and file routes accept a
+published-session subject by UUID and return the original comparison and file
+diff without local launch history. Records resolve through the configured
+source; a wrong project or unknown UUID is refused, off-comparison file
+requests are refused and missing Git objects explain the gap.
+
+**Proof.** Backend review specs through the existing review admission seam
+with real Git: the handler cases in
+`dashboard/backend-tests/review/published-session-review.spec.ts` plus route
+cases for the published subject, wrong project and file refusal. Preserve the
+kept-local and story review cases.
+
+**Split from the original slice 2** after its attempt (4.4 active minutes)
+showed hidden preparation: the review subject is `{source, host, session}`
+and needs a published variant across the subject, request and input
+admission, while the Done listing builds only from local launches. The
+attempt's typed record schema (`dashboard/src/publishedSessionRecord.ts`),
+reader and file admission (`dashboard/server/publishedSessionReview.ts`) and
+their five passing backend cases are retained in the checkout for this slice.
+
+**Accepted.** Subject `{source, published: uuid}` routes through
+`dashboard/server/storyReviewInput.ts` to `publishedSessionReview.ts`, with
+the configured project resolved in `publishedSessionSource.ts` at the fetched
+`origin/<ref>` (last fetched trunk when origin is unreachable). Proof:
+`dashboard/backend-tests/review/published-session-review.spec.ts` and
+`published-session-review-request.spec.ts` with the existing ad hoc and kept
+review specs. The page's `ReviewedWorkSubject` union does not yet include the
+published subject; slice 3 adds it with `reviewedWorkKey` and
+`reviewedWorkQuery`. A local full backend run timed out in unrelated specs at
+load average ~26; the affected 17 files passed on rerun and CI settles the rest.
+
+### 3. Open a published standalone comparison on a second machine
 
 Type: Behavior
 Status: planned
 
 **Behavior.** Given a published record and a newer revision of trunk, a
 configured second machine with empty launch history shows the standalone Done
-entry and opens the original comparison and file diff. An originating machine
-with matching local evidence shows one entry and retains its native controls.
-Records resolve through the configured source. Off-comparison file requests
-are refused and missing Git objects explain the gap.
+entry and opens the original comparison and file diff through slice 2's
+route. An originating machine with matching local evidence (launch reference
+equal to the record UUID) shows one entry and retains its native controls.
 
 **Proof.** An E2E case in `e2e/sessions/` uses actual published Git data and the
 existing [review page object](../../../dashboard/test-support/reviewChangesPage.ts).
-Use the existing backend review admission seam for the project, file and
-missing-object checks. Preserve the kept-local and story review cases.
+A published read reaching the client goes through the 250-line
+`dashboard/server/performedRead.ts` only after moving that responsibility
+behind its typed handler, keeping the existing read route responses and
+authentication tests as proof. Preserve the kept-local listing cases.
 
-### 3. Resume publishing the same close record
+### 4. Resume publishing the same close record
 
 Type: Behavior
 Status: planned
@@ -146,7 +184,7 @@ publication with the existing publication recovery entry point. Assert commit
 counts and record bytes on the remote after retry as well as the independent
 work and record outcomes.
 
-### 4. Recover earlier trunk publications at wrap-up
+### 5. Recover earlier trunk publications at wrap-up
 
 Type: Behavior
 Status: planned
@@ -161,7 +199,7 @@ Keep per-publication evidence beyond the first trunk landing.
 entry points against one temp origin. From a fresh clone, inspect the record's
 diffs and confirm both attributable edits and the absent intervening file.
 
-### 5. Keep story-branch comparisons after integration
+### 6. Keep story-branch comparisons after integration
 
 Type: Behavior
 Status: planned
@@ -176,7 +214,7 @@ against a real temp origin with an intervening trunk commit. Resolve the
 record from a default-branch-only clone after the execution branch is gone,
 and verify its exact edits and commit membership.
 
-### 6. Disclose ambiguity in a shared checkout
+### 7. Disclose ambiguity in a shared checkout
 
 Type: Behavior
 Status: planned
@@ -192,7 +230,7 @@ through a focused fixture. Check the published record in a second checkout
 and use the existing standalone comparison reader to observe the warning and
 exact files. Preserve the current Done capture cases.
 
-### 7. Publish refinement and ad hoc story follow-up associations
+### 8. Publish refinement and ad hoc story follow-up associations
 
 Type: Behavior
 Status: planned
@@ -206,7 +244,7 @@ assignment release as part of the accepted preparation result.
 assignment from the accepted remote snapshot. The records resolve separate
 comparisons even though their story identity is the same.
 
-### 8. Expire current session records
+### 9. Expire current session records
 
 Type: Behavior
 Status: planned

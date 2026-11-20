@@ -25,7 +25,10 @@ export function sessionRecordPath(sessionId, backlogPath = defaultBacklogPath) {
   );
 }
 
-/** Ranges are ordered `{ base, candidate }` full commit pairs. */
+/**
+ * Ranges are ordered `{ base, candidate }` full commit pairs.
+ * @param {{ sessionId: string, workflow: string, closedAt: string, story?: unknown, ranges: { base: string, candidate: string }[] }} close
+ */
 export function sessionRecord({
   sessionId,
   workflow,

@@ -13,6 +13,7 @@ import {
   type AdmittedReviewedFile,
 } from "./storyReviewHistoricalFileAdmission.ts";
 import type { ReviewedFileInput } from "./storyReviewInput.ts";
+import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
 import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
 import { storyWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 
@@ -23,6 +24,15 @@ export async function admitReviewedFile(
   input: ReviewedFileInput,
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
+  if ("published" in input) {
+    const { subject, ...file } = input.read;
+    return admitPublishedSessionFile(
+      input.published,
+      subject.published,
+      file,
+      signal,
+    );
+  }
   if ("kept" in input) {
     const { subject, reference, ...file } = input.read;
     return admitSessionReviewedFile(

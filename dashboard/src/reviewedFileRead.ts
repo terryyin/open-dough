@@ -5,6 +5,7 @@
 // emits from ReviewedFileRead.
 import {
   reviewedWorkQuery,
+  type ReviewedPublishedSessionSubject,
   type ReviewedSessionSubject,
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
@@ -19,7 +20,8 @@ export interface ReviewedWork {
   readonly completion?: string;
 }
 
-export interface ReviewedFileRead extends ReviewedWork {
+// One file within a retained pair: the trees the comparison reads between.
+export interface ReviewedPairFile {
   // The tree the comparison reads from.
   readonly baseline: string;
   readonly tree: string;
@@ -28,15 +30,18 @@ export interface ReviewedFileRead extends ReviewedWork {
   readonly oldPath?: string;
 }
 
+export interface ReviewedFileRead extends ReviewedWork, ReviewedPairFile {}
+
 // What a session file handler reads: the session subject, optional landing
 // reference, and the file within its pair — never a Published completion.
-export interface SessionFileRead {
+export interface SessionFileRead extends ReviewedPairFile {
   readonly subject: ReviewedSessionSubject;
   readonly reference?: string;
-  readonly baseline: string;
-  readonly tree: string;
-  readonly path: string;
-  readonly oldPath?: string;
+}
+
+// A published session's file read: its subject and one recorded pair's file.
+export interface PublishedSessionFileRead extends ReviewedPairFile {
+  readonly subject: ReviewedPublishedSessionSubject;
 }
 
 export function reviewedFileQuery(
