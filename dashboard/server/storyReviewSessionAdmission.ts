@@ -62,12 +62,12 @@ export type AdmittedSessionReview = {
   readonly readSession: (signal: AbortSignal) => Promise<StoryReview>;
 };
 
-// The kept session record admits the session subject and its named run key.
-export function admittedSessionReview(
+// The kept record a session review or file read addresses; a story launch's
+// session is refused toward its story before any comparison is chosen.
+export function reviewedSessionRecord(
   subject: ReviewedSessionSubject,
-  named: string | undefined,
   kept: KeptSessionState,
-): AdmittedSessionReview {
+): LaunchRecord {
   const record = namedSessionRecord(kept.records, {
     host: subject.host,
     sessionId: subject.session,
@@ -77,6 +77,16 @@ export function admittedSessionReview(
       400,
       "This session belongs to a story launch and is reviewed by its story.",
     );
+  return record;
+}
+
+// The kept session record admits the session subject and its named run key.
+export function admittedSessionReview(
+  subject: ReviewedSessionSubject,
+  named: string | undefined,
+  kept: KeptSessionState,
+): AdmittedSessionReview {
+  const record = reviewedSessionRecord(subject, kept);
 
   const branch = branchResultAtDone(record);
   const firstRun = keptSessionRun(record);

@@ -14,7 +14,9 @@ import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
+  storyReviewFileTextEndpoint,
   reviewedFileDiffSchema,
+  reviewedFileTextSchema,
 } from "../../src/storyReviewContract.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -86,6 +88,40 @@ test("foreign or malformed historical review requests cannot choose a repository
     kind: "diff",
     printed: expect.stringContaining("+delivered.txt"),
   });
+  const text = await getReview(
+    request,
+    dashboard,
+    storyReviewFileTextEndpoint,
+    file,
+  );
+  expect(text.status()).toBe(200);
+  expect(reviewedFileTextSchema.parse(await text.json())).toEqual({
+    kind: "text",
+    baseline: null,
+    tree: "delivered.txt\n",
+  });
+  const { reference } = named;
+  const bySession = {
+    source: named.source,
+    host: run.record.session.host,
+    session: run.record.session.sessionId,
+    baseline: file.baseline,
+    tree: file.tree,
+    path: file.path,
+  };
+  for (const endpoint of [storyReviewFileEndpoint, storyReviewFileTextEndpoint])
+    for (const query of [
+      { ...bySession, reference },
+      bySession,
+      { ...bySession, reference, baseline: receipt.revision },
+    ]) {
+      const refused = await getReview(request, dashboard, endpoint, query);
+      expect(refused.status(), JSON.stringify(query)).toBe(400);
+      expect(await refused.json()).toEqual({
+        error:
+          "This session belongs to a story launch and is reviewed by its story.",
+      });
+    }
   expect(repositoryObservation(origin.project)).toEqual(before);
   expect(readFileSync(before.index)).toEqual(index);
 });

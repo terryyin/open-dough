@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_refuse-story-launch-session-file-reads.json",
+      "identity": "SEED-413#refuse-story-launch-session-file-reads",
+      "completedAt": "2026-11-20T04:51:13.508Z",
+      "blob": "348eba00e75c942803cade67b1ae9fa39d9b6746"
+    },
+    {
       "fileName": "SEED-413_renovate-dashboard-backend-unit-tests.json",
       "identity": "SEED-413#renovate-dashboard-backend-unit-tests",
       "completedAt": "2026-11-19T16:51:33.747Z",

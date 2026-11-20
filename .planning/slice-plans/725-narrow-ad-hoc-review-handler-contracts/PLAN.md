@@ -37,7 +37,7 @@ Excluded:
   Default main landing case of `ad-hoc-session-commits.spec.ts` to unit
   cases. That work belongs to `SEED-413#renovate-remaining-dashboard-backend-unit-tests`.
 - Applying the story-launch refusal to file diff and file text. The
-  [separate product follow-up](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-story-launch-session-file-reads)
+  separate product follow-up `SEED-413#refuse-story-launch-session-file-reads`
   owns that change.
 - Story-subject admission, beyond taking the handler's signal.
 - `Distribution/src/`.

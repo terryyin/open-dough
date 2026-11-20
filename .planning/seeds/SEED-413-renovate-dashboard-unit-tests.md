@@ -112,41 +112,32 @@ their execution's retrospective.
 - **Scope limits.** Moving `ad-hoc-session-commits-file-text.spec.ts` and the
   Default main landing case to unit cases stays with the
   [Done capture family](#renovate-remaining-dashboard-backend-unit-tests). The
-  [file-read follow-up](#refuse-story-launch-session-file-reads) owns the
-  story-launch refusal. Story subjects keep their admission path.
+  file-read follow-up `SEED-413#refuse-story-launch-session-file-reads` owns
+  the story-launch refusal. Story subjects keep their admission path.
 - **Plan.** [725](../slice-plans/725-narrow-ad-hoc-review-handler-contracts/PLAN.md)
 
-<a id="refuse-story-launch-session-file-reads"></a>
+<a id="remove-ad-hoc-done-helper"></a>
 
-### Direct story-launch file reads to their story
+### Mark ad hoc sessions Done in their own cases
 
-**Identity:** SEED-413#refuse-story-launch-session-file-reads
+**Identity:** SEED-413#remove-ad-hoc-done-helper
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/726-direct-story-launch-file-reads-to-their-story/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bea5c06226a2ffbb401764af913d1f00585feb053edec78301d8c9a04fe5aeb6","plan":"dbf1d4e467385c136dd122eb0bcdf949f6cd6a7d48a5bc82c38ecf1749301aba"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/727-remove-ad-hoc-done-helper/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"48b5c447f9e3bc8e9c09c2ddd0175720ed532b2a3d5c27db66ced4dc7f22fec6","plan":"6f133b74069d134f4dcc17c93cd992fa08324fdf1df94a34f292f161f9f32003"}}
 ```
 
-- **Goal.** A dashboard reader who requests a story launch's diff or file text
-  by session learns to open the file through its story. The reply matches the
-  direction the session review already gives.
-- **Scope.** Resolve the kept launch by project, host, and session. Share the
-  session review's eligibility rule with both file endpoints. Use the kept
-  launch's recorded story identity to decide before either reference or
-  comparison-pair admission can read the comparison or its repository. Keep
-  existing query validation and the rules for unknown projects and sessions.
-- **Key examples.**
-  - Given a kept story launch, a well-formed session-addressed diff or text
-    request receives HTTP 400 with “This session belongs to a story launch
-    and is reviewed by its story.” The response is the same with a launch
-    reference or the comparison pair alone.
-  - Given that launch's captured comparison and a valid file, naming the
-    story identity and retained reference returns the diff or file text for
-    that same comparison.
-  - Given a standalone ad hoc session, its valid retained comparison and file
-    still return the diff or file text. A mismatched kept pair still gets
-    HTTP 409.
-- **Scope limits.** The [handler contract correction](#narrow-ad-hoc-review-handler-contracts)
-  owns input typing, cancellation, adapter placement, and test-builder cleanup.
-- **Plan.** [726](../slice-plans/726-direct-story-launch-file-reads-to-their-story/PLAN.md)
+Correction of `SEED-413#refuse-story-launch-session-file-reads` after its
+execution's retrospective.
+
+- **Goal.** Developers reading the ad hoc review backend cases see in each
+  case that its session finished before the case marks it Done. Test
+  support holds no Done helper the North Star asks to remove, and each Done
+  mark still avoids the five-second rename wait.
+- **Scope.** Remove `markAdHocDone` from
+  `dashboard/test-support/support/adHocReview.ts`. Each consuming case
+  marks its session finished and then Done through the existing boundary
+  calls. Every consuming case keeps its inputs, expectations and current
+  speed.
+- **Plan.** [727](../slice-plans/727-remove-ad-hoc-done-helper/PLAN.md)
 
 <a id="renovate-remaining-dashboard-backend-unit-tests"></a>
 
