@@ -17,10 +17,11 @@ import {
 } from "../../../dashboard/server/ciFollowUpRetention.ts";
 process.once("message", async (input) => {
   try {
+    const waitForKill = input.action === "crash-before-send";
     let answer;
     if (input.action === "register")
       answer = await registerFollowUpReceipt(input.project, input.landing);
-    if (input.action === "spend" || input.action === "crash-before-send")
+    if (input.action === "spend" || waitForKill)
       answer = await spendRepeat(input.project, input.landing, input.request);
     if (input.action === "update")
       answer = await updateRepeat(
@@ -42,8 +43,10 @@ process.once("message", async (input) => {
     if (input.action === "samples")
       answer = await withOriginalFollowUpSamples(input.project, input.history);
     if (input.action === "read") answer = await readFollowUps();
+    // Hold the IPC barrier after the one-shot listener has been removed.
+    if (waitForKill) process.channel.ref();
     process.send({ ok: true, answer });
-    if (input.action !== "crash-before-send") process.disconnect();
+    if (!waitForKill) process.disconnect();
   } catch (error) {
     process.send({ ok: false, error: error.message });
     process.disconnect();

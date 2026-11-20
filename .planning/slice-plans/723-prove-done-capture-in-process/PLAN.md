@@ -220,6 +220,11 @@ The selective formatter flagged the diff matcher's inferred type. Giving
 the matcher an explicit `unknown` type kept its assertion unchanged. The
 pulled-landing case passed again in `slice2-file-diff-lint-proof.json`.
 
+The [ledger interruption repair](diagnosis-ci-ledger-interruption.md)
+settles the failure notified on the published slice 2 revision. The
+fixture now holds its intended IPC barrier until the parent kills it or
+disconnects. The real ledger continues to refuse a second spend.
+
 ### 3. Rewritten commits are kept as they ended, proven in-process
 
 Type: Behavior
