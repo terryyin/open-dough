@@ -147,6 +147,49 @@ precondition.
   timing and the test-support calls removed against the prior cases under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
+- **Accepted timing.** Terry accepted the delivered timing on 2026-11-20.
+  The migrated cases' local timeout margin under load moves to
+  [Bring the Done capture family's cases to 100–200 ms](#optimize-done-capture-family-cases).
+
+<a id="optimize-done-capture-family-cases"></a>
+
+### Bring the Done capture family's cases to 100–200 ms
+
+**Identity:** SEED-413#optimize-done-capture-family-cases
+
+Follows the [Done ad hoc observation and publication move](#arrange-done-ad-hoc-observation-and-publication),
+which made its ten cases plain Vitest, about twice as fast as their
+Playwright versions.
+
+- **Goal.** Dashboard maintainers get Done capture proof that runs at about
+  100–200 ms per case and passes reliably under local load. The family's
+  cases now take about 1–2 s each at load 6–12 and 3–5 s at load 14–16. Under
+  Vitest's 5 s default, two or three of them time out at that load. Hosted CI
+  runs them in under 1 s.
+- **Scope.** The Git-heavy Done capture family under
+  `dashboard/backend-tests/review/` and `dashboard/backend-tests/launches/`,
+  and its shared support, `doneCaptureCase.ts`, `doneCaptureReview.ts`,
+  `doneBranchObservation.ts`, `declaredBranchCase.ts`,
+  `declaredPublisherBranch.ts`, `installedPublisher.ts` and
+  `adHocBranchRefs.ts`. Profile where checkout creation, checkout work,
+  production Done capture, observation and review reads spend each case's
+  time, then cut the cost while keeping real Git, the production handlers and
+  every assertion. Shared fixtures, cheaper Git setup and production seams
+  that do avoidable work are all in scope. Raising timeouts is out of scope.
+- **Key examples.**
+  - A Done branch capture with a real merge and a typed review read finishes
+    within about 200 ms at low load.
+  - At load 15 or more, the family passes several runs in a row at
+    `--workers=2` with no timeout.
+- **Evaluation.** Use [`dough-test-optimization`](../../.claude/skills/dough-test-optimization/SKILL.md)
+  and the [`done-capture-family-timeout-margin`](../TEST-OPTIMIZATION-CANDIDATES.md#done-capture-family-timeout-margin)
+  candidate. Compare per-case durations against the current family at the
+  same worker count and load, under
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  If 100–200 ms is not reachable, report the measured floor and the cost that
+  remains for each case. Explain why it cannot be removed without losing
+  protection, and give the margin the family reaches instead.
+
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers

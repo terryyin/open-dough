@@ -67,6 +67,14 @@
   other processes, several cases timed out at 5 s. Local, `--workers=2`,
   2026-11-20, plan 732 (SEED-413#ad-hoc-branch-result-handoff) at
   `c1e18bff8`. Hosted CI passed.
+- **Later evidence:** plan 730 (SEED-413#arrange-done-ad-hoc-observation-and-publication)
+  moved ten more Playwright cases into this family. With `--workers=2` the
+  ten cases took a median 24.1 s summed at load 6–12, against 51.3 s as
+  Playwright cases. At load 14–16, three of five runs timed out two or three
+  of them at the 5 s default. The Playwright versions had a 30 s limit and
+  passed. Each case takes about 1–2 s at low load. The
+  [follow-up story](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases)
+  targets 100–200 ms per case.
 - **Unique protection:** Done capture of isolated and declared branches,
   manual landing and pin ownership, against real Git with kept records.
 - **Alternatives tried:** none measured. Raising timeouts is ruled out by
