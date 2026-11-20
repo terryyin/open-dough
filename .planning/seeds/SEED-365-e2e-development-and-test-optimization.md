@@ -38,9 +38,8 @@ slices, inside Execute Plan and before the Execution Retrospective. Apply the in
 [shared test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary)
 and the [Architectural North Star](../NORTH-STAR.md) across the test families
 affected by the story, including older overlapping cases. Enter replacement
-unit tests in plain Vitest — plain Node Vitest on strongly typed backend
-handlers, and plain Vitest + embedded headless Chromium (no `@playwright/test`
-or page objects) on the smallest owning rendered UI components — reshaping the
+unit tests in Vitest. Use Node for strongly typed backend handlers and
+browser mode for the smallest owning rendered UI components. Reshape the
 [production seam](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability) when a unit test suite needs unrelated data
 or services to construct the handler or render the component. Add zero wrappers to `test-support` (only
 MakeMe data builders and `e2e/` page objects are allowed; any other touch only
@@ -66,6 +65,11 @@ Story Wrap Up follow-up process.
 - A newly added test and an older case catch the same regression. The final
   slice preserves the stronger observation, removes the redundant case, and
   records the lower runnable case count.
+- The [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
+  shows another outcome. The mounted case kept the unique notice Retry and
+  dropped a file Retry already proved elsewhere. The composed E2E still
+  exercises Show latest. All nine cases remained, and the measured focused
+  command got faster after it no longer needed the built app.
 - The affected cases each prove a distinct behavior at the appropriate layer.
   The final slice records that evidence, and the aggregate retrospective can
   still propose broader improvements for later work.

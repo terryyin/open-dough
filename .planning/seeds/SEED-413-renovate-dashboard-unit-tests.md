@@ -450,13 +450,10 @@ including preparation. This carries the suite-wide commitments, including
 SEED-404's timing goal and SEED-301's Intent MakeMe work.
 
 **Scope and order.** Select families by feature folder and the interaction
-each view owns. Continue in Intent and Sessions. In Intent, the original
-revision family leaves four built-app cases for the next boundary: the
-Development → Intent cases in `intent-revision-notice.spec.ts` and
-`intent-revision-update-outcomes.spec.ts`, the project switch in
-`intent-revision-update-boundaries.spec.ts`, and the planning-only update
-and return in `intent-revision-planning-only.spec.ts`. The two Optimization
-Candidates revision cases also remain here, including late answers. Keep
+each view owns. Continue in Intent and Sessions. Use the completed
+[Project Intent revision family](#project-intent-revision-family-example)
+as the reference for the remaining migrations. The two Optimization
+Candidates revision cases remain in scope, including late answers. Keep
 each legacy case until its replacement exercises its actual boundary.
 Use shared typed Intent inputs in place of `putFrontend*` project arrangements;
 coordinate session proof with [SEED-341](SEED-341-simplify-session-tests.md).
@@ -473,11 +470,6 @@ cost and which shared contracts are available as families finish.
   after locating its equivalent proof. For example, reloading an encoded story
   URL and traversing Back and Forward needs a real E2E browser journey.
   Account for the cost of any checks moved there.
-- Mount the component that owns the behavior through an explicit typed
-  contract, under "Design production code for testability" in the
-  refactoring checks. When a fixture needs unrelated providers, stylesheets or
-  service answers, change the production contract first. The Project Intent
-  revision family did this with `ProjectIntentReading`.
 - Render and act in each moved case as soon as the page allows, under
   [Which entry a case uses](../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
   and the [North Star](../NORTH-STAR.md#act-as-soon-as-the-page-allows-retire-actsettled).
@@ -485,20 +477,9 @@ cost and which shared contracts are available as families finish.
   from the mounted families already moved (Story Notes, Project CI history,
   the phone board) when the family is next touched. Retire
   `mountedActSettled.ts` and its harness case with `mountedDashboard.ts`.
-  Measured on the five Project Intent revision cases on 2026-11-20, removing
-  `actSettled` cut the median summed case time from 7.16 s to 5.75 s (10
-  runs each, five interleaved pairs all faster) with 31 consecutive green
-  runs. The built app summed 6.28 s for the same cases. The remaining cost is
-  mostly browser-driven clicks of about 150 ms each. Expect the gain
-  in group elapsed time once a selection needs no app build. The
-  built-app `intent-read-recovery`, `intent-gherkin-settings-problems` and
-  `intent-revision-update-boundaries` specs still hand-write the
-  `IntentLocationsAnswer` that `makeMe.anIntentLocationsAnswer` now builds.
-  No maintained case completes a successful **Show latest** through the composed
-  `IntentPerspective`; the mounted cases render `ProjectIntentReading` alone.
-  Intent Coverage at `89401655a` found the remaining built-app cases catch a
-  composition fault only at the offer. When those cases move, keep one
-  composed journey that applies the latest revision successfully.
+  When migrating the built-app `intent-read-recovery` and
+  `intent-gherkin-settings-problems` specs, replace handwritten locations
+  responses with `makeMe.anIntentLocationsAnswer`.
 - Retire a feature's app mount, route substitutes and page-object scaffolding
   when their last consumers move. For example, `frontendIntentCi.ts` still
   uses `serveFrontendCiHistory` after Project CI history migrates. Add zero
@@ -517,6 +498,31 @@ cost and which shared contracts are available as families finish.
   already helps one developer on one family. It cannot measure the cost of
   the full group. Each completed family delivers usable feedback on its own.
   Effort L across families, to be refined as each one is reached.
+
+#### Project Intent revision family example
+
+All nine cases in the six `intent-revision-*.spec.ts` files now use mounted
+Chromium (`def2a68c3)). The [fixture](../../dashboard/frontend-tests/intent/intent-revision-fixtures.ts)
+mounts the real `ProjectIntentReading` with the production reading place and
+typed locations and file replies. Reopen and project-switch cases exercise that
+reading place. Deferred replies live in the cases that need to observe a
+pending read.
+
+The [failed-update case](../../dashboard/frontend-tests/intent/intent-revision-update-failures.spec.ts)
+keeps one file switch to prove the old tree stays usable, then verifies that
+the notice's Retry loads the new revision and its source. The existing
+[source-target recovery case](../../dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts)
+owns the separate file Retry across revisions. Preserve that proof when
+migrating it. The [Project Intent visit E2E](../../e2e/intent/intent-project-visit-ci.spec.ts)
+proves **Show latest** advances the revision through the composed dashboard.
+
+On 2026-11-20, three interleaved warm runs of
+`npm run test:dashboard:frontend -- intent/intent-revision --workers=2`
+at `b21c3231b` and the equivalent tested candidate `868250005` gave median
+command elapsed times of 6.20 s and 3.49 s. The failed-update case took 519 ms
+and 361 ms. The simpler Show latest case had overlapping timing ranges. The
+focused selection measures the benefit of removing the last built-app cases
+from that command. The full-group goal still needs a full-group measurement.
 
 #### Rework from the completed frontend families
 

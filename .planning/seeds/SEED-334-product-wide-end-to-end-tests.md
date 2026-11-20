@@ -86,5 +86,9 @@ npm and browser acquisition bounds per file, and align live placement wording
 (`Distribution/tests/test-environment.md`, `Distribution/tests/ci/ci-container.md`).
 Historical records keep their recorded names.
 
+Use the [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
+as a concrete placement example. Its browser component cases use frontend
+Vitest, and the composed revision-apply journey belongs to the E2E group.
+
 **Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md) (realign during refinement after `cfa20d7a6` and backend runner renovation)
 

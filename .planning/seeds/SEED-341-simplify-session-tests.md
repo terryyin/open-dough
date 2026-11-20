@@ -24,11 +24,10 @@ and the [Architectural North Star](../NORTH-STAR.md), behavior one service can
 prove belongs in plain Vitest unit tests that exercise production code
 directly: backend session cases run in plain Node Vitest calling strongly typed
 handlers in `dashboard/server/` (testing the raw wire only when wire behavior
-itself is under test), and frontend session UI cases run in plain Vitest +
-embedded headless Chromium (no `@playwright/test` or page objects) mounting the
-smallest rendered component or view that owns the interaction with narrow typed
-inputs or shared contracts rather than `<App />` and whole-app route
-substitutes. Test support holds only MakeMe data builders and `e2e/` page
+itself is under test), and frontend session UI cases use Vitest browser mode
+to mount the smallest rendered component or view that owns the interaction.
+Supply narrow typed inputs or shared contracts and keep controls beside the
+specs. Test support holds only MakeMe data builders and `e2e/` page
 objects — add zero wrappers and only remove session `test-support` wrappers as
 production seams become directly testable. A few end-to-end journeys remain in
 `e2e/` (`@playwright/test`) for what only the integrated page shows: pace,
@@ -59,6 +58,12 @@ a few representative end-to-end journeys. Apply the
 [production testability rule](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
 to each family. For example, the Recently done paging view should render
 from its typed page data and paging actions without setting up host discovery.
+
+Use the [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
+as the frontend example. Mount the session view with the real state owner when
+reopening or switching scopes is the behavior. Keep integrated navigation in
+a representative E2E journey, and check that an existing test proves the same
+recovery before cutting it from a longer case.
 
 #### Starting evidence
 
