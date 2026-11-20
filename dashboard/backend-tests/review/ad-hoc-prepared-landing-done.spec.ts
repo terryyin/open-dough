@@ -14,10 +14,10 @@ import {
   inWorktree,
   markDone,
   minutesAgo,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
 const contextReference = (file: string) =>
   (JSON.parse(readFileSync(file, "utf8")) as { reference: string }).reference;

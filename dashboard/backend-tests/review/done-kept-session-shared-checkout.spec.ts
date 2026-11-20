@@ -9,9 +9,9 @@ import {
   keep,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
 test("two default launches open in one checkout both commit: either one's review holds the commits made while it was open and says the checkout was shared", async () => {
   const checkout = await aCheckout();

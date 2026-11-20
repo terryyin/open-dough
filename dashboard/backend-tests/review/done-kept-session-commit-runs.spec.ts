@@ -3,12 +3,11 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   aKeptSession,
-  fileDiff,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, review } from "../support/doneCaptureReview.ts";
 
 const notes = (first: string, last: string) =>
   [first, "two", "three", "four", "five", "six", "seven", last, ""].join("\n");

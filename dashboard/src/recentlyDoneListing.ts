@@ -1,10 +1,13 @@
 // Recently done's listed entries: published done cards holding their own
 // closed sessions and closed story follow-ups, plus standalone Done sessions
-// of no listed card. Membership is derived from the retained launch request
-// and the published done catalog (`./recentlyDoneView.ts` reads the range).
+// of no listed card. An unfinished Backlog or Taken card takes that story's
+// own Done sessions first (`./StoryCardDoneSessions.tsx`), so listing skips
+// them. Membership is derived from the retained launch request and the
+// published done catalog (`./recentlyDoneView.ts` reads the range).
 
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import {
+  launchSubject,
   projectSessionsOf,
   storySessionsOf,
   type LaunchWithState,
@@ -47,18 +50,36 @@ const holdingsOf = (
   followUps: readonly LaunchWithState[],
 ) => [...sessions, ...followUps];
 
+// Whether an unfinished Backlog or Taken card in this project already holds
+// this session. Identities are unique only within a project.
+const heldByUnfinished = (
+  session: LaunchWithState,
+  unfinished: ReadonlySet<string>,
+  sourceId: string,
+) => {
+  if (session.request.source !== sourceId) return false;
+  const { identity } = launchSubject(session.request);
+  return identity !== undefined && unfinished.has(identity);
+};
+
 // Done stories by completion, each holding its sessions and closed follow-ups,
 // and the sessions of no listed done story by launch, newest first; sessions
-// launched at one moment keep their newest-first order.
+// launched at one moment keep their newest-first order. Pass unfinished
+// Backlog/Taken identities so those stories' own Done sessions stay on their
+// open cards instead of nesting here or standing alone.
 export function newestFirst(
   records: readonly CataloguedDoneRecord[],
   doneSessions: readonly LaunchWithState[],
   sourceId: string,
+  unfinishedIdentities: readonly string[] = [],
 ): readonly Listed[] {
+  const unfinished = new Set(unfinishedIdentities);
   const cards = records.map((record) => ({
     at: Date.parse(record.completedAt),
     record,
-    sessions: storySessionsOf(doneSessions, sourceId, record.identity),
+    sessions: unfinished.has(record.identity)
+      ? []
+      : storySessionsOf(doneSessions, sourceId, record.identity),
     followUps: closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
   }));
   const held = new Set(
@@ -67,7 +88,11 @@ export function newestFirst(
   return [
     ...cards,
     ...doneSessions
-      .filter((session) => !held.has(session))
+      .filter(
+        (session) =>
+          !held.has(session) &&
+          !heldByUnfinished(session, unfinished, sourceId),
+      )
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
   ].sort((one, other) => other.at - one.at);

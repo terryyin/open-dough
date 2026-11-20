@@ -9,14 +9,13 @@ import { retireAdHocBranch } from "../../test-support/support/adHocReview.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
   anIsolatedBranch,
-  fileText,
   inWorktree,
   markDone,
   minutesAgo,
-  review,
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
 const unverified = expect.stringContaining(

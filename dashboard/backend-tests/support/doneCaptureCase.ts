@@ -1,6 +1,6 @@
 // The Done capture family's stereotype: a Default main checkout whose history
 // predates the case, launch records kept in a private machine store, dated
-// checkout work, the Done mark and the typed review that reads the result.
+// checkout work and the Done mark; doneCaptureReview.ts reads the result.
 // Times are minutes before the case's clock: launch at 60, Done at 10.
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,15 +15,8 @@ import {
 } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import {
-  keptRecords,
-  setRecordDoneAt,
-} from "../../server/launchRecordStore.ts";
-import {
-  reviewedFileDiff,
-  reviewedFileText,
-} from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { runGit } from "../../server/gitRunner.ts";
+import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 
@@ -36,10 +29,12 @@ export const minutesAgo = (minutes: number) =>
 
 // A history whose base revision, holding `files`, predates every launch the
 // case states.
-export const historyBeforeTheCase = (files: Record<string, string> = {}) =>
+export const historyBeforeTheCase = (
+  base: { files?: Readonly<Record<string, string>> } = {},
+) =>
   makeMe.aRepository.withRevision("base", {
+    ...base,
     backlog: null,
-    files,
     committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
   });
 
@@ -57,6 +52,11 @@ export async function aCheckout({
   onTestFinished(repository.cleanup);
   return { ...repository, base: repository.revisions.base };
 }
+
+// The checkout's Git directory as Git resolves it, so its worktrees report the
+// same repository.
+export const canonicalGitDirectory = (checkout: Checkout) =>
+  realpathSync(path.join(checkout.integration, ".git"));
 
 type LaunchFacts = {
   sessionId?: string;
@@ -128,7 +128,7 @@ export const anIsolatedLaunch = (
       workspace,
       branch,
       startingRevision,
-      repository: realpathSync(path.join(checkout.integration, ".git")),
+      repository: canonicalGitDirectory(checkout),
     })
     .inClaudeSession({ sessionId })
     .launchedAt(launchedAt);
@@ -137,10 +137,10 @@ export const anIsolatedLaunch = (
 // worktree on `branch` there.
 export async function aCheckoutWithWorktree(
   branch: string,
-  files: Record<string, string> = {},
+  files: Readonly<Record<string, string>> = {},
 ) {
   const checkout = await aCheckout({
-    history: historyBeforeTheCase(files).withWorkspace(branch, {
+    history: historyBeforeTheCase({ files }).withWorkspace(branch, {
       from: "base",
     }),
     withOrigin: true,
@@ -151,10 +151,19 @@ export async function aCheckoutWithWorktree(
   return { checkout, workspace };
 }
 
+// That checkout with its worktree named by the canonical path Git registers.
+export async function aCheckoutWithCanonicalWorktree(
+  branch: string,
+  files: Readonly<Record<string, string>> = {},
+) {
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
+  return { checkout, workspace: realpathSync(workspace) };
+}
+
 // That checkout and the kept isolated launch whose start created the worktree.
 export async function anIsolatedBranch(
   branch: string,
-  files: Record<string, string> = {},
+  files: Readonly<Record<string, string>> = {},
 ) {
   const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
   const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
@@ -199,51 +208,24 @@ export const inWorktree = (checkout: Checkout, workspace: string) => ({
 export const markDone = (record: LaunchRecord, at = minutesAgo(10)) =>
   setRecordDoneAt(source, record.session, at);
 
+// A Done whose capture waits in its ancestry read until released.
+export function aHeldDone(record: LaunchRecord, at = minutesAgo(10)) {
+  let release!: () => void;
+  let reached!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const reading = new Promise<void>((resolve) => {
+    reached = resolve;
+  });
+  const marking = setRecordDoneAt(source, record.session, at, {
+    readAncestry: (args, call) => {
+      reached();
+      return held.then(() => runGit(args, call));
+    },
+  });
+  return { reading, release, marking };
+}
+
 export const undoDone = (record: LaunchRecord) =>
   setRecordDoneAt(source, record.session, undefined);
-
-const reviewRead = async (record: LaunchRecord) =>
-  makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping(await keptRecords(source));
-
-// The typed review of the kept session, at its first run or at `run`.
-export async function review(record: LaunchRecord, run?: number | string) {
-  const input = (await reviewRead(record)).please();
-  const read =
-    run === undefined
-      ? input
-      : { ...input, read: { ...input.read, run: `${run}` } };
-  return storyReview(read, new AbortController().signal);
-}
-
-// A file of one comparison; a landed run's read also names its reference.
-type NamedFile = {
-  baseline: string;
-  tree: string;
-  path: string;
-  oldPath?: string;
-  reference?: string;
-};
-
-export async function fileText(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
-  return reviewedFileText(read, new AbortController().signal);
-}
-
-export async function fileDiff(record: LaunchRecord, file: NamedFile) {
-  const read = (await reviewRead(record)).readingFile(file).please();
-  return reviewedFileDiff(read, new AbortController().signal);
-}
-
-export const notCaptured = {
-  kind: "landing-unavailable",
-  comparison: "session-commits",
-  explanation: "This session's changes were not captured.",
-};
-
-export const noCommits = {
-  kind: "landing-unavailable",
-  comparison: "session-commits",
-  explanation: "This session made no commits in the Default main checkout.",
-};

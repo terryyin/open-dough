@@ -8,7 +8,8 @@ import {
   observedTrunk,
   twoDoneBranchesMergedByHand,
 } from "../support/doneBranchObservation.ts";
-import { review, source } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
 test("a failed verification retries at the same revision and lets other deliveries settle", async () => {
   const { checkout, first, second, firstMerge, head } =

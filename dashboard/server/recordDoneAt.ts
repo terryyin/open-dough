@@ -3,6 +3,7 @@ import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { keptWithDoneCapture } from "./doneCapture.ts";
+import type { runGit } from "./gitRunner.ts";
 import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
 import {
   hasBranchReview,
@@ -21,6 +22,9 @@ export async function setRecordDoneAt(
     readonly doneProblem?: string;
     readonly expectedDoneAt?: string;
     readonly automatic?: boolean;
+    // The branch capture's ancestry read, between its workspace read and
+    // the record write.
+    readonly readAncestry?: typeof runGit;
   } = {},
 ): Promise<LaunchRecord | undefined> {
   // A write that keeps the Done time it expects finishes that Done.
@@ -69,6 +73,7 @@ export async function setRecordDoneAt(
                 : { doneProblem: options.doneProblem }),
             });
       }),
+    options.readAncestry,
   );
   if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
     return marked;

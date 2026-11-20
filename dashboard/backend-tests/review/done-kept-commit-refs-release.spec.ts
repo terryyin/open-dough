@@ -15,12 +15,11 @@ import {
   keep,
   markDone,
   minutesAgo,
-  notCaptured,
-  review,
   source,
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
+import { notCaptured, review } from "../support/doneCaptureReview.ts";
 
 const prefix = "refs/open-dough/session-commits/claude/default-launch/";
 const pairRefs = (base: string, revision: string) => [

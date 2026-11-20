@@ -11,14 +11,13 @@ import {
 } from "../../test-support/support/adHocReview.ts";
 import {
   anIsolatedBranch,
-  fileText,
   inWorktree,
   markDone,
   minutesAgo,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileText, review } from "../support/doneCaptureReview.ts";
 import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";

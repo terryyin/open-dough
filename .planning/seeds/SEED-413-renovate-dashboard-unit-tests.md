@@ -147,145 +147,6 @@ precondition.
   timing and the test-support calls removed against the prior cases under
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
-<a id="ad-hoc-branch-result-handoff"></a>
-
-### Prove the ad hoc branch result and its handoff at typed Done seams
-
-**Identity:** SEED-413#ad-hoc-branch-result-handoff
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ebf3fb318afd895476bc42a18fa3ec72a404a73739465cad9f8650f494e7cda3","plan":"4ddbd6a0939b85dffbc7a474458173278116a839fa8c9faf7bfb200c30e985ff"}}
-```
-
-Split from
-[`SEED-413#renovate-later-dashboard-backend-unit-test-families`](#renovate-later-dashboard-backend-unit-test-families)
-on 2026-11-20 as the first of its ad hoc review families.
-
-- **Goal.** Developers changing how Done saves an isolated or declared
-  branch get plain Node Vitest cases that call `setRecordDoneAt`,
-  `recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
-  `deleteRecord` directly with MakeMe kept records and real Git. Today these
-  nine cases start the boundary server, launch sessions, run the reporting
-  CLI and hold Git through a `PATH` shim: 41 s summed in CI run
-  44698610582, against 0.2–2.5 s for the moved cases of the Done capture
-  family.
-- **Scope.** Move these cases, keeping each one's distinct inputs and
-  expected outcomes:
-  - `review/ad-hoc-branch-result-race.spec.ts`: reopening keeps the branch
-    evidence and refuses the old file pair; while a stale Done's capture is
-    held the review is unavailable, and a newer Done wins with only its pins;
-    deleting a record while its capture reads leaves no pins.
-  - `review/ad-hoc-branch-worktree-result.spec.ts`: Done keeps the working
-    tree it read (staged, untracked and deleted files, not ignored ones)
-    without touching the index, HEAD or files; an edit made while the capture
-    is held is excluded; the result survives a forced retirement.
-  - `review/ad-hoc-session-branch-handoff.spec.ts`: a declared branch keeps
-    its entry state and default tip, and answers the same entry after main
-    moves; a foreign clone, a wrong branch for the worktree, or a second
-    different entry is refused; an undeclared checkout move explains the
-    missing branch association.
-  - `review/ad-hoc-branch-cursor-recovery.spec.ts`: after Cursor replaces its
-    chat, the branch pins stay owned by the original chat, and deleting or
-    expiring the replacement releases only them; a stale native replacement
-    keeps a branch identified while it was pending.
-  - A capture is held by a typed ancestry read that the production capture
-    accepts, in place of the `PATH` shim.
-  - Drop `review/ad-hoc-branch-result-quiet-retry.spec.ts`: the applied
-    duplicate retry returns before any capture, and
-    `sessions/agent-completion-identity.spec.ts` already proves that it
-    writes nothing.
-  - Retire each `dashboard/test-support/` module or export whose last
-    consumer leaves, starting with `cursorBranchRecovery.ts`. Add none.
-  - **Scope limits.** "A newer quiet Done takes precedence over a manual mark
-    still capturing its branch" stays in the parent story with the
-    developer's native Done. So does the handoff case that runs the generated
-    branch handoff command from the launch input. That command is an inline
-    script that posts over HTTP, and the arrange-done plan relies on this case
-    as the wiring's owner. The observation and publication cases stay with
-    [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication),
-    and the Done lifecycle with
-    [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle).
-- **Key examples.**
-  - *A newer Done wins.* An isolated launch commits `stale` and is marked
-    Done; its capture is held. The review reads unavailable. The branch
-    commits `latest` and is marked Done again. Once the hold is released, the
-    review shows the branch result at `latest`, and the session's pins are the
-    baseline and `latest`, never `stale`.
-  - *Cursor replacement.* A Cursor launch's branch result pins under chat
-    `A`. Cursor replaces the chat with `B`. Deleting `B` removes `A`'s pins
-    and leaves another launch's pins.
-  - *Undeclared move.* A Default main launch switches to `not-identified`
-    and commits there, then is marked Done. The review explains: "No branch
-    was identified for this session, and no Default main commits were
-    captured."
-- **Effort hypothesis.** M: five slices.
-- **Plan.** [732](../slice-plans/732-ad-hoc-branch-result-handoff/PLAN.md)
-
-<a id="ad-hoc-done-lifecycle"></a>
-
-### Prove the ad hoc Done lifecycle and kept-record release at typed seams
-
-**Identity:** SEED-413#ad-hoc-done-lifecycle
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/731-ad-hoc-done-lifecycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4853a9cd7f22c81bd05c1d1f33556c456ebbcea798dbd6915864b7021b1a57e6","plan":"f77da97a37e1c5a9ab9cb227b74dc94c1162c62f75471bc1be56958407593107"}}
-```
-
-Split from
-[`SEED-413#renovate-later-dashboard-backend-unit-test-families`](#renovate-later-dashboard-backend-unit-test-families)
-on 2026-11-20 as the second of its ad hoc review families.
-
-- **Goal.** Developers changing what a Default main session keeps at Done,
-  and what a record releases when it leaves, get plain Node Vitest cases
-  that call `deliverCompletion`, `NativeDoneMarks`, `setRecordDoneAt`,
-  `readSessionCommits`, the typed review and `deleteRecord` directly with
-  MakeMe kept records, attempts and real Git. Today these fourteen cases
-  start the boundary server, run the reporting CLI, hold the reflog through a
-  `PATH` shim and close servers: 23 s summed in CI run 44698610582.
-- **Scope.** Move these cases, keeping each one's distinct inputs and
-  expected outcomes:
-  - `review/ad-hoc-session-commits.spec.ts`: a quiet report marks Done at its
-    receipt time and keeps the session's commits.
-  - `review/ad-hoc-session-commits-done.spec.ts`: a reopened session keeps
-    its earlier capture until its next Done; a quiet report after a confirmed
-    native Done keeps the additional commit; a quiet report during an earlier
-    rename wait refreshes the capture; retrying the same quiet delivery
-    resumes native Done without reading the checkout again; a rename wait
-    that the closing dashboard abandons still keeps the commits.
-  - `review/ad-hoc-session-commits-pending-done.spec.ts`: a later Done whose
-    capture has not finished refuses the previous review and its files, and
-    does not inherit its "no commits" finding; a commit that arrives after
-    Done's tip is read is excluded.
-  - `review/ad-hoc-review-unavailable.spec.ts`: a launch in a checkout Git
-    cannot read keeps no start. Its Done and review halves are already owned
-    by `done-kept-session-unavailable.spec.ts` and
-    `ad-hoc-review-kept-unavailable.spec.ts`.
-  - `review/kept-commits-release.spec.ts`: deleting or expiring a record
-    removes its session-run and landing references and leaves another kept
-    record's; a record whose saved repository is gone still deletes and
-    expires.
-  - `NativeDoneMarks` takes the host lookup and reporting folder it uses as
-    typed collaborators, and a case can await a report's continuation.
-  - Retire each `dashboard/test-support/` export whose last consumer leaves,
-    starting with `DefaultMainSessionWork.launchReporting`. Add none.
-  - **Scope limits.** The developer's native Done, including "a newer quiet
-    Done takes precedence over a manual mark", and the other `sessions/`
-    completion cases stay in the parent story. The branch result belongs to
-    [`SEED-413#ad-hoc-branch-result-handoff`](#ad-hoc-branch-result-handoff).
-- **Key examples.**
-  - *Quiet report.* A Default main launch reporting through reference `R`
-    commits `typo`. A quiet completion for `R` is delivered. The record is
-    Done at the receipt's `receivedAt`, and the review shows one commit run
-    with `typo`.
-  - *Abandoned rename.* A quiet report's native rename is still waiting
-    when the dashboard closes its Done marks. The rename stops, and the
-    record keeps the commits read at that Done.
-  - *Stale capture.* A record whose commits were read before its latest Done
-    refuses the review of the previous capture and its files.
-  - *Release.* Two kept records pin session runs and a landing comparison in
-    one repository. Deleting one, or letting it expire, removes only its
-    references.
-- **Effort hypothesis.** M: six slices.
-- **Plan.** [731](../slice-plans/731-ad-hoc-done-lifecycle/PLAN.md)
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -340,11 +201,8 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
   1. The rest of ad hoc review, which retires `adHocReview.ts`. The branch
-     result with its handoff moved to
-     [`SEED-413#ad-hoc-branch-result-handoff`](#ad-hoc-branch-result-handoff)
-     and the Done lifecycle with record release to
-     [`SEED-413#ad-hoc-done-lifecycle`](#ad-hoc-done-lifecycle). The
-     observation and publication cases belong to
+     result, its handoff, the Done lifecycle and kept-record release already
+     run on Vitest. The observation and publication cases belong to
      [`SEED-413#arrange-done-ad-hoc-observation-and-publication`](#arrange-done-ad-hoc-observation-and-publication).
      "A newer quiet Done takes precedence over a manual mark still capturing
      its branch" stays here, with the developer's native Done in
@@ -398,6 +256,88 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
+<a id="mount-optimization-candidates-frontend-proof"></a>
+
+### Prove Optimization Candidates in mounted frontend tests
+
+**Identity:** SEED-413#mount-optimization-candidates-frontend-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b91546e81b7b060b0fb52dc69f7059ea72acbf4a9dd0a13a3b776605fd8d5f6f","plan":"3744673d9d9a3c49a59f823d71a029fd31873e20ad208b5f01152842621cc042"}}
+```
+
+Split from the [later frontend families](#renovate-later-dashboard-frontend-unit-test-families).
+
+- **Goal.** Dashboard developers can check what a reader sees in Optimization
+  Candidates, where a recorded source opens, and how a failed record recovers
+  with a focused Vitest Chromium run. Today six specs arrange a whole dashboard
+  with project routes for 12 cases. The revision cases already use a typed
+  mount, so this family can remove its remaining built-app arrangements first.
+- **Scope.** Move record formats, field order, revision evidence links, tab
+  layout and keyboard operation, record availability, opening files and cases,
+  and candidate-read recovery. Keep the real record and Project Intent reading
+  owners. Keep the revision cases and the composed GitHub timeout journey as
+  proof at their current boundaries. Remove the candidate-specific setup whose
+  last consumer moves. General Intent locations recovery, Gherkin settings,
+  CI views, and frontend runner retirement stay with later families.
+- **Key examples.** The CI status tab starts selected. The reader opens
+  Optimization Candidates and sees the ordered record for the shown revision
+  across the full reading width. A live record and a profile-only mechanism
+  show their own fields. Absent, empty, mismatched and unreadable records each
+  have distinct wording and the locations remain usable. A configured source
+  opens in Purpose at its recorded file or case line, with the tree selected.
+  Returning focuses the entry without rereading. Ambiguous and out-of-scope
+  sources explain what can be opened. A shorter backoff cannot bypass a
+  standing GitHub wait. A refusal or malformed response needs manual Retry.
+- **Effort hypothesis.** M, six slices. The mounted revision family and existing
+  MakeMe inputs cover the main setup. Recovery needs its shared clock and
+  response classification.
+- **Evaluation and stopping point.** Compare the same behavior selection at
+  two workers with the legacy baseline and inspect the candidate-specific
+  arrangements removed. The family passes independently while the remaining
+  frontend tests still use both engines.
+- **Plan.** [733](../slice-plans/733-mount-optimization-candidates-frontend-proof/PLAN.md)
+
+<a id="mount-open-sessions-sidebar-frontend-proof"></a>
+
+### Prove open Sessions sidebar readings in mounted frontend tests
+
+**Identity:** SEED-413#mount-open-sessions-sidebar-frontend-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/734-mount-open-sessions-sidebar-frontend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5c0962da863baf6af3dbd979f8dd33c38b7996633dbe65d9c0b6fc88816b0357","plan":"6bcf517712769c27597358af209750f4ec651de2d9124496e3b6bd164fc045c5"}}
+```
+
+Split from the [later frontend families](#renovate-later-dashboard-frontend-unit-test-families).
+
+- **Goal.** Dashboard developers can check how the Sessions sidebar presents
+  open sessions and machine status from typed inputs in Vitest Chromium.
+  Four specs currently build the dashboard and substitute machine and host
+  reads for five cases about what the sidebar displays.
+- **Scope.** Move open-session ordering and its attention badge, one-line
+  title and tooltip, elapsed time, state edges and hidden labels, and
+  independently available session and host figures. Existing E2E journeys
+  own polling, cross-project navigation, focus return, and touch behavior.
+  This story owns these four frontend specs within the session renovation
+  coordinated with [SEED-341](SEED-341-simplify-session-tests.md#simplify-remaining-session-tests).
+  Recently done and Running Cursor, shared sidebar layout changes, terminal
+  and report interactions, and backend observation stay with their existing
+  owners.
+- **Key examples.** Two sessions need the developer, so their older launch
+  comes first, then the remaining open sessions newest first. A working row
+  changes to Needs input and moves to its launch position in the attention
+  group as the badge rises. A long title truncates on one line beside the
+  elapsed age. Its tooltip retains the state, project, workflow and launch
+  time. The age changes on the existing tick and shows the largest whole
+  unit. The left edge and hidden words distinguish working, attention,
+  halted and unsettled states. If disk is unread, CPU and the counts still
+  show. If the sessions are unread, host figures still show on their own.
+- **Effort hypothesis.** M, five slices. The view already has typed session
+  observations and status. The open list needs a narrow render seam and
+  Chromium must retain the real row layout and elapsed tick.
+- **Evaluation and stopping point.** Compare the focused selection at two
+  workers with the legacy baseline, and remove unused arrangement while
+  keeping the shared E2E readers. The open-list checks stand on their own.
+- **Plan.** [734](../slice-plans/734-mount-open-sessions-sidebar-frontend-proof/PLAN.md)
+
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -418,12 +358,16 @@ including preparation. This carries the suite-wide commitments, including
 SEED-404's timing goal and SEED-301's Intent MakeMe work.
 
 **Scope and order.** Select families by feature folder and the interaction
-each view owns. Continue in Intent and Sessions. Use the completed
+each view owns. First, the
+[Optimization Candidates family](#mount-optimization-candidates-frontend-proof)
+extends the existing revision mount to the remaining candidate cases. Next,
+the [open Sessions sidebar family](#mount-open-sessions-sidebar-frontend-proof)
+takes only the open list and its figures, whose E2E wiring already has owners.
+Both stand independently. Continue with the rest of Intent and Sessions. Use
+the completed
 [Project Intent revision family](#project-intent-revision-family-example)
-as the reference for the remaining migrations. The other Optimization
-Candidates cases remain in scope: record content, opening sources, record
-states, live records and read recovery. Keep
-each legacy case until its replacement exercises its actual boundary.
+as the reference for the remaining migrations. Keep each legacy case until
+its replacement exercises its actual boundary.
 Use shared typed Intent inputs in place of `putFrontend*` project arrangements;
 coordinate session proof with [SEED-341](SEED-341-simplify-session-tests.md).
 The family map includes Navigation, Launches, Review, Configuration, Terminals,

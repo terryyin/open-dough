@@ -17,7 +17,8 @@ import {
   observedTrunk,
   twoDoneBranchesMergedByHand,
 } from "../support/doneBranchObservation.ts";
-import { review, source } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
 // Two kept Done branches merged by hand into published trunk, and an
 // observation of that revision whose inspection of `leaving` waits until

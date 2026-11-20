@@ -5,18 +5,16 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { aLaunchDeclaring } from "../support/declaredBranch.ts";
+import { aDeclaredBranch } from "../support/declaredBranchCase.ts";
 import {
   aCheckoutWithWorktree,
   type Checkout,
-  fileDiff,
-  fileText,
   inWorktree,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 
@@ -28,7 +26,7 @@ const aTopicWorktree = () =>
 // A Default main launch that then identified the existing topic worktree as
 // its branch, with whatever the worktree already held.
 const aDeclaredTopic = (checkout: Checkout, workspace: string) =>
-  aLaunchDeclaring(checkout, { workspace, branch });
+  aDeclaredBranch(checkout, { workspace, branch });
 
 test("a declared branch's saved comparison shows only its new work and its edit to imported text", async () => {
   const { checkout, workspace } = await aTopicWorktree();

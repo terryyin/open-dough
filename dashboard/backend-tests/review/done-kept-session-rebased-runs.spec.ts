@@ -10,10 +10,9 @@ import {
   keep,
   markDone,
   minutesAgo,
-  noCommits,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { noCommits, review } from "../support/doneCaptureReview.ts";
 
 const filesOf = (answer: Awaited<ReturnType<typeof review>>) =>
   "files" in answer && answer.files.map(({ path }) => path);

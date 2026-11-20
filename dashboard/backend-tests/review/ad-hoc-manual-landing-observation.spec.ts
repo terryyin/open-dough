@@ -12,15 +12,13 @@ import { retireAdHocBranch } from "../../test-support/support/adHocReview.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
   anIsolatedBranch,
-  fileDiff,
-  fileText,
   inWorktree,
   markDone,
   minutesAgo,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
 import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";

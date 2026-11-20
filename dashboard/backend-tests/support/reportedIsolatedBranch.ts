@@ -1,7 +1,7 @@
 // An isolated launch that established its worktree with landing reporting:
 // the kept launch, its matching accepted reporting attempt and the landing
 // context its installed publisher reads, all in the private machine stores.
-import { mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished } from "vitest";
@@ -10,8 +10,9 @@ import { replaceAttempts } from "../../server/launchAttemptStore.ts";
 import { writeLandingContext } from "../../server/launchReportingFiles.ts";
 import { dashboardOrigin } from "./declaredPublisherBranch.ts";
 import {
-  aCheckoutWithWorktree,
+  aCheckoutWithCanonicalWorktree,
   anIsolatedLaunch,
+  canonicalGitDirectory,
   keep,
   minutesAgo,
   source,
@@ -21,16 +22,14 @@ const reference = "11111111-0000-4000-8000-000000000613";
 
 export async function aReportedIsolatedBranch(
   branch: string,
-  files: Record<string, string> = {},
+  files: Readonly<Record<string, string>> = {},
 ) {
-  const { checkout, workspace: linked } = await aCheckoutWithWorktree(
+  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(
     branch,
     files,
   );
-  // Git registers worktrees by their canonical path.
-  const workspace = realpathSync(linked);
   const authority = makeMe.aLandingAuthority
-    .ofRepository(realpathSync(path.join(checkout.integration, ".git")))
+    .ofRepository(canonicalGitDirectory(checkout))
     .inWorktree({ workspace, branch })
     .please();
   const sessionId = `isolated-${branch}`;

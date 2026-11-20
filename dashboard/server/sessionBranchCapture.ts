@@ -93,7 +93,11 @@ export async function readBranchWorkspace({
   };
 }
 
-async function readBranchResult(record: LaunchRecord, doneAt: string) {
+async function readBranchResult(
+  record: LaunchRecord,
+  doneAt: string,
+  readAncestry: typeof runGit,
+) {
   const entry = record.branchEntry;
   const start = entry ?? record.establishedSession;
   const repository = entry?.repository ?? record.branchReviewRepository;
@@ -107,7 +111,7 @@ async function readBranchResult(record: LaunchRecord, doneAt: string) {
     ...start,
     repository,
   });
-  await runGit(
+  await readAncestry(
     ["merge-base", "--is-ancestor", baseTip, committedTip],
     gitCall(start.workspace),
   );
@@ -160,6 +164,7 @@ export async function withBranchResultAtDone<T>(
   write: (
     settle: (marked: LaunchRecord) => Promise<LaunchRecord>,
   ) => Promise<T>,
+  readAncestry = runGit,
 ): Promise<T> {
   if (
     candidate === undefined ||
@@ -180,7 +185,9 @@ export async function withBranchResultAtDone<T>(
     });
 
   const owner = branchPinOwner(candidate);
-  const read = await readBranchResult(candidate, doneAt).catch(() => undefined);
+  const read = await readBranchResult(candidate, doneAt, readAncestry).catch(
+    () => undefined,
+  );
   let previous: SessionBranchResult | undefined;
   let pinned: SessionBranchResult | undefined;
   let landing: LaunchLanding | undefined;

@@ -38,15 +38,18 @@ export async function expectKeywordAndStringColours(
   expect(await colourOf(keywordToken)).not.toBe(await colourOf(stringToken));
 }
 
-// A session entry inside a card is set off from the card on the shared raised surface
-// and reads in the card's own text, while its local-launch note stays quiet.
-export async function expectSessionEntrySetOff(entry: Locator) {
+// A session entry inside a card is set off from the card and reads in the
+// card's own text, while its local-launch note stays quiet. Open sessions on
+// an unfinished card use the accent wash; Done rows keep the quieter raised
+// surface.
+export async function expectSessionEntrySetOff(
+  entry: Locator,
+  wash: "--accent-soft" | "--raised-surface" = "--raised-surface",
+) {
   const page = entry.page();
   const card = entry.locator("xpath=ancestor::article[1]");
   const quiet = await tokenColour(page, "--quiet");
-  expect(await backgroundOf(entry)).toBe(
-    await tokenColour(page, "--raised-surface"),
-  );
+  expect(await backgroundOf(entry)).toBe(await tokenColour(page, wash));
   const cardColour = await colourOf(card);
   expect(cardColour).not.toBe(quiet);
   expect(await colourOf(entry)).toBe(cardColour);

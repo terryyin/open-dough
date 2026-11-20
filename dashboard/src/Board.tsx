@@ -37,10 +37,13 @@ export function Board({
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
+  const unfinishedIdentities = [...work.backlog, ...work.taken].map(
+    ({ identity }) => identity,
+  );
   const sessions = columnSessionsOf(
     sourceId,
     launches.records,
-    [...work.backlog, ...work.taken].map(({ identity }) => identity),
+    unfinishedIdentities,
   );
   const columns = columnsOf(work, sessions.taken);
   const { selectedIdentity } = useStorySelection(sourceId);
@@ -52,6 +55,7 @@ export function Board({
     records: launches.sessionsSettled ? sessions.done : undefined,
     noneKept: sessions.noneKept,
     sessionsSettled: launches.sessionsSettled,
+    unfinishedIdentities,
     includeIdentity: selectedIdentity,
   });
   const summaries: readonly ColumnSummary[] = [

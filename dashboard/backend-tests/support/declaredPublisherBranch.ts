@@ -1,13 +1,13 @@
 // A Default main launch that declared its worktree, whose installed publisher
 // received a landing context, and the typed landing handler it reports to.
-import { copyFileSync, mkdirSync, realpathSync } from "node:fs";
+import { copyFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { branchLandingContext } from "../../server/branchLandingContext.ts";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
 import type { LandingSubmission } from "../../server/launchLandingAdmission.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import { aLaunchDeclaring } from "./declaredBranch.ts";
-import { aCheckoutWithWorktree, source } from "./doneCaptureCase.ts";
+import { aDeclaredBranch } from "./declaredBranchCase.ts";
+import { aCheckoutWithCanonicalWorktree, source } from "./doneCaptureCase.ts";
 
 // The dashboard the installed publisher reports to.
 export const dashboardOrigin = "http://127.0.0.1:4173";
@@ -38,11 +38,9 @@ function installPublisher(workspace: string) {
 // The checkout with an origin and its worktree on `branch`, declared by a
 // kept blank Default main launch whose installed publisher holds a context.
 export async function aDeclaredPublisherBranch(branch: string) {
-  const { checkout, workspace: linked } = await aCheckoutWithWorktree(branch);
-  // Git registers worktrees by their canonical path.
-  const workspace = realpathSync(linked);
+  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
   installPublisher(workspace);
-  const { record, entry } = await aLaunchDeclaring(checkout, {
+  const { record, entry } = await aDeclaredBranch(checkout, {
     workspace,
     branch,
   });

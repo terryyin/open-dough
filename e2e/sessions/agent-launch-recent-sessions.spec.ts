@@ -20,8 +20,8 @@ import {
   storyCardSessionOf,
   expectMembership,
   parts,
-  standaloneSessionName,
   sessionNamedBy,
+  doneSessionsOnCard,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
@@ -58,7 +58,7 @@ test.describe("retained launches in their current column homes", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("lists the closed launch in Recently done and open launches on their cards with workflow, time, session, and Open terminal, only under their own project", async ({
+  test("lists the closed launch in the unfinished card's Done history and open launches on their cards with workflow, time, session, and Open terminal, only under their own project", async ({
     page,
     dashboard,
   }) => {
@@ -84,22 +84,15 @@ test.describe("retained launches in their current column homes", () => {
     const expectEntries = async (
       launches: readonly (readonly [title: string, workflow: Workflow])[],
     ) => {
-      await expect(entries).toHaveCount(1);
+      await expect(entries).toHaveCount(0);
       for (const [index, [title, workflow]] of launches.entries()) {
         const closed = title === readyStory && workflow === "Refinement";
         const entry = closed
-          ? entries.first()
+          ? await doneSessionsOnCard(card(title))
           : storyCardSessionOf(card(title), workflow);
         await expect(entry).toHaveAccessibleName(
-          closed
-            ? standaloneSessionName(workflow, title)
-            : storyCardSessionName(workflow),
+          storyCardSessionName(workflow),
         );
-        if (closed) {
-          await expect(entry.getByRole("heading", { level: 3 })).toHaveText(
-            title,
-          );
-        }
         await expect(entry).toContainText(`${workflow} started in Claude Code`);
         await expect(entry).toContainText(
           `Session ${sessionIds[index] ?? "?"}`,

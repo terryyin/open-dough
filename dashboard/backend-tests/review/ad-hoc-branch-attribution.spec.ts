@@ -5,13 +5,12 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   anIsolatedBranch,
-  fileDiff,
   inWorktree,
   markDone,
   minutesAgo,
-  review,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, review } from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 

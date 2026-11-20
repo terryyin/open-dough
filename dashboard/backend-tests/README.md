@@ -48,13 +48,34 @@ MakeMe, here `makeMe.aSessionReviewRead`. A case calls another handler in
 its arrangement only when that step is the behavior under test. The
 `review/ad-hoc-review-{landed,kept-unavailable,subject,file}.spec.ts` specs
 call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
-launch boundary's routes for them with a URL.
+launch boundary's routes for them with a URL. The branch result and its
+handoff are proved the same way:
+`review/ad-hoc-branch-result-supersession.spec.ts`,
+`review/ad-hoc-branch-worktree-result.spec.ts`,
+`review/ad-hoc-session-branch-entry.spec.ts` and
+`review/ad-hoc-branch-cursor-recovery.spec.ts` call `setRecordDoneAt`,
+`recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
+`deleteRecord` in this process on MakeMe kept records and real Git. A
+declared branch comes from
+[`declaredBranchCase.ts`](support/declaredBranchCase.ts), the rest of the
+arrangement from the Done capture helpers below.
+
+[`ad-hoc-session-commits.spec.ts`](review/ad-hoc-session-commits.spec.ts) and
+[`ad-hoc-session-commits-done.spec.ts`](review/ad-hoc-session-commits-done.spec.ts)
+call typed completion delivery and Done marks.
+[`ad-hoc-session-commits-pending-done.spec.ts`](review/ad-hoc-session-commits-pending-done.spec.ts)
+checks stale review and capture at the resolved Git tip.
+[`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the
+kept-record store for deletion and expiry, and
+[`default-launch-start-facts.spec.ts`](review/default-launch-start-facts.spec.ts)
+reads the start from the Default main checkout.
 
 The Done capture family arranges each case through
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history
 predates the case, the stereotype launches, a private launch store, dated
 `makeMe.aCheckoutWork`, the Done mark through
-[`setRecordDoneAt`](../server/recordDoneAt.ts) and the typed review. State
+[`setRecordDoneAt`](../server/recordDoneAt.ts), and reads the typed review
+through [`doneCaptureReview.ts`](support/doneCaptureReview.ts). State
 work times with `minutesAgo`, after the launch (60) and before Done (10). A review-only case
 builds the kept records and passes them straight to its typed handler with
 `makeMe.aSessionReviewRead`, as

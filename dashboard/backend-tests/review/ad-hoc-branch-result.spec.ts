@@ -23,17 +23,15 @@ import {
 import {
   aCheckout,
   anIsolatedLaunch,
-  fileDiff,
-  fileText,
   historyBeforeTheCase,
   inWorktree,
   keep,
   markDone,
   minutesAgo,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
 
 // A checkout whose isolated launches each started a worktree at its base,
 // answered by branch.

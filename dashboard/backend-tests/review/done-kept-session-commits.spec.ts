@@ -13,10 +13,10 @@ import {
   keep,
   markDone,
   minutesAgo,
-  review,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { review } from "../support/doneCaptureReview.ts";
 
 // Leaves `commit` on no branch, with no reflog or loose object reaching it.
 async function forgetInCheckout(

@@ -3,6 +3,7 @@
 // in one place.
 
 import type { Locator, Page } from "@playwright/test";
+import { storyCardDoneClass } from "../src/storyCardDone.ts";
 
 export function parts(page: Page) {
   const board = page.getByRole("region", { name: "Board" });
@@ -84,6 +85,58 @@ export const standaloneSessionName = (workflow: string, title: string) =>
 export const storyCardSessions = (card: Locator) =>
   card.getByRole("list", { name: "Sessions" }).getByRole("article");
 
+// An unfinished card's Done history disclosure (`./StoryCardDoneSessions.tsx`).
+export const storyCardDoneDisclosure = (card: Locator) =>
+  card.locator(`details.${storyCardDoneClass}`);
+
+// Session articles inside an unfinished card's Done history list.
+export const storyCardDoneSessions = (card: Locator) =>
+  storyCardDoneDisclosure(card)
+    .getByRole("list", { name: "Done history" })
+    .getByRole("article");
+
+// Opens the card's Done history so nested Session entries can be observed.
+// Idempotent: leaves an already-open disclosure open.
+export async function expandStoryCardDoneHistory(card: Locator) {
+  const disclosure = storyCardDoneDisclosure(card);
+  if (
+    !(await disclosure.evaluate(
+      (element) => (element as HTMLDetailsElement).open,
+    ))
+  )
+    await disclosure.locator("summary").click();
+  return disclosure;
+}
+
+// Expands a card's Done history and returns its session articles, optionally
+// narrowed by visible text such as a session id.
+export async function doneSessionsOnCard(
+  card: Locator,
+  hasText?: string | RegExp,
+) {
+  await expandStoryCardDoneHistory(card);
+  const sessions = storyCardDoneSessions(card);
+  return hasText === undefined ? sessions : sessions.filter({ hasText });
+}
+
+// The unfinished Backlog or Taken card for this story title.
+export const unfinishedStoryCard = (page: Page, title: string) => {
+  const { backlog, taken } = parts(page);
+  return backlog
+    .getByRole("article", { name: title, exact: true })
+    .or(taken.getByRole("article", { name: title, exact: true }));
+};
+
+// Expands that unfinished card's Done history and returns its session articles,
+// optionally narrowed by visible text such as a session id.
+export async function doneSessionsOnUnfinishedCard(
+  page: Page,
+  title: string,
+  hasText?: string | RegExp,
+) {
+  return doneSessionsOnCard(unfinishedStoryCard(page, title), hasText);
+}
+
 // What a card says of how many of its sessions need attention, when any do.
 export const storyCardAttentionOf = (card: Locator) =>
   card.getByText(/^\d+ sessions? needs? attention$/);
@@ -113,7 +166,8 @@ export const sessionEntriesIn = (scope: Locator) =>
 export const sessionEntryShowing = (scope: Locator, key: string) =>
   scope.locator(`[data-shows-session="${key}"]`);
 
-// The state words a session entry shows, on a card or in Recently done.
+// The state words a session entry shows, on a card, in Done history, or in
+// Recently done.
 export const sessionStateOf = (entry: Locator) =>
   entry.locator(".session-state");
 
