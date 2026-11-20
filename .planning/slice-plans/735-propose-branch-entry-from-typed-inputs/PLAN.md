@@ -257,6 +257,39 @@ other session's pins with production `keepBranchResultRefs` removed one.
 Cursor cases ran 1.1–2.1 s at load 16–18; at load 33–47 every Git-heavy case,
 old or new, timed out. Hosted CI run 44774738008 passed on `cb70edd`.
 
+### 7. The held observation's own write retires an expired launch, and a repeated entry keeps its pins
+
+Type: Behavior
+Status: done
+
+Correction from the execution retrospective (2026-11-21). Slice 6 moved the
+first expiry in `ad-hoc-manual-landing-observation-lifecycle.spec.ts` ahead
+of the held inspection's release, so the observation's own record write no
+longer drops the aged launch. That loses the race the case proved: a
+retention drop inside the delivery write keeps no delivery and releases its
+pins. Restore that timing. Thread the optional `droppedByRetention` callback
+through the observation's `changeSessionRecord` in
+`dashboard/server/observedSessionLandings.ts`, defaulting as elsewhere, so
+the case names `retireExpiredRecords` explicitly without installing the
+process-wide dispatch. The second expiry keeps its explicit write. Also, the
+adapter case "a declared branch keeps its entry state and Default main tip
+after main moves" never reads the pins after its repeated handoff; assert
+they equal the pins read before the repeat.
+
+**Proof.** The lifecycle spec's expiry case ages the record, releases the
+held inspection, and observes that the launch is gone, no delivery was kept
+and no pins remain. Temporarily bypass the callback in the observation write
+and confirm the case fails, then restore. The adapter case asserts identical
+`{ref, objectId}` pins after the repeat. Run the lifecycle, observation,
+revision-observation and entry specs, the consumer trace's readers of the
+changed observation signature, typecheck and eslint.
+
+**Learning.** `sessionLandingObservations(droppedByRetention?)` passes the
+callback to the observation's own record write. An explicit collaborator
+reaches only writes that take it, so the observation story's split must keep
+this parameter. Proof ran at load 7, with the bypassed callback failing at
+the pin assertion.
+
 ## Local gates
 
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
@@ -319,3 +352,17 @@ Slice-plan refinement was unnecessary. Each slice has one observable
 consumer outcome, with the entry builder introduced alongside its first
 review use and the branch pin query preceding its retention use. This
 review found no remaining slice-specific concern.
+
+
+## Story obligations
+
+### G1. Expiry during held inspection no longer exercises the observation's own write (first reported in slice 6)
+Reported: slice 6 — "retrospective — "the expiry case now drops the record before the held inspection resumes, so it has the same shape as the deletion case""
+Story clause: "Preserve every replaced assertion."
+Disposition: proved by slice 7: ad-hoc-manual-landing-observation-lifecycle.spec.ts first expiry case ages the record, releases the held inspection, and the observation's own write with retireExpiredRecords leaves no launch, delivery or pins (expectOnlyTheSurvivorDelivered); bypassing the callback fails at the pin assertion (s7-discriminate-bypassed)
+Commitment: C20
+### G2. Repeated handoff never re-reads its pins (first reported in slice 1)
+Reported: slice 1 — "retrospective — "pins are read only before mainMoves and the repeated recordSessionBranchEntry; nothing reads them after the repeat""
+Story clause: "Repeating the handoff returns that kept entry and leaves its pins in place."
+Disposition: proved by slice 7: ad-hoc-session-branch-entry.spec.ts 'a declared branch keeps its entry state and Default main tip after main moves' asserts sessionBranchPins after the repeat equal the {ref, objectId} pins before it (s7-specs)
+Commitment: C9

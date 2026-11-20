@@ -80,7 +80,8 @@ test("a declared branch keeps its entry state and Default main tip after main mo
     committedTip: entered,
     defaultTip: onMain,
   });
-  expect(await sessionBranchPins(workspace, record.session)).toMatchObject([
+  const pins = await sessionBranchPins(workspace, record.session);
+  expect(pins).toMatchObject([
     { objectId: entered },
     { objectId: onMain },
     { objectId: entry.tree },
@@ -89,6 +90,7 @@ test("a declared branch keeps its entry state and Default main tip after main mo
   expect(
     await recordSessionBranchEntry(published, record, { workspace, branch }),
   ).toEqual(entry);
+  expect(await sessionBranchPins(workspace, record.session)).toEqual(pins);
 });
 
 test("Done reviews a declared branch apart from the Default main commits before its entry", async () => {

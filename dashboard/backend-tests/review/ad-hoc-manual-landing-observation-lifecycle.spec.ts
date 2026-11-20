@@ -47,7 +47,7 @@ async function heldObservation() {
       await released;
     }
     return inspectManualLanding(...inspection);
-  }).observe(observedTrunk, head);
+  }, retireExpiredRecords).observe(observedTrunk, head);
   await held;
   return { checkout, home, leaving, staying, observation, release };
 }
@@ -110,7 +110,6 @@ test("expiry while the target is being inspected releases evidence and cannot re
     await heldObservation();
 
   ageDoneRecord(home, leaving);
-  await replaceRecords((kept) => kept, retireExpiredRecords);
   release();
   await observation;
   await expectOnlyTheSurvivorDelivered(checkout, leaving, staying);
