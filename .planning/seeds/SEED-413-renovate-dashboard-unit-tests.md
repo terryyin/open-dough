@@ -96,30 +96,6 @@ execution's retrospective.
   speed.
 - **Plan.** [727](../slice-plans/727-remove-ad-hoc-done-helper/PLAN.md)
 
-<a id="story-launch-session-review-cases"></a>
-
-### Refuse story-launch session file reads again in sub-second cases
-
-**Identity:** SEED-413#story-launch-session-review-cases
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"27d05a7e49ab7a82941570adfee958f982ba4e2c63db3dcb7255d9c4eb57ec55"}}
-```
-
-Terry's direct instruction after `SEED-413#refuse-story-launch-session-file-reads`:
-its one Playwright case in
-`dashboard/backend-tests/review/story-review-one-shot-admission.spec.ts`
-loops over query tables, drives a full launch (about 9 s), and no longer
-passes on trunk: a later handler refactor dropped the session file
-admission's story-launch refusal, so those reads answer 200.
-
-**Goal:** A story launch's session file diff and file text are again
-refused toward its story, and the cases proving it read as examples.
-
-- **Scope.** Restore the refusal in the session file admission. Replace the
-  spec with plain Vitest cases on the typed handlers: MakeMe launch records,
-  no loops, one example each, every case sub-second. Drop checks other
-  specs already own.
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
