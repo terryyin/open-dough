@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Stop repeating git work in shared publication](seeds/SEED-421-stop-repeating-git-work-in-shared-publication.md#stop-repeating-git-work-in-shared-publication) — SEED-421#stop-repeating-git-work-in-shared-publication
 - [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof) — SEED-413#speed-intent-timing-history-proof
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
