@@ -43,5 +43,5 @@ stories.
 | 22 | File admission evaluated against composed retained evidence preserves the refusal for a story launch. | slice 8 | |
 | 23 | The revised proof has fewer cases while retaining protection for distinct regressions. | slice 8 | |
 | 24 | The revised proof performs fewer full Review reads while retaining representative reads that establish evidence survival. | slice 8 | |
-| 25 | The procedures that imitate Done are retired. | slice 4 |  |
+| 25 | The procedures that imitate Done are retired. | slice 4 | observed: Slice 3 removed keptAsDone and keptAsDoneAfterRetirement from doneCaptureReview.ts. Slice 4 removes the last composed test-store markDone procedure in composedLandingStores.ts. The two publisher cases inspect stored receipts and pins without a Done step, and the mixed historical case calls real setRecordDoneAt on the machine store used by the installed publisher. The consumer trace has no remaining caller of the removed procedures. |
 | 26 | The procedures that route unrelated tests through Review are retired. | slice 8 | |

@@ -1,7 +1,5 @@
 // An instructed launch that declared its worktree publishes only for itself,
-// keeps the prepared pair before push, and after acceptance, retirement and
-// Done its exact retained retry reads the same receipt and landed file.
-import path from "node:path";
+// keeps its prepared pair before push and its exact receipt after retirement.
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -21,7 +19,6 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
 import {
   publishInstalled,
   retryInstalledLanding,
@@ -90,20 +87,17 @@ test("the declared worktree's installed landing and exact retry stay with the or
       files: { "draft.txt": "draft.txt\n" },
     }),
   );
-  const undeclared = path.join(path.dirname(workspace), "undeclared");
-  await git(
-    checkout.integration,
-    "worktree",
-    "add",
-    "--quiet",
-    "-b",
-    "unrelated",
-    undeclared,
-  );
-  const { unrelated: wrongTip } = await work(
-    inWorktree(checkout, undeclared),
-    makeMe.aCheckoutWork.committing("unrelated", { at: minutesAgo(25) }),
-  );
+  const wrongTip = (
+    await git(
+      workspace,
+      "commit-tree",
+      `${candidate}^{tree}`,
+      "-p",
+      base,
+      "-m",
+      "Unaccepted comparison",
+    )
+  ).stdout.trim();
   const originalBefore = stores.recordOf(record.session.sessionId);
   const otherBefore = stores.recordOf("other-launch");
   await expect(
@@ -160,27 +154,15 @@ test("the declared worktree's installed landing and exact retry stay with the or
     remote: "origin",
     target: "refs/heads/main",
   });
-  expect(await trunk()).toBe(candidate);
-  expect(stores.recordOf(record.session.sessionId)?.doneAt).toBeUndefined();
-
   retireAdHocBranch(checkout.integration, workspace, branch);
-  await stores.markDone(record.session.sessionId, minutesAgo(10));
   expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
   expect(await trunk()).toBe(candidate);
-  const kept = await stores.keptRecords(source);
-  expect(await review(kept, record)).toMatchObject({
-    kind: "landed",
-    baseline: base,
-    tree: candidate,
-    landing: { reference },
-    files: [{ kind: "added", path: "draft.txt" }],
+  expect(stores.recordOf(record.session.sessionId)?.landing).toMatchObject({
+    reference,
+    base,
+    revision: candidate,
+    delivery: landing.receipt.delivery,
+    receipt: landing.receipt.receipt,
   });
-  expect(
-    await fileText(kept, record, {
-      path: "draft.txt",
-      baseline: base,
-      tree: candidate,
-      reference,
-    }),
-  ).toMatchObject({ baseline: null, tree: "draft.txt\n" });
+  expect(stores.recordOf("other-launch")).toEqual(otherBefore);
 });

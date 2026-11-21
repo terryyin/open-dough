@@ -17,6 +17,9 @@
   `5af3c3a034dc94fbea55a5ac3643b7e769ea7c06`. Both reused the live stream.
   Run 44843537632 attempt 1 had no failed jobs and was superseded by the
   push-triggered run 44844609085 for slice 2 under same-ref CI concurrency.
+- Slice 3 accepted at `00870a50094edd8bfa352e7b0b26e125b06efe92` and reused the
+  live observer. The slice 2 attempt had no failed jobs and was superseded by
+  the slice 3 push-triggered run 44845496590 under the same concurrency group.
 
 
 ## Correction input
@@ -205,7 +208,7 @@ commitment 25.
 ### 4. Focus publisher and worktree-retirement proof
 
 Type: Structure
-Status: planned
+Status: done
 
 Narrow the installed-publisher cases to preparation, acceptance, exact retry,
 and saved landing or pins when those are the outcomes each case owns. Keep
@@ -221,6 +224,21 @@ Preserve the mixed-pair historical file witness in
 `ad-hoc-session-comparisons`; allocate its independent old-path rejection to
 the typed file cases. Keep the published-worktree and mixed-pair cases within
 the default timeout by removing incidental full reads and Git work.
+
+**Accepted proof.** Twelve cases across the two declaration specs,
+`ad-hoc-session-comparisons.spec.ts` and `ad-hoc-review-file.spec.ts` passed at
+default settings. The exact worktree retry, blank deletion and mixed historical
+read took 1.585, 2.249 and 2.811 seconds respectively. Both renamed file
+versions remain readable after retirement and pruning. The typed file cases
+own the exact foreign-pair and wrong-old-path refusals. Across the four specs
+cases go from 11 to 12 and full standalone Review reads from 18 to 12.
+See `slice4-return.md` and `slice4-publisher-and-review.log.run.json`.
+Plan 745’s independently owned store-retention and deletion work remains scoped
+to its own active checkout; its inspected edits concern the composed store’s
+read and replace paths, separate from removal of the imitation Done member.
+The independent pass removed the unused `attempts()` accessor. Both
+remaining declared publisher fixtures passed their cases again; see
+`slice4-refactor.md`.
 
 ### 5. Prove the snapshot survives later workspace edits and retirement
 
