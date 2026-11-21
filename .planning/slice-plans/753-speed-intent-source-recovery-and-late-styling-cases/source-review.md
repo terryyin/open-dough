@@ -17,23 +17,23 @@ premises. The selected seed retains their full conditions.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | P01 | Held then released: Every existing assertion stays. | slice 4 | |
-| P02 | Failed then retried: Every existing assertion stays. | slice 3 | |
+| P02 | Failed then retried: Every existing assertion stays. | slice 3 | observed: Slice 3 unchanged source recovery spec and paired and consumer results |
 | P03 | Styling arrives after the diff: Every existing assertion stays with in-page preceding-lines and line-menu activation. | slice 2 | observed: Slice 2 unchanged arrival spec and paired and consumer proof |
 | P04 | Held then released: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 4 | |
-| P05 | Failed then retried: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 3 | |
+| P05 | Failed then retried: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 4 | G1 |
 | P06 | Styling arrives after the diff: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 2 | observed: Slice 2 paired timing table and s2-pair-{1,2,3}.json |
 | P07 | Held then released: its result is recorded. | slice 4 | |
-| P08 | Failed then retried: its result is recorded. | slice 3 | |
+| P08 | Failed then retried: its result is recorded. | slice 4 |  |
 | P09 | Styling arrives after the diff: its result is recorded. | slice 2 | observed: Slice 2 paired timing table |
-| P10 | Open a candidate’s source: Waits until visible. This applies to other specs using the same method. | slice 3 | |
-| P11 | Open a candidate’s source: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | |
-| P12 | Open a candidate’s source: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | |
-| P13 | Show latest: Waits until visible. This applies to other specs using the same method. | slice 3 | |
-| P14 | Show latest: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | |
-| P15 | Show latest: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | |
-| P16 | Retry: Waits until visible. This applies to other specs using the same method. | slice 3 | |
-| P17 | Retry: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | |
-| P18 | Retry: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | |
+| P10 | Open a candidate’s source: Waits until visible. This applies to other specs using the same method. | slice 3 | observed: intentCandidates.openSource and activateButton visible button assertion |
+| P11 | Open a candidate’s source: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | observed: intentCandidates.openSource and activateButton task yield |
+| P12 | Open a candidate’s source: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | observed: intentCandidates.openSource and activateButton DOM click, observed in candidates open, case, unresolved and live specs |
+| P13 | Show latest: Waits until visible. This applies to other specs using the same method. | slice 3 | observed: intentRevisionNotice.showLatest and activateButton visible button assertion |
+| P14 | Show latest: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | observed: intentRevisionNotice.showLatest and activateButton task yield |
+| P15 | Show latest: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | observed: intentRevisionNotice.showLatest and activateButton DOM click, observed by intent-revision-apply |
+| P16 | Retry: Waits until visible. This applies to other specs using the same method. | slice 3 | observed: intentRevisionNotice.retry and intentBrowser.retryRead use activateButton visible scoped Retry |
+| P17 | Retry: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | observed: intentRevisionNotice.retry and intentBrowser.retryRead use activateButton task yield |
+| P18 | Retry: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | observed: intentRevisionNotice.retry and intentBrowser.retryRead use activateButton DOM click, observed by update failures and source recovery |
 | P19 | Show preceding lines: Waits until visible. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.showPrecedingLines and activateButton visible button assertion |
 | P20 | Show preceding lines: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.showPrecedingLines and activateButton task yield |
 | P21 | Show preceding lines: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.showPrecedingLines and activateButton DOM click |

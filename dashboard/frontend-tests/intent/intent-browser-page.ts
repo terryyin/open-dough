@@ -4,6 +4,7 @@
 import { expect, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 
 export function intentBrowser() {
@@ -77,7 +78,7 @@ export function intentBrowser() {
       return browser;
     },
     async retryRead() {
-      await userEvent.click(
+      await activateButton(
         purpose.getByRole("alert").getByRole("button", { name: "Retry" }),
       );
       return browser;

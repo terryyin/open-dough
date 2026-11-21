@@ -5,6 +5,7 @@
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 import {
   intentFileReading,
   withoutBreakingHints,
@@ -75,9 +76,7 @@ export function intentCandidates() {
     },
     // Opens the source `name` links as `link`, reading the file at `path`.
     async openSource(name: string, link: string, path = link) {
-      const source = sourceLink(name, link);
-      await expect.element(source).toBeVisible();
-      await userEvent.click(source);
+      await activateButton(sourceLink(name, link));
       return intentFileReading(path);
     },
   };

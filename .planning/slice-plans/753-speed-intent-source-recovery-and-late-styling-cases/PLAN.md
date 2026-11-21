@@ -34,7 +34,7 @@ activation of controls other than the ones named below.
 | Promise | Owner | Observation |
 | --- | --- | --- |
 | Arrival case: median under 500 ms, or ≤ 0.5× in paired runs, with every assertion kept | Slice 2 | Paired medians recorded per case |
-| Failed then retried: the same bar | Slice 3 | Paired medians recorded per case |
+| Failed then retried: the same bar | Slice 4 | Paired medians recorded per case |
 | Held then released: the same bar | Slice 4 | Paired medians recorded per case |
 | Every other spec using the changed page-object methods still passes | Slices 2–4 | Consumer runs listed in each slice |
 | The in-view check still fails when the targeted line is out of view | Slice 4 | Scratch discrimination edit |
@@ -154,7 +154,7 @@ edits. See checkout Git evidence `s2-report.md`.
 ### 3. Intent source and recovery controls activate in the page
 
 Type: Structure
-Status: planned
+Status: done
 
 Slice 1's verdict requires a stable selected source in the mounted Intent
 fixture and a commit signal for the newer-revisions case before it uses the
@@ -166,10 +166,19 @@ activating in the page:
 - `intentRevisionNotice().showLatest` and `retry`;
 - `intentBrowser().retryRead`.
 
-**Proof.** The failed-then-retried case passes the bar, recorded as in
-slice 2. Every Vitest spec that imports `intent-candidates-page`,
-`intent-browser-page` or `intent-revision-notice-page` passes, three runs of
-`intent-revision-apply` included.
+**Proof.** Every Vitest spec that imports the changed page objects or
+mounted fixture passes, including three runs of `intent-revision-apply`.
+Measure the activation increment against the original and carry final timing
+proof into Slice 4 because both cases use the same viewport wait.
+
+**Observed at `284d4b095` with Slice 3 changes.** All 26 tests across 16
+consumer specs passed, and the newer-revisions case passed in all three runs.
+Paired failed/retried durations at one-minute load 4.78–4.93, original →
+activation in ms: 1,074.3 → 599.3, 994.7 → 624.9, 1,014.0 → 604.5. Medians
+1,014.0 → 604.5 (0.596×). In the bounded three-arm follow-up the scratch
+viewport check lowered all six matched measurements, with medians of
+422.1 ms failed/retried and 377.9 ms held/released, with all assertions.
+Slice 4 owns final timing for both. See checkout Git evidence `s3-report.md`.
 
 ### 4. The targeted line's in-view check compares positions
 
@@ -180,7 +189,7 @@ Status: planned
 the window and every clipping ancestor. It polls positions instead of waiting
 on an observer that fires per frame.
 
-**Proof.** The held-then-released case passes the bar, recorded as in
+**Proof.** Both source recovery cases pass the bar, recorded as in
 slice 2, and all three cases are recorded together once more. A scratch edit
 scrolls the reading pane away from the targeted line before `targets(44)`.
 Both the new check and the original `toBeInViewport()` fail on it. Every spec
@@ -202,3 +211,12 @@ no other slice-specific concern.
   `npx vitest run --config dashboard/frontend.vitest.config.mts <specs>`, then
   `npm run typecheck:dashboard` and `npm run lint`. Keep default timeouts;
   never `test.slow()`.
+
+
+## Story obligations
+
+### G1. Failed then retried still exceeds the timing bar after activation
+Reported: slice 3 — "Activation alone missed the planned failed-retry timing gate."
+Story clause: "For each of the three cases, take the median of three attempts."
+Disposition: receiving slice 4
+Commitment: P05
