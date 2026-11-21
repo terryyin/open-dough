@@ -637,22 +637,46 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-dashboard-board-and-panel-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"62c3028cc7fbf9ed30a92dc4d4cf937a098eb5321e92f048683d91607335e396","plan":"44f1bdb549fc52e52baa25bfdea3e926efc2c31f1f4a17cb85e24c51d83760d4"}}
 ```
 
-- **Outcome.** Developers get fast proof of a usable board and adjacent
-  panels across keyboard, touch and constrained layouts. Evaluate a board
-  page turn with a panel open, plus scroll, focus, kept position and
-  announcement behavior on the relevant surfaces.
-- **Boundary.** Own navigation's `accessible-board*`, `board-*`,
-  `story-card*`, `side-panel-width*`, `development-intent-frame*` and
-  `frame-*` legacy specs. Narrow both mounted phone-board suites and the
-  Stories scan-emphasis case that still uses the whole-app mount. Keep the
-  distinct production layout, pointer and state interactions. A real load,
-  reload or cross-destination history belongs to the applicable E2E journey.
-- **Effort and stopping point.** Large, medium confidence. Mounted component
-  proof gives usable layout and interaction feedback as soon as it replaces
-  the equivalent built-app cases.
+**Goal.** Dashboard maintainers get faster feedback when a change affects
+how developers read and navigate the Board beside other dashboard surfaces.
+Preserve the keyboard, touch, announcement, and layout evidence that makes
+the Board usable in a narrow window and with a Side panel open.
+
+**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
+to the legacy `accessible-board*`, `board-*`, `story-card*`,
+`side-panel-width*`, `development-intent-frame*`, and `frame-*` navigation
+specs. Narrow the existing `board-swipe`, `board-indicators`, and
+`story-card-scan-emphasis` Vitest specs from their whole-dashboard mounts.
+Keep representative real page loads, reloads, URL destinations, and
+cross-destination history in E2E. This story owns the Board and frame
+observations of launch, review, and session interactions. The sibling stories
+own the internals of those workflows and the final runner retirement.
+
+**Key examples**
+
+- With a Side panel open and room for two columns, page from Backlog to
+  Taken and Recently done. The Board shows whole columns, its keyboard controls
+  keep focus reachable, and a wider frame recovers the chosen position. A long
+  hidden column contributes no blank scroll tail.
+- On a phone, a horizontal swipe pages the Board without activating the
+  story or Start under the touch. A vertical drag still reads the current
+  column. Tapping an indicator shares the swipe destination, and rotation
+  preserves an inspected story and its separate selection.
+- While published work refreshes or fails to read, the Board announces the
+  result, keeps retained work and the problem reachable, and leaves the
+  reader's focus in place. Keyboard reading and zoom keep links and story
+  controls usable.
+- After a developer chooses a panel width by dragging or keyboard, opening
+  the Sessions sidebar or narrowing the window can constrain or cover the
+  Board. Restoring room restores the chosen width, and an open terminal or
+  Review retains its identity and read state through the layout change.
+- When a session's sidebar entry reveals a hidden or tall card, the Board
+  pages to the card and brings its top into view. Switching perspectives or
+  following browser history preserves the intended project, panel attachment,
+  and selected story on the relevant path.
 
 <a id="speed-dashboard-launch-proof"></a>
 
