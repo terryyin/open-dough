@@ -32,18 +32,24 @@ function tokenLineAt(
     : undefined;
 }
 
+// The grammar a diff of `path` reads in: its path's grammar, else the hint's.
+export function diffLanguage(
+  path: string,
+  syntaxHint?: string,
+): string | undefined {
+  return (
+    pathLanguage(path) ??
+    (syntaxHint === undefined ? undefined : sourceLanguage(syntaxHint, path))
+  );
+}
+
 export function useDiffLineTokens(
   path: string,
   text: Extract<ReviewedFileText, { kind: "text" }> | undefined,
   syntaxHint?: string,
 ): DiffLineTokens {
   const language =
-    text === undefined
-      ? undefined
-      : (pathLanguage(path) ??
-        (syntaxHint === undefined
-          ? undefined
-          : sourceLanguage(syntaxHint, path)));
+    text === undefined ? undefined : diffLanguage(path, syntaxHint);
   const oldSide = useSourceHighlight(text?.baseline ?? "", language);
   const newSide = useSourceHighlight(text?.tree ?? "", language);
   return (line) =>

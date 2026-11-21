@@ -20,10 +20,10 @@ and their support.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Path-and-hint grammar selection is proved by cases over the selection logic directly, with no component mounted. These cases replace `story-review-diff-syntax-paths-mounted.spec.ts`, which mounted a diff only to check that selection. | slice 2 | |
-| 1.1 | From the path alone, with nothing mounted: `a.mts` selects TypeScript, `A.java` selects Java, `settings.yml` selects YAML and `notes.txt` selects no grammar. | slice 2 | |
-| 1.2 | A rename selects from the new path: `old.txt` → `new.ts` selects TypeScript, and `old.ts` → `new.txt` selects none. | slice 2 | |
-| 1.3 | Hints: `scripts/setup.test` with hint `shell` selects shell, and with hint `unfamiliar-language` selects none. `lib/app.ts` with hint `shell` keeps TypeScript because the path wins. | slice 2 | |
+| 1 | Path-and-hint grammar selection is proved by cases over the selection logic directly, with no component mounted. These cases replace `story-review-diff-syntax-paths-mounted.spec.ts`, which mounted a diff only to check that selection. | slice 2 | observed: dashboard/frontend-tests/review/story-review-diff-grammar-selection.spec.ts imports only diffLanguage and highlightSourceLines (no mount); story-review-diff-syntax-paths-mounted.spec.ts deleted; scratch edits mts-removed, hint-over-path and java-loader-removed each fail one case (evidence s2-scratch-a/b/c2) |
+| 1.1 | From the path alone, with nothing mounted: `a.mts` selects TypeScript, `A.java` selects Java, `settings.yml` selects YAML and `notes.txt` selects no grammar. | slice 2 | observed: dashboard/frontend-tests/review/story-review-diff-grammar-selection.spec.ts cases 'a.mts selects typescript', 'A.java selects java', 'settings.yml selects yaml', 'notes.txt with hint undefined selects undefined' |
+| 1.2 | A rename selects from the new path: `old.txt` → `new.ts` selects TypeScript, and `old.ts` → `new.txt` selects none. | slice 2 | observed: dashboard/frontend-tests/review/story-review-diff-grammar-selection.spec.ts cases 'a rename from old.txt to new.ts selects typescript', 'a rename from old.ts to new.txt selects undefined'; StoryReviewFileDiff.tsx passes the renamed file's new path (file.path) to StyledFileDiff |
+| 1.3 | Hints: `scripts/setup.test` with hint `shell` selects shell, and with hint `unfamiliar-language` selects none. `lib/app.ts` with hint `shell` keeps TypeScript because the path wins. | slice 2 | observed: dashboard/frontend-tests/review/story-review-diff-grammar-selection.spec.ts cases 'scripts/setup.test with hint shell selects shell', '... hint unfamiliar-language selects undefined', 'lib/app.ts with hint shell selects typescript' |
 | 2 | Changed-block emphasis ("which words a changed block emphasizes") is read as ranges from the emphasis rule, not from rendered marks, with no mount. | slice 3 | |
 | 2.1 | `const limit = 20;` → `const limit = 25;` emphasizes `20` as deleted and `25` as inserted. | slice 3 | |
 | 2.2 | A low-similarity rewrite, a pure addition and a several-hundred-line block each emphasize nothing. | slice 3 | |
@@ -35,7 +35,7 @@ and their support.
 | 6 | Rendering promises left behind by the reduced cases each keep one mounted or logic case, rather than disappearing with the reduced cases. | slice 3 | |
 | 6.1 | Underline decoration keeps a case. | slice 3 | |
 | 6.2 | Plain copy keeps a case. | slice 3 | |
-| 6.3 | Grammars that actually load for every selected language keep a case. | slice 2 | |
+| 6.3 | Grammars that actually load for every selected language keep a case. | slice 2 | observed: dashboard/frontend-tests/review/story-review-diff-grammar-selection.spec.ts 11 cases 'the <language> grammar tokenizes <keyword>' over highlightSourceLines; java case fails when its loader is removed (s2-scratch-c2) |
 | 7 | No frontend unit test file name contains `mounted`, apart from the harness's own spec. `-mounted` is removed from every frontend unit test file name (the 27 in `review/` and `intent/`). | slice 5 | |
 | 7.1 | `test-harness/mounted-dashboard.spec.ts` keeps its name. | slice 5 | |
 | 8 | Case and helper modules beside the renamed specs that name their runner (`mountedComparison*Cases.ts`, `mountedFileDiff.ts`, `mountedReviewDiffPage.ts`) are renamed under the same rule, by what they are rather than by "mounted". | slice 5 | |

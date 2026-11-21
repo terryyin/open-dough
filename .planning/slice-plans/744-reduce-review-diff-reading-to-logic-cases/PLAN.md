@@ -93,7 +93,7 @@ run's traces.
 ### 2. Grammar selection reads as logic
 
 Type: Structure
-Status: planned
+Status: done
 
 Export the diff's grammar choice from `dashboard/src/diffLineTokens.ts` and
 use it in `useDiffLineTokens`. Replace
@@ -106,6 +106,15 @@ through `highlightSourceLines`, so a grammar that stops loading fails.
 **Proof.** The spec passes; each scratch edit fails it: removing `mts` from
 the extension map, preferring the hint over the path, removing the `java`
 loader.
+
+**Result.** `diffLanguage(path, hint)` is exported and used by
+`useDiffLineTokens`. `story-review-diff-grammar-selection.spec.ts` has 36
+logic cases, each with a median of at most 102 ms. The three scratch edits
+each fail one case. `story-review-diff-syntax-languages-mounted` still owns
+token colours, contrast and appearance switching, so it stays. That a rename
+reads under its new path rests on `StoryReviewFileDiff.tsx` passing
+`file.path`. The deleted mounted spec also only ever gave `StyledFileDiff`
+that one path.
 
 ### 3. Word emphasis reads as logic
 
