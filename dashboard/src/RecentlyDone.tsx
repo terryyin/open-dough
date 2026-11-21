@@ -29,8 +29,13 @@ import "./agent-launch.css";
 import "./recently-done.css";
 
 // Catalog, published-listing, and unreadable-record gaps Recently done shows.
-function RecentlyDoneReadGaps({ view }: { readonly view: RecentlyDoneView }) {
-  const { problems, unreadable, details } = view;
+export function RecentlyDoneReadGaps({
+  problems,
+  unreadable,
+  details,
+}: Pick<RecentlyDoneView, "problems" | "unreadable"> & {
+  readonly details: Pick<RecentlyDoneView["details"], "failed" | "retry">;
+}) {
   return (
     <>
       {problems.map((problem) => (
@@ -109,7 +114,11 @@ export function RecentlyDone({
         Recently done stories and sessions launched from this dashboard for this
         project, newest first. Sessions are kept on this machine.
       </p>
-      <RecentlyDoneReadGaps view={view} />
+      <RecentlyDoneReadGaps
+        problems={view.problems}
+        unreadable={view.unreadable}
+        details={details}
+      />
       {listedCreations.map((record) => (
         <CreationEntry key={record.launchedAt} record={record} />
       ))}

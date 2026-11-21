@@ -249,7 +249,7 @@ The backend and mounted regression tests both failed on the old product. The Das
 ### 3. Prove Recently done's read gaps without the frontend app
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** Apply the "Recently done's gaps are a pure derivation"
 decision. Replace `recently-done-published-listing-gap.spec.ts` with plain
@@ -280,6 +280,10 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
 Name the new spec for what it proves; `sessions/recently-done-read-gaps` above
 stands for that name.
+
+**Accepted proof.** The `sessions/recently-done-published-session-launch sessions/recently-done-read-gaps` frontend selection passed eight cases. The mounted case observes the two paragraphs in order from typed done and listing answers. The scratch break dropped the listing problem and failed the three cases that observe it. The original source bytes were restored and the eight cases passed again.
+The published-session journey passed in Chromium, including the kept Done launch and the cross-machine review. Seven related catalog, unreadable-record, retry, and latency journeys passed, along with the retained done-navigation and mounted harness cases. Dashboard typecheck passed.
+The three retained substitute files match `6cb718146^`, their separate publication module is deleted, and the retired substitute symbols have no hits. This removes 64 lines of test support. The local gate arguments and sleep guard apply to the focused commands.
 
 ### 4. Unit-test the published listing through typed reads
 
