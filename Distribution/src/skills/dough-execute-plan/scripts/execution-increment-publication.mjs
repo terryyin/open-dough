@@ -236,8 +236,6 @@ export async function publishExecutionIncrement({
     }
   }
 
-  const confirming = await fetchTarget("confirmation-fetch");
-  if (confirming.stop) return confirming.stop;
   const confirmed = await readTip("confirmation-tip");
   if (confirmed.stop) return confirmed.stop;
   if (confirmed.value !== attempt.candidate) {

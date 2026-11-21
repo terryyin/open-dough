@@ -104,6 +104,9 @@ preparation. Its partial trace is retained as `s1-installed-baseline.trace`.
 - Starting revision `3105c0727f6a7ba3a080b9300b0faec45dc60e32`.
   Published Take and initial story branch revision
   `78de2f1d3d8085605f07ac8707929562ffb4629c`.
+- Slice 1 accepted on the story branch at
+  `6d6cbebcf7e8700e595cd334382a8f06472645a2`; managed delivery
+  attached the revision to the existing Codex observer.
 
 ## Ordered slices
 
@@ -139,7 +142,7 @@ in `s1-refactor-verified.log.run.json`.
 ### 2. Confirm the target once after each successful push
 Type: Behavior
 
-Status: planned
+Status: done
 
 When an ordinary push returns, derive acceptance and its receipt from one
 fresh observation of the authorized target. Collapse duplicate reads only
@@ -152,6 +155,17 @@ Observe remote acceptance without a default checkout change, the rewritten
 candidate after a competing push, and bounded timeout and second rejection.
 Compare the blank launch trace for one less redundant post-push observation
 without removing the receiver's independent confirmation.
+
+With the candidate installed, the blank launch passed in 1,072 ms at
+one-minute host load 7.25–6.99. Trace2 fell to 58 root starts and 84
+including nested Git. The publisher made one exact live query after its
+ordinary push. The receiver independently fetched the target and checked
+the candidate's ancestry. The exact-ref cases cover a separate authorized
+remote with custom tracking and a deleted branch with a same-SHA lookalike.
+The timed-out confirmation left the owned candidate intact, and recovery
+registered it without another push. `s2-return.md` maps 34 passing
+Distribution check files, payload comparisons in both roots, the blank
+trace, and five passing installed Dashboard consumer cases.
 
 ### 3. Reuse prepared landing evidence while recording acceptance
 Type: Behavior
