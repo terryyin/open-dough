@@ -1,67 +1,59 @@
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  publishLargeBacklog,
-  queuedCount,
-  queuedTitle,
-  queuedTitles,
-} from "../../test-support/accessibleBoard.ts";
-import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
-import { scrollYOf } from "../../test-support/boardPage.ts";
-import { readWithKey } from "../../test-support/boardReading.ts";
-import {
-  box,
-  expectNoSidewaysScrollAndWholeText,
-} from "../../test-support/pageLayout.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { expectDocumentStill } from "./board-accessibility.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { reducedBoardMotion, withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import { boardWork, longBacklog } from "./board-work.ts";
 
-test("accessible Board reads a backlog longer than one screen by scrolling the Board", async ({
-  page,
-  frontendServices,
-}) => {
-  publishLargeBacklog(frontendServices);
-  await page.goto("/");
-  const { backlog } = parts(page);
-  await expectMembership(page, {
-    taken: ["Repair the installer's update report"],
-    backlog: queuedTitles,
+test("accessible Board reads a backlog longer than one screen by scrolling the Board", async () => {
+  withBoardStorage("0");
+  await reducedBoardMotion();
+  await mountBoardFrame(boardWork(longBacklog), { width: 1440, height: 700 });
+  await board.shows(["Backlog", "Taken", "Recently done"], []);
+  const backlog = board.column("Backlog");
+  const cards = backlog.getByRole("article");
+  expect(
+    cards.elements().map((card) => card.getAttribute("aria-label")),
+  ).toEqual(longBacklog.map(({ title }) => title));
+  const heading = backlog.getByRole("heading", {
+    name: "Backlog",
+    exact: true,
   });
-  // Canonical reads can grow the cards after membership first appears.
-  await expect(backlog.locator(".dependency-problem")).toHaveCount(queuedCount);
-  const heading = backlog.getByRole("heading", { level: 2 });
-  const lastCard = backlog.getByRole("article", {
-    name: queuedTitle(queuedCount),
-  });
-  const lastInspect = lastCard.getByRole("button", { name: "Inspect story" });
-  await expect(lastInspect).not.toBeInViewport();
+  const last = cards.last();
+  const inspect = last.getByRole("button", { name: "Inspect story" });
+  expect(board.inReadingRoom(inspect.element())).toBe(false);
+  await userEvent.keyboard("{End}");
+  await expect.poll(() => board.inReadingRoom(inspect.element())).toBe(true);
+  expect(board.position()).toBeGreaterThan(0);
+  await expect
+    .element(last.getByText(`Priority ${longBacklog.length}`, { exact: true }))
+    .toBeVisible();
+  expect(board.inReadingRoom(heading.element())).toBe(true);
+  expect(
+    board.inReadingRoom(
+      backlog
+        .getByText(`${longBacklog.length} entries`, { exact: true })
+        .element(),
+    ),
+  ).toBe(true);
+  expectDocumentStill();
 
-  await test.step("the Board scrolls to the last queued work", async () => {
-    await readWithKey(page, "End");
-    await expect(lastInspect).toBeInViewport({ ratio: 1 });
-    expect(await scrollYOf(page)).toBeGreaterThan(0);
-    await expectNoSidewaysScrollAndWholeText(page);
-    await expect(lastCard).toContainText(`Priority ${queuedCount}`);
-  });
-
-  await test.step("the column still says which column this is and how much it holds", async () => {
-    await expect(heading).toBeInViewport({ ratio: 1 });
-    await expect(backlog.getByText(`${queuedCount} entries`)).toBeInViewport({
-      ratio: 1,
-    });
-  });
-
-  await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
-    await lastInspect.focus();
-    const firstInspect = backlog
-      .getByRole("article", { name: queuedTitle(1), exact: true })
-      .getByRole("button", { name: "Inspect story" });
-    const focused = page.locator(":focus");
-    // Every stop on the way back to the first card, whichever controls a card holds.
-    while (
-      !(await firstInspect.evaluate((e) => e === document.activeElement))
-    ) {
-      await page.keyboard.press("Shift+Tab");
-      await expect(focused).toBeInViewport({ ratio: 1 });
-      const [stuck, stop] = await Promise.all([box(heading), box(focused)]);
-      expect(stuck.y + stuck.height).toBeLessThanOrEqual(stop.y);
-    }
-  });
+  const start = inspect.element();
+  if (!(start instanceof HTMLElement)) throw new Error("Inspect is missing.");
+  start.focus();
+  const first = cards
+    .first()
+    .getByRole("button", { name: "Inspect story" })
+    .element();
+  for (let step = 0; step < 60 && document.activeElement !== first; step += 1) {
+    await userEvent.tab({ shift: true });
+    const stop = document.activeElement;
+    if (stop === null) throw new Error("Reading focus left the Board.");
+    await expect.poll(() => board.inReadingRoom(stop)).toBe(true);
+    expect(
+      heading.element().getBoundingClientRect().bottom,
+    ).toBeLessThanOrEqual(stop.getBoundingClientRect().top);
+  }
+  expect(document.activeElement).toBe(first);
 });

@@ -10,6 +10,7 @@ import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
+import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import {
@@ -32,6 +33,10 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
+ *     readonly aDoneRecord: DoneRecordBuilder;
+ *     readonly aWorkEntry: import("./factBuilder.mjs").FactBuilder<
+ *       import("../../../dashboard/src/publishedWork.ts").WorkEntry
+ *     >;
  *     readonly aSessionState: SessionStateBuilder;
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
@@ -63,6 +68,18 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new TestOptimizationCandidatesRecordBuilder();
+    },
+  },
+  aDoneRecord: {
+    enumerable: true,
+    get() {
+      return new DoneRecordBuilder();
+    },
+  },
+  aWorkEntry: {
+    enumerable: true,
+    get() {
+      return { with: copyFacts };
     },
   },
   // Node-free launch record; Node-only reviewed-session examples stay on makeMe.mjs.

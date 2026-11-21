@@ -1,86 +1,64 @@
-// A Board read far down the long Backlog stops at the bottom of shorter
-// columns shown in its place, keeps a position the columns shown can hold, and
-// stays as long as the columns it shows when it widens or narrows. That the
-// Board is only as long as its shown columns is
-// ./board-height.spec.ts.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { boardReading as board } from "./board-reading-page.ts";
 import {
-  publishLargeBacklog,
-  queuedCount,
-  queuedTitle,
-} from "../../test-support/accessibleBoard.ts";
-import {
-  expectEndsWithShown,
-  expectLongerThanTheBoard,
-  expectView,
-  rem,
-  scrollYOf,
-  showColumn,
-  wheelTo,
-} from "../../test-support/boardPage.ts";
-import {
-  expectAtBoardBottom,
-  expectPagingControlInSight,
-} from "../../test-support/boardReading.ts";
+  mountBoard,
+  reducedBoardMotion,
+  withBoardStorage,
+} from "./board-mount.ts";
+import { boardWork, longBacklog, story } from "./board-work.ts";
 
-test("a long Backlog read far down: shorter columns clamp the Board to their bottom, a position they hold stays, and widening or narrowing keeps the Board as long as the columns it shows", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 54 * rem, height: 480 });
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  publishLargeBacklog(frontendServices);
-  await page.goto("/");
-  const { backlog } = parts(page);
-  const lastCard = backlog.getByRole("article", {
-    name: queuedTitle(queuedCount),
+test("paging down a long Backlog clamps at the shorter columns' end and restores the Backlog's length", async () => {
+  withBoardStorage("0");
+  await reducedBoardMotion();
+  const taken = [
+    story("Repair installation", 50),
+    story("Complete update reporting", 51),
+    story("Document recovery", 52),
+  ];
+  await mountBoard([boardWork(longBacklog, { taken })], {
+    width: 864,
+    height: 480,
   });
-  // Where the Backlog's last card ends, which a developer reading to the
-  // Backlog's end reaches whatever the card's height against the window.
-  const lastCardEnd = lastCard.getByRole("button", { name: "Inspect story" });
-  // Read only once every card has its length, so the bottom a move stops
-  // at is the Board's own and not one a later read lengthens.
-  await expectSettledPage(page);
-  await expect(lastCard).toBeVisible();
-  const backlogControl = `Backlog ${queuedCount} entries`;
+  await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+  const last = board.column("Backlog").getByRole("article").last();
+  const lastControl = last.getByRole("button", { name: "Inspect story" });
 
-  await test.step("far down the Backlog, showing Taken and Recently done stops the Board at their bottom, below its top", async () => {
-    await wheelTo(page, 1500);
-    await showColumn(page, "Recently done");
-    await expectView(page, ["Taken", "Recently done"], [backlogControl]);
-    await expectLongerThanTheBoard(lastCard);
-    const clamped = await expectAtBoardBottom(page);
-    expect(clamped).toBeGreaterThan(0);
-    expect(clamped).toBeLessThan(1500);
-    await expectPagingControlInSight(page, "Backlog");
-    await expectEndsWithShown(page, ["Taken", "Recently done"]);
-  });
+  await board.wheelTo(1500);
+  await board.control("Recently done").click();
+  await board.shows(
+    ["Taken", "Recently done"],
+    [`Backlog ${longBacklog.length} entries`],
+  );
+  await expect.poll(board.position).toBe(board.bottom());
+  const clamped = board.position();
+  expect(clamped).toBeGreaterThan(0);
+  expect(clamped).toBeLessThan(1500);
+  expect(board.endOf(last.element())).toBeGreaterThan(board.extent() + 48);
+  expect(board.inReadingRoom(board.control("Backlog").element())).toBe(true);
+  await board.endsWith(["Taken", "Recently done"]);
 
-  await test.step("showing Backlog again keeps the position and reaches its last card", async () => {
-    const kept = await scrollYOf(page);
-    await showColumn(page, "Backlog");
-    await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
-    expect(await scrollYOf(page)).toBe(kept);
-    await expectEndsWithShown(page, ["Backlog", "Taken"]);
-    await expect(lastCardEnd).toBeInViewport({ ratio: 1 });
-  });
+  await board.pressWhereShown("Backlog");
+  await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+  expect(board.position()).toBe(clamped);
+  await board.endsWith(["Backlog", "Taken"]);
+  expect(board.inReadingRoom(lastControl.element())).toBe(true);
 
-  await test.step("a Board wide enough for all three is as long as Backlog, which is read whole", async () => {
-    await page.setViewportSize({ width: 80 * rem, height: 480 });
-    await expectView(page, ["Backlog", "Taken", "Recently done"], []);
-    await expectEndsWithShown(page, ["Backlog", "Taken", "Recently done"]);
-    await expect(lastCardEnd).toBeInViewport({ ratio: 1 });
-  });
+  await page.viewport(1280, 480);
+  await board.shows(["Backlog", "Taken", "Recently done"], []);
+  await board.endsWith(["Backlog", "Taken", "Recently done"]);
+  expect(board.inReadingRoom(lastControl.element())).toBe(true);
 
-  await test.step("a one-column Board shows Backlog, the kept column, then only a short Recently done, with no blank Board past it", async () => {
-    await page.setViewportSize({ width: 40 * rem, height: 480 });
-    await expectView(page, ["Backlog"], ["Taken 1 entry"]);
-    await expectEndsWithShown(page, ["Backlog"]);
-    await showColumn(page, "Recently done");
-    await expectView(page, ["Recently done"], ["Taken 1 entry"]);
-    await expectLongerThanTheBoard(lastCard);
-    await expectEndsWithShown(page, ["Recently done"]);
-  });
+  await page.viewport(640, 480);
+  await board.shows(["Backlog"], ["Taken 3 entries"]);
+  await board.endsWith(["Backlog"]);
+  await board.control("Taken").click();
+  await board.shows(
+    ["Taken"],
+    [`Backlog ${longBacklog.length} entries`, "Recently done 0 entries"],
+  );
+  await board.control("Recently done").click();
+  await board.shows(["Recently done"], ["Taken 3 entries"]);
+  expect(board.endOf(last.element())).toBeGreaterThan(board.extent() + 48);
+  await board.endsWith(["Recently done"]);
 });
