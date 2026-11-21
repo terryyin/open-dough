@@ -9,7 +9,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
   aKeptSession,
   keep,
   markDone,
@@ -35,7 +34,7 @@ async function forgetInCheckout(
 
 test("a Default main launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
   const checkout = await aCheckout({ withOrigin: true });
-  const record = aDefaultLaunch(checkout).please();
+  const record = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
   keep(record);
   const { pulled, typo } = await work(
     checkout,

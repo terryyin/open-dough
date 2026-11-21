@@ -8,7 +8,7 @@ import type { LaunchHost } from "../../server/launchHosts.ts";
 import type { ProjectFolder } from "../../server/projectFolders.ts";
 import type { CompletionReceipt } from "../../src/completionReport.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { aDefaultLaunch, type Checkout, keep } from "./doneCaptureCase.ts";
+import { type Checkout, keep } from "./doneCaptureCase.ts";
 import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
 
 const reporting = {
@@ -19,12 +19,7 @@ const reporting = {
 
 function reportingSession(record: LaunchRecord) {
   return {
-    attempt: makeMe.anAcceptedAttempt
-      .withId(reporting.reference)
-      .adHoc()
-      .reportingTo(reporting.origin)
-      .capturingLanding({ reporting })
-      .launched(record.session),
+    attempt: makeMe.anAcceptedAttempt.reportingFor(record),
     submission: makeMe.aCompletionSubmission.reportingFor({
       host: record.session.host,
       reference: reporting.reference,
@@ -33,7 +28,10 @@ function reportingSession(record: LaunchRecord) {
 }
 
 export async function aKeptReportingLaunch(checkout: Checkout) {
-  const record = aDefaultLaunch(checkout).reportingThrough(reporting).please();
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .reportingThrough(reporting)
+    .please();
   const { attempt, submission } = reportingSession(record);
   keep(record);
   await keepAttempt(attempt.please());
@@ -41,7 +39,7 @@ export async function aKeptReportingLaunch(checkout: Checkout) {
 }
 
 export async function keepReportedDone(
-  launch: ReturnType<typeof aDefaultLaunch>,
+  launch: ReturnType<typeof makeMe.aLaunchRecord.startedOnMainOf>,
   doneAt: string,
 ) {
   const delivery = "55555555-5555-4555-8555-555555555555";

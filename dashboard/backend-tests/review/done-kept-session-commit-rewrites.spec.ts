@@ -2,16 +2,11 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import {
-  aCheckout,
-  aDefaultLaunch,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
 
 test("capture keeps a continued cherry-pick with the session's conflict resolution", async () => {
   const checkout = await aCheckout({ withOrigin: true });
-  const launch = aDefaultLaunch(checkout).please();
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
   const { integration } = checkout;
   const { baseline } = await work(
     checkout,
@@ -42,7 +37,7 @@ test("capture keeps a continued cherry-pick with the session's conflict resoluti
 for (const mode of ["fixup", "squash"] as const) {
   test(`capture keeps the rewritten commit after autosquashing a ${mode}`, async () => {
     const checkout = await aCheckout();
-    const launch = aDefaultLaunch(checkout).please();
+    const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
     const { base, integration } = checkout;
     const { target } = await work(
       checkout,

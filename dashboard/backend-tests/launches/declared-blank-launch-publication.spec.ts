@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
-import { deleteRecord } from "../../server/launchRecordStore.ts";
+import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaredPublisherBranch,
@@ -24,9 +24,9 @@ import {
 
 test("a blank Default main launch keeps its declared landing until record deletion", async () => {
   const branch = "blank-draft";
-  const { checkout, workspace, record, context, stores } =
+  const { checkout, workspace, record, context } =
     await aDeclaredPublisherBranch(branch);
-  const session = record.session.sessionId;
+  const saved = () => keptSession(source, record.session);
   expect(record.request.reporting).toBeUndefined();
   const reference = contextReference(context);
   const base = checkout.base;
@@ -51,9 +51,7 @@ test("a blank Default main launch keeps its declared landing until record deleti
       targetRef: "refs/heads/main",
       landingContext: context,
     },
-    () =>
-      Promise.resolve(stores.recordOf(session)?.landingReporting?.preparations),
-    stores,
+    async () => (await saved())?.landingReporting?.preparations,
   );
   expect(landing.receipt).toMatchObject({
     reference,
@@ -65,10 +63,10 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await trunk()).toBe(candidate);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
-  const saved = stores.recordOf(session);
-  expect(saved?.request.reporting).toBeUndefined();
-  expect(saved?.landing).toMatchObject({
+  expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
+  const landed = await saved();
+  expect(landed?.request.reporting).toBeUndefined();
+  expect(landed?.landing).toMatchObject({
     reference,
     base,
     revision: candidate,
@@ -81,7 +79,7 @@ test("a blank Default main launch keeps its declared landing until record deleti
     { ref: `${pinned}/revision`, objectId: candidate },
   ]);
 
-  expect(await deleteRecord(source, record.session, stores)).toBe(true);
-  expect(stores.recordOf(session)).toBeUndefined();
+  expect(await deleteRecord(source, record.session)).toBe(true);
+  expect(await saved()).toBeUndefined();
   expect(await heldLandingPins(checkout.integration)).toEqual([]);
 });

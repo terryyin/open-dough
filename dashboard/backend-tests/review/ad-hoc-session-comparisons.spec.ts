@@ -7,7 +7,6 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { keptAttempts } from "../../server/launchAttemptStore.ts";
-import { machineLandingStores } from "../../server/launchLandingReporting.ts";
 import {
   keptSession,
   setRecordDoneAt,
@@ -51,7 +50,6 @@ test("the same Done session opens its delivery and keeps its different branch re
     async () =>
       (await keptAttempts())?.find((attempt) => attempt.id === reference)
         ?.landingPreparations,
-    machineLandingStores,
   );
   // The installed publisher prepared exactly the pair it then recorded.
   expect(before.trunk).toBe(checkout.base);

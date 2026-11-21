@@ -2,11 +2,7 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import {
-  anEstablishedSession,
-  minutesAgo,
-  type Checkout,
-} from "./doneCaptureCase.ts";
+import { minutesAgo, type Checkout } from "./doneCaptureCase.ts";
 
 // A Done session established in the checkout at `revision` (its base by
 // default) that kept these runs of its commits there.
@@ -15,7 +11,8 @@ export const aDoneSession = (
   runs: { base: string; revision: string }[],
   revision = checkout.base,
 ) =>
-  anEstablishedSession(checkout, { revision })
+  makeMe.aLaunchRecord
+    .establishedOnMainOf(checkout, revision)
     .keptSessionCommits({ repository: checkout.integration, runs })
     .markedDone()
     .please();

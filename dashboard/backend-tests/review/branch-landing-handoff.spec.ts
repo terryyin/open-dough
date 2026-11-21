@@ -26,7 +26,6 @@ import {
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   aCheckoutWithCanonicalWorktree,
-  aDefaultLaunch,
   keep,
   minutesAgo,
   source,
@@ -53,7 +52,7 @@ async function aKeptBranchHandoff() {
     branch,
     Object.fromEntries(files),
   );
-  const launch = aDefaultLaunch(checkout);
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout);
   const { entry } = await proposeBranchEntry(
     "refs/heads/main",
     launch.please(),

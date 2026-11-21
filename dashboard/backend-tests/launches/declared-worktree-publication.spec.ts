@@ -3,6 +3,10 @@
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaredPublisherBranch,
@@ -11,9 +15,6 @@ import {
   recordLanding,
 } from "../support/declaredPublisherBranch.ts";
 import {
-  aDefaultLaunch,
-  canonicalGitDirectory,
-  type Checkout,
   inWorktree,
   minutesAgo,
   source,
@@ -32,39 +33,20 @@ const reportingAs = (reference: string) => ({
   command: "report",
 });
 
-// The launch attempt the dashboard accepted for an instructed launch, whose
-// session reports through `reference`.
-const anAcceptedLaunch = (reference: string, sessionId: string) =>
-  makeMe.anAcceptedAttempt
-    .withId(reference)
-    .adHoc()
-    .acceptedAt(minutesAgo(60))
-    .reportingTo(dashboardOrigin)
-    .launched({ host: "claude", sessionId })
-    .capturingLanding({ reporting: reportingAs(reference) })
-    .please();
-
 test("the declared worktree's installed landing and exact retry stay with the original launch", async () => {
   const branch = "draft";
-  const other = (checkout: Checkout) => [
-    aDefaultLaunch(checkout, {
-      sessionId: "other-launch",
-      title: "Review a different change",
-    })
-      .reportingThrough(reportingAs(otherReference))
-      .please(),
-  ];
-  const { checkout, workspace, record, entry, context, stores } =
-    await aDeclaredPublisherBranch(branch, {
-      reporting: reportingAs(reference),
-      others: other,
-    });
-  await stores.replaceAttempts(() => ({
-    [source]: [
-      anAcceptedLaunch(reference, record.session.sessionId),
-      anAcceptedLaunch(otherReference, "other-launch"),
-    ],
-  }));
+  const { checkout, workspace, record, entry, context, home } =
+    await aDeclaredPublisherBranch(branch, reportingAs(reference));
+  const other = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "other-launch" })
+    .adHoc({ title: "Review a different change" })
+    .reportingThrough(reportingAs(otherReference))
+    .please();
+  keepMoreLaunchRecords(home, [other]);
+  for (const launch of [record, other])
+    await keepAttempt(makeMe.anAcceptedAttempt.reportingFor(launch).please());
+  const kept = (launch: LaunchRecord) => keptSession(source, launch.session);
   const trunk = async () =>
     (
       await git(checkout.integration, "ls-remote", "origin", "main")
@@ -74,11 +56,11 @@ test("the declared worktree's installed landing and exact retry stay with the or
   expect(contextReference(context)).toBe(reference);
   expect(entry).toMatchObject({
     branch,
-    repository: canonicalGitDirectory(checkout),
+    repository: checkout.gitDirectory,
     committedTip: base,
     trunk: { remote: "origin", target: "refs/heads/main" },
   });
-  expect(stores.recordOf(record.session.sessionId)?.branchEntry).toEqual(entry);
+  expect((await kept(record))?.branchEntry).toEqual(entry);
 
   const { draft: candidate } = await work(
     inWorktree(checkout, workspace),
@@ -98,15 +80,14 @@ test("the declared worktree's installed landing and exact retry stay with the or
       "Unaccepted comparison",
     )
   ).stdout.trim();
-  const originalBefore = stores.recordOf(record.session.sessionId);
-  const otherBefore = stores.recordOf("other-launch");
+  const originalBefore = await kept(record);
+  const otherBefore = await kept(other);
   await expect(
     recordLanding(
       makeMe.aLandingSubmission
         .forLaunch({ host: "claude", reference: otherReference })
         .comparing({ base, revision: candidate })
         .please(),
-      stores,
     ),
   ).rejects.toMatchObject({ status: 409 });
   await expect(
@@ -115,11 +96,10 @@ test("the declared worktree's installed landing and exact retry stay with the or
         .forLaunch({ host: "claude", reference })
         .comparing({ base, revision: wrongTip })
         .please(),
-      stores,
     ),
   ).rejects.toMatchObject({ status: 409 });
-  expect(stores.recordOf(record.session.sessionId)).toEqual(originalBefore);
-  expect(stores.recordOf("other-launch")).toEqual(otherBefore);
+  expect(await kept(record)).toEqual(originalBefore);
+  expect(await kept(other)).toEqual(otherBefore);
   expect(originalBefore?.landingReporting?.preparations).toEqual([]);
   expect(otherBefore?.landing).toBeUndefined();
 
@@ -132,12 +112,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
       targetRef: "refs/heads/main",
       landingContext: context,
     },
-    () =>
-      Promise.resolve(
-        stores.recordOf(record.session.sessionId)?.landingReporting
-          ?.preparations,
-      ),
-    stores,
+    async () => (await kept(record))?.landingReporting?.preparations,
   );
   expect(beforePush.trunk).toBe(base);
   expect(beforePush.prepared).toMatchObject([{ base, revision: candidate }]);
@@ -155,14 +130,14 @@ test("the declared worktree's installed landing and exact retry stay with the or
     target: "refs/heads/main",
   });
   retireAdHocBranch(checkout.integration, workspace, branch);
-  expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
+  expect(await retryInstalledLanding(context)).toEqual(landing.receipt);
   expect(await trunk()).toBe(candidate);
-  expect(stores.recordOf(record.session.sessionId)?.landing).toMatchObject({
+  expect((await kept(record))?.landing).toMatchObject({
     reference,
     base,
     revision: candidate,
     delivery: landing.receipt.delivery,
     receipt: landing.receipt.receipt,
   });
-  expect(stores.recordOf("other-launch")).toEqual(otherBefore);
+  expect(await kept(other)).toEqual(otherBefore);
 });

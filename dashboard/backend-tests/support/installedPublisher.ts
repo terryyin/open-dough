@@ -9,10 +9,7 @@ import { onTestFinished, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import { admitLandingRequest } from "../../server/launchLandingAdmission.ts";
-import {
-  handleLanding,
-  type LandingStores,
-} from "../../server/launchLandingReporting.ts";
+import { handleLanding } from "../../server/launchLandingReporting.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { capturedPublicationSchema } from "../../test-support/support/capturedPublication.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
@@ -20,7 +17,6 @@ import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 // The receiver's side of the sender's one request: production admission, then
 // the landing adapter; only the fetch stub and Response mapping stay here.
 async function receive(
-  stores: LandingStores,
   input: string | URL | Request,
   init?: RequestInit,
 ): Promise<Response> {
@@ -36,7 +32,7 @@ async function receive(
       bodyText: typeof init?.body === "string" ? init.body : "",
     });
     return Response.json(
-      await handleLanding(submission, url.origin, operation, stores),
+      await handleLanding(submission, url.origin, operation),
     );
   } catch (error) {
     if (!(error instanceof RefusedRequest)) throw error;
@@ -66,10 +62,8 @@ export type BeforePush = {
   prepared?: readonly object[] | undefined;
 };
 
-function bridgeToReceiver(stores: LandingStores) {
-  vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
-    receive(stores, input, init),
-  );
+function bridgeToReceiver() {
+  vi.stubGlobal("fetch", receive);
   onTestFinished(() => {
     vi.unstubAllGlobals();
   });
@@ -81,9 +75,8 @@ function bridgeToReceiver(stores: LandingStores) {
 export async function publishInstalled(
   publication: Publication,
   preparedPairs: () => Promise<readonly object[] | undefined>,
-  stores: LandingStores,
 ) {
-  bridgeToReceiver(stores);
+  bridgeToReceiver();
   const module = path.join(
     repoRoot,
     ".claude/skills/dough-execute-plan/scripts/execution-increment-publication.mjs",
@@ -113,11 +106,8 @@ type Reporter = { reportCompletion(argv: string[]): Promise<unknown> };
 // Retries the landing input the sender's handoff retained beside
 // `landingContext`, through its surviving reporting entry, as
 // `--operation landing --retry <pending>`.
-export async function retryInstalledLanding(
-  landingContext: string,
-  stores: LandingStores,
-) {
-  bridgeToReceiver(stores);
+export async function retryInstalledLanding(landingContext: string) {
+  bridgeToReceiver();
   const directory = path.dirname(landingContext);
   const { pending } = JSON.parse(
     await readFile(path.join(directory, "landing-current.json"), "utf8"),

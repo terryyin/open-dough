@@ -11,8 +11,6 @@ import { checkoutSharedMeanwhile } from "../../server/sessionCheckoutShared.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
-  anEstablishedSession,
   type Checkout,
   historyBeforeTheCase,
   keep,
@@ -36,8 +34,14 @@ const sharedAtDone = (
 
 test("Done saves the run and shared flag when two sessions overlap in Default main", async () => {
   const checkout = await aCheckout();
-  const first = aDefaultLaunch(checkout, { sessionId: "first" }).please();
-  const other = aDefaultLaunch(checkout, { sessionId: "other" }).please();
+  const first = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "first" })
+    .please();
+  const other = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "other" })
+    .please();
   keep(first, other);
   const { committed } = await work(
     checkout,
@@ -57,13 +61,13 @@ test("Done saves the run and shared flag when two sessions overlap in Default ma
 
 test("a session done after this one launched still shares the Default main checkout", async () => {
   const checkout = await aCheckout();
-  const earlier = aDefaultLaunch(checkout, {
-    sessionId: "earlier",
-    launchedAt: minutesAgo(70),
-  })
+  const earlier = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "earlier" })
+    .launchedAt(minutesAgo(70))
     .markedDoneAt(minutesAgo(15))
     .please();
-  const record = aDefaultLaunch(checkout).please();
+  const record = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
 
   expect(sharedAtDone(checkout, record, [earlier])).toBe(true);
 });
@@ -82,21 +86,29 @@ test("a session open meanwhile in an isolated workspace of the project does not 
     .please();
 
   expect(
-    sharedAtDone(checkout, aDefaultLaunch(checkout).please(), [isolated]),
+    sharedAtDone(
+      checkout,
+      makeMe.aLaunchRecord.startedOnMainOf(checkout).please(),
+      [isolated],
+    ),
   ).toBe(false);
 });
 
 test("a session done in the Default main checkout before this one launched does not share it", async () => {
   const checkout = await aCheckout();
-  const earlier = anEstablishedSession(checkout, {
-    sessionId: "done-before",
-    launchedAt: minutesAgo(90),
-  })
+  const earlier = makeMe.aLaunchRecord
+    .establishedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "done-before" })
+    .launchedAt(minutesAgo(90))
     .markedDoneAt(minutesAgo(70))
     .please();
 
   expect(
-    sharedAtDone(checkout, aDefaultLaunch(checkout).please(), [earlier]),
+    sharedAtDone(
+      checkout,
+      makeMe.aLaunchRecord.startedOnMainOf(checkout).please(),
+      [earlier],
+    ),
   ).toBe(false);
 });
 
@@ -106,7 +118,8 @@ test("Review says the checkout was shared when its kept run has the flag", async
     checkout,
     makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
   );
-  const record = aDefaultLaunch(checkout)
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
     .keptSessionCommits({
       repository: checkout.integration,
       runs: [{ base: checkout.base, revision: committed }],

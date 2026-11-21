@@ -10,8 +10,6 @@ import {
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 import {
   aCheckoutWithCanonicalWorktree,
-  aDefaultLaunch,
-  canonicalGitDirectory,
   inWorktree,
   keep,
   minutesAgo,
@@ -23,7 +21,7 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   const branch = "prepared-draft";
   const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
   const { base } = checkout;
-  const repository = canonicalGitDirectory(checkout);
+  const repository = checkout.gitDirectory;
   const entryTree = (
     await git(workspace, "rev-parse", `${base}^{tree}`)
   ).stdout.trim();
@@ -34,7 +32,8 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   const submission = makeMe.aLandingSubmission
     .comparing({ base, revision })
     .please();
-  const record = aDefaultLaunch(checkout)
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
     .withDeclaredLanding({
       repository,
       workspace,

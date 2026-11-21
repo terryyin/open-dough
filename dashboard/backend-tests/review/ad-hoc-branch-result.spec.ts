@@ -26,7 +26,6 @@ import {
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckout,
-  anIsolatedLaunch,
   historyBeforeTheCase,
   inWorktree,
   keep,
@@ -54,7 +53,7 @@ async function aCheckoutWithWorktreeLaunches<Branch extends string>(
     {
       workspace: string;
       branch: Branch;
-      launch: ReturnType<typeof anIsolatedLaunch>;
+      launch: ReturnType<typeof makeMe.aLaunchRecord.isolatedIn>;
       record: LaunchRecord;
     }
   >;
@@ -64,7 +63,10 @@ async function aCheckoutWithWorktreeLaunches<Branch extends string>(
         ? checkout.execution
         : path.join(checkout.integration, ".worktrees", branch);
     if (workspace === undefined) throw new Error("Missing the worktree.");
-    const launch = anIsolatedLaunch(checkout, { workspace, branch });
+    const launch = makeMe.aLaunchRecord.isolatedIn(checkout, {
+      workspace,
+      branch,
+    });
     worktrees[branch] = { workspace, branch, launch, record: launch.please() };
   }
   return { checkout, worktrees };

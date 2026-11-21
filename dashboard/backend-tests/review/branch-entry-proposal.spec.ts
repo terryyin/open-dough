@@ -8,7 +8,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
   historyBeforeTheCase,
   inWorktree,
   minutesAgo,
@@ -26,7 +25,10 @@ const aDraft = () =>
 async function anOpenDraft(history = aDraft()) {
   const checkout = await aCheckout({ history, withOrigin: true });
   const workspace = checkout.execution ?? "";
-  const record = aDefaultLaunch(checkout, { sessionId: "first" }).please();
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "first" })
+    .please();
   const { onMain } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("onMain", { at: minutesAgo(50) }),
@@ -79,7 +81,10 @@ test("a proposal refuses a foreign clone, a wrong branch and a second place", as
     branch,
   });
   const entered = { ...record, branchEntry: entry };
-  const second = aDefaultLaunch(checkout, { sessionId: "second" }).please();
+  const second = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "second" })
+    .please();
   const refused = { status: 409 };
 
   await expect(

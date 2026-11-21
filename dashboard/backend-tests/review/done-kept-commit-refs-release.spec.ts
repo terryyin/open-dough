@@ -10,7 +10,6 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
   type Checkout,
   keep,
   markDone,
@@ -38,7 +37,12 @@ async function refs(repository: string, under = "refs/") {
 
 // A default launch kept with one commit at 40 minutes ago.
 async function keptWithCommit(checkout: Checkout, gitDirectory?: string) {
-  const record = aDefaultLaunch(checkout, { gitDirectory }).please();
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf({
+      ...checkout,
+      gitDirectory: gitDirectory ?? checkout.gitDirectory,
+    })
+    .please();
   const home = keep(record);
   const { notes } = await work(
     checkout,

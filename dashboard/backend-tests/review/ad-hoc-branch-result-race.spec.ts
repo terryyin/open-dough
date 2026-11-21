@@ -14,7 +14,6 @@ import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import {
   aCheckoutWithWorktree,
-  canonicalGitDirectory,
   inWorktree,
   keep,
   minutesAgo,
@@ -40,7 +39,7 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
       workspace,
       branch: "draft",
       startingRevision: baseline,
-      repository: canonicalGitDirectory(checkout),
+      repository: checkout.gitDirectory,
     })
     .inClaudeSession({ sessionId: "isolated-draft" })
     .launchedAt(minutesAgo(60))

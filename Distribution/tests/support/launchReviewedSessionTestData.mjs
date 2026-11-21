@@ -11,6 +11,13 @@ import {
 } from "./launchLandingEvidenceTestData.mjs";
 import { reportingReference } from "./launchLandingTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { minutesAgo } from "./testDataDefaults.mjs";
+
+/**
+ * A materialized checkout: its Default main workspace, base revision, and Git
+ * directory as Git resolves it.
+ * @typedef {{ integration: string, base: string, gitDirectory: string }} CheckoutFacts
+ */
 
 /**
  * What a landed ad hoc session captured: the repository it landed in and the
@@ -131,5 +138,57 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
         reference,
       })
       .markedDone();
+  }
+
+  /**
+   * Stereotype: the blank launch "Fix the typo", launched an hour ago, whose
+   * start found the checkout on `main` at its base.
+   * @param {CheckoutFacts} checkout
+   */
+  startedOnMainOf({ integration, base, gitDirectory }) {
+    return this.adHoc({ title: "Fix the typo" })
+      .startingInDefaultCheckout({
+        workspace: integration,
+        startingRevision: base,
+        repository: gitDirectory,
+        branch: "refs/heads/main",
+      })
+      .inClaudeSession({ sessionId: "default-launch" })
+      .launchedAt(minutesAgo(60));
+  }
+
+  /**
+   * Stereotype: a session launched an hour ago and established for review in
+   * the checkout's Default main at `revision` (its base unless stated).
+   * @param {CheckoutFacts} checkout
+   * @param {string} [revision]
+   */
+  establishedOnMainOf({ integration, base }, revision = base) {
+    return this.adHoc({ title: "Established in Default main" })
+      .inDefaultCheckout({
+        workspace: integration,
+        landing: "review",
+        revision,
+      })
+      .inClaudeSession({ sessionId: "established-default-main" })
+      .launchedAt(minutesAgo(60));
+  }
+
+  /**
+   * Stereotype: the launch "Keep a draft", launched an hour ago, whose start
+   * established the checkout's worktree `workspace` on `branch` at the base.
+   * @param {CheckoutFacts} checkout
+   * @param {{ workspace: string, branch: string }} worktree
+   */
+  isolatedIn({ base, gitDirectory }, { workspace, branch }) {
+    return this.adHoc({ title: "Keep a draft" })
+      .inIsolatedWorkspace({
+        workspace,
+        branch,
+        startingRevision: base,
+        repository: gitDirectory,
+      })
+      .inClaudeSession({ sessionId: `isolated-${branch}` })
+      .launchedAt(minutesAgo(60));
   }
 }

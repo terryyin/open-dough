@@ -8,7 +8,6 @@ import { localFolder } from "../../server/projectFolders.ts";
 import { nativeDoneMarkPending } from "../../src/doneMark.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
   keep,
   markDone,
   minutesAgo,
@@ -136,7 +135,7 @@ test("closing an in-flight reported rename aborts it and keeps the Done commits"
 
 test("reopening keeps the earlier commit run until the next Done", async () => {
   const checkout = await aCheckout();
-  const record = aDefaultLaunch(checkout).please();
+  const record = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
   keep(record);
   const { first } = await work(
     checkout,
@@ -177,7 +176,8 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
       .committing("second", { at: minutesAgo(20) }),
   );
   const earlierDone = minutesAgo(30);
-  const launch = aDefaultLaunch(checkout)
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
     .markedDoneAt(earlierDone)
     .keptSessionCommits({
       repository: path.join(checkout.integration, ".git"),
@@ -207,7 +207,8 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
 test("retrying the same quiet delivery resumes native Done without repeating its failed capture", async () => {
   const checkout = await aCheckout();
   const doneAt = minutesAgo(10);
-  const launch = aDefaultLaunch(checkout)
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
     .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
     .sessionCommitsFailedAt(doneAt);
   const { record, receipt, delivery, origin, submission } =

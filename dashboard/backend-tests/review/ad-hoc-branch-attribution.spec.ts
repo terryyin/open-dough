@@ -15,7 +15,6 @@ import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aCheckoutWithWorktree,
-  anIsolatedLaunch,
   inWorktree,
   keep,
   minutesAgo,
@@ -48,7 +47,9 @@ test("capture separates an isolated branch's committed and working changes from 
       }),
   );
 
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
+    .please();
   const { result } = await captureBranchResult(record, minutesAgo(10));
 
   expect(result.attributionGap).toBeUndefined();
@@ -71,7 +72,9 @@ test("capture separates an isolated branch's committed and working changes from 
 
 test("Done saves and pins the branch and manual delivery pairs for offline review", async () => {
   const { checkout, workspace } = await anIsolatedTopic();
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
+    .please();
   keep(record);
   const { branchTip } = await work(
     inWorktree(checkout, workspace),
@@ -167,7 +170,9 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
     makeMe.aCheckoutWork.committing("after-direct", { at: minutesAgo(40) }),
   );
 
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
+    .please();
   const { result } = await captureBranchResult(record, minutesAgo(10));
 
   expect(result.attributionGap).toBe(

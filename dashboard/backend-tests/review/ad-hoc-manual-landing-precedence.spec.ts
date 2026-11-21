@@ -14,7 +14,6 @@ import { localFolder } from "../../server/projectFolders.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import {
   aCheckoutWithWorktree,
-  canonicalGitDirectory,
   inWorktree,
   keep,
   minutesAgo,
@@ -40,7 +39,7 @@ test("an early quiet Done keeps its verified manual pair when the native session
       workspace,
       branch: "draft",
       startingRevision: baseline,
-      repository: canonicalGitDirectory(checkout),
+      repository: checkout.gitDirectory,
     })
     .inClaudeSession({ sessionId: "isolated-draft" })
     .launchedAt(minutesAgo(60))

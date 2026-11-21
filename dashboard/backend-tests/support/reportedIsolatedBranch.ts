@@ -9,10 +9,7 @@ import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { writeLandingContext } from "../../server/launchReportingFiles.ts";
 import {
   aCheckoutWithCanonicalWorktree,
-  anIsolatedLaunch,
-  canonicalGitDirectory,
   keep,
-  minutesAgo,
   source,
 } from "./doneCaptureCase.ts";
 import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
@@ -28,10 +25,9 @@ export async function aReportedIsolatedBranch(
     files,
   );
   const authority = makeMe.aLandingAuthority
-    .ofRepository(canonicalGitDirectory(checkout))
+    .ofRepository(checkout.gitDirectory)
     .inWorktree({ workspace, branch })
     .please();
-  const sessionId = `isolated-${branch}`;
   const directory = mkdtempSync(path.join(tmpdir(), "dough-reporting-"));
   onTestFinished(() => {
     rmSync(directory, { recursive: true, force: true });
@@ -47,18 +43,13 @@ export async function aReportedIsolatedBranch(
     command: "report",
     landingContext,
   };
-  const record = anIsolatedLaunch(checkout, { workspace, branch, sessionId })
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
     .reportingThrough(reporting)
     .please();
-  const attempt = makeMe.anAcceptedAttempt
-    .withId(reference)
-    .adHoc()
-    .acceptedAt(minutesAgo(60))
-    .reportingTo(dashboardOrigin)
-    .launched({ host: "claude", sessionId })
-    .capturingLanding({ reporting, landingRepository: authority })
-    .please();
-  keep(record);
-  await keepAttempt(attempt);
-  return { checkout, workspace, record, reference, landingContext };
+  const home = keep(record);
+  await keepAttempt(
+    makeMe.anAcceptedAttempt.reportingFor(record).landingIn(authority).please(),
+  );
+  return { checkout, workspace, record, reference, landingContext, home };
 }

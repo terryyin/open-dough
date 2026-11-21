@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
 import {
   integrationDeveloper,
@@ -25,10 +26,7 @@ import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 
 export const source = "open-dough";
 
-// Whole seconds, so stated times read back from Git unchanged.
-const now = Math.floor(Date.now() / 1000) * 1000;
-export const minutesAgo = (minutes: number) =>
-  new Date(now - minutes * 60_000).toISOString();
+export { minutesAgo };
 
 // A history whose base revision, holding `files`, predates every launch the
 // case states.
@@ -53,89 +51,13 @@ export async function aCheckout({
     ? await materializeRepository(history.please())
     : await materializeLocalCheckout(undefined, history.please());
   onTestFinished(repository.cleanup);
-  return { ...repository, base: repository.revisions.base };
+  return {
+    ...repository,
+    base: repository.revisions.base,
+    // As Git resolves it, so the checkout's worktrees report the same repository.
+    gitDirectory: realpathSync(path.join(repository.integration, ".git")),
+  };
 }
-
-// The checkout's Git directory as Git resolves it, so its worktrees report the
-// same repository.
-export const canonicalGitDirectory = (checkout: Checkout) =>
-  realpathSync(path.join(checkout.integration, ".git"));
-
-type LaunchFacts = {
-  sessionId?: string;
-  title?: string;
-  launchedAt?: string;
-};
-
-// A session established in the checkout at `revision` (its base by default).
-export const anEstablishedSession = (
-  checkout: Checkout,
-  {
-    sessionId = "established-default-main",
-    title = "Established in Default main",
-    launchedAt = minutesAgo(60),
-    revision = checkout.base,
-  }: LaunchFacts & { revision?: string } = {},
-) =>
-  makeMe.aLaunchRecord
-    .adHoc({ title })
-    .inDefaultCheckout({
-      workspace: checkout.integration,
-      landing: "review",
-      revision,
-    })
-    .inClaudeSession({ sessionId })
-    .launchedAt(launchedAt);
-
-// A blank launch whose start found the checkout on main at its base, naming
-// its repository as Git resolves it.
-export const aDefaultLaunch = (
-  checkout: Checkout,
-  {
-    sessionId = "default-launch",
-    title = "Fix the typo",
-    launchedAt = minutesAgo(60),
-    gitDirectory = canonicalGitDirectory(checkout),
-  }: LaunchFacts & { gitDirectory?: string | undefined } = {},
-) =>
-  makeMe.aLaunchRecord
-    .adHoc({ title })
-    .startingInDefaultCheckout({
-      workspace: checkout.integration,
-      startingRevision: checkout.base,
-      repository: gitDirectory,
-      branch: "refs/heads/main",
-    })
-    .inClaudeSession({ sessionId })
-    .launchedAt(launchedAt);
-
-// A launch whose start established the worktree `workspace` of the checkout
-// on `branch` at `startingRevision` (the base by default), for review.
-export const anIsolatedLaunch = (
-  checkout: Checkout,
-  {
-    workspace,
-    branch,
-    startingRevision = checkout.base,
-    sessionId = `isolated-${branch}`,
-    title = "Keep a draft",
-    launchedAt = minutesAgo(60),
-  }: LaunchFacts & {
-    workspace: string;
-    branch: string;
-    startingRevision?: string;
-  },
-) =>
-  makeMe.aLaunchRecord
-    .adHoc({ title })
-    .inIsolatedWorkspace({
-      workspace,
-      branch,
-      startingRevision,
-      repository: canonicalGitDirectory(checkout),
-    })
-    .inClaudeSession({ sessionId })
-    .launchedAt(launchedAt);
 
 // The project's checkout with an origin, holding `files` at its base, and its
 // worktree on `branch` there.
@@ -170,7 +92,9 @@ export async function anIsolatedBranch(
   files: Readonly<Record<string, string>> = {},
 ) {
   const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
+    .please();
   keep(record);
   return { checkout, workspace, record };
 }
@@ -199,7 +123,7 @@ export const keptRecordOf = async (sessionId: string) =>
 // A kept session established in a checkout at its base: the family's usual start.
 export async function aKeptSession(options: { withOrigin?: boolean } = {}) {
   const checkout = await aCheckout(options);
-  const record = anEstablishedSession(checkout).please();
+  const record = makeMe.aLaunchRecord.establishedOnMainOf(checkout).please();
   keep(record);
   return { checkout, record };
 }

@@ -11,7 +11,6 @@ import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   aCheckout,
-  anIsolatedLaunch,
   historyBeforeTheCase,
   inWorktree,
   keep,
@@ -30,10 +29,9 @@ test("Done keeps the worktree snapshot through a later edit and forced retiremen
   const workspace = checkout.execution;
   if (workspace === undefined) throw new Error("Missing the worktree.");
   const baseline = checkout.base;
-  const record = anIsolatedLaunch(checkout, {
-    workspace,
-    branch: "draft",
-  }).please();
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch: "draft" })
+    .please();
   keep(record);
   const { committedTip } = await work(
     inWorktree(checkout, workspace),

@@ -8,7 +8,6 @@ import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import {
   aCheckoutWithWorktree,
-  aDefaultLaunch,
   inWorktree,
   minutesAgo,
   type Checkout,
@@ -26,7 +25,7 @@ const aTopicWorktree = () =>
 // its branch, entering it with whatever the worktree already held and the
 // trunk it observed then.
 async function aDeclaredTopic(checkout: Checkout, workspace: string) {
-  const launch = aDefaultLaunch(checkout);
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout);
   const { entry } = await proposeBranchEntry(
     "refs/heads/main",
     launch.please(),

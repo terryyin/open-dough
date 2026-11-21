@@ -25,8 +25,6 @@ import {
 } from "../../src/launchRecord.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
-  anIsolatedLaunch,
   type Checkout,
   historyBeforeTheCase,
   inWorktree,
@@ -64,7 +62,8 @@ const anIsolatedCursorLaunch = (
   if (workspace === undefined) throw new Error("Missing the worktree.");
   return {
     workspace,
-    record: anIsolatedLaunch(checkout, { workspace, branch })
+    record: makeMe.aLaunchRecord
+      .isolatedIn(checkout, { workspace, branch })
       .inCursorSession(inCursor(sessionId, workspace))
       .please(),
   };
@@ -104,7 +103,8 @@ for (const [reason, remove] of Object.entries(removals)) {
       "topic",
       originalId,
     );
-    const other = aDefaultLaunch(checkout)
+    const other = makeMe.aLaunchRecord
+      .startedOnMainOf(checkout)
       .inCursorSession(inCursor(otherId, checkout.integration))
       .please();
     keep(topic.record, other);
@@ -186,9 +186,9 @@ test("a stale native replacement retains a branch identified while it was pendin
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("present", { at: minutesAgo(70) }),
   );
-  const launch = aDefaultLaunch(checkout).inCursorSession(
-    inCursor(originalId, checkout.integration),
-  );
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inCursorSession(inCursor(originalId, checkout.integration));
   const { entry } = await proposeBranchEntry(trunkRef, launch.please(), {
     workspace,
     branch,

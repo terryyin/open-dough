@@ -10,7 +10,6 @@ import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   aCheckout,
   aHeldDone,
-  anIsolatedLaunch,
   historyBeforeTheCase,
   inWorktree,
   keep,
@@ -29,10 +28,9 @@ async function anIsolatedDraft() {
   const checkout = await aCheckout({ history, withOrigin: true });
   const workspace = checkout.execution;
   if (workspace === undefined) throw new Error("Missing the worktree.");
-  const record = anIsolatedLaunch(checkout, {
-    workspace,
-    branch: "draft",
-  }).please();
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch: "draft" })
+    .please();
   keep(record);
   const commit = async <Name extends string>(name: Name, minutes: number) =>
     (

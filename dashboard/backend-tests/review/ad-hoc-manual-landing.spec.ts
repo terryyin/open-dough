@@ -12,8 +12,6 @@ import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
   aCheckoutWithWorktree,
-  anIsolatedLaunch,
-  canonicalGitDirectory,
   inWorktree,
   minutesAgo,
   work,
@@ -26,8 +24,10 @@ async function anIsolatedDraft() {
   const { checkout, workspace } = await aCheckoutWithWorktree(branch, {
     "draft.txt": "Original draft\n",
   });
-  const repository = canonicalGitDirectory(checkout);
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const repository = checkout.gitDirectory;
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
+    .please();
   const inspect = (tip: string, acceptedTrunk: string) =>
     inspectManualLanding(
       repository,

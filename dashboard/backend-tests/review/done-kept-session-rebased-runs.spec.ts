@@ -2,16 +2,11 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import {
-  aCheckout,
-  aDefaultLaunch,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
 
 test("capture keeps the published run when an amended session rebases onto pulled trunk", async () => {
   const checkout = await aCheckout({ withOrigin: true });
-  const launch = aDefaultLaunch(checkout).please();
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
   const { integration } = checkout;
   const { pulled } = await work(
     checkout,
@@ -38,7 +33,7 @@ test("capture keeps the published run when an amended session rebases onto pulle
 
 test("capture keeps the published commit rebased onto fetched trunk", async () => {
   const checkout = await aCheckout({ withOrigin: true });
-  const launch = aDefaultLaunch(checkout).please();
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
   const { integration } = checkout;
   const { made, fetched, pushed } = await work(
     checkout,

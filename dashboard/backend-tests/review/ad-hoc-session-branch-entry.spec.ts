@@ -16,8 +16,6 @@ import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
 import {
   aCheckout,
   aCheckoutWithCanonicalWorktree,
-  aDefaultLaunch,
-  canonicalGitDirectory,
   type Checkout,
   historyBeforeTheCase,
   inWorktree,
@@ -38,7 +36,9 @@ const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
 // an uncommitted edit of its own.
 async function aDraftBeforeEntry() {
   const { checkout, workspace } = await aDraftWorktree();
-  const launch = aDefaultLaunch(checkout, { sessionId: "declared" });
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "declared" });
   const { onMain } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("onMain", {
@@ -134,19 +134,23 @@ test("two declared sessions each capture their own branch", async () => {
   const { base } = checkout;
   const { stdout } = await git(workspace, "rev-parse", `${base}^{tree}`);
   const atBase = {
-    repository: canonicalGitDirectory(checkout),
+    repository: checkout.gitDirectory,
     committedTip: base,
     tree: stdout.trim(),
     trunk: { remote: "origin", target: "refs/heads/main", revision: base },
   };
-  const first = aDefaultLaunch(checkout, { sessionId: "first" }).enteredBranch({
-    ...atBase,
-    workspace,
-    branch,
-  });
-  const second = aDefaultLaunch(checkout, {
-    sessionId: "second",
-  }).enteredBranch({ ...atBase, workspace: other, branch: "other" });
+  const first = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "first" })
+    .enteredBranch({
+      ...atBase,
+      workspace,
+      branch,
+    });
+  const second = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "second" })
+    .enteredBranch({ ...atBase, workspace: other, branch: "other" });
   const [{ ours }, { theirs }] = await Promise.all([
     work(
       inWorktree(checkout, workspace),
@@ -174,7 +178,10 @@ test("two declared sessions each capture their own branch", async () => {
 
 test("an undeclared checkout move explains the missing branch association", async () => {
   const checkout = await aCheckout();
-  const record = aDefaultLaunch(checkout, { sessionId: "undeclared" }).please();
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "undeclared" })
+    .please();
   keep(record);
   await git(checkout.integration, "switch", "--quiet", "-c", "not-identified");
   await work(

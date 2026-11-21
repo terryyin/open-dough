@@ -10,9 +10,7 @@ import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
   aKeptSession,
-  anEstablishedSession,
   type Checkout,
   markDone,
   minutesAgo,
@@ -27,12 +25,14 @@ const doneAt = minutesAgo(10);
 // one by default) in the checkout at Done.
 const captured = (
   checkout: Checkout,
-  record: LaunchRecord = anEstablishedSession(checkout).please(),
+  record: LaunchRecord = makeMe.aLaunchRecord
+    .establishedOnMainOf(checkout)
+    .please(),
 ) => readSessionCommits(record, { workspace: checkout.integration });
 
 test("a blank default launch that edited files and committed nothing says it made no commits in the Default main checkout", async () => {
   const checkout = await aCheckout();
-  const launch = aDefaultLaunch(checkout);
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout);
   await work(
     checkout,
     makeMe.aCheckoutWork.editing("edit", { at: minutesAgo(30) }),
