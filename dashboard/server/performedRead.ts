@@ -25,6 +25,8 @@ import {
 import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import { performListedRecordsRead } from "./listedRecordsRead.ts";
+import { performAdditionRead } from "./additionRead.ts";
+import { performPublishedSessionsRead } from "./publishedSessionsRead.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
 import {
   pathSelectedByIntentLocations,
@@ -38,7 +40,6 @@ import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
-import { listedProfileAddition } from "./recordsBesideBacklog.ts";
 import { readingOf } from "./readingRequestedRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -152,29 +153,18 @@ export async function perform(
                 signal,
                 projectFolder(source).path,
               );
-            case "addition-at": {
-              const added = await listedProfileAddition(
-                pinned,
-                source,
-                read,
+            case "published-sessions-at":
+              return await performPublishedSessionsRead(
+                {
+                  repository: projectFolder(source).path,
+                  revision: read.revision,
+                  backlogPath: source.backlogPath,
+                  ref: source.ref,
+                },
                 signal,
               );
-              if (added === undefined) {
-                return unreachable;
-              }
-              // The avatar source stays here: the page asks for the image
-              // through `./avatarRead.ts`, never from GitHub itself.
-              return answered({
-                revision: read.revision,
-                path: read.path,
-                added: added && {
-                  commit: added.commit,
-                  committerName: added.committerName,
-                  committedAt: added.committedAt,
-                  login: added.login,
-                },
-              });
-            }
+            case "addition-at":
+              return await performAdditionRead(pinned, source, read, signal);
             case "containment-at":
               return await performContainmentRead(source, read, signal);
             case "branch-head-at":

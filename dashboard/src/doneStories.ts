@@ -21,9 +21,8 @@ import {
 } from "./observationOutcomes.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import {
-  gapCauseOf,
+  headedGapCause,
   unavailableGap,
-  type GapCause,
   type UnavailableGap,
 } from "./readWaitBound.ts";
 
@@ -116,7 +115,13 @@ export async function readDoneStories(
   try {
     done = await cataloguedAt(source, revision, signal);
   } catch (error) {
-    const cause = doneGapCause(error, signal, bound, "the done catalog");
+    const cause = headedGapCause(
+      doneUnreadProblem,
+      error,
+      signal,
+      bound,
+      "the done catalog",
+    );
     settleGapCause(outcomes, question, cause);
     return unavailableGap(cause);
   }
@@ -124,26 +129,18 @@ export async function readDoneStories(
   return done;
 }
 
-// Why reading the done catalog or the done records failed, as the column says
-// it, with the typed meaning recovery keeps.
-function doneGapCause(
-  error: unknown,
-  untilEither: AbortSignal,
-  bound: AbortSignal,
-  reading: string,
-): GapCause {
-  const cause = gapCauseOf(error, untilEither, bound, reading, "");
-  return {
-    ...cause,
-    problem: `${doneUnreadProblem} ${cause.problem}`.trimEnd(),
-  };
-}
-
 export const doneRecordsGapProblem = (
   error: unknown,
   untilEither: AbortSignal,
   bound: AbortSignal,
-) => doneGapCause(error, untilEither, bound, "the done records").problem;
+) =>
+  headedGapCause(
+    doneUnreadProblem,
+    error,
+    untilEither,
+    bound,
+    "the done records",
+  ).problem;
 
 // The catalogued done records still recent at `now`, by the shared window.
 export function recentDoneRecords(

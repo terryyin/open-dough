@@ -27,7 +27,7 @@ import {
   storyReviewPanelLabel,
 } from "./StoryReviewHeading.tsx";
 import { StoryNotes } from "./StoryNotesControl.tsx";
-import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -134,7 +134,7 @@ export function StoryReview({
           headingId={headingId}
         />
         <div className="side-panel-actions">
-          {!isReviewedSessionSubject(subject) && (
+          {isReviewedStorySubject(subject) && (
             <StoryNotes
               sourceId={subject.source}
               identity={subject.identity}

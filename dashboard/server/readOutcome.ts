@@ -18,6 +18,7 @@ import type {
 } from "./intentCiStatusRead.ts";
 import type { IntentCandidatesAnswer } from "./intentCandidatesRead.ts";
 import type { IntentLocationsAnswer } from "./intentLocationsRead.ts";
+import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
 
 // What a successful read answers, as the browser reader
@@ -85,6 +86,12 @@ type Answer =
       readonly revision: string;
       readonly accepted: string;
       readonly contained: boolean;
+    }
+  // The valid session close records published at a revision
+  // (`./publishedSessionsRead.ts`).
+  | {
+      readonly revision: string;
+      readonly sessions: readonly PublishedSessionRecord[];
     }
   | IntentLocationsAnswer
   | IntentCandidatesAnswer

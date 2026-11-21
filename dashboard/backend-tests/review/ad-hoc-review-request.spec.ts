@@ -100,7 +100,8 @@ test("the comparison route selects the requested host's named run when native ID
     read: { subject, run: "1" },
   });
 
-  expect(await reviewInput(request.read)).toEqual({
+  const signal = new AbortController().signal;
+  expect(await reviewInput(request.read, signal)).toEqual({
     read: { run: "1" },
     record: codexRecord,
   });
@@ -122,6 +123,7 @@ test("both file routes read the requested host's literal pair when native IDs ma
   const pair = { baseline: base, tree: claude, path: workFile };
   const query = { ...session, ...pair };
   const admittedFile = { read: pair, record: claudeRecord };
+  const signal = new AbortController().signal;
   const diff = await routed(storyReviewFileEndpoint, query);
   if (diff.kind !== "story-review-file")
     throw new Error("Expected a file diff read");
@@ -129,7 +131,7 @@ test("both file routes read the requested host's literal pair when native IDs ma
     kind: "story-review-file",
     read: { subject: session, ...pair },
   });
-  expect(await reviewInput(diff.read)).toEqual(admittedFile);
+  expect(await reviewInput(diff.read, signal)).toEqual(admittedFile);
   expect(await storyReviewFileResponse(diff, response())).toMatchObject({
     status: 200,
     body: {
@@ -144,7 +146,7 @@ test("both file routes read the requested host's literal pair when native IDs ma
     kind: "story-review-file-text",
     read: { subject: session, ...pair },
   });
-  expect(await reviewInput(text.read)).toEqual(admittedFile);
+  expect(await reviewInput(text.read, signal)).toEqual(admittedFile);
   expect(await storyReviewFileTextResponse(text, response())).toEqual({
     status: 200,
     body: { kind: "text", baseline: "before\n", tree: "claude work\n" },

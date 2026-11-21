@@ -131,7 +131,13 @@ export function useRecentlyDone({
               !recent.some((each) => each.identity === record.identity),
           ),
         ];
-  const listed = newestFirst(included, records ?? [], sourceId);
+  const { publishedSessions } = work;
+  const listed = newestFirst(
+    included,
+    records ?? [],
+    sourceId,
+    publishedSessions?.status === "listed" ? publishedSessions.sessions : [],
+  );
   // The entry holding the keyboard stays shown wherever it now stands.
   const held = range.heldIn(sourceId);
   const heldAt =

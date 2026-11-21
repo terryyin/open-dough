@@ -71,7 +71,7 @@ export function keptSessionPair(
 }
 
 // How a review offers one kept run, read from the saved repository.
-async function runChoice(
+export async function runChoice(
   repository: string,
   { base, revision }: SessionCommitRun,
   signal: AbortSignal,

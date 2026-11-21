@@ -22,10 +22,9 @@ export async function storyReviewFileResponse(
   { read }: AdmittedReviewedFileRead,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
-  const input = await reviewInput(read);
   const body = await withResponseSignal(
     res,
-    (signal) => reviewedFileDiff(input, signal),
+    async (signal) => reviewedFileDiff(await reviewInput(read, signal), signal),
     storyReviewWaitMs,
   );
   return { status: 200, body };
@@ -35,10 +34,9 @@ export async function storyReviewFileTextResponse(
   { read }: AdmittedReviewedFileRead,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
-  const input = await reviewInput(read);
   const body = await withResponseSignal(
     res,
-    (signal) => reviewedFileText(input, signal),
+    async (signal) => reviewedFileText(await reviewInput(read, signal), signal),
     storyReviewWaitMs,
   );
   return { status: 200, body };

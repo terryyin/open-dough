@@ -17,6 +17,7 @@ import type {
 } from "./agentAssignments.ts";
 import type { AgentRoster } from "./assignmentRoster.ts";
 import type { DoneStories } from "./doneStories.ts";
+import type { PublishedSessions } from "./publishedSessions.ts";
 
 export type WorkEntry = {
   readonly identity: string;
@@ -79,6 +80,9 @@ export type PublishedWork = {
   // The done records published beside the backlog at this revision; loading
   // until they are read.
   readonly done?: DoneStories;
+  // The sessions published close records name at this revision; loading
+  // until they are listed.
+  readonly publishedSessions?: PublishedSessions;
 };
 
 // Receives each more complete snapshot of one read as it becomes known, and
