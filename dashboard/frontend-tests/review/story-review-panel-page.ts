@@ -12,6 +12,7 @@ import {
 } from "../../src/pageStoryReviews.ts";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import type { StoryNotesSource } from "../../src/storyNotes.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
@@ -21,10 +22,15 @@ import {
 } from "./story-review-details-view.ts";
 import { reviewFilesDivider } from "./story-review-files-divider-view.ts";
 import { reviewFiles } from "./story-review-files-view.ts";
-import { onReviewPage } from "./story-review-page-contexts.ts";
+import { reviewNotes } from "./story-review-notes-view.ts";
+import { doneStoryTitle, onReviewPage } from "./story-review-page-contexts.ts";
 import { reviewTouchBudget } from "./story-review-touch-budget-view.ts";
 
-export { adHocSession, doneStory } from "./story-review-page-contexts.ts";
+export {
+  adHocSession,
+  doneStory,
+  doneStoryTitle,
+} from "./story-review-page-contexts.ts";
 
 const unanswered = () => new Promise<never>(() => undefined);
 
@@ -41,22 +47,25 @@ export const reviewSourceAnswering = (
 
 // Opens the panel on `subject`'s review, read from `source`; another story's
 // review replaces it, keyed as the page keys each opening. The panel fills
-// the case's viewport, as a maximized panel fills the page.
+// the case's viewport, as a maximized panel fills the page. The story's notes
+// are read and saved through `notes`.
 export async function mountReviewChanges(
   source: ReviewSource,
   subject: ReviewedWorkSubject,
   {
     completed = false,
     viewport,
+    notes,
   }: {
     completed?: boolean;
+    notes?: StoryNotesSource;
     viewport?: { readonly width: number; readonly height: number };
   } = {},
 ) {
   const panelOn = (shown: ReviewedWorkSubject) => {
     const request: StoryReviewRequest = {
       subject: shown,
-      title: "Done story",
+      title: doneStoryTitle,
       control: document.body,
       completed,
     };
@@ -70,6 +79,7 @@ export async function mountReviewChanges(
         offerMaximize: false,
         onClose: () => undefined,
       }),
+      notes,
     );
   };
   const mounted = await mountComponent(panelOn(subject), {
@@ -111,6 +121,7 @@ function reviewChanges() {
     ...reviewFiles(region),
     ...reviewFilesDivider(region),
     ...reviewTouchBudget(region),
+    ...reviewNotes(region, refresh),
 
     // Whether the file browser is shown beside the diff.
     async expectFilesShown(shown: boolean) {

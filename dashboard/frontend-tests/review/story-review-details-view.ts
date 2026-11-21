@@ -164,6 +164,14 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
       return details;
     },
 
+    // The description of the comparison shown: the details' comparison
+    // switch and context line with its endpoints, read whether or not the
+    // details are revealed.
+    comparisonDescription() {
+      return region.element().querySelector(".story-review-details")
+        ?.textContent;
+    },
+
     async expectDetailsSay(text: string) {
       await expect.poll(() => section.element().textContent).toContain(text);
       return details;

@@ -233,13 +233,25 @@ then `aboveBodyTouchBudget` in `reviewChangesDetails.ts`.
 ### 6. Notes open from the review with its comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-notes` (3 cases) and `-note-context` (1) with a `storyNotesState`
 over a case-supplied notes source. Remove both built-app files.
 
 **Proof.** The mounted specs pass. One scratch break that drops the renamed
 path from a landed run's note fails the note-context case and is reverted.
+
+**Accepted.** Both specs are mounted in place under their titles; dropping
+`oldPath` failed the note-context case. The one mount composes
+`StoryNotesOnPage` over `storyNotesState(notes)` and, for Add note, the
+existing `RecentlyDoneLinkSources` context with the story Taken. Add note
+through a catalogued Done record needs the record body's HTTP read, so it
+stays proved end to end (G1). `story-review-notes-view.ts` operates Notes;
+`renaming(oldPath, path)` is a new step, and completed-work answers moved to
+`storyReviewCompletedTestData.mjs`. Orphans for slice 7:
+`shownComparisonDescription` in `reviewContextLine.ts`,
+`reviewHeaderActions` in `reviewControls.ts`, `expectComposerAlone` in
+`storyNotesPage.ts`, `lineActions` in `storyNotesDiffActions.ts`.
 
 ### 7. The moved cases leave their support and show their cost
 
@@ -288,3 +300,11 @@ the E2E journey that owns it.
   before the behavior it enables, five behavior slices grouped by what the
   panel shows, and one proof loop per slice. No slice-specific concern
   remains.
+
+
+## Story obligations
+
+### G1. Add note through a catalogued Done record is proved end to end, not mounted
+Reported: slice 6 — "Add note only appears after the Done record's body has been read ... over HTTP (readDoneRecordBodiesAt). No production context carries the body."
+Story clause: "Remove a case only where an E2E journey proves the same thing, and name that journey."
+Disposition: proved by slice 6: e2e/review/story-review-diff-add-note.spec.ts "Published diff file and line notes show and keep their immutable context" opens the published Done Story A from Recently done and adds file and line notes; the mounted notes cases reach Add note through a Taken entry
