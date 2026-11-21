@@ -452,7 +452,9 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 2a | Get fast proof of Intent CI status and cue contrast (completed; recoverable at `3acae5160:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing`) | 15 | 7 |
 | 2b | [Get fast proof of Intent timing history](#speed-intent-timing-history-proof) | 31 | 19 |
 | 2c | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
-| 3 | [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading) | 71 | 37 |
+| 3a | [Get fast proof of Intent locations read recovery and settings problems](#speed-intent-source-and-story-reading) | 7 | 2 |
+| 3b | [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours) | 23 | 16 |
+| 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
 | 4 | [Get fast proof of board and side-panel interactions](#speed-dashboard-board-and-panel-proof) | 63 | 28 |
 | 5 | [Get fast proof of composing and starting a launch](#speed-dashboard-launch-proof) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
@@ -608,47 +610,176 @@ boundary alongside [Get fast proof of Intent timing history](#speed-intent-timin
 
 <a id="speed-intent-source-and-story-reading"></a>
 
-### Get fast proof of Intent source and story reading
+### Get fast proof of Intent locations read recovery and settings problems
 
 **Identity:** SEED-413#speed-intent-source-and-story-reading
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/755-speed-intent-source-and-story-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"267f93e9f3eec14c6b8216b8668840a38f9d5f75edb807146ea4caf057f3566a","plan":"c970a8394e49e22a3422b90f73d9f5b0bdec4b3022eaf3521acec27a479a6042"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/755-speed-intent-source-and-story-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"df5153187713c625d9e0ac1370d718025ce8d3e871767a57e0a32e9eefc66629","plan":"37bd65576583652b72d63c5bd407771ef3272e985b1bd065d13673380fde3206"}}
 ```
 
-- **Goal.** Dashboard maintainers get faster feedback that a developer can
-  open the intended project, story and source, recover a failed read, and
-  resume the same reading after a detour. The proof also covers what the
-  developer sees about the story's changes, notes and recorded progress.
-- **Scope.** Move the 71 legacy cases in the remaining Intent specs,
-  Navigation's `source-navigation*` and `story-reference-done*`, and Stories'
-  `taken-slice-progress` and `plan-execution-complete-detail`. Own the proof
-  of selecting and returning across Project Intent, a selected story and
-  Review. The two preceding stories own independent CI comparison, live
-  proof and history rules. Retain real navigation and composed service
-  journeys in representative E2E coverage. The final campaign story owns
-  frontend runner retirement.
-- **Scope includes the related setup cleanup.** Use SEED-301's typed reading
-  data, including `anIntentLocationsAnswer` for read recovery and Gherkin
-  settings problems. Retire the unused `locationsRequest` export after
-  checking callers. Use production `IntentPageProviders` in the Candidates
-  publication fixture. Give the mounted Story Notes control the subscribed
-  state for its project, remove its legacy settle path, and preserve proof
-  that refresh updates the control and a late read cannot overwrite a save.
-- **Key examples.** A location or pinned file read fails → the reader sees
-  the specific cause and can Retry → the correct revision and source appear.
-  While a later revision or another selection is pending, Purpose keeps the
-  applicable source and never displays the other selection's text.
-  With a nested Changed tests file selected, a keyboard visit to Review and
-  return restores the story, file, reading position and focus. A held Done
-  reference can be superseded by another action, and an expired or failed
-  reference reports its actual state. A note saved before an older read
-  answers remains visible. Taken progress and execution completion present
-  their recorded facts, with distinct gaps and without treating future plan
-  proof as a completed result.
-- **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories)
-  to the whole roster. Record each retired case's proof owner, the two-worker
-  elapsed comparison including preparation and any E2E cost, and the
-  remaining case count and slow cases.
+- **Goal.** Dashboard maintainers get fast Vitest feedback that a developer
+  reading Project Intent sees the specific cause when Intent settings are
+  unreadable, malformed or absent or when a locations read fails, can Retry on
+  demand to open the configured source or absent explanation, and recovers
+  unreachable or rate-limited Intent locations on the shared schedule without
+  conflating published-detail waits.
+- **Scope.** Own the 2 legacy Intent locations read-recovery and
+  settings-problem specs (`intent-gherkin-settings-problems` and
+  `intent-read-recovery` — 7 legacy cases), plus reshaping
+  `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`)
+  to build typed `IntentLocations`, forwarding optional `readFile` on
+  `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) so
+  shared-wait recovery exercises both published-detail and Intent locations
+  readers, and retiring the unused `locationsRequest` export
+  (`dashboard/test-support/intentReadRecoveryPage.ts`) and `pygardon`
+  (`dashboard/test-support/intentGherkinUnusableFixtures.ts`) after checking
+  callers. Retain the authenticated recovery and published Gherkin boundaries
+  in `e2e/intent/intent-read-boundary-recovery.spec.ts` and
+  `e2e/intent/intent-gherkin-unusable.spec.ts`. Source browsing, pinned
+  navigation links, and reading-place detours belong to
+  [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours);
+  Changed tests story context, Done Intent and Review modes, Done story
+  references, Story notes, and recorded slice progress and execution completion
+  belong to
+  [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading);
+  independent CI comparison, status, timing history, and Summary proof belong
+  to the preceding stories; frontend runner retirement belongs to
+  [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner).
+- **Key examples.** Unreadable and malformed Intent settings stay distinct
+  from not-configured. When an Intent locations read fails, the reader sees
+  the specific `.planning/open-dough.json` cause and revision, and manual
+  Retry reads it again and shows the configured Gherkin source at its revision
+  or the not-configured explanation. Unreachable Intent locations recover on
+  the 15, 30, 60, and 60 second schedule while visible, pause recovery while
+  hidden and ask once on reveal, reread when a standing rate limit ends, keep
+  malformed settings visible until manual Retry with no spontaneous retry, and
+  share a transient wait with published detail while keeping Intent pending
+  when only detail heals.
+- **Evaluation.** All 7 legacy cases across the 2 owned files have a traceable
+  disposition and the unit proof runs on Vitest over `ProjectIntentReading`,
+  `IntentReadSourceOnPage`, `IntentReadRecovery`, and
+  `makeMe.anIntentLocationsAnswer` without `act` wrapping. Apply the
+  applicable [shared acceptance](#acceptance-shared-by-the-eight-stories)
+  timing, case-count, spent-support, and coverage checks for this 2-file
+  locations cohort (`act` retirement in `stories/story-notes-control` and
+  removal of shared `test-support` modules still consumed by E2E or later
+  specs belong to their owning stories). Locations read-recovery and
+  settings-problem proof gives faster feedback at two workers than its
+  comparable legacy Playwright selection.
+
+<a id="speed-intent-source-browsing-and-detours"></a>
+
+### Get fast proof of Intent source browsing, pinned links and detours
+
+**Identity:** SEED-413#speed-intent-source-browsing-and-detours
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#speed-intent-source-browsing-and-detours","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, retires locationsRequest and pygardon, and lands the narrowed 2-file locations split on main.","rationale":"Source-browsing and detour slices build their configured and empty IntentLocations fixtures through makeMe.anIntentLocationsAnswer and depend on the narrowed SEED-413 story split and retired support already being integrated on main rather than diverging on the unsplit story.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a9580d6e186b5cef759c6a23a2eaa292a3e8ab46f704ab94e8555a59d07f4b9","plan":"a4eaa290c631158a57a09ba07780cd4a477e2f5f814336fa1f0968bdd618a893"}}
+```
+
+**Split from** SEED-413#speed-intent-source-and-story-reading, which delivered
+the 2-file Intent locations read-recovery and settings-problem Vitest suite,
+typed `makeMe.anIntentLocationsAnswer`, and the `loadRepositoryTexts`
+`readFile` seam.
+
+- **Goal.** Dashboard maintainers get fast Vitest feedback that a developer
+  can browse Gherkin and code sources at the chosen scope, line and revision,
+  follow canonical and plan links safely, open Project Intent or a selected
+  story, and resume the exact reading place and focus after a detour through
+  Review or another view.
+- **Scope.** Own the 16 legacy source-browsing, pinned-navigation, and
+  reading-detour specs (23 legacy cases): Navigation's `source-navigation` and
+  `source-navigation-refused`, and Intent's `intent-entry-folder-summaries`,
+  `intent-entry-folder-summaries-folders`, `intent-gherkin-groups`,
+  `intent-gherkin-layout`, `intent-code-browse-java`, `intent-purpose-case`,
+  `intent-home-activation`, `intent-project-visit`,
+  `intent-project-visit-selection`, `intent-read-reuse`,
+  `intent-reading-place`, `intent-recent-stories`, `intent-selection-reads`,
+  and `intent-story-review-return`. Use production `IntentPageProviders` in
+  `intent-candidates-publication.ts` and retire spent
+  `dashboard/test-support/` modules whose last consumer moves
+  (`frontendSourceNavigation.ts`, `intentEntryFolderSummariesFixtures.ts`, and
+  `putFrontendFolderSources` on `frontendRepositorySources.ts`). Retain
+  composed source, settings, visit, and popup navigation journeys in
+  representative `e2e/intent/` and `e2e/navigation/` coverage. Locations read
+  recovery belongs to `SEED-413#speed-intent-source-and-story-reading`;
+  Changed tests story context, Done Intent, Done references, Story notes, and
+  recorded progress belong to
+  [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading).
+- **Key examples.** Clicking names and toggles selects or expands the intended
+  item, Gherkin panes scroll independently, a missing Java grammar keeps
+  readable plain text, and selecting an Optimization Candidates case opens its
+  exact source and line. Canonical and plan links use the inspected revision
+  while external, unsafe, and invalid targets keep their distinct results.
+  When a pinned file read fails, the reader sees the specific cause and can
+  Retry to load the right revision and source; while a later revision is
+  pending, Purpose keeps the applicable source. With a nested Changed tests
+  file selected, a keyboard visit to Review and return restores the story,
+  file, reading position, and focus without extra reads, and switching
+  projects resets the reading place.
+- **Evaluation.** All 23 legacy cases across the 16 owned files have a
+  traceable disposition and the unit proof runs on Vitest without `act`
+  wrapping. Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories)
+  timing, case-count, spent-support, and coverage checks, recording each
+  retired case's proof owner, any E2E popup/focus runtime, and the two-worker
+  elapsed comparison for this 16-file cohort.
+
+<a id="speed-story-changes-notes-and-progress-reading"></a>
+
+### Get fast proof of story changes, Done references, notes and recorded progress
+
+**Identity:** SEED-413#speed-story-changes-notes-and-progress-reading
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#speed-story-changes-notes-and-progress-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, and lands the narrowed SEED-413 story split on main.","rationale":"Story-changes, Done-Intent, Done-reference, notes, and progress slices share the typed IntentLocations builder and narrowed SEED-413 story split landed by SEED-413#speed-intent-source-and-story-reading.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"0a6eaa596173fe40ab6d5eaa62368d48a53d86c7803e60d3bc3614721751e678","plan":"cb7105c50fb3f73437083a2579a1ed07a678475bcba304498c16d372afe659d0"}}
+```
+
+**Split from** SEED-413#speed-intent-source-and-story-reading at its delivered
+Slice 2 boundary alongside
+[Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours).
+
+- **Goal.** Dashboard maintainers get fast Vitest feedback on what a developer
+  sees about a selected or Done story's Changed tests, historical or live
+  source across Review modes, Done story references, Story notes, and recorded
+  slice progress, execution completion, and coverage.
+- **Scope.** Provisional remainder owning the 19 legacy specs (41 legacy
+  cases): Intent's `intent-read-reuse-story`, `intent-sidebar-toggle`,
+  `intent-story-changes-gaps`, `intent-story-changes-only`,
+  `intent-story-ci-cues`, `intent-story-dark-appearance`,
+  `intent-story-summary-title`, `intent-story-views-narrow`,
+  `intent-done-landed-review-mode`, `intent-done-project-refresh`,
+  `intent-done-review-modes`, `intent-done-source-selection`,
+  `intent-story-notes`, and `intent-story-coverage`; Navigation's
+  `story-reference-done`, `story-reference-done-cancellation`, and
+  `story-reference-done-recovery`; and Stories' `taken-slice-progress` and
+  `plan-execution-complete-detail`, plus narrowing
+  `stories/story-notes-control` to its project's subscribed state and removing
+  its legacy `act` settle path, and removing any remaining
+  `dashboard/test-support/` modules whose last consumer moved across the split
+  reading cohort. Locations read recovery belongs to
+  `SEED-413#speed-intent-source-and-story-reading`; source browsing, pinned
+  links, and reading-place detours belong to
+  [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours).
+- **Key examples.** Selected story only follows the current revision, an
+  opened changed file uses its diff without rereading published text, and
+  empty or failed comparisons name their cause while keeping the tree usable.
+  While another story selection or Review mode is pending, Purpose keeps the
+  applicable source and never shows the other selection's text. A held Done
+  reference can be superseded by navigation, pointer input, or Tab, and an
+  expired or failed reference reports its actual state and recovers on Retry
+  without reading older stories. A note saved before an older read answers
+  remains visible, and Taken progress, execution completion, and story
+  coverage present their recorded facts and distinct gaps without treating
+  future plan proof as a completed result.
+- **Evaluation.** All 41 legacy cases across the 19 owned files and the
+  narrowed `stories/story-notes-control` Vitest spec have a traceable
+  disposition and run on Vitest without `act` wrapping. Apply the
+  [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
+  case-count, spent-support, and coverage checks.
 
 <a id="speed-dashboard-board-and-panel-proof"></a>
 

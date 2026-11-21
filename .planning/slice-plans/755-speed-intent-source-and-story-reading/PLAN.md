@@ -1,18 +1,33 @@
-# Get fast proof of Intent source and story reading
+# Get fast proof of Intent locations read recovery and settings problems
 
 **Identity:** SEED-413#speed-intent-source-and-story-reading
-**Source:** [Get fast proof of Intent source and story reading](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading)
+**Source:** [Get fast proof of Intent locations read recovery and settings problems](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading)
 **Source review:** [source-review.md](source-review.md)
+**Split:** Terry authorized splitting at delivered Slice 2 on 2026-11-21; former Slices 3–4 moved to `SEED-413#speed-intent-source-browsing-and-detours` ([plan 762](../762-speed-intent-source-browsing-and-detours/PLAN.md), Slices 1–6) and former Slices 5–9 moved to `SEED-413#speed-story-changes-notes-and-progress-reading` ([plan 763](../763-speed-story-changes-notes-and-progress-reading/PLAN.md), provisional Slices 1–5).
 
 ## Goal and scope
 
-Dashboard maintainers get quicker feedback on how developers find, recover,
-and resume a project's or story's Intent reading. Move the 71 legacy
-Playwright cases across 37 files identified below. Each slice preserves the
-observable results and retires the legacy proof it replaces. The comparison
-and timing stories own independent CI evidence rules. This story owns the
-evidence that the selected source and reading place survive changes to the
-view. The last campaign story owns the dual runner's retirement.
+Dashboard maintainers get fast Vitest feedback that a developer reading Project
+Intent sees the specific cause when Intent settings are unreadable, malformed
+or not configured or when a locations read fails, can Retry on demand to reach
+the configured source or absent explanation, and recovers unreachable or
+rate-limited Intent locations on the shared schedule without conflating
+published-detail waits. Move the 7 legacy Playwright cases across the 2 Intent
+locations read-recovery and settings-problem files in
+`dashboard/frontend-tests/intent/` (`intent-gherkin-settings-problems` and
+`intent-read-recovery`), reshape `makeMe.anIntentLocationsAnswer`
+(`Distribution/tests/support/intentLocationTestData.mjs`) to build typed
+`IntentLocations`, forward optional `readFile` on `loadRepositoryTexts`
+(`dashboard/src/repositoryFileReads.ts`), and retire unused `locationsRequest`
+(`dashboard/test-support/intentReadRecoveryPage.ts`) and `pygardon`
+(`dashboard/test-support/intentGherkinUnusableFixtures.ts`). Source browsing,
+pinned navigation links, and reading-place detours belong to
+`SEED-413#speed-intent-source-browsing-and-detours` (`plan 762`), story
+changes, Done Intent, Done references, Story notes, and recorded progress
+belong to `SEED-413#speed-story-changes-notes-and-progress-reading`
+(`plan 763`), independent CI comparison, status, timing history, and Summary
+proof belong to the preceding stories, and frontend runner retirement belongs
+to `SEED-413#retire-legacy-dashboard-frontend-runner`.
 
 ## Current decisions
 
@@ -20,32 +35,27 @@ view. The last campaign story owns the dual runner's retirement.
   [North Star](../../NORTH-STAR.md) and
   [ADR 0010, Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
   Use the [frontend entry guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
-  and project-selected MakeMe and page-object conventions. Use existing
-  page-loadable data and `mountComponent` with direct actions and retrying
-  observations. Do not add shared test wrappers or retain settle waits in
-  migrated cases.
-- Reuse `ProjectIntentReading` and `IntentPerspective` for their respective
-  reading scopes, `IntentPageProviders` for page-owned reading and mode,
-  and `IntentReadSource` for typed locations, file and Candidates replies.
-  The production owners keep the keys, caches, recovery and cancellation.
-  Compare the requested source, revision and path where those select the
-  answer. Supply held data only for proofs of presentation. Use the shared
-  recovery clock for timing cases, and preserve the real page for cases that
-  depend on authenticated adapters, native navigation or whole-page focus.
-- Follow [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-  Published source, Done records and Taken progress retain their actual
-  provenance; Story Notes stay on the existing machine-local project
-  subscription. Keep the notes source and its ordering rules in
-  `storyNotesState` and `localSettingState`. Resolve the shared project state
-  at the control's production entry so existing card and Review callers can
-  use it while the mounted control takes the state directly.
-- Before deleting a legacy title, record its distinct assertions and their
-  new or existing proof owner. Preserve named native focus, layout, wording,
-  failure and stale-reply risks. Consolidate equivalent setup only when the
-  observations survive. Report case counts by engine and destination, whole
-  selection elapsed including preparation, any E2E time, and the slowest
-  remaining cases. Keep the proof mapping and measurements with this plan
-  during execution. Clean up support when its last consumer moves.
+  and project-selected MakeMe and page-object conventions. Use page-loadable
+  `makeMe.anIntentLocationsAnswer` inputs, colocated page objects, and
+  `mountComponent` with direct actions and retrying observations. Do not add
+  shared test wrappers or retain settle/`act` waits in migrated cases.
+- Reuse `ProjectIntentReading`, `IntentReadSourceOnPage`, `requestIntentLocationsAt`,
+  `IntentReadRecovery`, `PublishedReadStatus`, `ObservationOutcomes`,
+  `useLimitRecovery`, and `loadRepositoryTexts` so the production owners keep
+  the request keys, caches, recovery windows, rate-limit deadlines, and
+  visibility transitions. Use isolated monotonic fake-clock epochs via
+  `onRecoveryClock()` for timing cases, and retain
+  `e2e/intent/intent-read-boundary-recovery.spec.ts` and
+  `e2e/intent/intent-gherkin-unusable.spec.ts` for authenticated HTTP boundary
+  and published Gherkin repository reads.
+- Follow [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  so published source and location explanations preserve their actual
+  provenance and revision.
+- Record each retired legacy case's distinct assertions and new or existing
+  proof owner, why cases were consolidated or split, case counts by engine and
+  destination, paired two-worker before/after elapsed times including
+  preparation, E2E runtime, shared `dashboard/test-support/` delta, and
+  remaining slow cases.
 
 ## Local gate
 
@@ -60,29 +70,18 @@ their proof or reaches a shared composed boundary. Run
 
 ## Decisive premises and proof
 
-Observations below are from this preparation's owned checkout at
-`f981fc912` on 2026-11-21, macOS on AC with Node 24.21.0 and the locked
-install.
+Observations below are from preparation at `f981fc912` and execution baseline
+`c346263b78d91b9d8cabb18ee418360f56ce0462` on 2026-11-21, macOS on AC with
+Node 24.21.0 and the locked install.
 
 | Premise and consuming operation | Observation and consequence |
 | --- | --- |
-| The normal frontend runner selects the legacy roster used to compare feedback. | `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list --reporter=line` listed 71 legacy cases in the 37 scoped specs. The comparison registration modules and mounted Vitest specs were excluded from that legacy count. |
-| The typed production reader can retain the pinned file and switch after Retry. | The normal runner at two workers, selecting `intent-source-target-recovery.spec.ts` and `intent-revision-update-failures.spec.ts`, passed five Chromium cases. A failed locations update kept the old tree usable until Retry applied the new revision. A held or failed file reply kept line 44 until release or Retry. The typed source and actual reader are the route for slices 1–4. |
-| Production Candidates and Notes readers can expose recovery and save ordering through typed replies. | The same run also selected `intent-candidates-read-recovery.spec.ts` and `story-notes-control.spec.ts` and passed their ten cases. Candidates recovery distinguished a standing limit from manual Retry, absence and mismatched content. Notes refresh updated the open list and a late read left the saved note visible. Slices 4 and 8 verify those same outcomes when changing their mount inputs. |
-| The Candidates publication mount works through the page's providers. | With the fixture's separate Intent mode and reading providers replaced by `IntentPageProviders` in scratch, the normal runner at two workers passed all 12 cases in its eight consuming specs. They observed opening and returning with focus, exact source line and revision, and the same record recovery. The edit was reverted. |
-
-The normal runner with the 37 explicit legacy paths, `--workers=2` and
-`OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` passed all 71 Playwright cases
-in 209.26 s elapsed including preparation (376.66 summed case-seconds).
-The slowest cases were pinned source navigation, invalid source targets,
-and Done dark appearance (each about 14 s). Repeat at the execution
-baseline if the checkout or load differs materially.
+| The normal frontend runner selects the legacy locations cohort used to compare feedback. | At `c346263b78`, `caffeinate -s -i npm run --silent test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts dashboard/frontend-tests/intent/intent-read-recovery.spec.ts --list --reporter=line` listed 7 legacy `chromium` cases across the 2 scoped files (within the 37-file / 71-case pre-split roster, which ran in `209.26 s` elapsed / `376.66` summed case-seconds at `f981fc912`). |
+| Production `ProjectIntentReading` and `IntentReadRecovery` expose settings causes, manual Retry, and scheduled recovery over typed collaborators. | Reshaping zero-caller `makeMe.anIntentLocationsAnswer` to build typed `IntentLocations` and forwarding optional `readFile` on `loadRepositoryTexts` let Slices 1 and 2 exercise the real readers over typed replies and monotonic fake-clock epochs without HTTP route mini-servers. |
 
 ## Slices
 
-Names below omit `.spec.ts`. Intent names are relative to
-`dashboard/frontend-tests/intent/`; navigation and stories paths are named
-explicitly.
+Names below omit `.spec.ts` and are relative to `dashboard/frontend-tests/intent/`.
 
 ### 1. Unreadable, malformed and failed Intent location reads explain their cause and retry on demand
 
@@ -119,168 +118,20 @@ their waits interact. Retain the authenticated boundary in
 rules, independent recovery of published detail, and manual Retry for
 malformed settings with no spontaneous retry.
 
-### 3. Source opens at the location and revision the reader chose
-
-Type: Behavior
-Status: planned
-
-Move `intent-code-browse-java`, both `intent-entry-folder-summaries*`,
-`intent-gherkin-groups`, `intent-gherkin-layout`, `intent-purpose-case`
-and `navigation/source-navigation*` (10). Use the tree and file reading
-owners for scopes, expansion, line anchors and plain-text fallback. Use
-`sourceLink` for distinct path and link decisions and `WorkSourceLinks`
-for the actual pinned links. Keep the real navigation observation where
-activation must leave the page. Retain `e2e/intent/intent-code-browse-sources.spec.ts`,
-`intent-gherkin-browse.spec.ts` and `intent-gherkin-unusable.spec.ts`
-in the same E2E folder for published settings and source reads.
-
-**Proof.** Clicking names and toggles selects or expands the intended
-item, Gherkin panes keep independent scrolling, and selecting a case keeps
-its exact source and line. A missing Java grammar keeps readable text.
-Canonical and plan links use the inspected revision. External, invalid
-and unsafe targets retain their distinct results.
-
-### 4. A detour returns the developer to the same reading
-
-Type: Behavior
-Status: planned
-
-Move `intent-home-activation`, `intent-project-visit*`,
-`intent-read-reuse`, `intent-reading-place`, `intent-recent-stories`,
-`intent-selection-reads`, and `intent-story-review-return` (13).
-Use production `IntentPageProviders` in the reused Candidates publication
-fixture and check its existing recovery and revision consumers before
-moving dependent cases. Use the real selection and reading-place owners,
-including Review's open/close and focus wiring. Retain
-`e2e/intent/intent-project-visit-ci.spec.ts` for the composed visit. Carry
-the keyboard Review-return case to E2E if only the full page can observe
-its focus handoff, keeping one focus proof for that journey.
-
-**Proof.** Selecting a story opens its own view while a Project Intent
-visit uses the published file. On return, restore the nested path, tab,
-scroll and focus without extra reads. A late selection answer cannot
-replace the current text. A project switch resets the place, and keyboard
-activation and an unread-revision notice keep their existing meaning.
-
-### 5. Changed tests stays usable with the selected story's context
-
-Type: Behavior
-Status: planned
-
-Move `intent-read-reuse-story`, `intent-sidebar-toggle`,
-`intent-story-changes-*`, `intent-story-ci-cues`,
-`intent-story-dark-appearance`, `intent-story-summary-title`, and
-`intent-story-views-narrow` (16). Share the story-reading arrangement
-when examining multiple views of the same selection. Exercise the actual
-story lens for overlay changes or a held comparison, and direct production
-rules for value-only membership. Keep `e2e/intent/intent-story-changes.spec.ts`
-for composed diff and source proof.
-
-**Proof.** Selected story only follows the current revision. An empty or
-failed comparison names its cause, permits recovery where offered, and
-keeps the tree usable. An opened changed file uses its diff without
-rereading published text. Preserve exact title, accessible CI cues,
-dark appearance, keyboard activation, narrow layout and independent
-sidebar state through story and project visits.
-
-### 6. Done Intent and ordinary Review use the selected historical or live source
-
-Type: Behavior
-Status: planned
-
-Move the four `intent-done-*` legacy specs that cover source selection,
-project refresh and Review modes. Hold the actual comparison, locations
-or review reply at its existing boundary. Retain
-`e2e/intent/intent-done-project-refresh.spec.ts` and
-`e2e/intent/intent-story-completed-source.spec.ts` for real historical source.
-
-**Proof.** A new Done story replaces the old source only with its own
-historical answer. Refresh leaves Done Purpose and its place readable.
-Switching Review modes in the open panel waits for each mode's actual
-answer, and ordinary Review clears the captured-run selection.
-
-### 7. Done references lead to the intended story or explain what stopped them
-
-Type: Behavior
-Status: planned
-
-Move the three `navigation/story-reference-done*` files (11).
-Reuse `useStoryReferenceJourney` and its production notice and
-destination. Supply the catalog and story answer through the real owner
-when recovery or cancellation is the observation. Keep a representative
-composed reveal in E2E if reaching and focusing the actual destination
-requires the built app.
-
-**Proof.** Pending, unavailable, expired and failed answers remain
-distinct; Retry reaches the recovered answer without reading older stories.
-The destination retains the required range and focus, including at the
-narrow reduced-motion viewport. Navigation, pointer input and Tab can
-supersede a held reveal, and disclosure waits for opening before reading
-the replaced dependency.
-
-### 8. Story notes update in place and keep the reader's context
-
-Type: Behavior
-Status: planned
-
-Move `intent-story-notes` (4) and narrow the existing
-`stories/story-notes-control` mount to the real subscribed project state.
-Mount directly without `act` or `IS_REACT_ACT_ENVIRONMENT`, keeping the
-actual state and typed source for refresh and save ordering. Where line
-notes depend on the Review subject, exercise production
-`StoryDiffNote` with the selected Intent view. Use
-`e2e/terminals/agent-terminal-lifetime.spec.ts` for notes beside the terminal
-when shared project wiring changes.
-
-**Proof.** The icons and unreadable warning fit beside the title; opening
-and closing Notes keeps the file and restores focus. A line note records
-the Intent subject. Refresh updates the subscribed control and a held
-older read leaves the saved note visible.
-
-### 9. Recorded slice progress and completion expose their actual evidence
-
-Type: Behavior
-Status: planned
-
-Move `stories/taken-slice-progress`, `stories/plan-execution-complete-detail`
-and `intent-story-coverage` (6). Use the production card, `SliceProgress`,
-`StoryDetail`, and `IntentStoryCoverage` with the read evidence they own.
-Keep the real Done read for pending, failure and Retry. Retain
-`e2e/stories/branch-slice-progress.spec.ts` and
-`e2e/stories/taken-execution-complete.spec.ts` for publication-to-page proof.
-Reconcile the whole roster and compare it with the focused legacy
-selection using its normal proof reporter before claiming the speed gain.
-
-**Proof.** Show recorded completed slices, plan gaps and product advice
-without reading on disclosure or inferring past evidence from prospective
-proof. Distinguish absent, unavailable, failed and insufficient coverage
-records. Every retired test has an observed owner and the end-of-story
-measurements cover all selected destinations.
-
 ## Learnings
 
-- **Original Slice 1 overrun (`17` elapsed active minutes, `storyOverruns: 1`, completed proof: none):** Unfinished attempt-owned edits were parked and reverted before in-place slice refinement. The sizing assumption that `anIntentLocationsAnswer` and published-detail recovery were already directly usable on `IntentReadSource` / fake clock proved false: `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`, zero callers after `556535c335`) still returned the retired wire `IntentLocationsAnswer` shape rather than `IntentLocations`, and `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) lacked the optional `readFile` collaborator parameter that `readCachedFile` in the same module already accepts. In addition, `readingLimit.ts` keeps a monotonic module-level `limitedUntil`, so fake-clock cases in `intent-read-recovery` must use past, monotonically increasing epochs (`2020-01-01` + `1h` per case) and `>= 15s` `directedSeconds`. Splitting the in-progress slice into Slice 1 (typed builder + settings explanations/Retry + unused export cleanup, 2 cases) and Slice 2 (`loadRepositoryTexts` `readFile` seam + fake-clock schedule/shared-wait recovery, 5 cases) brings the plan to 9 slices within the 10-slice execution split cap; former Slices 2–8 become Slices 3–9 unchanged in scope.
-- **Story-boundary reassessment after Slice 2 clock crossed 15m during report assembly (`17.7` elapsed active minutes at pause, `storyOverruns: 2`):**
-  - *Delivered value so far (Slices 1–2):* All 7 Intent locations recovery and settings-problem legacy Playwright cases now run on plain Vitest browser mode (`8` `[mounted-chromium]` cases in `3.9–4.9 s`), `makeMe.anIntentLocationsAnswer` builds typed `IntentLocations`, `loadRepositoryTexts` accepts an optional `readFile` collaborator, and `-6` lines of unused `dashboard/test-support/` exports are retired.
-  - *Remaining scope:* Slices 3–9 (`64` legacy Playwright cases across `35` files: source browsing & navigation, detours & reading place, Changed tests story context, Done Intent & Review modes, Done story references, Story notes, and slice progress/completion/coverage + whole-roster reconciliation).
-  - *Concrete sizing reason for continuing without resplitting or slice-only refinement:* Slice 2 completed all code edits and all 7 verification commands at `15.0` active minutes (`overrun: false` on the final `slice-clock.mjs run`), crossing the 15-minute mark only during verbose report drafting (`2.7` minutes). No slice-only refinement is proposed; the shared `ProjectIntentReading`, `IntentReadSource`, and `anIntentLocationsAnswer` seams are now settled, and keeping implementation reports concise (table-based substance without prose duplication) recovers the `2.5–3` minutes spent on report assembly so remaining cohesive slices fit the 15-minute active-time budget.
-- **Slice 3 overrun (`16.8` elapsed active minutes at pause, `storyOverruns: 3`, completed proof: `none`) and stop for story-boundary split decision:**
-  - *Failed sizing assumption:* Combining two independent component areas in Slice 3 — Navigation pinned/refused source links (`StoryCard`/`StoryDetail`/`WorkSourceLinks`/`enrichPreparation` + new `e2e/navigation/source-navigation.spec.ts` popup proof + `frontendSourceNavigation.ts` retirement) AND 6 Intent source-browsing/highlighting/layout/candidate-case specs (`ProjectIntentReading`/`IntentPerspective`/`SourceHighlighterOnPage` + `intentEntryFolderSummariesFixtures.ts` & `putFrontendFolderSources` retirement) across 18 paths — consumed the 15-minute active budget during authoring before the first test run (`slice3-typecheck.log.run.json` exited `2` at `14.9` active minutes solely from JSX in `.ts` in `intent-gherkin-layout.spec.ts`; all other 17 paths compiled cleanly).
-  - *Parked unfinished work:* All 18 attempt-owned paths are parked in `/Users/terryyin/git/open-dough/.git/worktrees/get-fast-proof-of-intent-source-and-story-readin/open-dough/evidence/slice3-parked.patch` and `slice3-parked/` (with full notes in `slice3-report.md`) and reverted cleanly so the working tree preserves delivered Slices 1–2 intact.
-  - *Why slice-only refinement cannot proceed:* Plan `755` is already at 9 slices (`Slices 1–2` done, `Slices 3–9` planned). Splitting Slice 3 once reaches the 10-slice execution cap while leaving `Slice 4` (`13` cases across 8 files), `Slice 5` (`16` cases across 10 files), `Slice 6` (`4` files), `Slice 7` (`11` cases across 3 files), `Slice 8` (`4+` cases), and `Slice 9` (`2` files + 71-case paired comparison) oversized relative to the 15-minute active-time limit (`storyOverruns: 3`).
-  - *Resume condition (`awaiting story review` before rewriting `SEED-413`):* Narrowing `SEED-413#speed-intent-source-and-story-reading` (Goal, Scope, Key examples, Evaluation, and `#renovate-later-dashboard-frontend-unit-test-families` story table in `.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) at delivered Slice 2 changes the story's outcome, scope, evaluation, and story order, so execution stops here (`awaiting story review`) for Terry's authorization to (1) conclude `SEED-413#speed-intent-source-and-story-reading` at delivered Slice 2 (`7` legacy cases → `8` `[mounted-chromium]` Vitest cases across `intent-gherkin-settings-problems` and `intent-read-recovery`, `makeMe.anIntentLocationsAnswer`, `loadRepositoryTexts` `readFile` seam, retired `locationsRequest` & `pygardon`) and split/queue the remaining `64` legacy cases (`35` files) first in the backlog as `SEED-413#speed-intent-source-browsing-and-detours` (`23` legacy cases across former Slices 3–4, 6 slices, `ready`, reusing `open-dough/evidence/slice3-parked*`) and `SEED-413#speed-story-changes-notes-and-progress-reading` (`41` legacy cases across former Slices 5–9, 5 provisional slices `awaiting story refinement`), or (2) choose an alternative scope/slice disposition.
+- **Original Slice 1 overrun (`17` elapsed active minutes, `storyOverruns: 1`) and in-place split into Slices 1–2:** `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`, zero callers after `556535c335`) still returned the retired wire `IntentLocationsAnswer` shape rather than `IntentLocations`, `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) lacked the optional `readFile` collaborator parameter that `readCachedFile` already accepts, and `readingLimit.ts` keeps a module-level monotonic `limitedUntil` requiring past monotonically increasing fake-clock epochs (`2020-01-01` + `1h` per case) and `>= 15s` `directedSeconds`.
+- **Slice 3 overrun (`16.8` elapsed active minutes, `storyOverruns: 3`) and authorized resplit at delivered Slice 2:** Combining Navigation pinned/refused source links and 6 Intent source-browsing specs across 18 paths exceeded the 15-minute slice budget, and `plan 755` had reached 9 slices. On 2026-11-21 Terry authorized narrowing `SEED-413#speed-intent-source-and-story-reading` to delivered Slices 1–2 and splitting the remaining 64 legacy cases (35 files) into `SEED-413#speed-intent-source-browsing-and-detours` (`plan 762`, 6 single-seam slices, `ready`) and `SEED-413#speed-story-changes-notes-and-progress-reading` (`plan 763`, 5 provisional slices `awaiting story refinement`).
 
 ## Plan review
 
-The nine slices follow distinct reading transitions and use the same
-source, revision and reading-place model. The Changed tests cases share
-the selected-story setup, with product read lifecycle and native layout
-assertions kept where each is observed. Original Slice 1 was refined in
-place after its overrun to separate the typed locations-answer and
-settings-explanation proof loop from the fake-clock transient/shared-wait
-recovery proof loop; after Slice 3 overran (`storyOverruns: 3`), execution
-paused at delivered Slice 2 awaiting Terry's authorization to split the
-remaining 64-case / 35-file scope into two bounded `SEED-413` stories.
+Slices 1 and 2 separate immediate settings-problem explanations and manual
+Retry (`intent-gherkin-settings-problems`) from fake-clock transient,
+visibility, rate-limit, and shared-wait recovery (`intent-read-recovery`)
+over the same `ProjectIntentReading`, `IntentReadSourceOnPage`, and
+`makeMe.anIntentLocationsAnswer` model. Remaining source-browsing/detour and
+story-reading slices were split into `plan 762` and `plan 763` on Terry's
+authorization.
 
 ## Execution resume context
 
@@ -288,31 +139,39 @@ remaining 64-case / 35-file scope into two bounded `SEED-413` stories.
 - **Workspace:** `/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-intent-source-and-story-readin` on branch `cursor/get-fast-proof-of-intent-source-and-story-readin` (default/integration checkout: `/Users/terryyin/git/open-dough`)
 - **Target:** `origin` / `main`
 - **Publisher ID:** `dashboard-territory.local-open-dough` (agent `Nana-chan`)
-- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (startingRevision `0648ff017ce13c60a489a5442c1bad3e2f2f41a6`, candidateSha `c346263b78d91b9d8cabb18ee418360f56ce0462`; claim `pendingCi: unobserved`); plan-refinement increment `cd05ef9b75ba42c388af72e491affb22a9b6f00a`, Slice 1 increment `b2c7b1dc319336bc0216fe265d207c1bbca614ca`, and Slice 2 increment `634838a4976b8beb67e2315ad387b5622d5f08ff` on `origin/cursor/get-fast-proof-of-intent-source-and-story-readin`
-- **CI observer:** GitHub Actions, workflow `ci.yml` (`CI`), watching `terryyin/open-dough` branch `cursor/get-fast-proof-of-intent-source-and-story-readin`, mailbox `/tmp/dough-ci-501/watch-dqoYbt` (stopped cleanly on human-judgment pause; `pendingCi: unobserved`)
-- **Baseline `dashboard/test-support/` surface at `c346263b7`:** 792 files, 82,277 lines (after Slice 2: 792 files, 82,271 lines; `-6` lines)
+- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (`pendingCi: unobserved`); plan-refinement increment `cd05ef9b75ba42c388af72e491affb22a9b6f00a`, Slice 1 `b2c7b1dc319336bc0216fe265d207c1bbca614ca`, Slice 2 `634838a4976b8beb67e2315ad387b5622d5f08ff`, and stop record `f84c12ab2e6ff8fd8e565502f1b785d38455bc0d` on `origin/cursor/get-fast-proof-of-intent-source-and-story-readin`
+- **CI observer:** GitHub Actions, workflow `ci.yml` (`CI`), watching `terryyin/open-dough` branch `cursor/get-fast-proof-of-intent-source-and-story-readin`, mailbox `/tmp/dough-ci-501/watch-B31gkw`
 
 ## Proof mapping and measurements
 
-### Slice 1 (`intent-gherkin-settings-problems` — 2 legacy Playwright → 3 `mounted-chromium` Vitest, 0 E2E)
+### Two-worker before/after comparison (`intent-gherkin-settings-problems` + `intent-read-recovery`)
 
-- **Accepted proof:**
-  - `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts --workers=2` (`pass`, `4.91 s` elapsed incl. preparation; cases `240 ms`, `438 ms`, `666 ms`): mounts `ProjectIntentReading` + `IntentReadSourceOnPage` + `requestIntentLocationsAt` over `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs:131-171`), observing unreadable vs. malformed vs. not-configured explanations (`:137-156`) and failed locations read cause/revision + manual Retry to absent (`:170-177`) and configured Gherkin source (`:205-216`).
-  - `caffeinate -s -i npm run typecheck:dashboard` (`pass`), `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-revision-update-failures.spec.ts dashboard/frontend-tests/intent/intent-read-recovery.spec.ts --workers=2` (`pass`), `caffeinate -s -i npm run test:e2e -- e2e/intent/intent-gherkin-unusable.spec.ts e2e/intent/intent-read-boundary-recovery.spec.ts --workers=2` (`pass`), and Distribution `intent-candidates-location-match.test.mjs` + `test-entry-rules.test.mjs` (`pass`).
-- **Retired legacy case mapping (`dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts`):**
-  - `"unreadable and malformed Intent settings stay distinct from not-configured"` → same title (`:105-156`, preserves Doughnut unreadable + Pygardon malformed + competing-text exclusions and adds Doughnut not-configured check).
-  - `"an Intent locations read that fails names its cause, and Retry reads it again"` → same title (`:158-178`, preserves exact `.planning/open-dough.json` + revision alert, Retry alert removal, and `No intent locations are configured for Doughnut.`), paired with `"retrying a failed Intent locations read opens the configured source at its revision"` (`:180-217`, proves commitment `3b` configured source & revision recovery).
-- **Support retired:** `locationsRequest` (`dashboard/test-support/intentReadRecoveryPage.ts`), `pygardon` (`dashboard/test-support/intentGherkinUnusableFixtures.ts`).
+Measured on 2026-11-21 on the AC-powered Mac under `caffeinate -s -i`, Node 24.21.0, `--workers=2`, explicit paths `dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts dashboard/frontend-tests/intent/intent-read-recovery.spec.ts` with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`, interleaving pre-change baseline `c346263b78d91b9d8cabb18ee418360f56ce0462` (`chromium`, 7 legacy Playwright cases) and the delivered Vitest suite (`mounted-chromium`, 8 Vitest cases; `0` `actSettled`, React `act`, or `IS_REACT_ACT_ENVIRONMENT` uses):
 
-### Slice 2 (`intent-read-recovery` — 5 legacy Playwright → 5 `mounted-chromium` Vitest, 0 new E2E)
+| Pair | Legacy Playwright (`chromium`, 7 cases) | Plain Vitest (`mounted-chromium`, 8 cases) |
+| --- | ---: | ---: |
+| Cold warmup | `6.35 s` (`6,348 ms`, runner `5,761 ms`; load `10.62 → 10.61`) | `4.64 s` (`4,641 ms`, runner `4,201 ms`; load `10.61 → 10.48`) |
+| Warm pair 1 | `5.52 s` (`5,518 ms`, runner `4,887 ms`; load `10.48 → 10.12`) | `3.43 s` (`3,428 ms`, runner `3,200 ms`; load `10.12 → 10.12`) |
+| Warm pair 2 | `4.85 s` (`4,851 ms`, runner `4,410 ms`; load `10.12 → 9.79`) | `4.20 s` (`4,204 ms`, runner `3,935 ms`; load `9.79 → 10.37`) |
+| Warm pair 3 | `5.97 s` (`5,973 ms`, runner `5,328 ms`; load `10.37 → 10.42`) | `4.43 s` (`4,434 ms`, runner `4,133 ms`; load `10.42 → 10.87`) |
+| **Warm median** | **`5.52 s` (`5,518 ms`, runner `4,887 ms`)** | **`4.20 s` (`4,204 ms`, runner `3,935 ms`; `-23.8%` command elapsed)** |
 
-- **Accepted proof:**
-  - `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-read-recovery.spec.ts --workers=2` (`pass`, `4.44 s` Vitest duration after refactor / `3.94 s` pre-refactor; summed case time `1.29 s`): mounts `PageIntentRecovery` (`dashboard/frontend-tests/intent/intent-read-recovery-page.tsx:62-155`) wiring `usePageVisibility`, `ObservationOutcomes`, `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts:72,99-102`), `recordSettledOutcomes`, `useLimitRecovery`, `PublishedReadStatus`, `IntentReadRecovery`, and `ProjectIntentReading` over `makeMe.anIntentLocationsAnswer` and monotonic fake-clock epochs (`onRecoveryClock()`).
-  - `caffeinate -s -i npm run typecheck:dashboard` (`pass`), `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts dashboard/frontend-tests/intent/intent-revision-update-failures.spec.ts --workers=2` (`pass`), `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/intent/intent-shared-reads.spec.ts --workers=2` (`pass`), and `caffeinate -s -i npm run test:e2e -- e2e/intent/intent-read-boundary-recovery.spec.ts --workers=2` (`pass`, `8.03 s`, 3 boundary cases).
-- **Retired legacy case mapping (`dashboard/frontend-tests/intent/intent-read-recovery.spec.ts`):**
-  - `"unreachable Intent locations recover after 15, 30, 60 and 60 seconds while revision checks continue"` → `"unreachable Intent locations recover after 15, 30, 60 and 60 seconds"` (`:67-103`, preserves 15/30/60/60 window bounds, Retry offer, `scripts` + revision recovery, and no 6th read after `+61 s`, plus `showsNoUnansweredDetail()`); composed `headsChecks` continuation at `15 s` is already owned by retained `e2e/intent/intent-read-boundary-recovery.spec.ts:78-85`.
-  - `"Intent locations make no recovery request while hidden and ask once on reveal"` → same title (`:105-123`).
-  - `"published detail and Intent locations share a wait, and healing detail leaves Intent pending"` → same title (`:125-165`).
-  - `"malformed Intent settings stay visible until manual Retry"` → same title (`:167-186`).
-  - `"rate-limited Intent locations reread when the standing limit ends"` → same title (`:188-221`).
-- **Support check:** All `dashboard/test-support/` symbols dropped from `intent-read-recovery.spec.ts` retain active E2E or remaining legacy frontend consumers (`0` zero-caller exports exposed yet).
+- **Counts by engine and destination:**
+  - Owned unit specs: `7` legacy Playwright `chromium` cases (`0` remaining on `@playwright/test`) → `8` plain Vitest `mounted-chromium` cases across the same 2 spec files (`intent-gherkin-settings-problems.spec.ts`: `3`, `intent-read-recovery.spec.ts`: `5`).
+  - Case consolidation / expansion rationale: Neither legacy file had loop-generated or redundant table-driven cases; each of the 5 `intent-read-recovery` cases tests a distinct state-machine transition (15/30/60/60 window bounds, hidden-tab deferral, shared published-detail wait, malformed non-retry until manual Retry, and rate-limit deadline) and was kept separately named for failure diagnosis. In `intent-gherkin-settings-problems`, the 2 legacy cases were kept and 1 focused case (`"retrying a failed Intent locations read opens the configured source at its revision"`) was added so manual Retry proves recovery to both an absent configuration and a configured Gherkin source at its exact revision (`c3c3c3c`).
+  - Promoted E2E proof cost: `0` cases promoted to `e2e/` (`0.00 s` added E2E cost). Existing composed E2E companions remain passing and unchanged: `e2e/intent/intent-read-boundary-recovery.spec.ts` (`3` cases, `8.03 s` at `--workers=2`, owning composed `headsChecks` continuation and authenticated HTTP recovery) and `e2e/intent/intent-gherkin-unusable.spec.ts` (`2` cases, owning real repository Gherkin discovery problems).
+- **Per-case durations (3 warm interleaved runs, ms) and retired-assertion mapping:**
+
+| Spec | Legacy `chromium` title (median ms) | `mounted-chromium` Vitest title & line | Mounted attempts (ms) | Mounted median (ms) |
+| --- | --- | --- | --- | ---: |
+| `intent-gherkin-settings-problems.spec.ts` | `"unreadable and malformed Intent settings stay distinct from not-configured"` (`878`) | same title (`:108-156`, preserves Doughnut unreadable + Pygardon malformed + competing-text exclusions + Doughnut not-configured) | `225, 268, 337` | `268` |
+| `intent-gherkin-settings-problems.spec.ts` | `"an Intent locations read that fails names its cause, and Retry reads it again"` (`750`) | same title (`:158-178`, `.planning/open-dough.json` + revision alert and manual Retry to absent explanation) | `216, 214, 299` | `216` |
+| `intent-gherkin-settings-problems.spec.ts` | *(added for configured-source Retry)* | `"retrying a failed Intent locations read opens the configured source at its revision"` (`:180-217`, Retry opens `e2e_test/features/jobs.feature` at `c3c3c3c`) | `805, 463, 580` | `580` |
+| `intent-read-recovery.spec.ts` | `"unreachable Intent locations recover after 15, 30, 60 and 60 seconds while revision checks continue"` (`688`) | `"unreachable Intent locations recover after 15, 30, 60 and 60 seconds"` (`:67-103`, 15/30/60/60 bounds, Retry offer, `scripts` + revision recovery, no 6th read after `+61 s`; `headsChecks` continuation owned by `e2e/intent/intent-read-boundary-recovery.spec.ts:78-85`) | `422, 329, 373` | `373` |
+| `intent-read-recovery.spec.ts` | `"Intent locations make no recovery request while hidden and ask once on reveal"` (`605`) | same title (`:105-123`) | `235, 292, 165` | `235` |
+| `intent-read-recovery.spec.ts` | `"published detail and Intent locations share a wait, and healing detail leaves Intent pending"` (`618`) | same title (`:125-165`, exercises `loadRepositoryTexts` optional `readFile` + `IntentReadRecovery`) | `204, 150, 266` | `204` |
+| `intent-read-recovery.spec.ts` | `"malformed Intent settings stay visible until manual Retry"` (`759`) | same title (`:167-186`, no spontaneous retry after `+60 s`, manual Retry opens `scripts`) | `312, 170, 266` | `266` |
+| `intent-read-recovery.spec.ts` | `"rate-limited Intent locations reread when the standing limit ends"` (`517`) | same title (`:188-221`, waits until 25 s Retry-After expires) | `153, 146, 297` | `153` |
+
+- **Summed per-case medians and remaining slow cases:** Summed per-case medians fell from **`4,815 ms`** (`7` cases, per-case median `688 ms`) to **`2,295 ms`** (`8` cases, `-52.3%`, per-case median `250.5 ms`). No slow case (`>= 1 s`) remains; the longest mounted case is `"retrying a failed Intent locations read opens the configured source at its revision"` (`580 ms` median), which loads the Gherkin syntax grammar when rendering the recovered `.feature` file, while the other 7 cases run in `153–373 ms` median.
+- **Shared `dashboard/test-support/` surface:** Shrank by `-6` net lines (`1` insertion, `7` deletions; `792` files, `82,277 → 82,271` lines from `c346263b7`), retiring `locationsRequest` from `dashboard/test-support/intentReadRecoveryPage.ts` and `pygardon` from `dashboard/test-support/intentGherkinUnusableFixtures.ts`. Remaining exports in `intentReadRecoveryPage.ts`, `intentGherkinUnusableFixtures.ts`, and `intentGherkinSettingsPage.ts` still serve `e2e/intent/intent-read-boundary-recovery.spec.ts` and `e2e/intent/intent-gherkin-unusable.spec.ts`.
