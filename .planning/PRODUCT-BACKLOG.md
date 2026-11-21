@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme ([plan](slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md))
 - [Correct the published-session review’s gap naming and tests](seeds/SEED-418-review-published-session-changes.md#name-unavailable-published-session-review) — SEED-418#name-unavailable-published-session-review ([plan](slice-plans/750-name-unavailable-published-session-review/PLAN.md))
-- [Get fast proof of a story's Intent CI comparison](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof) — SEED-413#speed-intent-ci-comparison-proof ([plan](slice-plans/751-speed-intent-ci-comparison-proof/PLAN.md))
 
 ## Backlog list
 
