@@ -3,7 +3,7 @@
 // story with each endpoint's proof made by the production comparison owner.
 import { createElement } from "react";
 import { expect } from "vitest";
-import { page } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import { IntentCiComparisonContent } from "../../src/IntentCiComparisonContent.tsx";
 import { comparisonProofOf } from "../../src/storyCiComparisonEntries.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -32,11 +32,24 @@ function comparisonOf(story: ComparedStory) {
   });
 }
 
-const visibleText = (node: Element) =>
+export const visibleText = (node: Element) =>
   node.textContent
     .replace(/[\u200b\u00ad]/g, "")
     .trim()
     .replace(/\s+/g, " ");
+
+// The visible words of each element SELECTOR finds in REGION.
+export const textsIn = (region: Locator) => (selector: string) =>
+  [...region.element().querySelectorAll(selector)].map(visibleText);
+
+// Which endpoints a shown comparison compares, and why it fell back.
+export function activeComparisonIn(region: Locator) {
+  const texts = textsIn(region);
+  return {
+    activeComparison: () => texts(".intent-ci-comparison-active"),
+    fallbackReason: () => texts(".intent-ci-comparison-active-reason"),
+  };
+}
 
 export async function mountComparison(story: ComparedStory) {
   const mounted = await mountComponent(comparisonOf(story));
@@ -59,7 +72,7 @@ export async function shownComparison() {
   const all = (selector: string) => [
     ...region.element().querySelectorAll(selector),
   ];
-  const texts = (selector: string) => all(selector).map(visibleText);
+  const texts = textsIn(region);
   const cues = (selector: string) =>
     all(selector).map((node) => ({
       count: node.getAttribute("data-ci-count-cue"),
@@ -84,8 +97,7 @@ export async function shownComparison() {
       })),
     wallTimes: () => texts(".intent-ci-comparison-wall"),
     timesWithoutWaits: () => texts(".intent-ci-comparison-without-waits"),
-    activeComparison: () => texts(".intent-ci-comparison-active"),
-    fallbackReason: () => texts(".intent-ci-comparison-active-reason"),
+    ...activeComparisonIn(region),
     overallCounts: () => texts(".intent-ci-comparison-overall-counts"),
     overallCountsCues: () => cues(".intent-ci-comparison-overall-counts"),
     overallTiming: () => texts(".intent-ci-comparison-overall-timing"),

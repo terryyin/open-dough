@@ -2,7 +2,7 @@
 // evidence owner (../../src/IntentCiEvidence.tsx) in the production reading
 // place, shown by IntentCiStatus, over a typed CI read source
 // (../../src/intentCiReadSource.ts) whose answers each case arranges.
-import { StrictMode, type ReactElement } from "react";
+import { StrictMode, type ReactElement, type ReactNode } from "react";
 import { page } from "vitest/browser";
 import {
   IntentReadingPlace,
@@ -94,12 +94,18 @@ export function ciReadsOf(story: ComparedStory) {
   return { source, asked, answers };
 }
 
-function evidenceOf(
-  story: ComparedStory,
-  reads: IntentCiReadSource,
-  strict: boolean,
-): ReactElement {
-  const shown = (
+// The selected story's evidence owner in its production reading place, under
+// the one Show % preference, reading CI through READS.
+export function StoryCiEvidence({
+  story,
+  reads,
+  children,
+}: {
+  readonly story: ComparedStory;
+  readonly reads: IntentCiReadSource;
+  readonly children: ReactNode;
+}) {
+  return (
     <IntentReadingProvider project={story.source.id}>
       <IntentReadingPlace project={story.source.id} story={story.identity}>
         <IntentReadingScope name="story">
@@ -111,13 +117,25 @@ function evidenceOf(
                 selectedIdentity={story.identity}
                 active
               >
-                <IntentCiStatus />
+                {children}
               </IntentCiEvidenceProvider>
             </IntentCiReadSourceOnPage>
           </IntentCiComparisonPreference>
         </IntentReadingScope>
       </IntentReadingPlace>
     </IntentReadingProvider>
+  );
+}
+
+function evidenceOf(
+  story: ComparedStory,
+  reads: IntentCiReadSource,
+  strict: boolean,
+): ReactElement {
+  const shown = (
+    <StoryCiEvidence story={story} reads={reads}>
+      <IntentCiStatus />
+    </StoryCiEvidence>
   );
   return strict ? <StrictMode>{shown}</StrictMode> : shown;
 }

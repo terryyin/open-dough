@@ -179,7 +179,7 @@ need a held shown proof route it through `IntentCiReadSourceOnPage`.
 ### 4. Reading across scopes retains the same current comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move comparison `-locations`, `-scope-running`, `-scope-selection` and
 `-drilldown-relative` through the real selection and evidence owner. Hold
@@ -189,6 +189,13 @@ the location reply only in its pending/recovery cases.
 stays visible. Retry reads the completion revision. Changing to a queued
 story clears the old columns. Branch fallback and Show % follow relevant
 scopes without extra CI reads; each rendered scope uses its own scale.
+
+**Accepted.** Six cases moved in place to Vitest (6,130 ms versus 2,727 ms)
+through `intent-ci-scope-page.tsx`, which shares `StoryCiEvidence` with the
+evidence page, and `intent-done-story-page.tsx` for held or failed locations.
+No production change. The legacy page-level open, scroll and return through
+“View story CI comparison” stays with the existing
+`intent-summary-story-comparison-file.spec.ts` journey.
 
 ### 5. Entry rows and their drill-downs keep missing and legacy results explicit
 

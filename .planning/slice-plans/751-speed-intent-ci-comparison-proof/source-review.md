@@ -22,14 +22,14 @@ coordination; backend and E2E groups keep their own runner and coverage.
 | 2 | Landed proof unavailable → Branch fallback with the real reason and measured figures | slice 2 | observed: intent-ci-comparison-landed-fallback.spec.ts "unavailable Landed proof retains the Branch counts, time and exact adapter reason" and "running Landed retains Branch fallback…" |
 | 3 | Check again recovers Landed | slice 3 | observed: intent-ci-comparison-check-again.spec.ts "Check again reads all endpoint proofs afresh and replaces Branch fallback with recovered Landed proof" (held reply disables Check again; release shows Landed) |
 | 4 | A previous selection's held result cannot replace the current comparison | slice 3 | observed: intent-ci-comparison-selection.spec.ts: old comparison and attempt-proof reads aborted and released late leave the current story ddddddd and 10 → 4 test cases (−6) shown |
-| 5 | Cross-scope observations reuse the same preference, fallback or held evidence | slice 4 | |
+| 5 | Cross-scope observations reuse the same preference, fallback or held evidence | slice 4 | observed: intent-ci-comparison-scope-running.spec.ts "Landed running preserves one Branch fallback through entry, folders and file Proof" (same fallback and reason at story, entry, folders and file Proof; 1 comparison and 2 proof reads) and drilldown-relative read counts |
 | 6a | Legacy, case and file units with partially missing evidence: comparison and drill-down preserve the available figures | slice 5 | |
 | 6b | Units stay separate | slice 6 | |
 | 6c | Disclose why a difference cannot be claimed | slice 5 | |
 | 7 | Sorting uses the signed changes with gaps last | slice 7 | |
 | 8 | Native headers work by keyboard | slice 7 | |
 | 9 | Show % keeps the geometry and order | slice 8 | |
-| 10 | Show % follows the reader between relevant scopes | slice 4 | |
+| 10 | Show % follows the reader between relevant scopes | slice 4 | observed: intent-ci-comparison-drilldown-relative.spec.ts: Show % toggled in Summary, file Proof or story panel carries across all three, each with its own scale |
 | 11 | All 69 legacy cases have a traceable disposition | slice 8 | |
 | 12 | The unit proof runs on plain Vitest | slice 8 | |
 | 13 | Direct logic proof for presentation rules that need no DOM | slice 8 | |
