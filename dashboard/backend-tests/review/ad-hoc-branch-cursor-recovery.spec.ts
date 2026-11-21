@@ -26,7 +26,6 @@ import {
 import {
   keep,
   markDone,
-  minutesAgo,
   source,
   undoDone,
 } from "../support/doneCaptureCase.ts";
@@ -76,6 +75,7 @@ for (const [reason, remove] of Object.entries(removals)) {
       checkout,
       records: { topic: original, other },
       performWork,
+      at,
     } = await aDoneCaptureCase()
       .withOrigin()
       .withWorkspace("topic")
@@ -97,7 +97,7 @@ for (const [reason, remove] of Object.entries(removals)) {
     // Another kept session's branch result, pinned by its owner.
     await keepBranchResultRefs(other.session, {
       repository: checkout.integration,
-      doneAt: minutesAgo(30),
+      doneAt: at(30),
       base: checkout.base,
       revision: checkout.base,
       committedTip: checkout.base,
@@ -110,10 +110,10 @@ for (const [reason, remove] of Object.entries(removals)) {
       expect.objectContaining({ objectId: checkout.base }),
     );
     const { prior } = await performWork(
-      makeMe.aCheckoutWork.committing("prior", { at: minutesAgo(40) }),
+      makeMe.aCheckoutWork.committing("prior", { at: at(40) }),
       { in: "topic" },
     );
-    await markDone(original, minutesAgo(35));
+    await markDone(original, at(35));
     const originalPins = await sessionBranchPins(
       checkout.integration,
       original.session,
@@ -130,7 +130,7 @@ for (const [reason, remove] of Object.entries(removals)) {
     ).toEqual(originalPins);
 
     const { latest } = await performWork(
-      makeMe.aCheckoutWork.committing("latest", { at: minutesAgo(30) }),
+      makeMe.aCheckoutWork.committing("latest", { at: at(30) }),
       { in: "topic" },
     );
     await markDone(replacement);

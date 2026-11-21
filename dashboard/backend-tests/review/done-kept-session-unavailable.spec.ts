@@ -9,13 +9,11 @@ import { keptSession } from "../../server/launchRecordStore.ts";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
-  aCheckout,
   type Checkout,
   keep,
   markDone,
   minutesAgo,
   source,
-  work,
 } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { noCommits, notCaptured } from "../support/doneCaptureReview.ts";
@@ -34,14 +32,11 @@ const anEstablishedCase = () =>
     .please();
 
 test("a blank default launch that edited files and committed nothing says it made no commits in the Default main checkout", async () => {
-  const checkout = await aCheckout();
+  const { checkout, performWork, at } = await aDoneCaptureCase().please();
   const launch = makeMe.aLaunchRecord
     .ofDefaultMainLaunch("default-launch", checkout)
-    .launchedAt(minutesAgo(60));
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.editing("edit", { at: minutesAgo(30) }),
-  );
+    .launchedAt(at(60));
+  await performWork(makeMe.aCheckoutWork.editing("edit", { at: at(30) }));
 
   const { repository, runs } = await captured(checkout, launch.please());
   const record = launch
@@ -58,10 +53,11 @@ test("a session whose only commit stays on another branch fails its capture", as
   const {
     checkout,
     records: { session },
+    performWork,
+    at,
   } = await anEstablishedCase();
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.committingOnBranch("side", { at: minutesAgo(30) }),
+  await performWork(
+    makeMe.aCheckoutWork.committingOnBranch("side", { at: at(30) }),
   );
 
   await expect(captured(checkout, session)).rejects.toThrow(
@@ -70,23 +66,25 @@ test("a session whose only commit stays on another branch fails its capture", as
 });
 
 for (const { when, earlier } of [
-  { when: "on its own", earlier: makeMe.aCheckoutWork },
+  { when: "on its own", earlier: () => makeMe.aCheckoutWork },
   {
     when: "after a retained commit",
-    earlier: makeMe.aCheckoutWork.committing("earlier", { at: minutesAgo(40) }),
+    earlier: (at: (minutes: number) => string) =>
+      makeMe.aCheckoutWork.committing("earlier", { at: at(40) }),
   },
 ]) {
   test(`a session commit reworded ${when} fails its capture`, async () => {
     const {
       checkout,
       records: { session },
+      performWork,
+      at,
     } = await anEstablishedCase();
-    await work(
-      checkout,
-      earlier
-        .committing("notes", { at: minutesAgo(35) })
+    await performWork(
+      earlier(at)
+        .committing("notes", { at: at(35) })
         .rewordingTip("reworded", {
-          at: minutesAgo(30),
+          at: at(30),
           message: "Clarify session notes",
         }),
     );
@@ -102,12 +100,11 @@ test("a session whose checkout log cannot be read at Done is done and says its c
   const {
     checkout,
     records: { session: record },
+    performWork,
+    at,
   } = await anEstablishedCase();
   keep(record);
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
-  );
+  await performWork(makeMe.aCheckoutWork.committing("typo", { at: at(30) }));
   const gitDirectory = path.join(checkout.integration, ".git");
   renameSync(gitDirectory, `${gitDirectory}-away`);
 

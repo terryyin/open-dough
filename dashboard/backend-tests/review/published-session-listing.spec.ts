@@ -10,7 +10,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionRecordPath } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import { performPublishedSessionsRead } from "../../server/publishedSessionsRead.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
-import { aCheckout } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const commit = (digit: string) => digit.repeat(40);
 
@@ -20,9 +20,7 @@ const atItsPath = (record: { sessionId: string }) => ({
 
 // The sessions listed at the base revision of a checkout holding `files`.
 async function listed(files: Readonly<Record<string, string>>) {
-  const checkout = await aCheckout({
-    history: makeMe.aRepository.withBaseBeforeEveryLaunch(files),
-  });
+  const { checkout } = await aDoneCaptureCase().withBaseFiles(files).please();
   return performPublishedSessionsRead(
     {
       repository: checkout.integration,

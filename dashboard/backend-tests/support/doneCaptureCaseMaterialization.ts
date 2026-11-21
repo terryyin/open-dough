@@ -3,19 +3,40 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { realpathSync } from "node:fs";
+import path from "node:path";
+import { onTestFinished } from "vitest";
 import {
-  aCheckout,
-  type Checkout,
-  keep,
-  minutesAgo,
-  source,
-} from "./doneCaptureCase.ts";
+  materializeLocalCheckout,
+  materializeRepository,
+} from "../../../Distribution/tests/support/repository-fixture.mjs";
+import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { keep, minutesAgo, source } from "./doneCaptureCase.ts";
 import {
   type Dated,
   type Places,
   performIn,
   placesOf,
 } from "./doneCaptureCasePlaces.ts";
+
+export type Checkout = Awaited<ReturnType<typeof aCheckout>>;
+
+// The project's Default main checkout over `history`, with an origin when the
+// case's work takes in or publishes trunk, naming its Git directory as Git
+// resolves it so its worktrees report the same repository.
+async function aCheckout(
+  history: RepositoryBuilder<string>,
+  withOrigin: boolean,
+) {
+  const built = history.please();
+  const repository = withOrigin
+    ? await materializeRepository(built)
+    : await materializeLocalCheckout(undefined, built);
+  onTestFinished(repository.cleanup);
+  const { base } = repository.revisions as Readonly<Record<"base", string>>;
+  const gitDirectory = realpathSync(path.join(repository.integration, ".git"));
+  return { ...repository, base, gitDirectory };
+}
 
 export type Times = { launched: number; done?: number };
 // The project as published from the checkout's origin trunk.
@@ -24,9 +45,10 @@ const published: Pick<PublishedSource, "id" | "ref"> = {
   ref: "refs/heads/main",
 };
 export type LaunchBuilder = ReturnType<typeof makeMe.aLaunchRecord.adHoc>;
-// The case's checkout, the tree of its base, its worktrees by branch, and
-// the commits its dated precondition work made.
+// The case's checkout, the tree of its base, its worktrees by branch, the
+// commits its dated precondition work made, and its clock.
 export type CaseFacts<Work extends string> = {
+  at: typeof minutesAgo;
   checkout: Checkout;
   baseTree: string;
   worktrees: Readonly<Record<string, string>>;
@@ -46,6 +68,7 @@ export type Launch = {
 export type Facts<Work extends string> = {
   baseFiles?: Readonly<Record<string, string>>;
   workspaces: readonly string[];
+  history?: (history: RepositoryBuilder<string>) => RepositoryBuilder<string>;
   origin: boolean;
   launches: Readonly<Record<string, Launch>>;
   work: readonly { in?: string; steps: Dated<Work> }[];
@@ -60,13 +83,15 @@ export async function materialize<
   Work extends string,
   Worktree extends string,
 >(facts: Facts<Work>) {
-  const checkout = await aCheckout({
-    history: facts.workspaces.reduce(
-      (history, branch) => history.withWorkspace(branch, { from: "base" }),
-      makeMe.aRepository.withBaseBeforeEveryLaunch(facts.baseFiles),
+  const checkout = await aCheckout(
+    (facts.history ?? ((history) => history))(
+      facts.workspaces.reduce(
+        (history, branch) => history.withWorkspace(branch, { from: "base" }),
+        makeMe.aRepository.withBaseBeforeEveryLaunch(facts.baseFiles),
+      ),
     ),
-    withOrigin: facts.origin,
-  });
+    facts.origin,
+  );
   const places = await placesOf<Worktree>(checkout);
   const { worktrees } = places;
   const performWork = performIn(places);
@@ -90,6 +115,7 @@ export async function materialize<
     const recipe = record(places).launchedAt(launchedAt);
     const launch =
       refine?.(recipe, {
+        at: minutesAgo,
         checkout,
         baseTree: places.baseTree,
         worktrees,

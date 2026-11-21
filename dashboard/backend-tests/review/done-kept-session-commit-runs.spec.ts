@@ -4,7 +4,6 @@ import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneSession } from "../support/doneCaptureReview.ts";
 
@@ -12,21 +11,22 @@ const notes = (first: string, last: string) =>
   [first, "two", "three", "four", "five", "six", "seven", last, ""].join("\n");
 
 test("commits either side of a pulled story landing are two runs, oldest first, each without the story's changes to a file the session also changed", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const { first, pulled, second } = await work(
-    checkout,
+  const { checkout, performWork, at } = await aDoneCaptureCase()
+    .withOrigin()
+    .please();
+  const { first, pulled, second } = await performWork(
     makeMe.aCheckoutWork
       .committing("first", {
-        at: minutesAgo(45),
+        at: at(45),
         files: { "notes.txt": notes("one", "eight") },
       })
-      .pushingToTrunk("published", { at: minutesAgo(40) })
+      .pushingToTrunk("published", { at: at(40) })
       .fastForwardingToTrunkWork("pulled", {
-        at: minutesAgo(35),
+        at: at(35),
         files: { "notes.txt": notes("one", "story's eight") },
       })
       .committing("second", {
-        at: minutesAgo(25),
+        at: at(25),
         files: { "notes.txt": notes("session's one", "story's eight") },
       }),
   );
@@ -44,14 +44,14 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
         subject: "Add first.txt",
         baseline: checkout.base,
         tree: first,
-        committedAt: minutesAgo(45),
+        committedAt: at(45),
       },
       {
         commits: 1,
         subject: "Add second.txt",
         baseline: pulled,
         tree: second,
-        committedAt: minutesAgo(25),
+        committedAt: at(25),
       },
     ],
     files: [{ path: "notes.txt", kind: "added" }],
@@ -96,17 +96,18 @@ test("commits either side of merged trunk work are two runs without the merge or
   const {
     checkout,
     records: { launch },
+    performWork,
+    at,
   } = await aDoneCaptureCase()
     .withOrigin()
     .withDefaultMainLaunch("launch", { launched: 60 })
     .please();
   const { base, integration } = checkout;
-  const { first, merge, second } = await work(
-    checkout,
+  const { first, merge, second } = await performWork(
     makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(45) })
-      .mergingTrunkWork("merge", { at: minutesAgo(35) })
-      .committing("second", { at: minutesAgo(25) }),
+      .committing("first", { at: at(45) })
+      .mergingTrunkWork("merge", { at: at(35) })
+      .committing("second", { at: at(25) }),
   );
   const { runs } = await readSessionCommits(launch, { workspace: integration });
   expect(runs).toEqual([
@@ -125,18 +126,19 @@ test("commits either side of an amended merge stay separate without the merge's 
   const {
     checkout,
     records: { launch },
+    performWork,
+    at,
   } = await aDoneCaptureCase()
     .withOrigin()
     .withDefaultMainLaunch("launch", { launched: 60 })
     .please();
   const { base, integration } = checkout;
-  const { first, amended, second } = await work(
-    checkout,
+  const { first, amended, second } = await performWork(
     makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(45) })
-      .mergingTrunkWork("merge", { at: minutesAgo(40) })
-      .amending("amended", { at: minutesAgo(35) })
-      .committing("second", { at: minutesAgo(25) }),
+      .committing("first", { at: at(45) })
+      .mergingTrunkWork("merge", { at: at(40) })
+      .amending("amended", { at: at(35) })
+      .committing("second", { at: at(25) }),
   );
   const { runs } = await readSessionCommits(launch, { workspace: integration });
   expect(runs).toEqual([

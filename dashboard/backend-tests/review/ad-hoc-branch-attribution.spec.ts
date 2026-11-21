@@ -13,7 +13,7 @@ import {
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const branch = "topic";
@@ -34,6 +34,7 @@ test("capture separates an isolated branch's committed and working changes from 
   const {
     checkout,
     records: { [branch]: record },
+    at,
   } = await anIsolatedTopic()
     .withWork(
       (at) =>
@@ -51,7 +52,7 @@ test("capture separates an isolated branch's committed and working changes from 
     )
     .please();
 
-  const { result } = await captureBranchResult(record, minutesAgo(10));
+  const { result } = await captureBranchResult(record, at(10));
 
   expect(result.attributionGap).toBeUndefined();
   const { integration } = checkout;
@@ -78,6 +79,7 @@ test("Done saves and pins the branch and manual delivery pairs for offline revie
     records: { [branch]: record },
     work: { branchTip },
     performWork,
+    at,
   } = await anIsolatedTopic()
     .withWork(
       (at) =>
@@ -101,13 +103,13 @@ test("Done saves and pins the branch and manual delivery pairs for offline revie
   ).stdout.trim();
   const { merge } = await performWork(
     makeMe.aCheckoutWork
-      .mergingTipByHand("merge", { tip: branchTip, at: minutesAgo(40) })
-      .pushingToTrunk("published-merge", { at: minutesAgo(40) })
-      .committing("later-trunk", { at: minutesAgo(35) })
-      .pushingToTrunk("pushed", { at: minutesAgo(35) }),
+      .mergingTipByHand("merge", { tip: branchTip, at: at(40) })
+      .pushingToTrunk("published-merge", { at: at(40) })
+      .committing("later-trunk", { at: at(35) })
+      .pushingToTrunk("pushed", { at: at(35) }),
   );
 
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
   await setRecordDoneAt(source, record.session, doneAt);
 
   const saved = await keptSession(source, record.session);
@@ -168,6 +170,7 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
     records: { [branch]: record },
     work: { direct },
     performWork,
+    at,
   } = await anIsolatedTopic()
     .withWork(
       (at) => makeMe.aCheckoutWork.committing("direct", { at: at(50) }),
@@ -177,11 +180,11 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
   await git(checkout.integration, "merge", "--quiet", "--ff-only", direct);
   await git(checkout.integration, "push", "--quiet", "origin", "main");
   await performWork(
-    makeMe.aCheckoutWork.committing("after-direct", { at: minutesAgo(40) }),
+    makeMe.aCheckoutWork.committing("after-direct", { at: at(40) }),
     { in: branch },
   );
 
-  const { result } = await captureBranchResult(record, minutesAgo(10));
+  const { result } = await captureBranchResult(record, at(10));
 
   expect(result.attributionGap).toBe(
     "The saved branch changes could not be separated from trunk history.",

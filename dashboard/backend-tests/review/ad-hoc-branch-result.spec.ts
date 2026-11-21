@@ -82,6 +82,7 @@ test("Done's capture reads an empty branch and refuses a missing checkout", asyn
     checkout,
     worktrees,
     records: { empty, missing },
+    at,
   } = await aDoneCaptureCase()
     .withOrigin()
     .withWorkspace("empty")
@@ -90,7 +91,7 @@ test("Done's capture reads an empty branch and refuses a missing checkout", asyn
     .withIsolatedLaunch("missing", { launched: 60 }, "missing")
     .please();
   await git(checkout.integration, "worktree", "remove", worktrees.missing);
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
 
   expect((await captureBranchResult(empty, doneAt)).result).toMatchObject({
     base: checkout.base,
@@ -106,6 +107,7 @@ test("Done reviews an empty branch result apart from a missing checkout", async 
     checkout,
     worktrees,
     records: { missing: missingDone },
+    at,
   } = await aDoneCaptureCase()
     .withOrigin()
     .withWorkspace("empty")
@@ -123,7 +125,7 @@ test("Done reviews an empty branch result apart from a missing checkout", async 
         workspace: worktrees.empty,
         branch: "empty",
       })
-      .launchedAt(minutesAgo(60)),
+      .launchedAt(at(60)),
     { doneAt },
   );
 

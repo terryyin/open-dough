@@ -2,7 +2,6 @@
 // earlier branch revision keeps the later revision, pins only the baseline and
 // later commit, and runs no native stop when the stale manual mark resumes.
 import { expect, onTestFinished, test, vi } from "vitest";
-import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks, type DoneLaunches } from "../../server/doneMarks.ts";
@@ -14,14 +13,9 @@ import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
-import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
+import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
 test("a newer quiet Done takes precedence over a manual mark still capturing its branch", async () => {
-  const reporting = {
-    origin: dashboardOrigin,
-    reference: reportingReference,
-    command: "dashboard-completion",
-  };
   const {
     checkout,
     records: { "isolated-draft": record },
@@ -32,7 +26,7 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     .withOrigin()
     .withWorkspace("draft")
     .withIsolatedLaunch("isolated-draft", { launched: 60 }, "draft", (launch) =>
-      launch.reportingThrough(reporting),
+      launch.reportingThrough(dashboardReporting),
     )
     .withWork(
       (at) => makeMe.aCheckoutWork.committing("earlier", { at: at(40) }),
@@ -45,22 +39,22 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
   const baseline = checkout.base;
   await keepAttempt(
     makeMe.anAcceptedAttempt
-      .withId(reporting.reference)
+      .withId(dashboardReporting.reference)
       .requesting(
         makeMe.aLaunchRequest
           .adHoc({ instruction: "Save the latest update" })
           .withPolicy({ workspace: "isolated", landing: "review" })
           .please(),
       )
-      .reportingTo(reporting.origin)
-      .capturingLanding({ reporting })
+      .reportingTo(dashboardReporting.origin)
+      .capturingLanding({ reporting: dashboardReporting })
       .launched(record.session)
       .please(),
   );
   const submission = makeMe.aCompletionSubmission
     .reportingFor({
       host: record.session.host,
-      reference: reporting.reference,
+      reference: dashboardReporting.reference,
     })
     .please();
 
@@ -121,7 +115,7 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
       { in: "draft" },
     ));
     vi.setSystemTime(at(10));
-    await deliverCompletion(submission, reporting.origin, marks);
+    await deliverCompletion(submission, dashboardReporting.origin, marks);
     await reported.mock.results[0]?.value;
   } finally {
     release();

@@ -25,17 +25,15 @@ import {
   work,
 } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
-import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
+import {
+  dashboardOrigin,
+  dashboardReporting,
+} from "../support/publisherDashboardOrigin.ts";
 
 const host = new URL(dashboardOrigin).host;
 const publishedSource = makeMe.aPublishedSource
   .with({ id: source, label: "Open Dough", repository: "terryyin/open-dough" })
   .please();
-const reporting = {
-  origin: dashboardOrigin,
-  reference: reportingReference,
-  command: "dashboard-completion",
-};
 const handle = (submission: BranchEntrySubmission, origin = dashboardOrigin) =>
   handleSessionBranchEntry(submission, origin, () => publishedSource);
 
@@ -75,7 +73,7 @@ function refuse(overrides: Partial<BranchEntryRequestAdmission>) {
 }
 
 test("the launch command binds the original checkout's own branch", async () => {
-  const { checkout } = await aDoneCaptureCase().please();
+  const { checkout, at } = await aDoneCaptureCase().please();
   const { workspace, entered } = await onDraft(checkout);
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Continue the draft", instruction: "Continue the draft" })
@@ -86,8 +84,8 @@ test("the launch command binds the original checkout's own branch", async () => 
       branch: "refs/heads/main",
     })
     .inClaudeSession({ sessionId: "default-launch" })
-    .launchedAt(minutesAgo(60))
-    .reportingThrough(reporting)
+    .launchedAt(at(60))
+    .reportingThrough(dashboardReporting)
     .please();
   keep(record);
 
@@ -99,21 +97,21 @@ test("the launch command binds the original checkout's own branch", async () => 
 
   const observed = await captureBranchEntryCommand(command, workspace);
   expect(observed).toMatchObject({
-    url: `${reporting.origin}${sessionBranchEntryEndpoint}`,
+    url: `${dashboardReporting.origin}${sessionBranchEntryEndpoint}`,
     route: sessionBranchEntryEndpoint,
     method: "POST",
-    origin: reporting.origin,
+    origin: dashboardReporting.origin,
     host,
   });
 
   const admitted = admitSessionBranchEntryRequest(observed);
   const receipt = await handle(admitted.submission, admitted.origin);
   expect(admitted).toEqual({
-    origin: reporting.origin,
+    origin: dashboardReporting.origin,
     submission: {
       source,
       host: record.session.host,
-      reference: reporting.reference,
+      reference: dashboardReporting.reference,
       workspace,
       branch: "draft",
     },
@@ -173,12 +171,12 @@ test("a reporting reference from another origin is refused", async () => {
   keep(
     makeMe.aLaunchRecord
       .adHoc({ title: "Known" })
-      .reportingThrough(reporting)
+      .reportingThrough(dashboardReporting)
       .please(),
   );
   await expect(
     handle(
-      { ...draftPlace, reference: reporting.reference },
+      { ...draftPlace, reference: dashboardReporting.reference },
       "http://127.0.0.1:9999",
     ),
   ).rejects.toMatchObject({ status: 404 });
@@ -187,7 +185,7 @@ test("a reporting reference from another origin is refused", async () => {
 test("a handoff while still on the project's trunk is refused", async () => {
   const { checkout, records } = await aDoneCaptureCase()
     .withDefaultMainLaunch("trunk-launch", { launched: 60 }, (launch) =>
-      launch.reportingThrough(reporting),
+      launch.reportingThrough(dashboardReporting),
     )
     .kept()
     .please();
@@ -197,7 +195,7 @@ test("a handoff while still on the project's trunk is refused", async () => {
   await expect(
     handle({
       ...draftPlace,
-      reference: reporting.reference,
+      reference: dashboardReporting.reference,
       workspace,
       branch: "main",
     }),

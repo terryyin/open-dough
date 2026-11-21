@@ -9,14 +9,11 @@ import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  aCheckout,
-  aDefaultLaunch,
   keep,
   markDone,
   minutesAgo,
   source,
   undoDone,
-  work,
 } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
@@ -43,7 +40,7 @@ async function keptWithCommit() {
     work: { notes },
     records: { "default-launch": record },
   } = await aDoneCaptureCase()
-    .withWork(makeMe.aCheckoutWork.committing("notes", { at: minutesAgo(40) }))
+    .withWork((at) => makeMe.aCheckoutWork.committing("notes", { at: at(40) }))
     .withDefaultMainLaunch("default-launch", { launched: 60 })
     .please();
   return { checkout, home: keep(record), record, notes };
@@ -87,25 +84,24 @@ test("a later Done with an unreadable log releases the earlier capture", async (
 });
 
 test("a later Done keeps its pair when the repository is also reachable through the old path", async () => {
-  const checkout = await aCheckout();
+  const { checkout, performWork, at } = await aDoneCaptureCase().please();
   const previous = path.join(checkout.fixture, "original-git-directory");
   const moved = path.join(checkout.fixture, "moved-git-directory");
   await git(checkout.integration, "init", "--separate-git-dir", previous);
   // The separate Git directory is no repository-builder fact, so this case
   // keeps its launch by hand.
-  const record = aDefaultLaunch(checkout, { gitDirectory: previous }).please();
+  const record = makeMe.aLaunchRecord
+    .ofDefaultMainLaunch("default-launch", checkout, { gitDirectory: previous })
+    .launchedAt(at(60))
+    .please();
   keep(record);
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("notes", { at: minutesAgo(40) }),
-  );
+  await performWork(makeMe.aCheckoutWork.committing("notes", { at: at(40) }));
   await doneAndUndone(record);
   renameSync(previous, moved);
   symlinkSync(moved, previous);
   writeFileSync(path.join(checkout.integration, ".git"), `gitdir: ${moved}\n`);
-  const { later } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("later", { at: minutesAgo(20) }),
+  const { later } = await performWork(
+    makeMe.aCheckoutWork.committing("later", { at: at(20) }),
   );
 
   await markDone(record);

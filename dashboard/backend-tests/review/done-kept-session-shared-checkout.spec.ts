@@ -9,14 +9,7 @@ import {
 } from "../../server/launchRecordStore.ts";
 import { checkoutSharedMeanwhile } from "../../server/sessionCheckoutShared.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import {
-  aCheckout,
-  type Checkout,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { type Checkout, keep, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneSession } from "../support/doneCaptureReview.ts";
 
@@ -32,16 +25,17 @@ test("Done saves the run and shared flag when two sessions overlap in Default ma
   const {
     checkout,
     records: { first, other },
+    performWork,
+    at,
   } = await aDoneCaptureCase()
     .withDefaultMainLaunch("first", { launched: 60 })
     .withDefaultMainLaunch("other", { launched: 60 })
     .please();
   keep(first, other);
-  const { committed } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
+  const { committed } = await performWork(
+    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
 
   await setRecordDoneAt(source, first.session, doneAt);
 
@@ -69,6 +63,7 @@ test("a session open meanwhile in an isolated workspace of the project does not 
   const {
     checkout,
     records: { session },
+    at,
   } = await aDoneCaptureCase()
     .withWorkspace("isolated")
     .withDefaultMainLaunch("session", { launched: 60, done: 10 })
@@ -79,7 +74,7 @@ test("a session open meanwhile in an isolated workspace of the project does not 
     .adHoc({ title: "Isolated meanwhile" })
     .inIsolatedWorkspace({ workspace, branch: "isolated" })
     .inClaudeSession({ sessionId: "isolated-meanwhile" })
-    .launchedAt(minutesAgo(70))
+    .launchedAt(at(70))
     .please();
 
   expect(sharedAtDone(checkout, session, [isolated])).toBe(false);
@@ -98,14 +93,13 @@ test("a session done in the Default main checkout before this one launched does 
 });
 
 test("Review says the checkout was shared when its kept run has the flag", async () => {
-  const checkout = await aCheckout();
-  const { committed } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
+  const { checkout, performWork, at } = await aDoneCaptureCase().please();
+  const { committed } = await performWork(
+    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );
   const record = makeMe.aLaunchRecord
     .ofDefaultMainLaunch("default-launch", checkout)
-    .launchedAt(minutesAgo(60))
+    .launchedAt(at(60))
     .keptSessionCommits({
       repository: checkout.integration,
       runs: [{ base: checkout.base, revision: committed }],
@@ -123,10 +117,9 @@ test("Review says the checkout was shared when its kept run has the flag", async
 });
 
 test("a session whose checkout was not shared reviews its commits without saying it was shared", async () => {
-  const checkout = await aCheckout();
-  const { committed } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
+  const { checkout, performWork, at } = await aDoneCaptureCase().please();
+  const { committed } = await performWork(
+    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );
   const record = aDoneSession(checkout, [
     { base: checkout.base, revision: committed },

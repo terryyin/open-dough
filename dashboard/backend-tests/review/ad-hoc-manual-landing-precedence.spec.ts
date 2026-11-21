@@ -3,7 +3,6 @@
 // keeps the verified manual landing pair for Review changes.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
@@ -14,7 +13,7 @@ import { localFolder } from "../../server/projectFolders.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
-import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
+import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
 test("an early quiet Done keeps its verified manual pair when the native session binds", async () => {
   const {
@@ -32,11 +31,6 @@ test("an early quiet Done keeps its verified manual pair when the native session
     .kept()
     .please();
   const baseline = checkout.base;
-  const reporting = {
-    origin: dashboardOrigin,
-    reference: reportingReference,
-    command: "dashboard-completion",
-  };
   const record = makeMe.aLaunchRecord
     .adHoc({
       title: "Keep the branch draft",
@@ -50,25 +44,25 @@ test("an early quiet Done keeps its verified manual pair when the native session
     })
     .inClaudeSession({ sessionId: "isolated-draft" })
     .launchedAt(at(60))
-    .reportingThrough(reporting)
+    .reportingThrough(dashboardReporting)
     .please();
   await keepAttempt(
     makeMe.anAcceptedAttempt
-      .withId(reporting.reference)
+      .withId(dashboardReporting.reference)
       .requesting(
         makeMe.aLaunchRequest
           .adHoc({ instruction: "Keep the branch draft" })
           .withPolicy({ workspace: "isolated", landing: "review" })
           .please(),
       )
-      .reportingTo(reporting.origin)
-      .capturingLanding({ reporting })
+      .reportingTo(dashboardReporting.origin)
+      .capturingLanding({ reporting: dashboardReporting })
       .please(),
   );
   const submission = makeMe.aCompletionSubmission
     .reportingFor({
       host: record.session.host,
-      reference: reporting.reference,
+      reference: dashboardReporting.reference,
     })
     .please();
   await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
@@ -83,7 +77,11 @@ test("an early quiet Done keeps its verified manual pair when the native session
   const reported = vi.spyOn(marks, "reported");
 
   vi.setSystemTime(at(10));
-  const pending = await deliverCompletion(submission, reporting.origin, marks);
+  const pending = await deliverCompletion(
+    submission,
+    dashboardReporting.origin,
+    marks,
+  );
   expect(pending.state).toBe("pending-native-session");
   expect(reported).not.toHaveBeenCalled();
 

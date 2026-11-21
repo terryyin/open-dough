@@ -278,7 +278,7 @@ records `defaultTip: base` as the real proposal does.
 ### 8. Quiet completion cases show the launch, receipt and Done sequence
 
 Type: Behavior
-Status: planned
+Status: done
 
 Make the report and its dated launch and completion preconditions from
 the same case. Keep the real native Done owner and the named rename
@@ -289,6 +289,18 @@ collaborator in the tests. Retire remaining setup from
 Check the receipt-time capture, rename, reopen and retry assertions. Run
 the family roster updated to the supplier-delivered homes and record the
 import and line comparison.
+
+**Accepted.** Quiet completion cases build from the case with reporting and
+completion refinements; the held-rename and receipt tests split into
+`ad-hoc-session-commits-done` and `ad-hoc-session-quiet-done-receipts`.
+`reportedDoneCase.ts` is deleted and `doneCaptureCase.ts` keeps only the clock
+and store effects (81 lines). Family roster: 36 specs, 121/121 at one worker.
+Comparison against `866a1f88a` (slice8-report.md): spec lines 5,131 → 5,334,
+named support bindings 304 → 184, preset-module bindings 229 → 61, the six
+original support files 613 → 190 lines, with the case builder files and recipe
+additions bringing support to 757. The first branch-handoff test keeps a
+hand-built instructed MakeMe launch until the base launch builder, at its
+size limit, has room for a request step.
 
 ## Local gates and review
 

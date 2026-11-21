@@ -4,6 +4,7 @@
 // Lives beside ./doneCaptureCase.ts, which holds the case's clock and effects,
 // and ./doneCaptureCaseMaterialization.ts, which builds what it states.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { Dated } from "./doneCaptureCasePlaces.ts";
 import {
   type Facts,
@@ -22,6 +23,7 @@ export class DoneCaptureCaseBuilder<
   Session extends string = never,
   Work extends string = never,
   Worktree extends string = never,
+  Revision extends string = "base",
 > {
   constructor(
     private readonly facts: Facts<Work> = {
@@ -39,16 +41,18 @@ export class DoneCaptureCaseBuilder<
     steps: Dated<Name>,
     { in: worktree }: { in?: Worktree } = {},
   ) {
-    return new DoneCaptureCaseBuilder<Session, Work | Name, Worktree>({
-      ...this.facts,
-      work: [...this.facts.work, { in: worktree, steps }],
-    } as Facts<Work | Name>);
+    return new DoneCaptureCaseBuilder<Session, Work | Name, Worktree, Revision>(
+      {
+        ...this.facts,
+        work: [...this.facts.work, { in: worktree, steps }],
+      } as Facts<Work | Name>,
+    );
   }
 
   // The project's launch store keeps the case's records, in a private
   // machine home removed when the test finishes.
   kept() {
-    return new DoneCaptureCaseBuilder<Session, Work, Worktree>({
+    return new DoneCaptureCaseBuilder<Session, Work, Worktree, Revision>({
       ...this.facts,
       kept: true,
     });
@@ -56,15 +60,25 @@ export class DoneCaptureCaseBuilder<
 
   // The checkout's base, before every launch, holds these files.
   withBaseFiles(files: Readonly<Record<string, string>>) {
-    return new DoneCaptureCaseBuilder<Session, Work, Worktree>({
+    return new DoneCaptureCaseBuilder<Session, Work, Worktree, Revision>({
       ...this.facts,
       baseFiles: files,
     });
   }
 
+  // The checkout's history also holds these named revisions.
+  withHistory<Name extends string>(
+    revisions: (history: RepositoryBuilder<"base">) => RepositoryBuilder<Name>,
+  ) {
+    return new DoneCaptureCaseBuilder<Session, Work, Worktree, Name>({
+      ...this.facts,
+      history: revisions as NonNullable<Facts<Work>["history"]>,
+    });
+  }
+
   // The checkout also has an origin, for work that takes in or publishes trunk.
   withOrigin() {
-    return new DoneCaptureCaseBuilder<Session, Work, Worktree>({
+    return new DoneCaptureCaseBuilder<Session, Work, Worktree, Revision>({
       ...this.facts,
       origin: true,
     });
@@ -73,7 +87,12 @@ export class DoneCaptureCaseBuilder<
   // The checkout also has a worktree on `branch` at its base, named in the
   // case's `worktrees` by the canonical path Git registers.
   withWorkspace<Branch extends string>(branch: Branch) {
-    return new DoneCaptureCaseBuilder<Session, Work, Worktree | Branch>({
+    return new DoneCaptureCaseBuilder<
+      Session,
+      Work,
+      Worktree | Branch,
+      Revision
+    >({
       ...this.facts,
       workspaces: [...this.facts.workspaces, branch],
     });
@@ -156,18 +175,24 @@ export class DoneCaptureCaseBuilder<
     record: Launch["record"],
     refine?: Refinement<Work>,
   ) {
-    return new DoneCaptureCaseBuilder<Session | Name, Work, Worktree>({
-      ...this.facts,
-      launches: {
-        ...this.facts.launches,
-        [session]: { record, times, refine: refine as Refinement<string> },
+    return new DoneCaptureCaseBuilder<Session | Name, Work, Worktree, Revision>(
+      {
+        ...this.facts,
+        launches: {
+          ...this.facts.launches,
+          [session]: { record, times, refine: refine as Refinement<string> },
+        },
       },
-    });
+    );
   }
 
   // Materializes the case: see ./doneCaptureCaseMaterialization.ts.
-  please() {
-    return materialize<Session, Work, Worktree>(this.facts);
+  // Its checkout names the revisions its history holds.
+  async please() {
+    const made = await materialize<Session, Work, Worktree>(this.facts);
+    return made as typeof made & {
+      checkout: { revisions: Readonly<Record<Revision, string>> };
+    };
   }
 }
 

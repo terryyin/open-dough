@@ -1,19 +1,12 @@
-// The Done capture family's stereotype: a Default main checkout whose history
-// predates the case, launch records kept in a private machine store, dated
-// checkout work and the Done mark.
-// Times are minutes before the case's clock: launch at 60, Done at 10.
-import { mkdtempSync, realpathSync, rmSync } from "node:fs";
+// The Done capture case's clock and the machine-store effects its tests
+// perform: keeping records, dated checkout work and the Done mark.
+// Times are minutes before the case's clock: Done at 10 by default.
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
-import {
-  materializeLocalCheckout,
-  materializeRepository,
-} from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
-import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import {
   keptRecords,
   setRecordDoneAt,
@@ -29,61 +22,9 @@ const now = Math.floor(Date.now() / 1000) * 1000;
 export const minutesAgo = (minutes: number) =>
   new Date(now - minutes * 60_000).toISOString();
 
-export type Checkout = Awaited<ReturnType<typeof aCheckout>>;
+import type { Checkout } from "./doneCaptureCaseMaterialization.ts";
 
-// The project's Default main checkout, with an origin when the case's work
-// takes in or publishes trunk, naming its Git directory as Git resolves it so
-// its worktrees report the same repository.
-export async function aCheckout<Name extends string = "base">({
-  history,
-  withOrigin = false,
-}: { history?: RepositoryBuilder<Name | "base">; withOrigin?: boolean } = {}) {
-  const built = (
-    history ?? makeMe.aRepository.withBaseBeforeEveryLaunch()
-  ).please();
-  const repository = withOrigin
-    ? await materializeRepository(built)
-    : await materializeLocalCheckout(undefined, built);
-  onTestFinished(repository.cleanup);
-  const { base } = repository.revisions as Readonly<Record<"base", string>>;
-  const gitDirectory = realpathSync(path.join(repository.integration, ".git"));
-  return { ...repository, base, gitDirectory };
-}
-
-type LaunchFacts = {
-  sessionId?: string;
-  title?: string;
-  launchedAt?: string;
-};
-
-// A session established in the checkout at `revision` (its base by default).
-export const anEstablishedSession = (
-  checkout: Checkout,
-  {
-    sessionId = "established-default-main",
-    title,
-    launchedAt = minutesAgo(60),
-    revision,
-  }: LaunchFacts & { revision?: string } = {},
-) =>
-  makeMe.aLaunchRecord
-    .ofEstablishedDefaultMainSession(sessionId, checkout, { title, revision })
-    .launchedAt(launchedAt);
-
-// A blank launch whose start found the checkout on main at its base, naming
-// its repository as Git resolves it.
-export const aDefaultLaunch = (
-  checkout: Checkout,
-  {
-    sessionId = "default-launch",
-    title,
-    launchedAt = minutesAgo(60),
-    gitDirectory,
-  }: LaunchFacts & { gitDirectory?: string | undefined } = {},
-) =>
-  makeMe.aLaunchRecord
-    .ofDefaultMainLaunch(sessionId, checkout, { title, gitDirectory })
-    .launchedAt(launchedAt);
+export type { Checkout };
 
 // Keeps these records as the project's whole store in a private machine
 // home, and answers the home.

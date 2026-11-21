@@ -1,31 +1,45 @@
-import path from "node:path";
+// Quiet completion cases during a held rename, and a reopened Done: the
+// launch, its reporting attempt and the Done sequence from one Done capture
+// case.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
-import { nativeDoneMarkPending } from "../../src/doneMark.ts";
-import {
-  aCheckout,
-  aDefaultLaunch,
-  keep,
-  markDone,
-  minutesAgo,
-  source,
-  undoDone,
-  work,
-} from "../support/doneCaptureCase.ts";
-import {
-  aKeptReportingLaunch,
-  keepReportedDone,
-  marksWithRename,
-} from "../support/reportedDoneCase.ts";
+import { markDone, source, undoDone } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
 async function aSessionWithHeldRename() {
-  const checkout = await aCheckout();
-  const { record, origin, submission } = await aKeptReportingLaunch(checkout);
-
+  const {
+    checkout,
+    records: { "default-launch": record },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("default-launch", { launched: 60 }, (launch) =>
+      launch.reportingThrough(dashboardReporting),
+    )
+    .kept()
+    .please();
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .withId(dashboardReporting.reference)
+      .adHoc()
+      .reportingTo(dashboardReporting.origin)
+      .capturingLanding({ reporting: dashboardReporting })
+      .launched(record.session)
+      .please(),
+  );
+  const submission = makeMe.aCompletionSubmission
+    .reportingFor({
+      host: record.session.host,
+      reference: dashboardReporting.reference,
+    })
+    .please();
   let entered!: (stopped: AbortSignal) => void;
   const renameEntered = new Promise<AbortSignal>((resolve) => {
     entered = resolve;
@@ -46,7 +60,12 @@ async function aSessionWithHeldRename() {
     },
   );
   const folder = localFolder(checkout.integration);
-  const marks = marksWithRename(folder, rename);
+  const marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: (host) =>
+      host === "claude" ? { name: "Claude", rename } : undefined,
+    reportingFolder: () => folder,
+  });
   onTestFinished(async () => {
     release();
     await marks.close();
@@ -59,8 +78,9 @@ async function aSessionWithHeldRename() {
     rename,
     renameEntered,
     releaseRename: release,
-    origin,
     submission,
+    performWork,
+    at,
   };
 }
 
@@ -73,16 +93,20 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
     rename,
     renameEntered,
     releaseRename,
-    origin,
     submission,
+    performWork,
+    at,
   } = await aSessionWithHeldRename();
   const reported = vi.spyOn(marks, "reported");
-  const { first } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("first", { at: minutesAgo(40) }),
+  const { first } = await performWork(
+    makeMe.aCheckoutWork.committing("first", { at: at(40) }),
   );
-  vi.setSystemTime(minutesAgo(30));
-  const earlier = await deliverCompletion(submission, origin, marks);
+  vi.setSystemTime(at(30));
+  const earlier = await deliverCompletion(
+    submission,
+    dashboardReporting.origin,
+    marks,
+  );
   const stopped = await renameEntered;
   expect(reported).toHaveBeenCalledExactlyOnceWith(source, earlier);
   expect(await keptSession(source, record.session)).toMatchObject({
@@ -90,12 +114,15 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
     sessionCommits: { runs: [{ base: checkout.base, revision: first }] },
   });
 
-  const { second } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("second", { at: minutesAgo(20) }),
+  const { second } = await performWork(
+    makeMe.aCheckoutWork.committing("second", { at: at(20) }),
   );
-  vi.setSystemTime(minutesAgo(10));
-  const later = await deliverCompletion(submission, origin, marks);
+  vi.setSystemTime(at(10));
+  const later = await deliverCompletion(
+    submission,
+    dashboardReporting.origin,
+    marks,
+  );
   expect(reported).toHaveBeenNthCalledWith(2, source, later);
   await reported.mock.results[1]?.value;
 
@@ -116,13 +143,23 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
 });
 
 test("closing an in-flight reported rename aborts it and keeps the Done commits", async () => {
-  const { checkout, record, marks, renameEntered, origin, submission } =
-    await aSessionWithHeldRename();
-  const { typo } = await work(
+  const {
     checkout,
-    makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
+    record,
+    marks,
+    renameEntered,
+    submission,
+    performWork,
+    at,
+  } = await aSessionWithHeldRename();
+  const { typo } = await performWork(
+    makeMe.aCheckoutWork.committing("typo", { at: at(30) }),
   );
-  const receipt = await deliverCompletion(submission, origin, marks);
+  const receipt = await deliverCompletion(
+    submission,
+    dashboardReporting.origin,
+    marks,
+  );
   const stopped = await renameEntered;
 
   await marks.close();
@@ -135,21 +172,25 @@ test("closing an in-flight reported rename aborts it and keeps the Done commits"
 });
 
 test("reopening keeps the earlier commit run until the next Done", async () => {
-  const checkout = await aCheckout();
-  const record = aDefaultLaunch(checkout).please();
-  keep(record);
-  const { first } = await work(
+  const {
     checkout,
-    makeMe.aCheckoutWork.committing("first", { at: minutesAgo(40) }),
+    records: { "default-launch": record },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("default-launch", { launched: 60 })
+    .kept()
+    .please();
+  const { first } = await performWork(
+    makeMe.aCheckoutWork.committing("first", { at: at(40) }),
   );
-  const earlierDone = minutesAgo(30);
+  const earlierDone = at(30);
   vi.setSystemTime(earlierDone);
   await markDone(record, earlierDone);
-  vi.setSystemTime(minutesAgo(25));
+  vi.setSystemTime(at(25));
   await undoDone(record);
-  const { second } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("second", { at: minutesAgo(20) }),
+  const { second } = await performWork(
+    makeMe.aCheckoutWork.committing("second", { at: at(20) }),
   );
 
   const reopened = await keptSession(source, record.session);
@@ -158,7 +199,7 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
     { base: checkout.base, revision: first },
   ]);
 
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
   vi.setSystemTime(doneAt);
   await markDone(record, doneAt);
   expect(await keptSession(source, record.session)).toMatchObject({
@@ -166,73 +207,4 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
     doneAt,
     sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
-});
-
-test("a quiet report after confirmed native Done keeps the additional commit", async () => {
-  const checkout = await aCheckout();
-  const { first, second } = await work(
-    checkout,
-    makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(40) })
-      .committing("second", { at: minutesAgo(20) }),
-  );
-  const earlierDone = minutesAgo(30);
-  const launch = aDefaultLaunch(checkout)
-    .markedDoneAt(earlierDone)
-    .keptSessionCommits({
-      repository: path.join(checkout.integration, ".git"),
-      runs: [{ base: checkout.base, revision: first }],
-    });
-  const { record, origin, submission } = await keepReportedDone(
-    launch,
-    earlierDone,
-  );
-  const rename = vi.fn(async () => {});
-  const marks = marksWithRename(localFolder(checkout.integration), rename);
-  onTestFinished(() => marks.close());
-  const reported = vi.spyOn(marks, "reported");
-
-  vi.setSystemTime(minutesAgo(10));
-  const receipt = await deliverCompletion(submission.please(), origin, marks);
-  await reported.mock.results[0]?.value;
-
-  expect(receipt.receivedAt).not.toBe(earlierDone);
-  expect(rename).not.toHaveBeenCalled();
-  expect(await keptSession(source, record.session)).toMatchObject({
-    doneAt: receipt.receivedAt,
-    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
-  });
-});
-
-test("retrying the same quiet delivery resumes native Done without repeating its failed capture", async () => {
-  const checkout = await aCheckout();
-  const doneAt = minutesAgo(10);
-  const launch = aDefaultLaunch(checkout)
-    .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
-    .sessionCommitsFailedAt(doneAt);
-  const { record, receipt, delivery, origin, submission } =
-    await keepReportedDone(launch, doneAt);
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
-  );
-  const rename = vi.fn(async () => {});
-  const marks = marksWithRename(localFolder(checkout.integration), rename);
-  onTestFinished(() => marks.close());
-  const reported = vi.spyOn(marks, "reported");
-
-  expect(
-    await deliverCompletion(
-      submission.retrying(delivery).please(),
-      origin,
-      marks,
-    ),
-  ).toEqual(receipt);
-  await reported.mock.results[0]?.value;
-
-  expect(rename).toHaveBeenCalledTimes(1);
-  const kept = await keptSession(source, record.session);
-  expect(kept).toMatchObject({ doneAt, sessionCommitsFailedAt: doneAt });
-  expect(kept?.doneProblem).toBeUndefined();
-  expect(kept?.sessionCommits).toBeUndefined();
 });
